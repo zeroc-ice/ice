@@ -19,7 +19,7 @@ public abstract class Map extends java.util.AbstractMap
     Map(Connection connection, String dbName, String key, String value, 
         boolean createDb, java.util.Comparator comparator)
     {
-        _connection = (ConnectionI) connection;
+        _connection = (ConnectionI)connection;
         _comparator = (comparator == null) ? null : new Comparator(comparator);
                 
         _errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
@@ -31,7 +31,7 @@ public abstract class Map extends java.util.AbstractMap
     protected
     Map(Connection connection, String dbName, java.util.Comparator comparator)
     {
-        _connection = (ConnectionI) connection;
+        _connection = (ConnectionI)connection;
         _comparator = (comparator == null) ? null : new Comparator(comparator);
 
         _errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
@@ -186,7 +186,7 @@ public abstract class Map extends java.util.AbstractMap
             throw new NullPointerException();
         }
         
-        Map.Index index = (Map.Index)_indexMap.get(indexName);
+        Map.Index index = _indexMap.get(indexName);
         if(index == null)
         {
             throw new IllegalArgumentException("Can't find index '" + indexName + "'");
@@ -204,7 +204,7 @@ public abstract class Map extends java.util.AbstractMap
         {
             throw new NullPointerException();
         }
-        Map.Index index = (Map.Index)_indexMap.get(indexName);
+        Map.Index index = _indexMap.get(indexName);
         if(index == null)
         {
             throw new IllegalArgumentException("Can't find index '" + indexName + "'");
@@ -222,7 +222,7 @@ public abstract class Map extends java.util.AbstractMap
         {
             throw new NullPointerException();
         }
-        Map.Index index = (Map.Index)_indexMap.get(indexName);
+        Map.Index index = _indexMap.get(indexName);
         if(index == null)
         {
             throw new IllegalArgumentException("Can't find index '" + indexName + "'");
@@ -236,7 +236,7 @@ public abstract class Map extends java.util.AbstractMap
 
     public java.util.SortedMap mapForIndex(String indexName)
     {
-        Map.Index index = (Map.Index)_indexMap.get(indexName);
+        Map.Index index = _indexMap.get(indexName);
         if(index == null)
         {
             throw new IllegalArgumentException("Can't find index '" + indexName + "'");
@@ -608,6 +608,150 @@ public abstract class Map extends java.util.AbstractMap
     {
         closeAllIteratorsExcept(null, false);
     }
+
+
+    //
+    // Close this map and destroy the underlying Berkeley DB database
+    //
+    public void destroy()
+    {
+        if(_db == null)
+        {
+            throw new DatabaseException(_errorPrefix + "This map is closed");
+        }
+
+        String dbName = _db.dbName();
+
+        if(dbName.equals(Util.catalogName()) || dbName.equals(Util.catalogIndexListName()))
+        {
+            throw new DatabaseException(_errorPrefix + "You cannot destroy the \"" + dbName + "\" database");
+        }
+        
+        if(_trace >= 1)
+        {
+            _connection.communicator().getLogger().trace("Freeze.Map", "destroying \"" + dbName + "\"");
+        }
+
+
+        close();
+
+        Transaction tx = _connection.currentTransaction();
+        boolean ownTx = (tx == null);
+
+        for(;;)
+        {   
+            try
+            {
+                if(ownTx)
+                {   
+                    tx = null;
+                    tx = _connection.beginTransaction();
+                }
+                
+                com.sleepycat.db.Transaction txn = _connection.dbTxn();
+            
+
+                Catalog catalog = new Catalog(_connection, Util.catalogName(), true);
+                catalog.remove(dbName);
+                
+                CatalogIndexList catalogIndexList = new CatalogIndexList(_connection, Util.catalogIndexListName(), true);
+                catalogIndexList.remove(dbName);
+              
+                _connection.dbEnv().getEnv().removeDatabase(txn, dbName, null);
+                
+                //
+                // Remove all indices
+                //
+                for(String index : _indexMap.keySet())
+                {
+                    _connection.removeMapIndex(dbName, index);
+                    
+                }
+                
+                if(ownTx)
+                {
+                    tx.commit();
+                }
+                break; // for(;;)
+            }
+            catch(java.io.FileNotFoundException dx)
+            {
+                if(ownTx)
+                {
+                    if(ownTx)
+                    {
+                        try
+                        {
+                            tx.rollback();
+                        }
+                        catch(DatabaseException e)
+                        {
+                        }
+                    }
+                }
+                
+                DatabaseException e = new DatabaseException(_errorPrefix + "file not found");
+                e.initCause(dx);
+                throw e;
+            }
+            catch(com.sleepycat.db.DeadlockException dx)
+            {
+                if(ownTx)
+                {
+                    if(_connection.deadlockWarning())
+                    {
+                        _connection.communicator().getLogger().warning("Deadlock in Freeze.Map.destroy on Db \"" +
+                                                                       dbName + "\"; retrying...");
+                    }
+                    
+                    //
+                    // Ignored, try again
+                    //
+                }
+                else
+                {
+                    DeadlockException e = new DeadlockException(_errorPrefix + dx.getMessage());
+                    e.initCause(dx);
+                    throw e;
+                }
+            }
+            catch(com.sleepycat.db.DatabaseException dx)
+            {
+                if(ownTx)
+                {
+                    if(ownTx)
+                    {
+                        try
+                        {
+                            tx.rollback();
+                        }
+                        catch(DatabaseException e)
+                        {
+                        }
+                    }
+                }
+                
+                DatabaseException e = new DatabaseException(_errorPrefix + dx.getMessage());
+                e.initCause(dx);
+                throw e;
+            }
+            catch(RuntimeException rx)
+            {
+                if(ownTx && tx != null)
+                {
+                    try
+                    {
+                        tx.rollback();
+                    }
+                    catch(DatabaseException e)
+                    {
+                    }
+                }
+                throw rx;
+            }
+        }   
+    }
+
     
     void
     closeAllIteratorsExcept(Object except, boolean finalizing)
@@ -2135,5 +2279,5 @@ public abstract class Map extends java.util.AbstractMap
 
     private java.util.Set _entrySet;
     private LinkedList _iteratorList = new LinkedList();
-    private java.util.Map _indexMap = new java.util.HashMap();
+    private java.util.Map<String, Map.Index> _indexMap = new java.util.HashMap();
 }

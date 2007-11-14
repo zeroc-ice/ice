@@ -28,6 +28,13 @@ class SharedDb
             result._refCount++;
             return result;
         }
+        else if(dbName.equals(Util.catalogIndexListName()))
+        {
+            SharedDb result = connection.dbEnv().getCatalogIndexList();
+            checkTypes(result, key, value);
+            result._refCount++;
+            return result;
+        }
 
         synchronized(_map) 
         {
@@ -60,34 +67,56 @@ class SharedDb
         }
     }
         
-    public static SharedDb
-    openCatalog(SharedDbEnv dbEnv)
+    public static SharedDb[]
+    openCatalogs(SharedDbEnv dbEnv)
     {
-        MapKey mapKey = new MapKey(dbEnv.getEnvName(), dbEnv.getCommunicator(), Util.catalogName());
+        MapKey catalogMapKey = new MapKey(dbEnv.getEnvName(), dbEnv.getCommunicator(), Util.catalogName());
+        MapKey catalogIndexListMapKey = 
+            new MapKey(dbEnv.getEnvName(), dbEnv.getCommunicator(), Util.catalogIndexListName());
 
         synchronized(_map) 
         {
-            SharedDb result = (SharedDb)_map.get(mapKey);
-            if(result != null)
+            SharedDb[] result = new SharedDb[2];
+
+            if(_map.get(catalogMapKey) != null)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.message = errorPrefix(mapKey) + "Catalog already opened";
+                throw new DatabaseException(errorPrefix(catalogMapKey) + "Catalog already opened");
+            }
+
+            if(_map.get(catalogIndexListMapKey) != null)
+            {
+                throw new DatabaseException(errorPrefix(catalogIndexListMapKey) + "Catalog already opened");
+            }
+
+            try
+            {
+                result[0] = new SharedDb(catalogMapKey, "string", "::Freeze::CatalogData", dbEnv.getEnv());
+            }
+            catch(com.sleepycat.db.DatabaseException dx)
+            {
+                DatabaseException ex = new DatabaseException(errorPrefix(catalogMapKey) 
+                                                             + "creation: " + dx.getMessage());
+                ex.initCause(dx);
                 throw ex;
             }
 
             try
             {
-                result = new SharedDb(mapKey, dbEnv.getEnv());
+                result[1] = new SharedDb(catalogIndexListMapKey, "string", "::Ice::StringSeq", dbEnv.getEnv());
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
+                DatabaseException ex = new DatabaseException(errorPrefix(catalogIndexListMapKey) 
+                                                             + "creation: " + dx.getMessage());
                 ex.initCause(dx);
-                ex.message = errorPrefix(mapKey) + "creation: " + dx.getMessage();
                 throw ex;
             }
-            Object previousValue = _map.put(mapKey, result);
+
+            Object previousValue = _map.put(catalogMapKey, result[0]);
             assert(previousValue == null);
+            previousValue = _map.put(catalogIndexListMapKey, result[1]);
+            assert(previousValue == null);
+
             return result;
         }
     }
@@ -240,17 +269,43 @@ class SharedDb
 
                 _db = connection.dbEnv().getEnv().openDatabase(txn, mapKey.dbName, null, config);
 
+                String[] oldIndices = null;
+                java.util.List<String> newIndices = new java.util.LinkedList<String>();
+       
+                CatalogIndexList catalogIndexList = new CatalogIndexList(catalogConnection, Util.catalogIndexListName(), true);
+
+                if(createDb)
+                {
+                    oldIndices = (String[])catalogIndexList.get(_mapKey.dbName);
+                }
+
+
                 if(_indices != null)
                 {
                     for(int i = 0; i < _indices.length; ++i)
                     {
+                        String indexName = _indices[i].name();
+
                         java.util.Comparator indexComparator = null;
                         if(indexComparators != null)
                         {
-                            indexComparator = (java.util.Comparator)indexComparators.get(_indices[i].name());
+                            indexComparator = (java.util.Comparator)indexComparators.get(indexName);
                         }
 
                         _indices[i].associate(mapKey.dbName, _db, txn, createDb, indexComparator);
+
+                        if(createDb)
+                        {
+                            if(oldIndices != null)
+                            {
+                                int j = java.util.Arrays.asList(oldIndices).indexOf(indexName);
+                                if(j != -1)
+                                {
+                                    oldIndices[j] = null;
+                                }
+                            }
+                            newIndices.add(indexName);
+                        }
                     }
                 }
 
@@ -262,6 +317,73 @@ class SharedDb
                     catalogData.value = value;
                     catalog.put(_mapKey.dbName, catalogData);
                 }
+
+                if(createDb)
+                {
+                    boolean indexRemoved = false;
+
+                    if(oldIndices != null)
+                    {
+                        //
+                        // Remove old indices and write the new ones
+                        //
+                        for(int i = 0; i < oldIndices.length; ++i)
+                        {
+                            String index = oldIndices[i];
+                            if(index != null)
+                            {
+                                if(_trace >= 1)
+                                {
+                                    _mapKey.communicator.getLogger().trace(
+                                        "Freeze.Map", "removing old index \"" + index + "\" on Db \"" +  _mapKey.dbName + "\"");
+                                }
+                                
+                                indexRemoved = true;
+                                
+                                try
+                                {
+                                    catalogConnection.removeMapIndex(mapKey.dbName, index);
+                                }
+                                catch(IndexNotFoundException ife)
+                                {
+                                    // Ignored
+                                    
+                                    if(_trace >= 1)
+                                    {
+                                        _mapKey.communicator.getLogger().trace(
+                                            "Freeze.Map", "index \"" + index + "\" on Db \"" + _mapKey.dbName + "\" does not exist");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    int oldSize = oldIndices == null ? 0 : oldIndices.length;
+
+                    if(indexRemoved || newIndices.size() != oldSize)
+                    {   
+                        if(newIndices.size() == 0)
+                        {
+                            catalogIndexList.remove(_mapKey.dbName);
+                            if(_trace >= 1)
+                            {
+                                _mapKey.communicator.getLogger().trace(
+                                    "Freeze.Map", "Removed catalogIndexList entry for Db \"" + _mapKey.dbName + "\"");
+                            }
+                            
+                        }
+                        else
+                        {
+                            catalogIndexList.put(_mapKey.dbName, newIndices.toArray(new String[0]));
+                            if(_trace >= 1)
+                            {
+                                 _mapKey.communicator.getLogger().trace(
+                                     "Freeze.Map", "Updated catalogIndexList entry for Db \"" + _mapKey.dbName + "\"");
+                            }
+                        }
+                    }
+                }
+
                 
                 tx.commit();
                 
@@ -308,12 +430,12 @@ class SharedDb
         _refCount = 1;
     }
 
-    private SharedDb(MapKey mapKey, com.sleepycat.db.Environment dbEnv)
+    private SharedDb(MapKey mapKey, String key, String value, com.sleepycat.db.Environment dbEnv)
         throws com.sleepycat.db.DatabaseException
     {   
         _mapKey = mapKey;
-        _key = "string";
-        _value = "::Freeze::CatalogData";
+        _key = key;
+        _value = value;
         _trace = _mapKey.communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
         
         if(_trace >= 1)
@@ -325,44 +447,6 @@ class SharedDb
         config.setAllowCreate(true);
         config.setType(com.sleepycat.db.DatabaseType.BTREE);
         config.setTransactional(true);
-
-        Ice.Properties properties = _mapKey.communicator.getProperties();
-        String propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
-                
-        int btreeMinKey = properties.getPropertyAsInt(propPrefix + "BtreeMinKey");
-        if(btreeMinKey > 2)
-        {
-            if(_trace >= 1)
-            {
-                _mapKey.communicator.getLogger().trace(
-                    "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s btree minkey to " + btreeMinKey);
-            }
-            config.setBtreeMinKey(btreeMinKey);
-        }
-                
-        boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
-        if(checksum)
-        {
-            if(_trace >= 1)
-            {
-                _mapKey.communicator.getLogger().trace(
-                    "Freeze.Map", "Turning checksum on for \"" + _mapKey.dbName + "\"");
-            }
-                    
-            config.setChecksum(true);
-        }
-                
-        int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
-        if(pageSize > 0)
-        {
-            if(_trace >= 1)
-            {
-                _mapKey.communicator.getLogger().trace(
-                    "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s pagesize to " + pageSize);
-            }
-            config.setPageSize(pageSize);
-        }
-
 
         try
         {

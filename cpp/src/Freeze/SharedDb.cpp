@@ -69,6 +69,12 @@ Freeze::catalogName()
     return _catalogName;
 }
 
+const string&
+Freeze::catalogIndexListName()
+{
+    return _catalogIndexListName;
+}
+
 SharedDbPtr 
 Freeze::SharedDb::get(const ConnectionIPtr& connection, 
                       const string& dbName,
@@ -120,7 +126,16 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     //
     // MapKey not found, let's create and open a new Db
     //
-    auto_ptr<SharedDb> result(new SharedDb(mapKey, key, value, connection, 
+
+    //
+    // Since we're going to put this SharedDb in the map no matter
+    // what, we use our own transaction and connection to do so
+    //
+    
+    ConnectionIPtr insertConnection = new ConnectionI(SharedDbEnv::get(mapKey.communicator, mapKey.envName));
+    
+
+    auto_ptr<SharedDb> result(new SharedDb(mapKey, key, value, insertConnection, 
                                            keyCompare, indices, createDb));
     
     //
@@ -129,8 +144,25 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     pair<SharedDbMap::iterator, bool> insertResult;
     insertResult= sharedDbMap->insert(SharedDbMap::value_type(mapKey, result.get()));
     assert(insertResult.second);
+    result->_inMap = true;
     
     return result.release();
+}
+
+SharedDbPtr 
+Freeze::SharedDb::create(const ConnectionIPtr& connection, 
+                      const string& dbName,
+                      const string& key,
+                      const string& value,
+                      const KeyCompareBasePtr& keyCompare,
+                      const vector<MapIndexBasePtr>& indices)
+{
+    MapKey mapKey;
+    mapKey.envName = connection->envName();
+    mapKey.communicator = connection->communicator();
+    mapKey.dbName = dbName;
+
+    return new SharedDb(mapKey, key, value, connection, keyCompare, indices, true);
 }
 
 void
@@ -223,29 +255,58 @@ void Freeze::SharedDb::__decRef()
         IceUtil::StaticMutex::TryLock mapLock(_mapMutex);
         if(!mapLock.acquired())
         {
+            MapKey mapKey = _mapKey;
+
             //
-            // Reacquire mutex in proper order and check again
+            // Reacquire mutex in proper order
             //
             lock.release();
             mapLock.acquire();
             lock.acquire();
+
+            if(_inMap)
+            {
+                //
+                // Now, maybe another thread has deleted 'this'; let's check
+                // we're still in the map
+                //
+                if(sharedDbMap == 0)
+                {
+                    return;
+                }
+                
+                SharedDbMap::iterator p = sharedDbMap->find(mapKey);
+                
+                if(p == sharedDbMap->end() || p->second != this)
+                {
+                    //
+                    // 'this' has been deleted by another thread
+                    //
+                    return;
+                }
+            }
+                
             if(_refCount > 0)
             {
                 return;
             }
         }
 
-        //
-        // Remove from map
-        //
-        size_t one;
-        one = sharedDbMap->erase(_mapKey);
-        assert(one == 1);
-
-        if(sharedDbMap->size() == 0)
+        if(_inMap)
         {
-            delete sharedDbMap;
-            sharedDbMap = 0;
+            //
+            // Remove from map
+            //
+
+            size_t one;
+            one = sharedDbMap->erase(_mapKey);
+            assert(one == 1);
+
+            if(sharedDbMap->size() == 0)
+            {
+                delete sharedDbMap;
+                sharedDbMap = 0;
+            }
         }
 
         //
@@ -268,7 +329,8 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
     _mapKey(mapKey),
     _refCount(0),
     _trace(connection->trace()),
-    _keyCompare(keyCompare)
+    _keyCompare(keyCompare),
+    _inMap(false)
 {
     if(_trace >= 1)
     {
@@ -276,248 +338,277 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
         out << "opening Db \"" << _mapKey.dbName << "\"";
     }
 
-    ConnectionPtr catalogConnection = 
-        createConnection(_mapKey.communicator, connection->dbEnv()->getEnvName());
-    Catalog catalog(catalogConnection, _catalogName);
-  
-    Catalog::iterator ci = catalog.find(_mapKey.dbName);
+    Catalog catalog(connection, _catalogName);
+   
+    TransactionPtr tx = connection->currentTransaction();
+    bool ownTx = (tx == 0);
+
+    for(;;)
+    {
+        try
+        {
+            if(ownTx)
+            {
+                tx = 0;
+                tx = connection->beginTransaction();
+            }
+
+            Catalog::iterator ci = catalog.find(_mapKey.dbName);
+        
+            if(ci != catalog.end())
+            {
+                if(ci->second.evictor)
+                {
+                    throw DatabaseException(__FILE__, __LINE__, _mapKey.dbName + " is an evictor database");
+                }
+                
+                _key = ci->second.key;
+                _value = ci->second.value;
+                checkTypes(*this, key, value);
+            }
+            else
+            {
+                _key = key;
+                _value = value;
+            }
     
-    if(ci != catalog.end())
-    {
-        if(ci->second.evictor)
-        {
-            DatabaseException ex(__FILE__, __LINE__);
-            ex.message = _mapKey.dbName + " is an evictor database";
-            throw ex;
-        }
-
-        _key = ci->second.key;
-        _value = ci->second.value;
-        checkTypes(*this, key, value);
-    }
-    else
-    {
-        _key = key;
-        _value = value;
-    }
-    
-    try
-    {
-        set_app_private(this);
-        if(_keyCompare->compareEnabled())
-        {
-            set_bt_compare(&customCompare);
-        }
-        
-        Ice::PropertiesPtr properties = _mapKey.communicator->getProperties();
-        string propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
-        
-        int btreeMinKey = properties->getPropertyAsInt(propPrefix + "BtreeMinKey");
-        if(btreeMinKey > 2)
-        {
-            if(_trace >= 1)
+            set_app_private(this);
+            if(_keyCompare->compareEnabled())
             {
-                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-                out << "Setting \"" << _mapKey.dbName << "\"'s btree minkey to " << btreeMinKey;
+                set_bt_compare(&customCompare);
             }
-            set_bt_minkey(btreeMinKey);
-        }
-        
-        bool checksum = properties->getPropertyAsInt(propPrefix + "Checksum") > 0;
-        if(checksum)
-        {
-            if(_trace >= 1)
-            {
-                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-                out << "Turning checksum on for \"" << _mapKey.dbName << "\"";
-            }
-
-            set_flags(DB_CHKSUM);
-        }
-        
-        int pageSize = properties->getPropertyAsInt(propPrefix + "PageSize");
-        if(pageSize > 0)
-        {
-            if(_trace >= 1)
-            {
-                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-                out << "Setting \"" << _mapKey.dbName << "\"'s pagesize to " << pageSize;
-            }
-            set_pagesize(pageSize);
-        }
-    }
-    catch(const ::DbException& dx)
-    {
-        throw DatabaseException(__FILE__, __LINE__, dx.what());
-    }
-    
-    try
-    {
-        TransactionPtr tx = catalogConnection->beginTransaction();
-        DbTxn* txn = getTxn(tx);
-
-        u_int32_t flags = DB_THREAD;
-        if(createDb)
-        {
-            flags |= DB_CREATE;
-        }
-        open(txn, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
-
-
-        Ice::StringSeq oldIndices;
-        Ice::StringSeq newIndices;
-        size_t oldSize = 0;
-        CatalogIndexList catalogIndexList(catalogConnection, _catalogIndexListName);
-       
-        if(createDb)
-        {
-            CatalogIndexList::iterator cil = catalogIndexList.find(_mapKey.dbName);
-            if(cil != catalogIndexList.end())
-            {
-                oldIndices = cil->second;
-                oldSize = oldIndices.size();
-            }
-        } 
-        
-        for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
-            p != indices.end(); ++p)
-        {
-            const MapIndexBasePtr& indexBase = *p; 
-            assert(indexBase->_impl == 0);
-            assert(indexBase->_communicator == 0);
-            indexBase->_communicator = connection->communicator();
-
-            auto_ptr<MapIndexI> indexI(new MapIndexI(connection, *this, txn, createDb, indexBase));
             
-#ifndef NDEBUG
-            bool inserted = 
-#endif
-                _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
-            assert(inserted);
+            Ice::PropertiesPtr properties = _mapKey.communicator->getProperties();
+            string propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
             
-            indexBase->_impl = indexI.release();
-
-            if(createDb)
+            int btreeMinKey = properties->getPropertyAsInt(propPrefix + "BtreeMinKey");
+            if(btreeMinKey > 2)
             {
-                newIndices.push_back(indexBase->name());
-                oldIndices.erase(std::remove(oldIndices.begin(), oldIndices.end(), indexBase->name()), oldIndices.end());
-            }
-        }
-
-        if(ci == catalog.end())
-        {
-            CatalogData catalogData;
-            catalogData.evictor = false;
-            catalogData.key = key;
-            catalogData.value = value;
-            catalog.put(Catalog::value_type(_mapKey.dbName, catalogData));
-        }
-
-        if(createDb)
-        {
-            //
-            // Remove old indices and write the new ones
-            //
-            for(Ice::StringSeq::const_iterator q = oldIndices.begin(); q != oldIndices.end(); ++q)
-            {
-                const string& index = *q;
-
                 if(_trace >= 1)
                 {
                     Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-                    out << "removing old index \"" << index << "\" on Db \"" << _mapKey.dbName << "\"";
+                    out << "Setting \"" << _mapKey.dbName << "\"'s btree minkey to " << btreeMinKey;
                 }
+                set_bt_minkey(btreeMinKey);
+            }
+            
+            bool checksum = properties->getPropertyAsInt(propPrefix + "Checksum") > 0;
+            if(checksum)
+            {
+                if(_trace >= 1)
+                {
+                    Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                    out << "Turning checksum on for \"" << _mapKey.dbName << "\"";
+                }
+                
+                set_flags(DB_CHKSUM);
+            }
+            
+            int pageSize = properties->getPropertyAsInt(propPrefix + "PageSize");
+            if(pageSize > 0)
+            {
+                if(_trace >= 1)
+                {
+                    Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                    out << "Setting \"" << _mapKey.dbName << "\"'s pagesize to " << pageSize;
+                }
+                set_pagesize(pageSize);
+            }
+            
+
+            DbTxn* txn = getTxn(tx);
+            
+            u_int32_t flags = DB_THREAD;
+            if(createDb)
+            {
+                flags |= DB_CREATE;
+            }
+            open(txn, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+            
+            
+            Ice::StringSeq oldIndices;
+            Ice::StringSeq newIndices;
+            size_t oldSize = 0;
+            CatalogIndexList catalogIndexList(connection, _catalogIndexListName);
+            
+            if(createDb)
+            {
+                CatalogIndexList::iterator cil = catalogIndexList.find(_mapKey.dbName);
+                if(cil != catalogIndexList.end())
+                {
+                    oldIndices = cil->second;
+                    oldSize = oldIndices.size();
+                }
+            } 
+            
+            for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
+                p != indices.end(); ++p)
+            {
+                const MapIndexBasePtr& indexBase = *p; 
+                assert(indexBase->_impl == 0);
+                assert(indexBase->_communicator == 0);
+                indexBase->_communicator = connection->communicator();
+                
+                auto_ptr<MapIndexI> indexI;
 
                 try
                 {
-                    catalogConnection->removeMapIndex(_mapKey.dbName, *q);
+                    indexI.reset(new MapIndexI(connection, *this, txn, createDb, indexBase));
                 }
-                catch(const IndexNotFoundException&)
+                catch(const DbDeadlockException&)
                 {
-                    // Ignored
+                    throw;
+                }
+                catch(const DbException& dx)
+                {
+                    string message = "Error while opening index \"" + _mapKey.dbName +
+                        "." + indexBase->name() + "\": " + dx.what();
 
+                    throw DatabaseException(__FILE__, __LINE__, message);
+                }
+                
+#ifndef NDEBUG
+                bool inserted = 
+#endif
+                    _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
+                assert(inserted);
+                
+                indexBase->_impl = indexI.release();
+                
+                if(createDb)
+                {
+                    newIndices.push_back(indexBase->name());
+                    oldIndices.erase(std::remove(oldIndices.begin(), oldIndices.end(), indexBase->name()), oldIndices.end());
+                }
+            }
+            
+            if(ci == catalog.end())
+            {
+                CatalogData catalogData;
+                catalogData.evictor = false;
+                catalogData.key = key;
+                catalogData.value = value;
+                catalog.put(Catalog::value_type(_mapKey.dbName, catalogData));
+            }
+            
+            if(createDb)
+            {
+                //
+                // Remove old indices and write the new ones
+                //
+                bool indexRemoved = false;
+
+                for(Ice::StringSeq::const_iterator q = oldIndices.begin(); q != oldIndices.end(); ++q)
+                {
+                    const string& index = *q;
+                    
                     if(_trace >= 1)
                     {
                         Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-                        out << "index \"" << index << "\" on Db \"" << _mapKey.dbName << "\" does not exist";
+                        out << "removing old index \"" << index << "\" on Db \"" << _mapKey.dbName << "\"";
+                    }
+                    
+                    try
+                    {
+                        connection->removeMapIndex(_mapKey.dbName, *q);
+                        indexRemoved = true;
+                    }
+                    catch(const IndexNotFoundException&)
+                    {
+                        // Ignored
+                        
+                        if(_trace >= 1)
+                        {
+                            Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                            out << "index \"" << index << "\" on Db \"" << _mapKey.dbName << "\" does not exist";
+                        }
+                    }
+                }
+                
+                if(indexRemoved || oldSize != newIndices.size())
+                {
+                    if(newIndices.size() == 0)
+                    {
+                        catalogIndexList.erase(_mapKey.dbName);
+                        if(_trace >= 1)
+                        {
+                            Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                            out << "Removed catalogIndexList entry for Db \"" << _mapKey.dbName << "\"";
+                        }
+                        
+                    }
+                    else
+                    {
+                        catalogIndexList.put(CatalogIndexList::value_type(_mapKey.dbName, newIndices));
+                        if(_trace >= 1)
+                        {
+                            Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                            out << "Updated catalogIndexList entry for Db \"" << _mapKey.dbName << "\"";
+                        }
                     }
                 }
             }
 
-            if(oldSize != newIndices.size())
+            if(ownTx)
             {
-                if(newIndices.size() == 0)
+                tx->commit();
+            }
+            break; // for(;;)
+        }
+        catch(const DbDeadlockException& dx)
+        {
+            if(ownTx)
+            {
+                if(connection->deadlockWarning())
                 {
-                    catalogIndexList.erase(_mapKey.dbName);
-                    if(_trace >= 1)
-                    {
-                        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-                        out << "Removed catalogIndexList entry for Db \"" << _mapKey.dbName << "\"";
-                    }
-
+                    Warning out(connection->communicator()->getLogger());
+                    out << "Deadlock in Freeze::SharedDb::SharedDb on Map \"" 
+                        << _mapKey.dbName << "\"; retrying ...";
                 }
-                else
+
+                //
+                // Ignored, try again
+                //
+            }
+            else
+            {
+                throw DeadlockException(__FILE__, __LINE__, dx.what());
+            }
+        }
+        catch(const DbException& dx)
+        {
+            if(ownTx)
+            {
+                try
                 {
-                    catalogIndexList.put(CatalogIndexList::value_type(_mapKey.dbName, newIndices));
-                    if(_trace >= 1)
-                    {
-                        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-                        out << "Updated catalogIndexList entry for Db \"" << _mapKey.dbName << "\"";
-                    }
+                    tx->rollback();
+                }
+                catch(...)
+                {
                 }
             }
-        }
-        
-        tx->commit();
-    }
-    catch(const ::DbException& dx)
-    {
-        TransactionPtr tx = catalogConnection->currentTransaction();
-        if(tx != 0)
-        {
-            try
-            {
-                tx->rollback();
-            }
-            catch(...)
-            {
-            }
-        }
+                
+            string message = "Error while opening Db \"" + _mapKey.dbName +
+                "\": " + dx.what();
 
-        cleanup(true);
-
-        if(dx.get_errno() == ENOENT)
-        {
-            NotFoundException ex(__FILE__, __LINE__);
-            ex.message = dx.what();
-            throw ex;
+            throw DatabaseException(__FILE__, __LINE__, message);
         }
-        else
+        catch(...)
         {
-            DatabaseException ex(__FILE__, __LINE__);
-            ex.message = dx.what();
-            throw ex;
-        }
-    }
-    catch(...)
-    {
-        TransactionPtr tx = catalogConnection->currentTransaction();
-        if(tx != 0)
-        {
-            try
-            {
-                tx->rollback();
+            if(ownTx && tx != 0)
+            {   
+                try
+                {
+                    tx->rollback();
+                }
+                catch(...)
+                {
+                }
             }
-            catch(...)
-            {
-            }
+            throw;
         }
-
-        cleanup(true);
-        throw;
     }
 }
-
 
 Freeze::SharedDb::SharedDb(const MapKey& mapKey, const string& keyTypeId, const string& valueTypeId, DbEnv* env) :
     Db(env, 0),

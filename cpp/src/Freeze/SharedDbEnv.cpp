@@ -176,6 +176,11 @@ void Freeze::SharedDbEnv::__decRef()
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
     if(--_refCount == 0)
     {
+        MapKey key;
+        key.envName = _envName;
+        key.communicator = _communicator;
+
+
         IceUtil::StaticMutex::TryLock mapLock(_mapMutex);
         if(!mapLock.acquired())
         {
@@ -185,6 +190,27 @@ void Freeze::SharedDbEnv::__decRef()
             lock.release();
             mapLock.acquire();
             lock.acquire();
+         
+            //
+            // Now, maybe another thread has deleted 'this'; let's check
+            // we're still in the map
+            //
+
+            if(sharedDbEnvMap == 0)
+            {
+                return;
+            }
+            
+            SharedDbEnvMap::iterator p = sharedDbEnvMap->find(key);
+            
+            if(p == sharedDbEnvMap->end() || p->second != this)
+            {
+                //
+                // 'this' has been deleted by another thread
+                //
+                return;
+            }
+
             if(_refCount > 0)
             {
                 return;
@@ -194,10 +220,7 @@ void Freeze::SharedDbEnv::__decRef()
         //
         // Remove from map
         //
-
-        MapKey key;
-        key.envName = _envName;
-        key.communicator = _communicator;
+     
         size_t one;
         one = sharedDbEnvMap->erase(key);
         assert(one == 1);

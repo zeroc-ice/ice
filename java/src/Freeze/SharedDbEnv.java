@@ -75,6 +75,13 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         return _catalog;
     }
 
+    public SharedDb
+    getCatalogIndexList()
+    {
+        return _catalogIndexList;
+    }
+
+
     public void
     close()
     {
@@ -114,12 +121,18 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 }
 
                 //
-                // Release catalog
+                // Release catalogs
                 //
                 if(_catalog != null)
                 {
                     _catalog.close();
                     _catalog = null;
+                }
+
+                if(_catalogIndexList != null)
+                {
+                    _catalogIndexList.close();
+                    _catalogIndexList = null;
                 }
 
                 if(_trace >= 1)
@@ -378,7 +391,9 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     {
         if(_catalog == null)
         {
-            _catalog = SharedDb.openCatalog(this);
+            SharedDb[] catalogs = SharedDb.openCatalogs(this);
+            _catalog = catalogs[0];
+            _catalogIndexList = catalogs[1];
         }
     }
 
@@ -424,6 +439,7 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     private com.sleepycat.db.Environment _dbEnv;
     private boolean _ownDbEnv;
     private SharedDb _catalog;
+    private SharedDb _catalogIndexList;
     private int _refCount = 0; // protected by _map!
     private boolean _done = false;
     private int _trace = 0;

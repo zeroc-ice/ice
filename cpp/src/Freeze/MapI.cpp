@@ -12,6 +12,8 @@
 #include <Freeze/SharedDb.h>
 #include <Freeze/Util.h>
 #include <Freeze/Catalog.h>
+#include <Freeze/CatalogIndexList.h>
+#include <IceUtil/UUID.h>
 #include <stdlib.h>
 
 using namespace std;
@@ -42,6 +44,13 @@ MapIndexBase::name() const
 {
     return _name;
 }
+
+IteratorHelper*
+Freeze::MapIndexBase::begin(bool ro) const
+{
+    return _impl->begin(ro, *_map);
+}
+
 
 IteratorHelper*
 Freeze::MapIndexBase::untypedFind(const Key& k, bool ro, bool onlyDups) const
@@ -84,7 +93,7 @@ Freeze::KeyCompareBase::compareEnabled() const
 // MapHelper (from Map.h)
 //
 
-Freeze::MapHelper*
+/*static*/ Freeze::MapHelper*
 Freeze::MapHelper::create(const Freeze::ConnectionPtr& connection, 
                           const string& dbName,
                           const string& key,
@@ -96,6 +105,207 @@ Freeze::MapHelper::create(const Freeze::ConnectionPtr& connection,
     Freeze::ConnectionIPtr connectionI = Freeze::ConnectionIPtr::dynamicCast(connection.get());
     return new MapHelperI(connectionI, dbName, key, value, keyCompare, indices, createDb);
 }
+
+/*static*/ void
+Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection, 
+                            const string& dbName,
+                            const string& key,
+                            const string& value,
+                            const Freeze::KeyCompareBasePtr& keyCompare,
+                            const std::vector<MapIndexBasePtr>& indices)
+{
+    Freeze::ConnectionIPtr connectionI = Freeze::ConnectionIPtr::dynamicCast(connection.get());
+    if(connectionI == 0)
+    {
+        throw DatabaseException(__FILE__, __LINE__, "Invalid connection");
+    }
+
+    if(dbName == catalogName() || dbName == catalogIndexListName())
+    {
+        throw DatabaseException(__FILE__, __LINE__,
+                                "You cannot destroy recreate the \"" + dbName + "\" database");
+    }
+
+    if(connectionI->trace() >= 1)
+    {
+        Trace out(connectionI->communicator()->getLogger(), "Freeze.Map");
+        out << "Recreating \"" << dbName << "\"";
+    }
+
+    TransactionPtr tx = connectionI->currentTransaction();
+    bool ownTx = (tx == 0);
+
+    Dbt keyDbt;
+    keyDbt.set_flags(DB_DBT_REALLOC);
+    Dbt valueDbt;
+    valueDbt.set_flags(DB_DBT_REALLOC);
+    
+    try
+    {
+        for(;;)
+        {
+            try
+            {
+                if(ownTx)
+                {
+                    tx = 0;
+                    tx = connectionI->beginTransaction();
+                }
+            
+                DbTxn* txn = connectionI->dbTxn();
+
+               
+                if(connectionI->trace() >= 2)
+                {
+                    Trace out(connectionI->communicator()->getLogger(), "Freeze.Map");
+                    out << "Removing all existing indices for \"" << dbName << "\"";
+                }
+                CatalogIndexList catalogIndexList(connection, catalogIndexListName());
+                CatalogIndexList::iterator p = catalogIndexList.find(dbName);
+                if(p != catalogIndexList.end())
+                {
+                    const StringSeq& indices = p->second;
+                    
+                    for(size_t i = 0; i < indices.size(); ++i)
+                    {
+                        try
+                        {
+                            connection->removeMapIndex(dbName, indices[i]);
+                        }
+                        catch(const IndexNotFoundException&)
+                        {
+                            //
+                            // Ignored
+                            //
+                        }
+                    }
+                    catalogIndexList.erase(p);
+                }
+                
+                //
+                // Rename existing database
+                //
+                string oldDbName = dbName + ".old-" + IceUtil::generateUUID();
+
+                if(connectionI->trace() >= 2)
+                {
+                    Trace out(connectionI->communicator()->getLogger(), "Freeze.Map");
+                    out << "Renaming \"" << dbName << "\" to \"" << oldDbName << "\"";
+                }
+
+                connectionI->dbEnv()->getEnv()->dbrename(txn, dbName.c_str(), 0, oldDbName.c_str(), 0);
+                
+                //
+                // Fortunately, DB closes oldDb automatically when it goes out of scope
+                //
+                Db oldDb(connectionI->dbEnv()->getEnv(), 0);
+                oldDb.open(txn, oldDbName.c_str(), 0, DB_BTREE, DB_THREAD, FREEZE_DB_MODE);
+                    
+                SharedDbPtr newDb = SharedDb::create(connectionI, dbName, key, value, keyCompare, indices);
+                
+                if(connectionI->trace() >= 2)
+                {
+                    Trace out(connectionI->communicator()->getLogger(), "Freeze.Map");
+                    out << "Writing contents of \"" << oldDbName << "\" to fresh \"" << dbName << "\"";
+                }
+
+                //
+                // Now simply write all of oldDb into newDb
+                //
+                Dbc* dbc = 0;
+                oldDb.cursor(txn, &dbc, 0);
+                
+                try
+                {
+                    while(dbc->get(&keyDbt, &valueDbt, DB_NEXT) != DB_NOTFOUND)
+                    {
+                        newDb->put(txn, &keyDbt, &valueDbt, 0);
+                    }
+                }
+                catch(...)
+                {
+                    dbc->close();
+                    throw;
+                }
+                dbc->close();
+
+                if(connectionI->trace() >= 2)
+                {
+                    Trace out(connectionI->communicator()->getLogger(), "Freeze.Map");
+                    out << "Transfer complete; removing \"" << oldDbName << "\"";
+                }
+                connectionI->dbEnv()->getEnv()->dbremove(txn, oldDbName.c_str(), 0, 0);
+
+                if(ownTx)
+                {
+                    tx->commit();
+                }
+                
+                break; // for (;;)
+            }
+            catch(const DbDeadlockException& dx)
+            {
+                if(ownTx)
+                {
+                    if(connectionI->deadlockWarning())
+                    {
+                        Warning out(connectionI->communicator()->getLogger());
+                        out << "Deadlock in Freeze::MapHelperI::recreate on Db \"" 
+                            << dbName << "\"; retrying ...";
+                    }
+
+                    //
+                    // Ignored, try again
+                    //
+                }
+                else
+                {
+                    throw DeadlockException(__FILE__, __LINE__, dx.what());
+                }
+            }
+            catch(const DbException& dx)
+            {
+                if(ownTx)
+                {
+                    try
+                    {
+                        tx->rollback();
+                    }
+                    catch(...)
+                    {
+                    }
+                }
+            
+                throw DatabaseException(__FILE__, __LINE__, dx.what());
+            }
+            catch(...)
+            {
+                if(ownTx && tx != 0)
+                {   
+                    try
+                    {
+                        tx->rollback();
+                    }
+                    catch(...)
+                    {
+                    }
+                }
+                throw;
+            }
+        }
+        free(keyDbt.get_data());
+        free(valueDbt.get_data());
+    }
+    catch(...)
+    {
+        free(keyDbt.get_data());
+        free(valueDbt.get_data());
+
+        throw;
+    }
+}
+
+
 
 Freeze::MapHelper::~MapHelper()
 {
@@ -354,7 +564,7 @@ Freeze::IteratorHelperI::get(const Key*& key, const Value*& value) const
     key = &_key;
     value = &_value;
 
-    size_t keySize = _key.capacity();
+    size_t keySize = _key.size();
     if(keySize < 1024)
     {
         keySize = 1024;
@@ -364,7 +574,7 @@ Freeze::IteratorHelperI::get(const Key*& key, const Value*& value) const
     Dbt dbKey;
     initializeOutDbt(_key, dbKey);
     
-    size_t valueSize = _value.capacity();
+    size_t valueSize = _value.size();
     if(valueSize < 1024)
     {
         valueSize = 1024;
@@ -435,7 +645,7 @@ Freeze::IteratorHelperI::get(const Key*& key, const Value*& value) const
 const Freeze::Key*
 Freeze::IteratorHelperI::get() const
 {
-    size_t keySize = _key.capacity();
+    size_t keySize = _key.size();
     if(keySize < 1024)
     {
         keySize = 1024;
@@ -1183,41 +1393,95 @@ Freeze::MapHelperI::clear()
 void
 Freeze::MapHelperI::destroy()
 {
-    if(_dbName == catalogName())
+    if(_dbName == catalogName() || _dbName == catalogIndexListName())
     {
-        DatabaseException ex(__FILE__, __LINE__);
-        ex.message = "You cannot destroy the " + catalogName() + " database";
-        throw ex;
+        throw DatabaseException(__FILE__, __LINE__,
+                                "You cannot destroy the \"" + _dbName + "\" database");
     }
+    
+    if(_db == 0)
+    {
+        //
+        // We need an opened map to gather the index names
+        //
+        throw DatabaseException(__FILE__, __LINE__, "This map is closed");
+    }
+
+    if(_trace >= 1)
+    {
+        Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+        out << "Destroying \"" << _dbName << "\"";
+    }
+
+    vector<string> indexNames;
+    for(IndexMap::iterator p = _indices.begin(); p != _indices.end(); ++p)
+    {
+        indexNames.push_back(p->second->name());
+    }
+            
+    close();
 
     TransactionPtr tx = _connection->currentTransaction();
     bool ownTx = (tx == 0);
-    if(ownTx)
-    {   
-        tx = _connection->beginTransaction();
-    }
-   
-    DbTxn* txn = _connection->dbTxn();
 
-    try
+
+    for(;;)
     {
-        close();
-
-        Catalog catalog(_connection, catalogName());
-        catalog.erase(_dbName);
-        _connection->dbEnv()->getEnv()->dbremove(txn, _dbName.c_str(), 0, 0);
-
-        if(ownTx)
+        try
         {
-            tx->commit();
+            if(ownTx)
+            {
+                tx = 0;
+                tx = _connection->beginTransaction();
+            }
+        
+            DbTxn* txn = _connection->dbTxn();
+
+            Catalog catalog(_connection, catalogName());
+            catalog.erase(_dbName);
+            
+            CatalogIndexList catalogIndexList(_connection, catalogIndexListName());
+            catalogIndexList.erase(_dbName);
+            
+            _connection->dbEnv()->getEnv()->dbremove(txn, _dbName.c_str(), 0, 0);
+            
+            //
+            // Remove all indices
+            //
+            for(vector<string>::iterator q = indexNames.begin(); q != indexNames.end(); ++q)
+            {
+                _connection->removeMapIndex(_dbName, *q);
+            }
+            
+            if(ownTx)
+            {
+                tx->commit();
+            }
+            break; // for(;;)
         }
-    }
-    catch(const ::DbException& dx)
-    {
-        if(ownTx)
+        catch(const DbDeadlockException& dx)
         {
-            tx = _connection->currentTransaction();
-            if(tx != 0)
+            if(ownTx)
+            {
+                if(_connection->deadlockWarning())
+                {
+                    Warning out(_connection->communicator()->getLogger());
+                    out << "Deadlock in Freeze::MapHelperI::destroy on Map \"" 
+                        << _dbName << "\"; retrying ...";
+                }
+
+                //
+                // Ignored, try again
+                //
+            }
+            else
+            {
+                throw DeadlockException(__FILE__, __LINE__, dx.what());
+            }
+        }
+        catch(const DbException& dx)
+        {
+            if(ownTx)
             {
                 try
                 {
@@ -1227,19 +1491,13 @@ Freeze::MapHelperI::destroy()
                 {
                 }
             }
+            
+            throw DatabaseException(__FILE__, __LINE__, dx.what());
         }
-
-        DatabaseException ex(__FILE__, __LINE__);
-        ex.message = dx.what();
-        throw ex;
-    }
-    catch(...)
-    {
-        if(ownTx)
+        catch(...)
         {
-            tx = _connection->currentTransaction();
-            if(tx != 0)
-            {
+            if(ownTx && tx != 0)
+            {   
                 try
                 {
                     tx->rollback();
@@ -1248,8 +1506,8 @@ Freeze::MapHelperI::destroy()
                 {
                 }
             }
+            throw;
         }
-        throw;
     }
 }
 
@@ -1265,12 +1523,12 @@ Freeze::MapHelperI::size() const
     try
     {
 #if DB_VERSION_MAJOR != 4
-   #error Freeze requires DB 4.x
+#error Freeze requires DB 4.x
 #endif
 #if DB_VERSION_MINOR < 3
-       _db->stat(&s, 0);
+        _db->stat(&s, 0);
 #else
-       _db->stat(_connection->dbTxn(), &s, 0);
+        _db->stat(_connection->dbTxn(), &s, 0);
 #endif
     }
     catch(const ::DbException& dx)
@@ -1353,16 +1611,16 @@ Freeze::MapHelperI::closeAllIteratorsExcept(const IteratorHelperI::TxPtr& tx) co
 
 extern "C" 
 {
-static int customIndexCompare(DB* db, const DBT* dbt1, const DBT* dbt2)
-{
-    MapIndexI* me = static_cast<MapIndexI*>(db->app_private);
-    Byte* first = static_cast<Byte*>(dbt1->data);
-    Key k1(first, first + dbt1->size);
-    first = static_cast<Byte*>(dbt2->data);
-    Key k2(first, first + dbt2->size);
+    static int customIndexCompare(DB* db, const DBT* dbt1, const DBT* dbt2)
+    {
+        MapIndexI* me = static_cast<MapIndexI*>(db->app_private);
+        Byte* first = static_cast<Byte*>(dbt1->data);
+        Key k1(first, first + dbt1->size);
+        first = static_cast<Byte*>(dbt2->data);
+        Key k2(first, first + dbt2->size);
 
-    return me->getKeyCompare()->compare(k1, k2);
-}
+        return me->getKeyCompare()->compare(k1, k2);
+    }
 }
 
 static int 
@@ -1436,6 +1694,12 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, SharedDb& db,
         _db->set_pagesize(pageSize);
     }
     
+    if(connection->trace() >= 1)
+    {
+        Trace out(connection->communicator()->getLogger(), "Freeze.Map");
+        out << "Opening index \"" << _dbName << "\"";
+    }
+
     _db->open(txn, _dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
 
     //
@@ -1452,6 +1716,22 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, SharedDb& db,
 Freeze::MapIndexI::~MapIndexI()
 {
     _db->close(0);
+}
+
+
+IteratorHelper* 
+Freeze::MapIndexI::begin(bool ro, const MapHelperI& m) const
+{
+    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
+
+    if(r->next())
+    {
+        return r.release();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 IteratorHelper* 

@@ -648,8 +648,7 @@ public class Client
             }
             test(count == 500);
             
-            iim.closeAllIterators();
-            iim.clear();
+            iim.destroy();
         }
         System.out.println("ok");
         

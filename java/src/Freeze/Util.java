@@ -57,6 +57,12 @@ public class Util
     {
         return _catalogName;
     }
+    
+    public static String catalogIndexListName()
+    {
+        return _catalogIndexListName;
+    }
+
 
     public static com.sleepycat.db.Transaction
     getTxn(Transaction tx)
@@ -93,5 +99,6 @@ public class Util
     }
 
     private static String _catalogName = "__catalog";
+    private static String _catalogIndexListName = "__catalogIndexList";
     private static FatalErrorCallback _fatalErrorCallback = null;
 }

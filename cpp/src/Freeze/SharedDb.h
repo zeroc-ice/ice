@@ -34,6 +34,7 @@ public:
 
     ~MapIndexI();
    
+    IteratorHelper* begin(bool, const MapHelperI&) const;
     IteratorHelper* untypedFind(const Key&, bool, const MapHelperI&, bool) const;
     IteratorHelper* untypedLowerBound(const Key&, bool, const MapHelperI&) const;
     IteratorHelper* untypedUpperBound(const Key&, bool, const MapHelperI&) const;
@@ -76,6 +77,15 @@ public:
                            const std::string&, const std::string&,
                            const KeyCompareBasePtr&,
                            const std::vector<MapIndexBasePtr>&, bool);
+
+    //
+    // Create a 'private' SharedDb, used by recreate
+    // Unlike get above, everything is protected by the connection's transaction
+    //
+    static SharedDbPtr create(const ConnectionIPtr&, const std::string&,
+                              const std::string&, const std::string&,
+                              const KeyCompareBasePtr&,
+                              const std::vector<MapIndexBasePtr>&);
 
     static void openCatalogs(SharedDbEnv&, SharedDbPtr&, SharedDbPtr&);
 
@@ -138,6 +148,7 @@ private:
 
     KeyCompareBasePtr _keyCompare;
     IndexMap _indices;
+    bool _inMap;
 
     static SharedDbMap* sharedDbMap;
 };

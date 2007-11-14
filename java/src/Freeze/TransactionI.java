@@ -165,7 +165,7 @@ class TransactionI implements Transaction
     {
         _connection = connection;
         _txTrace = connection.txTrace();
-        _errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\"): ";
+        _errorPrefix = "DbEnv(\"" + _connection.envName() + "\"): ";
 
         try
         {

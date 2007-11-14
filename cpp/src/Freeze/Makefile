@@ -82,7 +82,7 @@ clean::
 $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(SLICE2FREEZE) $(slicedir)/Ice/BuiltinSequences.ice
 	rm -f  $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
-	CatalogIndexList ../../slice/Ice/BuiltinSequences.ice
+	CatalogIndexList ../../../slice/Ice/BuiltinSequences.ice
 	mv CatalogIndexList.h $(HDIR)/CatalogIndexList.h
 
 clean::

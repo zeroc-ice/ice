@@ -31,6 +31,37 @@ class ConnectionI implements Connection
     }
 
     public void
+    removeMapIndex(String mapName, String indexName)
+    {
+        if(_dbEnv == null)
+        {
+            throw new DatabaseException("Closed connection");
+        }
+        
+        try
+        {
+            _dbEnv.getEnv().removeDatabase(dbTxn(), mapName + "." + indexName, null);
+        }
+        catch(com.sleepycat.db.DeadlockException dx)
+        {
+            DeadlockException ex = new DeadlockException(errorPrefix() + dx.getMessage());
+            ex.initCause(dx);
+            throw ex;
+        }
+        catch(com.sleepycat.db.DatabaseException dx)
+        {
+            DatabaseException ex = new DatabaseException(errorPrefix() + dx.getMessage());
+            ex.initCause(dx);
+            throw ex;
+        }
+        catch(java.io.FileNotFoundException fne)
+        {
+            throw new IndexNotFoundException(mapName, indexName);
+        }
+    }
+
+
+    public void
     close()
     {
         close(false);
@@ -209,6 +240,12 @@ class ConnectionI implements Connection
     {
         return _closeInFinalizeWarning;
     }
+
+    private String errorPrefix()
+    {
+        return "DbEnv(\"" + _envName + "\"): ";
+    }
+
 
     private Ice.Communicator _communicator;
     private SharedDbEnv _dbEnv;

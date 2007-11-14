@@ -684,7 +684,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
             }
             test(count == 500);
         }
-        iim.clear();
+        iim.destroy();
     }
     cout << "ok" << endl;
 

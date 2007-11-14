@@ -75,6 +75,15 @@
             <dict name="Freeze.Catalog" key="string" value="Freeze::CatalogData"/>
         </slice2freezej>
 
+        <slice2freezej ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
+	    <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="BuiltinSequences.ice"/>
+            <dict name="Freeze.CatalogIndexList" key="string" value="Ice::StringSeq"/>
+        </slice2freezej>
+
         <!-- Generate Slice checksums for the Ice services. -->
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"

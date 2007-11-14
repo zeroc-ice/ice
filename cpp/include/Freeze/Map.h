@@ -54,6 +54,7 @@ public:
 
     const std::string& name() const;
 
+    IteratorHelper* begin(bool) const;
     IteratorHelper* untypedFind(const Key&, bool, bool) const;
     IteratorHelper* untypedLowerBound(const Key&, bool) const;
     IteratorHelper* untypedUpperBound(const Key&, bool) const;
@@ -96,6 +97,14 @@ public:
            const std::vector<MapIndexBasePtr>&,
            bool createDb);
 
+    static void 
+    recreate(const Freeze::ConnectionPtr& connection, 
+             const std::string& dbName,
+             const std::string& key,
+             const std::string& value,
+             const KeyCompareBasePtr&,
+             const std::vector<MapIndexBasePtr>&);
+    
     virtual ~MapHelper() = 0;
 
     virtual IteratorHelper*
@@ -130,6 +139,7 @@ public:
 
     virtual const MapIndexBasePtr&
     index(const std::string&) const = 0;
+
 };
 
 
@@ -847,6 +857,19 @@ public:
     ~Map()
     {
     }
+
+    static void recreate(const Freeze::ConnectionPtr& connection, 
+                         const std::string& dbName,
+                         const Compare& compare = Compare())
+    {
+        KeyCompareBasePtr keyCompare = 
+            new KeyCompare<key_type, KeyCodec, Compare>(compare, connection->getCommunicator());
+
+        std::vector<MapIndexBasePtr> indices;
+        MapHelper::recreate(connection, dbName, KeyCodec::typeId(), ValueCodec::typeId(), keyCompare, 
+                            indices);
+    }
+
 
     bool operator==(const Map& rhs) const
     {

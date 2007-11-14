@@ -429,7 +429,14 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
     H << eb;
 
     //
-    // Find, lowerBound, upperBound, equalRange and count functions
+    // Recreate
+    //
+    H << nl << "static void recreate(const Freeze::ConnectionPtr&, const std::string&, "
+      << "const " << compare << "& = " << compare << "());";
+    H << sp;
+
+    //
+    // Find, begin, lowerBound, upperBound, equalRange and count functions
     //
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
@@ -438,6 +445,12 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
           << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ", bool = true);";
         H << nl << "const_iterator findBy" << capitalizedMembers[i]
           << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ", bool = true) const;";
+
+        H << nl << "iterator beginFor" << capitalizedMembers[i] << "();";
+        H << nl << "const_iterator beginFor" << capitalizedMembers[i] << "() const;";
+
+        H << nl << "iterator endFor" << capitalizedMembers[i] << "();";
+        H << nl << "const_iterator endFor" << capitalizedMembers[i] << "() const;";
         
         H << nl << "iterator lowerBoundFor" << capitalizedMembers[i]
           << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ");";
@@ -462,6 +475,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
 
         H << nl << "int " << countFunction
           << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ") const;";
+
     }
     
     H << eb << ';';
@@ -627,7 +641,6 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     C << sp << nl << absolute << "::" << name
       << "(const Freeze::ConnectionPtr& __connection, const std::string& __dbName ,"
       << "bool __createDb, const " << compare << "& __compare)";
-    
     C.inc();
     C << nl << ": Freeze::Map" << templateParams <<"(__connection->getCommunicator())";
     C.dec();
@@ -649,6 +662,33 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     C << nl << "_helper.reset(Freeze::MapHelper::create(__connection, __dbName, "
       << absolute + "KeyCodec::typeId(), "
       << absolute + "ValueCodec::typeId(), __keyCompare, __indices, __createDb));";
+    C << eb;
+
+    //
+    // Recreate
+    //
+    C << sp << nl << "void"
+      << nl << absolute << "::" << name 
+      << "::recreate(const Freeze::ConnectionPtr& __connection, const std::string& __dbName ,"
+      << " const " << compare << "& __compare)";
+    C << sb;
+    C << nl << "Freeze::KeyCompareBasePtr __keyCompare = "
+      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, __connection->getCommunicator());";
+    C << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
+    for(i = 0; i < capitalizedMembers.size(); ++i)
+    {
+        string indexName = dict.indices[i].member;
+        if(indexName.empty())
+        {
+            indexName = "index";
+        }
+        indexName = string("\"") + indexName + "\"";
+
+        C << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
+    }
+    C << nl << "Freeze::MapHelper::recreate(__connection, __dbName, " 
+      << absolute + "KeyCodec::typeId(), "
+      << absolute + "ValueCodec::typeId(), __keyCompare, __indices);";
     C << eb;
 
     //
@@ -685,6 +725,30 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
         C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
         C << nl << "return const_iterator(_helper->index(" << indexName 
           << ")->untypedFind(__bytes, true, __onlyDups), _communicator);";
+        C << eb;
+
+        C << sp << nl << absolute << "::iterator"
+          << nl << absolute << "::" << "beginFor" << capitalizedMembers[i] << "()";
+        C << sb;
+        C << nl << "return iterator(_helper->index(" << indexName << ")->begin(false), _communicator);";
+        C << eb;
+
+        C << sp << nl << absolute << "::const_iterator"
+          << nl << absolute << "::" << "beginFor" << capitalizedMembers[i] << "() const";
+        C << sb;
+        C << nl << "return const_iterator(_helper->index(" << indexName << ")->begin(true), _communicator);";
+        C << eb;
+
+        C << sp << nl << absolute << "::iterator"
+          << nl << absolute << "::" << "endFor" << capitalizedMembers[i] << "()";
+        C << sb;
+        C << nl << "return iterator();";
+        C << eb;
+
+        C << sp << nl << absolute << "::const_iterator"
+          << nl << absolute << "::" << "endFor" << capitalizedMembers[i] << "() const";
+        C << sb;
+        C << nl << "return const_iterator();";
         C << eb;
 
         C << sp << nl << absolute << "::iterator"

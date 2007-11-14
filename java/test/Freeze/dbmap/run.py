@@ -29,7 +29,7 @@ dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
 print "starting client...",
-clientPipe = TestUtil.startClient("Client", " " + testdir + " 2>&1")
+clientPipe = TestUtil.startClient("Client", testdir + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

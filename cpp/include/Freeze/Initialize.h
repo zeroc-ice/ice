@@ -80,6 +80,7 @@ FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicat
                                           DbEnv& dbEnv);
 
 FREEZE_API const std::string& catalogName();
+FREEZE_API const std::string& catalogIndexListName();
 
 FREEZE_API DbTxn* getTxn(const TransactionPtr&);
 
