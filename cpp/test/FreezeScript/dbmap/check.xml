@@ -54,6 +54,10 @@
         <fail test="new.stringToFloat - 2920.1 > 0.001"/>
         <fail test="new.stringToDouble - 9290.9 > 0.001"/>
         <fail test="new.stringToString != 'hello world'"/>
+        <fail test="new.stringToString.length != 11"/>
+        <fail test="new.stringToString.replace(new.stringToString.length, 0, '!') != 'hello world!'"/>
+        <fail test="new.stringToString.replace(0, 6, '') != 'world'"/>
+        <fail test="'hello' + 'world' != 'helloworld'"/>
         <fail test="new.stringToEnum != ::New::Test::E1"/>
 
         <!-- Sequences -->

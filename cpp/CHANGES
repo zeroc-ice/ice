@@ -1,6 +1,12 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Fixed a bug in FreezeScript that caused a failure when a script
+  attempted to access the 'length' member of a string value.
+
+- Added support for string concatenation in FreezeScript using the
+  '+' operator.
+
 - Changed servant locators so both locate() and finished() can
   throw user exceptions. (See the manual for details.)
 
