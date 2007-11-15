@@ -70,7 +70,7 @@ public class LocalExceptionWrapper extends Exception
             throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
         }
         /*
-        throw new LocalExceptionWrapper(new Ice.UnknownException(ex.toString()), false);
+        throw new LocalExceptionWrapper(new Ice.UnknownException(ex.ice_name()), false);
         */
 
         if(ex instanceof RuntimeException)
