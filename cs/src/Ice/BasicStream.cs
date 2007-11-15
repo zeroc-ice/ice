@@ -2690,7 +2690,7 @@ namespace IceInternal
                     }
                     catch(Exception ex)
                     {
-                        throw new Ice.UnknownUserException(id, ex);
+                        throw new Ice.UnknownUserException(id.Substring(2), ex);
                     }
                 }
             }
