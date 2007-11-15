@@ -8,7 +8,10 @@
 # **********************************************************************
 
 !if "$(ICE_HOME)" == ""
-!error ICE_HOME is not defined
+ICE_DIR		= $(top_srcdir)\..
+USE_SRC_DIR	= 1
+!else
+ICE_DIR 	= $(ICE_HOME)
 !endif
 
 #
@@ -36,8 +39,9 @@ CPP_COMPILER            = VC80
 #
 # Set PYTHON_HOME to your Python installation directory.
 #
-
+!if "$(PYTHON_HOME)" == ""
 PYTHON_HOME		= C:\Python24
+!endif
 
 #
 # STLPort is required if using MSVC++ 6.0. Change if STLPort
@@ -81,10 +85,10 @@ THIRDPARTY_HOME		= $(STLPORT_HOME)
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
-!if exist ($(top_srcdir)\config\Make.rules.msvc)
-!include $(top_srcdir)\config\Make.rules.msvc
+!if exist ($(ICE_DIR)\config\Make.rules.msvc)
+!include $(ICE_DIR)\config\Make.rules.msvc
 !else
-!include $(ICE_HOME)\config\Make.rules.msvc
+!include $(ICE_DIR)\cpp\config\Make.rules.msvc
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
@@ -94,14 +98,18 @@ PYLIBSUFFIX     = _$(LIBSUFFIX)
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 
-ICE_CPPFLAGS		= -I"$(ICE_HOME)\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ICE_HOME)\lib"
-
-
-!if exist ($(top_srcdir)\slice)
-slicedir		= $(top_srcdir)\slice
+!if "$(USE_SRC_DIR)" == "1"
+ICE_CPPFLAGS		= -I"$(ICE_DIR)\cpp\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\cpp\lib"
 !else
-slicedir		= $(ICE_HOME)\slice
+ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
+!endif
+
+!if exist ("$(ICE_DIR)\slice")
+slicedir 		= $(ICE_DIR)\slice
+!else
+slicedir                = $(ICE_DIR)\..\slice
 !endif
 
 PYTHON_CPPFLAGS		= -I"$(PYTHON_HOME)\include"
@@ -113,7 +121,11 @@ libsubdir		= lib
 ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
-SLICE2PY		= "$(ICE_HOME)\bin\slice2py.exe"
+!if "$(USE_SRC_DIR)" == "1"
+SLICE2PY		= "$(ICE_DIR)\cpp\bin\slice2py.exe"
+!else
+SLICE2PY		= "$(ICE_DIR)\bin\slice2py.exe"
+!endif
 
 EVERYTHING		= all clean install
 

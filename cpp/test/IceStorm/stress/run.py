@@ -21,13 +21,12 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("IceStorm", "stress")
-testdir = os.path.join(toplevel, "test", name)
-
-exedir = os.path.join(toplevel, "test", "IceStorm", "stress")
+testdir = os.path.dirname(os.path.abspath(__file__))
+exedir = testdir
 
 iceBox = TestUtil.getIceBox(exedir)
-iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
-iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
+iceBoxAdmin = os.path.join(TestUtil.getBinDir(__file__), "iceboxadmin")
+iceStormAdmin = os.path.join(TestUtil.getBinDir(__file__), "icestormadmin")
 
 iceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p 12010" --Ice.Default.Locator='
 
@@ -59,28 +58,20 @@ def doTest(subOpts, pubOpts):
     global iceStormReference
     global iceStormReference2
 
-    publisher = os.path.join(toplevel, "test", "IceStorm", "stress", "publisher")
-    subscriber = os.path.join(toplevel, "test", "IceStorm", "stress", "subscriber")
+    publisher = os.path.join(testdir, "publisher")
+    subscriber = os.path.join(testdir, "subscriber")
 
     subscriberPipes = []
     if type(subOpts) != type([]):
         subOpts = [ subOpts ]
     for opts in subOpts:
         # We don't want the subscribers to time out.
-        command = subscriber + TestUtil.clientServerOptions + r' --Ice.ServerIdleTime=0 ' + opts
-        if TestUtil.debug:
-            print "(" + command + ")",
-            sys.stdout.flush()
-        pipe = os.popen(command + " 2>&1")
+        pipe = TestUtil.startServer(subscriber, r' --Ice.ServerIdleTime=0 ' + opts + " 2>&1")
         TestUtil.getServerPid(pipe)
         TestUtil.getAdapterReady(pipe)
         subscriberPipes.append(pipe)
 
-    command = publisher + TestUtil.clientOptions + iceStormReference + r' ' + pubOpts
-    if TestUtil.debug:
-        print "(" + command + ")",
-        sys.stdout.flush()
-    publisherPipe = os.popen(command + " 2>&1")
+    publisherPipe = TestUtil.startClient(publisher, iceStormReference + ' ' + pubOpts + " 2>&1")
 
     TestUtil.printOutputFromPipe(publisherPipe)
 
@@ -101,7 +92,7 @@ def doTest(subOpts, pubOpts):
 
     return 0
 
-def startServers():
+def startServers(additionalArgs=""):
     global iceBox
     global iceBoxEndpoints
     global iceBoxEndpoints2
@@ -111,19 +102,13 @@ def startServers():
     global iceStormDBEnv2
     print "starting icestorm services...",
     sys.stdout.flush()
-    # Clear the idle timeout otherwise the IceBox ThreadPool will timeout.
-    command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + ' --Ice.ServerIdleTime=0'
-    if TestUtil.debug:
-        print "(" + command + ")",
-        sys.stdout.flush()
-    iceBoxPipe = os.popen(command + " 2>&1")
+    # Clear the idle timeout otherwise the IceBox ThreadPool will timeout.wA
+    command = iceBoxEndpoints + iceStormService + iceStormDBEnv + ' --Ice.ServerIdleTime=0' + additionalArgs
+    iceBoxPipe = TestUtil.startServer(iceBox, command + " 2>&1")
     TestUtil.getServerPid(iceBoxPipe)
     TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
-    command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints2 + iceStormService2 + iceStormDBEnv2 + ' --Ice.ServerIdleTime=0'
-    if TestUtil.debug:
-        print "(" + command + ")",
-        sys.stdout.flush()
-    iceBoxPipe2 = os.popen(command + " 2>&1")
+    command =  iceBoxEndpoints2 + iceStormService2 + iceStormDBEnv2 + ' --Ice.ServerIdleTime=0' + additionalArgs
+    iceBoxPipe2 = TestUtil.startServer(iceBox, command + " 2>&1")
     TestUtil.getServerPid(iceBoxPipe2)
     TestUtil.waitServiceReady(iceBoxPipe2, "IceStorm")
     print "ok"
@@ -137,21 +122,15 @@ def stopServers(p1, p2 = None):
     global iceBoxEndpoints2
     print "shutting down icestorm services...",
     sys.stdout.flush()
-    command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
-    if TestUtil.debug:
-        print "(" + command + ")",
-        sys.stdout.flush()
-    pipe = os.popen(command + " 2>&1")
+    command =  iceBoxEndpoints + r' shutdown'
+    pipe = TestUtil.startClient(iceBoxAdmin, command + " 2>&1")
     status = TestUtil.closePipe(pipe)
     if status or TestUtil.specificServerStatus(p1):
         TestUtil.killServers()
         sys.exit(1)
     if p2:
-        command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown'
-        if TestUtil.debug:
-            print "(" + command + ")",
-            sys.stdout.flush()
-        pipe = os.popen(command + " 2>&1")
+        command =  iceBoxEndpoints2 + r' shutdown'
+        pipe = TestUtil.startClient(iceBoxAdmin, command + " 2>&1")
         status = TestUtil.closePipe(pipe)
         if status or TestUtil.specificServerStatus(p2):
             TestUtil.killServers()
@@ -164,12 +143,8 @@ def runAdmin(cmd, desc = None):
     if desc:
         print desc,
         sys.stdout.flush()
-    command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
-        r' -e "' + cmd + '"'
-    if TestUtil.debug:
-        print "(" + command + ")",
-        sys.stdout.flush()
-    pipe = os.popen(command + " 2>&1")
+    command = adminIceStormReference + r' -e "' + cmd + '"'
+    pipe = TestUtil.startClient(iceStormAdmin, command + " 2>&1")
     status = TestUtil.closePipe(pipe)
     if status:
         TestUtil.killServers()
@@ -268,13 +243,8 @@ print "ok"
 # disabled here. The IceStorm servers are stopped and restarted so the
 # settings will take effect.
 #
-TestUtil.clientOptions = TestUtil.clientOptions + ' --Ice.Warn.Connections=0'
-TestUtil.serverOptions = TestUtil.serverOptions + ' --Ice.Warn.Connections=0'
-TestUtil.clientServerOptions = TestUtil.clientServerOptions + ' --Ice.Warn.Connections=0'
-TestUtil.collocatedOptions = TestUtil.collocatedOptions + ' --Ice.Warn.Connections=0'
-
 stopServers(server1, server2)
-server1, server2 = startServers()
+server1, server2 = startServers(" --Ice.Warn.Connections=0")
 
 runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered events with erratic subscriber... ",

@@ -22,7 +22,7 @@ import TestUtil
 import IceGridAdmin
 
 name = os.path.join("IceGrid", "update")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 node1Dir = os.path.join(testdir, "db", "node-1")
 if not os.path.exists(node1Dir):
@@ -36,10 +36,10 @@ if not os.path.exists(node2Dir):
 else:
     IceGridAdmin.cleanDbDir(node2Dir)
 
-nodeOverrideOptions = "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"" + \
+nodeOverrideOptions = "--IceDir=\"" + TestUtil.getMappingDir(__file__) + "\" --TestDir=\"" + testdir + "\"" + \
                       ' --NodePropertiesOverride="' + \
-                      TestUtil.clientServerOptions.replace("--", "") + \
+                      TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "") + \
                       ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
 
-IceGridAdmin.iceGridTest(name, "", nodeOverrideOptions)
+IceGridAdmin.iceGridTest(testdir, name, "", nodeOverrideOptions)
 sys.exit(0)

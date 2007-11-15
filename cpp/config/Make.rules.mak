@@ -89,7 +89,7 @@ SOVERSION		= 33
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include
-slicedir		= $(top_srcdir)\slice
+slicedir		= $(top_srcdir)\..\slice
 
 install_bindir		= $(prefix)\bin
 

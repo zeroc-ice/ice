@@ -7,10 +7,35 @@
 #
 # **********************************************************************
 
-ifndef ICE_HOME
-   ifneq ($(shell test -f /usr/include/Ice/Ice.h && echo 0),0)
-      $(error Ice installation not found, please set ICE_HOME!)
-   endif
+#
+# Set value to 1 if you are building Ice for Ruby against an RPM installation
+# of Ice.
+#
+USE_ICE_RPM ?= 0
+
+USE_SRC_DIST = 0
+
+ifneq ($(ICE_HOME),)
+    ifeq ($(USE_ICE_RPM), 1)
+$(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
+    endif
+
+    ICE_DIR = $(ICE_HOME)
+
+    ifneq ($(shell test -f $(ICE_DIR)/bin/icecpp && echo 0),0)
+$(error Unable to locate Ice files in $(ICE_DIR). Please verify ICE_HOME is properly configured and Ice is correctly installed.)
+    endif
+else
+    ifeq ($(USE_ICE_RPM),1)
+        ICE_DIR=/usr
+
+        ifneq ($(shell test -f $(ICE_DIR)/bin/icecpp && echo 0),0)
+$(error Unable to locate Ice files in $(ICE_DIR). Please verify that the required Ice RPMs are properly installed.) 
+        endif
+    else
+        ICE_DIR = $(top_srcdir)/..
+        USE_SRC_DIST = 1 
+    endif
 endif
 
 #
@@ -61,11 +86,12 @@ UNAME			:= $(shell uname)
 #
 # Locate and load platform specific definitions.
 #
-ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-    configdir		= $(top_srcdir)/config
+ifeq ($(shell test -f $(ICE_DIR)/cpp/config/Make.rules.$(UNAME) && echo 0),0)
+    configdir		= $(ICE_DIR)/cpp/config
 else
-    configdir		= $(ICE_HOME)/config
+    configdir		= $(ICE_DIR)/config
 endif
+
 include	 $(configdir)/Make.rules.$(UNAME)
 
 #
@@ -113,24 +139,40 @@ INSTALL_PROGRAM		= ${INSTALL}
 INSTALL_LIBRARY		= ${INSTALL}
 INSTALL_DATA		= ${INSTALL}
 
-ifneq ($(ICE_HOME),)
-    ifeq ($(LP64),yes)
-       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib
-    else 
-       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib
+ifneq ($(ICE_DIR),)
+    ifneq ($(USE_SRC_DIST),0)
+        ifeq ($(LP64),yes)
+           ICE_LIB_DIRS	= -L$(ICE_DIR)/cpp/lib64 -L$(ICE_DIR)/cpp/lib
+        else 
+           ICE_LIB_DIRS	= -L$(ICE_DIR)/cpp/lib
+        endif
+    else
+        ifeq ($(LP64),yes)
+           ICE_LIB_DIRS	= -L$(ICE_DIR)/lib64 -L$(ICE_DIR)/lib
+        else 
+           ICE_LIB_DIRS	= -L$(ICE_DIR)/lib
+        endif
     endif
 endif
 
 ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
 
-ifneq ($(ICE_HOME),)
-    ICE_FLAGS		= -I$(ICE_HOME)/include
+ifneq ($(ICE_DIR),)
+    ifneq ($(USE_SRC_DIST),0)
+        ICE_FLAGS	= -I$(ICE_DIR)/cpp/include
+    else
+        ICE_FLAGS	= -I$(ICE_DIR)/include
+    endif
 endif
 
-ifneq ($(ICE_HOME),)
-    slicedir		= $(ICE_HOME)/slice
-else
+ifneq ($(USE_ICE_RPM),0)
     slicedir		= /usr/share/Ice-$(VERSION)/slice
+else
+    ifeq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+        slicedir		= $(ICE_DIR)/slice
+    else
+        slicedir		= $(ICE_DIR)/../slice
+    endif
 endif
 
 ifeq ($(LP64),yes)

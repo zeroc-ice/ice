@@ -8,7 +8,10 @@
 # **********************************************************************
 
 !if "$(ICE_HOME)" == ""
-!error Ice distribution not found, please set ICE_HOME!
+ICE_DIR		= $(top_srcdir)\..
+USE_SRC_DIR	= 1
+!else
+ICE_DIR 	= $(ICE_HOME)
 !endif
 
 #
@@ -53,12 +56,12 @@ libdir			= $(top_srcdir)\lib
 
 #
 # If a slice directory is contained along with this distribution -- use it. 
-# Otherwise use paths relative to $(ICE_HOME).
 #
-!if exist ($(top_srcdir)\slice)
-slicedir 		= $(top_srcdir)\slice
+
+!if exist("$(ICE_DIR)\slice")
+slicedir 		= $(ICE_DIR)\slice
 !else
-slicedir 		= $(ICE_HOME)\slice
+slicedir                = $(ICE_DIR)\..\slice
 !endif
 
 install_bindir		= $(prefix)\bin
@@ -84,7 +87,11 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-SLICE2CS		= "$(ICE_HOME)\bin\slice2cs"
+!if "$(USE_SRC_DIR)" == "1"
+SLICE2CS		= "$(ICE_DIR)\cpp\bin\slice2cs.exe"
+!else
+SLICE2CS		= "$(ICE_DIR)\bin\slice2cs.exe"
+!endif
 
 EVERYTHING		= all clean install 
 

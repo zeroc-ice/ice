@@ -32,7 +32,6 @@ def testExceptions(obj, collocated):
         test(False)
     except Ice.UnknownUserException, ex:
         test(ex.unknown == "reason")
-        pass
     except:
         test(False)
 
@@ -41,7 +40,8 @@ def testExceptions(obj, collocated):
         test(False)
     except Ice.UnknownLocalException, ex:
         test(ex.unknown == "reason")
-        pass
+    except:
+        test(False)
 
     try:
         obj.unknownException()
@@ -107,7 +107,7 @@ def testExceptions(obj, collocated):
         obj.intfUserException(False)
         test(False)
     except Test.TestImpossibleException:
-        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        # Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
         pass
     except:
         test(False)
@@ -116,7 +116,7 @@ def testExceptions(obj, collocated):
         obj.intfUserException(True)
         test(False)
     except Test.TestImpossibleException:
-        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        # Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
         pass
     except:
         test(False)
@@ -133,6 +133,27 @@ def allTests(communicator, collocated):
     obj = Test.TestIntfPrx.checkedCast(base)
     test(obj)
     test(obj == base)
+    print "ok"
+
+    print "testing ice_ids...",
+    sys.stdout.flush()
+    try:
+        obj = communicator.stringToProxy("category/locate:default -p 12010 -t 10000")
+        obj.ice_ids()
+        test(False)
+    except Ice.UnknownUserException, ex:
+        test(ex.unknown == "Test::TestIntfUserException")
+    except:
+        test(False)
+
+    try:
+        obj = communicator.stringToProxy("category/finished:default -p 12010 -t 10000")
+        obj.ice_ids()
+        test(False)
+    except Ice.UnknownUserException, ex:
+        test(ex.unknown == "Test::TestIntfUserException")
+    except:
+        test(False)
     print "ok"
 
     print "testing servant locator...",

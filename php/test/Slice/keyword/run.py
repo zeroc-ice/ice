@@ -22,6 +22,18 @@ import TestUtil
 
 name = os.path.join("Slice", "keyword")
 
-TestUtil.clientTest(name, "Client.php")
+testdir = os.path.dirname(os.path.abspath(__file__))
+
+client = os.path.join(testdir, "Client.php")
+
+print "starting client...", 
+clientPipe = TestUtil.startClient(client, "") 
+print "ok"
+
+TestUtil.printOutputFromPipe(clientPipe)
+
+clientStatus = TestUtil.closePipe(clientPipe)
+if clientStatus:
+    sys.exit(1)
 
 sys.exit(0)

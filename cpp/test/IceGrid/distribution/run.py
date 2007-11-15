@@ -23,7 +23,7 @@ import IceGridAdmin
 
 def icepatch2Calc(datadir, dirname):
 
-    icePatch2Calc = os.path.join(toplevel, "bin", "icepatch2calc")
+    icePatch2Calc = os.path.join(TestUtil.getBinDir(__file__), "icepatch2calc")
     commandPipe = os.popen(icePatch2Calc + " " + os.path.join(datadir, dirname) + " 2>&1")
 
     TestUtil.printOutputFromPipe(commandPipe)
@@ -33,7 +33,8 @@ def icepatch2Calc(datadir, dirname):
         sys.exit(1)
 
 name = os.path.join("IceGrid", "distribution")
-testdir = os.path.join(toplevel, "test", name)
+
+testdir = os.path.dirname(os.path.abspath(__file__))
 datadir = os.path.join(testdir, "data")
  
 files = [ \
@@ -66,7 +67,7 @@ icepatch2Calc(datadir, "original")
 icepatch2Calc(datadir, "updated")
 print "ok"
 
-IceGridAdmin.iceGridTest(name, "application.xml", "")
+IceGridAdmin.iceGridTest(testdir, name, "application.xml", "")
 
 IceGridAdmin.cleanDbDir(datadir)
 os.rmdir(datadir)

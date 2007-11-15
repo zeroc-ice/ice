@@ -10,7 +10,7 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -22,9 +22,9 @@ import TestUtil
 
 name = os.path.join("Ice", "servantLocator")
 nameAMD = os.path.join("Ice", "servantLocatorAMD")
-testdir = os.path.join(toplevel, "test", name)
-testdirAMD = os.path.join(toplevel, "test", nameAMD)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
+testdir = os.path.dirname(os.path.abspath(__file__))
+testdirAMD = testdir + "AMD" 
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
 #
 # We need to use mixedClientServerTest so that, when using SSL, the
@@ -33,14 +33,14 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 #
 print "tests with regular server."
 classpath = os.getenv("CLASSPATH", "")
-TestUtil.mixedClientServerTest()
+TestUtil.mixedClientServerTest(name)
 
 print "tests with AMD server."
-TestUtil.clientServerTestWithClasspath(\
-    os.path.join(testdirAMD, "classes") + TestUtil.sep + classpath,\
-    os.path.join(testdir, "classes") + TestUtil.sep + classpath)
+TestUtil.clientServerTestWithClasspath(name, \
+    os.path.join(testdirAMD, "classes") + os.pathsep + classpath,\
+    os.path.join(testdir, "classes") + os.pathsep + classpath)
 
 print "tests with collocated server."
-TestUtil.collocatedTest()
+TestUtil.collocatedTest(name)
 
 sys.exit(0)

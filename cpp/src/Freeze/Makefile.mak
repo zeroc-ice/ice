@@ -70,7 +70,7 @@ $(DLLNAME): $(OBJS)
 $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 	del /q $(HDIR)\Catalog.h Catalog.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
-	Catalog ../../slice/Freeze/CatalogData.ice
+	Catalog $(slicedir)/Freeze/CatalogData.ice
 	move Catalog.h $(HDIR)
 
 clean::
@@ -79,7 +79,7 @@ clean::
 clean::
 	del /q $(DLLNAME:.dll=.*)
 	del /q DB.cpp $(HDIR)\DB.h
-        del /q BackgroundSaveEvictor.cpp $(HDIR)\BackgroundSaveEvictor.h
+	del /q BackgroundSaveEvictor.cpp $(HDIR)\BackgroundSaveEvictor.h
 	del /q CatalogData.cpp $(HDIR)\CatalogData.h
 	del /q Connection.cpp $(HDIR)\Connection.h
 	del /q ConnectionF.cpp $(HDIR)\ConnectionF.h 
@@ -88,7 +88,7 @@ clean::
 	del /q Evictor.cpp $(HDIR)\Evictor.h
 	del /q EvictorStorage.cpp $(HDIR)\EvictorStorage.h
 	del /q Transaction.cpp $(HDIR)\Transaction.h
-        del /q TransactionalEvictor.cpp $(HDIR)\TransactionalEvictor.h
+	del /q TransactionalEvictor.cpp $(HDIR)\TransactionalEvictor.h
 	del /q PingObject.cpp PingObject.h
 
 install:: all

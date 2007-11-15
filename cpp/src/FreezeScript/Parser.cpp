@@ -275,9 +275,22 @@ FreezeScript::BinaryNode::evaluate(const SymbolTablePtr& st)
     {
         DataPtr leftValue = _left->evaluate(st);
         DataPtr rightValue = _right->evaluate(st);
+        StringDataPtr sleft = StringDataPtr::dynamicCast(leftValue);
+        StringDataPtr sright = StringDataPtr::dynamicCast(rightValue);
         IntegerDataPtr ileft = IntegerDataPtr::dynamicCast(leftValue);
         IntegerDataPtr iright = IntegerDataPtr::dynamicCast(rightValue);
-        if(ileft && iright)
+        if(sleft || sright)
+        {
+            if(sleft && sright)
+            {
+                result = _factory->createString(leftValue->stringValue() + rightValue->stringValue(), true);
+            }
+            else
+            {
+                _factory->getErrorReporter()->error("string concatenation requires two string arguments");
+            }
+        }
+        else if(ileft && iright)
         {
             result = _factory->createInteger(leftValue->integerValue() + rightValue->integerValue(), true);
         }
