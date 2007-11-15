@@ -24,7 +24,7 @@ public class Client : Ice.Application
     private int
     run(Test.MyObjectPrx prx, InterceptorI interceptor)
     {
-        Console.Out.Write("testing simple interceptor...");
+        Console.Out.Write("testing simple interceptor... ");
         Console.Out.Flush();
         test(interceptor.getLastOperation() == null);
         test(interceptor.getLastStatus() == Ice.DispatchStatus.DispatchAsync);
@@ -41,13 +41,13 @@ public class Client : Ice.Application
         test(interceptor.getLastOperation().Equals("add"));
         test(interceptor.getLastStatus().Equals(Ice.DispatchStatus.DispatchOK));
         Console.WriteLine("ok");
-        Console.Out.Write("testing retry...");
+        Console.Out.Write("testing retry... ");
         Console.Out.Flush();
         test(prx.addWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().Equals("addWithRetry"));
         test(interceptor.getLastStatus().Equals(Ice.DispatchStatus.DispatchOK));
         Console.WriteLine("ok");
-        Console.Out.Write("testing user exception...");
+        Console.Out.Write("testing user exception... ");
         Console.Out.Flush();
         try
         {
@@ -61,7 +61,7 @@ public class Client : Ice.Application
         test(interceptor.getLastOperation().Equals("badAdd"));
         test(interceptor.getLastStatus().Equals(Ice.DispatchStatus.DispatchUserException));
         Console.WriteLine("ok");
-        Console.Out.Write("testing ONE...");
+        Console.Out.Write("testing ONE... ");
         Console.Out.Flush();
         interceptor.clear();
         try
@@ -76,7 +76,7 @@ public class Client : Ice.Application
         test(interceptor.getLastOperation().Equals("notExistAdd"));
         test(interceptor.getLastStatus() == Ice.DispatchStatus.DispatchAsync);
         Console.WriteLine("ok");
-        Console.Out.Write("testing system exception...");
+        Console.Out.Write("testing system exception... ");
         Console.Out.Flush();
         interceptor.clear();
         try
@@ -97,7 +97,7 @@ public class Client : Ice.Application
         Console.WriteLine("ok");
         if(!prx.ice_isCollocationOptimized())
         {
-            Console.Out.Write("testing simple AMD...");
+            Console.Out.Write("testing simple AMD... ");
             Console.Out.Flush();
             test(prx.amdAdd(33, 12) == 45);
             test(interceptor.getLastOperation().Equals("amdAdd"));
@@ -110,7 +110,7 @@ public class Client : Ice.Application
     private int
     runAmd(Test.MyObjectPrx prx, AMDInterceptorI interceptor)
     {
-        Console.Out.Write("testing simple interceptor...");
+        Console.Out.Write("testing simple interceptor... ");
         Console.Out.Flush();
         test(interceptor.getLastOperation() == null);
         test(interceptor.getLastStatus() == Ice.DispatchStatus.DispatchAsync);
@@ -119,14 +119,14 @@ public class Client : Ice.Application
         test(interceptor.getLastStatus().Equals(Ice.DispatchStatus.DispatchAsync));
         test(interceptor.getActualStatus().Equals(Ice.DispatchStatus.DispatchOK));
         Console.WriteLine("ok");
-        Console.Out.Write("testing retry...");
+        Console.Out.Write("testing retry... ");
         Console.Out.Flush();
         test(prx.amdAddWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().Equals("amdAddWithRetry"));
         test(interceptor.getLastStatus().Equals(Ice.DispatchStatus.DispatchAsync));
         test(interceptor.getActualStatus().Equals(Ice.DispatchStatus.DispatchOK));
         Console.WriteLine("ok");
-        Console.Out.Write("testing user exception...");
+        Console.Out.Write("testing user exception... ");
         Console.Out.Flush();
         try
         {
@@ -141,7 +141,7 @@ public class Client : Ice.Application
         test(interceptor.getLastStatus().Equals(Ice.DispatchStatus.DispatchAsync));
         test(interceptor.getActualStatus().Equals(Ice.DispatchStatus.DispatchUserException));
         Console.WriteLine("ok");
-        Console.Out.Write("testing ONE...");
+        Console.Out.Write("testing ONE... ");
         Console.Out.Flush();
         interceptor.clear();
         try
@@ -158,7 +158,7 @@ public class Client : Ice.Application
         test(interceptor.getActualStatus() == Ice.DispatchStatus.DispatchAsync);
         test(interceptor.getException() is Ice.ObjectNotExistException);
         Console.WriteLine("ok");
-        Console.Out.Write("testing system exception...");
+        Console.Out.Write("testing system exception... ");
         Console.Out.Flush();
         interceptor.clear();
         try
