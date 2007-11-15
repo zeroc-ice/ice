@@ -89,7 +89,7 @@ def testExceptions(obj, collocated):
         obj.impossibleException(False)
         test(False)
     except Ice.UnknownUserException:
-        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        # Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
         pass
     except:
         test(False)
@@ -98,7 +98,7 @@ def testExceptions(obj, collocated):
         obj.impossibleException(True)
         test(False)
     except Ice.UnknownUserException:
-        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        # Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
         pass
     except:
         test(False)

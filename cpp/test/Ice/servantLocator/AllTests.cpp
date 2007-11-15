@@ -166,7 +166,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownUserException&)
     {
-        // Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
     }
     catch(...)
     {
@@ -180,7 +180,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownUserException&)
     {
-        // Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
     }
     catch(...)
     {
