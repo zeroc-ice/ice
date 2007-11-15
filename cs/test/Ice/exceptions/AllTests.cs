@@ -958,22 +958,8 @@ public class AllTests
                 thrower.throwUndeclaredA(1);
                 test(false);
             }
-            catch(A ex)
-            {
-                //
-                // We get the original exception with collocation
-                // optimization.
-                //
-                test(collocated);
-                test(ex.aMem == 1);
-            }
             catch(Ice.UnknownUserException)
             {
-                //
-                // We get an unknown user exception without collocation
-                // optimization.
-                //
-                test(!collocated);
             }
             catch(Exception)
             {
@@ -985,23 +971,8 @@ public class AllTests
                 thrower.throwUndeclaredB(1, 2);
                 test(false);
             }
-            catch(B ex)
-            {
-                //
-                // We get the original exception with collocation
-                // optimization.
-                //
-                test(collocated);
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-            }
             catch(Ice.UnknownUserException)
             {
-                //
-                // We get an unknown user exception without collocation
-                // optimization.
-                //
-                test(!collocated);
             }
             catch(Exception)
             {
@@ -1013,24 +984,8 @@ public class AllTests
                 thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
             }
-            catch(C ex)
-            {
-                //
-                // We get the original exception with collocation
-                // optimization.
-                //
-                test(collocated);
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
-            }
             catch(Ice.UnknownUserException)
             {
-                //
-                // We get an unknown user exception without collocation
-                // optimization.
-                //
-                test(!collocated);
             }
             catch(Exception)
             {
