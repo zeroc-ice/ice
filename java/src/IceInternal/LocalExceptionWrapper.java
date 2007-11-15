@@ -49,7 +49,7 @@ public class LocalExceptionWrapper extends Exception
     {
         if(ex instanceof Ice.UserException)
         {
-            throw new LocalExceptionWrapper(new Ice.UnknownUserException(ex.toString()), false);
+            throw new LocalExceptionWrapper(new Ice.UnknownUserException(((Ice.UserException)ex).ice_name()), false);
         }
         if(ex instanceof Ice.LocalException)
         {
@@ -65,7 +65,7 @@ public class LocalExceptionWrapper extends Exception
             {
                 throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
             }
-            throw new LocalExceptionWrapper(new Ice.UnknownLocalException(ex.toString()), false);
+            throw new LocalExceptionWrapper(new Ice.UnknownLocalException(ex.ice_name()), false);
             */
             throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
         }

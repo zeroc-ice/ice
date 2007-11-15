@@ -95,7 +95,11 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     private void
     exception(Ice.Current current) throws Ice.UserException
     {
-        if(current.operation.equals("requestFailedException"))
+        if(current.operation.equals("ice_ids"))
+        {
+            throw new Test.TestIntfUserException();
+        }
+        else if(current.operation.equals("requestFailedException"))
         {
             throw new ObjectNotExistException();
         }
