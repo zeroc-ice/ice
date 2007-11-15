@@ -297,7 +297,7 @@ namespace IceInternal
                     os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
-                    os_.writeString(ex.ToString());
+                    os_.writeString(ex.ice_name());
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -494,35 +494,60 @@ namespace IceInternal
                             }
                             if(locator_ != null)
                             {
-                                servant_ = locator_.locate(current_, out cookie_);
+                                try
+                                {
+                                    servant_ = locator_.locate(current_, out cookie_);
+                                }
+                                catch(Ice.UserException ex)
+                                {
+                                    os_.writeUserException(ex);
+                                    replyStatus = ReplyStatus.replyUserException;
+                                }
                             }
                         }
                     }
-                    if(servant_ == null)
+                    if(replyStatus == ReplyStatus.replyOK)
                     {
-                        if(servantManager != null && servantManager.hasServant(current_.id))
+                        if(servant_ == null)
                         {
-                            replyStatus = ReplyStatus.replyFacetNotExist;
+                            if(servantManager != null && servantManager.hasServant(current_.id))
+                            {
+                                replyStatus = ReplyStatus.replyFacetNotExist;
+                            }
+                            else
+                            {
+                                replyStatus = ReplyStatus.replyObjectNotExist;
+                            }
                         }
                         else
                         {
-                            replyStatus = ReplyStatus.replyObjectNotExist;
-                        }
+                            dispatchStatus = servant_.dispatch__(this, current_);
+                            if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                            {
+                                replyStatus = ReplyStatus.replyUserException;
+                            }
+                        }           
                     }
-                    else
-                    {
-                        dispatchStatus = servant_.dispatch__(this, current_);
-                        if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
-                        {
-                            replyStatus = ReplyStatus.replyUserException;
-                        }
-                    }           
                 }
                 finally
                 {
                     if(locator_ != null && servant_ != null && dispatchStatus != Ice.DispatchStatus.DispatchAsync)
                     {
-                        locator_.finished(current_, servant_, cookie_);
+                        try
+                        {
+                            locator_.finished(current_, servant_, cookie_);
+                        }
+                        catch(Ice.UserException ex)
+                        {
+                            //
+                            // The operation may have already marshaled a reply; we must overwrite that reply.
+                            //
+                            os_.endWriteEncaps();
+                            os_.resize(Protocol.headerSize + 5, false); // Byte following reply status.
+                            os_.startWriteEncaps();
+                            os_.writeUserException(ex);
+                            replyStatus = ReplyStatus.replyUserException; // Code below inserts the reply status.
+                        }
                     }
                 }
             }
@@ -642,7 +667,7 @@ namespace IceInternal
                 killAsync();
                 
                 //
-                // Let's rewind _is and clean-up _os
+                // Let's rewind _is and clean-up os_
                 //
                 _is.endReadEncaps();
                 _is.pos(_inParamPos);

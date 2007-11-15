@@ -114,7 +114,31 @@ namespace IceInternal
             {
                 if(locator_ != null && servant_ != null)
                 {
-                    locator_.finished(current_, servant_, cookie_);
+                    try
+                    {
+                        locator_.finished(current_, servant_, cookie_);
+                    }
+                    catch(Ice.UserException ex)
+                    {
+                        //
+                        // The operation may have already marshaled a reply; we must overwrite that reply.
+                        //
+                        if(response_)
+                        {
+                            os_.endWriteEncaps();
+                            os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                            os_.writeByte(ReplyStatus.replyUserException);
+                            os_.startWriteEncaps();
+                            os_.writeUserException(ex);
+                            os_.endWriteEncaps();
+                            connection_.sendResponse(os_, compress_);
+                        }
+                        else
+                        {
+                            connection_.sendNoResponse();
+                        }
+                        return false;
+                    }
                 }
                 return true;
             }

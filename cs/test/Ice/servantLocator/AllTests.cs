@@ -37,6 +37,10 @@ public class AllTests
                 test(ex.operation.Equals("requestFailedException"));
             }
         }
+        catch(System.Exception)
+        {
+            test(false);
+        }
 
         try
         {
@@ -46,6 +50,10 @@ public class AllTests
         catch(UnknownUserException ex)
         {
             test(ex.unknown.Equals("reason"));
+        }
+        catch(System.Exception)
+        {
+            test(false);
         }
 
         try
@@ -57,6 +65,10 @@ public class AllTests
         {
             test(ex.unknown.Equals("reason"));
         }
+        catch(System.Exception)
+        {
+            test(false);
+        }
 
         try
         {
@@ -67,6 +79,10 @@ public class AllTests
         {
             test(ex.unknown.Equals("reason"));
         }
+        catch(System.Exception)
+        {
+            test(false);
+        }
 
         try
         {
@@ -76,12 +92,11 @@ public class AllTests
         catch(UnknownUserException ex)
         {
             //Console.Error.WriteLine(ex.unknown);
-            test(!collocated);
-            test(ex.unknown.IndexOf("Test.TestIntfUserException") >= 0);
+            test(ex.unknown.IndexOf("Test::TestIntfUserException") >= 0);
         }
-        catch(TestIntfUserException)
+        catch(System.Exception)
         {
-            test(collocated);
+            test(false);
         }
 
         try
@@ -93,11 +108,15 @@ public class AllTests
         {
             //Console.Error.WriteLine(ex.unknown);
             test(!collocated);
-            test(ex.unknown.IndexOf("Ice.SocketException") >= 0);
+            test(ex.unknown.IndexOf("Ice::SocketException") >= 0);
         }
         catch(SocketException)
         {
             test(collocated);
+        }
+        catch(System.Exception)
+        {
+            test(false);
         }
 
         try
@@ -115,6 +134,63 @@ public class AllTests
         {
             test(collocated);
         }
+
+        try
+        {
+            obj.impossibleException(false);
+            test(false);
+        }
+        catch(UnknownUserException)
+        {
+            // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
+        }
+        catch(System.Exception)
+        {
+            test(false);
+        }
+
+        try
+        {
+            obj.impossibleException(true);
+            test(false);
+        }
+        catch(UnknownUserException)
+        {
+            // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
+        }
+        catch(System.Exception)
+        {
+            test(false);
+        }
+
+        try
+        {
+            obj.intfUserException(false);
+            test(false);
+        }
+        catch(TestImpossibleException)
+        {
+            // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
+        }
+        catch(System.Exception ex)
+        {
+            Console.WriteLine(ex);
+            test(false);
+        }
+
+        try
+        {
+            obj.intfUserException(true);
+            test(false);
+        }
+        catch(TestImpossibleException)
+        {
+            // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
+        }
+        catch(System.Exception)
+        {
+            test(false);
+        }
     }
 
     public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
@@ -131,6 +207,39 @@ public class AllTests
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
         test(obj.Equals(@base));
+        Console.Out.WriteLine("ok");
+
+        Console.Out.Write("testing ice_ids... ");
+        Console.Out.Flush();
+        try
+        {
+            Ice.ObjectPrx o = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+            o.ice_ids();
+            test(false);
+        }
+        catch(UnknownUserException ex)
+        {
+            test(ex.unknown.Equals("Test::TestIntfUserException"));
+        }
+        catch(System.Exception)
+        {
+            test(false);
+        }
+
+        try
+        {
+            Ice.ObjectPrx o = communicator.stringToProxy("category/finished:default -p 12010 -t 10000");
+            o.ice_ids();
+            test(false);
+        }
+        catch(UnknownUserException ex)
+        {
+            test(ex.unknown.Equals("Test::TestIntfUserException"));
+        }
+        catch(System.Exception)
+        {
+            test(false);
+        }
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing servant locator...");

@@ -1540,6 +1540,17 @@ Slice::CsGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
+    if(p->hasMetaData("UserException"))
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+        if(!cl->isLocal())
+        {
+            cout << p->definitionContext()->filename() << ":" << p->line()
+                 << ": warning: metdata directive `UserException' applies only to local operations "
+                 << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
+                 << "' is not local" << endl;
+        }
+    }
     validate(p);
 }
 

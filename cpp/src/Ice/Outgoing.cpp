@@ -67,8 +67,12 @@ IceInternal::LocalExceptionWrapper::throwUnknownWrapper(const std::exception& ex
         throw LocalExceptionWrapper(*le, false);
 #endif
     }
+#if 0
     string msg = "std::exception: ";
     throw LocalExceptionWrapper(UnknownException(__FILE__, __LINE__, msg + ex.what()), false);
+#else
+    throw ex;
+#endif
 }
 
 const LocalException*

@@ -1,6 +1,13 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- Changed servant locators so both locate() and finished() can
+  throw user exceptions. (See the manual for details.)
+
+- Added ice_name() method to exceptions, in keeping with the C++
+  and Java convention. The method returns the Slice type ID of
+  exception, without a leading "::" qualifier.
+
 - Fixed a bug that caused a NullPointer exception for sequences
   of structs if the structs used the class mapping and the sequence
   contained null elements.

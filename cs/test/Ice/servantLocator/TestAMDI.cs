@@ -46,6 +46,39 @@ public sealed class TestI : TestIntfDisp_
         cb.ice_response();
     }
 
+    public override void impossibleException_async(AMD_TestIntf_impossibleException cb, bool @throw,
+                                                   Ice.Current current)
+    {
+        if(@throw)
+        {
+            cb.ice_exception(new Test.TestImpossibleException());
+        }
+        else
+        {
+            //
+            // Return a value so we can be sure that the stream position
+            // is reset correctly iuf finished throws.
+            //
+            cb.ice_response("Hello");
+        }
+    }
+
+    public override void intfUserException_async(AMD_TestIntf_intfUserException cb, bool @throw, Ice.Current current)
+    {
+        if(@throw)
+        {
+            cb.ice_exception(new Test.TestIntfUserException());
+        }
+        else
+        {
+            //
+            // Return a value so we can be sure that the stream position
+            // is reset correctly iuf finished throws.
+            //
+            cb.ice_response("Hello");
+        }
+    }
+
     public override void shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
         current.adapter.deactivate();

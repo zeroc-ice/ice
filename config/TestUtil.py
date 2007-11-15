@@ -711,7 +711,7 @@ def getCommandLine(exe, config, env = getTestEnv()):
     
     output = StringIO.StringIO()
     if config.mono and config.lang == "cs":
-        print >>output, "mono", "%s.exe" % exe,
+        print >>output, "mono", "--debug %s.exe" % exe,
     elif config.lang == "rb" and config.type == "client":
         print >>output, "ruby", exe,
     elif config.lang == "java":
