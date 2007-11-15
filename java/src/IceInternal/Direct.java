@@ -63,6 +63,7 @@ public abstract class Direct implements Ice.Request
                     }
                     catch(Ice.UserException ex)
                     {
+                        adapter.decDirectCount();
                         throw ex;
                     }
                 }
