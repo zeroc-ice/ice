@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= casino phonebook bench library backup
+SUBDIRS		= casino phonebook bench library backup transform
 ifneq ($(UNAME),Darwin)
 SUBDIRS		+= customEvictor
 endif
