@@ -9,7 +9,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Collections.Generic;
 
 public class TwowaysAMI
@@ -20,44 +19,6 @@ public class TwowaysAMI
         {
             throw new System.SystemException();
         }
-    }
-    
-    private class Callback
-    {
-        internal Callback()
-        {
-            _called = false;
-        }
-        
-        public virtual bool check()
-        {
-            int cnt = 0;
-            do
-            {
-                lock(this)
-                {
-                    if(_called)
-                    {
-                        return true;
-                    }
-                }
-                Thread.Sleep(100);
-            }
-            while(++cnt < 50);
-
-            return false; // Must be timeout
-        }
-        
-        public virtual void called()
-        {
-            lock(this)
-            {
-                Debug.Assert(!_called);
-                _called = true;
-            }
-        }
-        
-        private bool _called;
     }
     
     private class AMI_MyClass_opVoidI : Test.AMI_MyClass_opVoid
@@ -72,9 +33,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -93,9 +54,9 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public virtual bool check()
+        public virtual bool checkWait()
         {
-            return callback.check();
+            return callback.checkWait();
         }
 
         private Callback callback = new Callback();
@@ -115,9 +76,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -136,9 +97,9 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public virtual bool check()
+        public virtual bool checkWait()
         {
-            return callback.check();
+            return callback.checkWait();
         }
 
         private Callback callback = new Callback();
@@ -158,9 +119,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -182,9 +143,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -205,9 +166,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -227,9 +188,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -249,9 +210,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -291,9 +252,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -327,9 +288,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -362,9 +323,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -391,9 +352,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -431,9 +392,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -464,9 +425,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -493,9 +454,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -532,9 +493,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -552,9 +513,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -572,9 +533,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -612,9 +573,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -647,9 +608,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -699,9 +660,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -728,9 +689,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -757,9 +718,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -786,9 +747,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -815,9 +776,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -844,9 +805,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
@@ -875,9 +836,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private int _l;
@@ -903,9 +864,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Dictionary<string, string> _d;
@@ -931,9 +892,9 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Dictionary<string, string> _d;
@@ -952,15 +913,15 @@ public class TwowaysAMI
             test(false);
         }
         
-        public virtual bool check()
+        public virtual Callback getCallback()
         {
-            return callback.check();
+            return callback;
         }
         
         private Callback callback = new Callback();
     }
     
-    internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static List<Callback> twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
             // Check that a call to a void operation raises TwowayOnlyException
@@ -975,7 +936,7 @@ public class TwowaysAMI
             {
                 test(false);
             }
-            test(cb.check());
+            test(cb.checkWait());
         }
 
         {
@@ -991,55 +952,57 @@ public class TwowaysAMI
             {
                 test(false);
             }
-            test(cb.check());
+            test(cb.checkWait());
         }
+
+        List<Callback> callbacks = new List<Callback>();
 
         {
             AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
             p.opVoid_async(cb);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
             AMI_MyClass_opByteI cb = new AMI_MyClass_opByteI();
             p.opByte_async(cb, 0xff, 0x0f);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
             AMI_MyClass_opBoolI cb = new AMI_MyClass_opBoolI();
             p.opBool_async(cb, true, false);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
             AMI_MyClass_opShortIntLongI cb = new AMI_MyClass_opShortIntLongI();
             p.opShortIntLong_async(cb, (short) 10, 11, 12L);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
             AMI_MyClass_opFloatDoubleI cb = new AMI_MyClass_opFloatDoubleI();
             p.opFloatDouble_async(cb, 3.14f, 1.1e10);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
             AMI_MyClass_opStringI cb = new AMI_MyClass_opStringI();
             p.opString_async(cb, "hello", "world");
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
             AMI_MyClass_opMyEnumI cb = new AMI_MyClass_opMyEnumI();
             p.opMyEnum_async(cb, Test.MyEnum.enum2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
             AMI_MyClass_opMyClassI cb = new AMI_MyClass_opMyClassI(communicator);
             p.opMyClass_async(cb, p);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1056,7 +1019,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opStructI cb = new AMI_MyClass_opStructI(communicator);
             p.opStruct_async(cb, si1, si2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1065,7 +1028,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opByteSI cb = new AMI_MyClass_opByteSI();
             p.opByteS_async(cb, bsi1, bsi2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1074,7 +1037,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opBoolSI cb = new AMI_MyClass_opBoolSI();
             p.opBoolS_async(cb, bsi1, bsi2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1084,7 +1047,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opShortIntLongSI cb = new AMI_MyClass_opShortIntLongSI();
             p.opShortIntLongS_async(cb, ssi, isi, lsi);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1093,7 +1056,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opFloatDoubleSI cb = new AMI_MyClass_opFloatDoubleSI();
             p.opFloatDoubleS_async(cb, fsi, dsi);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1102,7 +1065,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opStringSI cb = new AMI_MyClass_opStringSI();
             p.opStringS_async(cb, ssi1, ssi2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1122,7 +1085,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
             p.opByteSS_async(cb, bsi1, bsi2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1136,7 +1099,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opFloatDoubleSSI cb = new AMI_MyClass_opFloatDoubleSSI();
             p.opFloatDoubleSS_async(cb, fsi, dsi);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1154,7 +1117,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
             p.opStringSS_async(cb, ssi1, ssi2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
 
         {
@@ -1177,7 +1140,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opStringSSSI cb = new AMI_MyClass_opStringSSSI();
             p.opStringSSS_async(cb, sssi1, sssi2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1191,7 +1154,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opByteBoolDI cb = new AMI_MyClass_opByteBoolDI();
             p.opByteBoolD_async(cb, di1, di2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1205,7 +1168,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opShortIntDI cb = new AMI_MyClass_opShortIntDI();
             p.opShortIntD_async(cb, di1, di2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1219,7 +1182,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opLongFloatDI cb = new AMI_MyClass_opLongFloatDI();
             p.opLongFloatD_async(cb, di1, di2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1233,7 +1196,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opStringStringDI cb = new AMI_MyClass_opStringStringDI();
             p.opStringStringD_async(cb, di1, di2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1247,7 +1210,7 @@ public class TwowaysAMI
             
             AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
             p.opStringMyEnumD_async(cb, di1, di2);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
         
         {
@@ -1262,7 +1225,7 @@ public class TwowaysAMI
                 }
                 AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(lengths[l]);
                 p.opIntS_async(cb, s);
-                test(cb.check());
+                callbacks.Add(cb.getCallback());
             }
         }
         
@@ -1275,114 +1238,25 @@ public class TwowaysAMI
                 test(p.ice_getContext().Count == 0);
                 AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(ctx);
                 p.opContext_async(cb);
-                test(cb.check());
+                callbacks.Add(cb.getCallback());
             }
             {
                 test(p.ice_getContext().Count == 0);
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p.opContext_async(cb, ctx);
-                test(cb.check());
+                callbacks.Add(cb.getCallback());
             }
             Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
             test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
             {
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p2.opContext_async(cb);
-                test(cb.check());
+                callbacks.Add(cb.getCallback());
             }
             {
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p2.opContext_async(cb, ctx);
-                test(cb.check());
-            }
-            {
-                //
-                // Test that default context is obtained correctly from communicator.
-                //
-/* DEPRECATED
-                Dictionary<string, string> dflt = new Dictionary<string, string>();
-                dflt["a"] = "b";
-                communicator.setDefaultContext(dflt);
-                {
-                    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(dflt);
-                    p.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
-                {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
-                    p2.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
-                {
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
-                    p2.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                communicator.setDefaultContext(new Ice.Context());
-                {
-                    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(new Ice.Context());
-                    p2.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                communicator.setDefaultContext(dflt);
-                Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-                                                communicator.stringToProxy("test:default -p 12010 -t 10000"));
-                {
-                    Ice.Context tmp = new Ice.Context();
-                    tmp["a"] = "b";
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-                    c.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                dflt["a"] = "c";
-                Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
-                {
-                    Ice.Context tmp = new Ice.Context();
-                    tmp["a"] = "c";
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-                    c2.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                dflt.Clear();
-                Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
-                {
-                    Dictionary<string, string> tmp = new Dictionary<string, string>();
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-                    c3.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
-                {
-                    Dictionary<string, string> tmp = new Dictionary<string, string>();
-                    tmp["a"] = "b";
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-                    c4.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                dflt["a"] = "d";
-                communicator.setDefaultContext(dflt);
-
-                Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
-                {
-                    Dictionary<string, string> tmp = new Dictionary<string, string>();
-                    tmp["a"] = "d";
-                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-                    c5.opContext_async(cb);
-                    test(cb.check());
-                }
-
-                communicator.setDefaultContext(new Dictionary<string, string>));
-*/
+                callbacks.Add(cb.getCallback());
             }
         }
 
@@ -1413,7 +1287,7 @@ public class TwowaysAMI
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    callbacks.Add(cb.getCallback());
                 }
                 
                 ic.getImplicitContext().put("zero", "ZERO");
@@ -1422,7 +1296,7 @@ public class TwowaysAMI
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    callbacks.Add(cb.getCallback());
                 }
                 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
@@ -1449,14 +1323,14 @@ public class TwowaysAMI
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(prxContext);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    callbacks.Add(cb.getCallback());
                 }
                 
                 ic.getImplicitContext().setContext(ctx);
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(combined);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    callbacks.Add(cb.getCallback());
                 }
                 
                 ic.destroy();
@@ -1468,7 +1342,9 @@ public class TwowaysAMI
             test(derived != null);
             AMI_MyDerivedClass_opDerivedI cb = new AMI_MyDerivedClass_opDerivedI();
             derived.opDerived_async(cb);
-            test(cb.check());
+            callbacks.Add(cb.getCallback());
         }
+
+        return callbacks;
     }
 }

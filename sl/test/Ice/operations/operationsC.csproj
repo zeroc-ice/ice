@@ -53,7 +53,9 @@
     </Compile>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="generated\Test.cs" />
+    <Compile Include="Callback.cs" />
     <Compile Include="Twoways.cs" />
+    <Compile Include="TwowaysAMI.cs" />
   </ItemGroup>
   <ItemGroup>
     <SilverlightPage Include="Page.xaml">

@@ -8,10 +8,11 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 
 public class AllTests
 {
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static Test.MyClassPrx allTests(Ice.Communicator communicator, out List<Callback> callbacks)
     {
         Console.Out.Flush();
         string rf = "test:default -p 12010 -t 10000";
@@ -26,16 +27,12 @@ public class AllTests
         derivedProxy.opDerived();
         Console.Out.WriteLine("ok");
         
-        /*
-        if(!collocated)
-        {
-            Console.Out.Write("testing twoway operations with AMI... ");
-            Console.Out.Flush();
-            TwowaysAMI.twowaysAMI(communicator, cl);
-            TwowaysAMI.twowaysAMI(communicator, derivedProxy);
-            Console.Out.WriteLine("ok");
-        }
-        */
+        Console.Out.Write("testing twoway operations with AMI... ");
+        Console.Out.Flush();
+        callbacks = new List<Callback>();
+        callbacks.AddRange(TwowaysAMI.twowaysAMI(communicator, cl));
+        callbacks.AddRange(TwowaysAMI.twowaysAMI(communicator, derivedProxy));
+        Console.Out.WriteLine("ok");
         
         return cl;
     }

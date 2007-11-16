@@ -13,6 +13,7 @@ using System.IO;
 using System.Collections;
 using System.Text;
 using System.Windows.Browser.Net;
+using System.Collections.Generic;
 
 namespace operationsC
 {
@@ -60,15 +61,43 @@ namespace operationsC
 
                 Ice.Communicator comm = Ice.Util.initialize(initData);
 
-                Test.MyClassPrx myClass = AllTests.allTests(comm, false);
-                myClass.shutdown();
+                _myClass = AllTests.allTests(comm, out _callbacks);
             }
             catch (Exception ex)
             {
                 _tb.Text = ex.ToString();
                 return;
             }
-            _tb.Text = "Test Passed";
+            _tb.Text = "Waiting for AMI Callbacks";
+            (Resources.FindName("timer") as Storyboard).Begin();
         }       
+
+        void CheckCallbacks(object sender, EventArgs e)
+        {
+            List<Callback> active = new List<Callback>();
+            foreach(Callback c in _callbacks)
+            {
+                if(!c.check())
+                {
+                    active.Add(c);
+                }
+            }
+            _callbacks = active;
+
+            _tb.Text = "Callbacks = " + _callbacks.Count;
+
+            if(_callbacks.Count == 0)
+            {
+                _myClass.shutdown();
+                _tb.Text = "Test Passed";
+            }
+            else
+            {
+                (Resources.FindName("timer") as Storyboard).Begin();
+            }
+        }
+
+        private List<Callback> _callbacks;
+        private Test.MyClassPrx _myClass;
     }
 }
