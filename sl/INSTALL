@@ -1,0 +1,79 @@
+Supported Compiler
+------------------
+
+Ice for Silverlight has been built and tested with:
+
+- Microsoft Visual Studio 2008 Beta 2 Version 9.0.20706.1
+
+- Silverlight 1.1 Alpha
+
+links???
+
+Unpack the archive. The sources will be contained in the IceSL-@ver@
+subdirectory.
+
+
+Ice for C#
+----------
+
+It is also required to install Ice for C#. It can be downloaded at
+the following location:
+
+http://www.zeroc.com/download.html
+
+To run the Ice for Silverlight tests it is necessary to download the
+Ice for C# source distribution and compile it rather than just downloading
+the binary distribution. The binary distibution does not contain the C#
+tests, which are required to run the server side of the tests.
+
+
+Slice-to-Silverlight translator
+--------------------------------
+
+You will need the Slice-to-Silverlight translator (slice2sl) and
+preprocessor (icecpp). You can download a binary distribution from the
+ZeroC web site, or you can build the Slice-to-Silverlight translator
+yourself.
+
+Binary and source distributions for the supported platforms are
+available at
+
+http://www.zeroc.com/????/download.html
+
+The directory containing the translator executables must be added to
+your PATH. For example, if the translator distribution is installed
+in C:\IceSL-@ver@, you must add C:\IceSL-@ver@\bin to your PATH.
+
+
+Building core
+-------------
+
+Follow these steps to build the source:
+
+1) Change to the top-level directory of the Ice for Silverlight source
+   distribution.
+
+2) Open config\Make.rules.mak and review the comments that describe
+   the settings you can modify. For example, you may wish to enable
+   optimization.
+
+3) Run nmake:
+
+   > nmake /f Makefile.mak
+
+
+Building and running tests and demos
+------------------------------------
+
+To build the tests and demos, start Visual Studio 2008 Beta 2 and open
+the solution all.sln. Select Build->Build Solution to build all the tests
+and demos.
+
+Running each demo/test involves the following:
+
+1) Starting the corresponding server from Ice for C#.
+
+2) Starting the Silverlight web application from Visual Studio 2008 Beta 2.
+
+See the README file in each demo/test directory for a description of the
+demo/test and detailed instructions on how to run it.

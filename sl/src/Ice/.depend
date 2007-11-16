@@ -1,0 +1,13 @@
+BuiltinSequences.cs: $(slicedir)/Ice/BuiltinSequences.ice
+Communicator.cs: $(slicedir)/Ice/Communicator.ice $(slicedir)/Ice/LoggerF.ice $(slicedir)/Ice/StatsF.ice $(slicedir)/Ice/PropertiesF.ice $(slicedir)/Ice/ObjectFactoryF.ice $(slicedir)/Ice/ImplicitContextF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Context.ice
+Endpoint.cs: $(slicedir)/Ice/Endpoint.ice
+FacetMap.cs: $(slicedir)/Ice/FacetMap.ice
+Identity.cs: $(slicedir)/Ice/Identity.ice
+ImplicitContext.cs: $(slicedir)/Ice/ImplicitContext.ice $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/Context.ice
+LocalException.cs: $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/BuiltinSequences.ice
+Logger.cs: $(slicedir)/Ice/Logger.ice
+ObjectFactory.cs: $(slicedir)/Ice/ObjectFactory.ice
+Properties.cs: $(slicedir)/Ice/Properties.ice $(slicedir)/Ice/BuiltinSequences.ice
+SliceChecksumDict.cs: $(slicedir)/Ice/SliceChecksumDict.ice
+Stats.cs: $(slicedir)/Ice/Stats.ice
+Context.cs: $(slicedir)/Ice/Context.ice
