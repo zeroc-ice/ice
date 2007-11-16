@@ -355,20 +355,31 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     // Constructors
     //
+    
+    out << sp << nl << "private" << nl << name 
+        << "(Freeze.Connection __connection, String __dbName, java.util.Comparator __comparator)";
+    out << sb;
+    
+    out << nl << "super(__connection, __dbName, __comparator);";
     if(dict.indices.size() > 0)
     {
-        out << sp << nl << "public" << nl << name 
-            << "(Freeze.Connection __connection, String __dbName, boolean __createDb, "
-            << "java.util.Comparator __comparator, java.util.Map __indexComparators)";
-        out << sb;
-        
-        out << nl << "super(__connection, __dbName, __comparator);";
         out << nl << "_indices = new Freeze.Map.Index[" << dict.indices.size() << "];";
         for(i = 0; i < dict.indices.size(); ++i)
         {
             out << nl << "_indices[" << i << "] = new " << capitalizedMembers[i] 
                 << "Index(\"" << indexNames[i] << "\");";
         }
+    }
+    out << eb;
+
+    if(dict.indices.size() > 0)
+    {        
+        out << sp << nl << "public" << nl << name 
+            << "(Freeze.Connection __connection, String __dbName, boolean __createDb, "
+            << "java.util.Comparator __comparator, java.util.Map __indexComparators)";
+        out << sb;
+        
+        out << nl << "this(__connection, __dbName, __comparator);";
         out << nl << "init(_indices, __dbName, \"" << keyType->typeId() << "\", \""
             << valueType->typeId() << "\", __createDb, __indexComparators);";
         out << eb;
@@ -399,6 +410,38 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         << "(Freeze.Connection __connection, String __dbName)";
     out << sb;
     out << nl << "this(__connection, __dbName, true);";
+    out << eb;
+
+    //
+    // recreate
+    //
+    if(dict.indices.size() > 0)
+    {
+        out << sp << nl << "public static void" << nl   
+            << "recreate(Freeze.Connection __connection, String __dbName, "
+            << "java.util.Comparator __comparator, java.util.Map __indexComparators)";
+        out << sb;
+        
+        out << nl << name << " __tmpMap = new " << name << "(__connection, __dbName, __comparator);";
+        out << nl << "recreate(__tmpMap, __dbName, \"" << keyType->typeId() << "\", \""
+            << valueType->typeId() << "\", __tmpMap._indices, __indexComparators);";
+        out << eb;
+    }
+
+    out << sp << nl << "public static void" << nl   
+        << "recreate(Freeze.Connection __connection, String __dbName, "
+        << "java.util.Comparator __comparator)";
+    out << sb;
+    if(dict.indices.size() > 0)
+    {
+        out << nl << "recreate(__connection, __dbName, __comparator, null);";
+    }
+    else
+    {
+        out << nl << name << " __tmpMap = new " << name << "(__connection, __dbName, __comparator);";
+        out << nl << "recreate(__tmpMap, __dbName, \"" << keyType->typeId() << "\", \""
+            << valueType->typeId() << "\", null, null);";
+    }
     out << eb;
 
     //

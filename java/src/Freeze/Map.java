@@ -15,7 +15,7 @@ public abstract class Map extends java.util.AbstractMap
     public abstract byte[] encodeValue(Object o, Ice.Communicator communicator);
     public abstract Object decodeValue(byte[] b, Ice.Communicator communicator);
 
-    public
+    protected
     Map(Connection connection, String dbName, String key, String value, 
         boolean createDb, java.util.Comparator comparator)
     {
@@ -38,13 +38,235 @@ public abstract class Map extends java.util.AbstractMap
         _trace = _connection.trace();
     }
 
+   
+    protected static void
+    recreate(Map map, String dbName, String key, String value, 
+             Freeze.Map.Index[] indices, java.util.Map indexComparators)
+    {
+        ConnectionI connection = map._connection;
+        String envName = connection.dbEnv().getEnvName();
+
+        if(dbName.equals(Util.catalogName()) || dbName.equals(Util.catalogIndexListName()))
+        {
+            throw new DatabaseException(errorPrefix(envName, dbName) + "You cannot destroy recreate the \"" 
+                                        + dbName + "\" database");
+        }
+
+        if(connection.trace() >= 1)
+        {
+            connection.communicator().getLogger().trace("Freeze.Map", 
+                                                         "Recreating \"" + dbName + "\"");
+        }
+        
+        Transaction tx = connection.currentTransaction();
+        boolean ownTx = (tx == null);
+
+        com.sleepycat.db.DatabaseEntry keyEntry = new com.sleepycat.db.DatabaseEntry();
+        com.sleepycat.db.DatabaseEntry valueEntry = new com.sleepycat.db.DatabaseEntry();
+       
+        com.sleepycat.db.Database oldDb = null;
+        SharedDb newDb = null;     
+
+        for(;;)
+        {
+            try
+            {
+                if(ownTx)
+                {
+                    tx = null;
+                    tx = connection.beginTransaction();
+                }
+                
+                com.sleepycat.db.Transaction txn = connection.dbTxn();
+                
+                if(connection.trace() >= 2)
+                {
+                    connection.communicator().getLogger().trace(
+                        "Freeze.Map", "Removing all existing indices for \"" + dbName + "\"");
+                }
+                CatalogIndexList catalogIndexList = new CatalogIndexList(connection, Util.catalogIndexListName(), true);
+                String[] oldIndices = (String[])catalogIndexList.remove(dbName);
+
+              
+                if(oldIndices != null)
+                {
+                    for(int i = 0; i < oldIndices.length; ++i)
+                    {
+                        try
+                        {
+                            connection.removeMapIndex(dbName, oldIndices[i]);
+                        }
+                        catch(IndexNotFoundException e)
+                        {
+                            //
+                            // Ignored
+                            //
+                        }
+                    }
+                }
+                
+                //
+                // Rename existing database
+                //
+                String oldDbName = dbName + ".old-" + Ice.Util.generateUUID();
+
+                if(connection.trace() >= 2)
+                {
+                    connection.communicator().getLogger().trace(
+                        "Freeze.Map", "Renaming \"" + dbName + "\" to \"" + oldDbName + "\"");
+                }
+                
+                connection.dbEnv().getEnv().renameDatabase(txn, dbName, null, oldDbName);
+                
+                com.sleepycat.db.DatabaseConfig oldDbConfig = new com.sleepycat.db.DatabaseConfig();
+                oldDbConfig.setType(com.sleepycat.db.DatabaseType.BTREE);
+                
+                oldDb = connection.dbEnv().getEnv().openDatabase(txn, oldDbName, null, oldDbConfig);
+                    
+                newDb = SharedDb.create(connection, dbName, key, value, indices, map._comparator, indexComparators);
+                map.init(newDb, indices);
+
+
+                if(connection.trace() >= 2)
+                {
+                    connection.communicator().getLogger().trace(
+                        "Freeze.Map", "Writing contents of \"" + oldDbName + "\" to fresh \"" + dbName + "\"");
+                }
+
+                //
+                // Now simply write all of oldDb into newDb
+                //
+                com.sleepycat.db.Cursor dbc = null;
+                try
+                {
+                    dbc = oldDb.openCursor(txn, null);
+                  
+                    while(dbc.getNext(keyEntry, valueEntry, null) == com.sleepycat.db.OperationStatus.SUCCESS)
+                    {
+                        newDb.db().put(txn, keyEntry, valueEntry);
+                    }
+                }
+                finally
+                {
+                    if(dbc != null)
+                    {
+                        dbc.close();
+                    }
+                }
+                
+                if(connection.trace() >= 2)
+                {
+                    connection.communicator().getLogger().trace(
+                        "Freeze.Map", "Transfer complete; removing \"" + oldDbName + "\"");
+                }
+                connection.dbEnv().getEnv().removeDatabase(txn, oldDbName, null);
+
+                if(ownTx)
+                {
+                    try
+                    {
+                        tx.commit();
+                    }
+                    finally
+                    {
+                        tx = null;
+                    }
+                }
+                
+                break; // for (;;)
+            }
+            catch(com.sleepycat.db.DeadlockException dx)
+            {
+                if(ownTx)
+                {
+                    if(connection.deadlockWarning())
+                    {
+                        connection.communicator().getLogger().warning(
+                            "Deadlock in Freeze.Map.recreate on Db \"" 
+                            + dbName + "\"; retrying ...");
+                    }
+
+                    //
+                    // Ignored, try again
+                    //
+                }
+                else
+                {
+                    DeadlockException ex = new DeadlockException(errorPrefix(envName, dbName) + "Map.recreate: " + dx.getMessage());
+                    ex.initCause(dx);
+                    throw ex;
+                }
+            }
+            catch(com.sleepycat.db.DatabaseException dx)
+            {
+                DatabaseException ex = new DatabaseException(errorPrefix(envName, dbName) + "Map.recreate: " + dx.getMessage());
+                ex.initCause(dx);
+                throw ex;
+            }
+            catch(java.io.FileNotFoundException fne)
+            {
+                DatabaseException ex = new DatabaseException(errorPrefix(envName, dbName) + "Map.recreate: " + fne.getMessage());
+                ex.initCause(fne);
+                throw ex;
+            }
+            finally
+            {
+                if(ownTx && tx != null)
+                {   
+                    try
+                    {
+                        tx.rollback();
+                    }
+                    catch(DatabaseException de)
+                    {
+                    }
+                }
+
+                try
+                {
+                    if(newDb != null)
+                    {
+                        newDb.close();
+                    }
+
+                    if(oldDb != null)
+                    {
+                        try
+                        {
+                            oldDb.close();
+                        }
+                        catch(com.sleepycat.db.DatabaseException dx)
+                        {
+                            DatabaseException ex = new DatabaseException(
+                                errorPrefix(envName, dbName) + "Map.recreate: " + dx.getMessage());
+                            ex.initCause(dx);
+                            throw ex;
+                        }
+                    }
+                }
+                finally
+                {
+                    newDb = null;
+                    oldDb = null;
+                }
+            }
+        }
+    }
+   
+
     protected void
     init(Freeze.Map.Index[] indices, String dbName, 
          String key, String value, boolean createDb, java.util.Map indexComparators)
     {
-        _db = Freeze.SharedDb.get(_connection, dbName, key, 
-                                  value, indices, createDb, _comparator,
-                                  indexComparators);
+        init(SharedDb.get(_connection, dbName, key, 
+                          value, indices, createDb, _comparator,
+                          indexComparators), indices);
+    }
+
+    protected void
+    init(SharedDb db, Freeze.Map.Index[] indices)
+    {
+        _db = db;
         _token = _connection.registerMap(this);
 
         if(indices != null)
@@ -55,6 +277,7 @@ public abstract class Map extends java.util.AbstractMap
             }
         }
     }
+
 
     public void
     close()
@@ -818,6 +1041,12 @@ public abstract class Map extends java.util.AbstractMap
     ConnectionI connection()
     {
         return _connection;
+    }
+
+    private static String
+    errorPrefix(String envName, String dbName)
+    {
+        return "Freeze DB DbEnv(\"" + envName + "\") Db(\"" + dbName + "\"): ";
     }
 
     private static boolean

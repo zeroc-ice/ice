@@ -217,7 +217,7 @@ Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection,
                 
                 try
                 {
-                    while(dbc->get(&keyDbt, &valueDbt, DB_NEXT) != DB_NOTFOUND)
+                    while(dbc->get(&keyDbt, &valueDbt, DB_NEXT) == 0)
                     {
                         newDb->put(txn, &keyDbt, &valueDbt, 0);
                     }

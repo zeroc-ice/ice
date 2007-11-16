@@ -16,6 +16,7 @@
         <ant dir="phonebook"/>
         <ant dir="library"/>
         <ant dir="bench"/>
+        <ant dir="transform"/>
     </target>
 
     <target name="clean">
@@ -23,6 +24,7 @@
         <ant dir="phonebook" target="clean"/>
         <ant dir="library" target="clean"/>
         <ant dir="bench" target="clean"/>
+        <ant dir="transform" target="clean"/>
     </target>
 
 </project>

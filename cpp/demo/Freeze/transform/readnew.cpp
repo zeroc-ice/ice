@@ -37,27 +37,19 @@ ReadNew::run(int argc, char* argv[])
     
     NewContacts::const_iterator p;
 
-    try
+    cout << "All contacts (default order)" << endl;
+    for(p = contacts.begin(); p != contacts.end(); ++p)
     {
-        cout << "All contacts (default order)" << endl;
-        for(p = contacts.begin(); p != contacts.end(); ++p)
-        {
-            cout << p->first << ":\t\t" << p->second.phoneNumber
-                 << " " << p->second.emailAddress << endl;
-        }
-        
-        cout << endl << "All contacts (ordered by phone number)" << endl;
-        for(p = contacts.beginForPhoneNumber(); p != contacts.endForPhoneNumber(); ++p)
-        {
-            cout << p->first << ":\t\t" << p->second.phoneNumber
-                 << " " << p->second.emailAddress << endl;
-        }
+        cout << p->first << ":\t\t" << p->second.phoneNumber
+             << " " << p->second.emailAddress << endl;
     }
-    catch(const Ice::UnmarshalOutOfBoundsException&)
+    
+    cout << endl << "All contacts (ordered by phone number)" << endl;
+    for(p = contacts.beginForPhoneNumber(); p != contacts.endForPhoneNumber(); ++p)
     {
-        cerr << "Error: you need to transform the contacts database to the new format" << endl;
-        return 1;
+        cout << p->first << ":\t\t" << p->second.phoneNumber
+             << " " << p->second.emailAddress << endl;
     }
-
+    
     return 0;
 }

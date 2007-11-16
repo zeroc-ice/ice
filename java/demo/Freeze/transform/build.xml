@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="demo_Freeze_casino" default="all" basedir=".">
+<project name="demo_Freeze_transform" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
@@ -23,11 +23,20 @@
         <slice2java outputdir="${generated.dir}">
 	    <meta value="${java2metadata}"/>
              <includepath>
-                <pathelement path="${slice.dir}" />
                 <pathelement path="." />
             </includepath>
-            <fileset dir="." includes="Casino.ice,CasinoStore.ice"/>
+            <fileset dir="." includes="ContactData.ice, NewContactData.ice"/>
         </slice2java>
+
+        <slice2freezej outputdir="${generated.dir}">
+	    <meta value="${java2metadata}"/>
+             <fileset dir="." includes="ContactData.ice,NewContactData.ice"/>
+	    <dict name="Demo.Contacts" key="string" value="Demo::ContactData"/>
+            <dict name="Demo.NewContacts" key="string" value="Demo::NewContactData"/>
+            <dictindex name="Demo.Contacts" member="phoneNumber" casesensitive="no"/>
+            <dictindex name="Demo.NewContacts" member="phoneNumber" casesensitive="no"/>
+        </slice2freezej>
+
     </target>
 
     <target name="compile" depends="generate">
@@ -46,14 +55,23 @@
 
     <target name="all" depends="compile"/>
 
-    <target name="clean">
-        <delete dir="${generated.dir}"/>
-        <delete dir="${class.dir}"/>
+   <target name="cleandb">
         <delete>
 	    <fileset dir="db" includes="log.*"/>
-            <fileset dir="db" includes="__catalog"/>
-             <fileset dir="db" includes="bank,bet,player"/>
+            <fileset dir="db" includes="__catalog,__catalogIndexList"/>
+            <fileset dir="db" includes="contacts, contacts.phoneNumber"/>
+            <fileset dir="db" includes="__db.*"/>
+            <fileset dir="dbnew" includes="log.*"/>
+            <fileset dir="dbnew" includes="__catalog,__catalogIndexList"/>
+            <fileset dir="dbnew" includes="contacts, contacts.phoneNumber"/>
+            <fileset dir="dbnew" includes="__db.*"/> 
         </delete>
+    </target>
+
+
+    <target name="clean" depends="cleandb">
+        <delete dir="${generated.dir}"/>
+        <delete dir="${class.dir}"/>
     </target>
 
 </project>

@@ -41,21 +41,21 @@ class SharedDb
             SharedDb result = (SharedDb)_map.get(mapKey);
             if(result == null)
             {
+                ConnectionI insertConnection = (ConnectionI)Util.createConnection(mapKey.communicator, mapKey.envName);
+
                 try
                 {
-                    result = new SharedDb(mapKey, key, value, connection, 
+                    result = new SharedDb(mapKey, key, value, insertConnection, 
                                           indices, createDb, comparator, indexComparators);
                 }
-                catch(com.sleepycat.db.DatabaseException dx)
+                finally
                 {
-                    DatabaseException ex = new DatabaseException();
-                    ex.initCause(dx);
-                    ex.message = errorPrefix(mapKey) + "creation: " + dx.getMessage();
-                    throw ex;
+                    insertConnection.close();
                 }
 
                 Object previousValue = _map.put(mapKey, result);
                 assert(previousValue == null);
+                result._inMap = true;
             }
             else
             {
@@ -65,6 +65,19 @@ class SharedDb
             }
             return result;
         }
+    }
+
+    public static SharedDb
+    create(ConnectionI connection, String dbName, String key, String value, 
+           Map.Index[] indices, java.util.Comparator comparator,
+           java.util.Map indexComparators)
+    {
+
+        MapKey mapKey = new MapKey(connection.envName(), connection.communicator(), dbName);
+
+        return new SharedDb(mapKey, key, value, connection, 
+                            indices, true, comparator, indexComparators);
+       
     }
         
     public static SharedDb[]
@@ -139,12 +152,17 @@ class SharedDb
         synchronized(_map) 
         {
             if(--_refCount == 0)
-            {       
-                //
-                // Remove from map
-                //
-                Object value = _map.remove(_mapKey);
-                assert(value == this);
+            {
+
+                if(_inMap)
+                {
+                    //
+                    // Remove from map
+                    //
+
+                    Object value = _map.remove(_mapKey);
+                    assert(value == this);
+                }
 
                 if(_trace >= 1)
                 {
@@ -180,120 +198,126 @@ class SharedDb
 
     private SharedDb(MapKey mapKey, String key, String value, ConnectionI connection, Map.Index[] indices,
                      boolean createDb, java.util.Comparator comparator, java.util.Map indexComparators)
-        throws com.sleepycat.db.DatabaseException
     {   
         _mapKey = mapKey;
         _indices = indices;
         _trace = connection.trace();
 
-        Connection catalogConnection = Util.createConnection(_mapKey.communicator, connection.dbEnv().getEnvName());
-
-        try
+      
+        Catalog catalog = new Catalog(connection, Util.catalogName(), true);
+        CatalogData catalogData = (CatalogData)catalog.get(_mapKey.dbName);
+        if(catalogData != null)
         {
-            Catalog catalog = new Catalog(catalogConnection, Util.catalogName(), true);
-            CatalogData catalogData = (CatalogData)catalog.get(_mapKey.dbName);
-            if(catalogData != null)
+            if(catalogData.evictor)
             {
-                if(catalogData.evictor)
-                {
-                    DatabaseException ex = new DatabaseException();
-                    ex.message = errorPrefix(_mapKey) + "is not an evictor";
-                    throw ex;
-                }
-                _key = catalogData.key;
-                _value = catalogData.value;
-                checkTypes(this, key, value);
+                DatabaseException ex = new DatabaseException();
+                ex.message = errorPrefix(_mapKey) + "is not an evictor";
+                throw ex;
             }
-            else
-            {
-                _key = key;
-                _value = value;
-            }
+            _key = catalogData.key;
+            _value = catalogData.value;
+            checkTypes(this, key, value);
+        }
+        else
+        {
+            _key = key;
+            _value = value;
+        }
             
-            com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
+        com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
            
            
-            config.setAllowCreate(createDb);
-            config.setType(com.sleepycat.db.DatabaseType.BTREE);
+        config.setAllowCreate(createDb);
+        config.setType(com.sleepycat.db.DatabaseType.BTREE);
 
-            if(comparator != null)
-            {
-                config.setBtreeComparator(comparator);
-            }
-            Ice.Properties properties = _mapKey.communicator.getProperties();
-            String propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
+        if(comparator != null)
+        {
+            config.setBtreeComparator(comparator);
+        }
+        Ice.Properties properties = _mapKey.communicator.getProperties();
+        String propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
                 
-            int btreeMinKey = properties.getPropertyAsInt(propPrefix + "BtreeMinKey");
-            if(btreeMinKey > 2)
+        int btreeMinKey = properties.getPropertyAsInt(propPrefix + "BtreeMinKey");
+        if(btreeMinKey > 2)
+        {
+            if(_trace >= 1)
             {
-                if(_trace >= 1)
-                {
-                    _mapKey.communicator.getLogger().trace(
-                        "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s btree minkey to " + btreeMinKey);
-                }
-                config.setBtreeMinKey(btreeMinKey);
+                _mapKey.communicator.getLogger().trace(
+                    "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s btree minkey to " + btreeMinKey);
             }
+            config.setBtreeMinKey(btreeMinKey);
+        }
                 
-            boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
-            if(checksum)
+        boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
+        if(checksum)
+        {
+            if(_trace >= 1)
             {
-                if(_trace >= 1)
-                {
-                    _mapKey.communicator.getLogger().trace(
-                        "Freeze.Map", "Turning checksum on for \"" + _mapKey.dbName + "\"");
-                }
+                _mapKey.communicator.getLogger().trace(
+                    "Freeze.Map", "Turning checksum on for \"" + _mapKey.dbName + "\"");
+            }
                     
-                config.setChecksum(true);
-            }
+            config.setChecksum(true);
+        }
                 
-            int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
-            if(pageSize > 0)
+        int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
+        if(pageSize > 0)
+        {
+            if(_trace >= 1)
             {
-                if(_trace >= 1)
-                {
-                    _mapKey.communicator.getLogger().trace(
-                        "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s pagesize to " + pageSize);
-                }
-                config.setPageSize(pageSize);
+                _mapKey.communicator.getLogger().trace(
+                    "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s pagesize to " + pageSize);
             }
+            config.setPageSize(pageSize);
+        }
 
+        if(_trace >= 1)
+        {
+            _mapKey.communicator.getLogger().trace("Freeze.Map", "opening Db \"" + _mapKey.dbName + "\"");
+        }
+
+        Transaction tx = connection.currentTransaction();
+        boolean ownTx = (tx == null);
+
+        for(;;)
+        {
             try
             {
-                Transaction tx = catalogConnection.beginTransaction();
+                if(ownTx)
+                {
+                    tx = null;
+                    tx = connection.beginTransaction();
+                }
+                   
                 com.sleepycat.db.Transaction txn = Util.getTxn(tx);
     
-                if(_trace >= 1)
-                {
-                    _mapKey.communicator.getLogger().trace("Freeze.Map", "opening Db \"" + _mapKey.dbName + "\"");
-                }
-
                 _db = connection.dbEnv().getEnv().openDatabase(txn, mapKey.dbName, null, config);
-
+                    
                 String[] oldIndices = null;
                 java.util.List<String> newIndices = new java.util.LinkedList<String>();
-       
-                CatalogIndexList catalogIndexList = new CatalogIndexList(catalogConnection, Util.catalogIndexListName(), true);
-
+                    
+                CatalogIndexList catalogIndexList = new CatalogIndexList(connection, Util.catalogIndexListName(), true);
+                    
                 if(createDb)
                 {
                     oldIndices = (String[])catalogIndexList.get(_mapKey.dbName);
                 }
-
-
+                    
+                    
                 if(_indices != null)
                 {
                     for(int i = 0; i < _indices.length; ++i)
                     {
                         String indexName = _indices[i].name();
-
+                            
                         java.util.Comparator indexComparator = null;
                         if(indexComparators != null)
                         {
                             indexComparator = (java.util.Comparator)indexComparators.get(indexName);
                         }
-
+                            
                         _indices[i].associate(mapKey.dbName, _db, txn, createDb, indexComparator);
-
+                            
                         if(createDb)
                         {
                             if(oldIndices != null)
@@ -308,7 +332,7 @@ class SharedDb
                         }
                     }
                 }
-
+                    
                 if(catalogData == null)
                 {
                     catalogData = new CatalogData();
@@ -317,11 +341,11 @@ class SharedDb
                     catalogData.value = value;
                     catalog.put(_mapKey.dbName, catalogData);
                 }
-
+                    
                 if(createDb)
                 {
                     boolean indexRemoved = false;
-
+                        
                     if(oldIndices != null)
                     {
                         //
@@ -337,17 +361,17 @@ class SharedDb
                                     _mapKey.communicator.getLogger().trace(
                                         "Freeze.Map", "removing old index \"" + index + "\" on Db \"" +  _mapKey.dbName + "\"");
                                 }
-                                
+                                    
                                 indexRemoved = true;
-                                
+                                    
                                 try
                                 {
-                                    catalogConnection.removeMapIndex(mapKey.dbName, index);
+                                    connection.removeMapIndex(mapKey.dbName, index);
                                 }
                                 catch(IndexNotFoundException ife)
                                 {
                                     // Ignored
-                                    
+                                        
                                     if(_trace >= 1)
                                     {
                                         _mapKey.communicator.getLogger().trace(
@@ -357,9 +381,9 @@ class SharedDb
                             }
                         }
                     }
-
+                        
                     int oldSize = oldIndices == null ? 0 : oldIndices.length;
-
+                        
                     if(indexRemoved || newIndices.size() != oldSize)
                     {   
                         if(newIndices.size() == 0)
@@ -370,22 +394,32 @@ class SharedDb
                                 _mapKey.communicator.getLogger().trace(
                                     "Freeze.Map", "Removed catalogIndexList entry for Db \"" + _mapKey.dbName + "\"");
                             }
-                            
+                                
                         }
                         else
                         {
                             catalogIndexList.put(_mapKey.dbName, newIndices.toArray(new String[0]));
                             if(_trace >= 1)
                             {
-                                 _mapKey.communicator.getLogger().trace(
-                                     "Freeze.Map", "Updated catalogIndexList entry for Db \"" + _mapKey.dbName + "\"");
+                                _mapKey.communicator.getLogger().trace(
+                                    "Freeze.Map", "Updated catalogIndexList entry for Db \"" + _mapKey.dbName + "\"");
                             }
                         }
                     }
                 }
 
-                
-                tx.commit();
+                if(ownTx)
+                {
+                    try
+                    {
+                        tx.commit();
+                    }
+                    finally
+                    {
+                        tx = null;
+                    }
+                }
+                break; // for(;;)
                 
                 //
                 // TODO: FREEZE_DB_MODE
@@ -399,6 +433,26 @@ class SharedDb
                 ex.message = errorPrefix(_mapKey) + "Db.open: " + dx.getMessage();
                 throw ex;
             }
+            catch(com.sleepycat.db.DeadlockException dx)
+            {
+                if(ownTx)
+                { 
+                    if(connection.deadlockWarning())
+                    {
+                        connection.communicator().getLogger().warning(
+                            "Deadlock in Freeze.Shared.Shared on Db \"" 
+                            + mapKey.dbName + "\"; retrying ...");
+                    }
+                    tx = null;
+                }
+                else
+                {
+                    cleanupIndices();
+                    DeadlockException ex = new DeadlockException(errorPrefix(_mapKey) + "Db.open: " + dx.getMessage());
+                    ex.initCause(dx);
+                    throw ex;
+                }
+            }
             catch(com.sleepycat.db.DatabaseException dx)
             {
                 cleanupIndices();
@@ -409,8 +463,7 @@ class SharedDb
             }
             finally
             {
-                Transaction tx = catalogConnection.currentTransaction();
-                if(tx != null)
+                if(ownTx && tx != null)
                 {
                     try
                     {
@@ -422,13 +475,9 @@ class SharedDb
                 }
             }
         }
-        finally
-        {
-            catalogConnection.close();
-        }
-
         _refCount = 1;
     }
+ 
 
     private SharedDb(MapKey mapKey, String key, String value, com.sleepycat.db.Environment dbEnv)
         throws com.sleepycat.db.DatabaseException
@@ -562,9 +611,10 @@ class SharedDb
     private int _refCount = 0;
     private int _trace;
     private Map.Index[] _indices;
+    private boolean _inMap = false;
 
-    //
-    // Hash map of (MapKey, SharedDb)
-    //
+//
+// Hash map of (MapKey, SharedDb)
+//
     private static java.util.Map _map = new java.util.HashMap();
 }

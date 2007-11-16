@@ -32,8 +32,8 @@ int
 Create::run(int argc, char* argv[])
 {
     const string names[] = { "don", "ed", "frank", "gary", "arnold", "bob", "carlos" };
-    const string phoneNumbers[] = { "(777)777-7777", "(666)666-6666", "(555)555-5555", 
-                                    "(444)444-4444", "(333)333-3333", "(222)222-2222", "(111)111-1111" };
+    const string phoneNumbers[] = { "(777)777-7777", "(666)666-6666", "(555)555-5555 x123", 
+                                    "(444)444-4444", "(333)333-3333 x1234", "(222)222-2222", "(111)111-1111" };
     const size_t size = 7;
 
 
