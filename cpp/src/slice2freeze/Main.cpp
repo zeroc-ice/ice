@@ -668,7 +668,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     // Recreate
     //
     C << sp << nl << "void"
-      << nl << absolute << "::" << name 
+      << nl << absolute
       << "::recreate(const Freeze::ConnectionPtr& __connection, const std::string& __dbName ,"
       << " const " << compare << "& __compare)";
     C << sb;

@@ -20,6 +20,7 @@ OBJS		= BackgroundSaveEvictor.obj \
                   BackgroundSaveEvictorI.obj \
                   CatalogData.obj \
                   Catalog.obj \
+                  CatalogIndexList.obj \
                   ConnectionI.obj \
                   Connection.obj \
 		  DB.obj \
@@ -72,9 +73,18 @@ $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
 	Catalog $(slicedir)/Freeze/CatalogData.ice
 	move Catalog.h $(HDIR)
-
 clean::
 	del /q $(HDIR)\Catalog.h Catalog.cpp
+
+
+$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(SLICE2FREEZE) $(slicedir)/Ice/BuiltinSequences.ice
+	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
+	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
+	CatalogIndexList $(slicedir)/Ice/BuiltinSequences.ice
+	move CatalogIndexList.h $(HDIR)
+
+clean::
+	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
 
 clean::
 	del /q $(DLLNAME:.dll=.*)

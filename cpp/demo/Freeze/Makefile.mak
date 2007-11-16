@@ -16,7 +16,8 @@ SUBDIRS		= bench \
                   casino \
                   customEvictor \
 		  library \
-		  phonebook
+		  phonebook \
+                  transform
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
