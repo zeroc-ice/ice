@@ -82,7 +82,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(Ice.UserException __ex)
         {
-            throw new IceInternal.LocalExceptionWrapper(new Ice.UnknownUserException(__ex.toString()), false);
+            throw new IceInternal.LocalExceptionWrapper(new Ice.UnknownUserException(__ex.ice_name()), false);
         }
                 
         try

@@ -60,7 +60,7 @@ public:
     void destroy();
 
     //
-    // Schedule a task for execution at a given time.
+    // Schedule a task for execution after a given delay.
     //
     void schedule(const TimerTaskPtr&, const IceUtil::Time&);
 

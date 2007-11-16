@@ -63,6 +63,9 @@ namespace Ice
         void startEncapsulation();
         void endEncapsulation();
 
+        int getEncapsulationSize();
+        byte[] readBlob(int size);
+
         void readPendingObjects();
 
         void destroy();
@@ -111,6 +114,8 @@ namespace Ice
 
         void startEncapsulation();
         void endEncapsulation();
+
+        void writeBlob(byte[] data);
 
         void writePendingObjects();
 

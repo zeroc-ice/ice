@@ -179,6 +179,16 @@ namespace Ice
             _is.endReadEncaps();
         }
 
+        public int getEncapsulationSize()
+        {
+            return _is.getReadEncapsSize();
+        }
+
+        public byte[] readBlob(int sz)
+        {
+            return _is.readBlob(sz);
+        }
+
         public void readPendingObjects()
         {
             _is.readPendingObjects();
@@ -338,6 +348,11 @@ namespace Ice
         public void endEncapsulation()
         {
             _os.endWriteEncaps();
+        }
+
+        public void writeBlob(byte[] data)
+        {
+            _os.writeBlob(data);
         }
 
         public void writePendingObjects()

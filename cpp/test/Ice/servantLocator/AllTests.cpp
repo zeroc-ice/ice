@@ -61,6 +61,10 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     {
         test(ex.unknown == "reason");
     }
+    catch(...)
+    {
+        test(false);
+    }
 
     try
     {
@@ -70,6 +74,10 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     catch(const UnknownException& ex)
     {
         test(ex.unknown == "reason");
+    }
+    catch(...)
+    {
+        test(false);
     }
 
     try
@@ -112,7 +120,11 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownException& ex)
     {
+        test(!collocated);
         test(ex.unknown == "std::exception: Hello");
+    }
+    catch(const ::std::exception&)
+    {
     }
     catch(...)
     {
@@ -154,7 +166,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownUserException&)
     {
-        // Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
     }
     catch(...)
     {
@@ -168,7 +180,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownUserException&)
     {
-        // Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
     }
     catch(...)
     {
@@ -216,6 +228,38 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     TestIntfPrx obj = TestIntfPrx::checkedCast(base);
     test(obj);
     test(obj == base);
+    cout << "ok" << endl;
+
+    cout << "testing ice_ids... " << flush;
+    try
+    {
+        ObjectPrx o = communicator->stringToProxy("category/locate:default -p 12010 -t 10000");
+        o->ice_ids();
+        test(false);
+    }
+    catch(const UnknownUserException& ex)
+    {
+        test(ex.unknown == "Test::TestIntfUserException");
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        ObjectPrx o = communicator->stringToProxy("category/finished:default -p 12010 -t 10000");
+        o->ice_ids();
+        test(false);
+    }
+    catch(const UnknownUserException& ex)
+    {
+        test(ex.unknown == "Test::TestIntfUserException");
+    }
+    catch(...)
+    {
+        test(false);
+    }
     cout << "ok" << endl;
 
     cout << "testing servant locator..." << flush;

@@ -1855,6 +1855,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#endregion"; // Constructors
 
+    _out << sp << nl << "public override string ice_name()";
+    _out << sb;
+    _out << nl << "return \"" << p->scoped().substr(2) << "\";";
+    _out << eb;
+
     _out << sp << nl << "#region Object members";
 
     _out << sp << nl << "public override int GetHashCode()";
@@ -3876,7 +3881,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << nl << "catch(Ice.UserException ex)";
         _out << sb;
-        _out << nl << "throw new Ice.UnknownUserException(ex);";
+        _out << nl << "throw new Ice.UnknownUserException(ex.ice_name(), ex);";
         _out << eb;
         _out << eb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
@@ -4038,6 +4043,19 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
 
         ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+
+        //
+        // Arrange exceptions into most-derived to least-derived order. If we don't
+        // do this, a base exception handler can appear before a derived exception
+        // handler, causing compiler warnings.
+        //
+#if defined(__SUNPRO_CC)
+        throws.sort(Slice::derivedToBaseCompare);
+#else
+        throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
         vector<string> params = getParams(op);
         vector<string> args = getArgs(op);
@@ -4127,10 +4145,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
             _out << ";";
 
-            _out << nl << "IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);";
-
+            _out << nl << "IceInternal.Direct direct__ = null;";
             _out << nl << "try";
             _out << sb;
+            _out << nl << "direct__ = new IceInternal.Direct(current__, run__);";
+
             _out << nl << "Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);";
             if(!throws.empty())
             {
@@ -4141,28 +4160,51 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << nl << "_System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);";
 
+            _out << eb;
+            for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+            {
+                _out << nl << "catch(" << fixId((*i)->scoped()) << ')';
+                _out << sb;
+                _out << nl << "throw;";
+                _out << eb;
+            }
+            _out << nl << "catch(System.Exception ex__)";
+            _out << sb;
+            _out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);";
+            _out << eb;
+            _out << nl << "finally";
+            _out << sb;
+            _out << nl << "if(direct__ != null)";
+            _out << sb;
+            _out << nl << "try";
+            _out << sb;
+            _out << nl << "direct__.destroy();";
+            _out << eb;
+            for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+            {
+                _out << nl << "catch(" << fixId((*i)->scoped()) << " ex__)";
+                _out << sb;
+                _out << nl << "throw ex__;";
+                _out << eb;
+            }
+            _out << nl << "catch(System.Exception ex__)";
+            _out << sb;
+            _out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);";
+            _out << eb;
+            _out << eb;
+            _out << eb;
+            //
             //
             // Set out parameters
             //
-
             for(vector<string>::iterator s = outHolders.begin(); s != outHolders.end(); ++s)
             {
                 _out << nl << (*s) << " = " << (*s) << "Holder__;";
             }
-
-            if(ret)
+            if(ret && !containingClass->hasMetaData("amd") && !op->hasMetaData("amd"))
             {
                 _out << nl << "return result__;";
             }
-            _out << eb;
-            _out << nl << "catch(Ice.LocalException ex__)";
-            _out << sb;
-            _out << nl << "throw new IceInternal.LocalExceptionWrapper(ex__, false);";
-            _out << eb;
-            _out << nl << "finally";
-            _out << sb;
-            _out << nl << "direct__.destroy();";
-            _out << eb;
         }
         _out << eb;
     }
@@ -4426,7 +4468,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
         _out << nl << "catch(Ice.UserException ex)";
         _out << sb;
-        _out << nl << "throw new Ice.UnknownUserException(ex);";
+        _out << nl << "throw new Ice.UnknownUserException(ex.ice_name(), ex);";
         _out << eb;
         _out << eb;
         for(q = outParams.begin(); q != outParams.end(); ++q)

@@ -77,7 +77,7 @@ Client::run(int, char*[])
 int
 Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
 {
-    cout << "testing simple interceptor..." << flush;
+    cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
     prx->ice_ping();
     test(interceptor->getLastOperation() == "ice_ping");
@@ -92,12 +92,12 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     test(interceptor->getLastOperation() == "add");
     test(interceptor->getLastStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
-    cout << "testing retry..." << flush;
+    cout << "testing retry... " << flush;
     test(prx->addWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "addWithRetry");
     test(interceptor->getLastStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
-    cout << "testing user exception..." << flush;
+    cout << "testing user exception... " << flush;
     try
     {
         prx->badAdd(33, 12);
@@ -110,7 +110,7 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     test(interceptor->getLastOperation() == "badAdd");
     test(interceptor->getLastStatus() == Ice::DispatchUserException);
     cout << "ok" << endl;
-    cout << "testing ONE..." << flush;
+    cout << "testing ONE... " << flush;
     
     interceptor->clear();
     try
@@ -124,7 +124,7 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     }
     test(interceptor->getLastOperation() == "notExistAdd");
     cout << "ok" << endl;
-    cout << "testing system exception..." << flush;
+    cout << "testing system exception... " << flush;
     interceptor->clear();
     try
     {
@@ -143,7 +143,7 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     cout << "ok" << endl;
     if(!prx->ice_isCollocationOptimized())
     {
-        cout << "testing simple AMD..." << flush;
+        cout << "testing simple AMD... " << flush;
         test(prx->amdAdd(33, 12) == 45);
         test(interceptor->getLastOperation() == "amdAdd");
         test(interceptor->getLastStatus() == Ice::DispatchAsync);
@@ -155,20 +155,20 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
 int
 Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& interceptor)
 {
-    cout << "testing simple interceptor..." << flush;
+    cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
     test(prx->amdAdd(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAdd");
     test(interceptor->getLastStatus() == Ice::DispatchAsync);
     test(interceptor->getActualStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
-    cout << "testing retry..." << flush;
+    cout << "testing retry... " << flush;
     test(prx->amdAddWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAddWithRetry");
     test(interceptor->getLastStatus() == Ice::DispatchAsync);
     test(interceptor->getActualStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
-    cout << "testing user exception..." << flush;
+    cout << "testing user exception... " << flush;
     try
     {
         prx->amdBadAdd(33, 12);
@@ -182,7 +182,7 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
     test(interceptor->getLastStatus() == Ice::DispatchAsync);
     test(interceptor->getActualStatus() == Ice::DispatchUserException);
     cout << "ok" << endl;
-    cout << "testing ONE..." << flush;
+    cout << "testing ONE... " << flush;
     interceptor->clear();
     try
     {
@@ -198,7 +198,7 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
     test(interceptor->getActualStatus() == Ice::DispatchAsync);
     test(dynamic_cast<Ice::ObjectNotExistException*>(interceptor->getException()) != 0);
     cout << "ok" << endl;
-    cout << "testing system exception..." << flush;
+    cout << "testing system exception... " << flush;
     interceptor->clear();
     try
     {

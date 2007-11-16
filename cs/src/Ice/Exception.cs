@@ -34,6 +34,7 @@ namespace Ice
 
         public Exception() {}
         public Exception(System.Exception ex) : base("", ex) {}
+        public abstract string ice_name();
         public override string ToString()
         {
             //
@@ -119,6 +120,11 @@ namespace IceInternal
             _retry = ex._retry;
         }
 
+        public override string ice_name()
+        {
+            return _ex.ice_name();
+        }
+
         public Ice.LocalException get()
         {
             return _ex;
@@ -131,10 +137,41 @@ namespace IceInternal
         // If false, only repeat the request if the retry settings allow
         // to do so, and if "at-most-once" does not need to be guaranteed.
         //
-        public bool
-        retry()
+        public bool retry()
         {
             return _retry;
+        }
+
+        public static void throwUnknownWrapper(System.Exception ex)
+        {
+            if(ex is Ice.UserException)
+            {
+                throw new LocalExceptionWrapper(new Ice.UnknownUserException(((Ice.UserException)ex).ice_name()), false);
+            }
+
+            if(ex is Ice.LocalException)
+            {
+                /*
+                 //
+                 // Commented-out code makes local exceptions fully location transaprent,
+                 // but the Freeze evictor relies on them not being transparent.
+                 //
+                if(ex is Ice.UnknownException ||
+                   ex is Ice.ObjectNotExistException ||
+                   ex is Ice.OperationNotExistException ||
+                   ex is Ice.FacetNotExistException)
+                {
+                    throw new LocalExceptionWrapper(ex, false);
+                }
+                throw new LocalExceptionWrapper(new Ice.UnknownLocalException(((Ice.LocalException)ex).ice_name()), false);
+                */
+                throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
+            }
+            /*
+            throw new LocalExceptionWrapper(new Ice.UnknownException(ex.ice_name(), false);
+            */
+
+            throw ex;
         }
         
         private Ice.LocalException _ex;

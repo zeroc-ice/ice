@@ -100,6 +100,7 @@ public:
     void stateServer(const std::list<std::string>&);
     void enableServer(const std::list<std::string>&, bool);
     void pidServer(const std::list<std::string>&);
+    void propertiesServer(const std::list<std::string>&, bool);
     void listAllServers(const std::list<std::string>&);
 
     void endpointsAdapter(const std::list<std::string>&);

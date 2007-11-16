@@ -97,7 +97,7 @@ public class AllTests
         {
             //System.err.println(ex.unknown);
             test(!collocated);
-            test(ex.unknown.indexOf("Ice.SocketException") >= 0);
+            test(ex.unknown.indexOf("Ice::SocketException") >= 0);
         }
         catch(SocketException ex)
         {
@@ -212,6 +212,39 @@ public class AllTests
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
+        System.out.println("ok");
+
+        System.out.print("testing ice_ids... ");
+        System.out.flush();
+        try
+        {
+            ObjectPrx o = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+            o.ice_ids();
+            test(false);
+        }
+        catch(UnknownUserException ex)
+        {
+            test(ex.unknown.equals("Test::TestIntfUserException"));
+        }
+        catch(Throwable ex)
+        {
+            test(false);
+        }
+
+        try
+        {
+            ObjectPrx o = communicator.stringToProxy("category/finished:default -p 12010 -t 10000");
+            o.ice_ids();
+            test(false);
+        }
+        catch(UnknownUserException ex)
+        {
+            test(ex.unknown.equals("Test::TestIntfUserException"));
+        }
+        catch(Throwable ex)
+        {
+            test(false);
+        }
         System.out.println("ok");
 
         System.out.print("testing servant locator... ");

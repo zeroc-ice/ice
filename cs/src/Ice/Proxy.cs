@@ -1179,8 +1179,17 @@ namespace Ice
                 result__ = servant__.ice_isA(id__, current__);
                 return Ice.DispatchStatus.DispatchOK;
             };
-            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
-            
+
+            IceInternal.Direct direct__ = null;
+            try
+            {
+                direct__ = new IceInternal.Direct(current__, run__);
+            }
+            catch(System.Exception ex__)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+            }
+
             try
             {
                 DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
@@ -1189,7 +1198,14 @@ namespace Ice
             }
             finally
             {
-                direct__.destroy();
+                try
+                {
+                    direct__.destroy();
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                }
             }
         }
         
@@ -1203,7 +1219,16 @@ namespace Ice
                 servant__.ice_ping(current__);
                 return Ice.DispatchStatus.DispatchOK;
             };
-            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
+
+            IceInternal.Direct direct__ = null;
+            try
+            {
+                direct__ = new IceInternal.Direct(current__, run__);
+            }
+            catch(System.Exception ex__)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+            }
             
             try
             {
@@ -1212,7 +1237,14 @@ namespace Ice
             }
             finally
             {
-                direct__.destroy();
+                try
+                {
+                    direct__.destroy();
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                }
             }
         }
         
@@ -1227,7 +1259,16 @@ namespace Ice
                 result__ = servant__.ice_ids(current__);
                 return Ice.DispatchStatus.DispatchOK;
             };
-            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
+
+            IceInternal.Direct direct__ = null;
+            try
+            {
+                direct__ = new IceInternal.Direct(current__, run__);
+            }
+            catch(System.Exception ex__)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+            }
             
             try
             {
@@ -1237,7 +1278,14 @@ namespace Ice
             }
             finally
             {
-                direct__.destroy();
+                try
+                {
+                    direct__.destroy();
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                }
             }
         }
         
@@ -1252,7 +1300,16 @@ namespace Ice
                 result__ = servant__.ice_id(current__);
                 return Ice.DispatchStatus.DispatchOK;
             };
-            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
+
+            IceInternal.Direct direct__ = null;
+            try
+            {
+                direct__ = new IceInternal.Direct(current__, run__);
+            }
+            catch(System.Exception ex__)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+            }
             
             try
             {
@@ -1262,7 +1319,14 @@ namespace Ice
             }
             finally
             {
-                direct__.destroy();
+                try
+                {
+                    direct__.destroy();
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                }
             }
         }
         
@@ -1379,9 +1443,9 @@ namespace Ice
                         {
                             is__.throwException();
                         }
-                        catch(UserException)
+                        catch(UserException ex)
                         {
-                            throw new UnknownUserException();
+                            throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
                     return is__.readBool();
@@ -1412,9 +1476,9 @@ namespace Ice
                         {
                             is__.throwException();
                         }
-                        catch(UserException)
+                        catch(UserException ex)
                         {
-                            throw new UnknownUserException();
+                            throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
                 }
@@ -1444,9 +1508,9 @@ namespace Ice
                         {
                             is__.throwException();
                         }
-                        catch(UserException)
+                        catch(UserException ex)
                         {
-                            throw new UnknownUserException();
+                            throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
                     return is__.readStringSeq();
@@ -1477,9 +1541,9 @@ namespace Ice
                         {
                             is__.throwException();
                         }
-                        catch(UserException)
+                        catch(UserException ex)
                         {
-                            throw new UnknownUserException();
+                            throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
                     return is__.readString();

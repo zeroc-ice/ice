@@ -45,7 +45,6 @@ NL	[\n]
 keyword [[:alpha:]]*
 
 %option noyywrap
-%option never-interactive
 
 %%
 
@@ -211,8 +210,8 @@ keyword [[:alpha:]]*
 	}
 	else if(isspace(c) || c == ';')
 	{
-	    unput(c);
-	    break;
+            unput(c);
+            break;
 	}
 	
 	s += c;

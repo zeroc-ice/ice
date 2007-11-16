@@ -1,0 +1,24 @@
+﻿<Canvas x:Name="parentCanvas"
+        xmlns="http://schemas.microsoft.com/client/2007" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        Loaded="Page_Loaded" 
+        x:Class="operationsC.Page;assembly=ClientBin/operationsC.dll"
+        Width="640"
+        Height="480"
+        Background="White"
+        >
+  <Canvas x:Name="Button1" Width="100" Height="30" Background="Gray">
+    <TextBlock>Run operations</TextBlock>
+  </Canvas>
+
+  <Canvas x:Name="Button2" Canvas.Top="50" Width="100" Height="30" Background="Gray">
+    <TextBlock></TextBlock>
+  </Canvas>
+
+  <Canvas.Resources>
+    <Storyboard x:Name="timer" Completed="CheckCallbacks">
+      <DoubleAnimation Duration="00:00:01" />
+    </Storyboard>
+  </Canvas.Resources>
+
+</Canvas>

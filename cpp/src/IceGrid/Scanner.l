@@ -45,8 +45,6 @@ NL	[\n]
 keyword [[:alpha:]]*
 
 %option noyywrap
-%option never-interactive
-
 
 %%
 
@@ -212,7 +210,7 @@ keyword [[:alpha:]]*
 	}
 	else if(isspace(c) || c == ';')
 	{
-	    unput(c);
+            unput(c);
 	    break;
 	}
 	
@@ -248,6 +246,8 @@ initScanner()
     keywordMap["list"] = ICE_GRID_LIST;
     keywordMap["shutdown"] = ICE_GRID_SHUTDOWN;
     keywordMap["describe"] = ICE_GRID_DESCRIBE;
+    keywordMap["properties"] = ICE_GRID_PROPERTIES;
+    keywordMap["property"] = ICE_GRID_PROPERTY;
     keywordMap["state"] = ICE_GRID_STATE;
     keywordMap["pid"] = ICE_GRID_PID;
     keywordMap["endpoints"] = ICE_GRID_ENDPOINTS;

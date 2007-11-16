@@ -75,6 +75,11 @@ namespace IceSSL
 
         #endregion
 
+        public override string ice_name()
+        {
+            return "IceSSL::ConnectionInvalidException";
+        }
+
         #region Object members
 
         public override int GetHashCode()

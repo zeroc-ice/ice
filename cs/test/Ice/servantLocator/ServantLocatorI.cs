@@ -92,7 +92,11 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     
     private void exception(Ice.Current current)
     {
-        if(current.operation.Equals("requestFailedException"))
+        if(current.operation.Equals("ice_ids"))
+        {
+            throw new Test.TestIntfUserException();
+        }
+        else if(current.operation.Equals("requestFailedException"))
         {
             throw new ObjectNotExistException();
         }
@@ -127,6 +131,14 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         else if(current.operation.Equals("csException"))
         {
             throw new System.Exception("message");
+        }
+        else if(current.operation.Equals("impossibleException"))
+        {
+            throw new Test.TestIntfUserException(); // Yes, it really is meant to be TestIntfException.
+        }
+        else if(current.operation.Equals("intfUserException"))
+        {
+            throw new Test.TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
         }
     }
 

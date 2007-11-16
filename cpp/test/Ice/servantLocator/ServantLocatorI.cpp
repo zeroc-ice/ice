@@ -75,7 +75,11 @@ ServantLocatorI::deactivate(const string&)
 void
 ServantLocatorI::exception(const Ice::Current& current)
 {
-    if(current.operation == "requestFailedException")
+    if(current.operation == "ice_ids")
+    {
+        throw Test::TestIntfUserException();
+    }
+    else if(current.operation == "requestFailedException")
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }

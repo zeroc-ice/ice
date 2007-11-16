@@ -75,7 +75,7 @@ public:
                             //
                             // Since the topic proxy returned by the retrieval/creation
                             // is a replicated proxy we cannot use it to subscribe to the
-                            // new instance. Instead we ahve to retrive all the topics and
+                            // new instance. Instead we have to retrive all the topics and
                             // find the new one.
                             //
                             Ice::ObjectProxySeq topics = _query->findAllReplicas(_topicReplica);

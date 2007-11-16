@@ -39,6 +39,32 @@ public sealed class TestI : TestIntfDisp_
     {
     }
 
+    public override string impossibleException(bool @throw, Ice.Current current)
+    {
+        if(@throw)
+        {
+            throw new Test.TestImpossibleException();
+        }
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        return "Hello";
+    }
+
+    public override string intfUserException(bool @throw, Ice.Current current)
+    {
+        if(@throw)
+        {
+            throw new Test.TestIntfUserException();
+        }
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        return "Hello";
+    }
+
     public override void shutdown(Ice.Current current)
     {
         current.adapter.deactivate();

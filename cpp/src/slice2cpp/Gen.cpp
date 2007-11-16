@@ -2987,6 +2987,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl << "__direct.servant()->__collocDispatch(__direct);";
         C << eb;
+#if 0
         C << nl << "catch(const ::std::exception& __ex)";
         C << sb;
         C << nl << "__direct.destroy();";
@@ -2997,6 +2998,13 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         C << nl << "__direct.destroy();";
         C << nl << "throw ::Ice::UnknownException(__FILE__, __LINE__, \"unknown c++ exception\");";
         C << eb;
+#else
+        C << nl << "catch(...)";
+        C << sb;
+        C << nl << "__direct.destroy();";
+        C << nl << "throw;";
+        C << eb;
+#endif
         C << nl << "__direct.destroy();";
         C << eb;
         for(ExceptionList::const_iterator k = throws.begin(); k != throws.end(); ++k)
