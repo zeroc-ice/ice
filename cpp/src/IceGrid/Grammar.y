@@ -60,6 +60,8 @@ yyerror(const char* s)
 %token ICE_GRID_STDOUT
 %token ICE_GRID_STDERR
 %token ICE_GRID_DESCRIBE
+%token ICE_GRID_PROPERTIES
+%token ICE_GRID_PROPERTY
 %token ICE_GRID_STATE
 %token ICE_GRID_PID
 %token ICE_GRID_ENDPOINTS
@@ -375,6 +377,22 @@ command
 {
     parser->usage("server", "pid");
 }
+| ICE_GRID_SERVER ICE_GRID_PROPERTIES strings ';'
+{
+    parser->propertiesServer($3, false);
+}
+| ICE_GRID_SERVER ICE_GRID_PROPERTIES ICE_GRID_HELP ';'
+{
+    parser->usage("server", "properties");
+}
+| ICE_GRID_SERVER ICE_GRID_PROPERTY strings ';'
+{
+    parser->propertiesServer($3, true);
+}
+| ICE_GRID_SERVER ICE_GRID_PROPERTY ICE_GRID_HELP ';'
+{
+    parser->usage("server", "property");
+}
 | ICE_GRID_SERVER ICE_GRID_ENABLE strings ';'
 {
     parser->enableServer($3, true);
@@ -647,6 +665,12 @@ keyword
 {
 }
 | ICE_GRID_PID
+{
+}
+| ICE_GRID_PROPERTIES
+{
+}
+| ICE_GRID_PROPERTY
 {
 }
 | ICE_GRID_ENDPOINTS

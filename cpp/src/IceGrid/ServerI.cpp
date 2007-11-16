@@ -748,22 +748,33 @@ ServerI::getProperties(const Ice::Current&) const
     Ice::ProcessPrx process = 0;
     {
         Lock sync(*this);
-        checkDestroyed();
 
         //
-        // Wait for _process to be set
+        // Wait for _process to be set if the server is being activated.
         //
-        while(_desc->processRegistered && _process == 0)
+        while(_desc->processRegistered && _process == 0 && _state > Inactive && _state < Deactivating)
         {
             wait();
-            checkDestroyed();
         }
-        process = _process;
-    }
 
-    if(process == 0)
-    {
-        throw ServerUnreachableException(_id, "no Admin object"); 
+        checkDestroyed();
+        if(!_process)
+        {
+            if(_desc->processRegistered && _state == Inactive)
+            {
+                throw ServerUnreachableException(_id, "server is not active");
+            }
+            else if(_desc->processRegistered && _state >= Deactivating)
+            {
+                throw ServerUnreachableException(_id, "server is deactivating");
+            }
+            else
+            {
+                throw ServerUnreachableException(_id, "no Admin object");
+            }
+        }
+
+        process = _process;
     }
 
     try

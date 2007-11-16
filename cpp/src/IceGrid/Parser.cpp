@@ -127,6 +127,12 @@ static const char* _commandsHelp[][3] = {
 { "server", "describe", 
 "server describe ID        Describe server ID.\n" 
 },
+{ "server", "properties",
+"server properties ID      Get the runtime properties of server ID.\n" 
+},
+{ "server", "property",
+"server property ID NAME   Get the runtime property NAME of server ID.\n" 
+},
 { "server", "state",
 "server state ID           Get the state of server ID.\n" 
 },
@@ -1197,6 +1203,41 @@ Parser::pidServer(const list<string>& args)
 }
 
 void
+Parser::propertiesServer(const list<string>& args, bool single)
+{
+    if(single && args.size() != 2)
+    {
+        invalidCommand("server property", "requires exactly two arguments");
+        return;
+    }
+    else if(!single && args.size() != 1)
+    {
+        invalidCommand("server properties", "requires exactly one argument");
+        return;
+    }
+
+    try
+    {
+        Ice::PropertyDict properties = _admin->getServerProperties(args.front());
+        if(single)
+        {
+            cout << properties[*(++args.begin())] << endl;
+        }
+        else
+        {
+            for(Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+            {
+                cout << p->first << "=" << p->second << endl;
+            }
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
 Parser::enableServer(const list<string>& args, bool enable)
 {
     if(args.size() != 1)
@@ -2047,6 +2088,10 @@ Parser::exception(const Ice::Exception& ex)
     catch(const RegistryUnreachableException& ex)
     {
         error("registry `" + ex.name + "' couldn't be reached:\n" + ex.reason);
+    }
+    catch(const ServerUnreachableException& ex)
+    {
+        error("server `" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
     catch(const AccessDeniedException& ex)
     {
