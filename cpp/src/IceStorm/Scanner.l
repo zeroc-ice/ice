@@ -45,6 +45,7 @@ NL	[\n]
 keyword [[:alpha:]]*
 
 %option noyywrap
+%option always-interactive
 
 %%
 
