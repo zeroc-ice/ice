@@ -17,7 +17,7 @@ MONO = yes
 # if it does not exist.
 #
 
-prefix			?= /opt/IceCS-$(VERSION)
+prefix			?= /opt/IceSL-$(VERSION)
 
 #
 # The default behavior of 'make install' attempts to add the Ice for C#

@@ -193,14 +193,11 @@ def fixVersion(files, version):
 # Check arguments
 #
 tag = "HEAD"
-skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -237,24 +234,33 @@ os.chdir(distdir)
 #
 print "Removing unnecessary files..."
 filesToRemove = [ \
+    os.path.join("icesl", "allTests.py"), \
     os.path.join("icesl", "makedist.py"), \
+    os.path.join("icesl", "config", "TestUtil.py"), \
+    os.path.join("icesl", "config", "Make.rules.cs"), \
+    os.path.join("icesl", "config", "makeconfig.py"), \
+    os.path.join("icesl", "config", "makedepend.py"), \
+    os.path.join("icesl", "test", "Makefile.mak"), \
     ]
 filesToRemove.extend(find("icesl", ".gitignore"))
+filesToRemove.extend(find("icesl", "Makefile"))
 for x in filesToRemove:
     os.remove(x)
+
+shutil.rmtree(os.path.join("icesl", "test", "IceCS"))
 
 #
 # Comment out the implicit parser and scanner rules in
 # config/Make.rules.
 #
-print "Fixing makefiles..."
-fixMakeRules(os.path.join("icesl", "config", "Make.rules"))
+#print "Fixing makefiles..."
+#fixMakeRules(os.path.join("icesl", "config", "Make.rules"))
 
 #
 # Get IceSL version.
 #
-config = open(os.path.join("icesl", "src", "Ice", "AssemblyUtil.cs"), "r")
-version = re.search("AssemblyVersion(\"([0-9\.]*)\")", config.read()).group(1)
+config = open(os.path.join("icesl", "src", "Ice", "AssemblyInfo.cs"), "r")
+version = re.search("AssemblyVersion.*\"([0-9\.]*)\".*", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icesl", "README*"), version)
