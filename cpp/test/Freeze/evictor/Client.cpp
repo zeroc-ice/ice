@@ -424,6 +424,11 @@ public:
                 // Expected from time to time
                 //
             }
+            catch(const Ice::Exception& e)
+            {
+                cerr << "Caught Ice::Exception: " << e << endl;
+                test(false);
+            }
             catch(...)
             {
                 cerr << "caught some other exception" << endl;

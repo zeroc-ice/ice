@@ -14,6 +14,7 @@
 #include <Freeze/TransactionalEvictor.h>
 #include <Freeze/EvictorStorage.h>
 #include <Freeze/EvictorI.h>
+#include <Freeze/Initialize.h>
 #include <IceUtil/IceUtil.h>
 
 namespace Freeze
@@ -147,6 +148,7 @@ private:
     bool _rollbackOnly;
 
     std::auto_ptr<DeadlockException> _deadlockException;
+    std::auto_ptr<TransactionalEvictorDeadlockException> _nestedCallDeadlockException;
   
     //
     // Protected by this

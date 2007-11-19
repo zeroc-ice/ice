@@ -127,8 +127,10 @@ class SharedDb
 
             Object previousValue = _map.put(catalogMapKey, result[0]);
             assert(previousValue == null);
+            result[0]._inMap = true;
             previousValue = _map.put(catalogIndexListMapKey, result[1]);
             assert(previousValue == null);
+            result[1]._inMap = true;
 
             return result;
         }
@@ -448,7 +450,7 @@ class SharedDb
                 else
                 {
                     cleanupIndices();
-                    DeadlockException ex = new DeadlockException(errorPrefix(_mapKey) + "Db.open: " + dx.getMessage());
+                    DeadlockException ex = new DeadlockException(errorPrefix(_mapKey) + "Db.open: " + dx.getMessage(), tx);
                     ex.initCause(dx);
                     throw ex;
                 }

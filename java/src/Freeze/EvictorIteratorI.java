@@ -43,7 +43,7 @@ class EvictorIteratorI implements EvictorIterator
         _store = store;
         _more = (store != null);
         _batchSize = batchSize;
-        _tx = tx == null ? null : tx.dbTxn();
+        _tx = tx;
         
         assert batchSize > 0;
 
@@ -60,6 +60,9 @@ class EvictorIteratorI implements EvictorIterator
     {
         EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
         deactivateController.lock();
+        
+        com.sleepycat.db.Transaction txn = _tx == null ? null : _tx.dbTxn();
+        
         try
         {
 
@@ -100,7 +103,7 @@ class EvictorIteratorI implements EvictorIterator
                         range = true;
                     }
                 
-                    dbc = _store.db().openCursor(_tx, null);
+                    dbc = _store.db().openCursor(txn, null);
                 
                     boolean done = false;
                     do
@@ -166,9 +169,9 @@ class EvictorIteratorI implements EvictorIterator
                     }
                     else
                     {
-                        DeadlockException ex = new DeadlockException();
+                        DeadlockException ex = new DeadlockException(
+                            _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), _tx);
                         ex.initCause(dx);
-                        ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
                         throw ex;
                     }
                 }
@@ -191,9 +194,9 @@ class EvictorIteratorI implements EvictorIterator
                         {
                             if(_tx != null)
                             {
-                                DeadlockException ex = new DeadlockException();
+                                DeadlockException ex = new DeadlockException(
+                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), _tx);
                                 ex.initCause(dx);
-                                ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
                                 throw ex;
                             }
                         }
@@ -223,7 +226,7 @@ class EvictorIteratorI implements EvictorIterator
     }
 
     private final ObjectStore _store;
-    private final com.sleepycat.db.Transaction _tx;
+    private final TransactionI _tx;
     private final int _batchSize;
     private java.util.Iterator _batchIterator;
 

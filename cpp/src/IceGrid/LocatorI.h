@@ -13,6 +13,8 @@
 #include <IceGrid/Internal.h>
 #include <IceGrid/Locator.h>
 
+#include <set>
+
 namespace IceGrid
 {
 
@@ -30,6 +32,8 @@ typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
 
 class LocatorI : public Locator, public IceUtil::Mutex
 {
+public:
+
     class Request : public IceUtil::Mutex, public IceUtil::Shared
     {
     public:
@@ -38,8 +42,15 @@ class LocatorI : public Locator, public IceUtil::Mutex
                 const LocatorAdapterInfoSeq&, int, const TraceLevelsPtr&);
 
         void execute();
-        void response(const Ice::ObjectPrx&);
-        void exception(const Ice::Exception&); 
+        void response(const std::string&, const Ice::ObjectPrx&);
+        void activate(const std::string&);
+        void exception(const std::string&, const Ice::Exception&); 
+
+        virtual bool
+        operator<(const Request& r) const
+        {
+            return this < &r;
+        }
 
     private:
 
@@ -54,12 +65,11 @@ class LocatorI : public Locator, public IceUtil::Mutex
         const TraceLevelsPtr _traceLevels;
         unsigned int _count;
         LocatorAdapterInfoSeq::const_iterator _lastAdapter;
-        std::vector<Ice::ObjectPrx> _proxies;
+        std::map<std::string, Ice::ObjectPrx> _proxies;
         std::auto_ptr<Ice::Exception> _exception;
+        std::set<std::string> _activating;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
-
-public:
 
     LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const Ice::LocatorRegistryPrx&, const RegistryPrx&,
              const QueryPrx&);
@@ -73,12 +83,14 @@ public:
     virtual Ice::LocatorRegistryPrx getRegistry(const Ice::Current&) const;
     virtual RegistryPrx getLocalRegistry(const Ice::Current&) const;
     virtual QueryPrx getLocalQuery(const Ice::Current&) const;
-
-    bool getDirectProxyRequest(const RequestPtr&, const LocatorAdapterInfo&);
-    void getDirectProxyException(const LocatorAdapterInfo&, const std::string&, const Ice::Exception&);
-    void getDirectProxyCallback(const Ice::Identity&, const Ice::ObjectPrx&);
     
     const Ice::CommunicatorPtr& getCommunicator() const;
+
+    void activate(const LocatorAdapterInfo&, const RequestPtr&);
+    void cancelActivate(const std::string&, const RequestPtr&);
+
+    void activateFinished(const std::string&, const Ice::ObjectPrx&);
+    void activateException(const std::string&, const Ice::Exception&);
 
 protected:
 
@@ -88,8 +100,8 @@ protected:
     const RegistryPrx _localRegistry;
     const QueryPrx _localQuery;
 
-    typedef std::vector<RequestPtr> PendingRequests;
-    typedef std::map<Ice::Identity, PendingRequests> PendingRequestsMap;
+    typedef std::set<RequestPtr> PendingRequests;
+    typedef std::map<std::string, PendingRequests> PendingRequestsMap;
 
     PendingRequestsMap _pendingRequests;
 };

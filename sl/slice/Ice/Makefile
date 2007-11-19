@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.cs
 
 install::
 	@if test ! -d $(install_slicedir)/Ice ; \

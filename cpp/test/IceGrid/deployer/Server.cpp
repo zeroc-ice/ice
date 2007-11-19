@@ -32,7 +32,15 @@ Server::run(int argc, char* argv[])
 
     string name = properties->getProperty("Ice.ProgramName");
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
+    Ice::ObjectAdapterPtr adapter;
+
+    if(!properties->getProperty("ReplicatedAdapter").empty())
+    {
+        adapter = communicator()->createObjectAdapter("ReplicatedAdapter");
+        adapter->activate();
+    }
+    
+    adapter = communicator()->createObjectAdapter("Server");
     Ice::ObjectPtr object = new TestI(adapter, properties);
     adapter->add(object, communicator()->stringToIdentity(name));
 

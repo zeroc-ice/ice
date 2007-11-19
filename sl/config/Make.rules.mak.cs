@@ -7,16 +7,12 @@
 #
 # **********************************************************************
 
-!if "$(ICE_HOME)" == ""
-!error Ice distribution not found, please set ICE_HOME!
-!endif
-
 #
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
 
-prefix			= C:\IceCS-$(VERSION)
+prefix			= C:\IceSL-$(VERSION)
 
 #
 # The default behavior of 'nmake /f Makefile.mak install' attempts to add
@@ -51,7 +47,7 @@ DEBUG			= yes
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.3.0
+VERSION			= 0.1.0
 
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
@@ -86,7 +82,7 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-SLICE2SL		= "$(ICE_HOME)\bin\slice2sl"
+SLICE2SL		= "slice2sl"
 
 EVERYTHING		= all clean install 
 

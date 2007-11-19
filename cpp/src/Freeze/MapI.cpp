@@ -260,7 +260,7 @@ Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection,
                 }
                 else
                 {
-                    throw DeadlockException(__FILE__, __LINE__, dx.what());
+                    throw DeadlockException(__FILE__, __LINE__, dx.what(), tx);
                 }
             }
             catch(const DbException& dx)
@@ -1476,7 +1476,7 @@ Freeze::MapHelperI::destroy()
             }
             else
             {
-                throw DeadlockException(__FILE__, __LINE__, dx.what());
+                throw DeadlockException(__FILE__, __LINE__, dx.what(), tx);
             }
         }
         catch(const DbException& dx)
@@ -1798,7 +1798,7 @@ Freeze::MapIndexI::untypedCount(const Key& k, const ConnectionIPtr& connection) 
 
     int result = 0;
     
-    DbTxn * txn = connection->dbTxn();
+    DbTxn* txn = connection->dbTxn();
 
     try
     {
@@ -1892,7 +1892,7 @@ Freeze::MapIndexI::untypedCount(const Key& k, const ConnectionIPtr& connection) 
     }
     catch(const DbDeadlockException& dx)
     {
-        throw DeadlockException(__FILE__, __LINE__, dx.what());
+        throw DeadlockException(__FILE__, __LINE__, dx.what(), connection->currentTransaction());
     }
     catch(const DbException& dx)
     {

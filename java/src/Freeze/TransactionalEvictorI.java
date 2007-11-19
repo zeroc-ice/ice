@@ -312,10 +312,11 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                         {
                             servantHolder = ctx.createServantHolder(current, store);
                         }                    
-                        catch(DeadlockException ex)
+                        catch(DeadlockException dx)
                         {
+                            assert dx.tx == ctx.transaction();
                             ctx.deadlockException();
-                            throw ex;
+                            throw new TransactionalEvictorDeadlockException(dx.tx);
                         }
                         sample = servantHolder.servant();
                     }
@@ -409,11 +410,15 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                     boolean tryAgain = false;
                     do
                     {
+                        Transaction tx = null;
+
                         if(ownCtx)
                         {
                             ctx = _dbEnv.createCurrent();
                         }
  
+                        tx = ctx.transaction();
+
                         try
                         {
                             try
@@ -452,6 +457,9 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                                     }
                                     if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
                                     {
+                                        //
+                                        // Can throw DeadlockException or TransactionalEvictorDeadlockException
+                                        //
                                         ctx.checkDeadlockException();
 
                                         if(ctx.clearUserException() && _rollbackOnUserException)
@@ -475,10 +483,13 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                                     }
                                 }
                             }
-                            catch(DeadlockException ex)
+                            catch(DeadlockException dx)
                             {
-                                ctx.deadlockException();
-                                throw ex;
+                                if(dx.tx == tx)
+                                {
+                                    ctx.deadlockException();
+                                }
+                                throw dx;
                             }
                             finally
                             {
@@ -488,15 +499,26 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                                 }
                             }
                         }
-                        catch(DeadlockException ex)
+                        catch(DeadlockException dx)
                         {
-                            if(ownCtx)
+                            if(ownCtx && dx.tx == tx)
                             {
                                 tryAgain = true;
                             }
                             else
                             {
-                                throw ex;
+                                throw new TransactionalEvictorDeadlockException(dx.tx);
+                            }
+                        }
+                        catch(TransactionalEvictorDeadlockException dx)
+                        {
+                            if(ownCtx && dx.tx == tx)
+                            {
+                                tryAgain = true;
+                            }
+                            else
+                            {
+                                throw dx;
                             }
                         }
                         finally

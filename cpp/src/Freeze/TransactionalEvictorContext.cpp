@@ -19,6 +19,49 @@ using namespace std;
 using namespace Freeze;
 using namespace Ice;
 
+//
+// TransactionalEvictorDeadlockException
+//
+
+Freeze::TransactionalEvictorDeadlockException::TransactionalEvictorDeadlockException(const char* file, int line, const TransactionPtr& transaction) :
+    Ice::LocalException(file, line),
+    tx(transaction)
+{
+}
+
+Freeze::TransactionalEvictorDeadlockException::~TransactionalEvictorDeadlockException() throw()
+{
+}
+
+string
+Freeze::TransactionalEvictorDeadlockException::ice_name() const
+{
+    return "Freeze::TransactionalEvictorDeadlockException";
+}
+
+Ice::Exception*
+Freeze::TransactionalEvictorDeadlockException::ice_clone() const
+{
+    return new TransactionalEvictorDeadlockException(*this);
+}
+
+void
+Freeze::TransactionalEvictorDeadlockException::ice_throw() const
+{
+    throw *this;
+}
+
+void
+Freeze::TransactionalEvictorDeadlockException::ice_print(ostream& out) const
+{
+    Ice::Exception::ice_print(out);
+    out << ":\ntransactional evictor deadlock exception";
+}
+
+
+//
+// TransactionalEvictorContext
+//
 
 Freeze::TransactionalEvictorContext::TransactionalEvictorContext(const SharedDbEnvPtr& dbEnv) :
     _tx((new ConnectionI(dbEnv))->beginTransactionI()),
@@ -115,6 +158,11 @@ Freeze::TransactionalEvictorContext::checkDeadlockException()
     {
         _deadlockException->ice_throw();
     }
+
+    if(_nestedCallDeadlockException.get() != 0)
+    {
+        _nestedCallDeadlockException->ice_throw();
+    }
 }
 
 bool
@@ -157,6 +205,15 @@ Freeze::TransactionalEvictorContext::exception(const std::exception& ex)
         _deadlockException.reset(dynamic_cast<DeadlockException*>(dx->ice_clone()));
         return false;
     }
+
+    const TransactionalEvictorDeadlockException* edx = 
+        dynamic_cast<const TransactionalEvictorDeadlockException*>(&ex);
+    if(edx != 0 && _owner == IceUtil::ThreadControl())
+    {
+        _nestedCallDeadlockException.reset(dynamic_cast<TransactionalEvictorDeadlockException*>(edx->ice_clone()));
+        return false;
+    }
+
     return true;
 }
 

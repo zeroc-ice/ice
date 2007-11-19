@@ -9,15 +9,9 @@
 
 top_srcdir	= ..
 
-!include $(top_srcdir)/config/Make.rules.mak
+!include $(top_srcdir)/config/Make.rules.mak.cs
 
-SUBDIRS		= Freeze \
-		  Glacier2 \
-		  Ice \
-		  IceBox \
-		  IcePatch2 \
-		  IceStorm \
-		  IceGrid
+SUBDIRS		= Ice
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

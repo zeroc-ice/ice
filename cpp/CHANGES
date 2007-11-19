@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- While resolving replica group endpoints, the IceGrig locator
+  implementation does not wait anymore for adapter activation if
+  another adapter is already active.
+
 - Fixed a bug in FreezeScript that caused a failure when a script
   attempted to access the 'length' member of a string value.
 

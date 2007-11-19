@@ -44,7 +44,7 @@ class ConnectionI implements Connection
         }
         catch(com.sleepycat.db.DeadlockException dx)
         {
-            DeadlockException ex = new DeadlockException(errorPrefix() + dx.getMessage());
+            DeadlockException ex = new DeadlockException(errorPrefix() + dx.getMessage(), _transaction);
             ex.initCause(dx);
             throw ex;
         }
