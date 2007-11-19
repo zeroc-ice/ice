@@ -198,6 +198,7 @@ Freeze::SharedDb::openCatalogs(SharedDbEnv& dbEnv, SharedDbPtr& catalog, SharedD
         assert(0);
         throw DatabaseException(__FILE__, __LINE__, "Catalog already opened");
     }
+    newCatalog->_inMap = true;
 
     mapKey.dbName = _catalogIndexListName;
 
@@ -212,6 +213,8 @@ Freeze::SharedDb::openCatalogs(SharedDbEnv& dbEnv, SharedDbPtr& catalog, SharedD
         assert(0);
         throw DatabaseException(__FILE__, __LINE__, "CatalogIndexList already opened");
     }
+    newCatalogIndexList->_inMap = true;
+    
 
     catalog = newCatalog.release();
     catalogIndexList = newCatalogIndexList.release();
@@ -572,7 +575,7 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
             }
             else
             {
-                throw DeadlockException(__FILE__, __LINE__, dx.what());
+                throw DeadlockException(__FILE__, __LINE__, dx.what(), tx);
             }
         }
         catch(const DbException& dx)
@@ -615,7 +618,8 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey, const string& keyTypeId, const 
     _mapKey(mapKey),
     _key(keyTypeId),
     _value(valueTypeId),
-    _refCount(0)
+    _refCount(0),
+    _inMap(false)
 {
     _trace = _mapKey.communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map");
 

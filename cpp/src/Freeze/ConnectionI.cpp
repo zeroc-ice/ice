@@ -56,7 +56,7 @@ Freeze::ConnectionI::removeMapIndex(const string& mapName, const string& indexNa
     }
     catch(const DbDeadlockException& dx)
     {
-        throw DeadlockException(__FILE__, __LINE__, dx.what());
+        throw DeadlockException(__FILE__, __LINE__, dx.what(), _transaction);
     }
     catch(const DbException& dx)
     {

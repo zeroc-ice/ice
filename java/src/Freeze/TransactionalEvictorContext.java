@@ -96,6 +96,13 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
             _deadlockException = (DeadlockException)ex;
             return false;
         }
+
+        if(ex instanceof TransactionalEvictorDeadlockException && Thread.currentThread().equals(_owner))
+        {
+            _nestedCallDeadlockException = (TransactionalEvictorDeadlockException)ex;
+            return false;
+        }
+
         return true;
     }
 
@@ -278,6 +285,11 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
         {
             throw _deadlockException;
         }
+
+        if(_nestedCallDeadlockException != null)
+        {
+            throw _nestedCallDeadlockException;
+        }
     }
 
     boolean
@@ -399,6 +411,7 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
     private final Thread _owner;
 
     private DeadlockException _deadlockException;
+    private TransactionalEvictorDeadlockException _nestedCallDeadlockException;
 
     //
     // Protected by this

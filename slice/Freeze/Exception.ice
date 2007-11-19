@@ -13,6 +13,8 @@
 module Freeze
 {
 
+local interface Transaction;
+
 /**
  *
  * A Freeze database exception.
@@ -49,6 +51,7 @@ local exception NotFoundException extends DatabaseException
  **/
 local exception DeadlockException extends DatabaseException
 {
+    Transaction tx;
 };
 
 /**

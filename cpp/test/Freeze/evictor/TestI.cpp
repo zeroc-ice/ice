@@ -406,7 +406,7 @@ Test::ServantI::getTotalBalance(const Current& current)
             te->setCurrentTransaction(0);
             return total;
         }
-        catch(const Freeze::DeadlockException&)
+        catch(const Freeze::TransactionalEvictorDeadlockException&)
         {
             te->getCurrentTransaction()->rollback();
             te->setCurrentTransaction(0);

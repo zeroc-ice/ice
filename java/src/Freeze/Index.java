@@ -142,9 +142,9 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
                 
                     if(tx != null)
                     {
-                        DeadlockException ex = new DeadlockException();
+                        DeadlockException ex = new DeadlockException(
+                           _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
                         ex.initCause(dx);
-                        ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
                         throw ex;
                     }
                 
@@ -171,9 +171,9 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
                         {
                             if(tx != null)
                             {
-                                DeadlockException ex = new DeadlockException();
+                                DeadlockException ex = new DeadlockException(
+                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
                                 ex.initCause(dx);
-                                ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
                                 throw ex;
                             }
                         }
@@ -260,9 +260,9 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 
                     if(tx != null)
                     {
-                        DeadlockException ex = new DeadlockException();
+                        DeadlockException ex = new DeadlockException(
+                            _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
                         ex.initCause(dx);
-                        ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
                         throw ex;
                     }
                     //
@@ -288,9 +288,9 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
                         {
                             if(tx != null)
                             {
-                                DeadlockException ex = new DeadlockException();
+                                DeadlockException ex = new DeadlockException(
+                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
                                 ex.initCause(dx);
-                                ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
                                 throw ex;
                             }
                         }

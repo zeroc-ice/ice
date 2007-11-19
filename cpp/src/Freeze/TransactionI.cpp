@@ -137,10 +137,12 @@ Freeze::TransactionI::rollbackInternal(bool warning)
                 out << "failed to rollback transaction " << hex << txnId << dec << ": " << dx.what();
             }
             
+            DeadlockException deadlockException(__FILE__, __LINE__, dx.what(), this);
+
             postCompletion(false, true);
             // After postCompletion is called the transaction may be
             // dead. Beware!
-            throw DeadlockException(__FILE__, __LINE__, dx.what());
+            throw deadlockException;
         }
         catch(const ::DbException& dx)
         {

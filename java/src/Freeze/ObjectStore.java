@@ -245,7 +245,8 @@ class ObjectStore implements IceUtil.Store
 
                 if(tx != null)
                 {
-                    DeadlockException ex = new DeadlockException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage());
+                    DeadlockException ex = new DeadlockException(
+                        _evictor.errorPrefix() + "Db.get: " + dx.getMessage(), transaction);
                     ex.initCause(dx);
                     throw ex;
                 }
@@ -509,9 +510,9 @@ class ObjectStore implements IceUtil.Store
                                                   _evictor.filename() + "/" + _dbName + "\"");
             }
             
-            DeadlockException ex = new DeadlockException();
+            DeadlockException ex = new DeadlockException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage(),
+                                                         transaction);
             ex.initCause(dx);
-            ex.message = _evictor.errorPrefix() + "Db.get: " + dx.getMessage();
             throw ex;
         }
         catch(com.sleepycat.db.DatabaseException dx)
@@ -568,9 +569,9 @@ class ObjectStore implements IceUtil.Store
                                                   _evictor.filename() + "/" + _dbName + "\"");
             }
             
-            DeadlockException ex = new DeadlockException();
+            DeadlockException ex = new DeadlockException(
+                _evictor.errorPrefix() + "Db.put: " + dx.getMessage(), transaction);
             ex.initCause(dx);
-            ex.message = _evictor.errorPrefix() + "Db.put: " + dx.getMessage();
             throw ex;
         }
         catch(com.sleepycat.db.DatabaseException dx)
@@ -623,9 +624,9 @@ class ObjectStore implements IceUtil.Store
                 
                 if(tx != null)
                 {
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _evictor.errorPrefix() + "Db.putNoOverwrite: " + dx.getMessage(), transaction);
                     ex.initCause(dx);
-                    ex.message = _evictor.errorPrefix() + "Db.putNoOverwrite: " + dx.getMessage();
                     throw ex;
                 }
                 //
@@ -674,9 +675,9 @@ class ObjectStore implements IceUtil.Store
 
                 if(tx != null)
                 {
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(_evictor.errorPrefix() + "Db.delete: " + dx.getMessage(),
+                                                                 transaction);
                     ex.initCause(dx);
-                    ex.message =  _evictor.errorPrefix() + "Db.delete: " + dx.getMessage();
                     throw ex;
                 }
 

@@ -174,7 +174,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
     }
     catch(const DbDeadlockException& dx)
     {
-        throw DeadlockException(__FILE__, __LINE__, dx.what());
+        throw DeadlockException(__FILE__, __LINE__, dx.what(), transaction);
     }
     catch(const DbException& dx)
     {
@@ -294,7 +294,7 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
     }
     catch(const DbDeadlockException& dx)
     {
-        throw DeadlockException(__FILE__, __LINE__, dx.what());
+        throw DeadlockException(__FILE__, __LINE__, dx.what(), transaction);
     }
     catch(const DbException& dx)
     {

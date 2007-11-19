@@ -71,6 +71,26 @@ createTransactionalEvictor(const Ice::ObjectAdapterPtr& adapter,
                            const std::vector<IndexPtr>& indices = std::vector<IndexPtr>(),
                            bool createDb = true);
 
+//
+// TransactionalEvictorDeadlockException propagates through collocation-optimized calls
+// The TransactionalEvictor catches and retries on this exception
+//
+class FREEZE_API TransactionalEvictorDeadlockException : public Ice::LocalException
+{
+public:
+  
+    TransactionalEvictorDeadlockException(const char*, int, const TransactionPtr& = 0);
+
+    virtual ~TransactionalEvictorDeadlockException() throw();
+
+    virtual std::string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual Ice::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    TransactionPtr tx;
+};
+
 
 FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
                                           const std::string& envName);

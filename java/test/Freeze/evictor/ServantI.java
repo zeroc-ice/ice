@@ -274,7 +274,7 @@ public class ServantI implements Test._ServantOperations
                 }
                 return total;
             }
-            catch(Freeze.DeadlockException e)
+            catch(Freeze.TransactionalEvictorDeadlockException e)
             {
                 // retry
             }

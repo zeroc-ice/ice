@@ -45,7 +45,7 @@ private:
     std::vector<Ice::Identity> _batch;
     bool _more;
     bool _initialized;
-    DbTxn* _tx;
+    TransactionIPtr _tx;
 };
 
 }

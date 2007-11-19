@@ -394,10 +394,11 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
             {
                 servantHolder.init(ctx, current, store);
             }                    
-            catch(const DeadlockException&)
+            catch(const DeadlockException& dx)
             {
+                assert(dx.tx == ctx->transaction());
                 ctx->deadlockException();
-                throw;
+                throw TransactionalEvictorDeadlockException(__FILE__, __LINE__, dx.tx);
             }
             sample = servantHolder.servant();
         }
@@ -496,6 +497,8 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
         
         do
         {
+            TransactionPtr tx;
+
             try
             {
                 if(ownCtx)
@@ -504,7 +507,8 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                 }
                 
                 CtxHolder ctxHolder(ownCtx, ctx, _dbEnv);
-                
+                tx = ctx->transaction();
+
                 try
                 {                   
                     TransactionalEvictorContext::ServantHolder sh;
@@ -540,7 +544,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                         if(dispatchStatus == DispatchAsync)
                         {
                             //
-                            // May throw DeadlockException
+                            // May throw DeadlockException or TransactionalEvictorDeadlockException
                             //
                             ctx->checkDeadlockException();
 
@@ -565,9 +569,12 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                     // servant holder destructor runs here and may throw (if !rolled back)
                     // 
                 }
-                catch(const DeadlockException&)
+                catch(const DeadlockException& dx)
                 {
-                    ctx->deadlockException();
+                    if(dx.tx == tx)
+                    {
+                        ctx->deadlockException();
+                    }
                     throw;
                 }
                 catch(...)
@@ -583,9 +590,20 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                 // commit occurs here (when ownCtx)
                 //
             }
-            catch(const DeadlockException&)
+            catch(const DeadlockException& dx)
             {
-                if(ownCtx)
+                if(ownCtx && dx.tx == tx)
+                {
+                    tryAgain = true;
+                }
+                else
+                {
+                    throw TransactionalEvictorDeadlockException(__FILE__, __LINE__, dx.tx);
+                }
+            }
+            catch(const TransactionalEvictorDeadlockException& dx)
+            {
+                if(ownCtx && dx.tx == tx)
                 {
                     tryAgain = true;
                 }
@@ -594,7 +612,6 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                     throw;
                 }
             }
-            
         } while(tryAgain);
     }
 

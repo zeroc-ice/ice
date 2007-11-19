@@ -23,7 +23,7 @@ Freeze::EvictorIteratorI::EvictorIteratorI(ObjectStoreBase* store, const Transac
     _key(1024),
     _more(store != 0),
     _initialized(false),
-    _tx(tx == 0 ? 0 : tx->dbTxn())
+    _tx(tx)
 {
     _batchIterator = _batch.end();
 }
@@ -74,6 +74,8 @@ Freeze::EvictorIteratorI::nextBatch()
 
     CommunicatorPtr communicator = _store->communicator();
    
+    DbTxn* txn = _tx == 0 ? 0: _tx->dbTxn();
+
     try
     {
         for(;;)
@@ -108,7 +110,7 @@ Freeze::EvictorIteratorI::nextBatch()
                     dbKey.set_size(static_cast<u_int32_t>(firstKey.size()));
                 }
                 
-                _store->db()->cursor(_tx, &dbc, 0);
+                _store->db()->cursor(txn, &dbc, 0);
 
                 bool done = false;
                 do
@@ -217,7 +219,7 @@ Freeze::EvictorIteratorI::nextBatch()
     }
     catch(const DbDeadlockException& dx)
     {
-        throw DeadlockException(__FILE__, __LINE__, dx.what());
+        throw DeadlockException(__FILE__, __LINE__, dx.what(), _tx);
     }
     catch(const DbException& dx)
     {

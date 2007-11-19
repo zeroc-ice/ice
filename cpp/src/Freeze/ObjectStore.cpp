@@ -255,7 +255,7 @@ Freeze::ObjectStoreBase::dbHasObject(const Identity& ident, const TransactionIPt
 
             if(tx != 0)
             {
-                throw DeadlockException(__FILE__, __LINE__, dx.what());
+                throw DeadlockException(__FILE__, __LINE__, dx.what(), transaction);
             }
             // Else, try again
         }
@@ -406,7 +406,7 @@ Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& tran
                 out << "Deadlock in Freeze::ObjectStoreBase::load while searching \"" 
                     << _evictor->filename() + "/" + _dbName << "\"";
             }
-            throw DeadlockException(__FILE__, __LINE__, dx.what());
+            throw DeadlockException(__FILE__, __LINE__, dx.what(), transaction);
         }
         catch(const DbException& dx)
         {
@@ -458,7 +458,7 @@ Freeze::ObjectStoreBase::update(const Identity& ident, const ObjectRecord& rec, 
             out << "Deadlock in Freeze::ObjectStoreBase::update while updating \"" 
                 << _evictor->filename() + "/" + _dbName << "\"";
         }
-        throw DeadlockException(__FILE__, __LINE__, dx.what());
+        throw DeadlockException(__FILE__, __LINE__, dx.what(), transaction);
     }
     catch(const DbException& dx)
     {
@@ -511,7 +511,7 @@ Freeze::ObjectStoreBase::insert(const Identity& ident, const ObjectRecord& rec, 
             }
             if(tx != 0)
             {
-                throw DeadlockException(__FILE__, __LINE__, dx.what());
+                throw DeadlockException(__FILE__, __LINE__, dx.what(), transaction);
             }
             //
             // Otherwise, try again
@@ -559,7 +559,7 @@ Freeze::ObjectStoreBase::remove(const Identity& ident, const TransactionIPtr& tr
             }
             if(tx != 0)
             {
-                throw DeadlockException(__FILE__, __LINE__, dx.what());
+                throw DeadlockException(__FILE__, __LINE__, dx.what(), transaction);
             }
             //
             // Otherwise, try again

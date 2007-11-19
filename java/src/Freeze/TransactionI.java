@@ -52,9 +52,8 @@ class TransactionI implements Transaction
                                                              e.getMessage());
             }
 
-            DeadlockException ex = new DeadlockException();
+            DeadlockException ex = new DeadlockException(_errorPrefix + "DbTxn.commit: " + e.getMessage(), this);
             ex.initCause(e);
-            ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
             throw ex;
         }
         catch(com.sleepycat.db.DatabaseException e)
@@ -123,9 +122,8 @@ class TransactionI implements Transaction
 
             deadlock = true;
 
-            DeadlockException ex = new DeadlockException();
+            DeadlockException ex = new DeadlockException(_errorPrefix + "DbTxn.abort: " + e.getMessage(), this);
             ex.initCause(e);
-            ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();
             throw ex;
         }
         catch(com.sleepycat.db.DatabaseException e)

@@ -192,7 +192,8 @@ public abstract class Map extends java.util.AbstractMap
                 }
                 else
                 {
-                    DeadlockException ex = new DeadlockException(errorPrefix(envName, dbName) + "Map.recreate: " + dx.getMessage());
+                    DeadlockException ex = new DeadlockException(
+                        errorPrefix(envName, dbName) + "Map.recreate: " + dx.getMessage(), tx);
                     ex.initCause(dx);
                     throw ex;
                 }
@@ -612,9 +613,9 @@ public abstract class Map extends java.util.AbstractMap
             {
                 if(_connection.dbTxn() != null)
                 {
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "Db.get: " + e.getMessage(), _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
                     throw ex;
                 }
                 else
@@ -736,9 +737,9 @@ public abstract class Map extends java.util.AbstractMap
             {
                 if(txn != null)
                 {
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "Db.truncate: " + e.getMessage(), _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "Db.truncate: " + e.getMessage();
                     throw ex;
                 }
                 else
@@ -933,7 +934,7 @@ public abstract class Map extends java.util.AbstractMap
                 }
                 else
                 {
-                    DeadlockException e = new DeadlockException(_errorPrefix + dx.getMessage());
+                    DeadlockException e = new DeadlockException(_errorPrefix + dx.getMessage(), tx);
                     e.initCause(dx);
                     throw e;
                 }
@@ -1130,9 +1131,9 @@ public abstract class Map extends java.util.AbstractMap
                 {
                     if(_connection.dbTxn() != null)
                     {
-                        DeadlockException ex = new DeadlockException();
+                        DeadlockException ex = new DeadlockException(
+                            _errorPrefix + "Dbc.getXXX: " + dx.getMessage(), _connection.currentTransaction());
                         ex.initCause(dx);
-                        ex.message = _errorPrefix + "Dbc.getXXX: " + dx.getMessage();
                         throw ex;
                     }
                     else
@@ -1212,9 +1213,9 @@ public abstract class Map extends java.util.AbstractMap
             {
                 if(_connection.dbTxn() != null)
                 {
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "Db.get: " + e.getMessage(), _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
                     throw ex;
                 }
                 else
@@ -1276,9 +1277,9 @@ public abstract class Map extends java.util.AbstractMap
             {
                 if(txn != null)
                 {
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "Db.put: " + e.getMessage(), _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "Db.put: " + e.getMessage();
                     throw ex;
                 }
                 else
@@ -1338,9 +1339,9 @@ public abstract class Map extends java.util.AbstractMap
             {
                 if(txn != null)
                 {
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "Db.del: " + e.getMessage(), _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "Db.del: " + e.getMessage();
                     throw ex;
                 }
                 else
@@ -1692,9 +1693,9 @@ public abstract class Map extends java.util.AbstractMap
                 {
                     if(_connection.dbTxn() != null)
                     {
-                        DeadlockException ex = new DeadlockException();
+                        DeadlockException ex = new DeadlockException(
+                            _errorPrefix + "Db.get: " + e.getMessage(), _connection.currentTransaction());
                         ex.initCause(e);
-                        ex.message = _errorPrefix + "Db.get: " + e.getMessage();
                         throw ex;
                     }
                     else
@@ -1799,9 +1800,9 @@ public abstract class Map extends java.util.AbstractMap
             catch(com.sleepycat.db.DeadlockException dx)
             {
                 dead();
-                DeadlockException ex = new DeadlockException();
+                DeadlockException ex = new DeadlockException(
+                    _errorPrefix + "EntryIterator constructor: " + dx.getMessage(), _connection.currentTransaction());
                 ex.initCause(dx);
-                ex.message = _errorPrefix + "EntryIterator constructor: " + dx.getMessage();
                 throw ex;
             }
             catch(com.sleepycat.db.DatabaseException dx)
@@ -1884,9 +1885,9 @@ public abstract class Map extends java.util.AbstractMap
                 catch(com.sleepycat.db.DeadlockException dx)
                 {
                     dead();
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "Dbc.get: " + dx.getMessage(), _connection.currentTransaction());
                     ex.initCause(dx);
-                    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
                     throw ex;
                 }
                 catch(com.sleepycat.db.DatabaseException dx)
@@ -1973,9 +1974,9 @@ public abstract class Map extends java.util.AbstractMap
                 catch(com.sleepycat.db.DeadlockException e)
                 {
                     dead();
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(_errorPrefix + "Dbc.del: " + e.getMessage(),
+                                                                 _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "Dbc.del: " + e.getMessage();
                     throw ex;
                 }
                 catch(com.sleepycat.db.DatabaseException e)
@@ -2027,9 +2028,9 @@ public abstract class Map extends java.util.AbstractMap
                 catch(com.sleepycat.db.DeadlockException e)
                 {
                     dead();
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(_errorPrefix + "EntryIterator.remove: " + e.getMessage(),
+                                                                 _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "EntryIterator.remove: " + e.getMessage();
                     throw ex;
                 }
                 catch(com.sleepycat.db.DatabaseException e)
@@ -2118,9 +2119,9 @@ public abstract class Map extends java.util.AbstractMap
                                                                      e.getMessage());
                     }
 
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "DbTxn.commit: " + e.getMessage(), _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
                     throw ex;
                 }
                 catch(com.sleepycat.db.DatabaseException e)
@@ -2191,9 +2192,9 @@ public abstract class Map extends java.util.AbstractMap
                 catch(com.sleepycat.db.DeadlockException e)
                 {
                     dead();
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(_errorPrefix + "Dbc.put: " + e.getMessage(),
+                                                                 _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "Dbc.put: " + e.getMessage();
                     throw ex;
                 }
                 catch(com.sleepycat.db.DatabaseException e)
@@ -2239,9 +2240,9 @@ public abstract class Map extends java.util.AbstractMap
                 catch(com.sleepycat.db.DeadlockException e)
                 {
                     dead();
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(_errorPrefix + "EntryIterator.setValue: " + e.getMessage(),
+                                                                 _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "EntryIterator.setValue: " + e.getMessage();
                     throw ex;
                 }
                 catch(com.sleepycat.db.DatabaseException e)
@@ -2271,9 +2272,9 @@ public abstract class Map extends java.util.AbstractMap
             catch(com.sleepycat.db.DeadlockException e)
             {
                 dead();
-                DeadlockException ex = new DeadlockException();
+                DeadlockException ex = new DeadlockException(
+                    _errorPrefix + "Dbc.close: " + e.getMessage(), _connection.currentTransaction());
                 ex.initCause(e);
-                ex.message = _errorPrefix + "Dbc.close: " + e.getMessage();
                 throw ex;
             }
             catch(com.sleepycat.db.DatabaseException e)
@@ -2323,9 +2324,9 @@ public abstract class Map extends java.util.AbstractMap
                                                                      ": " + e.getMessage());
                     }
 
-                    DeadlockException ex = new DeadlockException();
+                    DeadlockException ex = new DeadlockException(
+                        _errorPrefix + "DbTxn.abort: " + e.getMessage(), _connection.currentTransaction());
                     ex.initCause(e);
-                    ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();
                     throw ex;
                 }
                 catch(com.sleepycat.db.DatabaseException e)
