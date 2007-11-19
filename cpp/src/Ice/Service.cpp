@@ -389,16 +389,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     // On Windows, we parse the properties here to extract Ice.EventLog.Source
     //
     InitializationData initData = initializationData;
-    if(initData.properties == 0)
-    {
-        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
-    }
-    else
-    {
-        StringSeq options = argsToStringSeq(argc, argv);
-        options = initData.properties->parseIceCommandLineOptions(options);
-        stringSeqToArgs(options, argc, argv);
-    }
+    initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
 
     //
     // First check for the --service option.
