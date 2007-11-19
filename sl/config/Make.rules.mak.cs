@@ -51,7 +51,7 @@ DEBUG			= yes
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.3.0
+VERSION			= 0.1.0
 
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib

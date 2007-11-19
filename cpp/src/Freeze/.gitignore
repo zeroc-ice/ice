@@ -26,3 +26,4 @@ TransactionalEvictor.h
 Transaction.h
 PingObject.h
 Catalog.cpp
+CatalogIndexList.cpp
