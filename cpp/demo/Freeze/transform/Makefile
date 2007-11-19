@@ -62,7 +62,8 @@ NewContacts.h NewContacts.cpp: NewContactData.ice $(SLICE2FREEZE)
 cleandb::
 	-rm -f db/* dbnew/*
 
-clean:: cleandb
+clean::
+	-rm -f db/* dbnew/*
 	-rm -f Contacts.h Contacts.cpp NewContacts.h NewContacts.cpp
 
 include .depend

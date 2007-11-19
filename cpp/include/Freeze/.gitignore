@@ -13,3 +13,4 @@ Evictor.h
 TransactionalEvictor.h
 Transaction.h
 Catalog.h
+CatalogIndexList.h

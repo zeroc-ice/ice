@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("Ice for Silverlight core run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Ice for C#")]
+[assembly: AssemblyProduct("Ice for Silverlight")]
 [assembly: AssemblyCopyright("Copyright (c) 2003-2007, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]         
