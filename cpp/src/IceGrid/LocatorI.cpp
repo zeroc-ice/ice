@@ -51,7 +51,7 @@ public:
                 return;
             }
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
         }
         
