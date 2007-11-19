@@ -99,6 +99,19 @@ instantiateServer(const AdminPrx& admin, const string& templ, const string& node
         cerr << ex << endl;
         test(false);
     }
+
+    assert(params.find("id") != params.end());
+    try
+    {
+        admin->startServer(params.find("id")->second);
+    }
+    catch(const NodeUnreachableException&)
+    {
+    }
+    catch(const Ice::Exception&)
+    {
+        test(false);
+    }
 }
 
 void
