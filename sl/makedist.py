@@ -193,14 +193,11 @@ def fixVersion(files, version):
 # Check arguments
 #
 tag = "HEAD"
-skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
