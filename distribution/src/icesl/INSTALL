@@ -30,7 +30,7 @@ Compilation
 Using your favorite Zip tool, unzip the Ice source archive anywhere
 you like.
 
-Open a command prompt and change the working directory to IceE-trans-@ver@.
+Open a command prompt and change the working directory to IceSL-trans-@ver@.
 For example:
 
 > cd C:\IceSL-trans-@ver@

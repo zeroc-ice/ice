@@ -170,6 +170,8 @@ if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
 os.mkdir(os.path.join(distdir, "icesl"))
+tmpdir = "tmp"
+os.mkdir(os.path.join(distdir, tmpdir))
 
 #
 # Export sources from git.
@@ -181,103 +183,26 @@ else:
     quiet = ""
 os.system("git archive " + quiet + " " + tag + " . | (cd dist/icesl && tar xf -)")
 
-os.chdir(distdir)
+os.chdir(os.path.join("..", "sl", "src"))
+os.system("git archive " + quiet + " " + tag + " . | (cd ../../cpp/dist/tmp && tar xf -)")
+
+os.chdir(os.path.join("..", "..", "distribution", "src", "icesl"))
+os.system("git archive " + quiet + " " + tag + " . | (cd ../../../cpp/dist/tmp && tar xf -)")
+
+os.chdir(os.path.join("..", "..", "..", "cpp", distdir))
 
 #
-# Copy Ice-E specific install files.
+# Copy IceSL specific install files.
 #
-#print "Copying icesl install files..."
-#shutil.copyfile(os.path.join("ice", "install", "icee", "ICE_LICENSE"), os.path.join("ice", "ICE_LICENSE"))
-#shutil.copyfile(os.path.join("ice", "install", "icee", "README"), os.path.join("ice", "README"))
-#shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.LINUX"), os.path.join("ice", "INSTALL.LINUX"))
-#shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.WINDOWS"), os.path.join("ice", "INSTALL.WINDOWS"))
+print "Copying icesl install files..."
+shutil.copyfile(os.path.join("tmp", "ICE_LICENSE"), os.path.join("icesl", "ICE_LICENSE"))
+shutil.copyfile(os.path.join("tmp", "README"), os.path.join("icesl", "README"))
+shutil.copyfile(os.path.join("tmp", "INSTALL"), os.path.join("icesl", "INSTALL"))
 
 #
-# Move Make.rules*icee
+# Move Make.rules.mak.icesl
 #
-shutil.move(os.path.join("icesl", "config", "Make.rules.icee"), os.path.join("icesl", "config", "Make.rules"))
-shutil.move(os.path.join("icesl", "config", "Make.rules.mak.icee"), os.path.join("icesl", "config", "Make.rules.mak"))
-
-#
-# Remove files.
-#
-print "Removing unnecessary files..."
-filesToRemove = [ \
-    os.path.join("icesl", "CHANGES"), \
-    os.path.join("icesl", "INSTALL.HP-UX"), \
-    os.path.join("icesl", "INSTALL.MACOSX"), \
-    os.path.join("icesl", "INSTALL.SOLARIS"), \
-    os.path.join("icesl", "INSTALL.WINDOWS"), \
-    os.path.join("icesl", "INSTALL.LINUX"), \
-    os.path.join("icesl", "iceemakedist.py"), \
-    os.path.join("icesl", "WINDOWS_SERVICE.txt"), \
-    os.path.join("icesl", "makedist.py"), \
-    os.path.join("icesl", "fixCopyright.py"), \
-    os.path.join("icesl", "fixVersion.py"), \
-    os.path.join("icesl", "allTests.py"), \
-    os.path.join("icesl", "allDemos.py"), \
-    os.path.join("icesl", "config", "convertssl.py"), \
-    os.path.join("icesl", "config", "findSliceFiles.py"), \
-    os.path.join("icesl", "config", "glacier2router.cfg"), \
-    os.path.join("icesl", "config", "ice_ca.cnf"), \
-    os.path.join("icesl", "config", "icegridnode.cfg"), \
-    os.path.join("icesl", "config", "icegridregistry.cfg"), \
-    os.path.join("icesl", "config", "icegrid-slice.3.1.ice.gz"), \
-    os.path.join("icesl", "config", "makedepend.py"), \
-    os.path.join("icesl", "config", "makegitignore.py"), \
-    os.path.join("icesl", "config", "makeprops.py"), \
-    os.path.join("icesl", "config", "Make.rules"), \
-    os.path.join("icesl", "config", "Make.rules.AIX"), \
-    os.path.join("icesl", "config", "Make.rules.bcc"), \
-    os.path.join("icesl", "config", "Make.rules.Darwin"), \
-    os.path.join("icesl", "config", "Make.rules.FreeBSD"), \
-    os.path.join("icesl", "config", "Make.rules.HP-UX"), \
-    os.path.join("icesl", "config", "Make.rules.Linux"), \
-    os.path.join("icesl", "config", "Make.rules.OSF1"), \
-    os.path.join("icesl", "config", "Make.rules.SunOS"), \
-    os.path.join("icesl", "config", "PropertyNames.xml"), \
-    os.path.join("icesl", "config", "upgradeicegrid.py"), \
-    os.path.join("icesl", "config", "upgradeicestorm.py"), \
-    ]
-filesToRemove.extend(find("icesl", ".gitignore"))
-filesToRemove.extend(find("icesl", "Makefile"))
-for x in filesToRemove:
-    os.remove(x)
-shutil.rmtree(os.path.join("icesl", "demo"))
-shutil.rmtree(os.path.join("icesl", "doc"))
-shutil.rmtree(os.path.join("icesl", "test"))
-shutil.rmtree(os.path.join("icesl", "include", "Freeze"))
-shutil.rmtree(os.path.join("icesl", "include", "Glacier2"))
-shutil.rmtree(os.path.join("icesl", "include", "Ice"))
-shutil.rmtree(os.path.join("icesl", "include", "IceBox"))
-shutil.rmtree(os.path.join("icesl", "include", "IceGrid"))
-shutil.rmtree(os.path.join("icesl", "include", "IcePatch2"))
-shutil.rmtree(os.path.join("icesl", "include", "IceSSL"))
-shutil.rmtree(os.path.join("icesl", "include", "IceStorm"))
-shutil.rmtree(os.path.join("icesl", "include", "IceXML"))
-shutil.rmtree(os.path.join("icesl", "src", "ca"))
-shutil.rmtree(os.path.join("icesl", "src", "Freeze"))
-shutil.rmtree(os.path.join("icesl", "src", "FreezeScript"))
-shutil.rmtree(os.path.join("icesl", "src", "Glacier2"))
-shutil.rmtree(os.path.join("icesl", "src", "Ice"))
-shutil.rmtree(os.path.join("icesl", "src", "IceBox"))
-shutil.rmtree(os.path.join("icesl", "src", "IceGrid"))
-shutil.rmtree(os.path.join("icesl", "src", "IcePatch2"))
-shutil.rmtree(os.path.join("icesl", "src", "iceserviceinstall"))
-shutil.rmtree(os.path.join("icesl", "src", "IceSSL"))
-shutil.rmtree(os.path.join("icesl", "src", "IceStorm"))
-shutil.rmtree(os.path.join("icesl", "src", "IceXML"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2cpp"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2cppe"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2cs"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2docbook"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2freeze"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2freezej"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2html"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2java"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2javae"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2py"))
-shutil.rmtree(os.path.join("icesl", "src", "slice2rb"))
+shutil.move(os.path.join("icesl", "config", "Make.rules.mak.icesl"), os.path.join("icesl", "config", "Make.rules.mak"))
 
 #
 # Generate bison files.
@@ -338,16 +263,97 @@ for x in scanners:
     os.chdir(cwd)
 
 #
+# Remove files.
+#
+print "Removing unnecessary files..."
+filesToRemove = [ \
+    os.path.join("icesl", "CHANGES"), \
+    os.path.join("icesl", "INSTALL.HP-UX"), \
+    os.path.join("icesl", "INSTALL.MACOSX"), \
+    os.path.join("icesl", "INSTALL.SOLARIS"), \
+    os.path.join("icesl", "INSTALL.WINDOWS"), \
+    os.path.join("icesl", "INSTALL.LINUX"), \
+    os.path.join("icesl", "iceemakedist.py"), \
+    os.path.join("icesl", "iceslmakedist.py"), \
+    os.path.join("icesl", "WINDOWS_SERVICE.txt"), \
+    os.path.join("icesl", "makedist.py"), \
+    os.path.join("icesl", "fixCopyright.py"), \
+    os.path.join("icesl", "fixVersion.py"), \
+    os.path.join("icesl", "allTests.py"), \
+    os.path.join("icesl", "allDemos.py"), \
+    os.path.join("icesl", "config", "convertssl.py"), \
+    os.path.join("icesl", "config", "findSliceFiles.py"), \
+    os.path.join("icesl", "config", "glacier2router.cfg"), \
+    os.path.join("icesl", "config", "ice_ca.cnf"), \
+    os.path.join("icesl", "config", "icegridnode.cfg"), \
+    os.path.join("icesl", "config", "icegridregistry.cfg"), \
+    os.path.join("icesl", "config", "icegrid-slice.3.1.ice.gz"), \
+    os.path.join("icesl", "config", "makedepend.py"), \
+    os.path.join("icesl", "config", "makegitignore.py"), \
+    os.path.join("icesl", "config", "makeprops.py"), \
+    os.path.join("icesl", "config", "Make.rules"), \
+    os.path.join("icesl", "config", "Make.rules.AIX"), \
+    os.path.join("icesl", "config", "Make.rules.bcc"), \
+    os.path.join("icesl", "config", "Make.rules.Darwin"), \
+    os.path.join("icesl", "config", "Make.rules.FreeBSD"), \
+    os.path.join("icesl", "config", "Make.rules.HP-UX"), \
+    os.path.join("icesl", "config", "Make.rules.Linux"), \
+    os.path.join("icesl", "config", "Make.rules.OSF1"), \
+    os.path.join("icesl", "config", "Make.rules.SunOS"), \
+    os.path.join("icesl", "config", "Make.rules.icee"), \
+    os.path.join("icesl", "config", "Make.rules.mak.icee"), \
+    os.path.join("icesl", "config", "PropertyNames.xml"), \
+    os.path.join("icesl", "config", "templates.xml"), \
+    os.path.join("icesl", "config", "upgradeicegrid.py"), \
+    os.path.join("icesl", "config", "upgradeicestorm.py"), \
+    ]
+filesToRemove.extend(find("icesl", ".gitignore"))
+filesToRemove.extend(find("icesl", "Makefile"))
+for x in filesToRemove:
+    os.remove(x)
+shutil.rmtree(os.path.join("icesl", "demo"))
+shutil.rmtree(os.path.join("icesl", "doc"))
+shutil.rmtree(os.path.join("icesl", "test"))
+shutil.rmtree(os.path.join("icesl", "include", "Freeze"))
+shutil.rmtree(os.path.join("icesl", "include", "Glacier2"))
+shutil.rmtree(os.path.join("icesl", "include", "Ice"))
+shutil.rmtree(os.path.join("icesl", "include", "IceBox"))
+shutil.rmtree(os.path.join("icesl", "include", "IceGrid"))
+shutil.rmtree(os.path.join("icesl", "include", "IcePatch2"))
+shutil.rmtree(os.path.join("icesl", "include", "IceSSL"))
+shutil.rmtree(os.path.join("icesl", "include", "IceStorm"))
+shutil.rmtree(os.path.join("icesl", "include", "IceXML"))
+shutil.rmtree(os.path.join("icesl", "src", "ca"))
+shutil.rmtree(os.path.join("icesl", "src", "Freeze"))
+shutil.rmtree(os.path.join("icesl", "src", "FreezeScript"))
+shutil.rmtree(os.path.join("icesl", "src", "Glacier2"))
+shutil.rmtree(os.path.join("icesl", "src", "Ice"))
+shutil.rmtree(os.path.join("icesl", "src", "IceBox"))
+shutil.rmtree(os.path.join("icesl", "src", "IceGrid"))
+shutil.rmtree(os.path.join("icesl", "src", "IcePatch2"))
+shutil.rmtree(os.path.join("icesl", "src", "iceserviceinstall"))
+shutil.rmtree(os.path.join("icesl", "src", "IceSSL"))
+shutil.rmtree(os.path.join("icesl", "src", "IceStorm"))
+shutil.rmtree(os.path.join("icesl", "src", "IceXML"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2cpp"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2cppe"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2cs"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2docbook"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2freeze"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2freezej"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2html"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2java"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2javae"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2py"))
+shutil.rmtree(os.path.join("icesl", "src", "slice2rb"))
+
+#
 # Get IceSL version.
 #
-#config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
-#version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
-
-version = "0.1.0"
-
+config = open(os.path.join("tmp", "Ice", "AssemblyInfo.cs"), "r")
+version = re.search("AssemblyVersion.*\"([0-9\.]*)\".*", config.read()).group(1)
 
 print "Fixing makefiles..."
-
 
 for makeRulesName in [os.path.join("icesl", "config", "Make.rules.mak")]:
     fixMakeRules(makeRulesName)
@@ -437,4 +443,5 @@ os.system("zip -9r" + quiet + " " + icever + ".zip " + icever)
 #
 print "Cleaning up..."
 shutil.rmtree(icever)
+shutil.rmtree(tmpdir)
 print "Done."
