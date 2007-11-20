@@ -290,7 +290,6 @@ filesToRemove = [ \
     os.path.join("icesl", "config", "icegrid-slice.3.1.ice.gz"), \
     os.path.join("icesl", "config", "makedepend.py"), \
     os.path.join("icesl", "config", "makegitignore.py"), \
-    os.path.join("icesl", "config", "makeprops.py"), \
     os.path.join("icesl", "config", "Make.rules"), \
     os.path.join("icesl", "config", "Make.rules.AIX"), \
     os.path.join("icesl", "config", "Make.rules.bcc"), \
@@ -302,7 +301,6 @@ filesToRemove = [ \
     os.path.join("icesl", "config", "Make.rules.SunOS"), \
     os.path.join("icesl", "config", "Make.rules.icee"), \
     os.path.join("icesl", "config", "Make.rules.mak.icee"), \
-    os.path.join("icesl", "config", "PropertyNames.xml"), \
     os.path.join("icesl", "config", "templates.xml"), \
     os.path.join("icesl", "config", "upgradeicegrid.py"), \
     os.path.join("icesl", "config", "upgradeicestorm.py"), \
