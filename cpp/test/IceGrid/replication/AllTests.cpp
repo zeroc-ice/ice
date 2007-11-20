@@ -1182,15 +1182,15 @@ allTests(const Ice::CommunicatorPtr& comm)
     cout << "ok" << endl;
     
     
-    cout << "Shutting down Node1... " << flush;
+    cout << "shutting down Node1... " << flush;
     slave1Admin->shutdownNode("Node1");
     cout << "ok" << endl;
 
-    cout << "Removing Node1 server... " << flush;
+    cout << "removing Node1 server... " << flush;
     removeServer(admin, "Node1");
     cout << "ok" << endl;
 
-    cout << "Removing Slave2 server..." << flush;
+    cout << "removing Slave2 server..." << flush;
     removeServer(admin, "Slave2");
     cout << "ok" << endl;
 

@@ -87,7 +87,8 @@ public:
 
     std::string getOutputDir() const;
     bool getRedirectErrToOut() const;
-
+    bool allowEndpointsOverride() const;
+    
     NodeSessionPrx registerWithRegistry(const InternalRegistryPrx&);
     void checkConsistency(const NodeSessionPrx&);
     NodeSessionPrx getMasterNodeSession() const;
@@ -120,6 +121,7 @@ private:
     const NodePrx _proxy;
     const std::string _outputDir;
     const bool _redirectErrToOut;
+    const bool _allowEndpointsOverride;
     const Ice::Int _waitTime;
     const std::string _instanceName;
     const UserAccountMapperPrx _userAccountMapper;

@@ -372,8 +372,8 @@ const IceInternal::PropertyArray
 """ % { 'className' : self.className, 'section': self.currentSection })
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".h", os.path.join(location, "src", "Ice"))
-        shutil.move(self.className + ".cpp", os.path.join(location, "src", "Ice"))
+        shutil.move(self.className + ".h", os.path.join(location, "cpp", "src", "Ice"))
+        shutil.move(self.className + ".cpp", os.path.join(location, "cpp", "src", "Ice"))
 
 class JavaPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -440,7 +440,7 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    };\n\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".java", os.path.join(location, "..", "java", "src", "IceInternal"))
+        shutil.move(self.className + ".java", os.path.join(location, "java", "src", "IceInternal"))
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -502,7 +502,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".cs", os.path.join(location, "..", "cs", "src", "Ice"))
+        shutil.move(self.className + ".cs", os.path.join(location, "cs", "src", "Ice"))
 
 class MultiHandler(PropertyHandler):
     def __init__(self, inputfile, c):

@@ -1362,7 +1362,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args)
             throwPythonException();
         }
         void* buf;
-        int sz;
+        Py_ssize_t sz;
         if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
         {
             throwPythonException();
@@ -1500,7 +1500,7 @@ IcePy::AsyncBlobjectInvocation::ice_response(bool ok, const pair<const Ice::Byte
         }
 
         void* buf;
-        int sz;
+        Py_ssize_t sz;
         if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
         {
             assert(PyErr_Occurred());
@@ -1928,7 +1928,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
             throwPythonException();
         }
         void* buf;
-        int sz;
+        Py_ssize_t sz;
         if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
         {
             throwPythonException();
