@@ -40,8 +40,6 @@ endif
 #
 CXXLIBS			=
 
-LDPLATFORMFLAGS		= -Wl,-executable_path,$(top_srcdir)/bin
-
 shlibldflags		= $(CXXFLAGS) -L$(libdir)
 
 mkshlib                 = $(CXX) -bundle $(shlibldflags) -o $(1) $(3) $(4)

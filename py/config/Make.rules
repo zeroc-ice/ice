@@ -139,7 +139,9 @@ UNAME			:= $(shell uname)
 #
 # Platform specific definitions
 #
-ifeq ($(shell test -f $(ICE_DIR)/cpp/config/Make.rules.$(UNAME) && echo 0),0)
+ifeq ($(shell test -f $(ICE_DIR)/../py/config/Make.rules.$(UNAME) && echo 0),0)
+    configdir		= $(ICE_DIR)/../py/config
+else ifeq ($(shell test -f $(ICE_DIR)/cpp/config/Make.rules.$(UNAME) && echo 0),0)
     configdir		= $(ICE_DIR)/cpp/config
 else
     configdir		= $(ICE_DIR)/config

@@ -206,49 +206,51 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _name(name),
     _proxy(proxy),
     _redirectErrToOut(false),
+    _allowEndpointsOverride(false),
     _waitTime(0),
     _userAccountMapper(mapper),
     _platform("IceGrid.Node", _communicator, _traceLevels),
     _fileCache(new FileCache(_communicator)),
     _serial(1)
 {
-    Ice::PropertiesPtr properties = _communicator->getProperties();
+    Ice::PropertiesPtr props = _communicator->getProperties();
 
     const_cast<string&>(_dataDir) = _platform.getDataDir();
     const_cast<string&>(_serversDir) = _dataDir + "/servers";
     const_cast<string&>(_tmpDir) = _dataDir + "/tmp";
     const_cast<string&>(_instanceName) = _communicator->getDefaultLocator()->ice_getIdentity().category;
-    const_cast<Ice::Int&>(_waitTime) = properties->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
-    const_cast<string&>(_outputDir) = properties->getProperty("IceGrid.Node.Output");
-    const_cast<bool&>(_redirectErrToOut) = properties->getPropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
+    const_cast<Ice::Int&>(_waitTime) = props->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
+    const_cast<string&>(_outputDir) = props->getProperty("IceGrid.Node.Output");
+    const_cast<bool&>(_redirectErrToOut) = props->getPropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
+    const_cast<bool&>(_allowEndpointsOverride) = props->getPropertyAsInt("IceGrid.Node.AllowEndpointsOverride") > 0;
 
     //
     // Parse the properties override property.
     //
-    string props = properties->getProperty("IceGrid.Node.PropertiesOverride");
+    string overrides = props->getProperty("IceGrid.Node.PropertiesOverride");
     Ice::StringSeq propsAsArgs;
-    if(!props.empty())
+    if(!overrides.empty())
     {
         string::size_type end = 0;
         while(end != string::npos)
         {
             const string delim = " \t\r\n";
                 
-            string::size_type beg = props.find_first_not_of(delim, end);
+            string::size_type beg = overrides.find_first_not_of(delim, end);
             if(beg == string::npos)
             {
                 break;
             }
                 
-            end = props.find_first_of(delim, beg);
+            end = overrides.find_first_of(delim, beg);
             string arg;
             if(end == string::npos)
             {
-                arg = props.substr(beg);
+                arg = overrides.substr(beg);
             }
             else
             {
-                arg = props.substr(beg, end - beg);
+                arg = overrides.substr(beg, end - beg);
             }
 
             if(arg.find("--") == 0)
@@ -754,6 +756,12 @@ bool
 NodeI::getRedirectErrToOut() const
 {
     return _redirectErrToOut;
+}
+
+bool
+NodeI::allowEndpointsOverride() const
+{
+    return _allowEndpointsOverride;
 }
 
 NodeSessionPrx

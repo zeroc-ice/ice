@@ -394,6 +394,7 @@ generated from the section label.
         <property name="InstanceName" />
         <property name="Node" class="objectadapter" />
         <property name="Node.AllowRunningServersAsRoot" />
+        <property name="Node.AllowEndpointsOverride" />
         <property name="Node.CollocateRegistry" />
         <property name="Node.Data" />
         <property name="Node.DisableOnFailure" />
