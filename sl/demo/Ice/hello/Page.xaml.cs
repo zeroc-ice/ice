@@ -61,7 +61,6 @@ namespace helloC
                 _tb.Text = ex.ToString();
                 return;
             }
-            _tb.Text = "Call Succeeded";
         }       
     }
 }
