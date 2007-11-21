@@ -1,6 +1,27 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Exceptions thrown from collocation-optimized invocations are now
+  fully transparent. If an operation throws an exception that is
+  not in the operation's exception specification, or throws a
+  non-Ice exception, the client receives UnknownUserException
+  or UnknownException, exactly as if the servant for a remote
+  invocation had thrown the same exception. (In earlier versions,
+  the client received the orginal exception, rather than an
+  unknown exception.)
+
+  For Ice run-time exceptions, all run-time exceptions are passed
+  to the client as UnknownLocalException, except for
+
+  - ObjectNotExistException
+  - FacetNotExistException
+  - OperationNotExistException
+  - OperationNotExistException
+  - UnknownException
+  - UnknownLocalException
+  - UnknownUserException
+  - CollocationOptimizationException
+
 - Changed servant locators so both locate() and finished() can
   throw user exceptions. (See the manual for details.)
 

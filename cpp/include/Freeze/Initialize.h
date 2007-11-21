@@ -75,7 +75,7 @@ createTransactionalEvictor(const Ice::ObjectAdapterPtr& adapter,
 // TransactionalEvictorDeadlockException propagates through collocation-optimized calls
 // The TransactionalEvictor catches and retries on this exception
 //
-class FREEZE_API TransactionalEvictorDeadlockException : public Ice::LocalException
+class FREEZE_API TransactionalEvictorDeadlockException : public Ice::SystemException
 {
 public:
   

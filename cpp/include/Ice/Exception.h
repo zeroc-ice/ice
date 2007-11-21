@@ -61,6 +61,18 @@ public:
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
 
+
+class ICE_API SystemException : public LocalException
+{
+public:
+
+    SystemException(const char*, int);
+    virtual ~SystemException() throw();
+};
+
+typedef ::IceInternal::Handle<SystemException> SystemExceptionPtr;
+
+
 #if defined(__SUNPRO_CC)
 //
 // COMPILERFIX: With Sun CC the presence of the overloaded operator
@@ -78,6 +90,7 @@ typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
 //
 ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
 ICE_API std::ostream& operator<<(std::ostream&, const UserException&);
+ICE_API std::ostream& operator<<(std::ostream&, const SystemException&);
 #endif
 
 }

@@ -4170,7 +4170,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << nl << "catch(System.Exception ex__)";
             _out << sb;
-            _out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);";
+            _out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(ex__);";
             _out << eb;
             _out << nl << "finally";
             _out << sb;
@@ -4189,7 +4189,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << nl << "catch(System.Exception ex__)";
             _out << sb;
-            _out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);";
+            _out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(ex__);";
             _out << eb;
             _out << eb;
             _out << eb;

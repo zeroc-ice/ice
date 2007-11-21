@@ -24,7 +24,7 @@ using namespace Ice;
 //
 
 Freeze::TransactionalEvictorDeadlockException::TransactionalEvictorDeadlockException(const char* file, int line, const TransactionPtr& transaction) :
-    Ice::LocalException(file, line),
+    Ice::SystemException(file, line),
     tx(transaction)
 {
 }

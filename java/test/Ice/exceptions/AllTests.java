@@ -88,7 +88,7 @@ public class AllTests
             {
                 test(ex.aMem == 1);
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -130,7 +130,7 @@ public class AllTests
                 Ice.Identity id = _communicator.stringToIdentity("does not exist");
                 test(ex.id.equals(id));
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -174,7 +174,7 @@ public class AllTests
             {
                 test(ex.facet.equals("no such facet"));
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -228,7 +228,7 @@ public class AllTests
             {
                 test(ex.dMem == -1);
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -272,7 +272,7 @@ public class AllTests
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -317,7 +317,7 @@ public class AllTests
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -361,7 +361,7 @@ public class AllTests
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -406,7 +406,7 @@ public class AllTests
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -451,7 +451,7 @@ public class AllTests
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -486,7 +486,7 @@ public class AllTests
             catch(Ice.UnknownUserException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -521,7 +521,7 @@ public class AllTests
             catch(Ice.UnknownUserException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -556,7 +556,7 @@ public class AllTests
             catch(Ice.UnknownUserException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -591,7 +591,7 @@ public class AllTests
             catch(Ice.UnknownLocalException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -626,7 +626,7 @@ public class AllTests
             catch(Ice.UnknownException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -661,7 +661,7 @@ public class AllTests
             catch(Ice.ConnectionLostException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -697,7 +697,7 @@ public class AllTests
             {
                 test(ex.operation.equals("noSuchOperation"));
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -844,7 +844,7 @@ public class AllTests
         {
             test(ex.aMem == 1);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -859,7 +859,7 @@ public class AllTests
         {
             test(ex.aMem == 1);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -874,7 +874,7 @@ public class AllTests
         {
             test(ex.dMem == -1);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -890,7 +890,7 @@ public class AllTests
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -907,7 +907,7 @@ public class AllTests
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -927,7 +927,7 @@ public class AllTests
         {
             test(ex.aMem == 1);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -943,7 +943,7 @@ public class AllTests
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -964,7 +964,7 @@ public class AllTests
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -981,7 +981,7 @@ public class AllTests
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -998,7 +998,7 @@ public class AllTests
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -1021,7 +1021,7 @@ public class AllTests
             catch(Ice.UnknownUserException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -1035,7 +1035,7 @@ public class AllTests
             catch(Ice.UnknownUserException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -1049,7 +1049,7 @@ public class AllTests
             catch(Ice.UnknownUserException ex)
             {
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -1068,15 +1068,15 @@ public class AllTests
                 thrower.throwAssertException();
                 test(false);
             }
-            catch(java.lang.AssertionError ex)
-            {
-                assert(collocated);
-            }
             catch(Ice.ConnectionLostException ex)
             {
-                assert(!collocated);
+                test(!collocated);
             }
-            catch(Exception ex)
+            catch(Ice.UnknownException ex)
+            {
+                test(collocated);
+            }
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -1100,7 +1100,7 @@ public class AllTests
             {
                 test(ex.id.equals(id));
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);
@@ -1125,7 +1125,7 @@ public class AllTests
                 test(ex.facet.equals("no such facet"));
             }
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -1146,7 +1146,7 @@ public class AllTests
         {
             test(ex.operation.equals("noSuchOperation"));
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -1162,23 +1162,10 @@ public class AllTests
             thrower.throwLocalException();
             test(false);
         }
-        catch(Ice.TimeoutException ex)
-        {
-            //
-            // We get the original exception with collocation
-            // optimization.
-            //
-            test(collocated);
-        }
         catch(Ice.UnknownLocalException ex)
         {
-            //
-            // We get an unknown local exception without collocation
-            // optimization.
-            //
-            test(!collocated);
         }
-        catch(Exception ex)
+        catch(Throwable ex)
         {
             ex.printStackTrace();
             test(false);
@@ -1196,19 +1183,11 @@ public class AllTests
         }
         catch(Ice.UnknownException ex)
         {
-            //
-            // We get the an unknown exception without collocation
-            // optimization.
-            //
-            test(!collocated);
         }
-        catch(RuntimeException ex)
+        catch(Throwable ex)
         {
-            //
-            // We get the original exception with collocation
-            // optimization.
-            //
-            test(collocated);
+            System.out.println(ex);
+            test(false);
         }
 
         System.out.println("ok");
@@ -1342,7 +1321,7 @@ public class AllTests
                     test(cb.check());
                 }
             }
-            catch(Exception ex)
+            catch(Throwable ex)
             {
                 ex.printStackTrace();
                 test(false);

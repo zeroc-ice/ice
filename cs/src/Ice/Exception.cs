@@ -78,6 +78,12 @@ namespace Ice
         public LocalException(System.Exception ex) : base(ex) {}
     }
 
+    public abstract class SystemException : LocalException
+    {
+        public SystemException() {}
+        public SystemException(System.Exception ex) : base(ex) {}
+    }
+
     public abstract class UserException : Exception
     {
         public UserException() {}
@@ -142,7 +148,7 @@ namespace IceInternal
             return _retry;
         }
 
-        public static void throwUnknownWrapper(System.Exception ex)
+        public static void throwWrapper(System.Exception ex)
         {
             if(ex is Ice.UserException)
             {
@@ -151,27 +157,18 @@ namespace IceInternal
 
             if(ex is Ice.LocalException)
             {
-                /*
-                 //
-                 // Commented-out code makes local exceptions fully location transaprent,
-                 // but the Freeze evictor relies on them not being transparent.
-                 //
                 if(ex is Ice.UnknownException ||
                    ex is Ice.ObjectNotExistException ||
                    ex is Ice.OperationNotExistException ||
-                   ex is Ice.FacetNotExistException)
+                   ex is Ice.FacetNotExistException ||
+                   ex is Ice.CollocationOptimizationException ||
+                   ex is Ice.SystemException)
                 {
-                    throw new LocalExceptionWrapper(ex, false);
+                    throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
                 }
                 throw new LocalExceptionWrapper(new Ice.UnknownLocalException(((Ice.LocalException)ex).ice_name()), false);
-                */
-                throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
             }
-            /*
-            throw new LocalExceptionWrapper(new Ice.UnknownException(ex.ice_name(), false);
-            */
-
-            throw ex;
+            throw new LocalExceptionWrapper(new Ice.UnknownException(ex.GetType().FullName), false);
         }
         
         private Ice.LocalException _ex;

@@ -45,7 +45,7 @@ public class LocalExceptionWrapper extends Exception
     }
 
     public static void
-    throwUnknownWrapper(java.lang.Throwable ex) throws LocalExceptionWrapper
+    throwWrapper(java.lang.Throwable ex) throws LocalExceptionWrapper
     {
         if(ex instanceof Ice.UserException)
         {
@@ -53,30 +53,22 @@ public class LocalExceptionWrapper extends Exception
         }
         if(ex instanceof Ice.LocalException)
         {
-            /*
-            //
-            // Commented-out code makes local exceptions fully location transparent,
-            // but the Freeze evictor relies on them not being transparent.
-            //
             if(ex instanceof Ice.UnknownException ||
                ex instanceof Ice.ObjectNotExistException ||
                ex instanceof Ice.OperationNotExistException ||
-               ex instanceof Ice.FacetNotExistException)
+               ex instanceof Ice.FacetNotExistException ||
+               ex instanceof Ice.CollocationOptimizationException ||
+               ex instanceof Ice.SystemException)
             {
                 throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
             }
-            throw new LocalExceptionWrapper(new Ice.UnknownLocalException(ex.ice_name()), false);
-            */
-            throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
+            throw new LocalExceptionWrapper(new Ice.UnknownLocalException(((Ice.LocalException)ex).ice_name()), false);
         }
-        /*
-        throw new LocalExceptionWrapper(new Ice.UnknownException(ex.ice_name()), false);
-        */
-
-        if(ex instanceof RuntimeException)
-        {
-            throw (RuntimeException)ex;
-        }
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        throw new LocalExceptionWrapper(new Ice.UnknownException(sw.toString()), false);
     }
 
     private Ice.LocalException _ex;

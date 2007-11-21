@@ -49,7 +49,7 @@ public:
     //
     bool retry() const;
 
-    static void throwUnknownWrapper(const ::std::exception&);
+    static void throwWrapper(const ::std::exception&);
 
 private:
 

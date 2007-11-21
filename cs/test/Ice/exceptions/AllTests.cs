@@ -1069,21 +1069,8 @@ public class AllTests
             thrower.throwLocalException();
             test(false);
         }
-        catch(Ice.TimeoutException)
-        {
-            //
-            // We get the original exception with collocation
-            // optimization.
-            //
-            test(collocated);
-        }
         catch(Ice.UnknownLocalException)
         {
-            //
-            // We get the an unknown local exception without
-            // collocation optimization.
-            //
-            test(!collocated);
         }
         catch(Exception)
         {
@@ -1102,19 +1089,10 @@ public class AllTests
         }
         catch(Ice.UnknownException)
         {
-            //
-            // We get the unknown exception without collocation
-            // optimization.
-            //
-            test(!collocated);
         }
         catch(System.Exception)
         {
-            //
-            // We get the original exception with collocation
-            // optimization.
-            //
-            test(collocated);
+            test(false);
         }
         
         Console.WriteLine("ok");

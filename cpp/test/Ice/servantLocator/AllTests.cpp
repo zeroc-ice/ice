@@ -101,12 +101,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownLocalException& ex)
     {
-        test(!collocated);
         test(ex.unknown.find("Ice::SocketException:\nsocket exception: unknown error") != string::npos);
-    }
-    catch(const SocketException&)
-    {
-        test(collocated);
     }
     catch(...)
     {
@@ -120,11 +115,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownException& ex)
     {
-        test(!collocated);
         test(ex.unknown == "std::exception: Hello");
-    }
-    catch(const ::std::exception&)
-    {
     }
     catch(...)
     {

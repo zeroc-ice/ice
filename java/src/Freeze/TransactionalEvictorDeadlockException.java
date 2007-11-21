@@ -9,7 +9,7 @@
 
 package Freeze;
 
-public class TransactionalEvictorDeadlockException extends Ice.LocalException
+public class TransactionalEvictorDeadlockException extends Ice.SystemException
 {
     public TransactionalEvictorDeadlockException(Transaction transaction)
     {

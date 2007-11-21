@@ -1357,7 +1357,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
         catch(const ::std::exception& __ex)
         {
             __direct.destroy();
-            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+            LocalExceptionWrapper::throwWrapper(__ex);
         }
         catch(...)
         {
@@ -1372,7 +1372,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
     }
     catch(const ::std::exception& __ex)
     {
-        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        LocalExceptionWrapper::throwWrapper(__ex);
     }
     catch(...)
     {
@@ -1415,7 +1415,7 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
         catch(const ::std::exception& __ex)
         {
             __direct.destroy();
-            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+            LocalExceptionWrapper::throwWrapper(__ex);
         }
         catch(...)
         {
@@ -1430,7 +1430,7 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
     }
     catch(const ::std::exception& __ex)
     {
-        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        LocalExceptionWrapper::throwWrapper(__ex);
     }
     catch(...)
     {
@@ -1478,7 +1478,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
         catch(const ::std::exception& __ex)
         {
             __direct.destroy();
-            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+            LocalExceptionWrapper::throwWrapper(__ex);
         }
         catch(...)
         {
@@ -1493,7 +1493,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
     }
     catch(const ::std::exception& __ex)
     {
-        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        LocalExceptionWrapper::throwWrapper(__ex);
     }
     catch(...)
     {
@@ -1542,7 +1542,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
         catch(const ::std::exception& __ex)
         {
             __direct.destroy();
-            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+            LocalExceptionWrapper::throwWrapper(__ex);
         }
         catch(...)
         {
@@ -1557,7 +1557,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
     }
     catch(const ::std::exception& __ex)
     {
-        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        LocalExceptionWrapper::throwWrapper(__ex);
     }
     catch(...)
     {

@@ -84,13 +84,12 @@ public class Client : Ice.Application
             prx.badSystemAdd(33, 12);
             test(false);
         }
-        catch(Ice.InitializationException)
-        {
-            test(prx.ice_isCollocationOptimized());
-        }
         catch(Ice.UnknownLocalException)
         {
-            test(!prx.ice_isCollocationOptimized());
+        }
+        catch(Exception)
+        {
+            test(false);
         }
         test(interceptor.getLastOperation().Equals("badSystemAdd"));
         test(interceptor.getLastStatus() == Ice.DispatchStatus.DispatchAsync);
