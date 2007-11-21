@@ -145,13 +145,3 @@ Now to run a test or demo do the following:
    spawned.
 
 4) Click on the button in the browser to run the test/demo.
-
-
-======================================================================
-Binary compatibility
-======================================================================
-
-Patch releases of Ice are binary compatible. For example, version
-<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
-compiled with <x>.<y>.0 with the <x>.<y>.1 Ice assemblies without
-having to recompile.
