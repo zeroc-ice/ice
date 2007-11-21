@@ -140,8 +140,12 @@ Now to run a test or demo do the following:
 2) Start the Visual Studio 2008 Beta 2 IDE and open the selected
    test/demo solution file.
 
-3) Right click on the WebApplication project and select 
+3) Right click on the WebApplication project and select Properties.
+   Select the Web tab, change the Start Action to be a Specific Page
+   and choose TestPage.html.
+
+4) Right click on the WebApplication project and select 
    Debug->Start new instance. This should cause a browser window to be
    spawned.
 
-4) Click on the button in the browser to run the test/demo.
+5) Click on the button in the browser to run the test/demo.
