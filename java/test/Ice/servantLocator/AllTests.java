@@ -95,13 +95,11 @@ public class AllTests
         }
         catch(UnknownLocalException ex)
         {
-            //System.err.println(ex.unknown);
-            test(!collocated);
             test(ex.unknown.indexOf("Ice::SocketException") >= 0);
         }
-        catch(SocketException ex)
+        catch(Throwable ex)
         {
-            test(collocated);
+            test(false);
         }
 
         try
@@ -111,13 +109,11 @@ public class AllTests
         }
         catch(UnknownException ex)
         {
-            //System.err.println(ex.unknown);
-            test(!collocated);
             test(ex.unknown.indexOf("java.lang.RuntimeException: message") >= 0);
         }
-        catch(java.lang.RuntimeException ex)
+        catch(Throwable ex)
         {
-            test(collocated);
+            test(false);
         }
 
         try
@@ -125,15 +121,11 @@ public class AllTests
             obj.impossibleException(false);
             test(false);
         }
-        catch(TestImpossibleException ex)
-        {
-            test(false);
-        }
         catch(UnknownUserException ex)
         {
             // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
         }
-        catch(RuntimeException ex)
+        catch(Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -144,15 +136,11 @@ public class AllTests
             obj.impossibleException(true);
             test(false);
         }
-        catch(TestImpossibleException ex)
-        {
-            test(false);
-        }
         catch(UnknownUserException ex)
         {
             // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
         }
-        catch(RuntimeException ex)
+        catch(Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -167,11 +155,7 @@ public class AllTests
         {
             // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
         }
-        catch(TestIntfUserException ex)
-        {
-            test(false);
-        }
-        catch(RuntimeException ex)
+        catch(Throwable ex)
         {
             //System.err.println(ex);
             test(false);
@@ -186,11 +170,7 @@ public class AllTests
         {
             // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
         }
-        catch(TestIntfUserException ex)
-        {
-            test(false);
-        }
-        catch(RuntimeException ex)
+        catch(Throwable ex)
         {
             //System.err.println(ex);
             test(false);

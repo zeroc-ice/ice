@@ -34,7 +34,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(Throwable __ex)
         {
-            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
         }
         
         try
@@ -45,7 +45,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(java.lang.Throwable __ex)
         {
-            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
         }
         finally
         {
@@ -55,7 +55,7 @@ public class _ObjectDelD implements _ObjectDel
             }
             catch(Throwable __ex)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+                IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
             }
         }
         return false; // Keep compiler happy.
@@ -92,7 +92,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(Throwable __ex)
         {
-            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
         }
         finally
         {
@@ -102,7 +102,7 @@ public class _ObjectDelD implements _ObjectDel
             }
             catch(Throwable __ex)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+                IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
             }
         }
     }
@@ -131,7 +131,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(Throwable __ex)
         {
-            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
         }
 
         try
@@ -142,7 +142,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(Throwable __ex)
         {
-            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
         }
         finally
         {
@@ -152,7 +152,7 @@ public class _ObjectDelD implements _ObjectDel
             }
             catch(Throwable __ex)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+                IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
             }
         }
         return __result.value; // Keep compiler happy.
@@ -181,7 +181,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(Throwable __ex)
         {
-            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
         }
 
         try
@@ -192,7 +192,7 @@ public class _ObjectDelD implements _ObjectDel
         }
         catch(Throwable __ex)
         {
-            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
         }
         finally
         {
@@ -202,7 +202,7 @@ public class _ObjectDelD implements _ObjectDel
             }
             catch(Throwable __ex)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+                IceInternal.LocalExceptionWrapper.throwWrapper(__ex);
             }
         }
         return __result.value; // Keep compiler happy.

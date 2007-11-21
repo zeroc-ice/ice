@@ -106,13 +106,7 @@ public class AllTests
         }
         catch(UnknownLocalException ex)
         {
-            //Console.Error.WriteLine(ex.unknown);
-            test(!collocated);
             test(ex.unknown.IndexOf("Ice::SocketException") >= 0);
-        }
-        catch(SocketException)
-        {
-            test(collocated);
         }
         catch(System.Exception)
         {
@@ -126,13 +120,11 @@ public class AllTests
         }
         catch(UnknownException ex)
         {
-            //Console.Error.WriteLine(ex.unknown);
-            test(!collocated);
-            test(ex.unknown.IndexOf("System.Exception: message") >= 0);
+            test(ex.unknown.IndexOf("System.Exception") >= 0);
         }
         catch(System.Exception)
         {
-            test(collocated);
+            test(false);
         }
 
         try

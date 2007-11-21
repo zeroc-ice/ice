@@ -2991,7 +2991,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         C << nl << "catch(const ::std::exception& __ex)";
         C << sb;
         C << nl << "__direct.destroy();";
-        C << nl << "::IceInternal::LocalExceptionWrapper::throwUnknownWrapper(__ex);";
+        C << nl << "::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);";
         C << eb;
         C << nl << "catch(...)";
         C << sb;
@@ -3020,7 +3020,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << nl << "catch(const ::std::exception& __ex)";
         C << sb;
-        C << nl << "::IceInternal::LocalExceptionWrapper::throwUnknownWrapper(__ex);";
+        C << nl << "::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);";
         C << eb;
         C << nl << "catch(...)";
         C << sb;

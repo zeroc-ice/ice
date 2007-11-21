@@ -1187,7 +1187,7 @@ namespace Ice
             }
             catch(System.Exception ex__)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
             }
 
             try
@@ -1204,7 +1204,7 @@ namespace Ice
                 }
                 catch(System.Exception ex__)
                 {
-                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
                 }
             }
         }
@@ -1227,7 +1227,7 @@ namespace Ice
             }
             catch(System.Exception ex__)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
             }
             
             try
@@ -1243,7 +1243,7 @@ namespace Ice
                 }
                 catch(System.Exception ex__)
                 {
-                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
                 }
             }
         }
@@ -1267,7 +1267,7 @@ namespace Ice
             }
             catch(System.Exception ex__)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
             }
             
             try
@@ -1284,7 +1284,7 @@ namespace Ice
                 }
                 catch(System.Exception ex__)
                 {
-                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
                 }
             }
         }
@@ -1308,7 +1308,7 @@ namespace Ice
             }
             catch(System.Exception ex__)
             {
-                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
             }
             
             try
@@ -1325,7 +1325,7 @@ namespace Ice
                 }
                 catch(System.Exception ex__)
                 {
-                    IceInternal.LocalExceptionWrapper.throwUnknownWrapper(ex__);
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
                 }
             }
         }

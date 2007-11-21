@@ -222,7 +222,7 @@ def iceGridTest(testdir, name, application, additionalOptions = "", applicationO
         print "ok"
 
     print "starting client...",
-    clientPipe = TestUtil.startClient(client, clientOptions + " 2>&1")
+    clientPipe = TestUtil.startClient(client, clientOptions + " 2>&1", TestUtil.DriverConfig("client"))
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)
@@ -265,15 +265,15 @@ def iceGridClientServerTest(testdir, name, additionalClientOptions, additionalSe
     
     startIceGridRegistry(testdir, True)
 
-    print "starting sever...",
-    serverPipe = TestUtil.startServer(server, serverOptions + " 2>&1")
+    print "starting server...",
+    serverPipe = TestUtil.startServer(server, serverOptions + " 2>&1", TestUtil.DriverConfig("server"))
     if TestUtil.getDefaultMapping() != "java":
         TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)
     print "ok"
 
     print "starting client...",
-    clientPipe = TestUtil.startClient(client, clientOptions + " 2>&1")
+    clientPipe = TestUtil.startClient(client, clientOptions + " 2>&1", TestUtil.DriverConfig("client"))
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)

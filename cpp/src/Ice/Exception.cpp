@@ -52,6 +52,15 @@ Ice::LocalException::~LocalException() throw()
 {
 }
 
+Ice::SystemException::SystemException(const char* file, int line) :
+    LocalException(file, line)
+{
+}
+
+Ice::SystemException::~SystemException() throw()
+{
+}
+
 #if defined(__SUNPRO_CC)
 ostream&
 Ice::operator<<(ostream& out, const Ice::UserException& ex)
@@ -62,6 +71,13 @@ Ice::operator<<(ostream& out, const Ice::UserException& ex)
 
 ostream&
 Ice::operator<<(ostream& out, const Ice::LocalException& ex)
+{
+    ex.ice_print(out);
+    return out;
+}
+
+ostream&
+Ice::operator<<(ostream& out, const Ice::SystemException& ex)
 {
     ex.ice_print(out);
     return out;

@@ -34,7 +34,7 @@ IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalExceptionWr
 }
 
 void
-IceInternal::LocalExceptionWrapper::throwUnknownWrapper(const std::exception& ex)
+IceInternal::LocalExceptionWrapper::throwWrapper(const std::exception& ex)
 {
 
     const UserException* ue = dynamic_cast<const UserException*>(&ex);
@@ -48,31 +48,21 @@ IceInternal::LocalExceptionWrapper::throwUnknownWrapper(const std::exception& ex
     const LocalException* le = dynamic_cast<const LocalException*>(&ex);
     if(le)
     {
-#if 0
-        //
-        // Commented-out code makes local exceptions fully location transparent,
-        // but the Freeze evictor relies on them not being transparent.
-        //
         if(dynamic_cast<const UnknownException*>(le) ||
            dynamic_cast<const ObjectNotExistException*>(le) ||
            dynamic_cast<const OperationNotExistException*>(le) ||
-           dynamic_cast<const FacetNotExistException*>(le))
+           dynamic_cast<const FacetNotExistException*>(le) ||
+           dynamic_cast<const CollocationOptimizationException*>(le) ||
+           dynamic_cast<const SystemException*>(le))
         {
             throw LocalExceptionWrapper(*le, false);
         }
         stringstream s;
         s << *le;
         throw LocalExceptionWrapper(UnknownLocalException(__FILE__, __LINE__, s.str()), false);
-#else
-        throw LocalExceptionWrapper(*le, false);
-#endif
     }
-#if 0
     string msg = "std::exception: ";
     throw LocalExceptionWrapper(UnknownException(__FILE__, __LINE__, msg + ex.what()), false);
-#else
-    throw ex;
-#endif
 }
 
 const LocalException*

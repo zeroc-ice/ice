@@ -4417,28 +4417,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << eb;
             }
 
-            //
-            // Next two catch handlers keep local exceptions non-transparent.
-            //
-            out << nl << "catch(Ice.UserException __ex)";
+            out << nl << "catch(java.lang.Throwable __ex)";
             out << sb;
-            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
-            out << eb;
-            out << nl << "catch(Ice.LocalException __ex)";
-            out << sb;
-            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
+            out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(__ex);";
             out << eb;
 
-            /*
-            //
-            // Commented-out code makes local exceptions fully location transparent,
-            // but the Freeze evictor relies on them being non-transparent.
-            //
-            out << nl << "catch(Ice.LocalException __ex)";
-            out << sb;
-            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
-            out << eb;
-            */
             out << nl << "finally";
             out << sb;
             out << nl << "if(__direct != null)";
@@ -4457,7 +4440,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << nl << "catch(java.lang.Throwable __ex)";
             out << sb;
-            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
+            out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(__ex);";
             out << eb;
             out << eb;
             out << eb;

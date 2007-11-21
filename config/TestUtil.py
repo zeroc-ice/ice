@@ -145,7 +145,7 @@ def run(tests):
     testset = getTestSet(tests)
     args =  []
     if all:
-        for protocol in ["ssl", "tcp"]:
+        for proto in ["ssl", "tcp"]:
             for compress in [0, 1]:
                 for threadPerConnection in [0, 1]:
                     testarg = ""
@@ -153,7 +153,7 @@ def run(tests):
                         testarg += "--compress"
                     if threadPerConnection:
                         testarg += " --threadPerConnection"
-                    testarg += " --protocol %s" % (protocol)
+                    testarg += " --protocol %s" % (proto)
                     args.append(testarg)
     else:
         args.append(arg)
@@ -180,7 +180,7 @@ def rootRun(tests):
         print "Looping is currently disabled for running all tests from the root!"
     else:
         if all:
-            for protocol in ["ssl", "tcp"]:
+            for proto in ["ssl", "tcp"]:
                 for compress in [0, 1]:
                     for threadPerConnection in [0, 1]:
                         testarg = ""
@@ -188,7 +188,7 @@ def rootRun(tests):
                             testarg += "--compress"
                         if threadPerConnection:
                             testarg += " --threadPerConnection"
-                        testarg += " --protocol %s" % (protocol)
+                        testarg += " --protocol %s" % (proto)
                         args.append(testarg)
         else:
             args.append(arg)

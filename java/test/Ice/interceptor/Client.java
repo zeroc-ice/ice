@@ -81,13 +81,12 @@ public class Client extends Ice.Application
             prx.badSystemAdd(33, 12);
             test(false);
         }
-        catch(Ice.InitializationException e)
-        {
-            test(prx.ice_isCollocationOptimized());
-        }
         catch(Ice.UnknownLocalException e)
         {
-            test(!prx.ice_isCollocationOptimized());
+        }
+        catch(Throwable ex)
+        {
+            test(false);
         }
         test(interceptor.getLastOperation().equals("badSystemAdd"));
         test(interceptor.getLastStatus() == null);

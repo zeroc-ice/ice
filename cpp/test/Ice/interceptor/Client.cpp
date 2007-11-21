@@ -131,13 +131,12 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
         prx->badSystemAdd(33, 12);
         test(false);
     }
-    catch(const Ice::InitializationException&)
-    {
-        test(prx->ice_isCollocationOptimized());
-    }
     catch(const Ice::UnknownLocalException&)
     {
-        test(!prx->ice_isCollocationOptimized());
+    }
+    catch(...)
+    {
+        test(false);
     }
     test(interceptor->getLastOperation() == "badSystemAdd");
     cout << "ok" << endl;

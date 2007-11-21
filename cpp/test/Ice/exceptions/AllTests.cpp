@@ -1069,11 +1069,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const Ice::UnknownLocalException&)
     {
-        test(!collocated);
-    }
-    catch(const Ice::TimeoutException&)
-    {
-        test(collocated);
     }
     catch(...)
     {
