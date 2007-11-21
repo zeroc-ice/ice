@@ -17,10 +17,12 @@ namespace Ice
         public void destroy()
         {
             instance_.destroy();
+#if DEBUG
             lock(this)
             {
                 destroyed_ = true;
             }
+#endif
         }
 
         public Ice.ObjectPrx stringToProxy(string s)
@@ -119,7 +121,9 @@ namespace Ice
             catch(System.Exception)
             {
                 instance_.destroy();
+#if DEBUG
                 destroyed_ = true;
+#endif
                 throw;
             }
         }
@@ -133,7 +137,8 @@ namespace Ice
         }
         
         private IceInternal.Instance instance_;
+#if DEBUG
         private bool destroyed_ = false;
+#endif
     }
-
 }
