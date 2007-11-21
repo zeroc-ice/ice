@@ -1,1 +1,0 @@
-Please see the file INSTALL for installation instructions.

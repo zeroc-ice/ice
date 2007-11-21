@@ -196,8 +196,8 @@ os.chdir(os.path.join("..", "..", "..", "cpp", distdir))
 #
 print "Copying icesl install files..."
 shutil.copyfile(os.path.join("tmp", "ICE_LICENSE"), os.path.join("icesl", "ICE_LICENSE"))
-shutil.copyfile(os.path.join("tmp", "README"), os.path.join("icesl", "README"))
-shutil.copyfile(os.path.join("tmp", "INSTALL"), os.path.join("icesl", "INSTALL"))
+shutil.copyfile(os.path.join("tmp", "README.txt"), os.path.join("icesl", "README.txt"))
+shutil.copyfile(os.path.join("tmp", "INSTALL.txt"), os.path.join("icesl", "INSTALL.txt"))
 
 #
 # Move Make.rules.mak.icesl
