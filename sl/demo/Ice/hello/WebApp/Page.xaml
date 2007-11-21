@@ -17,7 +17,16 @@
       <TextBlock Canvas.Top="3" Canvas.Left="10" FontSize="12" Foreground="White" Text="Say Hello!" />
    </Canvas>
 
-  <Canvas x:Name="Button2" Canvas.Top="50" Width="100" Height="30" Background="White">
+   <Canvas x:Name="Button2" Canvas.Left="100">
+      <Rectangle Stroke="Black" StrokeThickness="2" RadiusX="2" RadiusY="2" Height="23" Width="130">
+         <Rectangle.Fill>
+            <SolidColorBrush Color="#064280" />
+         </Rectangle.Fill>
+      </Rectangle>
+      <TextBlock Canvas.Top="3" Canvas.Left="10" FontSize="12" Foreground="White" Text="Say Hello with AMI!" />
+   </Canvas>
+
+  <Canvas x:Name="Button3" Canvas.Top="50" Width="100" Height="30" Background="White">
     <TextBlock></TextBlock>
   </Canvas>
 </Canvas>

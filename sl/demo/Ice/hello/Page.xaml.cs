@@ -27,14 +27,40 @@ namespace helloC
 {
     public partial class Page : Canvas
     {
-        private static TextBlock _tb;
+        private class AMI_Hello_sayHelloI : Demo.AMI_Hello_sayHello
+        {
+            public override void ice_response()
+            {
+                _tb.Text = "Call succeeded";
+            }
+
+            public override void ice_exception(Ice.Exception ex)
+            {
+                _tb.Text = "Call failed with exception:\n" + ex.ToString();
+            }
+        }
+
         public void Page_Loaded(object o, EventArgs e)
         {
             // Required to initialize variables
             InitializeComponent();
             Button1.MouseLeftButtonUp += new MouseEventHandler(OnClick);
+            Button2.MouseLeftButtonUp += new MouseEventHandler(OnClickAMI);
             
-            _tb = Button2.Children[0] as TextBlock;
+            _tb = Button3.Children[0] as TextBlock;
+
+            try
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = Ice.Util.createProperties();
+                initData.properties.setProperty("Ice.BridgeUri", "http://localhost:1287/IceBridge.ashx");
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                _hello = Demo.HelloPrxHelper.uncheckedCast(comm.stringToProxy("hello:tcp -p 10000"));
+            }
+            catch(Exception ex)
+            {
+                _tb.Text = "Initialization failed with exception:\n" + ex.ToString();
+            }
         }
         public Page()
         {
@@ -49,12 +75,21 @@ namespace helloC
         {
             try
             {
-                Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = Ice.Util.createProperties();
-                initData.properties.setProperty("Ice.BridgeUri", "http://localhost:1287/IceBridge.ashx");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
-                Demo.HelloPrx hello = Demo.HelloPrxHelper.uncheckedCast(comm.stringToProxy("hello:tcp -p 10000"));
-                hello.sayHello(0);
+                _hello.sayHello(0);
+                _tb.Text = "Call succeeded";
+            }
+            catch (Exception ex)
+            {
+                _tb.Text = "Call failed with exception:\n" + ex.ToString();
+            }
+        }       
+
+        void OnClickAMI(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                _hello.sayHello_async(new AMI_Hello_sayHelloI(), 0);
+                _tb.Text = "Calling sayHello()...";
             }
             catch (Exception ex)
             {
@@ -62,5 +97,8 @@ namespace helloC
                 return;
             }
         }       
+
+        private Demo.HelloPrx _hello;
+        private static TextBlock _tb;
     }
 }
