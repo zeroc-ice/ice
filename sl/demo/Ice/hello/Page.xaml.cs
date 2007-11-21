@@ -58,7 +58,7 @@ namespace helloC
             }
             catch (Exception ex)
             {
-                _tb.Text = ex.ToString();
+                _tb.Text = "Call failed with exception:\n" + ex.ToString();
                 return;
             }
         }       
