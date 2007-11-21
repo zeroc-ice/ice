@@ -148,7 +148,7 @@
         <mkdir dir="${cache.dir}"/>
 	<depend srcdir="${generated.dir}:${src.dir}:${jdk.src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
 	<javac srcdir="${generated.dir}:${src.dir}:${jdk.src.dir}" destdir="${lib.dir}"
-	    source="${jdk.version}" debug="${debug}"
+	    source="1.5" debug="${debug}"
 	    excludes="IceGridGUI/**"
 	    includes="**"
 	    deprecation="on">
@@ -167,7 +167,7 @@
 
     <target name="icegridadmin-compile" depends="ice-compile" if="java2">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
-	    source="${jdk.version}" debug="${debug}"
+	    source="1.5" debug="${debug}"
 	    includes="IceGridGUI/**"
 	    deprecation="on"/>
     </target>

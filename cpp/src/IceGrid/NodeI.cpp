@@ -969,6 +969,21 @@ NodeI::removeServer(const ServerIPtr& server, const std::string& application, bo
     }
 }
 
+Ice::Identity
+NodeI::createServerIdentity(const string& name) const
+{
+    Ice::Identity id;
+    id.category = _instanceName + "-Server";
+    id.name = name;
+    return id;
+}
+
+string
+NodeI::getServerAdminCategory() const
+{
+    return _instanceName + "-NodeRouter";
+}
+
 vector<ServerCommandPtr>
 NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 {
@@ -1221,14 +1236,7 @@ NodeI::getApplicationServers(const string& application) const
     return servers;
 }
 
-Ice::Identity
-NodeI::createServerIdentity(const string& name) const
-{
-    Ice::Identity id;
-    id.category = _instanceName + "-Server";
-    id.name = name;
-    return id;
-}
+
 
 string
 NodeI::getFilePath(const string& filename) const

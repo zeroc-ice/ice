@@ -80,7 +80,7 @@ public:
     virtual ServerState getState(const ::Ice::Current& = Ice::Current()) const;
     virtual Ice::Int getPid(const ::Ice::Current& = Ice::Current()) const;
     virtual Ice::PropertyDict getProperties(const ::Ice::Current& = Ice::Current()) const;
-
+   
     virtual void setEnabled(bool, const ::Ice::Current&);
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
@@ -109,6 +109,11 @@ public:
     void update();
     void destroy();
     void terminated(const std::string&, int);
+
+    //
+    // A proxy to the real Admin object; called by the AdminFacade servant implementation
+    //
+    Ice::ObjectPrx getRealAdmin() const;
 
 private:
     
@@ -149,7 +154,6 @@ private:
     typedef std::map<std::string, ServerAdapterIPtr> ServerAdapterDict;
     ServerAdapterDict _adapters;
     std::set<std::string> _serverLifetimeAdapters;
-    bool _processRegistered;
     Ice::ProcessPrx _process;
     std::set<std::string> _activatedAdapters;
     IceUtil::Time _failureTime;

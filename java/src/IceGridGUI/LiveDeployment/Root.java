@@ -213,6 +213,7 @@ public class Root extends ListArrayTreeNode
     {
         closeAllShowLogDialogs();
 
+        _instanceName = instanceName;
         _replicaName = replicaName;
         _label = instanceName + " (" + _replicaName + ")";
         _tree.setRootVisible(true);     
@@ -714,6 +715,11 @@ public class Root extends ListArrayTreeNode
         return this;
     }
 
+    String getInstanceName()
+    {
+        return _instanceName;
+    }
+
     java.util.SortedMap getObjects()
     {
         return _objects;
@@ -1063,6 +1069,7 @@ public class Root extends ListArrayTreeNode
     }
   
     private final Coordinator _coordinator;
+    private String _instanceName = "";
     private String _replicaName;
 
     private final java.util.List _nodes = new java.util.LinkedList();

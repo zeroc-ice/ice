@@ -27,7 +27,7 @@ public:
     void deactivate(const std::string&);
 
     Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::ConnectionPtr&);
-    void remove(const Ice::Identity&);
+    Ice::ConnectionPtr remove(const Ice::Identity&);
 
 private:
 

@@ -13,6 +13,7 @@
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
+#include <IceGrid/NodeServerAdminRouter.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/FileUserAccountMapperI.h>
 #include <IceGrid/NodeI.h>
@@ -45,7 +46,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-namespace IceGrid
+namespace
 {
 
 class ProcessI : public Process
@@ -104,7 +105,35 @@ private:
     ActivatorPtr _activator;
 };
 
-} // End of namespace IceGrid
+
+class DefaultServantLocator : public Ice::ServantLocator
+{
+public:
+
+    DefaultServantLocator(const ObjectPtr& servant) :
+        _servant(servant)
+    {
+    }
+
+    virtual ObjectPtr locate(const Current& c, LocalObjectPtr&)
+    {
+        return _servant;
+    }
+
+    virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
+    {
+    }
+
+    virtual void deactivate(const string&)
+    {
+    }
+
+private:
+    ObjectPtr _servant;
+};
+
+} 
+
 
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& communicator, const ActivatorPtr& activator) :
     RegistryI(communicator, new TraceLevels(communicator, "IceGrid.Registry")), 
@@ -290,7 +319,7 @@ NodeService::start(int argc, char* argv[])
             locatorId.name = "Locator";
             string endpoints = properties->getProperty("IceGrid.Registry.Client.Endpoints");
             string locatorPrx = "\"" + communicator()->identityToString(locatorId) + "\" :" + endpoints;
-            communicator()->setDefaultLocator(LocatorPrx::uncheckedCast(communicator()->stringToProxy(locatorPrx)));
+            communicator()->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(communicator()->stringToProxy(locatorPrx)));
             properties->setProperty("Ice.Default.Locator", locatorPrx);
         }
     }
@@ -436,6 +465,8 @@ NodeService::start(int argc, char* argv[])
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
     _node = new NodeI(_adapter, _sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
+
+    _adapter->addServantLocator(new DefaultServantLocator(new NodeServerAdminRouter(_node)), _node->getServerAdminCategory());
 
     //
     // Start the platform info thread if needed.

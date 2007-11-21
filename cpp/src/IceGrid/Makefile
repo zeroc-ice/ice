@@ -50,12 +50,14 @@ COMMON_OBJS	= Internal.o \
 		  PlatformInfo.o
 
 NODE_OBJS	= NodeI.o \
+                  NodeServerAdminRouter.o \
 		  ServerI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
 		  NodeSessionManager.o
 
 REGISTRY_OBJS   = RegistryI.o \
+                  RegistryServerAdminRouter.o \
 	  	  InternalRegistryI.o \
 		  StringApplicationInfoDict.o \
 		  IdentityObjectInfoDict.o \

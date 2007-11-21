@@ -49,6 +49,8 @@ public:
 
     ServerPrx getProxy(int&, int&, std::string&, bool = true);
     ServerPrx getProxy(bool = true);
+    Ice::ObjectPrx getAdminProxy();
+
     AdapterPrx getAdapter(const std::string&, bool);
     AdapterPrx getAdapter(int&, int&, const std::string&, bool);
     float getLoad(LoadSample) const;
@@ -94,7 +96,7 @@ class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
-    ServerCache(const Ice::CommunicatorPtr&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&);
+    ServerCache(const Ice::CommunicatorPtr&, const std::string&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&);
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&) const;
@@ -105,6 +107,7 @@ public:
     
     NodeCache& getNodeCache() const { return _nodeCache; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
+    const std::string& getInstanceName() const { return _instanceName; }
 
 private:
     
@@ -115,6 +118,7 @@ private:
     friend struct RemoveCommunicator;
 
     const Ice::CommunicatorPtr _communicator;
+    const std::string _instanceName;
     NodeCache& _nodeCache;
     AdapterCache& _adapterCache;
     ObjectCache& _objectCache;

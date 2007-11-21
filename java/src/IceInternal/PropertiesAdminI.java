@@ -22,10 +22,10 @@ class PropertiesAdminI extends Ice._PropertiesAdminDisp
         return _properties.getProperty(name);
     }
     
-    public java.util.Map
+    public java.util.TreeMap
     getPropertiesForPrefix(String name, Ice.Current current)
     {
-        return _properties.getPropertiesForPrefix(name);
+        return new java.util.TreeMap(_properties.getPropertiesForPrefix(name));
     }
     
     private final Ice.Properties _properties;

@@ -28,7 +28,7 @@ class AdminSessionI : public BaseSessionI, public AdminSession
 {
 public:
 
-    AdminSessionI(const std::string&, const DatabasePtr&, bool, int, const std::string&);
+    AdminSessionI(const std::string&, const DatabasePtr&, bool, int, const RegistryIPtr&);
     virtual ~AdminSessionI();
 
     Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&, 
@@ -72,7 +72,7 @@ private:
     Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&);
     FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, int, const Ice::Current&);
 
-    virtual void destroyImpl(bool);
+    virtual Ice::ConnectionPtr destroyImpl(bool);
 
     const int _timeout;
     const std::string _replicaName;
@@ -80,6 +80,7 @@ private:
     std::map<TopicName, Ice::ObjectPrx> _observers;
     std::set<Ice::Identity> _iterators;
     Glacier2::SessionControlPrx _sessionControl;
+    RegistryIPtr _registry;
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 

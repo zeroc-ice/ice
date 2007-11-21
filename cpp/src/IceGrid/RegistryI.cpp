@@ -34,6 +34,8 @@
 #include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/FileCache.h>
 
+#include <IceGrid/RegistryServerAdminRouter.h>
+
 #include <fstream>
 
 #include <openssl/des.h> // For crypt() passwords
@@ -55,7 +57,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-namespace IceGrid
+namespace
 {
 
 
@@ -116,7 +118,34 @@ private:
     const std::map<std::string, std::string> _passwords;
 };
 
+
+class DefaultServantLocator : public Ice::ServantLocator
+{
+public:
+
+    DefaultServantLocator(const ObjectPtr& servant) :
+        _servant(servant)
+    {
+    }
+
+    virtual ObjectPtr locate(const Current& c, LocalObjectPtr&)
+    {
+        return _servant;
+    }
+
+    virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
+    {
+    }
+
+    virtual void deactivate(const string&)
+    {
+    }
+
+private:
+    ObjectPtr _servant;
 };
+
+}
 
 RegistryI::RegistryI(const CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) : 
     _communicator(communicator),
@@ -337,6 +366,14 @@ RegistryI::start(bool nowarn)
     if(!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         sessionManagerAdapter = _communicator->createObjectAdapter("IceGrid.Registry.SessionManager");
+        
+
+        //
+        // Add a servant locator for Server Admin objects routed through the registry
+        // (and later through nodes)
+        //
+        sessionManagerAdapter->addServantLocator(new DefaultServantLocator(new RegistryServerAdminRouter(this, _database, false)),
+                                                 getServerAdminCategory());
     }
 
     Ice::Identity dummy;
@@ -360,6 +397,14 @@ RegistryI::start(bool nowarn)
 
     Ice::LocatorRegistryPrx locatorRegistry = setupLocatorRegistry(serverAdapter);
     LocatorPrx internalLocator = setupLocator(_clientAdapter, registryAdapter, locatorRegistry, registry, query);
+
+
+    //
+    // Add a servant locator for Server Admin objects routed through the registry
+    // (and later through nodes)
+    //
+    _clientAdapter->addServantLocator(new DefaultServantLocator(new RegistryServerAdminRouter(this, _database, true)),
+                                      getServerAdminCategory());
 
     //
     // Add a default servant locator to the client object adapter. The
@@ -759,6 +804,8 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 
     AdminSessionIPtr session = _adminSessionFactory->createSessionServant(user);
     Ice::ObjectPrx proxy = session->registerWithServantLocator(_sessionServantLocator, current.con, this);
+    addAdminSessionConnection(current.con);
+
     if(_sessionTimeout > 0)
     {
         _reaper->add(new SessionReapable<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout);
@@ -872,6 +919,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     //
     AdminSessionIPtr session = _adminSessionFactory->createSessionServant(userDN);
     Ice::ObjectPrx proxy = session->registerWithServantLocator(_sessionServantLocator, current.con, this);
+    addAdminSessionConnection(current.con);
     if(_sessionTimeout > 0)
     {
         _reaper->add(new SessionReapable<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout);
@@ -909,6 +957,27 @@ RegistryI::shutdown()
 {
     assert(_clientAdapter);
     _clientAdapter->deactivate();
+}
+
+bool 
+RegistryI::isAdminSessionConnection(const ConnectionPtr& con) const
+{
+    IceUtil::Mutex::Lock sync(_adminSessionConnectionsMutex);
+    return  _adminSessionConnections.find(con) != _adminSessionConnections.end();
+}
+
+void 
+RegistryI::addAdminSessionConnection(const ConnectionPtr& con)
+{
+    IceUtil::Mutex::Lock sync(_adminSessionConnectionsMutex);
+    _adminSessionConnections.insert(con);
+}
+   
+void 
+RegistryI::removeAdminSessionConnection(const ConnectionPtr& con)
+{
+    IceUtil::Mutex::Lock sync(_adminSessionConnectionsMutex);
+    _adminSessionConnections.erase(con);
 }
 
 void

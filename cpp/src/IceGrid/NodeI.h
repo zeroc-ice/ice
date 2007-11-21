@@ -101,6 +101,9 @@ public:
     void addServer(const ServerIPtr&, const std::string&, bool);
     void removeServer(const ServerIPtr&, const std::string&, bool);
 
+    Ice::Identity createServerIdentity(const std::string&) const;
+    std::string getServerAdminCategory() const;
+
 private:
 
     std::vector<ServerCommandPtr> checkConsistencyNoSync(const Ice::StringSeq&);
@@ -108,7 +111,6 @@ private:
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
     
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
-    Ice::Identity createServerIdentity(const std::string&) const;
     std::string getFilePath(const std::string&) const;
 
     const Ice::CommunicatorPtr _communicator;

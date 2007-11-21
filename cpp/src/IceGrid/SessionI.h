@@ -54,7 +54,7 @@ public:
     
 protected:
 
-    virtual void destroyImpl(bool);
+    virtual Ice::ConnectionPtr destroyImpl(bool);
 
     BaseSessionI(const std::string&, const std::string&, const DatabasePtr&, bool);
 
@@ -105,7 +105,7 @@ public:
 
 protected:
 
-    virtual void destroyImpl(bool);
+    virtual Ice::ConnectionPtr destroyImpl(bool);
 
     const IceUtil::TimerPtr _timer;
     const Glacier2::SessionControlPrx _sessionControl;

@@ -423,7 +423,7 @@ class Server extends ListArrayTreeNode
 
     public void showRuntimeProperties()
     {
-         AMI_Admin_getServerProperties cb = new AMI_Admin_getServerProperties()
+         Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
             {
                 public void ice_response(final java.util.Map properties)
                 {
@@ -435,34 +435,6 @@ class Server extends ListArrayTreeNode
                             }
                         });
                 }
-
-                public void ice_exception(final Ice.UserException e)
-                {
-                    SwingUtilities.invokeLater(new Runnable() 
-                        {
-                            public void run() 
-                            {
-                                if(e instanceof IceGrid.ServerUnreachableException)
-                                {
-                                    _editor.setBuildId("Error: can't reach this server", Server.this);
-                                }
-                                else if(e instanceof IceGrid.NodeNotExistException)
-                                {
-                                    _editor.setBuildId(
-                                        "Error: this node is not known to this IceGrid Registry",
-                                        Server.this);
-                                }
-                                else if(e instanceof IceGrid.NodeUnreachableException)
-                                {
-                                    _editor.setBuildId("Error: cannot reach this node", Server.this);
-                                }
-                                else
-                                {
-                                    _editor.setBuildId("Error: " + e.toString(), Server.this);
-                                }
-                            }
-                        });
-                }             
                 
                 public void ice_exception(final Ice.LocalException e)
                 {
@@ -470,7 +442,19 @@ class Server extends ListArrayTreeNode
                         {
                             public void run() 
                             {
-                                _editor.setBuildId("Error: " + e.toString(), Server.this);
+                                if(e instanceof Ice.ObjectNotExistException)
+                                {
+                                    _editor.setBuildId("Error: can't reach this server's Admin object", Server.this);
+                                }
+                                else if(e instanceof Ice.FacetNotExistException)
+                                {
+                                    _editor.setBuildId("Error: this server's Admin object does not provide a 'Properties' facet", 
+                                                       Server.this);
+                                }
+                                else
+                                {
+                                    _editor.setBuildId("Error: " + e.toString(), Server.this);
+                                }
                             }
                         });
                 }
@@ -482,13 +466,21 @@ class Server extends ListArrayTreeNode
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             
             IceGrid.AdminPrx admin = getCoordinator().getAdmin();
+            
             if(admin == null)
             {
                 _editor.setBuildId("", this);
             }
             else
             {
-                admin.getServerProperties_async(cb, _id);
+                //
+                // Build serverAdmin object
+                //
+                Ice.Identity adminId = new Ice.Identity(_id, getRoot().getInstanceName() + "-RegistryRouter");
+                Ice.ObjectPrx serverAdmin = admin.ice_identity(adminId);
+
+                Ice.PropertiesAdminPrx propAdmin = Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("Properties"));
+                propAdmin.getPropertiesForPrefix_async(cb, "");
             }
         }
         catch(Ice.LocalException e)

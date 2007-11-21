@@ -107,9 +107,11 @@ BaseSessionI::keepAlive(const Ice::Current& current)
     }
 }
 
-void
+Ice::ConnectionPtr
 BaseSessionI::destroyImpl(bool shutdown)
 {
+    Ice::ConnectionPtr result = 0;
+
     Lock sync(*this);
     if(_destroyed)
     {
@@ -123,7 +125,7 @@ BaseSessionI::destroyImpl(bool shutdown)
     {
         if(_servantLocator)
         {
-            _servantLocator->remove(_identity);
+            result =_servantLocator->remove(_identity);
         }
         else if(_adapter)
         {
@@ -142,6 +144,7 @@ BaseSessionI::destroyImpl(bool shutdown)
         Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _prefix << " session `" << _id << "' destroyed";
     }
+    return result;
 }
 
 IceUtil::Time
@@ -284,10 +287,10 @@ SessionI::removeAllocation(const AllocatablePtr& allocatable)
     _allocations.erase(allocatable);
 }
 
-void
+Ice::ConnectionPtr
 SessionI::destroyImpl(bool shutdown)
 {
-    BaseSessionI::destroyImpl(shutdown);
+    Ice::ConnectionPtr con = BaseSessionI::destroyImpl(shutdown);
 
     //
     // NOTE: The _requests and _allocations attributes are immutable
@@ -312,6 +315,7 @@ SessionI::destroyImpl(bool shutdown)
         }
     }
     _allocations.clear();
+    return con;
 }
 
 ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,

@@ -1218,18 +1218,30 @@ Parser::propertiesServer(const list<string>& args, bool single)
 
     try
     {
-        Ice::PropertyDict properties = _admin->getServerProperties(args.front());
+        Ice::ObjectPrx serverAdmin = _admin->getServerAdmin(args.front());
+        Ice::PropertiesAdminPrx propAdmin = Ice::PropertiesAdminPrx::uncheckedCast(serverAdmin, "Properties");
+
         if(single)
         {
-            cout << properties[*(++args.begin())] << endl;
+            string val = propAdmin->getProperty(*(++args.begin()));
+            cout << val << endl;
         }
         else
         {
+            Ice::PropertyDict properties = propAdmin->getPropertiesForPrefix("");
             for(Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
             {
                 cout << p->first << "=" << p->second << endl;
             }
         }
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        error("couldn't reach the server's Admin object");
+    }
+    catch(const Ice::FacetNotExistException&)
+    {
+        error("the server's Admin object does not provide a 'Properties' facet");
     }
     catch(const Ice::Exception& ex)
     {

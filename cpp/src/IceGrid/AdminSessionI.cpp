@@ -55,10 +55,11 @@ FileIteratorI::destroy(const Ice::Current& current)
 }
 
 AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, bool filters, int timeout,
-                             const string& replicaName) :
+                             const RegistryIPtr& registry) :
     BaseSessionI(id, "admin", db, filters),
     _timeout(timeout),
-    _replicaName(replicaName)
+    _replicaName(registry->getName()),
+    _registry(registry)
 {
 }
 
@@ -401,10 +402,16 @@ AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current& c
     _iterators.erase(id);
 }
 
-void
+Ice::ConnectionPtr
 AdminSessionI::destroyImpl(bool shutdown)
 {
-    BaseSessionI::destroyImpl(shutdown);
+    Ice::ConnectionPtr con = BaseSessionI::destroyImpl(shutdown);
+
+    if(con != 0)
+    {
+        _registry->removeAdminSessionConnection(con);
+    }
+    _registry = 0;
 
     try
     {
@@ -422,7 +429,7 @@ AdminSessionI::destroyImpl(bool shutdown)
     {
         if(_servantLocator)
         {
-            _servantLocator->remove(_admin->ice_getIdentity());
+             _servantLocator->remove(_admin->ice_getIdentity());
         }
         else if(_adapter)
         {
@@ -466,6 +473,7 @@ AdminSessionI::destroyImpl(bool shutdown)
         setupObserverSubscription(AdapterObserverTopicName, 0);
         setupObserverSubscription(ObjectObserverTopicName, 0);
     }
+    return con;
 }
 
 AdminSessionFactory::AdminSessionFactory(const Ice::ObjectAdapterPtr& adapter,
@@ -533,7 +541,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 AdminSessionIPtr
 AdminSessionFactory::createSessionServant(const string& id)
 {
-    return new AdminSessionI(id, _database, _filters, _timeout, _registry->getName());
+    return new AdminSessionI(id, _database, _filters, _timeout, _registry);
 }
 
 const TraceLevelsPtr&

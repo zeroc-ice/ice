@@ -56,12 +56,14 @@ COMMON_OBJS	= Internal.obj \
 		  PlatformInfo.obj
 
 NODE_OBJS	= NodeI.obj \
+                  NodeServerAdminRouter.obj \
 		  ServerI.obj \
 		  ServerAdapterI.obj \
 		  Activator.obj \
 		  NodeSessionManager.obj
 
 REGISTRY_OBJS	= RegistryI.obj \
+                  RegistryServerAdminRouter.obj \
 		  InternalRegistryI.obj \
 		  StringApplicationInfoDict.obj \
 		  IdentityObjectInfoDict.obj \

@@ -619,6 +619,29 @@ interface Admin
     idempotent Ice::PropertyDict getServerProperties(string id)
         throws ServerNotExistException, ServerUnreachableException, NodeUnreachableException, DeploymentException;
 
+
+     /**
+     *
+     * Get a proxy to the server's admin object
+     *
+     * @param id The server id.
+     *
+     * @return A proxy to the server's admin object
+     * 
+     * @throws ServerNotExistException Raised if the server doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
+     *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
+     **/
+    ["ami", "cpp:const"] 
+    idempotent Object* getServerAdmin(string id)
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+
+
     /**
      *
      * Enable or disable a server. A disabled server can't be started

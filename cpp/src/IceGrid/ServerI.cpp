@@ -801,6 +801,33 @@ ServerI::getProperties(const Ice::Current&) const
     }
 }
 
+Ice::ObjectPrx
+ServerI::getRealAdmin() const
+{
+    Lock sync(*this);
+    
+    if(_state <= Inactive || _state >= Deactivating)
+    {
+        return 0;
+    }
+
+    //
+    // Wait for _process to be set if the server is being activated.
+    //
+    while(_desc->processRegistered && _process == 0 && _state > Inactive && _state < Deactivating)
+    {
+        wait();
+    }
+    
+    if(_process == 0 || _state <= Inactive || _state >= Deactivating)
+    {
+        return 0;
+    }
+    else
+    {
+        return _process->ice_facet("");
+    }
+}
 
 void 
 ServerI::setEnabled(bool enabled, const ::Ice::Current&)

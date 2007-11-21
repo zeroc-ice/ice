@@ -68,6 +68,12 @@ public:
     void waitForShutdown();
     virtual void shutdown();
     
+    bool isAdminSessionConnection(const Ice::ConnectionPtr&) const;
+    void addAdminSessionConnection(const Ice::ConnectionPtr&);
+    void removeAdminSessionConnection(const Ice::ConnectionPtr&);
+
+    std::string getServerAdminCategory() const { return _instanceName + "-RegistryRouter"; }
+
 private:
 
     Ice::LocatorRegistryPrx setupLocatorRegistry(const Ice::ObjectAdapterPtr&); 
@@ -121,6 +127,9 @@ private:
     Glacier2::SSLPermissionsVerifierPrx _sslAdminVerifier;
 
     IceStorm::ServicePtr _iceStorm;
+
+    std::set<Ice::ConnectionPtr> _adminSessionConnections;
+    IceUtil::Mutex _adminSessionConnectionsMutex;
 };
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 

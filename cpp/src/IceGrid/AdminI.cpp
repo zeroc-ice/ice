@@ -373,6 +373,13 @@ AdminI::getServerProperties(const string& id, const Current&) const
     }
 }
 
+Ice::ObjectPrx
+AdminI::getServerAdmin(const string& id, const Current& current) const
+{
+    Ice::Identity adminId = { id, _registry->getServerAdminCategory() };
+    return current.adapter->createProxy(adminId);
+}
+
 void
 AdminI::startServer(const string& id, const Current&)
 {

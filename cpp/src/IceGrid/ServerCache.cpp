@@ -61,11 +61,13 @@ namespace IceGrid
 }
 
 ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,
+                         const string& instanceName,
                          NodeCache& nodeCache, 
                          AdapterCache& adapterCache, 
                          ObjectCache& objectCache,
                          AllocatableObjectCache& allocatableObjectCache) :
     _communicator(communicator),
+    _instanceName(instanceName),
     _nodeCache(nodeCache), 
     _adapterCache(adapterCache), 
     _objectCache(objectCache),
@@ -406,6 +408,26 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
                 throw ServerNotExistException(_id);
             }
         }
+    }
+}
+
+Ice::ObjectPrx
+ServerEntry::getAdminProxy()
+{
+    //
+    // The category must match the server admin category used by nodes
+    //
+    Ice::Identity adminId = {_id, _cache.getInstanceName() + "-NodeRouter" };
+
+    // TODO: what's this upToDate parameter about??
+
+    try
+    {
+        return getProxy(true)->ice_identity(adminId);
+    }
+    catch(const ServerNotExistException&)
+    {
+        return 0;
     }
 }
 

@@ -59,9 +59,19 @@ SessionServantLocatorI::add(const Ice::ObjectPtr& servant, const Ice::Connection
     return _adapter->createProxy(id);
 }
 
-void
+Ice::ConnectionPtr
 SessionServantLocatorI::remove(const Ice::Identity& id)
 {
     Lock sync(*this);
-    _servants.erase(id);
+    map<Ice::Identity, SessionServant>::iterator p = _servants.find(id);
+    if(p == _servants.end())
+    {
+        return 0;
+    }
+    else
+    {
+        Ice::ConnectionPtr result = p->second.connection;
+        _servants.erase(p);
+        return result;
+    }
 }
