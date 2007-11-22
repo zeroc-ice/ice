@@ -4180,9 +4180,9 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "direct__.destroy();";
             _out << eb;
-            for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+            for(ExceptionList::const_iterator j = throws.begin(); j != throws.end(); ++j)
             {
-                _out << nl << "catch(" << fixId((*i)->scoped()) << " ex__)";
+                _out << nl << "catch(" << fixId((*j)->scoped()) << " ex__)";
                 _out << sb;
                 _out << nl << "throw ex__;";
                 _out << eb;

@@ -417,7 +417,9 @@ ServerEntry::getAdminProxy()
     //
     // The category must match the server admin category used by nodes
     //
-    Ice::Identity adminId = {_id, _cache.getInstanceName() + "-NodeRouter" };
+    Ice::Identity adminId;
+    adminId.name = _id;
+    adminId.category = _cache.getInstanceName() + "-NodeRouter";
 
     // TODO: what's this upToDate parameter about??
 

@@ -48,7 +48,8 @@ Create::run(int argc, char* argv[])
     TransactionHolder txh(connection);
     for(size_t i = 0; i < size; ++i)
     {
-        ContactData data = { phoneNumbers[i] };
+        ContactData data;
+        data.phoneNumber = phoneNumbers[i];
 
         contacts.put(Contacts::value_type(names[i], data));
     }

@@ -54,7 +54,7 @@ Freeze::TransactionalEvictorDeadlockException::ice_throw() const
 void
 Freeze::TransactionalEvictorDeadlockException::ice_print(ostream& out) const
 {
-    Ice::Exception::ice_print(out);
+    Exception::ice_print(out);
     out << ":\ntransactional evictor deadlock exception";
 }
 
