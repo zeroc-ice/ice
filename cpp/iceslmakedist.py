@@ -160,7 +160,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        tag = "-r" + x
+        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -268,6 +268,7 @@ for x in scanners:
 print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icesl", "CHANGES"), \
+    os.path.join("icesl", "README"), \
     os.path.join("icesl", "INSTALL.HP-UX"), \
     os.path.join("icesl", "INSTALL.MACOSX"), \
     os.path.join("icesl", "INSTALL.SOLARIS"), \
