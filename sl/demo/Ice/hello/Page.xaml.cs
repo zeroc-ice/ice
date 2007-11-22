@@ -45,9 +45,14 @@ namespace helloC
             // Required to initialize variables
             InitializeComponent();
             Button1.MouseLeftButtonUp += new MouseEventHandler(OnClick);
-            Button2.MouseLeftButtonUp += new MouseEventHandler(OnClickAMI);
+            Button2.MouseLeftButtonUp += new MouseEventHandler(OnClickOneway);
+            Button3.MouseLeftButtonUp += new MouseEventHandler(OnClickAMI);
             
-            _tb = Button3.Children[0] as TextBlock;
+            Button1.MouseLeftButtonDown += new MouseEventHandler(OnPress);
+            Button2.MouseLeftButtonDown += new MouseEventHandler(OnPress);
+            Button3.MouseLeftButtonDown += new MouseEventHandler(OnPress);
+
+            _tb = Button4.Children[0] as TextBlock;
 
             try
             {
@@ -56,6 +61,7 @@ namespace helloC
                 initData.properties.setProperty("Ice.BridgeUri", "http://localhost:1287/IceBridge.ashx");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 _hello = Demo.HelloPrxHelper.uncheckedCast(comm.stringToProxy("hello:tcp -p 10000"));
+                _helloOneway = Demo.HelloPrxHelper.uncheckedCast(_hello.ice_oneway());
             }
             catch(Exception ex)
             {
@@ -71,8 +77,17 @@ namespace helloC
         { 
         }
 
+        void OnPress(object sender, MouseEventArgs e)
+        {
+            _tb.Text = "";
+        }
+
         void OnClick(object sender, MouseEventArgs e)
         {
+            //
+            // Send regular twoway call. This will block the UI thread
+            // until a response is returned from the server.
+            //
             try
             {
                 _hello.sayHello(0);
@@ -84,8 +99,31 @@ namespace helloC
             }
         }       
 
+        void OnClickOneway(object sender, MouseEventArgs e)
+        {
+            //
+            // Send oneway call. This will return as soon as the request
+            // as been sent and unblock the UI thread. However there is no
+            // guarantee that the send has succeeded.
+            //
+            try
+            {
+                _helloOneway.sayHello(0);
+                _tb.Text = "Call completed";
+            }
+            catch (Exception ex)
+            {
+                _tb.Text = "Call failed with exception:\n" + ex.ToString();
+            }
+        }       
+
         void OnClickAMI(object sender, MouseEventArgs e)
         {
+            //
+            // Send aynschronous call. This will return as soon as the request
+            // as been sent and unblock the UI thread. A callback will then 
+            // be called when it is known whether the call has succeeded or not.
+            //
             try
             {
                 _hello.sayHello_async(new AMI_Hello_sayHelloI(), 0);
@@ -99,6 +137,7 @@ namespace helloC
         }       
 
         private Demo.HelloPrx _hello;
+        private Demo.HelloPrx _helloOneway;
         private static TextBlock _tb;
     }
 }
