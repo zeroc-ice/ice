@@ -9,6 +9,9 @@ Ice for Silverlight has been extensively tested on:
 
 - Windows XP x86 with Internet Explorer 6.0
 
+Note: Ice for Silverlight doees not currently work with Firefox or
+      Safari.
+
 
 Compiler
 --------
@@ -131,8 +134,8 @@ downloaded here:
 Now to run a test or demo do the following:
 
 1) Start the corresponding server from Ice 3.2.1 package you compiled.
-   See the README in the demo/test directory for information on how to
-   start the server.
+   See in instructions in the Ice 3.2.1 distribution for information 
+   on how to start the server.
 
 2) Start the Visual Studio 2008 Beta 2 IDE and open the selected
    test/demo solution file.

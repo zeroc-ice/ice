@@ -2,7 +2,7 @@
 About this distribution
 ======================================================================
 
-This distribution is a binary release of Ice for Silverlight @ver@
+This distribution is a binary release of Ice for Silverlight 0.1.0
 including the following components:
 
 - The Ice for Silverlight runtime assembly, as well as the Ice for 
@@ -23,6 +23,9 @@ Windows Version
 Ice for Silverlight has been extensively tested on:
 
 - Windows XP x86 with Internet Explorer 6.0
+
+Note: Ice for Silverlight doees not currently work with Firefox or 
+      Safari browsers.
 
 
 Compiler
@@ -101,7 +104,7 @@ You can download one of the other mappings of Ice here:
 
   http://www.zeroc.com/download.html
 
-Now to compile and run demo do the following:
+Now to compile and run the demo do the following:
 
 1) Start the Visual Studio 2008 Beta 2 IDE and open the solution file
    (demo\Ice\hello\hello.sln). 
@@ -109,9 +112,9 @@ Now to compile and run demo do the following:
 2) Select Build->Build Solution to build both projects in the 
    solution.
 
-3) Start the demo server from Ice 3.2.1 package you downloaded. See 
-   the README in the demo/test directory for information on how to
-   start the server.
+3) Start the demo server from the Ice 3.2.1 package you downloaded.
+   See the README in the Ice 3.2.1 demo directory for information on
+   how to start the server.
 
 4) Right click on the WebApplication project and select Properties.
    Select the Web tab, change the Start Action to be a Specific Page
