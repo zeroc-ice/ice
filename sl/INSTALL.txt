@@ -40,8 +40,7 @@ preprocessor (icecpp). You can download a binary distribution from
 the ZeroC web site, or you can build the Slice-to-Silverlight 
 translator yourself.
 
-Binary and source distributions for the supported platforms are
-available at
+Binary and source distributions for are available at
 
   http://www.zeroc.com/labs/download.html
 

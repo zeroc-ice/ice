@@ -12,13 +12,13 @@
 # assertions enabled.
 #
 
-DEBUG			= yes
+#DEBUG			= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimized.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
