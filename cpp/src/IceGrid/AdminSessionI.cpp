@@ -54,9 +54,8 @@ FileIteratorI::destroy(const Ice::Current& current)
     _session->removeFileIterator(current.id, current);
 }
 
-AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, bool filters, int timeout,
-                             const RegistryIPtr& registry) :
-    BaseSessionI(id, "admin", db, filters),
+AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, int timeout, const RegistryIPtr& registry) :
+    BaseSessionI(id, "admin", db),
     _timeout(timeout),
     _replicaName(registry->getName()),
     _registry(registry)
@@ -68,27 +67,17 @@ AdminSessionI::~AdminSessionI()
 }
 
 Ice::ObjectPrx
-AdminSessionI::registerWithServantLocator(const SessionServantLocatorIPtr& servantLoc, 
-                                          const Ice::ConnectionPtr& con,
-                                          const RegistryIPtr& registry)
+AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::ConnectionPtr& con)
 {
-    Ice::ObjectPrx proxy = BaseSessionI::registerWithServantLocator(servantLoc, con);
-    _admin = AdminPrx::uncheckedCast(servantLoc->add(new AdminI(_database, registry, this), con));
-    return proxy;
-}
+    //
+    // This is supposed to be called after creation only, no need to synchronize.
+    //
+    _servantManager = servantManager;
+    Ice::ObjectPrx session =  _servantManager->addSession(this, con, true);
 
-Ice::ObjectPrx
-AdminSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter, 
-                                         const RegistryIPtr& registry,
-                                         const Glacier2::SessionControlPrx& ctl)
-{
-    Ice::ObjectPrx proxy = BaseSessionI::registerWithObjectAdapter(adapter);
-    Ice::Identity identity;
-    identity.category = _database->getInstanceName();
-    identity.name = IceUtil::generateUUID();
-    _admin = AdminPrx::uncheckedCast(adapter->add(new AdminI(_database, registry, this), identity));
-    _sessionControl = ctl;
-    return proxy;
+    _admin = AdminPrx::uncheckedCast(_servantManager->add(new AdminI(_database, _registry, this), this));
+
+    return session;
 }
 
 AdminPrx
@@ -339,31 +328,7 @@ AdminSessionI::addFileIterator(const FileReaderPrx& reader,
     Ice::PropertiesPtr properties = reader->ice_getCommunicator()->getProperties();
     int messageSizeMax = properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 
-    Ice::ObjectPrx obj;
-    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename, offset, messageSizeMax);
-    if(_servantLocator)
-    {
-        obj = _servantLocator->add(servant, current.con);
-    }
-    else
-    {
-        assert(_adapter);
-        obj = _adapter->addWithUUID(servant);
-        
-        if(_sessionControl)
-        {
-            try
-            {
-                Ice::IdentitySeq ids;
-                ids.push_back(obj->ice_getIdentity());
-                _sessionControl->identities()->add(ids);
-            }
-            catch(const Ice::LocalException&)
-            {
-            }
-        }
-    }
-    _iterators.insert(obj->ice_getIdentity());
+    Ice::ObjectPrx obj = _servantManager->add(new FileIteratorI(this, reader, filename, offset, messageSizeMax), this);
     return FileIteratorPrx::uncheckedCast(obj);
 }
 
@@ -371,47 +336,15 @@ void
 AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current& current)
 {
     Lock sync(*this);
-    if(_servantLocator)
-    {
-        _servantLocator->remove(id);
-    }
-    else
-    {
-        try
-        {
-            assert(_adapter && _sessionControl);
-            _adapter->remove(id);
-        }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
-        {
-        }
-
-        if(_sessionControl)
-        {
-            try
-            {
-                Ice::IdentitySeq ids;
-                ids.push_back(id);
-                _sessionControl->identities()->remove(ids);
-            }
-            catch(const Ice::LocalException&)
-            {
-            }
-        }
-    }
-    _iterators.erase(id);
+    _servantManager->remove(id);
 }
 
-Ice::ConnectionPtr
+void
 AdminSessionI::destroyImpl(bool shutdown)
 {
-    Ice::ConnectionPtr con = BaseSessionI::destroyImpl(shutdown);
+    BaseSessionI::destroyImpl(shutdown);
 
-    if(con != 0)
-    {
-        _registry->removeAdminSessionConnection(con);
-    }
-    _registry = 0;
+    _servantManager->removeSession(this);
 
     try
     {
@@ -421,49 +354,8 @@ AdminSessionI::destroyImpl(bool shutdown)
     {
     }
 
-    //
-    // Unregister the admin servant from the session servant locator
-    // or object adapter.
-    //
     if(!shutdown)
     {
-        if(_servantLocator)
-        {
-             _servantLocator->remove(_admin->ice_getIdentity());
-        }
-        else if(_adapter)
-        {
-            try
-            {
-                _adapter->remove(_admin->ice_getIdentity());
-            }
-            catch(const Ice::ObjectAdapterDeactivatedException&)
-            {
-            }
-        }
-
-        //
-        // Unregister the iterators from the session servant locator or
-        // object adapter.
-        //
-        for(set<Ice::Identity>::const_iterator p = _iterators.begin(); p != _iterators.end(); ++p)
-        {
-            if(_servantLocator)
-            {
-                _servantLocator->remove(*p);
-            }
-            else if(_adapter)
-            {
-                try
-                {
-                    _adapter->remove(*p);
-                }
-                catch(const Ice::ObjectAdapterDeactivatedException&)
-                {
-                }
-            }
-        }
-
         //
         // Unsubscribe from the topics.
         //
@@ -473,44 +365,33 @@ AdminSessionI::destroyImpl(bool shutdown)
         setupObserverSubscription(AdapterObserverTopicName, 0);
         setupObserverSubscription(ObjectObserverTopicName, 0);
     }
-    return con;
 }
 
-AdminSessionFactory::AdminSessionFactory(const Ice::ObjectAdapterPtr& adapter,
+AdminSessionFactory::AdminSessionFactory(const SessionServantManagerPtr& servantManager,
                                          const DatabasePtr& database,
                                          const ReapThreadPtr& reaper,
                                          const RegistryIPtr& registry) :
-    _adapter(adapter),
+    _servantManager(servantManager),
     _database(database), 
     _timeout(registry->getSessionTimeout()),
     _reaper(reaper),
     _registry(registry),
     _filters(false)
 {
-    if(_adapter) // Not set if Glacier2 session manager adapter not enabled
+    if(_servantManager) // Not set if Glacier2 session manager adapter not enabled
     {
-        Ice::PropertiesPtr properties = adapter->getCommunicator()->getProperties();
-        const_cast<bool&>(_filters) = 
-            properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionFilters", 1) > 0;
+        Ice::PropertiesPtr props = database->getCommunicator()->getProperties();
+        const_cast<bool&>(_filters) = props->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionFilters", 1) > 0;
     }
 }
 
 Glacier2::SessionPrx
 AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrx& ctl)
 {
-    assert(_adapter);
+    assert(_servantManager);
 
     AdminSessionIPtr session = createSessionServant(sessionId);
-    Ice::ObjectPrx proxy = session->registerWithObjectAdapter(_adapter, _registry, ctl);
-
-    Ice::Identity queryId;
-    queryId.category = _database->getInstanceName();
-    queryId.name = "Query";
-
-    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
-    ids.push_back(queryId); // The IceGrid::Query object
-    ids.push_back(proxy->ice_getIdentity()); // The session object.
-    ids.push_back(session->getAdmin()->ice_getIdentity()); // The per-session admin object.
+    Ice::ObjectPrx proxy = session->_register(_servantManager, 0);
 
     int timeout = 0;
     if(ctl)
@@ -519,7 +400,13 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
         {
             try
             {
-                ctl->identities()->add(ids);
+                Ice::IdentitySeq ids;
+                Ice::Identity queryId;
+                queryId.category = _database->getInstanceName();
+                queryId.name = "Query";
+                ids.push_back(queryId);
+
+                _servantManager->setSessionControl(session, ctl, ids);
             }
             catch(const Ice::LocalException&)
             {
@@ -530,18 +417,14 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
         timeout = ctl->getSessionTimeout();
     }
 
-    if(timeout > 0)
-    {
-        _reaper->add(new SessionReapable<AdminSessionI>(_database->getTraceLevels()->logger, session), timeout);
-    }
-
+    _reaper->add(new SessionReapable<AdminSessionI>(_database->getTraceLevels()->logger, session), timeout);
     return Glacier2::SessionPrx::uncheckedCast(proxy);
 }
 
 AdminSessionIPtr
 AdminSessionFactory::createSessionServant(const string& id)
 {
-    return new AdminSessionI(id, _database, _filters, _timeout, _registry);
+    return new AdminSessionI(id, _database, _timeout, _registry);
 }
 
 const TraceLevelsPtr&

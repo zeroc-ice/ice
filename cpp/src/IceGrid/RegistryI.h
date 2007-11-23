@@ -35,8 +35,8 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class ReapThread;
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;    
 
-class SessionServantLocatorI;
-typedef IceUtil::Handle<SessionServantLocatorI> SessionServantLocatorIPtr;    
+class SessionServantManager;
+typedef IceUtil::Handle<SessionServantManager> SessionServantManagerPtr;    
 
 class ClientSessionFactory;
 typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;    
@@ -68,10 +68,6 @@ public:
     void waitForShutdown();
     virtual void shutdown();
     
-    bool isAdminSessionConnection(const Ice::ConnectionPtr&) const;
-    void addAdminSessionConnection(const Ice::ConnectionPtr&);
-    void removeAdminSessionConnection(const Ice::ConnectionPtr&);
-
     std::string getServerAdminCategory() const { return _instanceName + "-RegistryRouter"; }
 
 private:
@@ -84,10 +80,9 @@ private:
     InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&);
     void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);
     bool setupUserAccountMapper(const Ice::ObjectAdapterPtr&);
-    void setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const LocatorPrx&,
-                                   bool);
-    void setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const LocatorPrx&,
-                                  bool);
+    Ice::ObjectAdapterPtr setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const LocatorPrx&, bool);
+    Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectPtr&, 
+                                                   const LocatorPrx&, bool);
 
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const LocatorPrx&,
@@ -110,7 +105,7 @@ private:
     std::string _replicaName;
     ReapThreadPtr _reaper;
     IceUtil::TimerPtr _timer;
-    SessionServantLocatorIPtr _sessionServantLocator;
+    SessionServantManagerPtr _servantManager;
     int _sessionTimeout;
     ReplicaSessionManager _session;
     mutable PlatformInfo _platform;
@@ -127,9 +122,6 @@ private:
     Glacier2::SSLPermissionsVerifierPrx _sslAdminVerifier;
 
     IceStorm::ServicePtr _iceStorm;
-
-    std::set<Ice::ConnectionPtr> _adminSessionConnections;
-    IceUtil::Mutex _adminSessionConnectionsMutex;
 };
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 

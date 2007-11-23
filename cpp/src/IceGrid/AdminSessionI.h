@@ -28,14 +28,10 @@ class AdminSessionI : public BaseSessionI, public AdminSession
 {
 public:
 
-    AdminSessionI(const std::string&, const DatabasePtr&, bool, int, const RegistryIPtr&);
+    AdminSessionI(const std::string&, const DatabasePtr&, int, const RegistryIPtr&);
     virtual ~AdminSessionI();
 
-    Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&, 
-                                              const RegistryIPtr&);
-
-    Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&, const RegistryIPtr&, 
-                                             const Glacier2::SessionControlPrx&);
+    Ice::ObjectPrx _register(const SessionServantManagerPtr&, const Ice::ConnectionPtr&);
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
@@ -72,14 +68,12 @@ private:
     Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&);
     FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, int, const Ice::Current&);
 
-    virtual Ice::ConnectionPtr destroyImpl(bool);
+    virtual void destroyImpl(bool);
 
     const int _timeout;
     const std::string _replicaName;
     AdminPrx _admin;
     std::map<TopicName, Ice::ObjectPrx> _observers;
-    std::set<Ice::Identity> _iterators;
-    Glacier2::SessionControlPrx _sessionControl;
     RegistryIPtr _registry;
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
@@ -88,7 +82,7 @@ class AdminSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    AdminSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const ReapThreadPtr&, const RegistryIPtr&);
+    AdminSessionFactory(const SessionServantManagerPtr&, const DatabasePtr&, const ReapThreadPtr&, const RegistryIPtr&);
     
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     AdminSessionIPtr createSessionServant(const std::string&);
@@ -97,7 +91,7 @@ public:
 
 private:
 
-    const Ice::ObjectAdapterPtr _adapter;
+    const SessionServantManagerPtr _servantManager;
     const DatabasePtr _database;
     const int _timeout;
     const ReapThreadPtr _reaper;

@@ -594,33 +594,7 @@ interface Admin
     ["nonmutating", "cpp:const"] idempotent int getServerPid(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-
     /**
-     *
-     * Get a server's properties.
-     *
-     * @param id The server id.
-     *
-     * @return The server's properties
-     * 
-     * @throws ServerNotExistException Raised if the server doesn't exist.
-     *
-     * @throws ServerUnreachableException Raised if the server could not be
-     * reached.
-     *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
-     *
-     * @throws DeploymentException Raised if the server couldn't be
-     * deployed on the node.
-     *
-     **/
-    ["ami", "java:type:{java.util.TreeMap}", "cpp:const"] 
-    idempotent Ice::PropertyDict getServerProperties(string id)
-        throws ServerNotExistException, ServerUnreachableException, NodeUnreachableException, DeploymentException;
-
-
-     /**
      *
      * Get a proxy to the server's admin object
      *
@@ -640,7 +614,6 @@ interface Admin
     ["ami", "cpp:const"] 
     idempotent Object* getServerAdmin(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
-
 
     /**
      *

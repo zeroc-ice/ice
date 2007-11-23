@@ -14,7 +14,7 @@
 #include <IceUtil/Timer.h>
 #include <IceGrid/ReapThread.h>
 #include <IceGrid/Session.h>
-#include <IceGrid/SessionServantLocatorI.h>
+#include <IceGrid/SessionServantManager.h>
 #include <set>
 
 namespace IceGrid
@@ -45,27 +45,22 @@ public:
 
     IceUtil::Time timestamp() const;
     void shutdown();
-
-    Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&);
-    Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&);
+    Glacier2::IdentitySetPrx getGlacier2IdentitySet();
+    Glacier2::StringSetPrx getGlacier2AdapterIdSet();
 
     const std::string& getId() const { return _id; }
-    bool useFilters() const { return _filters; }
     
 protected:
 
-    virtual Ice::ConnectionPtr destroyImpl(bool);
+    virtual void destroyImpl(bool);
 
-    BaseSessionI(const std::string&, const std::string&, const DatabasePtr&, bool);
+    BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
 
     const std::string _id;
     const std::string _prefix;
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
-    const bool _filters;
-    SessionServantLocatorIPtr _servantLocator;
-    Ice::ObjectAdapterPtr _adapter;
-    Ice::Identity _identity;
+    SessionServantManagerPtr _servantManager;
     bool _destroyed;
     IceUtil::Time _timestamp;
 };
@@ -79,10 +74,10 @@ class SessionI : public BaseSessionI, public Session
 {
 public:
 
-    SessionI(const std::string&, const DatabasePtr&, bool, const IceUtil::TimerPtr&,
-             const Glacier2::SessionControlPrx&);
-    SessionI(const std::string&, const DatabasePtr&, bool, const IceUtil::TimerPtr&, const Ice::ConnectionPtr&);
+    SessionI(const std::string&, const DatabasePtr&, const IceUtil::TimerPtr&);
     virtual ~SessionI();
+
+    Ice::ObjectPrx _register(const SessionServantManagerPtr&, const Ice::ConnectionPtr&);
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
@@ -96,7 +91,6 @@ public:
 
     int getAllocationTimeout() const;
     const IceUtil::TimerPtr& getTimer() const { return _timer; }
-    Glacier2::SessionControlPrx getSessionControl() const { return _sessionControl; }
 
     bool addAllocationRequest(const AllocationRequestPtr&);
     void removeAllocationRequest(const AllocationRequestPtr&);
@@ -105,11 +99,9 @@ public:
 
 protected:
 
-    virtual Ice::ConnectionPtr destroyImpl(bool);
+    virtual void destroyImpl(bool);
 
     const IceUtil::TimerPtr _timer;
-    const Glacier2::SessionControlPrx _sessionControl;
-    const Ice::ConnectionPtr _connection;
     int _allocationTimeout;
     std::set<AllocationRequestPtr> _requests;
     std::set<AllocatablePtr> _allocations;
@@ -119,7 +111,7 @@ class ClientSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const IceUtil::TimerPtr&,
+    ClientSessionFactory(const SessionServantManagerPtr&, const DatabasePtr&, const IceUtil::TimerPtr&, 
                          const ReapThreadPtr&);
 
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
@@ -129,7 +121,7 @@ public:
 
 private:
 
-    const Ice::ObjectAdapterPtr _adapter;
+    const SessionServantManagerPtr _servantManager;
     const DatabasePtr _database;
     const IceUtil::TimerPtr _timer;
     const ReapThreadPtr _reaper;

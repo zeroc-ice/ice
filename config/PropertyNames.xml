@@ -428,6 +428,7 @@ generated from the section label.
         <property name="Registry.Server" class="objectadapter" />
         <property name="Registry.SessionFilters" />
         <property name="Registry.SessionManager" class="objectadapter" />
+        <property name="Registry.AdminSessionManager" class="objectadapter" />
         <property name="Registry.SessionTimeout" />
         <property name="Registry.SSLPermissionsVerifier" class="proxy" />
         <property name="Registry.Trace.Application" />

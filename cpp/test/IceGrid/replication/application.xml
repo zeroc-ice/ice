@@ -36,6 +36,7 @@
         <property name="IceGrid.Registry.Server.Endpoints" value="default"/>
         <property name="IceGrid.Registry.Internal.Endpoints" value="default"/>
         <property name="IceGrid.Registry.SessionManager.Endpoints" value="default"/>
+        <property name="IceGrid.Registry.AdminSessionManager.Endpoints" value="default"/>
         <property name="IceGrid.Registry.ReplicaName" value="${replicaName}"/>
         <property name="IceGrid.Registry.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
         <property name="IceGrid.Registry.PermissionsVerifier" value="TestIceGrid/NullPermissionsVerifier"/>

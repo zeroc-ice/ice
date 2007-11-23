@@ -57,7 +57,12 @@ ReapThread::run()
             {
                 try
                 {
-                    if((IceUtil::Time::now(IceUtil::Time::Monotonic) - p->item->timestamp()) > p->timeout)
+                    if(p->timeout == IceUtil::Time())
+                    {
+                        p->item->timestamp(); // This should throw if the reapable is destroyed.
+                        ++p;
+                    }
+                    else if((IceUtil::Time::now(IceUtil::Time::Monotonic) - p->item->timestamp()) > p->timeout)
                     {
                         reap.push_back(*p);
                         p = _sessions.erase(p);
@@ -114,37 +119,46 @@ ReapThread::add(const ReapablePtr& reapable, int timeout)
     }
 
     //
+    // NOTE: registering a reapable with a null timeout is allowed. The reapable is reaped
+    // only when the reaper thread is shutdown.
+    //
+
+    //
     // 10 seconds is the minimum permissable timeout.
     //
-    if(timeout < 10)
+    if(timeout > 0 && timeout < 10)
     {
         timeout = 10;
     }
 
     ReapableItem item;
     item.item = reapable;
-    item.timeout = IceUtil::Time::seconds(timeout);
+    item.timeout = timeout == 0 ? IceUtil::Time() : IceUtil::Time::seconds(timeout);
     _sessions.push_back(item);
 
-    //
-    // If there is a new minimum wake interval then wake the reaping
-    // thread.
-    //
-    if(calcWakeInterval())
+    if(timeout > 0)
     {
-        notify();
+        //
+        // If there is a new minimum wake interval then wake the reaping
+        // thread.
+        //
+        if(calcWakeInterval())
+        {
+            notify();
+        }
+        
+        //
+        // Since we just added a new session with a non null timeout there
+        // must be a non-zero wakeInterval.
+        //
+        assert(_wakeInterval != IceUtil::Time());
     }
-
-    //
-    // Since we just added a new session there must be a non-zero
-    // wakeInterval.
-    //
-    assert(_wakeInterval != IceUtil::Time());
 }
 
-// Returns true iff the calculated wake interval is less than the
-// current wake interval (or if the original wake interval was
-// "forever").
+//
+// Returns true if the calculated wake interval is less than the current wake 
+// interval (or if the original wake interval was "forever").
+//
 bool
 ReapThread::calcWakeInterval()
 {
@@ -154,7 +168,7 @@ ReapThread::calcWakeInterval()
     bool first = true;
     for(list<ReapableItem>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
-        if(first || p->timeout < minimum)
+        if(p->timeout != IceUtil::Time() && (first || p->timeout < minimum))
         {
             minimum = p->timeout;
             first = false;

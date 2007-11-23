@@ -42,12 +42,8 @@ private:
 
 }
 
-IceGrid::RegistryServerAdminRouter::RegistryServerAdminRouter(const RegistryIPtr& registry,
-                                                              const DatabasePtr& database,
-                                                              bool checkConnection) :
-    _registry(registry),
-    _database(database),
-    _checkConnection(checkConnection)
+IceGrid::RegistryServerAdminRouter::RegistryServerAdminRouter(const DatabasePtr& database) :
+    _database(database)
 {
 }
 
@@ -56,18 +52,6 @@ IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Array_Object_ice_
                                                      const pair<const Byte*, const Byte*>& inParams,
                                                      const Current& current)
 {
-    if(_checkConnection)
-    {
-        //
-        // Verify this request is coming from a connection with an Admin Session
-        //
-        
-        if(!_registry->isAdminSessionConnection(current.con))
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__);
-        }
-    }
-
     ObjectPrx target = 0;
 
     try

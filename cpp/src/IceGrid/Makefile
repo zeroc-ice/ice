@@ -80,7 +80,7 @@ REGISTRY_OBJS   = RegistryI.o \
 		  ReapThread.o \
 		  SessionI.o \
 		  AdminSessionI.o \
-		  SessionServantLocatorI.o \
+		  SessionServantManager.o \
 		  Topics.o \
 		  QueryI.o \
 		  FileUserAccountMapperI.o \

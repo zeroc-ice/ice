@@ -79,7 +79,6 @@ public:
 
     virtual ServerState getState(const ::Ice::Current& = Ice::Current()) const;
     virtual Ice::Int getPid(const ::Ice::Current& = Ice::Current()) const;
-    virtual Ice::PropertyDict getProperties(const ::Ice::Current& = Ice::Current()) const;
    
     virtual void setEnabled(bool, const ::Ice::Current&);
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;

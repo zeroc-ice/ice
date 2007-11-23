@@ -48,6 +48,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
                   r' --IceGrid.Registry.Internal.Endpoints=default' + \
                   r' --IceGrid.Registry.SessionManager.Endpoints=default' + \
+                  r' --IceGrid.Registry.AdminSessionManager.Endpoints=default' + \
                   r' --IceGrid.Registry.Trace.Session=0' + \
                   r' --IceGrid.Registry.Trace.Application=0' + \
                   r' --IceGrid.Registry.Trace.Node=0' + \
