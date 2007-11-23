@@ -147,3 +147,10 @@ Now to run a test or demo do the following:
    spawned.
 
 5) Click on the button in the browser to run the test/demo.
+
+
+======================================================================
+Installation
+======================================================================
+
+Ice for Silverlight does not support automatic installation.
