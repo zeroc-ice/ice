@@ -21,19 +21,31 @@
     <!-- Load build configuration properties -->
     <property file="${top.dir}/config/build.properties"/>
 
-    <!-- Determine whether we are using JDK 1.4 -->
-    <condition property="java2">
-	<equals arg1="${jdk.version}" arg2="1.4"/>
+    <condition property="ice.mapping" value="java5">
+	<not><isset property="ice.mapping"/></not>
     </condition>
 
-    <!-- Use the global metadata "java:java2" when using JDK 1.4 -->
+    <fail message="Invalid ${ice.mapping} value specified in build.properties.">
+      <condition>
+        <and>
+          <not><equals arg1="${ice.mapping}" arg2="java2" trim="true"/></not>
+          <not><equals arg1="${ice.mapping}" arg2="java5" trim="true"/></not>
+        </and>
+      </condition>
+    </fail>
+
+    <condition property="java2">
+	<equals arg1="${ice.mapping}" arg2="java2"/>
+    </condition>
+
+    <!-- Use the global metadata "java:java2" when using java2 mapping -->
     <condition property="java2metadata" value="java:java2" else="">
 	<isset property="java2"/>
     </condition>
 
-    <!-- JDK specific source directory  -->
-    <condition property="jdk.src.dir" value="jdk/1.4" else="jdk/1.5">
-	<isset property="java2"/>
+    <!-- Require 1.5 compatibility for the source code -->
+    <condition property="jdk.version" value="1.5">
+        <not><isset property="jdk.version"/></not>
     </condition>
 
     <!-- Use -Xlint:unchecked when using JDK 1.5 -->
