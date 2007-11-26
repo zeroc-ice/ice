@@ -3026,6 +3026,10 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
             C << nl << "throw;";
             C << eb;
         }
+        C << nl << "catch(const ::Ice::SystemException&)";
+        C << sb;
+        C << nl << "throw;";
+        C << eb;
         C << nl << "catch(const ::IceInternal::LocalExceptionWrapper&)";
         C << sb;
         C << nl << "throw;";

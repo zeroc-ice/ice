@@ -9,11 +9,20 @@
 
 package Ice;
 
-public abstract class SystemException extends LocalException implements Cloneable
+public abstract class SystemException extends RuntimeException implements Cloneable
 {
     public java.lang.Object clone()
     {
-        return super.clone();
+        java.lang.Object o = null;
+        try
+        {
+            o = super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+            assert false; // Impossible
+        }
+        return o;
     }
 
     public abstract String

@@ -4150,6 +4150,9 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "direct__ = new IceInternal.Direct(current__, run__);";
 
+            _out << nl << "try";
+            _out << sb;
+            
             _out << nl << "Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);";
             if(!throws.empty())
             {
@@ -4161,6 +4164,12 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "_System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);";
 
             _out << eb;
+            _out << nl << "finally";
+            _out << sb;
+            _out << nl << "direct__.destroy();";
+            _out << eb;
+            _out << eb;
+
             for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
             {
                 _out << nl << "catch(" << fixId((*i)->scoped()) << ')';
@@ -4168,31 +4177,15 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << nl << "throw;";
                 _out << eb;
             }
+            _out << nl << "catch(Ice.SystemException)";
+            _out << sb;
+            _out << nl << "throw;";
+            _out << eb;
             _out << nl << "catch(System.Exception ex__)";
             _out << sb;
             _out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(ex__);";
             _out << eb;
-            _out << nl << "finally";
-            _out << sb;
-            _out << nl << "if(direct__ != null)";
-            _out << sb;
-            _out << nl << "try";
-            _out << sb;
-            _out << nl << "direct__.destroy();";
-            _out << eb;
-            for(ExceptionList::const_iterator j = throws.begin(); j != throws.end(); ++j)
-            {
-                _out << nl << "catch(" << fixId((*j)->scoped()) << " ex__)";
-                _out << sb;
-                _out << nl << "throw ex__;";
-                _out << eb;
-            }
-            _out << nl << "catch(System.Exception ex__)";
-            _out << sb;
-            _out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(ex__);";
-            _out << eb;
-            _out << eb;
-            _out << eb;
+            
             //
             //
             // Set out parameters

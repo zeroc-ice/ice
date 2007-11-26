@@ -62,12 +62,15 @@ public:
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
 
 
-class ICE_API SystemException : public LocalException
+class ICE_API SystemException : public IceUtil::Exception
 {
 public:
 
     SystemException(const char*, int);
     virtual ~SystemException() throw();
+    virtual std::string ice_name() const = 0;
+    virtual Exception* ice_clone() const = 0;
+    virtual void ice_throw() const = 0;
 };
 
 typedef ::IceInternal::Handle<SystemException> SystemExceptionPtr;

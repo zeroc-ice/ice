@@ -4392,6 +4392,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << eb;
             out << ";";
           
+            out << nl << "try";
+            out << sb;
             out << sp << nl << "Ice.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
             out << nl << "if(__status == Ice.DispatchStatus.DispatchUserException)";
             out << sb;
@@ -4404,6 +4406,12 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
 
             out << eb;
+            out << nl << "finally";
+            out << sb;
+            out << nl << "__direct.destroy();";
+            out << eb;
+
+            out << eb;
             for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
             {
                 string exS = getAbsolute(*t, package);
@@ -4413,32 +4421,14 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << eb;
             }
 
-            out << nl << "catch(java.lang.Throwable __ex)";
+            out << nl << "catch(Ice.SystemException __ex)";
             out << sb;
-            out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(__ex);";
+            out << nl << "throw __ex;";
             out << eb;
 
-            out << nl << "finally";
-            out << sb;
-            out << nl << "if(__direct != null)";
-            out << sb;
-            out << nl << "try";
-            out << sb;
-            out << nl << "__direct.destroy();";
-            out << eb;
-            for(ExceptionList::const_iterator k = throws.begin(); k != throws.end(); ++k)
-            {
-                string exS = getAbsolute(*k, package);
-                out << nl << "catch(" << exS << " __ex)";
-                out << sb;
-                out << nl << "throw __ex;";
-                out << eb;
-            }
             out << nl << "catch(java.lang.Throwable __ex)";
             out << sb;
             out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(__ex);";
-            out << eb;
-            out << eb;
             out << eb;
         }
         if(ret && !cl->hasMetaData("amd") && !op->hasMetaData("amd"))

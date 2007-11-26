@@ -78,7 +78,7 @@ namespace Ice
         public LocalException(System.Exception ex) : base(ex) {}
     }
 
-    public abstract class SystemException : LocalException
+    public abstract class SystemException : Exception
     {
         public SystemException() {}
         public SystemException(System.Exception ex) : base(ex) {}

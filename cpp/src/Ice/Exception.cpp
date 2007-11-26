@@ -53,7 +53,7 @@ Ice::LocalException::~LocalException() throw()
 }
 
 Ice::SystemException::SystemException(const char* file, int line) :
-    LocalException(file, line)
+    Exception(file, line)
 {
 }
 
