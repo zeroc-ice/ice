@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The marshaling code now throws an exception if an enumerator
+  that is out of range for its enumeration is sent or received.
+
 - While resolving replica group endpoints, the IceGrig locator
   implementation does not wait anymore for adapter activation if
   another adapter is already active.

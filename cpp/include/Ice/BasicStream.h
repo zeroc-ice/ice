@@ -369,6 +369,7 @@ public:
     {
         b.push_back(v);
     }
+    void write(Ice::Byte v, int limit);
     void write(const Ice::Byte*, const Ice::Byte*);
     void read(Ice::Byte& v)
     {
@@ -378,6 +379,7 @@ public:
         }
         v = *i++;
     }
+    void read(Ice::Byte& v, int limit);
     void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
     void write(bool v)
@@ -398,8 +400,10 @@ public:
     bool* read(std::pair<const bool*, const bool*>&);
 
     void write(Ice::Short);
+    void write(Ice::Short, int limit);
     void write(const Ice::Short*, const Ice::Short*);
     void read(Ice::Short&);
+    void read(Ice::Short&, int limit);
     void read(std::vector<Ice::Short>&);
     Ice::Short* read(std::pair<const Ice::Short*, const Ice::Short*>&);
 
@@ -422,6 +426,7 @@ public:
         *dest = *src;
 #endif
     }
+    void write(Ice::Int, int limit);
 
     void read(Ice::Int& v) // Inlined for performance reasons.
     {
@@ -445,6 +450,7 @@ public:
         *dest = *src;
 #endif
     }
+    void read(Ice::Int& v, int limit);
 
     void write(const Ice::Int*, const Ice::Int*);
     void read(std::vector<Ice::Int>&);

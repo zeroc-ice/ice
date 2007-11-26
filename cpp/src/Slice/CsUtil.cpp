@@ -602,11 +602,21 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         if(marshal)
         {
-            out << nl << stream << '.' << func << '(' << cast << param << ");";
+            out << nl << stream << '.' << func << '(' << cast << param;
+            if(!streamingAPI)
+            {
+                out << ", " << sz;
+            }
+            out << ");";
         }
         else
         {
-            out << nl << param << " = " << cast << stream << '.' << func << "()" << ';';
+            out << nl << param << " = " << cast << stream << '.' << func << "(";
+            if(!streamingAPI)
+            {
+                out << sz;
+            }
+            out << ")" << ';';
         }
         return;
     }
@@ -1235,7 +1245,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
                     out << nl << "for(int ix__ = " << param << "_tmp.Length - 1; ix__ >= 0; --ix__)";
                     out << sb;
-                    out << nl << stream << '.' << func << "((" << dataType << ")" << param << "_tmp[ix__]);";
+                    out << nl << stream << '.' << func << "((" << dataType << ")" << param << "_tmp[ix__]";
+                    if(!streamingAPI)
+                    {
+                        out << ", " << sz;
+                    }
+                    out << ");";
                     out << eb;
                 }
                 else
@@ -1244,7 +1259,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         << "> e__ = " << param << ".GetEnumerator();";
                     out << nl << "while(e__.MoveNext())";
                     out << sb;
-                    out << nl << stream << '.' << func << "((" << dataType << ")e__.Current);";
+                    out << nl << stream << '.' << func << "((" << dataType << ")e__.Current";
+                    if(!streamingAPI)
+                    {
+                        out << ", " << sz;
+                    }
+                    out << ");";
                     out << eb;
                 }
             }
@@ -1252,7 +1272,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << "for(int ix__ = 0; ix__ < " << param << '.' << limitID << "; ++ix__)";
                 out << sb;
-                out << nl << stream << '.' << func << "((" << dataType << ")" << param << "[ix__]);";
+                out << nl << stream << '.' << func << "((" << dataType << ")" << param << "[ix__]";
+                if(!streamingAPI)
+                {
+                    out << ", " << sz;
+                }
+                out << ");";
                 out << eb;
             }
             out << eb;
@@ -1291,11 +1316,21 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << sb;
             if(isArray)
             {
-                out << nl << param << "[ix__] = (" << typeS << ')' << stream << "." << func << "();";
+                out << nl << param << "[ix__] = (" << typeS << ')' << stream << "." << func << "(";
+                if(!streamingAPI)
+                {
+                    out << sz;
+                }
+                out << ");";
             }
             else
             {
-                out << nl << param << "." << addMethod << "((" << typeS << ')' << stream << "." << func << "());";
+                out << nl << param << "." << addMethod << "((" << typeS << ')' << stream << "." << func << "(";
+                if(!streamingAPI)
+                {
+                    out << sz;
+                }
+                out << "));";
             }
             out << eb;
             out << eb;

@@ -1,6 +1,9 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- The marshaling code now throws an exception if an enumerator
+  that is out of range for its enumeration is sent or received.
+
 - Exceptions thrown from collocation-optimized invocations are now
   fully transparent. If an operation throws an exception that is
   not in the operation's exception specification, or throws a

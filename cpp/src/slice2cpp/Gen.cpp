@@ -1454,15 +1454,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         C << sb;
         if(sz <= 0x7f)
         {
-            C << nl << "__os->write(static_cast< ::Ice::Byte>(v));";
+            C << nl << "__os->write(static_cast< ::Ice::Byte>(v), " << sz << ");";
         }
         else if(sz <= 0x7fff)
         {
-            C << nl << "__os->write(static_cast< ::Ice::Short>(v));";
+            C << nl << "__os->write(static_cast< ::Ice::Short>(v), " << sz << ");";
         }
         else
         {
-            C << nl << "__os->write(static_cast< ::Ice::Int>(v));";
+            C << nl << "__os->write(static_cast< ::Ice::Int>(v), " << sz << ");";
         }
         C << eb;
 
@@ -1472,21 +1472,17 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         if(sz <= 0x7f)
         {
             C << nl << "::Ice::Byte val;";
-            C << nl << "__is->read(val);";
-            C << nl << "v = static_cast< " << scoped << ">(val);";
         }
         else if(sz <= 0x7fff)
         {
             C << nl << "::Ice::Short val;";
-            C << nl << "__is->read(val);";
-            C << nl << "v = static_cast< " << scoped << ">(val);";
         }
         else
         {
             C << nl << "::Ice::Int val;";
-            C << nl << "__is->read(val);";
-            C << nl << "v = static_cast< " << scoped << ">(val);";
         }
+        C << nl << "__is->read(val, " << sz << ");";
+        C << nl << "v = static_cast< " << scoped << ">(val);";
         C << eb;
 
         if(_stream)
@@ -1494,6 +1490,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, " << scoped << " v)";
             C << sb;
+            C << nl << "if(";
+            if(sz > 0x7f)
+            {
+                C << "static_cast<int>(val) < 0 || ";
+            }
+            C << "static_cast<int>(v) >= " << sz << ")";
+            C << sb;
+            C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"enumerator out of range\");";
+            C << eb;
             if(sz <= 0x7f)
             {
                 C << nl << "__outS->writeByte(static_cast< ::Ice::Byte>(v));";
@@ -1514,18 +1519,25 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             if(sz <= 0x7f)
             {
                 C << nl << "::Ice::Byte val = __inS->readByte();";
-                C << nl << "v = static_cast< " << scoped << ">(val);";
             }
             else if(sz <= 0x7fff)
             {
                 C << nl << "::Ice::Short val = __inS->readShort();";
-                C << nl << "v = static_cast< " << scoped << ">(val);";
             }
             else
             {
                 C << nl << "::Ice::Int val = __inS->readInt();";
-                C << nl << "v = static_cast< " << scoped << ">(val);";
             }
+            C << nl << "if(";
+            if(sz > 0x7f)
+            {
+                C << "val < 0 || ";
+            }
+            C << "val > " << sz << ")";
+            C << sb;
+            C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"enumerator out of range\");";
+            C << eb;
+            C << nl << "v = static_cast< " << scoped << ">(val);";
             C << eb;
         }
     }

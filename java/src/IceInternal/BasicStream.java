@@ -673,6 +673,16 @@ public class BasicStream
     }
 
     public void
+    writeByte(byte v, int end)
+    {
+        if(v < 0 || v >= end)
+        {
+            throw new Ice.MarshalException("enumerator out of range");
+        }
+        writeByte(v);
+    }
+
+    public void
     writeByteSeq(byte[] v)
     {
         if(v == null)
@@ -698,6 +708,17 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+    }
+
+    public byte
+    readByte(int end)
+    {
+        byte v = readByte();
+        if(v < 0 || v >= end)
+        {
+            throw new Ice.MarshalException("enumerator out of range");
+        }
+        return v;
     }
 
     public byte[]
@@ -783,6 +804,16 @@ public class BasicStream
     }
 
     public void
+    writeShort(short v, int end)
+    {
+        if(v < 0 || v >= end)
+        {
+            throw new Ice.MarshalException("enumerator out of range");
+        }
+        writeShort(v);
+    }
+
+    public void
     writeShortSeq(short[] v)
     {
         if(v == null)
@@ -812,6 +843,17 @@ public class BasicStream
         }
     }
 
+    public short
+    readShort(int end)
+    {
+        short v = readShort();
+        if(v < 0 || v >= end)
+        {
+            throw new Ice.MarshalException("enumerator out of range");
+        }
+        return v;
+    }
+
     public short[]
     readShortSeq()
     {
@@ -836,6 +878,16 @@ public class BasicStream
     {
         expand(4);
         _buf.putInt(v);
+    }
+
+    public void
+    writeInt(int v, int end)
+    {
+        if(v < 0 || v >= end)
+        {
+            throw new Ice.MarshalException("enumerator out of range");
+        }
+        writeInt(v);
     }
 
     public void
@@ -866,6 +918,17 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+    }
+
+    public int
+    readInt(int end)
+    {
+        int v = readInt();
+        if(v < 0 || v >= end)
+        {
+            throw new Ice.MarshalException("enumerator out of range");
+        }
+        return v;
     }
 
     public int[]

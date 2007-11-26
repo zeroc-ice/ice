@@ -2863,7 +2863,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp << nl << "public static " << name << nl << "convert(int val)";
     out << sb;
-    out << nl << "assert val < " << sz << ';';
+    out << nl << "assert val >= 0 && val < " << sz << ';';
     out << nl << "return __values[val];";
     out << eb;
 
@@ -2924,20 +2924,16 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << sb;
         if(sz <= 0x7f)
         {
-            out << nl << "int __v = __is.readByte();";
+            out << nl << "int __v = __is.readByte(" << sz << ");";
         }
         else if(sz <= 0x7fff)
         {
-            out << nl << "int __v = __is.readShort();";
+            out << nl << "int __v = __is.readShort(" << sz << ");";
         }
         else
         {
-            out << nl << "int __v = __is.readInt();";
+            out << nl << "int __v = __is.readInt(" << sz << ");";
         }
-        out << nl << "if(__v < 0 || __v >= " << sz << ')';
-        out << sb;
-        out << nl << "throw new Ice.MarshalException();";
-        out << eb;
         out << nl << "return " << name << ".convert(__v);";
         out << eb;
 
@@ -2975,7 +2971,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             }
             out << nl << "if(__v < 0 || __v >= " << sz << ')';
             out << sb;
-            out << nl << "throw new Ice.MarshalException();";
+            out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
             out << eb;
             out << nl << "return " << name << ".convert(__v);";
             out << eb;

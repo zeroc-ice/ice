@@ -688,6 +688,15 @@ namespace IceInternal
             expand(1);
             _buf.put(v);
         }
+
+        public virtual void writeByte(byte v, int end)
+        {
+            if(v < 0 || v >= end)
+            {
+                throw new Ice.MarshalException("enumerator out of range");
+            }
+            writeByte(v);
+        }
         
         public virtual void writeByteSeq(byte[] v)
         {
@@ -754,6 +763,16 @@ namespace IceInternal
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
+        }
+
+        public virtual byte readByte(int end)
+        {
+            byte v = readByte();
+            if(v < 0 || v >= end)
+            {
+                throw new Ice.MarshalException("enumerator out of range");
+            }
+            return v;
         }
         
         public virtual byte[] readByteSeq()

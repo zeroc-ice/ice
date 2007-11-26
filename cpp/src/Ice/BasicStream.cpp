@@ -455,6 +455,15 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
     }
 }
 
+void IceInternal::BasicStream::write(Byte v, int end)
+{
+    if(v >= end)
+    {
+        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+    }
+    write(v);
+}
+
 void
 IceInternal::BasicStream::write(const Byte* begin, const Byte* end)
 {
@@ -465,6 +474,16 @@ IceInternal::BasicStream::write(const Byte* begin, const Byte* end)
         Container::size_type pos = b.size();
         resize(pos + sz);
         memcpy(&b[pos], begin, sz);
+    }
+}
+
+void
+IceInternal::BasicStream::read(Byte& b, int end)
+{
+    read(b);
+    if(b >= end)
+    {
+        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
     }
 }
 
@@ -625,6 +644,16 @@ IceInternal::BasicStream::write(Short v)
 }
 
 void
+IceInternal::BasicStream::write(Short v, int end)
+{
+    if(v < 0 || v >= end)
+    {
+        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+    }
+    write(v);
+}
+
+void
 IceInternal::BasicStream::write(const Short* begin, const Short* end)
 {
     Int sz = static_cast<Int>(end - begin);
@@ -666,6 +695,16 @@ IceInternal::BasicStream::read(Short& v)
     *dest++ = *src++;
     *dest = *src;
 #endif
+}
+
+void
+IceInternal::BasicStream::read(Short& v, int end)
+{
+    read(v);
+    if(v < 0 || v >= end)
+    {
+        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+    }
 }
 
 void
@@ -737,6 +776,26 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
         v.first = v.second = 0;
     }
     return result;
+}
+
+void
+IceInternal::BasicStream::read(Int& v, int end)
+{
+    read(v);
+    if(v < 0 || v >= end)
+    {
+        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+    }
+}
+
+void
+IceInternal::BasicStream::write(Int v, int end)
+{
+    if(v < 0 || v >= end)
+    {
+        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+    }
+    write(v);
 }
 
 void
