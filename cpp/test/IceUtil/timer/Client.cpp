@@ -103,6 +103,7 @@ int main(int argc, char* argv[])
             task->waitForRun();
 	    while(true)
 	    {
+                TestTaskPtr task = new TestTask();
 		timer->schedule(task, IceUtil::Time::milliSeconds(-10));
 		try
 		{
@@ -114,7 +115,6 @@ int main(int argc, char* argv[])
 		    break;
 		}
 	    }
-            task->waitForRun();
         }
 
         {
@@ -129,10 +129,10 @@ int main(int argc, char* argv[])
 
         {
             vector<TestTaskPtr> tasks;
-            IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(100);
+            IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(500);
             for(int i = 0; i < 20; ++i)
             {
-                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(100 + i * 5)));
+                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(500 + i * 5)));
             }
 
             random_shuffle(tasks.begin(), tasks.end());
