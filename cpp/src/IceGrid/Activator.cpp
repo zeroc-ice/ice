@@ -752,6 +752,44 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
     }
 #endif
 
+    class ShutdownCallback : public Ice::AMI_Process_shutdown
+    {
+    public:
+
+        ShutdownCallback(const ActivatorPtr& activator, const string& name, const TraceLevelsPtr& traceLevels) :
+            _activator(activator), _name(name), _traceLevels(traceLevels)
+        {
+            
+        }
+
+        virtual void
+        ice_response()
+        {
+            //
+            // Nothing to do, server successfully shutdown, the activator will detect it
+            // once the pipe is closed.
+            //
+        }
+
+        virtual void 
+        ice_exception(const Ice::Exception& ex)
+        {
+            Ice::Warning out(_traceLevels->logger);
+            out << "exception occurred while deactivating `" << _name << "' using process proxy:\n" << ex;
+
+            //
+            // Send a SIGTERM to the process.
+            //
+            _activator->sendSignal(_name, SIGTERM);
+        }
+
+    private:
+        
+        const ActivatorPtr _activator;
+        const string _name;
+        const TraceLevelsPtr _traceLevels;
+    };
+
     //
     // Try to shut down the server gracefully using the process proxy.
     //
@@ -762,16 +800,9 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
             Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
             out << "deactivating `" << name << "' using process proxy";
         }
-        try
-        {
-            process->shutdown();
-            return;
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            Ice::Warning out(_traceLevels->logger);
-            out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << ex;
-        }
+
+        process->shutdown_async(new ShutdownCallback(this, name, _traceLevels));
+        return;
     }
 
     if(_traceLevels->activator > 1)

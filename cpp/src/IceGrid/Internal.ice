@@ -282,15 +282,6 @@ interface Server extends FileReader
      **/
     ["nonmutating", "cpp:const"] idempotent int getPid();
 
-    
-    /**
-     *
-     * Get the server properties
-     *
-     **/
-    ["cpp:const"] idempotent Ice::PropertyDict getProperties() 
-        throws ServerUnreachableException;
-
     /**
      *
      * Set the process proxy.

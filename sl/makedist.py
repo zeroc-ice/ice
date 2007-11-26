@@ -247,6 +247,7 @@ filesToRemove.extend(find("icesl", "Makefile"))
 for x in filesToRemove:
     os.remove(x)
 
+shutil.rmtree(os.path.join("icesl", "test", "Ice", "proxy"))
 shutil.rmtree(os.path.join("icesl", "test", "IceCS"))
 
 #

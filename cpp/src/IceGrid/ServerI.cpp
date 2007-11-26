@@ -742,82 +742,23 @@ ServerI::getPid(const Ice::Current&) const
     return _node->getActivator()->getServerPid(_id);
 }
 
-Ice::PropertyDict
-ServerI::getProperties(const Ice::Current&) const
-{
-    Ice::ProcessPrx process = 0;
-    {
-        Lock sync(*this);
-
-        //
-        // Wait for _process to be set if the server is being activated.
-        //
-        while(_desc->processRegistered && _process == 0 && _state > Inactive && _state < Deactivating)
-        {
-            wait();
-        }
-
-        checkDestroyed();
-        if(!_process)
-        {
-            if(_desc->processRegistered && _state == Inactive)
-            {
-                throw ServerUnreachableException(_id, "server is not active");
-            }
-            else if(_desc->processRegistered && _state >= Deactivating)
-            {
-                throw ServerUnreachableException(_id, "server is deactivating");
-            }
-            else
-            {
-                throw ServerUnreachableException(_id, "no Admin object");
-            }
-        }
-
-        process = _process;
-    }
-
-    try
-    {
-        return Ice::PropertiesAdminPrx::uncheckedCast(process, "Properties")->getPropertiesForPrefix("");    
-    }
-    catch(const Ice::FacetNotExistException&)
-    {
-        //
-        // Probably an old server
-        //
-        throw ServerUnreachableException(_id, "no Properties facet"); 
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
-        //
-        // Looks like the server was shut down
-        //
-        throw ServerUnreachableException(_id, "no Admin object");
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        throw ServerUnreachableException(_id, ex.what());
-    }
-}
-
 Ice::ObjectPrx
 ServerI::getRealAdmin() const
 {
     Lock sync(*this);
-    
-    if(_state <= Inactive || _state >= Deactivating)
-    {
-        return 0;
-    }
 
     //
-    // Wait for _process to be set if the server is being activated.
+    // Don't wait for the process activation to avoid blocking the thread. The 
+    // caller should ensure that the server is active before invoking server
+    // admin objects instead. He can do that by calling Admin::startServer().
     //
-    while(_desc->processRegistered && _process == 0 && _state > Inactive && _state < Deactivating)
-    {
-        wait();
-    }
+//     //
+//     // Wait for _process to be set if the server is being activated.
+//     //
+//     while(_desc->processRegistered && _process == 0 && _state > Inactive && _state < Deactivating)
+//     {
+//         wait();
+//     }
     
     if(_process == 0 || _state <= Inactive || _state >= Deactivating)
     {

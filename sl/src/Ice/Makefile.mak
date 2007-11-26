@@ -86,16 +86,4 @@ SLICE2SLFLAGS	= $(SLICE2SLFLAGS) --ice -I$(slicedir)
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(SRCS) $(GEN_SRCS)
 
-!if "$(NOGAC)" == ""
-
-install:: all
-	$(GACUTIL) -i $(bindir)\$(LIBNAME)
-
-!else
-
-install:: all
-	copy $(bindir)\icesl.dll $(install_bindir)
-
-!endif
-
 !include .depend

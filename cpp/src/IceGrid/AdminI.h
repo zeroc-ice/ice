@@ -49,7 +49,6 @@ public:
     virtual ServerInfo getServerInfo(const ::std::string&, const Ice::Current&) const;
     virtual ServerState getServerState(const ::std::string&, const Ice::Current&) const;
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
-    virtual Ice::PropertyDict getServerProperties(const ::std::string&, const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerAdmin(const std::string&, const Ice::Current&) const;
     virtual void startServer(const ::std::string&, const Ice::Current&);
     virtual void stopServer(const ::std::string&, const Ice::Current&);

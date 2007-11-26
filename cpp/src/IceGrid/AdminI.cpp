@@ -358,27 +358,12 @@ AdminI::getServerPid(const string& id, const Current&) const
     }
 }
 
-Ice::PropertyDict
-AdminI::getServerProperties(const string& id, const Current&) const
-{
-    ServerProxyWrapper proxy(_database, id);
-    try
-    {
-        return proxy->getProperties();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-        return Ice::PropertyDict();
-    }
-}
-
 Ice::ObjectPrx
 AdminI::getServerAdmin(const string& id, const Current& current) const
 {
     Ice::Identity adminId;
     adminId.name = id;
-    adminId.category =_registry->getServerAdminCategory();
+    adminId.category = _registry->getServerAdminCategory();
     return current.adapter->createProxy(adminId);
 }
 

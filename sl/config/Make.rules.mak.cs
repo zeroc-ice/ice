@@ -8,43 +8,23 @@
 # **********************************************************************
 
 #
-# Select an installation base directory. The directory will be created
-# if it does not exist.
-#
-
-prefix			= C:\IceSL-$(VERSION)
-
-#
-# The default behavior of 'nmake /f Makefile.mak install' attempts to add
-# the Ice for C# libraries to the Global Assembly Cache (GAC). If you would
-# prefer not to install these libraries to the GAC, or if you do not have
-# sufficient privileges to do so, then enable no_gac and the libraries will
-# be copied to $(prefix)/bin instead.
-#
-
-#no_gac			= 1
-
-#
-# Comment out the following line if building with regular C# compiler.
-#
-SILVERLIGHT		= yes
-
-#
 # Define DEBUG as yes if you want to build with debug information and
 # assertions enabled.
 #
 
-DEBUG			= yes
+#DEBUG			= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimized.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+SILVERLIGHT		= yes
 
 SHELL			= /bin/sh
 VERSION			= 0.1.0
@@ -53,14 +33,6 @@ bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 
 slicedir 		= $(top_srcdir)\slice
-
-install_bindir		= $(prefix)\bin
-install_libdir		= $(prefix)\lib
-install_slicedir	= $(prefix)\slice
-
-!if "$(no_gac)" != ""
-NOGAC			= $(no_gac)
-!endif
 
 GACUTIL			= gacutil
 
@@ -84,7 +56,7 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 
 SLICE2SL		= "slice2sl"
 
-EVERYTHING		= all clean install 
+EVERYTHING		= all clean
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
@@ -120,5 +92,3 @@ clean::
 clean::
 	del /q $(SAMD_GEN_SRCS)
 !endif
-
-install::

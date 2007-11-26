@@ -64,15 +64,11 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 
 }
 
-BaseSessionI::BaseSessionI(const string& id, 
-                           const string& prefix, 
-                           const DatabasePtr& database, 
-                           bool filters) :
+BaseSessionI::BaseSessionI(const string& id, const string& prefix, const DatabasePtr& database) :
     _id(id), 
     _prefix(prefix),
     _traceLevels(database->getTraceLevels()),
     _database(database),
-    _filters(filters),
     _destroyed(false),
     _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic))
 {
@@ -107,50 +103,31 @@ BaseSessionI::keepAlive(const Ice::Current& current)
     }
 }
 
-Ice::ConnectionPtr
+void
 BaseSessionI::destroyImpl(bool shutdown)
 {
-    Ice::ConnectionPtr result = 0;
-
     Lock sync(*this);
     if(_destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = _identity;
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     _destroyed = true;
 
-    if(!shutdown)
-    {
-        if(_servantLocator)
-        {
-            result =_servantLocator->remove(_identity);
-        }
-        else if(_adapter)
-        {
-            try
-            {
-                _adapter->remove(_identity);
-            }
-            catch(const Ice::ObjectAdapterDeactivatedException&)
-            {
-            }
-        }
-    }
-        
     if(_traceLevels && _traceLevels->session > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _prefix << " session `" << _id << "' destroyed";
     }
-    return result;
 }
 
 IceUtil::Time
 BaseSessionI::timestamp() const
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
     return _timestamp;
 }
 
@@ -160,44 +137,39 @@ BaseSessionI::shutdown()
     destroyImpl(true);
 }
 
-Ice::ObjectPrx
-BaseSessionI::registerWithServantLocator(const SessionServantLocatorIPtr& servantLoc, const Ice::ConnectionPtr& con)
+Glacier2::IdentitySetPrx
+BaseSessionI::getGlacier2IdentitySet()
 {
-    //
-    // This is supposed to be called after creation only, no need to synchronize.
-    //
-    _servantLocator = servantLoc;
-    Ice::ObjectPrx proxy = servantLoc->add(this, con);
-    _identity = proxy->ice_getIdentity();
-    return proxy;
+    assert(_servantManager);
+    return _servantManager->getGlacier2IdentitySet(this);
 }
 
-Ice::ObjectPrx
-BaseSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
+Glacier2::StringSetPrx
+BaseSessionI::getGlacier2AdapterIdSet()
 {
-    //
-    // This is supposed to be called after creation only, no need to synchronize.
-    //
-    _adapter = adapter;
-    _identity.category = _database->getInstanceName();
-    _identity.name = IceUtil::generateUUID();
-    return _adapter->add(this, _identity);
+    assert(_servantManager);
+    return _servantManager->getGlacier2AdapterIdSet(this);
 }
 
-SessionI::SessionI(const string& id, 
-                   const DatabasePtr& database, 
-                   bool filters,
-                   const IceUtil::TimerPtr& timer,
-                   const Glacier2::SessionControlPrx& sessionControl) :
-    BaseSessionI(id, "client", database, filters),
+SessionI::SessionI(const string& id, const DatabasePtr& database, const IceUtil::TimerPtr& timer) :
+    BaseSessionI(id, "client", database),
     _timer(timer),
-    _sessionControl(sessionControl),
     _allocationTimeout(-1)
 {
 }
 
 SessionI::~SessionI()
 {
+}
+
+Ice::ObjectPrx
+SessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::ConnectionPtr& con)
+{
+    //
+    // This is supposed to be called after creation only, no need to synchronize.
+    //
+    _servantManager = servantManager;
+    return _servantManager->addSession(this, con, false);
 }
 
 void
@@ -287,10 +259,12 @@ SessionI::removeAllocation(const AllocatablePtr& allocatable)
     _allocations.erase(allocatable);
 }
 
-Ice::ConnectionPtr
+void
 SessionI::destroyImpl(bool shutdown)
 {
-    Ice::ConnectionPtr con = BaseSessionI::destroyImpl(shutdown);
+    BaseSessionI::destroyImpl(shutdown);
+
+    _servantManager->removeSession(this);
 
     //
     // NOTE: The _requests and _allocations attributes are immutable
@@ -315,22 +289,21 @@ SessionI::destroyImpl(bool shutdown)
         }
     }
     _allocations.clear();
-    return con;
 }
 
-ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
+ClientSessionFactory::ClientSessionFactory(const SessionServantManagerPtr& servantManager,
                                            const DatabasePtr& database, 
                                            const IceUtil::TimerPtr& timer,
                                            const ReapThreadPtr& reaper) :
-    _adapter(adapter),
+    _servantManager(servantManager),
     _database(database), 
     _timer(timer),
     _reaper(reaper),
     _filters(false)
 {
-    if(_adapter) // Not set if Glacier2 session manager adapter not enabled
+    if(_servantManager) // Not set if Glacier2 session manager adapter not enabled
     {
-        Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
+        Ice::PropertiesPtr properties = _database->getCommunicator()->getProperties();
         const_cast<bool&>(_filters) = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionFilters", 1) > 0;
     }
 }
@@ -338,18 +311,10 @@ ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 Glacier2::SessionPrx
 ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrx& ctl)
 {
-    assert(_adapter);
+    assert(_servantManager);
 
     SessionIPtr session = createSessionServant(sessionId, ctl);
-    Ice::ObjectPrx proxy = session->registerWithObjectAdapter(_adapter);
-
-    Ice::Identity queryId;
-    queryId.category = _database->getInstanceName();
-    queryId.name = "Query";
-
-    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
-    ids.push_back(proxy->ice_getIdentity()); // Session object
-    ids.push_back(queryId);
+    Ice::ObjectPrx proxy = session->_register(_servantManager, 0);
 
     int timeout = 0;
     if(ctl)
@@ -358,7 +323,13 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
         {
             try
             {
-                ctl->identities()->add(ids);
+                Ice::IdentitySeq ids;
+                Ice::Identity queryId;
+                queryId.category = _database->getInstanceName();
+                queryId.name = "Query";
+                ids.push_back(queryId);
+
+                _servantManager->setSessionControl(session, ctl, ids);
             }
             catch(const Ice::LocalException&)
             {
@@ -369,18 +340,14 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
         timeout = ctl->getSessionTimeout();
     }
 
-    if(timeout > 0)
-    {
-        _reaper->add(new SessionReapable<SessionI>(_database->getTraceLevels()->logger, session), timeout);
-    }
-
+    _reaper->add(new SessionReapable<SessionI>(_database->getTraceLevels()->logger, session), timeout);
     return Glacier2::SessionPrx::uncheckedCast(proxy);
 }
 
 SessionIPtr
 ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx& ctl)
 {
-    return new SessionI(userId, _database, _filters, _timer, ctl);
+    return new SessionI(userId, _database, _timer);
 }
 
 const TraceLevelsPtr&

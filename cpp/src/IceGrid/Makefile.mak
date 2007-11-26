@@ -86,7 +86,7 @@ REGISTRY_OBJS	= RegistryI.obj \
 		  ReapThread.obj \
 		  SessionI.obj \
 		  AdminSessionI.obj \
-		  SessionServantLocatorI.obj \
+		  SessionServantManager.obj \
 		  Topics.obj \
 		  QueryI.obj \
 		  FileUserAccountMapperI.obj \
