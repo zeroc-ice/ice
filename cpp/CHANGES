@@ -1,6 +1,16 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Glacier2 filters are now disabled by default for IceGrid client
+  and administrative sessions created with the IceGrid session 
+  managers. If you rely on these filters to be set, you now need
+  to explicitly set the `IceGrid.Registry.SessionFilters' or
+  `IceGrid.Registry.AdminSessionFilters' property to 1.
+
+- Added IceGrid registry `IceGrid.Registry.AdminSessionManager' 
+  object adapter for Glacier2 administrative sessions. See the
+  manual for more information.
+
 - The marshaling code now throws an exception if an enumerator
   that is out of range for its enumeration is sent or received.
 

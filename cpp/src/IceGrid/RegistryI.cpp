@@ -190,6 +190,23 @@ RegistryI::start(bool nowarn)
         {
             Warning out(_communicator->getLogger());
             out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
+            if(properties->getPropertyAsInt("IceGrid.Registry.SessionFilters") == 0)
+            {
+                out << " (with Glacier2 filters disabled)";
+            }
+        }
+    }
+
+    if(!properties->getProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
+    {
+        if(!nowarn)
+        {
+            Warning out(_communicator->getLogger());
+            out << "administrative session manager endpoints `IceGrid.Registry.AdminSessionManager.Endpoints' enabled";
+            if(properties->getPropertyAsInt("IceGrid.Registry.AdminSessionFilters") == 0)
+            {
+                out << " (with Glacier2 filters disabled)";
+            }
         }
     }
 

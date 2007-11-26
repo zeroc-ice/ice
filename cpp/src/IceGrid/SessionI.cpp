@@ -304,7 +304,7 @@ ClientSessionFactory::ClientSessionFactory(const SessionServantManagerPtr& serva
     if(_servantManager) // Not set if Glacier2 session manager adapter not enabled
     {
         Ice::PropertiesPtr properties = _database->getCommunicator()->getProperties();
-        const_cast<bool&>(_filters) = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionFilters", 1) > 0;
+        const_cast<bool&>(_filters) = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionFilters", 0) > 0;
     }
 }
 

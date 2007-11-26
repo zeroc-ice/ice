@@ -11,7 +11,6 @@ Ice.Default.Locator=DemoIceGrid/Locator:default -p 4061
 IceGrid.Registry.Client.Endpoints=default -p 4061
 IceGrid.Registry.Server.Endpoints=default
 IceGrid.Registry.Internal.Endpoints=default
-IceGrid.Registry.AdminSessionManager.Endpoints=default
 IceGrid.Registry.Data=db/registry
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
