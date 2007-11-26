@@ -181,7 +181,15 @@ ifeq ($(mkdir),)
 			  chmod a+rx $(1)
 endif
 
-SLICE2CS		= $(ICE_DIR)/bin/slice2cs
+ifneq ($(USE_SRC_DIST),0)
+   SLICE2CS = $(ICE_DIR)/cpp/bin/slice2cs
+else
+    ifneq ($(USE_ICE_RPM),0)
+       SLICE2CS	= /usr/bin/slice2cs
+    else
+       SLICE2CS = $(ICE_DIR)/bin/slice2cs
+    endif
+endif
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
