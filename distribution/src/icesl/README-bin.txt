@@ -57,11 +57,11 @@ Package Contents
 Ice for Silverlight
 -------------------
 
-There are two main components included in the pacakge. First, the 
+There are two main components included in the package. First, the 
 Ice for Silverlight assembly (icesl.dll) which all Ice for 
 Silverlight applications must reference.
 
-Second, the Ice for Silverlight bridge (IceBridge.ashx) which recevies 
+Second, the Ice for Silverlight bridge (IceBridge.ashx) which receives 
 requests from Ice for Silverlight applications, forward the request
 onto the Ice server and then returns the request back to the Ice for
 Silverlight application. It must be deployed on the same web server
