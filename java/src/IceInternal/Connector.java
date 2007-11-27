@@ -12,6 +12,7 @@ package IceInternal;
 public interface Connector
 {
     Transceiver connect(int timeout);
+
     short type();
     String toString();
 

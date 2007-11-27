@@ -16,6 +16,7 @@
 #include <Ice/RouterF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/BuiltinSequences.h>
 
 #include <set>
 
@@ -47,6 +48,24 @@ class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
+    class GetClientEndpointsCallback : virtual public IceUtil::Shared
+    {
+    public:
+        
+        virtual void setEndpoints(const std::vector<EndpointIPtr>&) = 0;
+        virtual void setException(const Ice::LocalException&) = 0;
+    };
+    typedef IceUtil::Handle<GetClientEndpointsCallback> GetClientEndpointsCallbackPtr;
+
+    class AddProxyCallback : virtual public IceUtil::Shared
+    {
+    public:
+        
+        virtual void addedProxy() = 0;
+        virtual void setException(const Ice::LocalException&) = 0;
+    };
+    typedef IceUtil::Handle<AddProxyCallback> AddProxyCallbackPtr; 
+
     RouterInfo(const Ice::RouterPrx&);
 
     void destroy();
@@ -56,19 +75,27 @@ public:
     bool operator<(const RouterInfo&) const;
 
     Ice::RouterPrx getRouter() const;
-    std::vector<IceInternal::EndpointIPtr> getClientEndpoints();
-    std::vector<IceInternal::EndpointIPtr> getServerEndpoints();
+    std::vector<EndpointIPtr> getClientEndpoints();
+    void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
+    std::vector<EndpointIPtr> getServerEndpoints();
     void addProxy(const Ice::ObjectPrx&);
+    bool addProxy(const Ice::ObjectPrx&, const AddProxyCallbackPtr&);
+
     void setAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr getAdapter() const;
 
 private:
 
+    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrx&);
+    std::vector<EndpointIPtr> setServerEndpoints(const Ice::ObjectPrx&);
+    void addAndEvictProxies(const Ice::ObjectPrx&, const Ice::ObjectProxySeq&);
+
     const Ice::RouterPrx _router;
-    std::vector<IceInternal::EndpointIPtr> _clientEndpoints;
-    std::vector<IceInternal::EndpointIPtr> _serverEndpoints;
+    std::vector<EndpointIPtr> _clientEndpoints;
+    std::vector<EndpointIPtr> _serverEndpoints;
     Ice::ObjectAdapterPtr _adapter;
     std::set<Ice::Identity> _identities;
+    std::multiset<Ice::Identity> _evictedIdentities;
 };
 
 }

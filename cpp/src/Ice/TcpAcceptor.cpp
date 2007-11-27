@@ -72,7 +72,7 @@ IceInternal::TcpAcceptor::accept(int timeout)
         out << "accepted tcp connection\n" << fdToString(fd);
     }
 
-    return new TcpTransceiver(_instance, fd);
+    return new TcpTransceiver(_instance, fd, true);
 }
 
 void

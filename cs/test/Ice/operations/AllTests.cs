@@ -18,14 +18,19 @@ public class AllTests
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper.checkedCast(cl);
-        
+
         Console.Out.Write("testing twoway operations... ");
         Console.Out.Flush();
         Twoways.twoways(communicator, cl);
         Twoways.twoways(communicator, derivedProxy);
         derivedProxy.opDerived();
         Console.Out.WriteLine("ok");
-        
+
+        Console.Out.Write("testing oneway operations... ");
+        Console.Out.Flush();
+        Oneways.oneways(communicator, cl);
+        Console.Out.WriteLine("ok");
+
         if(!collocated)
         {
             Console.Out.Write("testing twoway operations with AMI... ");
@@ -34,13 +39,18 @@ public class AllTests
             TwowaysAMI.twowaysAMI(communicator, derivedProxy);
             Console.Out.WriteLine("ok");
 
+            Console.Out.Write("testing oneway operations with AMI... ");
+            Console.Out.Flush();
+            OnewaysAMI.onewaysAMI(communicator, cl);
+            Console.Out.WriteLine("ok");
+
             Console.Out.Write("testing batch oneway operations... ");
             Console.Out.Flush();
             BatchOneways.batchOneways(cl);
             BatchOneways.batchOneways(derivedProxy);
             Console.Out.WriteLine("ok");
         }
-        
+
         return cl;
     }
 }

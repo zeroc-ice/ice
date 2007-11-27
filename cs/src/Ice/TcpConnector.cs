@@ -24,73 +24,25 @@ namespace IceInternal
                 string s = "trying to establish tcp connection to " + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            
+
             Socket fd = Network.createSocket(false);
             Network.setBlock(fd, false);
             Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
-            Network.doConnect(fd, _addr, timeout);
-            
-            if(_traceLevels.network >= 1)
+            bool connected = Network.doConnect(fd, _addr, timeout);
+            if(connected)
             {
-                string s = "tcp connection established\n" + Network.fdToString(fd);
-                _logger.trace(_traceLevels.networkCat, s);
+                if(_traceLevels.network >= 1)
+                {
+                    string s = "tcp connection established\n" + Network.fdToString(fd);
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
             }
-            
-            return new TcpTransceiver(instance_, fd);
+            return new TcpTransceiver(instance_, fd, connected);
         }
 
         public short type()
         {
-            return TYPE;
-        }
-        
-        public override string ToString()
-        {
-            return Network.addrToString(_addr);
-        }
-
-        internal bool equivalent(string host, int port)
-        {
-            IPEndPoint addr;
-            try
-            {
-                addr = Network.getAddress(host, port);
-            }
-            catch(Ice.DNSException)
-            {
-                return false;
-            }
-            return addr.Equals(_addr);
-        }
-
-        //
-        // Only for use by TcpEndpoint
-        //
-        internal TcpConnector(Instance instance, IPEndPoint addr, int timeout, string connectionId)
-        {
-            instance_ = instance;
-            _traceLevels = instance.traceLevels();
-            _logger = instance.initializationData().logger;
-            _addr = addr;
-            _timeout = timeout;
-            _connectionId = connectionId;
-
-            _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _timeout;
-            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
-        }
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
-
-        //
-        // Compare endpoints for sorting purposes
-        //
-        public override bool Equals(object obj)
-        {
-            return CompareTo(obj) == 0;
+            return TcpEndpointI.TYPE;
         }
 
         public int CompareTo(object obj)
@@ -135,7 +87,39 @@ namespace IceInternal
 
             return Network.compareAddress(_addr, p._addr);
         }
-        
+
+        //
+        // Only for use by TcpEndpoint
+        //
+        internal TcpConnector(Instance instance, IPEndPoint addr, int timeout, string connectionId)
+        {
+            instance_ = instance;
+            _traceLevels = instance.traceLevels();
+            _logger = instance.initializationData().logger;
+            _addr = addr;
+            _timeout = timeout;
+            _connectionId = connectionId;
+
+            _hashCode = _addr.GetHashCode();
+            _hashCode = 5 * _hashCode + _timeout;
+            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return CompareTo(obj) == 0;
+        }
+
+        public override string ToString()
+        {
+            return Network.addrToString(_addr);
+        }
+
+        public override int GetHashCode()
+        {
+            return _hashCode;
+        }
+
         private Instance instance_;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;

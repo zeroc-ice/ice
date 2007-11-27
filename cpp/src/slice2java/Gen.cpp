@@ -3398,7 +3398,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "__checkTwowayOnly(\"" << opName << "\");";
         }
-        out << nl << "__delBase = __getDelegate();";
+        out << nl << "__delBase = __getDelegate(false);";
         out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
         out << nl;
         if(ret)
@@ -4164,8 +4164,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDelegateThrowsClause(package, throws);
         out << sb;
 
-        out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(__reference, \"" << op->name() << "\", "
-            << sliceModeToIceMode(op->sendMode()) << ", __ctx, __compress);";
+        out << nl << "IceInternal.Outgoing __og = __handler.getOutgoing(\"" << op->name() << "\", "
+            << sliceModeToIceMode(op->sendMode()) << ", __ctx);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -4253,7 +4253,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "finally";
         out << sb;
-        out << nl << "__connection.reclaimOutgoing(__og);";
+        out << nl << "__handler.reclaimOutgoing(__og);";
         out << eb;
         out << eb;
     }
@@ -4987,8 +4987,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << sb;
         out << nl << "try";
         out << sb;
-        out << nl << "__prepare(__prx, \"" << p->name() << "\", " 
-            << sliceModeToIceMode(p->sendMode()) << ", __ctx);";
+        if(p->returnsData())
+        {
+            out << nl << "((Ice.ObjectPrxHelperBase)__prx).__checkTwowayOnly(\"" << p->name() <<  "\");";
+        }
+        out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", __ctx);";
         iter = 0;
         for(pli = inParams.begin(); pli != inParams.end(); ++pli)
         {

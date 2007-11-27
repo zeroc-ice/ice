@@ -515,8 +515,16 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "creating session with correct password... " << flush;
-        session = router->createSession("userid", "abc123");
-        cout << "ok" << endl;
+        try
+        {
+            session = router->createSession("userid", "abc123");
+            cout << "ok" << endl;
+        }
+        catch(const Glacier2::PermissionDeniedException& ex)
+        {
+            cerr << ex << ":\n" << ex.reason << endl;
+            test(false);
+        }
     }
 
     {
@@ -701,7 +709,7 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     {
-        cout << "testing buffered mode... " << flush;
+        cout << "testing with blocking clients... " << flush;
 
         //
         // Start 3 misbehaving clients.

@@ -90,8 +90,8 @@ namespace IceInternal
                         EndpointI e = f.create(s.Substring(m.Index + m.Length), oaEndpoint);
                         BasicStream bs = new BasicStream(instance_, true);
                         e.streamWrite(bs);
-                        IceInternal.ByteBuffer buf = bs.prepareRead();
-                        buf.position(0);
+                        Buffer buf = bs.getBuffer();
+                        buf.b.position(0);
                         short type = bs.readShort();
                         EndpointI ue = new IceInternal.UnknownEndpointI(type, bs);
                         System.Console.Error.WriteLine("Normal: " + e);
@@ -120,8 +120,8 @@ namespace IceInternal
                             //
                             BasicStream bs = new BasicStream(instance_, true);
                             ue.streamWrite(bs);
-                            IceInternal.ByteBuffer buf = bs.prepareRead();
-                            buf.position(0);
+                            Buffer buf = bs.getBuffer();
+                            buf.b.position(0);
                             bs.readShort(); // type
                             return f.read(bs);
                         }

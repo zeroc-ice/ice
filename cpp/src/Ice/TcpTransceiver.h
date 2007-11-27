@@ -24,22 +24,29 @@ class TcpAcceptor;
 
 class TcpTransceiver : public Transceiver
 {
+    enum State
+    {
+        StateNeedConnect,
+        StateConnectPending,
+        StateConnected
+    };
+
 public:
 
     virtual SOCKET fd();
     virtual void close();
     virtual void shutdownWrite();
     virtual void shutdownReadWrite();
-    virtual void write(Buffer&, int);
-    virtual void read(Buffer&, int);
+    virtual bool write(Buffer&, int);
+    virtual bool read(Buffer&, int);
     virtual std::string type() const;
     virtual std::string toString() const;
-    virtual void initialize(int);
+    virtual SocketStatus initialize(int);
     virtual void checkSendSize(const Buffer&, size_t);
 
 private:
 
-    TcpTransceiver(const InstancePtr&, SOCKET);
+    TcpTransceiver(const InstancePtr&, SOCKET, bool);
     virtual ~TcpTransceiver();
     friend class TcpConnector;
     friend class TcpAcceptor;
@@ -51,8 +58,8 @@ private:
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;
-
-    const std::string _desc;
+    State _state;
+    std::string _desc;
 #ifdef _WIN32
     int _maxPacketSize;
 #endif

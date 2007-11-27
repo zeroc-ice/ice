@@ -52,6 +52,11 @@ IceInternal::TcpTransceiver::close()
 void
 IceInternal::TcpTransceiver::shutdownWrite()
 {
+    if(_state < StateConnected)
+    {
+        return;
+    }
+
     if(_traceLevels->network >= 2)
     {
         Trace out(_logger, _traceLevels->networkCat);
@@ -65,6 +70,11 @@ IceInternal::TcpTransceiver::shutdownWrite()
 void
 IceInternal::TcpTransceiver::shutdownReadWrite()
 {
+    if(_state < StateConnected)
+    {
+        return;
+    }
+
     if(_traceLevels->network >= 2)
     {
         Trace out(_logger, _traceLevels->networkCat);
@@ -75,7 +85,7 @@ IceInternal::TcpTransceiver::shutdownReadWrite()
     shutdownSocketReadWrite(_fd);
 }
 
-void
+bool
 IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 {
     // Its impossible for the packetSize to be more than an Int.
@@ -118,6 +128,11 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
             if(wouldBlock())
             {
+                if(timeout == 0)
+                {
+                    return false;
+                }
+
             repeatSelect:
 
                 int rs;
@@ -194,9 +209,11 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
             packetSize = static_cast<int>(buf.b.end() - buf.i);
         }
     }
+
+    return true;
 }
 
-void
+bool
 IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 {
     // Its impossible for the packetSize to be more than an Int.
@@ -240,6 +257,11 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
             if(wouldBlock())
             {
+                if(timeout == 0)
+                {
+                    return false;
+                }
+
             repeatSelect:
 
                 int rs;
@@ -324,6 +346,8 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
             packetSize = static_cast<int>(buf.b.end() - buf.i);
         }
     }
+
+    return true;
 }
 
 string
@@ -338,9 +362,27 @@ IceInternal::TcpTransceiver::toString() const
     return _desc;
 }
 
-void
-IceInternal::TcpTransceiver::initialize(int)
+SocketStatus
+IceInternal::TcpTransceiver::initialize(int timeout)
 {
+    if(_state == StateNeedConnect && timeout == 0)
+    {
+        _state = StateConnectPending;
+        return NeedConnect;
+    }
+    else if(_state <= StateConnectPending)
+    {
+        doFinishConnect(_fd, timeout);
+        _state = StateConnected;
+        _desc = fdToString(_fd);
+        if(_traceLevels->network >= 1)
+        {
+            Trace out(_logger, _traceLevels->networkCat);
+            out << "tcp connection established\n" << _desc;
+        }
+    }
+    assert(_state == StateConnected);
+    return Finished;
 }
 
 void
@@ -352,12 +394,13 @@ IceInternal::TcpTransceiver::checkSendSize(const Buffer& buf, size_t messageSize
     }
 }
 
-IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
+IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd, bool connected) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _fd(fd),
-    _desc(fdToString(fd))
+    _state(connected ? StateConnected : StateNeedConnect),
+    _desc(fdToString(_fd))
 {
     FD_ZERO(&_rFdSet);
     FD_ZERO(&_wFdSet);

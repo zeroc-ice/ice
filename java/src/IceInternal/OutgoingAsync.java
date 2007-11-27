@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public abstract class OutgoingAsync
+public abstract class OutgoingAsync implements OutgoingAsyncMessageCallback
 {
     public
     OutgoingAsync()
@@ -18,19 +18,75 @@ public abstract class OutgoingAsync
 
     public abstract void ice_exception(Ice.LocalException ex);
 
+    public final BasicStream
+    __os()
+    {
+        return __os;
+    }
+
     public final void
-    __finished(BasicStream is)
+    __sent(final Ice.ConnectionI connection)
     {
         synchronized(_monitor)
         {
-            byte replyStatus;
-            
-            try
+            _sent = true;
+
+	    if(!_proxy.ice_isTwoway())
+	    {
+                cleanup(); // No response expected, we're done with the OutgoingAsync.
+            }
+            else if(_response)
             {
+                _monitor.notifyAll(); // If the response was already received notify finished() which is waiting.
+            }
+            else if(connection.timeout() >= 0)
+            {
+                assert(_timerTask == null);
+                _timerTask = new TimerTask()
+                {
+		    public void
+		    runTimerTask()
+		    {
+			__runTimerTask(connection);
+		    }
+		};
+		_proxy.__reference().getInstance().timer().schedule(_timerTask, connection.timeout());
+	    }
+        }
+    }
+
+    public final void
+    __finished(BasicStream is)
+    {
+        assert(_proxy.ice_isTwoway()); // Can only be called for twoways.
+        
+        byte replyStatus;
+        try
+        {
+            synchronized(_monitor)
+            {
+                assert(__os != null);
+                _response = true;
+
+                if(_timerTask != null && _proxy.__reference().getInstance().timer().cancel(_timerTask))
+                {
+                    _timerTask = null; // Timer cancelled.
+                }
+            
+                while(!_sent || _timerTask != null)
+                {
+                    try
+                    {
+                        _monitor.wait();
+                    }
+                    catch(java.lang.InterruptedException ex)
+                    {
+                    }
+                }
+
                 __is.swap(is);
-                
                 replyStatus = __is.readByte();
-                
+
                 switch(replyStatus)
                 {
                     case ReplyStatus.replyOK:
@@ -39,7 +95,7 @@ public abstract class OutgoingAsync
                         __is.startReadEncaps();
                         break;
                     }
-                    
+
                     case ReplyStatus.replyObjectNotExist:
                     case ReplyStatus.replyFacetNotExist:
                     case ReplyStatus.replyOperationNotExist:
@@ -145,36 +201,57 @@ public abstract class OutgoingAsync
                     }
                 }
             }
-            catch(Ice.LocalException ex)
-            {
-                __finished(ex);
-                return;
-            }
-                
-            assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
+        }
+        catch(Ice.LocalException ex)
+        {
+            __finished(ex);
+            return;
+        }
+        
+        assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
             
-            try
-            {
-                __response(replyStatus == ReplyStatus.replyOK);
-            }
-            catch(java.lang.Exception ex)
-            {
-                warning(ex);
-            }
-            finally
+        try
+        {
+            __response(replyStatus == ReplyStatus.replyOK);
+        }
+        catch(java.lang.Exception ex)
+        {
+            warning(ex);
+        }
+        finally
+        {
+            synchronized(_monitor)
             {
                 cleanup();
             }
         }
     }
 
+
     public final void
     __finished(Ice.LocalException exc)
     {
+        boolean retry = false;
         synchronized(_monitor)
         {
-            if(__os != null) // Don't retry if cleanup() was already called.
+            if(__os != null) // Might be called from __prepare or before __prepare
             {
+                if(_timerTask != null && _proxy.__reference().getInstance().timer().cancel(_timerTask))
+                {
+                    _timerTask = null; // Timer cancelled.
+                }
+                
+                while(_timerTask != null)
+                {
+                    try
+                    {
+                        _monitor.wait();
+                    }
+                    catch(java.lang.InterruptedException ex)
+                    {
+                    }
+                }
+                
                 //
                 // A CloseConnectionException indicates graceful
                 // server shutdown, and is therefore always repeatable
@@ -187,53 +264,85 @@ public abstract class OutgoingAsync
                 // An ObjectNotExistException can always be retried as
                 // well without violating "at-most-once".
                 //
-                if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
+                if(!_sent ||
+                   _mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
                    exc instanceof Ice.CloseConnectionException || exc instanceof Ice.ObjectNotExistException)
                 {
-                    try
-                    {
-                        _cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(_delegate, exc, _cnt);
-                        __send();
-                        return;
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                    }
+                    retry = true;
                 }
             }
-            
+        }
+
+        if(retry)
+        {
             try
             {
-                ice_exception(exc);
+                _cnt = _proxy.__handleException(_delegate, exc, _cnt);
+                __send();
+                return;
             }
-            catch(java.lang.Exception ex)
+            catch(Ice.LocalException ex)
             {
-                warning(ex);
             }
-            finally
+        }
+
+        try
+        {
+            ice_exception(exc);
+        }
+        catch(java.lang.Exception ex)
+        {
+            warning(ex);
+        }
+        finally
+        {
+            synchronized(_monitor)
             {
                 cleanup();
             }
         }
     }
 
-    public final boolean
-    __timedOut()
+    public final void
+    __finished(LocalExceptionWrapper ex)
     {
         //
-        // No synchronization necessary, because
-        // _absoluteTimeoutMillis is declared volatile. We cannot
-        // synchronize here because otherwise there might be deadlocks
-        // when Ice.ConnectionI calls back on this object with this
-        // function.
+        // NOTE: This is called if sendRequest/sendAsyncRequest fails with
+        // a LocalExceptionWrapper exception. It's not possible for the
+        // timer to be set at this point because the request couldn't be
+        // sent.
         //
-        if(_absoluteTimeoutMillis > 0)
+        assert(!_sent && _timerTask == null);
+
+        try
         {
-            return IceInternal.Time.currentMonotonicTimeMillis() >= _absoluteTimeoutMillis;
+            if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
+            {
+                _cnt = _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, _cnt);
+            }
+            else
+            {
+                _proxy.__handleExceptionWrapper(_delegate, ex);
+            }
+            __send();
         }
-        else
+        catch(Ice.LocalException exc)
         {
-            return false;
+            try
+            {
+                ice_exception(exc);
+            }
+            catch(java.lang.Exception exl)
+            {
+                warning(exl);
+            }
+            finally
+            {
+                synchronized(_monitor)
+                {
+                    cleanup();
+                }
+            }
         }
     }
 
@@ -259,23 +368,28 @@ public abstract class OutgoingAsync
                 }
 
                 //
-                // Can't call async via a oneway proxy.
+                // Can't call async via a batch proxy.
                 //
-                ((Ice.ObjectPrxHelperBase)prx).__checkTwowayOnly(operation);
+                _proxy = (Ice.ObjectPrxHelperBase)prx;
+                if(_proxy.ice_isBatchOneway() || _proxy.ice_isBatchDatagram())
+                {
+                    throw new Ice.FeatureNotSupportedException("can't send batch requests with AMI");
+                }
 
-                _proxy = prx;
                 _delegate = null;
                 _cnt = 0;
                 _mode = mode;
+                _sent = false;
+		_response = false;
 
-                Reference ref = ((Ice.ObjectPrxHelperBase)_proxy).__reference();
+                Reference ref = _proxy.__reference();
                 assert(__is == null);
                 __is = new BasicStream(ref.getInstance());
                 assert(__os == null);
                 __os = new BasicStream(ref.getInstance());              
 
                 __os.writeBlob(IceInternal.Protocol.requestHdr);
-                
+
                 ref.getIdentity().__write(__os);
 
                 //
@@ -308,11 +422,9 @@ public abstract class OutgoingAsync
                     //
                     // Implicit context
                     //
-                    Ice.ImplicitContextI implicitContext =
-                        ref.getInstance().getImplicitContext();
-                    
+                    Ice.ImplicitContextI implicitContext = ref.getInstance().getImplicitContext();
                     java.util.Map prxContext = ref.getContext();
-                    
+
                     if(implicitContext == null)
                     {
                         Ice.ContextHelper.write(__os, prxContext);
@@ -322,7 +434,7 @@ public abstract class OutgoingAsync
                         implicitContext.write(prxContext, __os);
                     }
                 }
-        
+
                 __os.startWriteEncaps();
             }
             catch(Ice.LocalException ex)
@@ -336,62 +448,56 @@ public abstract class OutgoingAsync
     protected final void
     __send()
     {
-        synchronized(_monitor)
+        //
+        // NOTE: no synchronization needed. At this point, no other threads can be calling on this object.
+        //
+
+        RequestHandler handler;
+        try
         {
-            try
-            {
-                while(true)
-                {
-                    Ice.BooleanHolder comp = new Ice.BooleanHolder();
-                    _delegate = ((Ice.ObjectPrxHelperBase)_proxy).__getDelegate();
-                    Ice.ConnectionI con = _delegate.__getConnection(comp);
-                    if(con.timeout() >= 0)
-                    {
-                        _absoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + con.timeout();
-                    }
-                    else
-                    {
-                        _absoluteTimeoutMillis = 0;
-                    }
-                    
-                    try
-                    {
-                        con.sendAsyncRequest(__os, this, comp.value);
-                        
-                        //
-                        // Don't do anything after sendAsyncRequest() returned
-                        // without an exception.  I such case, there will be
-                        // callbacks, i.e., calls to the __finished()
-                        // functions. Since there is no mutex protection, we
-                        // cannot modify state here and in such callbacks.
-                        //
-                        return;
-                    }
-                    catch(LocalExceptionWrapper ex)
-                    {
-                        ((Ice.ObjectPrxHelperBase)_proxy).__handleExceptionWrapper(_delegate, ex);
-                    }
-                    catch(Ice.LocalException ex)
-                    {                   
-                        _cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(_delegate, ex, _cnt);
-                    }               
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                __finished(ex);
-            }
+            _delegate = _proxy.__getDelegate(true);
+            handler = _delegate.__getRequestHandler();
         }
+        catch(Ice.LocalException ex)
+        {
+            __finished(ex);
+            return;
+        }
+
+        _sent = false;
+        _response = false;
+        handler.sendAsyncRequest(this);
     }
 
     protected abstract void __response(boolean ok);
+
+    private final void
+    __runTimerTask(Ice.ConnectionI connection)
+    {
+        synchronized(_monitor)
+        {
+            assert(_timerTask != null && _sent); // Can only be set once the request is sent.
+            
+            if(_response) // If the response was just received, don't close the connection.
+            {
+                connection = null;
+            }
+            _timerTask = null;
+            _monitor.notifyAll();
+        }
+
+        if(connection != null)
+        {
+            connection.exception(new Ice.TimeoutException());
+        }
+    }
 
     private final void
     warning(java.lang.Exception ex)
     {
         if(__os != null) // Don't print anything if cleanup() was already called.
         {
-            Reference ref = ((Ice.ObjectPrxHelperBase)_proxy).__reference();
+            Reference ref = _proxy.__reference();
             if(ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
                                                                         "Ice.Warn.AMICallback", 1) > 0)
             {
@@ -410,6 +516,8 @@ public abstract class OutgoingAsync
     private final void
     cleanup()
     {
+        assert(_timerTask == null);
+
         __is = null;
         __os = null;
 
@@ -419,16 +527,14 @@ public abstract class OutgoingAsync
     protected BasicStream __is;
     protected BasicStream __os;
 
-    private Ice.ObjectPrx _proxy;
+    private boolean _sent;
+    private boolean _response;
+    private Ice.ObjectPrxHelperBase _proxy;
     private Ice._ObjectDel _delegate;
     private int _cnt;
     private Ice.OperationMode _mode;
 
-    //
-    // Must be volatile, because we don't want to lock the monitor
-    // below in __timedOut(), to avoid deadlocks.
-    //
-    private volatile long _absoluteTimeoutMillis;
+    private TimerTask _timerTask;
 
     private final java.lang.Object _monitor = new java.lang.Object();
 }

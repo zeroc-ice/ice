@@ -215,8 +215,20 @@ public class _ObjectDelD implements _ObjectDel
         throw new CollocationOptimizationException();
     }
 
-    public ConnectionI
-    __getConnection(BooleanHolder compress)
+    public void
+    ice_flushBatchRequests()
+    {
+        throw new CollocationOptimizationException();
+    }
+
+    public IceInternal.RequestHandler
+    __getRequestHandler()
+    {
+        throw new CollocationOptimizationException();
+    }
+
+    public void
+    __setRequestHandler(IceInternal.RequestHandler handler)
     {
         throw new CollocationOptimizationException();
     }

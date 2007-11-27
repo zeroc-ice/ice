@@ -18,10 +18,10 @@ namespace Ice
             _is = new IceInternal.BasicStream(Util.getInstance(communicator));
             _is.closure(this);
             _is.resize(data.Length, true);
-            IceInternal.ByteBuffer buf = _is.prepareRead();
-            buf.position(0);
-            buf.put(data);
-            buf.position(0);
+            IceInternal.Buffer buf = _is.getBuffer();
+            buf.b.position(0);
+            buf.b.put(data);
+            buf.b.position(0);
         }
 
         public Communicator communicator()
@@ -362,9 +362,9 @@ namespace Ice
 
         public byte[] finished()
         {
-            IceInternal.ByteBuffer buf = _os.prepareWrite();
-            byte[] result = new byte[buf.limit()];
-            buf.get(result);
+            IceInternal.Buffer buf = _os.prepareWrite();
+            byte[] result = new byte[buf.b.limit()];
+            buf.b.get(result);
 
             return result;
         }

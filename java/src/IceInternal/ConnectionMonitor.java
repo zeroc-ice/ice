@@ -59,7 +59,7 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
     }
 
     public void
-    run()
+    runTimerTask()
     {
         java.util.HashSet connections = new java.util.HashSet();
 

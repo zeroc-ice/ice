@@ -532,6 +532,12 @@ IceSSL::Instance::communicator() const
     return _facade->getCommunicator();
 }
 
+IceInternal::EndpointHostResolverPtr
+IceSSL::Instance::endpointHostResolver() const
+{
+    return _facade->getEndpointHostResolver();
+}
+
 string
 IceSSL::Instance::defaultHost() const
 {

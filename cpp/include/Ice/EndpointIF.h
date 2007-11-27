@@ -17,8 +17,12 @@ namespace IceInternal
 {
 
 class EndpointI;
-ICE_API Ice::LocalObject* upCast(IceInternal::EndpointI*);
-typedef IceInternal::Handle<EndpointI> EndpointIPtr;
+ICE_API Ice::LocalObject* upCast(EndpointI*);
+typedef Handle<EndpointI> EndpointIPtr;
+
+class EndpointHostResolver;
+ICE_API IceUtil::Shared* upCast(EndpointHostResolver*);
+typedef Handle<EndpointHostResolver> EndpointHostResolverPtr;
 
 }
 

@@ -313,9 +313,9 @@ class ObjectStore implements IceUtil.Store
     {
         IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         v.__write(os);
-        java.nio.ByteBuffer buf = os.prepareWrite();
-        byte[] r = new byte[buf.limit()];
-        buf.get(r);
+        IceInternal.Buffer buf = os.prepareWrite();
+        byte[] r = new byte[buf.size()];
+        buf.b.get(r);
         return r;
     }
 
@@ -324,10 +324,10 @@ class ObjectStore implements IceUtil.Store
     {
         IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         is.resize(b.length, true);
-        java.nio.ByteBuffer buf = is.prepareRead();
-        buf.position(0);
-        buf.put(b);
-        buf.position(0);
+        IceInternal.Buffer buf = is.getBuffer();
+        buf.b.position(0);
+        buf.b.put(b);
+        buf.b.position(0);
         Ice.Identity key = new Ice.Identity();
         key.__read(is);
         return key;
@@ -341,9 +341,9 @@ class ObjectStore implements IceUtil.Store
         v.__write(os);
         os.writePendingObjects();
         os.endWriteEncaps();
-        java.nio.ByteBuffer buf = os.prepareWrite();
-        byte[] r = new byte[buf.limit()];
-        buf.get(r);
+        IceInternal.Buffer buf = os.prepareWrite();
+        byte[] r = new byte[buf.size()];
+        buf.b.get(r);
         return r;
     }
 
@@ -353,10 +353,10 @@ class ObjectStore implements IceUtil.Store
         IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         is.sliceObjects(false);
         is.resize(b.length, true);
-        java.nio.ByteBuffer buf = is.prepareRead();
-        buf.position(0);
-        buf.put(b);
-        buf.position(0);
+        IceInternal.Buffer buf = is.getBuffer();
+        buf.b.position(0);
+        buf.b.put(b);
+        buf.b.position(0);
         ObjectRecord rec= new ObjectRecord();
         is.startReadEncaps();
         rec.__read(is);

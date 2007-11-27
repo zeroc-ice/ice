@@ -185,6 +185,42 @@ namespace IceInternal
             }
         }
 
+        public SelectorThread selectorThread()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+
+                if(_selectorThread == null) // Lazy initialization.
+                {
+                    _selectorThread = new SelectorThread(this);
+                }
+
+                return _selectorThread;
+            }
+        }
+
+        public EndpointHostResolver endpointHostResolver()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+
+                if(_endpointHostResolver == null) // Lazy initialization.
+                {
+                    _endpointHostResolver = new EndpointHostResolver(this);
+                }
+
+                return _endpointHostResolver;
+            }
+        }
+
         public Timer
         timer()
         {
@@ -208,6 +244,12 @@ namespace IceInternal
         {
             // No mutex lock, immutable.
             return _threadPerConnection;
+        }
+
+        public bool background()
+        {
+            // No mutex lock, immutable.
+            return _background;
         }
 
         public EndpointFactoryManager endpointFactoryManager()
@@ -611,6 +653,8 @@ namespace IceInternal
 
                 _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
+                _background = _initData.properties.getPropertyAsInt("Ice.Background") > 0;
+
                 _routerManager = new RouterManager();
                 
                 _locatorManager = new LocatorManager();
@@ -781,7 +825,9 @@ namespace IceInternal
             
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;
-            
+            SelectorThread selectorThread = null;
+            EndpointHostResolver endpointHostResolver = null;
+
             lock(this)
             {
                 _objectAdapterFactory = null;
@@ -800,12 +846,26 @@ namespace IceInternal
                     serverThreadPool = _serverThreadPool;
                     _serverThreadPool = null;
                 }
-                
+
                 if(_clientThreadPool != null)
                 {
                     _clientThreadPool.destroy();
                     clientThreadPool = _clientThreadPool;
                     _clientThreadPool = null;
+                }
+
+                if(_selectorThread != null)
+                {
+                    _selectorThread.destroy();
+                    selectorThread = _selectorThread;
+                    _selectorThread = null;
+                }
+
+                if(_endpointHostResolver != null)
+                {
+                    _endpointHostResolver.destroy();
+                    endpointHostResolver = _endpointHostResolver;
+                    _endpointHostResolver = null;
                 }
 
                 if(_timer != null)
@@ -861,8 +921,7 @@ namespace IceInternal
             }
             
             //
-            // Join with the thread pool threads outside the
-            // synchronization.
+            // Join with threads outside the synchronization.
             //
             if(clientThreadPool != null)
             {
@@ -871,6 +930,14 @@ namespace IceInternal
             if(serverThreadPool != null)
             {
                 serverThreadPool.joinWithAllThreads();
+            }
+            if(selectorThread != null)
+            {
+                selectorThread.joinWithThread();
+            }
+            if(endpointHostResolver != null)
+            {
+                endpointHostResolver.joinWithThread();
             }
 
             if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
@@ -911,8 +978,11 @@ namespace IceInternal
         private ObjectAdapterFactory _objectAdapterFactory;
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
+        private SelectorThread _selectorThread;
+        private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
         private bool _threadPerConnection;
+        private bool _background;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;
         private Dictionary<string, string> _defaultContext;
@@ -926,7 +996,6 @@ namespace IceInternal
 
         private static bool _oneOffDone = false;
         private static System.Object _staticLock = new System.Object();
-
     }
 
 }

@@ -39,7 +39,10 @@ public final class RouterManager
             return null;
         }
 
-        Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null)); // The router cannot be routed.
+        //
+        // The router cannot be routed.
+        //
+        Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
 
         synchronized(this)
         {

@@ -33,6 +33,15 @@ class Reference : public IceUtil::Shared
 {
 public:
 
+    class GetConnectionCallback : virtual public IceUtil::Shared
+    {
+    public:
+        
+        virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
+        virtual void setException(const Ice::LocalException&) = 0;
+    };
+    typedef IceUtil::Handle<GetConnectionCallback> GetConnectionCallbackPtr;
+
     enum Type
     {
         TypeDirect,
@@ -115,6 +124,7 @@ public:
     // Get a suitable connection for this reference.
     //
     virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
+    virtual void getConnection(const GetConnectionCallbackPtr&) const = 0;
 
     virtual bool operator==(const Reference&) const = 0;
     virtual bool operator!=(const Reference&) const = 0;
@@ -180,6 +190,7 @@ public:
     virtual std::string toString() const;
 
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
+    virtual void getConnection(const GetConnectionCallbackPtr&) const;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;
@@ -203,7 +214,6 @@ class RoutableReference : public Reference
 public:
 
     virtual RouterInfoPtr getRouterInfo() const { return _routerInfo; }
-    std::vector<EndpointIPtr> getRoutedEndpoints() const;
 
     virtual bool getSecure() const;
     virtual bool getPreferSecure() const;
@@ -223,8 +233,6 @@ public:
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
     virtual ReferencePtr changeThreadPerConnection(bool) const;
 
-    virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
-
     virtual int hash() const;
 
     virtual bool operator==(const Reference&) const = 0;
@@ -233,6 +241,10 @@ public:
 
     virtual ReferencePtr clone() const = 0;
 
+    Ice::ConnectionIPtr createConnection(const std::vector<EndpointIPtr>&, bool&) const;
+    void createConnection(const std::vector<EndpointIPtr>&, const GetConnectionCallbackPtr&) const;
+    void applyOverrides(std::vector<EndpointIPtr>&) const;
+
 protected:
 
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
@@ -240,8 +252,7 @@ protected:
                       Ice::EndpointSelectionType, bool);
     RoutableReference(const RoutableReference&);
 
-    Ice::ConnectionIPtr createConnection(const std::vector<EndpointIPtr>&, bool&) const;
-    void applyOverrides(std::vector<EndpointIPtr>&) const;
+    std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&) const;
 
 private:
 
@@ -284,6 +295,7 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
+    virtual void getConnection(const GetConnectionCallbackPtr&) const;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;
@@ -323,6 +335,8 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
+    virtual void getConnection(const GetConnectionCallbackPtr&) const;
+    virtual void getConnectionNoRouterInfo(const GetConnectionCallbackPtr&) const;
 
     virtual int hash() const; // Conceptually const.
 

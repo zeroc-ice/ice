@@ -10,10 +10,19 @@
 namespace IceInternal
 {
 
+    using System.Net.Sockets;
+
     public interface Connector
     {
+        //
+        // Blocking connect. The caller must initialize the new
+        // transceiver.
+        //
         Transceiver connect(int timeout);
+
         short type();
+
+        int CompareTo(object obj);
     }
 
 }

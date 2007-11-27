@@ -21,11 +21,13 @@ OBJS		= Acceptor.obj \
 		  BuiltinSequences.obj \
 		  CommunicatorI.obj \
 		  Communicator.obj \
+		  ConnectRequestHandler.obj \
 		  ConnectionFactory.obj \
 		  ConnectionI.obj \
 		  ConnectionMonitor.obj \
 		  Connection.obj \
 		  Connector.obj \
+		  ConnectionRequestHandler.obj \
 		  Current.obj \
 		  DefaultsAndOverrides.obj \
 		  Direct.obj \
@@ -79,8 +81,11 @@ OBJS		= Acceptor.obj \
 		  Proxy.obj \
 		  ReferenceFactory.obj \
 		  Reference.obj \
+		  RequestHandler.obj \
 		  RouterInfo.obj \
 		  Router.obj \
+		  Selector.obj \
+		  SelectorThread.obj \
 		  ServantLocator.obj \
 		  ServantManager.obj \
 		  Service.obj \

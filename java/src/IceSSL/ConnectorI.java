@@ -11,8 +11,6 @@ package IceSSL;
 
 final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
 {
-    final static short TYPE = 2;
-
     public IceInternal.Transceiver
     connect(int timeout)
     {
@@ -35,73 +33,24 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
         java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
         IceInternal.Network.setBlock(fd, false);
         IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
-        IceInternal.Network.doConnect(fd, _addr, timeout);
+        boolean connected = IceInternal.Network.doConnect(fd, _addr, timeout);
 
-        TransceiverI transceiver = null;
         try
         {
             javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false);
-
-            transceiver = new TransceiverI(_instance, engine, fd, _host, false, "");
-/*
-            transceiver.waitForHandshake(timeout);
-
-            //
-            // Check IceSSL.VerifyPeer.
-            //
-            int verifyPeer =
-                _instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
-            if(verifyPeer > 0)
-            {
-                try
-                {
-                    engine.getSession().getPeerCertificates();
-                }
-                catch(javax.net.ssl.SSLPeerUnverifiedException ex)
-                {
-                    Ice.SecurityException e = new Ice.SecurityException();
-                    e.reason = "IceSSL: server did not supply a certificate";
-                    e.initCause(ex);
-                    throw e;
-                }
-            }
-*/
-
-/*
-            if(!ctx.verifyPeer(fd, _host, false))
-            {
-                Ice.SecurityException ex = new Ice.SecurityException();
-                ex.reason = "IceSSL: outgoing connection rejected by certificate verifier";
-                throw ex;
-            }
-*/
+            return new TransceiverI(_instance, engine, fd, _host, connected, false, "");
         }
         catch(RuntimeException ex)
         {
-            try
-            {
-                fd.close();
-            }
-            catch(java.io.IOException e)
-            {
-                // Ignore.
-            }
+            IceInternal.Network.closeSocketNoThrow(fd);
             throw ex;
         }
-
-        if(_instance.networkTraceLevel() >= 1)
-        {
-            String s = "ssl connection established\n" + IceInternal.Network.fdToString(fd);
-            _logger.trace(_instance.networkTraceCategory(), s);
-        }
-
-        return transceiver;
     }
 
     public short
     type()
     {
-        return TYPE;
+        return EndpointI.TYPE;
     }
 
     public String
@@ -114,21 +63,6 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
     hashCode()
     {
         return _hashCode;
-    }
-
-    final boolean
-    equivalent(String host, int port)
-    {
-        java.net.InetSocketAddress addr; 
-        try
-        {
-            addr = IceInternal.Network.getAddress(host, port);
-        }
-        catch(Ice.DNSException ex)
-        {
-            return false;
-        }
-        return addr.equals(_addr);
     }
 
     //
@@ -209,6 +143,13 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
         }
 
         return IceInternal.Network.compareAddress(_addr, p._addr);
+    }
+
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        super.finalize();
     }
 
     private Instance _instance;

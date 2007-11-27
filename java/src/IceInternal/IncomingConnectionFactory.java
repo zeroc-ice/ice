@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public final class IncomingConnectionFactory extends EventHandler
+public final class IncomingConnectionFactory extends EventHandler implements Ice.ConnectionI.StartCallback
 {
     public synchronized void
     activate()
@@ -73,7 +73,7 @@ public final class IncomingConnectionFactory extends EventHandler
     waitUntilFinished()
     {
         Thread threadPerIncomingConnectionFactory = null;
-        java.util.LinkedList connections;
+        java.util.LinkedList connections = null;
 
         synchronized(this)
         {
@@ -104,12 +104,10 @@ public final class IncomingConnectionFactory extends EventHandler
             // We want to wait until all connections are finished outside the
             // thread synchronization.
             //
-            // For consistency with C#, we set _connections to null rather than to a
-            // new empty list so that our finalizer does not try to invoke any
-            // methods on member objects.
-            //
-            connections = _connections;
-            _connections = null;
+            if(_connections != null)
+            {
+                connections = new java.util.LinkedList(_connections);
+            }
         }
 
         if(threadPerIncomingConnectionFactory != null)
@@ -136,6 +134,16 @@ public final class IncomingConnectionFactory extends EventHandler
                 connection.waitUntilFinished();
             }
         }
+
+        synchronized(this)
+        {
+            //
+            // For consistency with C#, we set _connections to null rather than to a
+            // new empty list so that our finalizer does not try to invoke any
+            // methods on member objects.
+            //
+            _connections = null;
+        }
     }
 
     public EndpointI
@@ -145,7 +153,7 @@ public final class IncomingConnectionFactory extends EventHandler
         return _endpoint;
     }
 
-    public synchronized Ice.ConnectionI[]
+    public synchronized java.util.LinkedList
     connections()
     {
         java.util.LinkedList connections = new java.util.LinkedList();
@@ -157,26 +165,24 @@ public final class IncomingConnectionFactory extends EventHandler
         while(p.hasNext())
         {
             Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
-            if(!connection.isDestroyed())
+            if(connection.isActiveOrHolding())
             {
                 connections.add(connection);
             }
         }
-
-        Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
-        connections.toArray(arr);
-        return arr;
+        
+        return connections;
     }
 
     public void
     flushBatchRequests()
     {
-        Ice.ConnectionI[] c = connections(); // connections() is synchronized, so no need to synchronize here.
-        for(int i = 0; i < c.length; i++)
+        java.util.Iterator p = connections().iterator(); // connections() is synchronized, no need to synchronize here.
+        while(p.hasNext())
         {
             try
             {
-                c[i].flushBatchRequests();
+                ((Ice.ConnectionI)p.next()).flushBatchRequests();
             }
             catch(Ice.LocalException ex)
             {
@@ -211,6 +217,14 @@ public final class IncomingConnectionFactory extends EventHandler
         return false;
     }
 
+    public boolean
+    hasMoreData()
+    {
+        assert(!_threadPerConnection); // Only for use with a thread pool.
+        assert(false); // Must not be called.
+        return false;
+    }
+
     public void
     message(BasicStream unused, ThreadPool threadPool)
     {
@@ -218,9 +232,9 @@ public final class IncomingConnectionFactory extends EventHandler
 
         Ice.ConnectionI connection = null;
 
-        synchronized(this)
+        try
         {
-            try
+            synchronized(this)
             {
                 if(_state != StateActive)
                 {
@@ -244,7 +258,7 @@ public final class IncomingConnectionFactory extends EventHandler
                 //
                 // Now accept a new connection.
                 //
-                Transceiver transceiver;
+                Transceiver transceiver = null;
                 try
                 {
                     transceiver = _acceptor.accept(0);
@@ -275,47 +289,38 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     assert(!_threadPerConnection);
                     connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter, false);
-                    connection.start();
                 }
                 catch(Ice.LocalException ex)
                 {
+		    try
+		    {
+			transceiver.close();
+		    }
+		    catch(Ice.LocalException exc)
+		    {
+			// Ignore
+		    }
+
+                    if(_warn)
+                    {
+                        warning(ex);
+                    }
                     return;
                 }
 
                 _connections.add(connection);
             }
-            finally
-            {
-                //
-                // This makes sure that we promote a follower before
-                // we leave the scope of the mutex above, but after we
-                // call accept() (if we call it).
-                //
-                threadPool.promoteFollower();
-            }
         }
-
-        assert(connection != null);
-
-        //
-        // We validate and activate outside the thread
-        // synchronization, to not block the factory.
-        //
-        try
+        finally
         {
-            connection.validate();
-        }
-        catch(Ice.LocalException ex)
-        {
-            synchronized(this)
-            {
-                connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-                _connections.remove(connection);
-                return;
-            }
+            //
+            // This makes sure that we promote a follower before we leave the scope of the mutex
+            // above, but after we call accept() (if we call it).
+            //
+            threadPool.promoteFollower();
         }
 
-        connection.activate();
+        connection.start(this);
     }
 
     public synchronized void
@@ -354,9 +359,48 @@ public final class IncomingConnectionFactory extends EventHandler
         return _acceptor.toString();
     }
 
+    //
+    // Operations from ConnectionI.StartCallback
+    //
+    public synchronized void
+    connectionStartCompleted(Ice.ConnectionI connection)
+    {
+        //
+        // Initially, connections are in the holding state. If the factory is active
+        // we activate the connection.
+        //
+        if(_state == StateActive)
+        {
+            connection.activate();
+        }
+    }
+
+    public synchronized void
+    connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
+    {
+        if(_state == StateClosed)
+        {
+            return;
+        }
+        
+        if(_warn)
+        {
+            warning(ex);
+        }
+        
+        //
+        // If the connection is finished, remove it right away from
+        // the connection map. Otherwise, we keep it in the map, it
+        // will eventually be reaped.
+        //
+        if(connection.isFinished())
+        {
+            _connections.remove(connection);
+        }
+    }
+
     public
-    IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter,
-                              String adapterName)
+    IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter, String adapterName)
     {
         super(instance);
         _endpoint = endpoint;
@@ -390,28 +434,25 @@ public final class IncomingConnectionFactory extends EventHandler
             {
                 _endpoint = h.value;
                 
-                Ice.ConnectionI connection = null;
-                
-                try
-                {
-                    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter,
+                Ice.ConnectionI connection;
+		try
+		{
+		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter, 
                                                      _threadPerConnection);
-                    connection.start();
-                    connection.validate();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    //
-                    // If a connection object was constructed, then
-                    // validate() must have raised the exception.
-                    //
-                    if(connection != null)
-                    {
-                        connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-                    }
-                    
-                    return;
-                }
+		}
+		catch(Ice.LocalException ex)
+		{
+		    try
+		    {
+			_transceiver.close();
+		    }
+		    catch(Ice.LocalException exc)
+		    {
+			// Ignore
+		    }
+		    throw ex;
+		}
+                connection.start(null);
                 
                 _connections.add(connection);
             }
@@ -654,8 +695,7 @@ public final class IncomingConnectionFactory extends EventHandler
             }
             catch(Ice.SocketException ex)
             {
-                // Do not ignore SocketException in Java.
-                throw ex;
+                // Ignore socket exceptions.
             }
             catch(Ice.TimeoutException ex)
             {
@@ -669,9 +709,8 @@ public final class IncomingConnectionFactory extends EventHandler
                     warning(ex);
                 }
             }
-
+            
             Ice.ConnectionI connection = null;
-
             synchronized(this)
             {
                 while(_state == StateHolding)
@@ -730,37 +769,42 @@ public final class IncomingConnectionFactory extends EventHandler
                     }
                 }
 
-                //
-                // Create a connection object for the connection.
-                //
-                if(transceiver != null)
+                if(transceiver == null)
                 {
-                    try
-                    {
-                        connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter,
-                                                         _threadPerConnection);
-                        connection.start();
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        return;
-                    }
-
-                    _connections.add(connection);
+                    continue;
                 }
+
+                try
+                {
+                    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter, _threadPerConnection);
+                }
+                catch(Ice.LocalException ex)
+                {
+		    try
+		    {
+			transceiver.close();
+		    }
+		    catch(Ice.LocalException exc)
+		    {
+			// Ignore
+		    }
+
+                    if(_warn)
+                    {
+                        warning(ex);
+                    }
+                    continue;
+                }
+                _connections.add(connection);
             }
 
             //
-            // In thread per connection mode, the connection's thread
-            // will take care of connection validation and activation
-            // (for non-datagram connections). We don't want to block
-            // this thread waiting until validation is complete,
-            // because in contrast to thread pool mode, it is the only
-            // thread that can accept connections with this factory's
-            // acceptor. Therefore we don't call validate() and
-            // activate() from the connection factory in thread per
-            // connection mode.
+            // In thread-per-connection mode and regardless of the background mode, 
+            // start() doesn't block. The connection thread is started and takes 
+            // care of the connection validation and notifies the factory through
+            // the callback when it's done.
             //
+            connection.start(this);
         }
     }
 
@@ -796,5 +840,5 @@ public final class IncomingConnectionFactory extends EventHandler
 
     private int _state;
 
-    private boolean _threadPerConnection;
+    private final boolean _threadPerConnection;
 }

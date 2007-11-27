@@ -14,7 +14,7 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h> // For ThreadPerIncomingConnectionFactory.
 #include <Ice/ConnectionFactoryF.h>
-#include <Ice/ConnectionIF.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointIF.h>
@@ -24,6 +24,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/EventHandler.h>
+#include <Ice/EndpointI.h>
 #include <list>
 #include <set>
 
@@ -38,15 +39,26 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class OutgoingConnectionFactory : virtual public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
+
+    class CreateConnectionCallback : virtual public IceUtil::Shared
+    {
+    public:
+        
+        virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
+        virtual void setException(const Ice::LocalException&) = 0;
+    };
+    typedef IceUtil::Handle<CreateConnectionCallback> CreateConnectionCallbackPtr; 
 
     void destroy();
 
     void waitUntilFinished();
 
     Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, bool, Ice::EndpointSelectionType, bool&);
+    void create(const std::vector<EndpointIPtr>&, bool, bool, Ice::EndpointSelectionType, 
+                const CreateConnectionCallbackPtr&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushBatchRequests();
@@ -57,13 +69,87 @@ private:
     virtual ~OutgoingConnectionFactory();
     friend class Instance;
 
+    struct ConnectorInfo
+    {
+        ConnectorInfo(const ConnectorPtr& c, const EndpointIPtr& e, bool t) :
+            connector(c), endpoint(e), threadPerConnection(t)
+        {
+        }
+
+        bool operator<(const ConnectorInfo& other) const;
+
+        ConnectorPtr connector;
+        EndpointIPtr endpoint;
+        bool threadPerConnection;
+    };
+
+    class ConnectCallback : public Ice::ConnectionI::StartCallback, public IceInternal::EndpointI_connectors,
+                            public IceInternal::ThreadPoolWorkItem
+    {
+    public:
+
+        ConnectCallback(const OutgoingConnectionFactoryPtr&, const std::vector<EndpointIPtr>&, bool, 
+                        const CreateConnectionCallbackPtr&, Ice::EndpointSelectionType, bool);
+
+        virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
+        virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
+
+        virtual void connectors(const std::vector<ConnectorPtr>&);
+        virtual void exception(const Ice::LocalException&);
+
+        virtual void execute(const ThreadPoolPtr&);
+
+        void getConnection();
+        void nextConnector();
+
+        bool operator<(const ConnectCallback&) const;
+        
+    private:
+        
+        void handleException();
+
+        const OutgoingConnectionFactoryPtr _factory;
+        const SelectorThreadPtr _selectorThread;
+        const std::vector<EndpointIPtr> _endpoints;
+        const bool _hasMore;
+        const CreateConnectionCallbackPtr _callback;
+        const Ice::EndpointSelectionType _selType;
+        const bool _threadPerConnection;
+        std::vector<EndpointIPtr>::const_iterator _endpointsIter;
+        std::vector<ConnectorInfo> _connectors;
+        std::vector<ConnectorInfo>::const_iterator _iter;
+        std::auto_ptr<Ice::LocalException> _exception;
+        Ice::ConnectionIPtr _connection;
+    };
+    typedef IceUtil::Handle<ConnectCallback> ConnectCallbackPtr;
+    friend class ConnectCallback;
+
+    std::vector<EndpointIPtr> applyOverrides(const std::vector<EndpointIPtr>&);
+    Ice::ConnectionIPtr findConnection(const std::vector<EndpointIPtr>&, bool, bool&);
+    void addPendingEndpoints(const std::vector<EndpointIPtr>&);
+    void removePendingEndpoints(const std::vector<EndpointIPtr>&);
+    Ice::ConnectionIPtr getConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, bool&);
+    void finishGetConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, const Ice::ConnectionIPtr&);
+    Ice::ConnectionIPtr findConnection(const std::vector<ConnectorInfo>&, bool&);
+    Ice::ConnectionIPtr createConnection(const TransceiverPtr&, const ConnectorInfo&);
+
+    void handleException(const Ice::LocalException&, bool);
+    void handleException(const Ice::LocalException&, const ConnectorInfo&, const Ice::ConnectionIPtr&, bool);
+
     const InstancePtr _instance;
     bool _destroyed;
-    std::multimap<ConnectorPtr, Ice::ConnectionIPtr> _connections;
-    std::set<ConnectorPtr> _pending; // Connectors for which connection establishment is pending.
+
+    std::multimap<ConnectorInfo, Ice::ConnectionIPtr> _connections;
+    std::map<ConnectorInfo, std::set<ConnectCallbackPtr> > _pending;
+
+    std::multimap<EndpointIPtr, Ice::ConnectionIPtr> _connectionsByEndpoint;
+    std::multiset<EndpointIPtr> _pendingEndpoints;
 };
 
-class IncomingConnectionFactory : public EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
+class IncomingConnectionFactory : public EventHandler, 
+                                  public Ice::ConnectionI::StartCallback,
+                                  public IceUtil::Monitor<IceUtil::Mutex>
+                                      
 {
 public:
 
@@ -83,11 +169,14 @@ public:
     //
     virtual bool datagram() const;
     virtual bool readable() const;
-    virtual void read(BasicStream&);
+    virtual bool read(BasicStream&);
     virtual void message(BasicStream&, const ThreadPoolPtr&);
     virtual void finished(const ThreadPoolPtr&);
     virtual void exception(const Ice::LocalException&);
     virtual std::string toString() const;
+
+    virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
+    virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
     
 private:
 

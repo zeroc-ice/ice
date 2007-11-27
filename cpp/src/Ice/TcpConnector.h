@@ -30,6 +30,7 @@ class TcpConnector : public Connector
 public:
     
     virtual TransceiverPtr connect(int);
+
     virtual Ice::Short type() const;
     virtual std::string toString() const;
 
@@ -37,8 +38,6 @@ public:
     virtual bool operator!=(const Connector&) const;
     virtual bool operator<(const Connector&) const;
 
-    bool equivalent(const std::string&, int) const;
-    
 private:
     
     TcpConnector(const InstancePtr&, const struct sockaddr_in&, Ice::Int, const std::string&);

@@ -18,6 +18,7 @@
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
+#include <Ice/SelectorThread.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectFactoryManager.h>
@@ -233,6 +234,42 @@ IceInternal::Instance::serverThreadPool()
     }
 
     return _serverThreadPool;
+}
+
+SelectorThreadPtr
+IceInternal::Instance::selectorThread()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    
+    if(!_selectorThread) // Lazy initialization.
+    {
+        _selectorThread = new SelectorThread(this);
+    }
+
+    return _selectorThread;
+}
+
+EndpointHostResolverPtr
+IceInternal::Instance::endpointHostResolver()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    
+    if(!_endpointHostResolver) // Lazy initialization.
+    {
+        _endpointHostResolver = new EndpointHostResolver(this);
+    }
+
+    return _endpointHostResolver;
 }
 
 IceUtil::TimerPtr
@@ -914,6 +951,8 @@ IceInternal::Instance::~Instance()
     assert(!_objectAdapterFactory);
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
+    assert(!_selectorThread);
+    assert(!_endpointHostResolver);
     assert(!_timer);
     assert(!_routerManager);
     assert(!_locatorManager);
@@ -1077,6 +1116,8 @@ IceInternal::Instance::destroy()
 
     ThreadPoolPtr serverThreadPool;
     ThreadPoolPtr clientThreadPool;
+    SelectorThreadPtr selectorThread;
+    EndpointHostResolverPtr endpointHostResolver;
 
     {
         IceUtil::RecMutex::Lock sync(*this);
@@ -1100,6 +1141,18 @@ IceInternal::Instance::destroy()
         {
             _clientThreadPool->destroy();
             std::swap(_clientThreadPool, clientThreadPool);
+        }
+
+        if(_selectorThread)
+        {
+            _selectorThread->destroy();
+            std::swap(selectorThread, _selectorThread);
+        }
+
+        if(_endpointHostResolver)
+        {
+            _endpointHostResolver->destroy();
+            std::swap(endpointHostResolver, _endpointHostResolver);
         }
 
         if(_timer)
@@ -1168,6 +1221,14 @@ IceInternal::Instance::destroy()
     if(serverThreadPool)
     {
         serverThreadPool->joinWithAllThreads();
+    }
+    if(selectorThread)
+    {
+        selectorThread->joinWithThread();
+    }
+    if(endpointHostResolver)
+    {
+        endpointHostResolver->getThreadControl().join();
     }
 
     if(_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)

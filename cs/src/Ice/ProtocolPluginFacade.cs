@@ -18,6 +18,11 @@ namespace IceInternal
         Ice.Communicator getCommunicator();
 
         //
+        // Get the endpoint host resolver.
+        //
+        IceInternal.EndpointHostResolver getEndpointHostResolver();
+
+        //
         // Get the default hostname to be used in endpoints.
         //
         string getDefaultHost();
@@ -32,6 +37,11 @@ namespace IceInternal
         // Register an EndpointFactory.
         //
         void addEndpointFactory(EndpointFactory factory);
+
+        //
+        // Get an EndpointFactory.
+        //
+        EndpointFactory getEndpointFactory(short type);
     }
 
     public sealed class ProtocolPluginFacadeI : ProtocolPluginFacade
@@ -50,6 +60,14 @@ namespace IceInternal
         public Ice.Communicator getCommunicator()
         {
             return _communicator;
+        }
+
+        //
+        // Get the endpoint host resolver.
+        //
+        public IceInternal.EndpointHostResolver getEndpointHostResolver()
+        {
+            return _instance.endpointHostResolver();
         }
 
         //
@@ -79,6 +97,14 @@ namespace IceInternal
         public void addEndpointFactory(EndpointFactory factory)
         {
             _instance.endpointFactoryManager().add(factory);
+        }
+
+        //
+        // Get an EndpointFactory.
+        //
+        public EndpointFactory getEndpointFactory(short type)
+        {
+            return _instance.endpointFactoryManager().get(type);
         }
 
         private Instance _instance;

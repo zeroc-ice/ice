@@ -36,45 +36,42 @@ namespace IceInternal
             {
                 BZ2_bzlibVersion();
             }
-            catch(System.DllNotFoundException)
+            catch(DllNotFoundException)
             {
                 _bzlibInstalled = false;
             }
-            catch(System.EntryPointNotFoundException)
+            catch(EntryPointNotFoundException)
             {
                 _bzlibInstalled = false;
             }
         }
 
-        public BasicStream(IceInternal.Instance instance)
+        public BasicStream(Instance instance)
         {
             initialize(instance, false);
         }
 
-        public BasicStream(IceInternal.Instance instance, bool unlimited)
+        public BasicStream(Instance instance, bool unlimited)
         {
             initialize(instance, unlimited);
         }
 
-        private void initialize(IceInternal.Instance instance, bool unlimited)
+        private void initialize(Instance instance, bool unlimited)
         {
             instance_ = instance;
+            _buf = new Buffer(instance_.messageSizeMax());
             _closure = null;
             _unlimited = unlimited;
-            allocate(1500);
-            _capacity = _buf.capacity();
-            _limit = 0;
-            Debug.Assert(_buf.limit() == _capacity);
-            
+
             _readEncapsStack = null;
             _writeEncapsStack = null;
             _readEncapsCache = null;
             _writeEncapsCache = null;
-            
+
             _traceSlicing = -1;
-            
+
             _sliceObjects = true;
-            
+
             _messageSizeMax = instance_.messageSizeMax(); // Cached for efficiency.
 
             _seqDataStack = null;
@@ -87,10 +84,8 @@ namespace IceInternal
         //
         public virtual void reset()
         {
-            _limit = 0;
-            _buf.limit(_capacity);
-            _buf.position(0);
-            
+            _buf.reset();
+
             if(_readEncapsStack != null)
             {
                 Debug.Assert(_readEncapsStack.next == null);
@@ -106,7 +101,7 @@ namespace IceInternal
             }
         }
 
-        public virtual IceInternal.Instance instance()
+        public virtual Instance instance()
         {
             return instance_;
         }
@@ -131,18 +126,10 @@ namespace IceInternal
             other._closure = _closure;
             _closure = tmpClosure;
 
-            ByteBuffer tmpBuf = other._buf;
+            Buffer tmpBuf = other._buf;
             other._buf = _buf;
             _buf = tmpBuf;
-            
-            int tmpCapacity = other._capacity;
-            other._capacity = _capacity;
-            _capacity = tmpCapacity;
-            
-            int tmpLimit = other._limit;
-            other._limit = _limit;
-            _limit = tmpLimit;
-            
+
             ReadEncaps tmpRead = other._readEncapsStack;
             other._readEncapsStack = _readEncapsStack;
             _readEncapsStack = tmpRead;
@@ -179,51 +166,33 @@ namespace IceInternal
             other._unlimited = _unlimited;
             _unlimited = tmpUnlimited;
         }
-        
-        public virtual void resize(int total, bool reading)
+
+        public virtual void resize(int sz, bool reading)
         {
-            if(!_unlimited && total > _messageSizeMax)
+            //
+            // Check memory limit if stream is not unlimited.
+            //
+            if(!_unlimited && sz > _messageSizeMax)
             {
                 throw new Ice.MemoryLimitException("Message size > Ice.MessageSizeMax");
             }
-            if(total > _capacity)
-            {
-                int cap2 = _capacity << 1;
-                int newCapacity = cap2 > total ? cap2 : total;
-                _buf.limit(_limit);
-                reallocate(newCapacity);
-                _capacity = _buf.capacity();
-            }
-            //
-            // If this stream is used for reading, then we want to set
-            // the buffer's limit to the new total size. If this
-            // buffer is used for writing, then we must set the
-            // buffer's limit to the buffer's capacity.
-            //
-            if(reading)
-            {
-                _buf.limit(total);
-            }
-            else
-            {
-                _buf.limit(_capacity);
-            }
-            _buf.position(total);
-            _limit = total;
+
+            _buf.resize(sz, reading);
+            _buf.b.position(sz);
         }
-        
-        public virtual ByteBuffer prepareRead()
+
+        public virtual Buffer prepareWrite()
+        {
+            _buf.b.limit(_buf.size());
+            _buf.b.position(0);
+            return _buf;
+        }
+
+        public virtual Buffer getBuffer()
         {
             return _buf;
         }
-        
-        public virtual ByteBuffer prepareWrite()
-        {
-            _buf.limit(_limit);
-            _buf.position(0);
-            return _buf;
-        }
-        
+
         //
         // startSeq() and endSeq() sanity-check sequence sizes during
         // unmarshaling and prevent malicious messages with incorrect
@@ -289,7 +258,7 @@ namespace IceInternal
             sd.previous = _seqDataStack;
             _seqDataStack = sd;
 
-            int bytesLeft = _buf.remaining();
+            int bytesLeft = _buf.b.remaining();
             if(_seqDataStack.previous == null) // Outermost sequence
             {
                 //
@@ -314,7 +283,7 @@ namespace IceInternal
         //
         public void checkSeq()
         {
-            checkSeq(_buf.remaining());
+            checkSeq(_buf.b.remaining());
         }
 
         public void checkSeq(int bytesLeft)
@@ -336,7 +305,7 @@ namespace IceInternal
 
         public void checkFixedSeq(int numElements, int elemSize)
         {
-            int bytesLeft = _buf.remaining();
+            int bytesLeft = _buf.b.remaining();
             if(_seqDataStack == null) // Outermost sequence
             {
                 //
@@ -390,27 +359,27 @@ namespace IceInternal
                 curr.next = _writeEncapsStack;
                 _writeEncapsStack = curr;
             }
-            
-            _writeEncapsStack.start = _buf.position();
+
+            _writeEncapsStack.start = _buf.b.position();
             writeInt(0); // Placeholder for the encapsulation length.
             writeByte(Protocol.encodingMajor);
             writeByte(Protocol.encodingMinor);
         }
-        
+
         public virtual void endWriteEncaps()
         {
             Debug.Assert(_writeEncapsStack != null);
             int start = _writeEncapsStack.start;
-            int sz = _buf.position() - start; // Size includes size and version.
-            _buf.putInt(start, sz);
-            
+            int sz = _buf.size() - start; // Size includes size and version.
+            _buf.b.putInt(start, sz);
+
             WriteEncaps curr = _writeEncapsStack;
             _writeEncapsStack = curr.next;
             curr.next = _writeEncapsCache;
             _writeEncapsCache = curr;
             _writeEncapsCache.reset();
         }
-        
+
         public virtual void startReadEncaps()
         {
             {
@@ -427,9 +396,9 @@ namespace IceInternal
                 curr.next = _readEncapsStack;
                 _readEncapsStack = curr;
             }
-            
-            _readEncapsStack.start = _buf.position();
-            
+
+            _readEncapsStack.start = _buf.b.position();
+
             //
             // I don't use readSize() and writeSize() for
             // encapsulations, because when creating an encapsulation,
@@ -444,12 +413,12 @@ namespace IceInternal
                 throw new Ice.NegativeSizeException();
             }
 
-            if(sz - 4 > _buf.limit())
+            if(sz - 4 > _buf.b.limit())
             {
                 throw new Ice.UnmarshalOutOfBoundsException();
             }
             _readEncapsStack.sz = sz;
-            
+
             byte eMajor = readByte();
             byte eMinor = readByte();
             if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
@@ -464,7 +433,7 @@ namespace IceInternal
             _readEncapsStack.encodingMajor = eMajor;
             _readEncapsStack.encodingMinor = eMinor;
         }
-        
+
         public virtual void endReadEncaps()
         {
             Debug.Assert(_readEncapsStack != null);
@@ -472,37 +441,37 @@ namespace IceInternal
             int sz = _readEncapsStack.sz;
             try
             {
-                _buf.position(start + sz);
+                _buf.b.position(start + sz);
             }
             catch(ArgumentOutOfRangeException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
-            
+
             ReadEncaps curr = _readEncapsStack;
             _readEncapsStack = curr.next;
             curr.next = _readEncapsCache;
             _readEncapsCache = curr;
             _readEncapsCache.reset();
         }
-        
+
         public virtual void checkReadEncaps()
         {
             Debug.Assert(_readEncapsStack != null);
             int start = _readEncapsStack.start;
             int sz = _readEncapsStack.sz;
-            if(_buf.position() != start + sz)
+            if(_buf.b.position() != start + sz)
             {
                 throw new Ice.EncapsulationException();
             }
         }
-        
+
         public virtual int getReadEncapsSize()
         {
             Debug.Assert(_readEncapsStack != null);
             return _readEncapsStack.sz - 6;
         }
-        
+
         public virtual void skipEncaps()
         {
             int sz = readInt();
@@ -512,26 +481,26 @@ namespace IceInternal
             }
             try
             {
-                _buf.position(_buf.position() + sz - 4);
+                _buf.b.position(_buf.b.position() + sz - 4);
             }
             catch(ArgumentOutOfRangeException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual void startWriteSlice()
         {
             writeInt(0); // Placeholder for the slice length.
-            _writeSlice = _buf.position();
+            _writeSlice = _buf.size();
         }
-        
+
         public virtual void endWriteSlice()
         {
-            int sz = _buf.position() - _writeSlice + 4;
-            _buf.putInt(_writeSlice - 4, sz);
+            int sz = _buf.size() - _writeSlice + 4;
+            _buf.b.putInt(_writeSlice - 4, sz);
         }
-        
+
         public virtual void startReadSlice()
         {
             int sz = readInt();
@@ -539,13 +508,13 @@ namespace IceInternal
             {
                 throw new Ice.NegativeSizeException();
             }
-            _readSlice = _buf.position();
+            _readSlice = _buf.b.position();
         }
-        
+
         public virtual void endReadSlice()
         {
         }
-        
+
         public virtual void skipSlice()
         {
             int sz = readInt();
@@ -555,29 +524,29 @@ namespace IceInternal
             }
             try
             {
-                _buf.position(_buf.position() + sz - 4);
+                _buf.b.position(_buf.b.position() + sz - 4);
             }
             catch(ArgumentOutOfRangeException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual void writeSize(int v)
         {
             if(v > 254)
             {
                 expand(5);
-                _buf.put((byte)255);
-                _buf.putInt(v);
+                _buf.b.put((byte)255);
+                _buf.b.putInt(v);
             }
             else
             {
                 expand(1);
-                _buf.put((byte)v);
+                _buf.b.put((byte)v);
             }
         }
-        
+
         public virtual int readSize()
         {
             try
@@ -585,11 +554,11 @@ namespace IceInternal
                 //
                 // COMPILERFIX: for some reasons _buf.get() doesn't work here on MacOS X with Mono;
                 //
-                //byte b = _buf.get();
+                //byte b = _buf.b.get();
                 byte b = readByte();
                 if(b == 255)
                 {
-                    int v = _buf.getInt();
+                    int v = _buf.b.getInt();
                     if(v < 0)
                     {
                         throw new Ice.NegativeSizeException();
@@ -606,7 +575,7 @@ namespace IceInternal
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual void writeTypeId(string id)
         {
             object o = _writeEncapsStack.typeIdMap[id];
@@ -623,7 +592,7 @@ namespace IceInternal
                 writeString(id);
             }
         }
-        
+
         public virtual string readTypeId()
         {
             string id;
@@ -646,7 +615,7 @@ namespace IceInternal
             }
             return id;
         }
-        
+
         public virtual void writeBlob(byte[] v)
         {
             if(v == null)
@@ -654,14 +623,14 @@ namespace IceInternal
                 return;
             }
             expand(v.Length);
-            _buf.put(v);
+            _buf.b.put(v);
         }
-        
+
         public virtual void readBlob(byte[] v)
         {
             try
             {
-                _buf.get(v);
+                _buf.b.get(v);
             }
             catch(InvalidOperationException ex)
             {
@@ -674,7 +643,7 @@ namespace IceInternal
             byte[] v = new byte[sz];
             try
             {
-                _buf.get(v);
+                _buf.b.get(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -682,11 +651,11 @@ namespace IceInternal
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual void writeByte(byte v)
         {
             expand(1);
-            _buf.put(v);
+            _buf.b.put(v);
         }
 
         public virtual void writeByte(byte v, int end)
@@ -697,7 +666,7 @@ namespace IceInternal
             }
             writeByte(v);
         }
-        
+
         public virtual void writeByteSeq(byte[] v)
         {
             if(v == null)
@@ -708,7 +677,7 @@ namespace IceInternal
             {
                 writeSize(v.Length);
                 expand(v.Length);
-                _buf.put(v);
+                _buf.b.put(v);
             }
         }
 
@@ -731,7 +700,7 @@ namespace IceInternal
                 IEnumerator<byte> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.put(i.Current);
+                    _buf.b.put(i.Current);
                 }
             }
             else if(v is Queue<byte>)
@@ -748,7 +717,7 @@ namespace IceInternal
                 expand(count);
                 foreach(byte b in v)
                 {
-                    _buf.put(b);
+                    _buf.b.put(b);
                 }
             }
         }
@@ -757,7 +726,7 @@ namespace IceInternal
         {
             try
             {
-                return _buf.get();
+                return _buf.b.get();
             }
             catch(InvalidOperationException ex)
             {
@@ -782,7 +751,7 @@ namespace IceInternal
                 int sz = readSize();
                 checkFixedSeq(sz, 1);
                 byte[] v = new byte[sz];
-                _buf.get(v);
+                _buf.b.get(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -838,7 +807,7 @@ namespace IceInternal
         public virtual void writeBool(bool v)
         {
             expand(1);
-            _buf.put(v ? (byte)1 : (byte)0);
+            _buf.b.put(v ? (byte)1 : (byte)0);
         }
 
         public virtual void writeBoolSeq(bool[] v)
@@ -851,7 +820,7 @@ namespace IceInternal
             {
                 writeSize(v.Length);
                 expand(v.Length);
-                _buf.putBoolSeq(v);
+                _buf.b.putBoolSeq(v);
             }
         }
 
@@ -874,7 +843,7 @@ namespace IceInternal
                 IEnumerator<bool> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.put(i.Current ? (byte)1 : (byte)0);
+                    _buf.b.putBool(i.Current);
                 }
             }
             else if(v is Queue<bool>)
@@ -891,7 +860,7 @@ namespace IceInternal
                 expand(count);
                 foreach(bool b in v)
                 {
-                    _buf.put(b ? (byte)1 : (byte)0);
+                    _buf.b.putBool(b);
                 }
             }
         }
@@ -900,14 +869,14 @@ namespace IceInternal
         {
             try
             {
-                return _buf.get() == 1;
+                return _buf.b.get() == 1;
             }
             catch(InvalidOperationException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual bool[] readBoolSeq()
         {
             try
@@ -915,7 +884,7 @@ namespace IceInternal
                 int sz = readSize();
                 checkFixedSeq(sz, 1);
                 bool[] v = new bool[sz];
-                _buf.getBoolSeq(v);
+                _buf.b.getBoolSeq(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -967,13 +936,13 @@ namespace IceInternal
                 l.Push(array[i]);
             }
         }
-        
+
         public virtual void writeShort(short v)
         {
             expand(2);
-            _buf.putShort(v);
+            _buf.b.putShort(v);
         }
-        
+
         public virtual void writeShortSeq(short[] v)
         {
             if(v == null)
@@ -984,7 +953,7 @@ namespace IceInternal
             {
                 writeSize(v.Length);
                 expand(v.Length * 2);
-                _buf.putShortSeq(v);
+                _buf.b.putShortSeq(v);
             }
         }
 
@@ -1007,7 +976,7 @@ namespace IceInternal
                 IEnumerator<short> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.putShort(i.Current);
+                    _buf.b.putShort(i.Current);
                 }
             }
             else if(v is Queue<short>)
@@ -1024,7 +993,7 @@ namespace IceInternal
                 expand(count * 2);
                 foreach(short s in v)
                 {
-                    writeShort(s);
+                    _buf.b.putShort(s);
                 }
             }
         }
@@ -1033,14 +1002,14 @@ namespace IceInternal
         {
             try
             {
-                return _buf.getShort();
+                return _buf.b.getShort();
             }
             catch(InvalidOperationException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual short[] readShortSeq()
         {
             try
@@ -1048,7 +1017,7 @@ namespace IceInternal
                 int sz = readSize();
                 checkFixedSeq(sz, 2);
                 short[] v = new short[sz];
-                _buf.getShortSeq(v);
+                _buf.b.getShortSeq(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -1100,13 +1069,13 @@ namespace IceInternal
                 l.Push(array[i]);
             }
         }
-        
+
         public virtual void writeInt(int v)
         {
             expand(4);
-            _buf.putInt(v);
+            _buf.b.putInt(v);
         }
-        
+
         public virtual void writeIntSeq(int[] v)
         {
             if(v == null)
@@ -1117,7 +1086,7 @@ namespace IceInternal
             {
                 writeSize(v.Length);
                 expand(v.Length * 4);
-                _buf.putIntSeq(v);
+                _buf.b.putIntSeq(v);
             }
         }
 
@@ -1140,7 +1109,7 @@ namespace IceInternal
                 IEnumerator<int> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.putInt(i.Current);
+                    _buf.b.putInt(i.Current);
                 }
             }
             else if(v is Queue<int>)
@@ -1157,23 +1126,23 @@ namespace IceInternal
                 expand(count * 4);
                 foreach(int i in v)
                 {
-                    _buf.putInt(i);
+                    _buf.b.putInt(i);
                 }
             }
         }
-        
+
         public virtual int readInt()
         {
             try
             {
-                return _buf.getInt();
+                return _buf.b.getInt();
             }
             catch(InvalidOperationException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual int[] readIntSeq()
         {
             try
@@ -1181,7 +1150,7 @@ namespace IceInternal
                 int sz = readSize();
                 checkFixedSeq(sz, 4);
                 int[] v = new int[sz];
-                _buf.getIntSeq(v);
+                _buf.b.getIntSeq(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -1209,7 +1178,7 @@ namespace IceInternal
                 l = new LinkedList<int>();
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.getInt());
+                    l.AddLast(_buf.b.getInt());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1233,7 +1202,7 @@ namespace IceInternal
                 l = new Queue<int>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.getInt());
+                    l.Enqueue(_buf.b.getInt());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1255,13 +1224,13 @@ namespace IceInternal
                 l.Push(array[i]);
             }
         }
-        
+
         public virtual void writeLong(long v)
         {
             expand(8);
-            _buf.putLong(v);
+            _buf.b.putLong(v);
         }
-        
+
         public virtual void writeLongSeq(long[] v)
         {
             if(v == null)
@@ -1272,7 +1241,7 @@ namespace IceInternal
             {
                 writeSize(v.Length);
                 expand(v.Length * 8);
-                _buf.putLongSeq(v);
+                _buf.b.putLongSeq(v);
             }
         }
 
@@ -1295,7 +1264,7 @@ namespace IceInternal
                 IEnumerator<long> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.putLong(i.Current);
+                    _buf.b.putLong(i.Current);
                 }
             }
             else if(v is Queue<long>)
@@ -1312,7 +1281,7 @@ namespace IceInternal
                 expand(count * 8);
                 foreach(long l in v)
                 {
-                    _buf.putLong(l);
+                    _buf.b.putLong(l);
                 }
             }
         }
@@ -1321,14 +1290,14 @@ namespace IceInternal
         {
             try
             {
-                return _buf.getLong();
+                return _buf.b.getLong();
             }
             catch(InvalidOperationException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual long[] readLongSeq()
         {
             try
@@ -1336,7 +1305,7 @@ namespace IceInternal
                 int sz = readSize();
                 checkFixedSeq(sz, 8);
                 long[] v = new long[sz];
-                _buf.getLongSeq(v);
+                _buf.b.getLongSeq(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -1344,7 +1313,7 @@ namespace IceInternal
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual void readLongSeq(out List<long> l)
         {
             //
@@ -1364,7 +1333,7 @@ namespace IceInternal
                 l = new LinkedList<long>();
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.getLong());
+                    l.AddLast(_buf.b.getLong());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1388,7 +1357,7 @@ namespace IceInternal
                 l = new Queue<long>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.getLong());
+                    l.Enqueue(_buf.b.getLong());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1414,9 +1383,9 @@ namespace IceInternal
         public virtual void writeFloat(float v)
         {
             expand(4);
-            _buf.putFloat(v);
+            _buf.b.putFloat(v);
         }
-        
+
         public virtual void writeFloatSeq(float[] v)
         {
             if(v == null)
@@ -1427,7 +1396,7 @@ namespace IceInternal
             {
                 writeSize(v.Length);
                 expand(v.Length * 4);
-                _buf.putFloatSeq(v);
+                _buf.b.putFloatSeq(v);
             }
         }
 
@@ -1450,7 +1419,7 @@ namespace IceInternal
                 IEnumerator<float> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.putFloat(i.Current);
+                    _buf.b.putFloat(i.Current);
                 }
             }
             else if(v is Queue<float>)
@@ -1467,7 +1436,7 @@ namespace IceInternal
                 expand(count * 4);
                 foreach(float f in v)
                 {
-                    _buf.putFloat(f);
+                    _buf.b.putFloat(f);
                 }
             }
         }
@@ -1476,14 +1445,14 @@ namespace IceInternal
         {
             try
             {
-                return _buf.getFloat();
+                return _buf.b.getFloat();
             }
             catch(InvalidOperationException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual float[] readFloatSeq()
         {
             try
@@ -1491,7 +1460,7 @@ namespace IceInternal
                 int sz = readSize();
                 checkFixedSeq(sz, 4);
                 float[] v = new float[sz];
-                _buf.getFloatSeq(v);
+                _buf.b.getFloatSeq(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -1519,7 +1488,7 @@ namespace IceInternal
                 l = new LinkedList<float>();
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.getFloat());
+                    l.AddLast(_buf.b.getFloat());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1543,7 +1512,7 @@ namespace IceInternal
                 l = new Queue<float>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.getFloat());
+                    l.Enqueue(_buf.b.getFloat());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1565,13 +1534,13 @@ namespace IceInternal
                 l.Push(array[i]);
             }
         }
-        
+
         public virtual void writeDouble(double v)
         {
             expand(8);
-            _buf.putDouble(v);
+            _buf.b.putDouble(v);
         }
-        
+
         public virtual void writeDoubleSeq(double[] v)
         {
             if(v == null)
@@ -1582,7 +1551,7 @@ namespace IceInternal
             {
                 writeSize(v.Length);
                 expand(v.Length * 8);
-                _buf.putDoubleSeq(v);
+                _buf.b.putDoubleSeq(v);
             }
         }
 
@@ -1605,7 +1574,7 @@ namespace IceInternal
                 IEnumerator<double> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.putDouble(i.Current);
+                    _buf.b.putDouble(i.Current);
                 }
             }
             else if(v is Queue<double>)
@@ -1622,23 +1591,23 @@ namespace IceInternal
                 expand(count * 8);
                 foreach(double d in v)
                 {
-                    _buf.putDouble(d);
+                    _buf.b.putDouble(d);
                 }
             }
         }
-        
+
         public virtual double readDouble()
         {
             try
             {
-                return _buf.getDouble();
+                return _buf.b.getDouble();
             }
             catch(InvalidOperationException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
         public virtual double[] readDoubleSeq()
         {
             try
@@ -1646,7 +1615,7 @@ namespace IceInternal
                 int sz = readSize();
                 checkFixedSeq(sz, 8);
                 double[] v = new double[sz];
-                _buf.getDoubleSeq(v);
+                _buf.b.getDoubleSeq(v);
                 return v;
             }
             catch(InvalidOperationException ex)
@@ -1674,7 +1643,7 @@ namespace IceInternal
                 l = new LinkedList<double>();
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.AddLast(_buf.getDouble());
+                    l.AddLast(_buf.b.getDouble());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1698,7 +1667,7 @@ namespace IceInternal
                 l = new Queue<double>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
-                    l.Enqueue(_buf.getDouble());
+                    l.Enqueue(_buf.b.getDouble());
                 }
             }
             catch(InvalidOperationException ex)
@@ -1722,7 +1691,7 @@ namespace IceInternal
         }
 
         private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
-       
+
         public virtual void writeString(string v)
         {
             if(v == null || v.Length == 0)
@@ -1733,9 +1702,9 @@ namespace IceInternal
             byte[] arr = utf8.GetBytes(v);
             writeSize(arr.Length);
             expand(arr.Length);
-            _buf.put(arr);
+            _buf.b.put(arr);
         }
-        
+
         public virtual void writeStringSeq(string[] v)
         {
             if(v == null)
@@ -1767,12 +1736,12 @@ namespace IceInternal
         public virtual string readString()
         {
             int len = readSize();
-            
+
             if(len == 0)
             {
                 return "";
             }
-            
+
             try
             {
                 //
@@ -1783,7 +1752,7 @@ namespace IceInternal
                 {
                     _stringBytes = new byte[len];
                 }
-                _buf.get(_stringBytes, 0, len);
+                _buf.b.get(_stringBytes, 0, len);
                 return utf8.GetString(_stringBytes, 0, len);
             }    
             catch(InvalidOperationException ex)
@@ -1800,7 +1769,7 @@ namespace IceInternal
                 return "";
             }
         }
-        
+
         public virtual string[] readStringSeq()
         {
             int sz = readSize();
@@ -1891,12 +1860,12 @@ namespace IceInternal
         {
             instance_.proxyFactory().proxyToStream(v, this);
         }
-        
+
         public virtual Ice.ObjectPrx readProxy()
         {
             return instance_.proxyFactory().streamToProxy(this);
         }
-        
+
         public virtual void writeObject(Ice.Object v)
         {
             if(_writeEncapsStack == null) // Lazy initialization
@@ -1911,7 +1880,7 @@ namespace IceInternal
                     _writeEncapsStack = new WriteEncaps();
                 }
             }
-            
+
             if(_writeEncapsStack.toBeMarshaledMap == null) // Lazy initialization
             {
                 _writeEncapsStack.toBeMarshaledMap = new Hashtable();
@@ -1949,11 +1918,11 @@ namespace IceInternal
                 writeInt(0); // Write null reference
             }
         }
-        
-        public virtual void readObject(IceInternal.IPatcher patcher)
+
+        public virtual void readObject(IPatcher patcher)
         {
             Ice.Object v = null;
-            
+
             if(_readEncapsStack == null) // Lazy initialization
             {
                 _readEncapsStack = _readEncapsCache;
@@ -1966,22 +1935,22 @@ namespace IceInternal
                     _readEncapsStack = new ReadEncaps();
                 }
             }
-            
+
             if(_readEncapsStack.patchMap == null) // Lazy initialization
             {
                 _readEncapsStack.patchMap = new Hashtable();
                 _readEncapsStack.unmarshaledMap = new Hashtable();
                 _readEncapsStack.typeIdMap = new Hashtable();
             }
-            
+
             int index = readInt();
-            
+
             if(index == 0)
             {
                 patcher.patch(null);
                 return;
             }
-            
+
             if(index < 0 && patcher != null)
             {
                 int i = -index;
@@ -2005,7 +1974,7 @@ namespace IceInternal
                 patchReferences(null, i);
                 return;
             }
-            
+
             string mostDerivedId = readTypeId();
             string id = string.Copy(mostDerivedId);
 
@@ -2022,7 +1991,7 @@ namespace IceInternal
                     ex.type = mostDerivedId;
                     throw ex;
                 }
-                
+
                 //
                 // Try to find a factory registered for the specific
                 // type.
@@ -2032,7 +2001,7 @@ namespace IceInternal
                 {
                     v = userFactory.create(id);
                 }
-                
+
                 //
                 // If that fails, invoke the default factory if one
                 // has been registered.
@@ -2045,7 +2014,7 @@ namespace IceInternal
                         v = userFactory.create(id);
                     }
                 }
-                
+
                 //
                 // Last chance: check whether the class is
                 // non-abstract and dynamically instantiate it using
@@ -2059,7 +2028,7 @@ namespace IceInternal
                         v = userFactory.create(id);
                     }
                 }
-                
+
                 if(v == null)
                 {
                     if(_sliceObjects)
@@ -2088,7 +2057,7 @@ namespace IceInternal
                         throw ex;
                     }
                 }
-                
+
                 int i = index;
                 _readEncapsStack.unmarshaledMap[i] = v;
 
@@ -2108,7 +2077,7 @@ namespace IceInternal
                 return;
             }
         }
-        
+
         public virtual void writeUserException(Ice.UserException v)
         {
             writeBool(v.usesClasses__());
@@ -2118,20 +2087,20 @@ namespace IceInternal
                 writePendingObjects();
             }
         }
-        
+
         public virtual void throwException()
         {
             bool usesClasses = readBool();
-            
+
             string id = readString();
-            
+
             for(;;)
             {
                 //
                 // Look for a factory for this ID.
                 //
                 UserExceptionFactory factory = getUserExceptionFactory(id);
-                
+
                 if(factory != null)
                 {
                     //
@@ -2182,7 +2151,7 @@ namespace IceInternal
             // a MarshalException.
             //
         }
-        
+
         public virtual void writePendingObjects()
         {
             if(_writeEncapsStack != null && _writeEncapsStack.toBeMarshaledMap != null)
@@ -2204,7 +2173,7 @@ namespace IceInternal
                         _writeEncapsStack.marshaledMap[e.Key] = e.Value;
                         writeInstance((Ice.Object)e.Key, (int)e.Value);
                     }
-                    
+
                     //
                     // We have marshaled all the instances for this
                     // pass, substract what we have marshaled from the
@@ -2218,7 +2187,7 @@ namespace IceInternal
             }
             writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
         }
-        
+
         public virtual void readPendingObjects()
         {
             int num;
@@ -2249,18 +2218,19 @@ namespace IceInternal
                     }
                     catch(System.Exception ex)
                     {
-                        instance_.initializationData().logger.warning("exception raised by ice_postUnmarshal::\n" + ex);
+                        instance_.initializationData().logger.warning("exception raised by ice_postUnmarshal::\n" +
+                                                                      ex);
                     }
                 }
             }
         }
-        
+
         public void
         sliceObjects(bool b)
         {
             _sliceObjects = b;
         }
-        
+
         internal virtual void writeInstance(Ice.Object v, int index)
         {
             writeInt(index);
@@ -2274,7 +2244,7 @@ namespace IceInternal
             }
             v.write__(this);
         }
-        
+
         internal virtual void patchReferences(object instanceIndex, object patchIndex)
         {
             //
@@ -2287,7 +2257,7 @@ namespace IceInternal
             //
             Debug.Assert(   ((object)instanceIndex != null && (object)patchIndex == null)
                          || ((object)instanceIndex == null && (object)patchIndex != null));
-            
+
             IceUtil.LinkedList patchlist;
             Ice.Object v;
             if((object)instanceIndex != null)
@@ -2319,11 +2289,11 @@ namespace IceInternal
             }
             Debug.Assert(patchlist != null && patchlist.Count > 0);
             Debug.Assert(v != null);
-            
+
             //
             // Patch all references that refer to the instance.
             //
-            foreach(IceInternal.IPatcher patcher in patchlist)
+            foreach(IPatcher patcher in patchlist)
             {
                 try
                 {
@@ -2343,7 +2313,7 @@ namespace IceInternal
                     throw nof;
                 }
             }
-            
+
             //
             // Clear out the patch map for that index -- there is
             // nothing left to patch for that index for the time
@@ -2438,7 +2408,7 @@ namespace IceInternal
             // Compress the message body, but not the header.
             //
             int uncompressedLen = size() - headerSize;
-            byte[] uncompressed = _buf.rawBytes(headerSize, uncompressedLen);
+            byte[] uncompressed = _buf.b.rawBytes(headerSize, uncompressedLen);
             int compressedLen = (int)(uncompressedLen * 1.01 + 600);
             byte[] compressed = new byte[compressedLen];
 
@@ -2455,7 +2425,7 @@ namespace IceInternal
                 ex.reason = getBZ2Error(rc);
                 throw ex;
             }
-            
+
             //
             // Don't bother if the compressed data is larger than the
             // uncompressed data.
@@ -2468,12 +2438,12 @@ namespace IceInternal
             cstream = new BasicStream(instance_);
             cstream.resize(headerSize + 4 + compressedLen, false);
             cstream.pos(0);
-            
+
             //
             // Copy the header from the uncompressed stream to the
             // compressed one.
             //
-            cstream._buf.put(_buf.rawBytes(0, headerSize));
+            cstream._buf.b.put(_buf.b.rawBytes(0, headerSize));
 
             //
             // Add the size of the uncompressed stream before the
@@ -2484,7 +2454,7 @@ namespace IceInternal
             //
             // Add the compressed message body.
             //
-            cstream._buf.put(compressed, 0, compressedLen);
+            cstream._buf.b.put(compressed, 0, compressedLen);
 
             return true;
         }
@@ -2512,7 +2482,7 @@ namespace IceInternal
             }
 
             int compressedLen = size() - headerSize - 4;
-            byte[] compressed = _buf.rawBytes(headerSize + 4, compressedLen);
+            byte[] compressed = _buf.b.rawBytes(headerSize + 4, compressedLen);
             int uncompressedLen = uncompressedSize - headerSize;
             byte[] uncompressed = new byte[uncompressedLen];
             int rc = BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
@@ -2525,62 +2495,47 @@ namespace IceInternal
             BasicStream ucStream = new BasicStream(instance_);
             ucStream.resize(uncompressedSize, false);
             ucStream.pos(0);
-            ucStream._buf.put(_buf.rawBytes(0, headerSize));
-            ucStream._buf.put(uncompressed, 0, uncompressedLen);
+            ucStream._buf.b.put(_buf.b.rawBytes(0, headerSize));
+            ucStream._buf.b.put(uncompressed, 0, uncompressedLen);
             return ucStream;
         }
-        
+
         internal virtual int pos()
         {
-            return _buf.position();
+            return _buf.b.position();
         }
-        
+
         internal virtual void pos(int n)
         {
-            _buf.position(n);
+            _buf.b.position(n);
         }
-        
+
         public virtual int size()
         {
-            return _limit;
+            return _buf.size();
         }
 
         virtual internal bool isEmpty()
         {
-            return _limit == 0;
+            return _buf.empty();
         }
-        
-        private void expand(int size)
+
+        private void expand(int n)
         {
-            if(_buf.position() == _limit)
-            {
-                int oldLimit = _limit;
-                _limit += size;
-                if(!_unlimited && _limit > _messageSizeMax)
-                {
-                    throw new Ice.MemoryLimitException("Message larger than Ice.MessageSizeMax");
-                }
-                if(_limit > _capacity)
-                {
-                    int cap2 = _capacity << 1;
-                    int newCapacity = cap2 > _limit ? cap2 : _limit;
-                    _buf.limit(oldLimit);
-                    int pos = _buf.position();
-                    reallocate(newCapacity);
-                    _capacity = _buf.capacity();
-                    _buf.limit(_capacity);
-                    _buf.position(pos);
-                }
+            if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
+            {   
+                throw new Ice.MemoryLimitException("Message larger than Ice.MessageSizeMax");
             }
+            _buf.expand(n);
         }
-        
+
         private sealed class DynamicObjectFactory : Ice.ObjectFactory
         {
             internal DynamicObjectFactory(Type c)
             {
                 _class = c;
             }
-            
+
             public Ice.Object create(string type)
             {
                 try
@@ -2592,18 +2547,18 @@ namespace IceInternal
                     throw new Ice.SyscallException(ex);
                 }
             }
-            
+
             public void destroy()
             {
             }
-            
+
             private Type _class;
         }
 
         private Ice.ObjectFactory loadObjectFactory(string id)
         {
             Ice.ObjectFactory factory = null;
-            
+
             try
             {
                 Type c = AssemblyUtil.findType(typeToClass(id));
@@ -2650,17 +2605,17 @@ namespace IceInternal
                 e.type = id;
                 throw e;
             }
-            
+
             return factory;
         }
-        
+
         private sealed class DynamicUserExceptionFactory : UserExceptionFactory
         {
             internal DynamicUserExceptionFactory(Type c)
             {
                 _class = c;
             }
-            
+
             public void createAndThrow()
             {
                 try
@@ -2676,14 +2631,14 @@ namespace IceInternal
                     throw new Ice.SyscallException(ex);
                 }
             }
-            
+
             public void destroy()
             {
             }
-            
+
             private Type _class;
         }
-        
+
         private UserExceptionFactory getUserExceptionFactory(string id)
         {
             UserExceptionFactory factory = null;
@@ -2715,7 +2670,7 @@ namespace IceInternal
             }
             return factory;
         }
-        
+
         private static string typeToClass(string id)
         {
             if(!id.StartsWith("::"))
@@ -2725,58 +2680,19 @@ namespace IceInternal
             return id.Substring(2).Replace("::", ".");
         }
 
-        private void allocate(int size)
-        {
-            ByteBuffer buf = null;
-            try
-            {
-                buf = ByteBuffer.allocate(size);
-            }
-            catch(System.OutOfMemoryException ex)
-            {
-                Ice.MarshalException e = new Ice.MarshalException(ex);
-                e.reason = "OutOfMemoryException occurred while allocating a ByteBuffer";
-                throw e;
-            }
-            buf.order(ByteBuffer.ByteOrder.LITTLE_ENDIAN);
-            _buf = buf;
-        }
-
-        private void reallocate(int size)
-        {
-            //
-            // Limit the buffer size to MessageSizeMax
-            //
-            if(!_unlimited)
-            {
-                size = size > _messageSizeMax ? _messageSizeMax : size;
-            }
-
-            ByteBuffer old = _buf;
-            Debug.Assert(old != null);
-
-            allocate(size);
-            Debug.Assert(_buf != null);
-
-            old.position(0);
-            _buf.put(old);
-        }
-
-        private IceInternal.Instance instance_;
+        private Instance instance_;
+        private Buffer _buf;
         private object _closure;
-        private ByteBuffer _buf;
-        private int _capacity; // Cache capacity to avoid excessive method calls.
-        private int _limit; // Cache limit to avoid excessive method calls.
         private byte[] _stringBytes; // Reusable array for reading strings.
-        
+
         private sealed class ReadEncaps
         {
             internal int start;
             internal int sz;
-            
+
             internal byte encodingMajor;
             internal byte encodingMinor;
-            
+
             internal Hashtable patchMap;
             internal Hashtable unmarshaledMap;
             internal int typeIdIndex;
@@ -2794,11 +2710,11 @@ namespace IceInternal
                 }
             }
         }
-        
+
         private sealed class WriteEncaps
         {
             internal int start;
-            
+
             internal int writeIndex;
             internal Hashtable toBeMarshaledMap;
             internal Hashtable marshaledMap;
@@ -2818,20 +2734,20 @@ namespace IceInternal
                 }
             }
         }
-        
+
         private ReadEncaps _readEncapsStack;
         private WriteEncaps _writeEncapsStack;
         private ReadEncaps _readEncapsCache;
         private WriteEncaps _writeEncapsCache;
-        
+
         private int _readSlice;
         private int _writeSlice;
-        
+
         private int _traceSlicing;
         private string _slicingCat;
-        
+
         private bool _sliceObjects;
-        
+
         private int _messageSizeMax;
         private bool _unlimited;
 

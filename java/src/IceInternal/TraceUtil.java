@@ -12,50 +12,41 @@ package IceInternal;
 public final class TraceUtil
 {
     public static void
-    traceHeader(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+    traceSend(BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
         {
             int p = str.pos();
             str.pos(0);
-
+            
             java.io.StringWriter s = new java.io.StringWriter();
-            s.write(heading);
-            printHeader(s, str);
+            byte type = printMessage(s, str);
 
-            logger.trace(tl.protocolCat, s.toString());
+            logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
+
             str.pos(p);
         }
     }
 
     public static void
-    traceRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+    traceRecv(BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
         {
             int p = str.pos();
             str.pos(0);
-
+            
             java.io.StringWriter s = new java.io.StringWriter();
-            s.write(heading);
-            printHeader(s, str);
+            byte type = printMessage(s, str);
 
-            int requestId = str.readInt();
-            s.write("\nrequest id = " + requestId);
-            if(requestId == 0)
-            {
-                s.write(" (oneway)");
-            }
+            logger.trace(tl.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.toString());
 
-            printRequestHeader(s, str);
-
-            logger.trace(tl.protocolCat, s.toString());
             str.pos(p);
         }
     }
 
     public static void
-    traceBatchRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+    trace(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
         {
@@ -64,132 +55,7 @@ public final class TraceUtil
 
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
-            printHeader(s, str);
-
-            int batchRequestNum = str.readInt();
-            s.write("\nnumber of requests = " + batchRequestNum);
-                
-            for(int i = 0; i < batchRequestNum; ++i)
-            {
-                s.write("\nrequest #" + i + ':');
-                printRequestHeader(s, str);
-                str.skipEncaps();
-            }
-
-            logger.trace(tl.protocolCat, s.toString());
-            str.pos(p);
-        }
-    }
-
-    public static void
-    traceReply(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
-    {
-        if(tl.protocol >= 1)
-        {
-            int p = str.pos();
-            str.pos(0);
-
-            java.io.StringWriter s = new java.io.StringWriter();
-            s.write(heading);
-            printHeader(s, str);
-
-            int requestId = str.readInt();
-            s.write("\nrequest id = " + requestId);
-
-            byte replyStatus = str.readByte();
-            s.write("\nreply status = " + (int)replyStatus + ' ');
-
-            switch(replyStatus)
-            {
-                case ReplyStatus.replyOK:
-                {
-                    s.write("(ok)");
-                    break;
-                }
-
-                case ReplyStatus.replyUserException:
-                {
-                    s.write("(user exception)");
-                    break;
-                }
-
-                case ReplyStatus.replyObjectNotExist:
-                case ReplyStatus.replyFacetNotExist:
-                case ReplyStatus.replyOperationNotExist:
-                {
-                    switch(replyStatus)
-                    {
-                        case ReplyStatus.replyObjectNotExist:
-                        {
-                            s.write("(object not exist)");
-                            break;
-                        }
-                        
-                        case ReplyStatus.replyFacetNotExist:
-                        {
-                            s.write("(facet not exist)");
-                            break;
-                        }
-                        
-                        case ReplyStatus.replyOperationNotExist:
-                        {
-                            s.write("(operation not exist)");
-                            break;
-                        }
-                        
-                        default:
-                        {
-                            assert(false);
-                            break;
-                        }
-                    }
-                    
-                    printIdentityFacetOperation(s, str);
-                    break;
-                }
-
-                case ReplyStatus.replyUnknownException:
-                case ReplyStatus.replyUnknownLocalException:
-                case ReplyStatus.replyUnknownUserException:
-                {
-                    switch(replyStatus)
-                    {
-                        case ReplyStatus.replyUnknownException:
-                        {
-                            s.write("(unknown exception)");
-                            break;
-                        }
-
-                        case ReplyStatus.replyUnknownLocalException:
-                        {
-                            s.write("(unknown local exception)");
-                            break;
-                        }
-                        
-                        case ReplyStatus.replyUnknownUserException:
-                        {
-                            s.write("(unknown user exception)");
-                            break;
-                        }
-                        
-                        default:
-                        {
-                            assert(false);
-                            break;
-                        }
-                    }
-
-                    String unknown = str.readString();
-                    s.write("\nunknown = " + unknown);
-                    break;
-                }
-
-                default:
-                {
-                    s.write("(unknown)");
-                    break;
-                }
-            }
+            printMessage(s, str);
 
             logger.trace(tl.protocolCat, s.toString());
             str.pos(p);
@@ -304,6 +170,135 @@ public final class TraceUtil
     }
 
     private static void
+    printRequest(java.io.StringWriter s, BasicStream str)
+    {
+        int requestId = str.readInt();
+        s.write("\nrequest id = " + requestId);
+        if(requestId == 0)
+        {
+            s.write(" (oneway)");
+        }
+        
+        printRequestHeader(s, str);
+    }
+
+    private static void
+    printBatchRequest(java.io.StringWriter s, BasicStream str)
+    {
+        int batchRequestNum = str.readInt();
+        s.write("\nnumber of requests = " + batchRequestNum);
+        
+        for(int i = 0; i < batchRequestNum; ++i)
+        {
+            s.write("\nrequest #" + i + ':');
+            printRequestHeader(s, str);
+            str.skipEncaps();
+        }
+    }
+
+    private static void
+    printReply(java.io.StringWriter s, BasicStream str)
+    {
+        int requestId = str.readInt();
+        s.write("\nrequest id = " + requestId);
+        
+        byte replyStatus = str.readByte();
+        s.write("\nreply status = " + (int)replyStatus + ' ');
+        
+        switch(replyStatus)
+        {
+        case ReplyStatus.replyOK:
+        {
+            s.write("(ok)");
+            break;
+        }
+        
+        case ReplyStatus.replyUserException:
+        {
+            s.write("(user exception)");
+            break;
+        }
+        
+        case ReplyStatus.replyObjectNotExist:
+        case ReplyStatus.replyFacetNotExist:
+        case ReplyStatus.replyOperationNotExist:
+        {
+            switch(replyStatus)
+            {
+            case ReplyStatus.replyObjectNotExist:
+            {
+                s.write("(object not exist)");
+                break;
+            }
+                        
+            case ReplyStatus.replyFacetNotExist:
+            {
+                s.write("(facet not exist)");
+                break;
+            }
+                        
+            case ReplyStatus.replyOperationNotExist:
+            {
+                s.write("(operation not exist)");
+                break;
+            }
+                        
+            default:
+            {
+                assert(false);
+                break;
+            }
+            }
+                    
+            printIdentityFacetOperation(s, str);
+            break;
+        }
+
+        case ReplyStatus.replyUnknownException:
+        case ReplyStatus.replyUnknownLocalException:
+        case ReplyStatus.replyUnknownUserException:
+        {
+            switch(replyStatus)
+            {
+            case ReplyStatus.replyUnknownException:
+            {
+                s.write("(unknown exception)");
+                break;
+            }
+
+            case ReplyStatus.replyUnknownLocalException:
+            {
+                s.write("(unknown local exception)");
+                break;
+            }
+                        
+            case ReplyStatus.replyUnknownUserException:
+            {
+                s.write("(unknown user exception)");
+                break;
+            }
+                        
+            default:
+            {
+                assert(false);
+                break;
+            }
+            }
+
+            String unknown = str.readString();
+            s.write("\nunknown = " + unknown);
+            break;
+        }
+
+        default:
+        {
+            s.write("(unknown)");
+            break;
+        }
+        }
+    }
+
+    private static void
     printRequestHeader(java.io.Writer out, BasicStream stream)
     {
         printIdentityFacetOperation(out, stream);
@@ -358,66 +353,28 @@ public final class TraceUtil
         }
     }
 
-    private static void
+    private static byte
     printHeader(java.io.Writer out, BasicStream stream)
     {
+        byte magic;
+        magic = stream.readByte();  // Don't bother printing the magic number
+        magic = stream.readByte();
+        magic = stream.readByte();
+        magic = stream.readByte();
+        
+        byte pMajor = stream.readByte();
+        byte pMinor = stream.readByte();
+//            out.write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+        
+        byte eMajor = stream.readByte();
+        byte eMinor = stream.readByte();
+//            out.write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
+        
+        byte type = stream.readByte();
+
         try
         {
-            byte magic;
-            magic = stream.readByte();  // Don't bother printing the magic number
-            magic = stream.readByte();
-            magic = stream.readByte();
-            magic = stream.readByte();
-
-            byte pMajor = stream.readByte();
-            byte pMinor = stream.readByte();
-//            out.write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
-
-            byte eMajor = stream.readByte();
-            byte eMinor = stream.readByte();
-//            out.write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
-
-            byte type = stream.readByte();
-            out.write("\nmessage type = " + (int)type + ' ');
-            switch(type)
-            {
-                case Protocol.requestMsg:
-                {
-                    out.write("(request)");
-                    break;
-                }
-
-                case Protocol.requestBatchMsg:
-                {
-                    out.write("(batch request)");
-                    break;
-                }
-
-                case Protocol.replyMsg:
-                {
-                    out.write("(reply)");
-                    break;
-                }
-
-                case Protocol.closeConnectionMsg:
-                {
-                    out.write("(close connection)");
-                    break;
-                }
-
-                case Protocol.validateConnectionMsg:
-                {
-                    out.write("(validate connection)");
-                    break;
-                }
-
-                default:
-                {
-                    out.write("(unknown)");
-                    break;
-                }
-            }
-
+            out.write("\nmessage type = " + (int)type + " (" + getMessageTypeAsString(type) + ')');
             byte compress = stream.readByte();
             out.write("\ncompression status = " + (int)compress + ' ');
             switch(compress)
@@ -449,10 +406,73 @@ public final class TraceUtil
 
             int size = stream.readInt();
             out.write("\nmessage size = " + size);
+            return type;
         }
         catch(java.io.IOException ex)
         {
             assert(false);
+            return 0;
+        }
+    }
+
+    static private byte
+    printMessage(java.io.StringWriter s, BasicStream str)
+    {
+        byte type = printHeader(s, str);
+
+        switch(type)
+        {
+        case Protocol.closeConnectionMsg:
+        case Protocol.validateConnectionMsg:
+        {
+            // We're done.
+            break;
+        }
+        
+        case Protocol.requestMsg:
+        {
+            printRequest(s, str);
+            break;
+        }
+        
+        case Protocol.requestBatchMsg:
+        {
+            printBatchRequest(s, str);
+            break;
+        }
+        
+        case Protocol.replyMsg:
+        {
+            printReply(s, str);
+            break;
+        }
+        
+        default:
+        {
+            break;
+        }    
+        }
+
+        return type;
+    }
+
+    static private String
+    getMessageTypeAsString(byte type)
+    {
+        switch(type)
+        {
+        case Protocol.requestMsg:
+            return "request";
+        case Protocol.requestBatchMsg:
+            return "batch request";
+        case Protocol.replyMsg:
+            return "reply";
+        case Protocol.closeConnectionMsg:
+            return "close connection";
+        case Protocol.validateConnectionMsg:
+            return  "validate connection";
+        default:
+            return "unknown";
         }
     }
 }

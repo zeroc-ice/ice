@@ -22,10 +22,12 @@ OBJS		= Acceptor.o \
 		  BuiltinSequences.o \
 		  CommunicatorI.o \
 		  Communicator.o \
+		  ConnectRequestHandler.o \
 		  ConnectionFactory.o \
 		  ConnectionI.o \
 		  ConnectionMonitor.o \
 		  Connection.o \
+		  ConnectionRequestHandler.o \
 		  Connector.o \
 		  Current.o \
 		  DefaultsAndOverrides.o \
@@ -78,8 +80,11 @@ OBJS		= Acceptor.o \
 		  Proxy.o \
 		  ReferenceFactory.o \
 		  Reference.o \
+		  RequestHandler.o \
 		  RouterInfo.o \
 		  Router.o \
+		  Selector.o \
+		  SelectorThread.o \
 		  ServantLocator.o \
 		  ServantManager.o \
 		  Service.o \

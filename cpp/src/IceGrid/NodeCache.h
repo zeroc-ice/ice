@@ -10,7 +10,7 @@
 #ifndef ICE_GRID_NODECACHE_H
 #define ICE_GRID_NODECACHE_H
 
-#include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/Internal.h>

@@ -20,7 +20,9 @@ COBJS		= Test.o \
 		  Client.o \
 		  AllTests.o \
 		  Twoways.o \
+		  Oneways.o \
 		  TwowaysAMI.o \
+		  OnewaysAMI.o \
 		  BatchOneways.o
 
 SOBJS		= Test.o \
@@ -36,7 +38,9 @@ COLOBJS		= Test.o \
 		  Collocated.o \
 		  AllTests.o \
 		  Twoways.o \
+		  Oneways.o \
 		  TwowaysAMI.o \
+		  OnewaysAMI.o \
 		  BatchOneways.o
 
 SRCS		= $(COBJS:.o=.cpp) \

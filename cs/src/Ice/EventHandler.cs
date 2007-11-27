@@ -28,7 +28,7 @@ namespace IceInternal
         // Read data via the event handler. May only be called if
         // readable() returns true.
         //
-        abstract public void read(BasicStream istr);
+        abstract public bool read(BasicStream istr);
         
         //
         // A complete message has been received.
@@ -66,7 +66,8 @@ namespace IceInternal
         protected internal Instance instance_;
         
         //
-        // The stream_ data member is for use by ThreadPool only.
+        // The stream_ data member is only for use by the ThreadPool or by the
+        // connection for validation.
         //
         internal BasicStream stream_;
     }

@@ -71,6 +71,15 @@ class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
+    class GetEndpointsCallback : virtual public IceUtil::Shared
+    {
+    public:
+        
+        virtual void setEndpoints(const std::vector<EndpointIPtr>&, bool) = 0;
+        virtual void setException(const Ice::LocalException&) = 0;
+    };
+    typedef IceUtil::Handle<GetEndpointsCallback> GetEndpointsCallbackPtr;
+
     LocatorInfo(const Ice::LocatorPrx&, const LocatorTablePtr&);
 
     void destroy();
@@ -83,12 +92,19 @@ public:
     Ice::LocatorRegistryPrx getLocatorRegistry();
 
     std::vector<EndpointIPtr> getEndpoints(const IndirectReferencePtr&, int, bool&);
+    void getEndpoints(const IndirectReferencePtr&, int, const GetEndpointsCallbackPtr&);
     void clearCache(const IndirectReferencePtr&);
     void clearObjectCache(const IndirectReferencePtr&);
 
 private:
 
     void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointIPtr>&);
+
+    void getEndpointsException(const IndirectReferencePtr&, const Ice::Exception&);
+    void getWellKnownObjectEndpoints(const IndirectReferencePtr&, const Ice::ObjectPrx&, int, bool, 
+                                     const GetEndpointsCallbackPtr&);
+    void getEndpointsException(const IndirectReferencePtr&, const Ice::Exception&, const GetEndpointsCallbackPtr&);
+    void getEndpointsTrace(const IndirectReferencePtr&, const std::vector<EndpointIPtr>&, bool);
 
     const Ice::LocatorPrx _locator;
     Ice::LocatorRegistryPrx _locatorRegistry;

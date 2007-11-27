@@ -16,198 +16,60 @@ namespace IceInternal
 
     sealed class TraceUtil
     {
-        internal static void traceHeader(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+        internal static void traceSend(BasicStream str, Ice.Logger logger, TraceLevels tl)
         {
             if(tl.protocol >= 1)
             {
                 int p = str.pos();
                 str.pos(0);
-                
+
                 using(System.IO.StringWriter s = new System.IO.StringWriter())
                 {
-                    s.Write(heading);
-                    printHeader(s, str);
-                    
-                    logger.trace(tl.protocolCat, s.ToString());
+                    byte type = printMessage(s, str);
+
+                    logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.ToString());
                 }
                 str.pos(p);
             }
         }
-        
-        internal static void traceRequest(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+
+        internal static void traceRecv(BasicStream str, Ice.Logger logger, TraceLevels tl)
         {
             if(tl.protocol >= 1)
             {
                 int p = str.pos();
                 str.pos(0);
-                
+
                 using(System.IO.StringWriter s = new System.IO.StringWriter())
                 {
-                    s.Write(heading);
-                    printHeader(s, str);
-                    
-                    int requestId = str.readInt();
-                    s.Write("\nrequest id = " + requestId);
-                    if(requestId == 0)
-                    {
-                        s.Write(" (oneway)");
-                    }
-                    
-                    printRequestHeader(s, str);
-                    
-                    logger.trace(tl.protocolCat, s.ToString());
+                    byte type = printMessage(s, str);
+
+                    logger.trace(tl.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.ToString());
                 }
                 str.pos(p);
             }
         }
-        
-        internal static void traceBatchRequest(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+
+        internal static void trace(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
         {
             if(tl.protocol >= 1)
             {
                 int p = str.pos();
                 str.pos(0);
-                
+
                 using(System.IO.StringWriter s = new System.IO.StringWriter())
                 {
                     s.Write(heading);
-                    printHeader(s, str);
-                    
-                    int batchRequestNum = str.readInt();
-                    s.Write("\nnumber of requests = " + batchRequestNum);
-                    
-                    for(int i = 0; i < batchRequestNum; ++i)
-                    {
-                        s.Write("\nrequest #" + i + ':');
-                        printRequestHeader(s, str);
-                        str.skipEncaps();
-                    }
-                    
+                    printMessage(s, str);
+
                     logger.trace(tl.protocolCat, s.ToString());
                 }
                 str.pos(p);
             }
         }
-        
-        internal static void traceReply(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
-        {
-            if(tl.protocol >= 1)
-            {
-                int p = str.pos();
-                str.pos(0);
-                
-                using(System.IO.StringWriter s = new System.IO.StringWriter())
-                {
-                    s.Write(heading);
-                    printHeader(s, str);
-                    
-                    int requestId = str.readInt();
-                    s.Write("\nrequest id = " + requestId);
-                    
-                    byte replyStatus = str.readByte();
-                    s.Write("\nreply status = " + (int)replyStatus + ' ');
-                    
-                    switch(replyStatus)
-                    {
-                        case ReplyStatus.replyOK: 
-                        {
-                            s.Write("(ok)");
-                            break;
-                        }
-                        
-                        case ReplyStatus.replyUserException: 
-                        {
-                            s.Write("(user exception)");
-                            break;
-                        }
-                        
-                        case ReplyStatus.replyObjectNotExist: 
-                        case ReplyStatus.replyFacetNotExist: 
-                        case ReplyStatus.replyOperationNotExist: 
-                        {
-                            switch(replyStatus)
-                            {
-                                case ReplyStatus.replyObjectNotExist: 
-                                {
-                                    s.Write("(object not exist)");
-                                    break;
-                                }
-                                
-                                case ReplyStatus.replyFacetNotExist: 
-                                {
-                                    s.Write("(facet not exist)");
-                                    break;
-                                }
-                                
-                                case ReplyStatus.replyOperationNotExist: 
-                                {
-                                    s.Write("(operation not exist)");
-                                    break;
-                                }
-                                
-                                default: 
-                                {
-                                    Debug.Assert(false);
-                                    break;
-                                }
-                            }
-                            
-                            printIdentityFacetOperation(s, str);
-                            break;
-                        }
-                        
-                        case ReplyStatus.replyUnknownException: 
-                        case ReplyStatus.replyUnknownLocalException: 
-                        case ReplyStatus.replyUnknownUserException: 
-                        {
-                            switch(replyStatus)
-                            {
-                                case ReplyStatus.replyUnknownException: 
-                                {
-                                    s.Write("(unknown exception)");
-                                    break;
-                                }
-                                
-                                case ReplyStatus.replyUnknownLocalException: 
-                                {
-                                    s.Write("(unknown local exception)");
-                                    break;
-                                }
-                                
-                                case ReplyStatus.replyUnknownUserException: 
-                                {
-                                    s.Write("(unknown user exception)");
-                                    break;
-                                }
-                                
-                                default: 
-                                {
-                                    Debug.Assert(false);
-                                    break;
-                                }
-                            }
-                            
-                            string unknown = str.readString();
-                            s.Write("\nunknown = " + unknown);
-                            break;
-                        }
-                        
-                        default: 
-                        {
-                            s.Write("(unknown)");
-                            break;
-                        }
-                        
-                    }
-                    
-                    logger.trace(tl.protocolCat, s.ToString());
-                }
-                str.pos(p);
-            }
-        }
-        
+
         private static Set slicingIds;
-        
+
         internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
         {
             lock(typeof(IceInternal.TraceUtil))
@@ -222,23 +84,23 @@ namespace IceInternal
                 }
             }
         }
-        
+
         public static void dumpStream(BasicStream stream)
         {       
             int pos = stream.pos();
             stream.pos(0);
-            
+
             byte[] data = new byte[stream.size()];
             stream.readBlob(data);
             dumpOctets(data);
-            
+
             stream.pos(pos);
         }
-        
+
         public static void dumpOctets(byte[] data)
         {
             const int inc = 8;
-            
+
             for(int i = 0; i < data.Length; i += inc)
             {
                 for(int j = i; j - i < inc; j++)
@@ -270,9 +132,9 @@ namespace IceInternal
                         System.Console.Out.Write("    ");
                     }
                 }
-                
+
                 System.Console.Out.Write('"');
-                
+
                 for(int j = i; j < data.Length && j - i < inc; j++)
                 {
                     // TODO: this needs fixing
@@ -285,80 +147,206 @@ namespace IceInternal
                         System.Console.Out.Write('.');
                     }
                 }
-                
+
                 System.Console.Out.WriteLine('"');
             }
         }
-        
-        private static void printIdentityFacetOperation(System.IO.StringWriter o, BasicStream stream)
+
+        private static void printIdentityFacetOperation(System.IO.StringWriter s, BasicStream str)
         {
             try
             {
                 Ice.Identity identity = new Ice.Identity();
-                identity.read__(stream);
-                o.Write("\nidentity = " + stream.instance().identityToString(identity));
-                
-                string[] facet = stream.readStringSeq();
-                o.Write("\nfacet = ");
+                identity.read__(str);
+                s.Write("\nidentity = " + str.instance().identityToString(identity));
+
+                string[] facet = str.readStringSeq();
+                s.Write("\nfacet = ");
                 if(facet.Length > 0)
                 {
-                    o.Write(IceUtil.StringUtil.escapeString(facet[0], ""));
+                    s.Write(IceUtil.StringUtil.escapeString(facet[0], ""));
                 }
-                
-                string operation = stream.readString();
-                o.Write("\noperation = " + operation);
+
+                string operation = str.readString();
+                s.Write("\noperation = " + operation);
             }
             catch(System.IO.IOException)
             {
                 Debug.Assert(false);
             }
         }
-        
-        private static void printRequestHeader(System.IO.StringWriter o, BasicStream stream)
+
+        private static void printRequest(System.IO.StringWriter s, BasicStream str)
         {
-            printIdentityFacetOperation(o, stream);
-            
+            int requestId = str.readInt();
+            s.Write("\nrequest id = " + requestId);
+            if(requestId == 0)
+            {
+                s.Write(" (oneway)");
+            }
+
+            printRequestHeader(s, str);
+        }
+
+        private static void printBatchRequest(System.IO.StringWriter s, BasicStream str)
+        {
+            int batchRequestNum = str.readInt();
+            s.Write("\nnumber of requests = " + batchRequestNum);
+
+            for(int i = 0; i < batchRequestNum; ++i)
+            {
+                s.Write("\nrequest #" + i + ':');
+                printRequestHeader(s, str);
+                str.skipEncaps();
+            }
+        }
+
+        private static void printReply(System.IO.StringWriter s, BasicStream str)
+        {
+            int requestId = str.readInt();
+            s.Write("\nrequest id = " + requestId);
+
+            byte replyStatus = str.readByte();
+            s.Write("\nreply status = " + (int)replyStatus + ' ');
+
+            switch(replyStatus)
+            {
+            case ReplyStatus.replyOK: 
+            {
+                s.Write("(ok)");
+                break;
+            }
+
+            case ReplyStatus.replyUserException: 
+            {
+                s.Write("(user exception)");
+                break;
+            }
+
+            case ReplyStatus.replyObjectNotExist: 
+            case ReplyStatus.replyFacetNotExist: 
+            case ReplyStatus.replyOperationNotExist: 
+            {
+                switch(replyStatus)
+                {
+                case ReplyStatus.replyObjectNotExist: 
+                {
+                    s.Write("(object not exist)");
+                    break;
+                }
+
+                case ReplyStatus.replyFacetNotExist: 
+                {
+                    s.Write("(facet not exist)");
+                    break;
+                }
+
+                case ReplyStatus.replyOperationNotExist: 
+                {
+                    s.Write("(operation not exist)");
+                    break;
+                }
+
+                default: 
+                {
+                    Debug.Assert(false);
+                    break;
+                }
+                }
+
+                printIdentityFacetOperation(s, str);
+                break;
+            }
+
+            case ReplyStatus.replyUnknownException: 
+            case ReplyStatus.replyUnknownLocalException: 
+            case ReplyStatus.replyUnknownUserException: 
+            {
+                switch(replyStatus)
+                {
+                case ReplyStatus.replyUnknownException: 
+                {
+                    s.Write("(unknown exception)");
+                    break;
+                }
+
+                case ReplyStatus.replyUnknownLocalException: 
+                {
+                    s.Write("(unknown local exception)");
+                    break;
+                }
+
+                case ReplyStatus.replyUnknownUserException: 
+                {
+                    s.Write("(unknown user exception)");
+                    break;
+                }
+
+                default: 
+                {
+                    Debug.Assert(false);
+                    break;
+                }
+                }
+
+                string unknown = str.readString();
+                s.Write("\nunknown = " + unknown);
+                break;
+            }
+
+            default: 
+            {
+                s.Write("(unknown)");
+                break;
+            }
+            }
+        }
+
+        private static void printRequestHeader(System.IO.StringWriter s, BasicStream str)
+        {
+            printIdentityFacetOperation(s, str);
+
             try
             {
-                byte mode = stream.readByte();
-                o.Write("\nmode = " + (int)mode + ' ');
+                byte mode = str.readByte();
+                s.Write("\nmode = " + (int)mode + ' ');
                 switch((Ice.OperationMode)mode)
                 {
-                    case Ice.OperationMode.Normal:
-                    {
-                        o.Write("(normal)");
-                        break;
-                    }
-                    
-                    case Ice.OperationMode.Nonmutating:
-                    {
-                        o.Write("(nonmutating)");
-                        break;
-                    }
-                    
-                    case Ice.OperationMode.Idempotent:
-                    {
-                        o.Write("(idempotent)");
-                        break;
-                    }
-                    
-                    default:
-                    {
-                        o.Write("(unknown)");
-                        break;
-                    }
+                case Ice.OperationMode.Normal:
+                {
+                    s.Write("(normal)");
+                    break;
                 }
-                
-                int sz = stream.readSize();
-                o.Write("\ncontext = ");
+
+                case Ice.OperationMode.Nonmutating:
+                {
+                    s.Write("(nonmutating)");
+                    break;
+                }
+
+                case Ice.OperationMode.Idempotent:
+                {
+                    s.Write("(idempotent)");
+                    break;
+                }
+
+                default:
+                {
+                    s.Write("(unknown)");
+                    break;
+                }
+                }
+
+                int sz = str.readSize();
+                s.Write("\ncontext = ");
                 while(sz-- > 0)
                 {
-                    string key = stream.readString();
-                    string val = stream.readString();
-                    o.Write(key + '/' + val);
+                    string key = str.readString();
+                    string val = str.readString();
+                    s.Write(key + '/' + val);
                     if(sz > 0)
                     {
-                        o.Write(", ");
+                        s.Write(", ");
                     }
                 }
             }
@@ -367,100 +355,142 @@ namespace IceInternal
                 Debug.Assert(false);
             }
         }
-        
-        private static void printHeader(System.IO.StringWriter o, BasicStream stream)
+
+        private static byte printHeader(System.IO.StringWriter s, BasicStream str)
         {
             try
             {
-                stream.readByte(); // Don't bother printing the magic number
-                stream.readByte();
-                stream.readByte();
-                stream.readByte();
-                
-                /* byte pMajor = */ stream.readByte();
-                /* byte pMinor = */ stream.readByte();
-                //o.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
-                
-                /* byte eMajor = */ stream.readByte();
-                /* byte eMinor = */ stream.readByte();
-                //o.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
-                
-                byte type = stream.readByte();
-                o.Write("\nmessage type = " + (int)type + ' ');
-                switch(type)
-                {
-                    case Protocol.requestMsg: 
-                    {
-                        o.Write("(request)");
-                        break;
-                    }
-                    
-                    case Protocol.requestBatchMsg: 
-                    {
-                        o.Write("(batch request)");
-                        break;
-                    }
-                    
-                    case Protocol.replyMsg: 
-                    {
-                        o.Write("(reply)");
-                        break;
-                    }
-                    
-                    case Protocol.closeConnectionMsg: 
-                    {
-                        o.Write("(close connection)");
-                        break;
-                    }
-                    
-                    case Protocol.validateConnectionMsg: 
-                    {
-                        o.Write("(validate connection)");
-                        break;
-                    }
-                    
-                    default: 
-                    {
-                        o.Write("(unknown)");
-                        break;
-                    }
-                }
-                
-                byte compress = stream.readByte();
-                o.Write("\ncompression status = " + (int)compress + ' ');
+                str.readByte(); // Don't bother printing the magic number
+                str.readByte();
+                str.readByte();
+                str.readByte();
+
+                /* byte pMajor = */ str.readByte();
+                /* byte pMinor = */ str.readByte();
+                //s.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+
+                /* byte eMajor = */ str.readByte();
+                /* byte eMinor = */ str.readByte();
+                //s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
+
+                byte type = str.readByte();
+                s.Write("\nmessage type = " + (int)type + " (" + getMessageTypeAsString(type) + ')');
+
+                byte compress = str.readByte();
+                s.Write("\ncompression status = " + (int)compress + ' ');
                 switch(compress)
                 {
-                    case (byte)0: 
-                    {
-                        o.Write("(not compressed; do not compress response, if any)");
-                        break;
-                    }
-                    
-                    case (byte)1: 
-                    {
-                        o.Write("(not compressed; compress response, if any)");
-                        break;
-                    }
-                    
-                    case (byte)2: 
-                    {
-                        o.Write("(compressed; compress response, if any)");
-                        break;
-                    }
-                    
-                    default: 
-                    {
-                        o.Write("(unknown)");
-                        break;
-                    }
+                case (byte)0: 
+                {
+                    s.Write("(not compressed; do not compress response, if any)");
+                    break;
                 }
-                
-                int size = stream.readInt();
-                o.Write("\nmessage size = " + size);
+
+                case (byte)1: 
+                {
+                    s.Write("(not compressed; compress response, if any)");
+                    break;
+                }
+
+                case (byte)2: 
+                {
+                    s.Write("(compressed; compress response, if any)");
+                    break;
+                }
+
+                default: 
+                {
+                    s.Write("(unknown)");
+                    break;
+                }
+                }
+
+                int size = str.readInt();
+                s.Write("\nmessage size = " + size);
+                return type;
             }
             catch(System.IO.IOException)
             {
                 Debug.Assert(false);
+                return 0;
+            }
+        }
+
+        private static byte printMessage(System.IO.StringWriter s, BasicStream str)
+        {
+            byte type = printHeader(s, str);
+
+            switch(type)
+            {
+            case Protocol.closeConnectionMsg: 
+            case Protocol.validateConnectionMsg: 
+            {
+                // We're done.
+                break;
+            }
+
+            case Protocol.requestMsg: 
+            {
+                printRequest(s, str);
+                break;
+            }
+
+            case Protocol.requestBatchMsg: 
+            {
+                printBatchRequest(s, str);
+                break;
+            }
+
+            case Protocol.replyMsg: 
+            {
+                printReply(s, str);
+                break;
+            }
+
+            default: 
+            {
+                s.Write("(unknown)");
+                break;
+            }
+            }
+
+            return type;
+        }
+
+        internal static void traceHeader(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+        {
+            if(tl.protocol >= 1)
+            {
+                int p = str.pos();
+                str.pos(0);
+
+                using(System.IO.StringWriter s = new System.IO.StringWriter())
+                {
+                    s.Write(heading);
+                    printHeader(s, str);
+
+                    logger.trace(tl.protocolCat, s.ToString());
+                }
+                str.pos(p);
+            }
+        }
+
+        private static string getMessageTypeAsString(byte type)
+        {   
+            switch(type)
+            {
+            case Protocol.requestMsg:
+                return "request";
+            case Protocol.requestBatchMsg:
+                return "batch request";
+            case Protocol.replyMsg:
+                return "reply";
+            case Protocol.closeConnectionMsg:
+                return "close connection";
+            case Protocol.validateConnectionMsg:
+                return  "validate connection";
+            default:
+                return "unknown";
             }
         }
 

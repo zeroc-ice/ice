@@ -507,6 +507,12 @@ class Instance
         return _facade.getCommunicator();
     }
 
+    IceInternal.EndpointHostResolver
+    endpointHostResolver()
+    {
+        return _facade.getEndpointHostResolver();
+    }
+
     String
     defaultHost()
     {
@@ -702,6 +708,7 @@ class Instance
         return _protocols;
     }
 
+    // TODO: Remove
     void
     traceConnection(java.nio.channels.SocketChannel fd, javax.net.ssl.SSLEngine engine, boolean incoming)
     {

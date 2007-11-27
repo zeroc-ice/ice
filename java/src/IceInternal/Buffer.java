@@ -1,0 +1,183 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+package IceInternal;
+
+//
+// An instance of java.nio.ByteBuffer cannot grow beyond its initial capacity.
+// This class wraps a ByteBuffer and supports reallocation.
+//
+public class Buffer
+{
+    public
+    Buffer(int maxCapacity)
+    {
+        b = null;
+        _size = 0;
+        _capacity = 0;
+        _maxCapacity = maxCapacity;
+    }
+
+    public int
+    size()
+    {
+        return _size;
+    }
+
+    public boolean
+    empty()
+    {
+        return _size == 0;
+    }
+
+    public void
+    clear()
+    {
+        b = null;
+        _size = 0;
+        _capacity = 0;
+    }
+
+    //
+    // Call expand(n) to add room for n additional bytes. Note that expand()
+    // examines the current position of the buffer first; we don't want to
+    // expand the buffer if the caller is writing to a location that is
+    // already in the buffer.
+    //
+    public void
+    expand(int n)
+    {
+        final int sz = b == null ? n : b.position() + n;
+        if(sz > _size)
+        {
+            resize(sz, false);
+        }
+    }
+
+    public void
+    resize(int n, boolean reading)
+    {
+        if(n == 0)
+        {
+            clear();
+        }
+        else if(n > _capacity)
+        {
+            reserve(n);
+        }
+        _size = n;
+
+        //
+        // When used for reading, we want to set the buffer's limit to the new size.
+        //
+        if(reading)
+        {
+            b.limit(_size);
+        }
+    }
+
+    public void
+    reset()
+    {
+        if(_size > 0 && _size * 2 < _capacity)
+        {
+            //
+            // If the current buffer size is smaller than the
+            // buffer capacity, we shrink the buffer memory to the
+            // current size. This is to avoid holding on to too much
+            // memory if it's not needed anymore.
+            //
+            if(++_shrinkCounter > 2)
+            {
+                reserve(_size);
+                _shrinkCounter = 0;
+            }
+        }
+        else
+        {
+            _shrinkCounter = 0;
+        }
+        _size = 0;
+        if(b != null)
+        {
+            b.limit(b.capacity());
+            b.position(0);
+        }
+    }
+
+    private void
+    reserve(int n)
+    {
+        if(n > _capacity)
+        {
+            _capacity = java.lang.Math.max(n, java.lang.Math.min(2 * _capacity, _maxCapacity));
+            _capacity = java.lang.Math.max(240, _capacity);
+        }
+        else if(n < _capacity)
+        {
+            _capacity = n;
+        }
+        else
+        {
+            return;
+        }
+
+        try
+        {
+            java.nio.ByteBuffer buf;
+
+            if(DIRECT)
+            {
+                buf = java.nio.ByteBuffer.allocateDirect(_capacity);
+            }
+            else
+            {
+                buf = java.nio.ByteBuffer.allocate(_capacity);
+            }
+
+            if(b == null)
+            {
+                b = buf;
+            }
+            else
+            {
+                final int pos = b.position();
+                b.position(0);
+                b.limit(java.lang.Math.min(_capacity, b.capacity()));
+                buf.put(b);
+                b = buf;
+                b.limit(b.capacity());
+                b.position(pos);
+            }
+
+            b.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        }
+        catch(OutOfMemoryError ex)
+        {
+            Ice.MarshalException e = new Ice.MarshalException();
+            e.reason = "OutOfMemoryError occurred while allocating a ByteBuffer";
+            e.initCause(ex);
+            throw e;
+        }
+    }
+
+    public java.nio.ByteBuffer b;
+
+    private int _size;
+    private int _capacity; // Cache capacity to avoid excessive method calls.
+    private int _maxCapacity;
+    private int _shrinkCounter;
+
+    //
+    // This flag indicates whether we should use direct byte buffers. It is set to false
+    // because direct byte buffers have been known to cause problems in the past (for
+    // example, see bug 1582).
+    //
+    private static final boolean DIRECT = false;
+}

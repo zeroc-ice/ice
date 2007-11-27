@@ -86,7 +86,8 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public abstract java.util.ArrayList connectors();
+    public abstract java.util.List connectors();
+    public abstract void connectors_async(EndpointI_connectors callback);
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
@@ -101,12 +102,12 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_NAY.
     //
-    public abstract java.util.ArrayList expand();
+    public abstract java.util.List expand();
 
     //
-    // Check whether the endpoint is equivalent to a specific Connector.
+    // Check whether the endpoint is equivalent to another one.
     //
-    public abstract boolean equivalent(Connector connector);
+    public abstract boolean equivalent(EndpointI endpoint);
 
     //
     // Compare endpoints for sorting purposes.
@@ -120,4 +121,15 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // TODO: Remove this when we no longer support SSL for JDK 1.4.
     //
     public abstract boolean requiresThreadPerConnection();
+
+    public java.util.List 
+    connectors(java.util.List addresses)
+    {
+        //
+        // This method must be extended by endpoints which use the EndpointHostResolver to create
+        // connectors from IP addresses.
+        //
+        assert(false);
+        return null;
+    }
 }

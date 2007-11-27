@@ -16,4 +16,4 @@ final public class Time
     {
         return System.nanoTime() / 1000000;
     }
-};
+}

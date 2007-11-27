@@ -10,7 +10,15 @@
 namespace IceInternal
 {
 
-    using System.Collections;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Net;
+
+    public interface EndpointI_connectors
+    {
+        void connectors(List<Connector> connectors);
+        void exception(Ice.LocalException ex);
+    }
 
     public abstract class EndpointI : Ice.Endpoint, System.IComparable
     {    
@@ -91,7 +99,8 @@ namespace IceInternal
         // Return a connector for this endpoint, or empty list if no connector
         // is available.
         //
-        public abstract ArrayList connectors();
+        public abstract List<Connector> connectors();
+        public abstract void connectors_async(EndpointI_connectors callback);
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
@@ -106,17 +115,23 @@ namespace IceInternal
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY.
         //
-        public abstract ArrayList expand();
+        public abstract List<EndpointI> expand();
  
         //
-        // Check whether the endpoint is equivalent to a specific Connector.
+        // Check whether the endpoint is equivalent to another one.
         //
-        public abstract bool equivalent(Connector connector);
+        public abstract bool equivalent(EndpointI endpoint);
 
         //
         // Returns true if the endpoint's transport requires thread-per-connection.
         //
         public abstract bool requiresThreadPerConnection();
+
+        public virtual List<Connector> connectors(List<IPEndPoint> addresses)
+        {
+            Debug.Assert(false);
+            return null;
+        }
     }
 
 }

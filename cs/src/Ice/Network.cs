@@ -12,6 +12,7 @@ namespace IceInternal
 
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Net;
@@ -391,33 +392,13 @@ namespace IceInternal
                 throw new Ice.SocketException(ex);
             }
         }
-        
-        public static void doConnect(Socket socket, EndPoint addr, int timeout)
-        {
-            //
-            // MONO workaround for
-            // http://bugzilla.zeroc.com/bugzilla/show_bug.cgi?id=1647. 
-            //
-            // It would have been nice to be able to get rid of the 2
-            // implementations of doConnect() and only use
-            // doConnectAsync() however, with .NET doConnectAsync()
-            // doesn't work with the TCP transport.  In particular,
-            // the test/Ice/timeout test fails in the connect timeout
-            // test because the client hangs in the Receive() call
-            // waiting for the connection validation (for some reasons
-            // Receive blocks even though the socket is
-            // non-blocking...)
-            //
-            if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
-            {
-                doConnectAsync(socket, addr, timeout);
-                return;
-            }
 
+        public static bool doConnect(Socket fd, EndPoint addr, int timeout)
+        {
         repeatConnect:
             try
             {
-                socket.Connect(addr);
+                fd.Connect(addr);
             }
             catch(SocketException ex)
             {
@@ -428,51 +409,73 @@ namespace IceInternal
 
                 if(!connectInProgress(ex))
                 {
-                    closeSocketNoThrow(socket);
-                    //
-                    // Check for connectionRefused, and connectFailed
-                    // here.
-                    //
+                    closeSocketNoThrow(fd);
+
                     if(connectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
                     }
-                    else if(connectFailed(ex))
+                    else
                     {
                         throw new Ice.ConnectFailedException(ex);
                     }
-                    else
-                    {
-                        throw new Ice.SocketException(ex);
-                    }
+                }
+            }
+
+            if(!fd.Connected)
+            {
+                if(timeout == 0)
+                {
+                    return false;
                 }
 
-            repeatSelect:
-                bool ready;
-                bool error;
                 try
                 {
-                    ArrayList writeList = new ArrayList();
-                    writeList.Add(socket);
-                    ArrayList errorList = new ArrayList();
-                    errorList.Add(socket);
-                    doSelect(null, writeList, errorList, timeout);
-                    ready = writeList.Count != 0;
-                    error = errorList.Count != 0;
+                    doFinishConnect(fd, timeout);
+                }
+                catch(Ice.LocalException)
+                {
+                    closeSocketNoThrow(fd);
+                    throw;
+                }
+            }
 
+            if(addr.Equals(fd.LocalEndPoint))
+            {
+                closeSocketNoThrow(fd);
+                throw new Ice.ConnectionRefusedException();
+            }
+            return true;
+        }
+
+        public static void doFinishConnect(Socket fd, int timeout)
+        {
+            //
+            // Note: we don't close the socket if there's an exception. It's the responsibility
+            // of the caller to do so.
+            //
+
+            if(timeout != 0)
+            {
+                Selector selector = new Selector();
+                selector.add(fd, SocketStatus.NeedConnect);
+                selector.select(timeout);
+
+                bool ready = selector.selWrite.Count != 0;
+                bool error = selector.selError.Count != 0;
+
+                try
+                {
                     //
                     // As with C++ we need to get the SO_ERROR error
                     // to determine whether the connect has actually
                     // failed.
                     //
-                    int val = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error);
+                    int val = (int)fd.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error);
                     if(val > 0)
                     {
-                        closeSocketNoThrow(socket);
-
                         //
-                        // Create a Win32Exception out of this error value. Check the for refused, and
-                        // failed. Otherwise its a plain old socket exception.
+                        // Create a Win32Exception out of this error value.
                         //
                         Win32Exception sockEx = new Win32Exception(val);
                         if(connectionRefused(sockEx))
@@ -488,24 +491,16 @@ namespace IceInternal
                             throw new Ice.SocketException(sockEx);
                         }                       
                     }
-                    
-                    Debug.Assert(!(ready && error));
                 }
                 catch(SocketException e)
                 {
-                    if(interrupted(e))
-                    {
-                        goto repeatSelect;
-                    }
-
-                    closeSocketNoThrow(socket);
                     throw new Ice.SocketException(e);
                 }
 
+                Debug.Assert(!(ready && error));
+
                 if(error || !ready)
                 {
-                    closeSocketNoThrow(socket);
-
                     //
                     // If GetSocketOption didn't return an error and we've failed then we cannot
                     // distinguish between connect failed and connection refused.
@@ -520,90 +515,23 @@ namespace IceInternal
                     }
                 }
             }
-        }
 
-        internal class AsyncConnectInfo
-        {
-            internal AsyncConnectInfo(Socket fd)
-            {
-                this.fd = fd;
-                this.ex = null;
-                this.done = false;
-            }
-
-            internal Socket fd;
-            volatile internal Exception ex;
-            volatile internal bool done;
-        }
-
-        private static void asyncConnectCallback(IAsyncResult ar)
-        {
-            AsyncConnectInfo info = (AsyncConnectInfo)ar.AsyncState;
-            lock(info)
-            {
-                try
-                {
-                    info.fd.EndConnect(ar);
-                }
-                catch(Exception ex)
-                {
-                    info.ex = ex;
-                }
-                finally
-                {
-                    info.done = true;
-                    Monitor.Pulse(info);
-                }
-            }
-        }
-
-        public static void doConnectAsync(Socket socket, EndPoint addr, int timeout)
-        {
-        repeatConnect:
+            //
+            // Prevent self connect (self connect happens on Linux when a client tries to connect to
+            // a server which was just deactivated if the client socket re-uses the same ephemeral
+            // port as the server).
+            //
             try
             {
-                AsyncConnectInfo info = new AsyncConnectInfo(socket);
-                /* IAsyncResult ar = */ socket.BeginConnect(addr, new AsyncCallback(asyncConnectCallback), info);
-                lock(info)
+                EndPoint addr = fd.RemoteEndPoint;
+                if(addr != null && addr.Equals(fd.LocalEndPoint))
                 {
-                    if(!info.done)
-                    {
-                        if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
-                        {
-                            throw new Ice.ConnectTimeoutException();
-                        }
-                    }
-                    if(info.ex != null)
-                    {
-                        throw info.ex;
-                    }
+                    throw new Ice.ConnectionRefusedException();
                 }
             }
-            catch(SocketException ex)
+            catch(SocketException)
             {
-                if(interrupted(ex))
-                {
-                    goto repeatConnect;
-                }
-
-                closeSocketNoThrow(socket);
-
-                //
-                // Check for connectionRefused, and connectFailed
-                // here.
-                //
-                if(connectionRefused(ex))
-                {
-                    throw new Ice.ConnectionRefusedException(ex);
-                }
-                else if(connectFailed(ex))
-                {
-                    throw new Ice.ConnectFailedException(ex);
-                }
-                else
-                {
-                    throw new Ice.SocketException(ex);
-                }
+                // Ignore - the socket may not be connected.
             }
         }
 
@@ -624,27 +552,7 @@ namespace IceInternal
                 }
                 if(wouldBlock(ex))
                 {
-                repeatSelect:
-                    ArrayList readList = new ArrayList();
-                    readList.Add(socket);
-                    try
-                    {
-                        doSelect(readList, null, null, timeout);
-                    }
-                    catch(Win32Exception we)
-                    {
-                        if(interrupted(we))
-                        {
-                            goto repeatSelect;
-                        }
-                        throw new Ice.SocketException(we);
-                    }
-                    catch(System.Exception se)
-                    {
-                        throw new Ice.SocketException(se);
-                    }
-
-                    if(readList.Count == 0)
+                    if(!doPoll(socket, timeout, PollMode.Read))
                     {
                         throw new Ice.TimeoutException();
                     }
@@ -688,13 +596,38 @@ namespace IceInternal
             //
             while((timeout > System.Int32.MaxValue / 1000))
             {
-                if(s.Poll((System.Int32.MaxValue / 1000) * 1000, (SelectMode)mode))
+                try
                 {
-                    return true;
+                    if(s.Poll((System.Int32.MaxValue / 1000) * 1000, (SelectMode)mode))
+                    {
+                        return true;
+                    }
+                }
+                catch(SocketException ex)
+                {
+                    if(interrupted(ex))
+                    {
+                        continue;
+                    }
+                    throw new Ice.SocketException(ex);
                 }
                 timeout -= System.Int32.MaxValue / 1000;
             }
-            return s.Poll(timeout * 1000, (SelectMode)mode);
+            while(true)
+            {
+                try
+                {
+                    return s.Poll(timeout * 1000, (SelectMode)mode);
+                }
+                catch(SocketException ex)
+                {
+                    if(interrupted(ex))
+                    {
+                        continue;
+                    }
+                    throw new Ice.SocketException(ex);
+                }
+            }
         }
 
         public static void doSelect(IList checkRead, IList checkWrite, IList checkError, int milliSeconds)
@@ -710,6 +643,9 @@ namespace IceInternal
                 // of blocking indefinitely), so we have to emulate a blocking select here.
                 // (Using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
                 //
+                // According to the .NET 2.0 API docs, Select() should block when given a timeout
+                // value of -1, but that doesn't appear to be the case, at least not on Windows.
+                //
                 do {
                     cr = copyList(checkRead);
                     cw = copyList(checkWrite);
@@ -722,7 +658,7 @@ namespace IceInternal
                     {
                         if(interrupted(e))
                         {
-                                continue;
+                            continue;
                         }
                         throw new Ice.SocketException(e);
                     }
@@ -730,9 +666,6 @@ namespace IceInternal
                 while((cr == null || cr.Count == 0) &&
                       (cw == null || cw.Count == 0) &&
                       (ce == null || ce.Count == 0));
-                overwriteList(cr, checkRead);
-                overwriteList(cw, checkWrite);
-                overwriteList(ce, checkError);
             }
             else
             {
@@ -740,9 +673,7 @@ namespace IceInternal
                 // Select() wants microseconds, so we need to deal with overflow.
                 //
                 while((milliSeconds > System.Int32.MaxValue / 1000) &&
-                      ((cr == null) || cr.Count == 0) &&
-                      ((cw == null) || cw.Count == 0) &&
-                      ((ce == null) || ce.Count == 0))
+                      (cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
                 {
                     cr = copyList(checkRead);
                     cw = copyList(checkWrite);
@@ -761,14 +692,32 @@ namespace IceInternal
                     }
                     milliSeconds -= System.Int32.MaxValue / 1000;
                 }
-                if(cr == null && cw == null && ce == null)
+                if((cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
                 {
-                    Socket.Select(checkRead, checkWrite, checkError, milliSeconds * 1000);
+                    while(true)
+                    {
+                        cr = copyList(checkRead);
+                        cw = copyList(checkWrite);
+                        ce = copyList(checkError);
+                        try
+                        {
+                            Socket.Select(cr, cw, ce, milliSeconds * 1000);
+                            break;
+                        }
+                        catch(SocketException e)
+                        {
+                            if(interrupted(e))
+                            {
+                                continue;
+                            }
+                            throw new Ice.SocketException(e);
+                        }
+                    }
                 }
-                overwriteList(cr, checkRead);
-                overwriteList(cw, checkWrite);
-                overwriteList(ce, checkError);
             }
+            overwriteList(cr, checkRead);
+            overwriteList(cw, checkWrite);
+            overwriteList(ce, checkError);
         }
 
         public static IPEndPoint getAddress(string host, int port)
@@ -889,9 +838,14 @@ namespace IceInternal
             throw dns;
         }
 
-        public static IPEndPoint[] getAddresses(string host, int port)
+        public static List<IPEndPoint> getAddresses(string host, int port)
         {
-            ArrayList addresses = new ArrayList();
+            return getAddresses(host, port, true);
+        }
+
+        public static List<IPEndPoint> getAddresses(string host, int port, bool blocking)
+        {
+            List<IPEndPoint> addresses = new List<IPEndPoint>();
 
             if(host.Equals("0.0.0.0"))
             {
@@ -915,8 +869,13 @@ namespace IceInternal
                     {
                         addresses.Add(new IPEndPoint(IPAddress.Parse(host), port));
                     }
-                    catch (FormatException)
+                    catch(FormatException)
                     {
+                        if(!blocking)
+                        {
+                            return addresses;
+                        }
+
                         IPHostEntry e = Dns.GetHostEntry(host);
                         for(int i = 0; i < e.AddressList.Length; ++i)
                         {
@@ -945,7 +904,7 @@ namespace IceInternal
                 }
             }
 
-            return (IPEndPoint[])addresses.ToArray(typeof(IPEndPoint));
+            return addresses;
         }
 
         public static string[] getLocalHosts()
@@ -1218,5 +1177,157 @@ namespace IceInternal
             }
             return remoteEndpoint;
         }
+    }
+
+    public enum SocketStatus { Finished, NeedConnect, NeedRead, NeedWrite };
+
+    public sealed class Selector
+    {
+        public void add(Socket fd, SocketStatus status)
+        {
+            switch(status)
+            {
+            case SocketStatus.Finished:
+                Debug.Assert(false);
+                break;
+            case SocketStatus.NeedConnect:
+                _writeList.Add(fd, null);
+                if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+                {
+                    _errorList.Add(fd, null);
+                }
+                break;
+            case SocketStatus.NeedRead:
+                _readList.Add(fd, null);
+                break;
+            case SocketStatus.NeedWrite:
+                _writeList.Add(fd, null);
+                break;
+            }
+        }
+
+        public void remove(Socket fd, SocketStatus status)
+        {
+            switch(status)
+            {
+            case SocketStatus.Finished:
+                Debug.Assert(false);
+                break;
+            case SocketStatus.NeedConnect:
+                _writeList.Remove(fd);
+                if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+                {
+                    _errorList.Remove(fd);
+                }
+                break;
+            case SocketStatus.NeedRead:
+                _readList.Remove(fd);
+                break;
+            case SocketStatus.NeedWrite:
+                _writeList.Remove(fd);
+                break;
+            }
+        }
+
+        public int select(int timeout)
+        {
+            List<Socket> cr = null;
+            List<Socket> cw = null;
+            List<Socket> ce = null;
+
+            if(timeout < 0)
+            {
+                //
+                // Socket.Select() returns immediately if the timeout is < 0 (instead
+                // of blocking indefinitely), so we have to emulate a blocking select here.
+                // (Using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
+                //
+                // According to the .NET 2.0 API docs, Select() should block when given a timeout
+                // value of -1, but that doesn't appear to be the case, at least not on Windows.
+                //
+                do {
+                    cr = new List<Socket>(_readList.Keys);
+                    cw = new List<Socket>(_writeList.Keys);
+                    ce = new List<Socket>(_errorList.Keys);
+                    try
+                    {
+                        Socket.Select(cr, cw, ce, System.Int32.MaxValue);
+                    }
+                    catch(SocketException e)
+                    {
+                        if(Network.interrupted(e))
+                        {
+                            continue;
+                        }
+                        throw new Ice.SocketException(e);
+                    }
+                }
+                while((cr == null || cr.Count == 0) &&
+                      (cw == null || cw.Count == 0) &&
+                      (ce == null || ce.Count == 0));
+            }
+            else
+            {
+                //
+                // Select() wants microseconds, so we need to deal with overflow.
+                //
+                while((timeout > System.Int32.MaxValue / 1000) &&
+                      (cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
+                {
+                    cr = new List<Socket>(_readList.Keys);
+                    cw = new List<Socket>(_writeList.Keys);
+                    ce = new List<Socket>(_errorList.Keys);
+                    try
+                    {
+                        Socket.Select(cr, cw, ce, (System.Int32.MaxValue / 1000) * 1000);
+                    }
+                    catch(SocketException e)
+                    {
+                        if(Network.interrupted(e))
+                        {
+                            continue;
+                        }
+                        throw new Ice.SocketException(e);
+                    }
+                    timeout -= System.Int32.MaxValue / 1000;
+                }
+                if((cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
+                {
+                    while(true)
+                    {
+                        cr = new List<Socket>(_readList.Keys);
+                        cw = new List<Socket>(_writeList.Keys);
+                        ce = new List<Socket>(_errorList.Keys);
+                        try
+                        {
+                            Socket.Select(cr, cw, ce, timeout * 1000);
+                            break;
+                        }
+                        catch(SocketException e)
+                        {
+                            if(Network.interrupted(e))
+                            {
+                                continue;
+                            }
+                            throw new Ice.SocketException(e);
+                        }
+                    }
+                }
+            }
+
+            selRead = cr;
+            selWrite = cw;
+            selError = ce;
+
+            return selRead.Count + selWrite.Count + selError.Count;
+        }
+
+        public List<Socket> selRead;  // Sockets selected for read
+        public List<Socket> selWrite; // Sockets selected for write
+        public List<Socket> selError; // Sockets selected for error
+
+        private Dictionary<Socket, object> _readList = new Dictionary<Socket, object>();
+        private Dictionary<Socket, object> _writeList = new Dictionary<Socket, object>();
+        private Dictionary<Socket, object> _errorList = new Dictionary<Socket, object>();
     }
 }

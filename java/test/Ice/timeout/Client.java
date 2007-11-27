@@ -39,11 +39,6 @@ public class Client
             //
             initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-            //
-            // Check for AMI timeouts every second.
-            //
-            initData.properties.setProperty("Ice.MonitorConnections", "1");
-
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator, System.out);
         }

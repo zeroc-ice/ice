@@ -56,7 +56,7 @@ namespace IceInternal
             instance_.timer().scheduleRepeated(this, interval * 1000);
         }
         
-        public void run()
+        public void runTimerTask()
         {
             Set connections = new Set();
             lock(this)

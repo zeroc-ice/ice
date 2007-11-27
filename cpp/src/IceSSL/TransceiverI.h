@@ -29,24 +29,31 @@ class AcceptorI;
 
 class TransceiverI : public IceInternal::Transceiver
 {
+    enum State
+    {
+        StateNeedConnect,
+        StateConnectPending,
+        StateConnected
+    };
+
 public:
 
     virtual SOCKET fd();
     virtual void close();
     virtual void shutdownWrite();
     virtual void shutdownReadWrite();
-    virtual void write(IceInternal::Buffer&, int);
-    virtual void read(IceInternal::Buffer&, int);
+    virtual bool write(IceInternal::Buffer&, int);
+    virtual bool read(IceInternal::Buffer&, int);
     virtual std::string type() const;
     virtual std::string toString() const;
-    virtual void initialize(int);
+    virtual IceInternal::SocketStatus initialize(int);
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
     ConnectionInfo getConnectionInfo() const;
 
 private:
 
-    TransceiverI(const InstancePtr&, SSL*, SOCKET, bool, const std::string& = "");
+    TransceiverI(const InstancePtr&, SSL*, SOCKET, bool, bool, const std::string& = "");
     virtual ~TransceiverI();
     friend class ConnectorI;
     friend class AcceptorI;
@@ -65,7 +72,8 @@ private:
     const std::string _adapterName;
     const bool _incoming;
 
-    const std::string _desc;
+    State _state;
+    std::string _desc;
 #ifdef _WIN32
     int _maxPacketSize;
 #endif

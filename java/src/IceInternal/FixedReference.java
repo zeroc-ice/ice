@@ -198,6 +198,20 @@ public class FixedReference extends Reference
         return connection;
     }
 
+    public void
+    getConnection(GetConnectionCallback callback)
+    {
+        try
+        {
+            Ice.BooleanHolder compress = new Ice.BooleanHolder();
+            callback.setConnection(getConnection(compress), compress.value);
+        }
+        catch(Ice.LocalException ex)
+        {
+            callback.setException(ex);
+        }
+    }
+
     public boolean
     equals(java.lang.Object obj)
     {

@@ -50,10 +50,22 @@ IceInternal::ProtocolPluginFacade::getNetworkTraceCategory() const
     return _instance->traceLevels()->networkCat;
 }
 
+EndpointHostResolverPtr
+IceInternal::ProtocolPluginFacade::getEndpointHostResolver() const
+{
+    return _instance->endpointHostResolver();
+}
+
 void
 IceInternal::ProtocolPluginFacade::addEndpointFactory(const EndpointFactoryPtr& factory) const
 {
     _instance->endpointFactoryManager()->add(factory);
+}
+
+EndpointFactoryPtr
+IceInternal::ProtocolPluginFacade::getEndpointFactory(Ice::Short type) const
+{
+    return _instance->endpointFactoryManager()->get(type);
 }
 
 IceInternal::ProtocolPluginFacade::ProtocolPluginFacade(const CommunicatorPtr& communicator) :

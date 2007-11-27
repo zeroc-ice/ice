@@ -42,7 +42,7 @@ public:
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(5)))
+            if(!timedWait(IceUtil::Time::seconds(50000)))
             {
                 return false;
             }
@@ -50,7 +50,7 @@ public:
         _called = false;
         return true;
     }
-
+    
 protected:
 
     void called()
@@ -94,7 +94,7 @@ public:
 
     virtual void ice_exception(const ::Ice::Exception& ex)
     {
-        test(dynamic_cast<const ::Ice::TwowayOnlyException*>(&ex));
+        test(dynamic_cast<const ::Ice::NoEndpointException*>(&ex));
         called();
     }
 };
@@ -131,7 +131,7 @@ public:
 
     virtual void ice_exception(const ::Ice::Exception& ex)
     {
-        test(dynamic_cast<const ::Ice::TwowayOnlyException*>(&ex));
+        test(dynamic_cast<const ::Ice::NoEndpointException*>(&ex));
         called();
     }
 };
@@ -875,12 +875,13 @@ void
 twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
-        // Check that a call to a void operation raises TwowayOnlyException
+        // Check that a call to a void operation raises NoEndpointException
         // in the ice_exception() callback instead of at the point of call.
-        Test::MyClassPrx oneway = Test::MyClassPrx::uncheckedCast(p->ice_oneway());
+        Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
         AMI_MyClass_opVoidExIPtr cb = new AMI_MyClass_opVoidExI;
-        try {
-            oneway->opVoid_async(cb);
+        try 
+        {
+            indirect->opVoid_async(cb);
         }
         catch(const Ice::Exception&)
         {
@@ -890,13 +891,13 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
-        // Check that a call to a twoway operation raises TwowayOnlyException
+        // Check that a call to a twoway operation raises NoEndpointException
         // in the ice_exception() callback instead of at the point of call.
-        Test::MyClassPrx oneway = Test::MyClassPrx::uncheckedCast(p->ice_oneway());
+        Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
         AMI_MyClass_opByteExIPtr cb = new AMI_MyClass_opByteExI;
         try
         {
-            oneway->opByte_async(cb, 0, 0);
+            indirect->opByte_async(cb, 0, 0);
         }
         catch(const Ice::Exception&)
         {
@@ -1345,7 +1346,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
 
                 Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
-                                        ic->stringToProxy("test:default -p 12010 -t 10000"));
+                                        ic->stringToProxy("test:default -p 12010"));
                 
                 
                 ic->getImplicitContext()->setContext(ctx);

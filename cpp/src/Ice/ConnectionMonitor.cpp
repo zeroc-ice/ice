@@ -69,7 +69,7 @@ IceInternal::ConnectionMonitor::~ConnectionMonitor()
 }
 
 void
-IceInternal::ConnectionMonitor::run()
+IceInternal::ConnectionMonitor::runTimerTask()
 {
     set<ConnectionIPtr> connections;
     

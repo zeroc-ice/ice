@@ -12,6 +12,8 @@ namespace IceInternal
 
     using System.Diagnostics;
     using System.Collections;
+    using System.Collections.Generic;
+    using System.Net;
 
     sealed class TcpEndpointI : EndpointI
     {
@@ -335,22 +337,21 @@ namespace IceInternal
             endpoint = this;
             return null;
         }
-        
+
         //
         // Return connectors for this endpoint, or empty list if no connector
         // is available.
         //
-        public override ArrayList connectors()
+        public override List<Connector> connectors()
         {
-            ArrayList connectors = new ArrayList();
-            System.Net.IPEndPoint[] addresses = Network.getAddresses(_host, _port);
-            for(int i = 0; i < addresses.Length; ++i)
-            {
-                connectors.Add(new TcpConnector(instance_, addresses[i], _timeout, _connectionId));
-             }
-            return connectors;
+            return connectors(Network.getAddresses(_host, _port));
         }
-        
+
+        public override void connectors_async(EndpointI_connectors callback)
+        {
+            instance_.endpointHostResolver().resolve(_host, _port, this, callback);
+        }
+
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available. In case an acceptor is created, this operation
@@ -369,10 +370,10 @@ namespace IceInternal
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY.
         //
-        public override ArrayList
+        public override List<EndpointI>
         expand()
         {
-            ArrayList endps = new ArrayList();
+            List<EndpointI> endps = new List<EndpointI>();
             if(_host.Equals("0.0.0.0"))
             {
                 string[] hosts = Network.getLocalHosts();
@@ -392,25 +393,35 @@ namespace IceInternal
         }
         
         //
-        // Check whether the endpoint is equivalent to a specific Connector.
+        // Check whether the endpoint is equivalent to another one.
         //
-        public override bool equivalent(Connector connector)
+        public override bool equivalent(EndpointI endpoint)
         {
-            TcpConnector tcpConnector = null;
+            TcpEndpointI tcpEndpointI = null;
             try
             {
-                tcpConnector = (TcpConnector)connector;
+                tcpEndpointI = (TcpEndpointI)endpoint;
             }
             catch(System.InvalidCastException)
             {
                 return false;
             }
-            return tcpConnector.equivalent(_host, _port);
+            return tcpEndpointI._host.Equals(_host) && tcpEndpointI._port == _port;
         }
 
         public override bool requiresThreadPerConnection()
         {
             return false;
+        }
+
+        public override List<Connector> connectors(List<IPEndPoint> addresses)
+        {
+            List<Connector> connectors = new List<Connector>();
+            foreach(IPEndPoint addr in addresses)
+            {
+                connectors.Add(new TcpConnector(instance_, addr, _timeout, _connectionId));
+            }
+            return connectors;
         }
 
         public override int GetHashCode()

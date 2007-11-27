@@ -35,6 +35,7 @@ public:
     void setPasswordPrompt(const PasswordPromptPtr&);
 
     Ice::CommunicatorPtr communicator() const;
+    IceInternal::EndpointHostResolverPtr endpointHostResolver() const;
     std::string defaultHost() const;
     int networkTraceLevel() const;
     std::string networkTraceCategory() const;

@@ -24,12 +24,22 @@ public class AllTests
         derived.opDerived();
         System.out.println("ok");
 
+        System.out.print("testing oneway operations... ");
+        System.out.flush();
+        Oneways.oneways(communicator, cl);
+        System.out.println("ok");
+
         if(!collocated)
         {
             System.out.print("testing twoway operations with AMI... ");
             System.out.flush();
             TwowaysAMI.twowaysAMI(communicator, cl);
             TwowaysAMI.twowaysAMI(communicator, derived);
+            System.out.println("ok");
+
+            System.out.print("testing oneway operations with AMI... ");
+            System.out.flush();
+            OnewaysAMI.onewaysAMI(communicator, cl);
             System.out.println("ok");
 
             System.out.print("testing batch oneway operations... ");

@@ -292,13 +292,13 @@ IceSSL::EndpointI::transceiver(IceInternal::EndpointIPtr& endp) const
 vector<IceInternal::ConnectorPtr>
 IceSSL::EndpointI::connectors() const
 {
-    vector<IceInternal::ConnectorPtr> connectors;
-    vector<struct sockaddr_in> addresses = IceInternal::getAddresses(_host, _port);
-    for(unsigned int i = 0; i < addresses.size(); ++i)
-    {
-        connectors.push_back(new ConnectorI(_instance, addresses[i], _timeout, _connectionId));
-    }
-    return connectors;
+    return connectors(IceInternal::getAddresses(_host, _port));
+}
+
+void
+IceSSL::EndpointI::connectors_async(const IceInternal::EndpointI_connectorsPtr& callback) const
+{
+    _instance->endpointHostResolver()->resolve(_host, _port, const_cast<EndpointI*>(this), callback);
 }
 
 IceInternal::AcceptorPtr
@@ -332,14 +332,14 @@ IceSSL::EndpointI::expand() const
 }
 
 bool
-IceSSL::EndpointI::equivalent(const IceInternal::ConnectorPtr& connector) const
+IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 {
-    const ConnectorI* sslConnector = dynamic_cast<const ConnectorI*>(connector.get());
-    if(!sslConnector)
+    const EndpointI* sslEndpointI = dynamic_cast<const EndpointI*>(endpoint.get());
+    if(!sslEndpointI)
     {
         return false;
     }
-    return sslConnector->equivalent(_host, _port);
+    return sslEndpointI->_host == _host && sslEndpointI->_port == _port;
 }
 
 bool
@@ -450,6 +450,17 @@ IceSSL::EndpointI::operator<(const IceInternal::EndpointI& r) const
     }
 
     return false;
+}
+
+vector<IceInternal::ConnectorPtr>
+IceSSL::EndpointI::connectors(const vector<struct sockaddr_in>& addresses) const
+{
+    vector<IceInternal::ConnectorPtr> connectors;
+    for(unsigned int i = 0; i < addresses.size(); ++i)
+    {
+        connectors.push_back(new ConnectorI(_instance, addresses[i], _timeout, _connectionId));
+    }
+    return connectors;
 }
 
 IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance)

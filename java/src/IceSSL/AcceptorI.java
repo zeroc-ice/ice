@@ -37,14 +37,7 @@ final class AcceptorI implements IceInternal.Acceptor
         }
         if(fd != null)
         {
-            try
-            {
-                fd.close();
-            }
-            catch(java.io.IOException ex)
-            {
-                // Ignore.
-            }
+            IceInternal.Network.closeSocketNoThrow(fd);
         }
         if(selector != null)
         {
@@ -149,33 +142,6 @@ final class AcceptorI implements IceInternal.Acceptor
             }
         }
 
-        //
-        // Check whether this socket is the result of a call to connectToSelf.
-        // Despite the fact that connectToSelf immediately closes the socket,
-        // the server-side handshake process does not raise an exception.
-        // Furthermore, we can't simply proceed with the regular handshake
-        // process because we don't want to pass such a socket to the
-        // certificate verifier (if any).
-        //
-        // In order to detect a call to connectToSelf, we compare the remote
-        // address of the newly-accepted socket to that in _connectToSelfAddr.
-        //
-        java.net.SocketAddress remoteAddr = fd.socket().getRemoteSocketAddress();
-        synchronized(this)
-        {
-            if(remoteAddr.equals(_connectToSelfAddr))
-            {
-                try
-                {
-                    fd.close();
-                }
-                catch(java.io.IOException e)
-                {
-                }
-                return null;
-            }
-        }
-
         javax.net.ssl.SSLEngine engine = null;
         try
         {
@@ -199,24 +165,17 @@ final class AcceptorI implements IceInternal.Acceptor
         }
         catch(RuntimeException ex)
         {
-            try
-            {
-                fd.close();
-            }
-            catch(java.io.IOException e)
-            {
-                // Ignore.
-            }
+            IceInternal.Network.closeSocketNoThrow(fd);
             throw ex;
         }
 
         if(_instance.networkTraceLevel() >= 1)
         {
-            _logger.trace(_instance.networkTraceCategory(), "attempting to accept ssl connection\n" +
+            _logger.trace(_instance.networkTraceCategory(), "accepting ssl connection\n" +
                           IceInternal.Network.fdToString(fd));
         }
 
-        return new TransceiverI(_instance, engine, fd, "", true, _adapterName);
+        return new TransceiverI(_instance, engine, fd, "", true, true, _adapterName);
     }
 
     public void
@@ -224,17 +183,8 @@ final class AcceptorI implements IceInternal.Acceptor
     {
         java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
         IceInternal.Network.setBlock(fd, false);
-        synchronized(this)
-        {
-            //
-            // connectToSelf is called to wake up the thread blocked in
-            // accept. We remember the originating address for use in
-            // accept. See accept for details.
-            //
-            IceInternal.Network.doConnect(fd, _addr, -1);
-            _connectToSelfAddr = (java.net.InetSocketAddress)fd.socket().getLocalSocketAddress();
-        }
-        IceInternal.Network.closeSocket(fd);
+        IceInternal.Network.doConnect(fd, _addr, -1);
+        IceInternal.Network.closeSocketNoThrow(fd);
     }
 
     public String
@@ -314,5 +264,4 @@ final class AcceptorI implements IceInternal.Acceptor
     private int _backlog;
     private java.net.InetSocketAddress _addr;
     private java.nio.channels.Selector _selector;
-    private java.net.InetSocketAddress _connectToSelfAddr;
 }

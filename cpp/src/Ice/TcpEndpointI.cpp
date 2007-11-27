@@ -292,13 +292,13 @@ IceInternal::TcpEndpointI::transceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::TcpEndpointI::connectors() const
 {
-    vector<ConnectorPtr> connectors;
-    vector<struct sockaddr_in> addresses = getAddresses(_host, _port);
-    for(unsigned int i = 0; i < addresses.size(); ++i)
-    {
-        connectors.push_back(new TcpConnector(_instance, addresses[i], _timeout, _connectionId));
-    }
-    return connectors;
+    return connectors(getAddresses(_host, _port));
+}
+
+void
+IceInternal::TcpEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+{
+    _instance->endpointHostResolver()->resolve(_host, _port, const_cast<TcpEndpointI*>(this), callback);
 }
 
 AcceptorPtr
@@ -333,14 +333,14 @@ IceInternal::TcpEndpointI::expand() const
 }
 
 bool
-IceInternal::TcpEndpointI::equivalent(const ConnectorPtr& connector) const
+IceInternal::TcpEndpointI::equivalent(const EndpointIPtr& endpoint) const
 {
-    const TcpConnector* tcpConnector = dynamic_cast<const TcpConnector*>(connector.get());
-    if(!tcpConnector)
+    const TcpEndpointI* tcpEndpointI = dynamic_cast<const TcpEndpointI*>(endpoint.get());
+    if(!tcpEndpointI)
     {
         return false;
     }
-    return tcpConnector->equivalent(_host, _port);
+    return tcpEndpointI->_host == _host && tcpEndpointI->_port == _port;
 }
 
 bool
@@ -451,6 +451,17 @@ IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
     }
 
     return false;
+}
+
+vector<ConnectorPtr>
+IceInternal::TcpEndpointI::connectors(const vector<struct sockaddr_in>& addresses) const
+{
+    vector<ConnectorPtr> connectors;
+    for(unsigned int i = 0; i < addresses.size(); ++i)
+    {
+        connectors.push_back(new TcpConnector(_instance, addresses[i], _timeout, _connectionId));
+    }
+    return connectors;
 }
 
 IceInternal::TcpEndpointFactory::TcpEndpointFactory(const InstancePtr& instance)

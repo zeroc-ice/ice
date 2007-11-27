@@ -29,6 +29,15 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     }
 
     //
+    // Get the endpoint host resolver.
+    //
+    public EndpointHostResolver
+    getEndpointHostResolver()
+    {
+        return _instance.endpointHostResolver();
+    }    
+
+    //
     // Get the default hostname to be used in endpoints.
     //
     public String
@@ -59,6 +68,15 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     addEndpointFactory(EndpointFactory factory)
     {
         _instance.endpointFactoryManager().add(factory);
+    }
+
+    //
+    // Register an EndpointFactory.
+    //
+    public EndpointFactory
+    getEndpointFactory(short type)
+    {
+        return _instance.endpointFactoryManager().get(type);
     }
 
     private Instance _instance;

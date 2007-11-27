@@ -22,7 +22,29 @@ namespace IceInternal
             Debug.Assert(_fd != null);
             return _fd;
         }
-        
+
+        public SocketStatus initialize(int timeout)
+        {
+            if(_state == StateNeedConnect && timeout == 0)
+            {
+                _state = StateConnectPending;
+                return SocketStatus.NeedConnect;
+            }
+            else if(_state <= StateConnectPending)
+            {
+                Network.doFinishConnect(_fd, timeout);
+                _state = StateConnected;
+                _desc = Network.fdToString(_fd);
+                if(_traceLevels.network >= 1)
+                {
+                    string s = "tcp connection established\n" + _desc;
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+            }
+            Debug.Assert(_state == StateConnected);
+            return SocketStatus.Finished;
+        }
+
         public void close()
         {
             if(_traceLevels.network >= 1)
@@ -30,7 +52,7 @@ namespace IceInternal
                 string s = "closing tcp connection\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            
+
             lock(this)
             {
                 Debug.Assert(_fd != null);
@@ -51,12 +73,17 @@ namespace IceInternal
 
         public void shutdownWrite()
         {
+            if(_state < StateConnected)
+            {           
+                return;
+            }
+
             if(_traceLevels.network >= 2)
             {
                 string s = "shutting down tcp connection for writing\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            
+
             Debug.Assert(_fd != null);
             try
             {
@@ -74,12 +101,17 @@ namespace IceInternal
 
         public void shutdownReadWrite()
         {
+            if(_state < StateConnected)
+            {           
+                return;
+            }
+
             if(_traceLevels.network >= 2)
             {
                 string s = "shutting down tcp connection for reading and writing\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            
+
             Debug.Assert(_fd != null);
             try
             {
@@ -95,113 +127,40 @@ namespace IceInternal
             }
         }
 
-        public void write(BasicStream stream, int timeout)
+        public bool write(Buffer buf, int timeout)
         {
-            Debug.Assert(_fd != null);
-
-            ByteBuffer buf = stream.prepareWrite();
-            int remaining = buf.remaining();
-            int position = buf.position();
-            int packetSize = remaining;
-            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
+            while(writeBuffer(buf.b))
             {
-                packetSize = _maxPacketSize;
-            }
+                //
+                // There is more data to write but the socket would block; now we
+                // must deal with timeouts.
+                //
+                Debug.Assert(buf.b.hasRemaining());
 
-            try
-            {
-                while(remaining > 0)
-                {   
-                    int ret;
-                    try
-                    {
-                        //
-                        // Try to send first. Most of the time, this will work and
-                        // avoids the cost of calling Poll().
-                        //
-                        ret = _fd.Send(buf.rawBytes(), position, packetSize, SocketFlags.None);
-                        Debug.Assert(ret != 0);
-                    }
-                    catch(Win32Exception e)
-                    {
-                        if(Network.wouldBlock(e))
-                        {
-                            if(timeout == 0)
-                            {
-                                throw new Ice.TimeoutException();
-                            }
-                            ret = 0;
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                    if(ret == 0)
-                    {
-                        //
-                        // The first attempt to write would have blocked,
-                        // so wait for the socket to become writable now.
-                        //
-                        if(!Network.doPoll(_fd, timeout, Network.PollMode.Write))
-                        {
-                            throw new Ice.TimeoutException();
-                        }
-                        continue;
-                    }
-
-                    if(_traceLevels.network >= 3)
-                    {
-                        string s = "sent " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
-                        _logger.trace(_traceLevels.networkCat, s);
-                    }
-                    if(_stats != null)
-                    {
-                        _stats.bytesSent(type(), ret);
-                    }
-
-                    remaining -= ret;
-                    buf.position(position += ret);
-                    if(remaining < packetSize)
-                    {
-                        packetSize = remaining;
-                    }
-                }
-            }
-            catch(SocketException ex)
-            {
-                if(Network.connectionLost(ex))
+                if(timeout == 0)
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    return false;
                 }
-                if(Network.wouldBlock(ex))
+
+                if(!Network.doPoll(_fd, timeout, Network.PollMode.Write))
                 {
                     throw new Ice.TimeoutException();
                 }
-                throw new Ice.SocketException(ex);
             }
-            catch(Ice.LocalException)
-            {
-                throw;
-            }
-            catch(System.Exception ex)
-            {
-                throw new Ice.SyscallException(ex);
-            }
+            return true;
         }
-        
-        public void read(BasicStream stream, int timeout)
-        {
-            Debug.Assert(_fd != null);
 
-            ByteBuffer buf = stream.prepareRead();    
-            int remaining = buf.remaining();
-            int position = buf.position();
-            
-            try
+        public bool read(Buffer buf, int timeout)
+        {
+            int remaining = buf.b.remaining();
+            int position = buf.b.position();
+
+            while(buf.b.hasRemaining())
             {
-                while(remaining > 0)
+                try
                 {
+                    Debug.Assert(_fd != null);
+
                     int ret;
                     try
                     {
@@ -209,7 +168,7 @@ namespace IceInternal
                         // Try to receive first. Much of the time, this will work and we
                         // avoid the cost of calling Poll().
                         //
-                        ret = _fd.Receive(buf.rawBytes(), position, remaining, SocketFlags.None);
+                        ret = _fd.Receive(buf.b.rawBytes(), position, remaining, SocketFlags.None);
                         if(ret == 0)
                         {
                             throw new Ice.ConnectionLostException();
@@ -219,47 +178,54 @@ namespace IceInternal
                     {
                         if(Network.wouldBlock(e))
                         {
+                            if(timeout == 0)
+                            {
+                                return false;
+                            }
+
                             if(!Network.doPoll(_fd, timeout, Network.PollMode.Read))
                             {
                                 throw new Ice.TimeoutException();
                             }
+
                             continue;
                         }
                         throw;
                     }
+
+                    Debug.Assert(ret > 0);
+
                     if(_traceLevels.network >= 3)
                     {
                         string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
                         _logger.trace(_traceLevels.networkCat, s);
                     }    
+
                     if(_stats != null)
                     {
                         _stats.bytesReceived(type(), ret);
                     }
+
                     remaining -= ret;
-                    buf.position(position += ret);
+                    buf.b.position(position += ret);
                 }
-            }
-            catch(SocketException ex)
-            {
-                if(Network.connectionLost(ex))
+                catch(Win32Exception ex)
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    if(Network.interrupted(ex))
+                    {
+                        continue;
+                    }
+
+                    if(Network.connectionLost(ex))
+                    {
+                        throw new Ice.ConnectionLostException(ex);
+                    }
+
+                    throw new Ice.SocketException(ex);
                 }
-                if(Network.wouldBlock(ex))
-                {
-                    throw new Ice.TimeoutException();
-                }
-                throw new Ice.SocketException(ex);
             }
-            catch(Ice.LocalException)
-            {
-                throw;
-            }
-            catch(System.Exception ex)
-            {
-                throw new Ice.SyscallException(ex);
-            }
+
+            return true;
         }
 
         public string type()
@@ -267,32 +233,29 @@ namespace IceInternal
             return "tcp";
         }
 
-        public void initialize(int timeout)
-        {
-        }
-
-        public void checkSendSize(BasicStream stream, int messageSizeMax)
-        {
-            if(stream.size() > messageSizeMax)
-            {
-                throw new Ice.MemoryLimitException();
-            }
-        }
-
         public override string ToString()
         {
             return _desc;
         }
 
+        public void checkSendSize(Buffer buf, int messageSizeMax)
+        {
+            if(buf.size() > messageSizeMax)
+            {
+                throw new Ice.MemoryLimitException();
+            }
+        }
+
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(Instance instance, Socket fd)
+        internal TcpTransceiver(Instance instance, Socket fd, bool connected)
         {
             _fd = fd;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
+            _state = connected ? StateConnected : StateNeedConnect;
             _desc = Network.fdToString(_fd);
 
             _maxPacketSize = 0;
@@ -310,13 +273,100 @@ namespace IceInternal
                 }
             }
         }
-        
+
+        private bool writeBuffer(ByteBuffer buf)
+        {
+            int size = buf.limit();
+            int packetSize = size - buf.position();
+            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
+            {
+                packetSize = _maxPacketSize;
+                buf.limit(buf.position() + packetSize);
+            }
+
+            while(buf.hasRemaining())
+            {
+                try
+                {
+                    Debug.Assert(_fd != null);
+
+                    int ret;
+                    try
+                    {
+                        //
+                        // Try to send first. Most of the time, this will work and
+                        // avoids the cost of calling Poll().
+                        //
+                        ret = _fd.Send(buf.rawBytes(), buf.position(), buf.remaining(), SocketFlags.None);
+                    }
+                    catch(Win32Exception e)
+                    {
+                        if(Network.wouldBlock(e))
+                        {
+                            // 
+                            // Writing would block, so we reset the limit (if necessary) and return true to indicate
+                            // that more data must be sent.
+                            //
+                            if(packetSize == _maxPacketSize)
+                            {   
+                                buf.limit(size);
+                            }
+                            return true;
+                        }
+                        throw;
+                    }
+
+                    Debug.Assert(ret > 0);
+
+                    if(_traceLevels.network >= 3)
+                    {
+                        string s = "sent " + ret + " of " + buf.remaining() + " bytes via tcp\n" + ToString();
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
+
+                    if(_stats != null)
+                    {
+                        _stats.bytesSent(type(), ret);
+                    }
+
+                    buf.position(buf.position() + ret);
+
+                    if(packetSize == _maxPacketSize)
+                    {
+                        Debug.Assert(buf.position() == buf.limit());
+                        packetSize = size - buf.position();
+                        if(packetSize > _maxPacketSize)
+                        {
+                            packetSize = _maxPacketSize;
+                        }
+                        buf.limit(buf.position() + packetSize);
+                    }
+                }
+                catch(SocketException ex)
+                {
+                    if(Network.connectionLost(ex))
+                    {
+                        throw new Ice.ConnectionLostException(ex);
+                    }
+
+                    throw new Ice.SocketException(ex);
+                }
+            }
+
+            return false; // No more data to send.
+        }
+
         private Socket _fd;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
         private string _desc;
+        private int _state;
         private int _maxPacketSize;
+
+        private const int StateNeedConnect = 0;
+        private const int StateConnectPending = 1;
+        private const int StateConnected = 2;
     }
 
 }

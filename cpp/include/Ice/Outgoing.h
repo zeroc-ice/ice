@@ -12,6 +12,8 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
+#include <Ice/RequestHandlerF.h>
+#include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BasicStream.h>
@@ -59,15 +61,26 @@ private:
     bool _retry;
 };
 
-class ICE_API Outgoing : private IceUtil::noncopyable
+class ICE_API OutgoingMessageCallback : private IceUtil::noncopyable
 {
 public:
 
-    Outgoing(Ice::ConnectionI*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context*, bool);
+    virtual ~OutgoingMessageCallback() { }
+ 
+    virtual void sent(bool) = 0;
+    virtual void finished(const Ice::LocalException&) = 0;
+};
+
+class ICE_API Outgoing : public OutgoingMessageCallback
+{
+public:
+
+    Outgoing(RequestHandler*, const std::string&, Ice::OperationMode, const Ice::Context*);
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
-    void finished(BasicStream&);
+    virtual void sent(bool);
+    virtual void finished(BasicStream&);
     void finished(const Ice::LocalException&);
 
     // Inlined for speed optimization.
@@ -77,11 +90,10 @@ public:
 private:
 
     //
-    // Optimization. The connection and the reference may not be
+    // Optimization. The request handler and the reference may not be
     // deleted while a stack-allocated Outgoing still holds it.
     //
-    Ice::ConnectionI* _connection;
-    Reference* _reference;
+    RequestHandler* _handler;
 
     std::auto_ptr<Ice::LocalException> _exception;
 
@@ -91,13 +103,13 @@ private:
         StateInProgress,
         StateOK,
         StateUserException,
-        StateLocalException
+        StateLocalException,
+        StateFailed
     } _state;
 
     BasicStream _is;
     BasicStream _os;
-
-    const bool _compress;
+    bool _sent;
 
     //
     // NOTE: we use an attribute for the monitor instead of inheriting
@@ -107,6 +119,31 @@ private:
     // see bug 1541.
     //
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
+};
+
+class BatchOutgoing : public OutgoingMessageCallback
+{
+public:
+
+    BatchOutgoing(RequestHandler*);
+    BatchOutgoing(Ice::ConnectionI*, Instance*);
+    
+    void invoke();
+    
+    virtual void sent(bool);
+    virtual void finished(const Ice::LocalException&);
+    
+    BasicStream* os() { return &_os; }
+
+private:
+
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    RequestHandler* _handler;
+    Ice::ConnectionI* _connection;
+    bool _sent;
+    std::auto_ptr<Ice::LocalException> _exception;
+
+    BasicStream _os;
 };
 
 }

@@ -15,8 +15,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_isA(String __id, java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_isA", OperationMode.Nonmutating,
-                                                             __context, __compress);
+        IceInternal.Outgoing __og = __handler.getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
         try
         {
             try
@@ -52,7 +51,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __connection.reclaimOutgoing(__og);
+            __handler.reclaimOutgoing(__og);
         }
     }
 
@@ -60,8 +59,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_ping(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ping", OperationMode.Nonmutating,
-                                                             __context, __compress);
+        IceInternal.Outgoing __og = __handler.getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
         try
         {
             boolean __ok = __og.invoke();
@@ -87,7 +85,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __connection.reclaimOutgoing(__og);
+            __handler.reclaimOutgoing(__og);
         }
     }
 
@@ -95,8 +93,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_ids(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ids", OperationMode.Nonmutating,
-                                                             __context, __compress);
+        IceInternal.Outgoing __og = __handler.getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
         try
         {
             boolean __ok = __og.invoke();
@@ -123,7 +120,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __connection.reclaimOutgoing(__og);
+            __handler.reclaimOutgoing(__og);
         }
     }
 
@@ -131,8 +128,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_id(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_id", OperationMode.Nonmutating,
-                                                             __context, __compress);
+        IceInternal.Outgoing __og = __handler.getOutgoing("ice_id", OperationMode.Nonmutating, __context);
         try
         {
             boolean __ok = __og.invoke();
@@ -159,7 +155,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __connection.reclaimOutgoing(__og);
+            __handler.reclaimOutgoing(__og);
         }
     }
 
@@ -167,7 +163,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, operation, mode, __context, __compress);
+        IceInternal.Outgoing __og = __handler.getOutgoing(operation, mode, __context);
         try
         {
             if(inParams != null)
@@ -183,7 +179,7 @@ public class _ObjectDelM implements _ObjectDel
                 }
             }
             boolean ok = __og.invoke();
-            if(__reference.getMode() == IceInternal.Reference.ModeTwoway)
+            if(__handler.getReference().getMode() == IceInternal.Reference.ModeTwoway)
             {
                 try
                 {
@@ -203,15 +199,40 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __connection.reclaimOutgoing(__og);
+            __handler.reclaimOutgoing(__og);
         }
     }
 
-    public ConnectionI
-    __getConnection(BooleanHolder compress)
+    public void
+    ice_flushBatchRequests()
+        throws IceInternal.LocalExceptionWrapper
     {
-        compress.value = __compress;
-        return __connection;
+        IceInternal.BatchOutgoing out = new IceInternal.BatchOutgoing(__handler);
+        try
+        {
+            out.invoke();
+        }
+        catch(Ice.LocalException ex)
+        {
+            //
+            // We never retry flusing the batch requests as the connection batched
+            // requests were discarded and the caller needs to be notified of the 
+            // failure.
+            //
+            throw new IceInternal.LocalExceptionWrapper(ex, false);
+        }
+    }
+
+    public IceInternal.RequestHandler
+    __getRequestHandler()
+    {
+        return __handler;
+    }
+
+    public void
+    __setRequestHandler(IceInternal.RequestHandler handler)
+    {
+        __handler = handler;
     }
 
     //
@@ -230,32 +251,38 @@ public class _ObjectDelM implements _ObjectDel
         // upon initialization.
         //
 
-        assert(__reference == null);
-        assert(__connection == null);
+        assert(__handler == null);
 
-        __reference = from.__reference;
-        __connection = from.__connection;
-        __compress = from.__compress;
+        __handler = from.__handler;
     }
 
-    protected IceInternal.Reference __reference;
-    protected ConnectionI __connection;
-    protected boolean __compress;
+    protected IceInternal.RequestHandler __handler;
 
     public void
-    setup(IceInternal.Reference ref)
+    setup(IceInternal.Reference ref, Ice.ObjectPrx proxy, boolean async)
     {
         //
         // No need to synchronize, as this operation is only called
         // upon initialization.
         //
 
-        assert(__reference == null);
-        assert(__connection == null);
+        assert(__handler == null);
 
-        __reference = ref;
-        BooleanHolder compress = new BooleanHolder();
-        __connection = __reference.getConnection(compress);
-        __compress = compress.value;
+        //
+        // If the delegate is created as a result of an AMI call or if the proxy is
+        // a batch proxy we use the connect request handler to connect the in the 
+        // background.
+        //
+        if(async ||
+           ref.getMode() == IceInternal.Reference.ModeBatchOneway || 
+           ref.getMode() == IceInternal.Reference.ModeBatchDatagram)
+        {
+            IceInternal.ConnectRequestHandler handler = new IceInternal.ConnectRequestHandler(ref, proxy, this);
+            __handler = handler.connect();
+        }
+        else
+        {
+            __handler = new IceInternal.ConnectionRequestHandler(ref, proxy);
+        }
     }
 }

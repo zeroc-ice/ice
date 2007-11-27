@@ -25,10 +25,15 @@ public abstract class EventHandler
     // Read data via the event handler. May only be called if
     // readable() returns true.
     //
-    // NOTE: In Java, read returns true if the handler has more data
-    // data available, and therefore read should be called again.
-    //
     abstract public boolean read(BasicStream is);
+
+    //
+    // In Java, it's possible that the transceiver reads more data
+    // than what was really asked. If this is the case, hasMoreData()
+    // returns true and the handler read() method should be called 
+    // again (without doing a select()).
+    //
+    abstract public boolean hasMoreData();
 
     //
     // A complete message has been received.
@@ -68,7 +73,8 @@ public abstract class EventHandler
     protected Instance _instance;
 
     //
-    // The _stream data member is for use by ThreadPool only.
+    // The _stream data member is only for use by the ThreadPool or by the
+    // connection for validation.
     //
-    BasicStream _stream;
+    protected BasicStream _stream;
 }

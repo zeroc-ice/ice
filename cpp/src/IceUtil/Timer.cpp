@@ -13,12 +13,6 @@
 using namespace std;
 using namespace IceUtil;
 
-bool
-TimerTask::operator<(const TimerTask& r) const
-{
-    return this < &r;
-}
-
 Timer::Timer() : _destroyed(false)
 {
     start();
@@ -96,7 +90,7 @@ Timer::cancel(const TimerTaskPtr& task)
         return false;
     }
 
-    map<TimerTaskPtr, IceUtil::Time>::iterator p = _tasks.find(task);
+    map<TimerTaskPtr, IceUtil::Time, TimerTaskCompare>::iterator p = _tasks.find(task);
     if(p == _tasks.end())
     {
         return false;
@@ -125,7 +119,7 @@ Timer::run()
                 //
                 if(token.delay != IceUtil::Time())
                 {
-                    map<TimerTaskPtr, IceUtil::Time>::iterator p = _tasks.find(token.task);
+                    map<TimerTaskPtr, IceUtil::Time, TimerTaskCompare>::iterator p = _tasks.find(token.task);
                     if(p != _tasks.end())
                     {
                         token.scheduledTime = IceUtil::Time::now(IceUtil::Time::Monotonic) + token.delay;
@@ -176,7 +170,7 @@ Timer::run()
         {
             try
             {
-                token.task->run();
+                token.task->runTimerTask();
             }
             catch(const std::exception& e)
             {

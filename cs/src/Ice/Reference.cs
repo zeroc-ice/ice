@@ -26,6 +26,12 @@ namespace IceInternal
                             ModeLast=ModeBatchDatagram
                          };
 
+        public interface GetConnectionCallback
+        {
+            void setConnection(Ice.ConnectionI connection, bool compress);
+            void setException(Ice.LocalException ex);
+        }
+
         public Mode getMode()
         {
             return mode_;
@@ -320,6 +326,7 @@ namespace IceInternal
         }
 
         public abstract Ice.ConnectionI getConnection(out bool comp);
+        public abstract void getConnection(GetConnectionCallback callback);
 
         public override bool Equals(object obj)
         {
@@ -557,6 +564,19 @@ namespace IceInternal
             return connection;
         }
 
+        public override void getConnection(GetConnectionCallback callback)
+        {
+            try
+            {
+                bool compress;
+                callback.setConnection(getConnection(out compress), compress);
+            }
+            catch(Ice.LocalException ex)
+            {
+                callback.setException(ex);
+            }
+        }
+
         public override bool Equals(object obj)
         {
             if(object.ReferenceEquals(this, obj))
@@ -734,19 +754,6 @@ namespace IceInternal
         public override RouterInfo getRouterInfo()
         {
             return _routerInfo;
-        }
-
-        public EndpointI[] getRoutedEndpoints()
-        {
-            if(_routerInfo != null)
-            {
-                //
-                // If we route, we send everything to the router's client
-                // proxy endpoints.
-                //
-                return _routerInfo.getClientEndpoints();
-            }
-            return new EndpointI[0];
         }
 
         public override bool getSecure()
@@ -1004,7 +1011,7 @@ namespace IceInternal
             }
         }
 
-        protected Ice.ConnectionI createConnection(EndpointI[] allEndpoints, out bool comp)
+        private EndpointI[] filterEndpoints(EndpointI[] allEndpoints)
         {
             ArrayList endpoints = new ArrayList();
 
@@ -1122,27 +1129,35 @@ namespace IceInternal
             {
                 IceUtil.Arrays.Sort(ref endpoints, _preferNonSecureEndpointComparator);
             }
-            
-            if(endpoints.Count == 0)
+
+            EndpointI[] arr = new EndpointI[endpoints.Count];
+            endpoints.CopyTo(arr);
+            return arr;
+        }
+
+        protected Ice.ConnectionI createConnection(EndpointI[] allEndpoints, out bool compress)
+        {
+            compress = false; // Satisfy the compiler
+
+            EndpointI[] endpoints = filterEndpoints(allEndpoints);
+            if(endpoints.Length == 0)
             {
-                Ice.NoEndpointException ex = new Ice.NoEndpointException();
-                ex.proxy = ToString();
-                throw ex;
+                throw new Ice.NoEndpointException(ToString());
             }
-            
+
             //
             // Finally, create the connection.
             //
             OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-            if(getCacheConnection() || endpoints.Count == 1)
+            Ice.ConnectionI connection = null;
+            if(getCacheConnection() || endpoints.Length == 1)
             {
                 //
                 // Get an existing connection or create one if there's no
                 // existing connection to one of the given endpoints.
                 //
-                EndpointI[] arr = new EndpointI[endpoints.Count];
-                endpoints.CopyTo(arr);
-                return factory.create(arr, false, _threadPerConnection, getEndpointSelection(), out comp);
+                connection = factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(),
+                                            out compress);
             }
             else
             {
@@ -1153,16 +1168,18 @@ namespace IceInternal
                 // create a new connection even if there's an existing
                 // connection for one of the endpoints.
                 //
+
                 Ice.LocalException exception = null;
                 EndpointI[] endpoint = new EndpointI[1];
-
-                foreach(EndpointI e in endpoints)
+                for(int i = 0; i < endpoints.Length; ++i)
                 {
                     try
                     {
-                        endpoint[0] = e;
-                        return factory.create(endpoint, e != endpoints[endpoints.Count - 1], _threadPerConnection,
-                                              getEndpointSelection(), out comp);
+                        endpoint[0] = endpoints[i];
+                        bool more = i != endpoints.Length - 1;
+                        connection = factory.create(endpoint, more, _threadPerConnection, getEndpointSelection(),
+                                                    out compress);
+                        break;
                     }
                     catch(Ice.LocalException ex)
                     {
@@ -1170,8 +1187,111 @@ namespace IceInternal
                     }
                 }
 
-                Debug.Assert(exception != null);
-                throw exception;
+                if(connection == null)
+                {
+                    Debug.Assert(exception != null);
+                    throw exception;
+                }
+            }
+
+            Debug.Assert(connection != null);
+
+            //
+            // If we have a router, set the object adapter for this router
+            // (if any) to the new connection, so that callbacks from the
+            // router can be received over this new connection.
+            //
+            if(_routerInfo != null)
+            {
+                connection.setAdapter(_routerInfo.getAdapter());
+            }
+
+            return connection;
+        }
+
+        private sealed class ConnectionCallback : OutgoingConnectionFactory.CreateConnectionCallback
+        {
+            internal ConnectionCallback(RoutableReference rr, EndpointI[] endpoints, GetConnectionCallback callback)
+            {
+                _rr = rr;
+                _endpoints = endpoints;
+                _callback = callback;
+            }
+
+            public void setConnection(Ice.ConnectionI connection, bool compress)
+            {
+                //
+                // If we have a router, set the object adapter for this router
+                // (if any) to the new connection, so that callbacks from the
+                // router can be received over this new connection.
+                //
+                if(_rr._routerInfo != null)
+                {
+                    connection.setAdapter(_rr._routerInfo.getAdapter());
+                }
+                _callback.setConnection(connection, compress);
+            }
+
+            public void setException(Ice.LocalException ex)
+            {
+                if(_exception == null)
+                {
+                    _exception = ex;
+                }
+
+                if(_endpoints == null || ++_i == _endpoints.Length)
+                {
+                    _callback.setException(_exception);
+                    return;
+                }
+
+                bool more = _i != _endpoints.Length - 1;
+                EndpointI[] endpoint = new EndpointI[]{ _endpoints[_i] };
+                _rr.getInstance().outgoingConnectionFactory().create(endpoint, more, _rr._threadPerConnection,
+                                                                     _rr.getEndpointSelection(), this);
+            }
+
+            private RoutableReference _rr;
+            private EndpointI[] _endpoints;
+            private GetConnectionCallback _callback;
+            private int _i = 0;
+            private Ice.LocalException _exception = null;
+        }
+
+        protected void createConnection(EndpointI[] allEndpoints, GetConnectionCallback callback)
+        {
+            EndpointI[] endpoints = filterEndpoints(allEndpoints);
+            if(endpoints.Length == 0)
+            {
+                callback.setException(new Ice.NoEndpointException(ToString()));
+                return;
+            }
+
+            //
+            // Finally, create the connection.
+            //
+            OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
+            if(getCacheConnection() || endpoints.Length == 1)
+            {
+                //
+                // Get an existing connection or create one if there's no
+                // existing connection to one of the given endpoints.
+                //
+                factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(),
+                               new ConnectionCallback(this, null, callback));
+            }
+            else
+            {
+                //
+                // Go through the list of endpoints and try to create the
+                // connection until it succeeds. This is different from just
+                // calling create() with the given endpoints since this might
+                // create a new connection even if there's an existing
+                // connection for one of the endpoints.
+                //
+
+                factory.create(new EndpointI[]{ endpoints[0] }, true, _threadPerConnection, getEndpointSelection(),
+                               new ConnectionCallback(this, endpoints, callback));
             }
         }
 
@@ -1398,28 +1518,65 @@ namespace IceInternal
 
         public override Ice.ConnectionI getConnection(out bool comp)
         {
-            EndpointI[] endpts = base.getRoutedEndpoints();
-            applyOverrides(ref endpts);
-
-            if(endpts.Length == 0)
-            {
-                endpts = _endpoints; // Endpoint overrides are already applied on these endpoints.
-            }
-
-            Ice.ConnectionI connection = createConnection(endpts, out comp);
-
-            //
-            // If we have a router, set the object adapter for this router
-            // (if any) to the new connection, so that callbacks from the
-            // router can be received over this new connection.
-            //
             if(getRouterInfo() != null)
             {
-                connection.setAdapter(getRouterInfo().getAdapter());
+                //
+                // If we route, we send everything to the router's client
+                // proxy endpoints.
+                //
+                EndpointI[] endpts = getRouterInfo().getClientEndpoints();
+                if(endpts.Length > 0)
+                {
+                    applyOverrides(ref endpts);
+                    return createConnection(endpts, out comp);
+                }
             }
 
-            Debug.Assert(connection != null);
-            return connection;
+            return createConnection(_endpoints, out comp);
+        }
+
+        private sealed class RouterEndpointsCallback : RouterInfo.GetClientEndpointsCallback
+        {
+            internal RouterEndpointsCallback(DirectReference dr, GetConnectionCallback cb)
+            {
+                _dr = dr;
+                _cb = cb;
+            }
+
+            public void setEndpoints(EndpointI[] endpts)
+            {
+                if(endpts.Length > 0)
+                {
+                    _dr.applyOverrides(ref endpts);
+                    _dr.createConnection(endpts, _cb);
+                    return;
+                }
+
+                _dr.createConnection(_dr._endpoints, _cb);
+            }
+
+            public void setException(Ice.LocalException ex)
+            {
+                _cb.setException(ex);
+            }
+
+            private DirectReference _dr;
+            private GetConnectionCallback _cb;
+        }
+
+        public override void getConnection(GetConnectionCallback callback)
+        {
+            if(getRouterInfo() != null)
+            {
+                //
+                // If we route, we send everything to the router's client
+                // proxy endpoints.
+                //
+                getRouterInfo().getClientEndpoints(new RouterEndpointsCallback(this, callback));
+                return;
+            }
+
+            createConnection(_endpoints, callback);
         }
 
         public override bool Equals(object obj)
@@ -1592,23 +1749,38 @@ namespace IceInternal
 
         public override Ice.ConnectionI getConnection(out bool comp)
         {
-            Ice.ConnectionI connection;
+            if(getRouterInfo() != null)
+            {
+                //
+                // If we route, we send everything to the router's client
+                // proxy endpoints.
+                //
+                EndpointI[] endpts = getRouterInfo().getClientEndpoints();
+                if(endpts.Length > 0)
+                {
+                    applyOverrides(ref endpts);
+                    return createConnection(endpts, out comp);
+                }
+            }
 
             while(true)
             {
-                EndpointI[] endpts = base.getRoutedEndpoints();
                 bool cached = false;
-                if(endpts.Length == 0 && locatorInfo_ != null)
+                EndpointI[] endpts = null;
+                if(locatorInfo_ != null)
                 {
                     endpts = locatorInfo_.getEndpoints(this, locatorCacheTimeout_, out cached);
+                    applyOverrides(ref endpts);
                 }
 
-                applyOverrides(ref endpts);
+                if(endpts == null || endpts.Length == 0)
+                {
+                    throw new Ice.NoEndpointException(ToString());
+                }
 
                 try
                 {
-                    connection = createConnection(endpts, out comp);
-                    Debug.Assert(connection != null);
+                    return createConnection(endpts, out comp);
                 }
                 catch(Ice.NoEndpointException ex)
                 {
@@ -1616,44 +1788,158 @@ namespace IceInternal
                 }
                 catch(Ice.LocalException ex)
                 {
-                    if(getRouterInfo() == null)
+                    Debug.Assert(locatorInfo_ != null);
+                    locatorInfo_.clearCache(this);
+                    if(cached)
                     {
-                        Debug.Assert(locatorInfo_ != null);
-                        locatorInfo_.clearCache(this);
-
-                        if(cached)
+                        TraceLevels traceLevels = getInstance().traceLevels();
+                        if(traceLevels.retry >= 2)
                         {
-                            TraceLevels traceLevels = getInstance().traceLevels();
-
-                            if(traceLevels.retry >= 2)
-                            {
-                                String s = "connection to cached endpoints failed\n" +
-                                           "removing endpoints from cache and trying one more time\n" + ex;
-                                getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
-                            }
-                            
-                            continue;
+                            String s = "connection to cached endpoints failed\n" +
+                                       "removing endpoints from cache and trying one more time\n" + ex;
+                            getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
                         }
+                        continue; // Try again if the endpoints were cached.
                     }
-
                     throw;
                 }
+            }
+        }
 
-                break;
+        private sealed class RouterEndpointsCallback : RouterInfo.GetClientEndpointsCallback
+        {
+            internal RouterEndpointsCallback(IndirectReference ir, GetConnectionCallback cb)
+            {
+                _ir = ir;
+                _cb = cb;
             }
 
-            //
-            // If we have a router, set the object adapter for this router
-            // (if any) to the new connection, so that callbacks from the
-            // router can be received over this new connection.
-            //
+            public void setEndpoints(EndpointI[] endpts)
+            {
+                if(endpts.Length > 0)
+                {
+                    _ir.applyOverrides(ref endpts);
+                    _ir.createConnection(endpts, _cb);
+                }
+                else
+                {
+                    _ir.getConnectionNoRouterInfo(_cb);
+                }
+            }
+
+            public void setException(Ice.LocalException ex)
+            {
+                _cb.setException(ex);
+            }
+
+            private IndirectReference _ir;
+            private GetConnectionCallback _cb;
+        }
+
+        public override void getConnection(GetConnectionCallback callback)
+        {
             if(getRouterInfo() != null)
             {
-                connection.setAdapter(getRouterInfo().getAdapter());
+                //
+                // If we route, we send everything to the router's client
+                // proxy endpoints.
+                //
+                getRouterInfo().getClientEndpoints(new RouterEndpointsCallback(this, callback));
+            }
+            else
+            {
+                getConnectionNoRouterInfo(callback);
+            }
+        }
+
+        private sealed class LocatorEndpointsCallback : LocatorInfo.GetEndpointsCallback
+        {
+            internal LocatorEndpointsCallback(IndirectReference ir, GetConnectionCallback cb)
+            {
+                _ir = ir;
+                _cb = cb;
             }
 
-            Debug.Assert(connection != null);
-            return connection;
+            public void setEndpoints(EndpointI[] endpoints, bool cached)
+            {
+                if(endpoints.Length == 0)
+                {
+                    _cb.setException(new Ice.NoEndpointException(_ir.ToString()));
+                    return;
+                }
+
+                _ir.applyOverrides(ref endpoints);
+                _ir.createConnection(endpoints, new ConnectionCallback(_ir, _cb, cached));
+            }
+
+            public void setException(Ice.LocalException ex)
+            {
+                _cb.setException(ex);
+            }
+
+            private IndirectReference _ir;
+            private GetConnectionCallback _cb;
+        }
+
+        private sealed class ConnectionCallback : GetConnectionCallback
+        {
+            internal ConnectionCallback(IndirectReference ir, GetConnectionCallback cb, bool cached)
+            {
+                _ir = ir;
+                _cb = cb;
+                _cached = cached;
+            }
+
+            public void setConnection(Ice.ConnectionI connection, bool compress)
+            {
+                _cb.setConnection(connection, compress);
+            }
+
+            public void setException(Ice.LocalException exc)
+            {
+                try
+                {
+                    throw exc;
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                    _cb.setException(ex); // No need to retry if there's no endpoints.
+                }
+                catch(Ice.LocalException ex)
+                {
+                    Debug.Assert(_ir.locatorInfo_ != null);
+                    _ir.locatorInfo_.clearCache(_ir);
+                    if(_cached)
+                    {
+                        TraceLevels traceLevels = _ir.getInstance().traceLevels();
+                        if(traceLevels.retry >= 2)
+                        {
+                            String s = "connection to cached endpoints failed\n" +
+                                       "removing endpoints from cache and trying one more time\n" + ex;
+                            _ir.getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
+                        }
+                        _ir.getConnectionNoRouterInfo(_cb); // Retry.
+                        return;
+                    }
+                    _cb.setException(ex);
+                }
+            }
+
+            private IndirectReference _ir;
+            private GetConnectionCallback _cb;
+            private bool _cached;
+        }
+
+        private void getConnectionNoRouterInfo(GetConnectionCallback callback)
+        {
+            if(locatorInfo_ != null)
+            {
+                locatorInfo_.getEndpoints(this, locatorCacheTimeout_, new LocatorEndpointsCallback(this, callback));
+            }
+            else
+            {
+                callback.setException(new Ice.NoEndpointException(ToString()));
+            }
         }
 
         public override bool Equals(object obj)

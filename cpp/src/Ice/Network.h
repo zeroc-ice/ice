@@ -96,7 +96,8 @@ ICE_API void setReuseAddress(SOCKET, bool);
 
 ICE_API void doBind(SOCKET, struct sockaddr_in&);
 ICE_API void doListen(SOCKET, int);
-ICE_API void doConnect(SOCKET, struct sockaddr_in&, int);
+ICE_API bool doConnect(SOCKET, struct sockaddr_in&, int);
+ICE_API void doFinishConnect(SOCKET, int);
 ICE_API SOCKET doAccept(SOCKET, int);
 
 ICE_API void getAddress(const std::string&, int, struct sockaddr_in&);
@@ -114,7 +115,7 @@ ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_in&);
 ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_in&);
 ICE_API std::string addrToString(const struct sockaddr_in&);
 
-ICE_API std::vector<struct sockaddr_in> getAddresses(const std::string&, int);
+ICE_API std::vector<struct sockaddr_in> getAddresses(const std::string&, int, bool = true);
 ICE_API std::vector<std::string> getLocalHosts();
 ICE_API void setTcpBufSize(SOCKET, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 ICE_API int getSocketErrno();

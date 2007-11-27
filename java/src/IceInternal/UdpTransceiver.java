@@ -18,6 +18,15 @@ final class UdpTransceiver implements Transceiver
         return _fd;
     }
 
+    public SocketStatus
+    initialize(int timeout)
+    {
+        //
+        // Nothing to do.
+        //
+        return SocketStatus.Finished;
+    }
+
     public synchronized void
     close()
     {
@@ -37,6 +46,19 @@ final class UdpTransceiver implements Transceiver
                 // Ignore.
             }
             _readSelector = null;
+        }
+
+        if(_writeSelector != null)
+        {
+            try
+            {
+                _writeSelector.close();
+            }
+            catch(java.io.IOException ex)
+            {
+                // Ignore.
+            }
+            _writeSelector = null;
         }
     }
 
@@ -64,17 +86,19 @@ final class UdpTransceiver implements Transceiver
         {
             _readSelector.wakeup();
         }
+        if(_writeSelector != null)
+        {
+            _writeSelector.wakeup();
+        }
     }
 
-    public void
-    write(BasicStream stream, int timeout) // NOTE: timeout is not used
+    public boolean
+    write(Buffer buf, int timeout)
         throws LocalExceptionWrapper
     {
-        java.nio.ByteBuffer buf = stream.prepareWrite();
-
-        assert(buf.position() == 0);
+        assert(buf.b.position() == 0);
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
-        if(packetSize < buf.limit())
+        if(packetSize < buf.size())
         {
             //
             // We don't log a warning here because the client gets an exception anyway.
@@ -82,12 +106,52 @@ final class UdpTransceiver implements Transceiver
             throw new Ice.DatagramLimitException();
         }
 
-        while(buf.hasRemaining())
+        while(buf.b.hasRemaining())
         {
             try
             {
                 assert(_fd != null);
-                int ret = _fd.write(buf);
+
+                int ret = _fd.write(buf.b);
+                
+                if(ret == 0)
+                {
+                    if(timeout == 0)
+                    {
+                        return false;
+                    }
+
+                    synchronized(this)
+                    {
+                        if(_writeSelector == null)
+                        {
+                            _writeSelector = java.nio.channels.Selector.open();
+                            _fd.register(_writeSelector, java.nio.channels.SelectionKey.OP_WRITE, null);
+                        }
+                    }
+                    
+                    try
+                    {
+                        if(timeout > 0)
+                        {
+                            long start = IceInternal.Time.currentMonotonicTimeMillis();
+                            int n = _writeSelector.select(timeout);
+                            if(n == 0 && IceInternal.Time.currentMonotonicTimeMillis() >= start + timeout)
+                            {
+                                throw new Ice.TimeoutException();
+                            }
+                        }
+                        else
+                        {
+                            _writeSelector.select();
+                        }
+                    }
+                    catch(java.io.InterruptedIOException ex)
+                    {
+                        // Ignore.
+                    }
+                    continue;
+                }
 
                 if(_traceLevels.network >= 3)
                 {
@@ -100,7 +164,7 @@ final class UdpTransceiver implements Transceiver
                     _stats.bytesSent(type(), ret);
                 }
 
-                assert(ret == buf.limit());
+                assert(ret == buf.b.limit());
                 break;
             }
             catch(java.nio.channels.AsynchronousCloseException ex)
@@ -126,15 +190,18 @@ final class UdpTransceiver implements Transceiver
                 throw se;
             }
         }
+
+        return true;
     }
 
     public boolean
-    read(BasicStream stream, int timeout) // NOTE: timeout is not used
+    read(Buffer buf, int timeout, Ice.BooleanHolder moreData)
     {
-        assert(stream.pos() == 0);
+        assert(buf.b.position() == 0);
+        moreData.value = false;
 
         final int packetSize = java.lang.Math.min(_maxPacketSize, _rcvSize - _udpOverhead);
-        if(packetSize < stream.size())
+        if(packetSize < buf.size())
         {
             //
             // We log a warning here because this is the server side -- without the
@@ -146,41 +213,8 @@ final class UdpTransceiver implements Transceiver
             }
             throw new Ice.DatagramLimitException();
         }
-        stream.resize(packetSize, true);
-        java.nio.ByteBuffer buf = stream.prepareRead();
-        buf.position(0);
-
-        synchronized(this)
-        {
-            //
-            // Check for shutdown.
-            //
-            if(_fd == null)
-            {
-                throw new Ice.ConnectionLostException();
-            }
-            if(_readSelector == null)
-            {
-                try
-                {
-                    _readSelector = java.nio.channels.Selector.open();
-                    _fd.register(_readSelector, java.nio.channels.SelectionKey.OP_READ, null);
-                }
-                catch(java.io.IOException ex)
-                {
-                    if(Network.connectionLost(ex))
-                    {
-                        Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                        se.initCause(ex);
-                        throw se;
-                    }
-
-                    Ice.SocketException se = new Ice.SocketException();
-                    se.initCause(ex);
-                    throw se;
-                }
-            }
-        }
+        buf.resize(packetSize, true);
+        buf.b.position(0);
 
         int ret = 0;
         while(true)
@@ -200,17 +234,48 @@ final class UdpTransceiver implements Transceiver
 
             try
             {
-                java.net.InetSocketAddress sender = (java.net.InetSocketAddress)fd.receive(buf);
-                if(sender == null || buf.position() == 0)
+                java.net.InetSocketAddress sender = (java.net.InetSocketAddress)fd.receive(buf.b);
+
+                if(sender == null || buf.b.position() == 0)
                 {
-                    //
-                    // Wait until packet arrives or socket is closed.
-                    //
-                    _readSelector.select();
+                    if(timeout == 0)
+                    {
+                        return false;
+                    }
+
+                    synchronized(this)
+                    {
+                        if(_readSelector == null)
+                        {
+                            _readSelector = java.nio.channels.Selector.open();
+                            _fd.register(_readSelector, java.nio.channels.SelectionKey.OP_READ, null);
+                        }
+                    }
+
+                    try
+                    {
+                        if(timeout > 0)
+                        {
+                            long start = IceInternal.Time.currentMonotonicTimeMillis();
+                            int n = _readSelector.select(timeout);
+                            if(n == 0 && IceInternal.Time.currentMonotonicTimeMillis() >= start + timeout)
+                            {
+                                throw new Ice.TimeoutException();
+                            }
+                        }
+                        else
+                        {
+                            _readSelector.select();
+                        }
+                    }
+                    catch(java.io.InterruptedIOException ex)
+                    {
+                        // Ignore.
+                    }
                     continue;
                 }
 
-                ret = buf.position();
+                ret = buf.b.position();
 
                 if(_connect)
                 {
@@ -272,10 +337,10 @@ final class UdpTransceiver implements Transceiver
             _stats.bytesReceived(type(), ret);
         }
 
-        stream.resize(ret, true);
-        stream.pos(ret);
+        buf.resize(ret, true);
+        buf.b.position(ret);
 
-        return false;
+        return true;
     }
 
     public String
@@ -299,14 +364,14 @@ final class UdpTransceiver implements Transceiver
     }
 
     public void
-    checkSendSize(BasicStream stream, int messageSizeMax)
+    checkSendSize(Buffer buf, int messageSizeMax)
     {
-        if(stream.size() > messageSizeMax)
+        if(buf.size() > messageSizeMax)
         {
             throw new Ice.MemoryLimitException();
         }
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
-        if(packetSize < stream.size())
+        if(packetSize < buf.size())
         {
             throw new Ice.DatagramLimitException();
         }
@@ -608,6 +673,7 @@ final class UdpTransceiver implements Transceiver
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
     private java.nio.channels.Selector _readSelector;
+    private java.nio.channels.Selector _writeSelector;
     private boolean mcastServer = false;
 
     //

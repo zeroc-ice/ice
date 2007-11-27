@@ -82,7 +82,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
                 __checkTwowayOnly("ice_isA");
-                __del = __getDelegate();
+                __del = __getDelegate(false);
                 return __del.ice_isA(__id, __context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
@@ -122,7 +122,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             _ObjectDel __del = null;
             try
             {
-                __del = __getDelegate();
+                __del = __getDelegate(false);
                 __del.ice_ping(__context);
                 return;
             }
@@ -164,7 +164,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
                 __checkTwowayOnly("ice_ids");
-                __del = __getDelegate();
+                __del = __getDelegate(false);
                 return __del.ice_ids(__context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
@@ -205,7 +205,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
                 __checkTwowayOnly("ice_id");
-                __del = __getDelegate();
+                __del = __getDelegate(false);
                 return __del.ice_id(__context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
@@ -247,7 +247,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             _ObjectDel __del = null;
             try
             {
-                __del = __getDelegate();
+                __del = __getDelegate(false);
                 return __del.ice_invoke(operation, mode, inParams, outParams, context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
@@ -776,8 +776,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
      **/
     public final Connection
     ice_connection()
-    {
-        return ice_getConnection();
+    { 
+       return ice_getConnection();
     }
 
     public final Connection
@@ -789,8 +789,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
             _ObjectDel __del = null;
             try
             {
-                __del = __getDelegate();
-                return __del.__getConnection(new BooleanHolder());
+                __del = __getDelegate(false);
+                // Wait for the connection to be established.
+                return __del.__getRequestHandler().getConnection(true);
             }
             catch(LocalException __ex)
             {
@@ -812,13 +813,44 @@ public class ObjectPrxHelperBase implements ObjectPrx
         {
             try
             {
-                return __del.__getConnection(new BooleanHolder());
+                // Don't wait for the connection to be established.
+                return __del.__getRequestHandler().getConnection(false);
             }
             catch(CollocationOptimizationException ex)
             {
             }
         }
         return null;
+    }
+
+    public void
+    ice_flushBatchRequests()
+    {
+        int __cnt = 0;
+        while(true)
+        {
+            _ObjectDel __del = null;
+            try
+            {
+                __del = __getDelegate(false);
+                __del.ice_flushBatchRequests();
+                return;
+            }
+            catch(IceInternal.LocalExceptionWrapper __ex)
+            {
+                __handleExceptionWrapper(__del, __ex);
+            }
+            catch(LocalException __ex)
+            {
+                __cnt = __handleException(__del, __ex, __cnt);
+            }
+        }
+    }
+
+    public void
+    ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
+    {
+        cb.__invoke(this);
     }
 
     public final boolean
@@ -988,7 +1020,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final synchronized _ObjectDel
-    __getDelegate()
+    __getDelegate(boolean async)
     {
         if(_delegate != null)
         {
@@ -1010,19 +1042,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
         if(delegate == null)
         {
             _ObjectDelM d = __createDelegateM();
-            d.setup(_reference);
+            d.setup(_reference, this, async);
             delegate = d;
-
-            //
-            // If this proxy is for a non-local object, and we are
-            // using a router, then add this proxy to the router info
-            // object.
-            //
-            IceInternal.RouterInfo ri = _reference.getRouterInfo();
-            if(ri != null)
-            {
-                ri.addProxy(this);
-            }
         }
 
         if(_reference.getCacheConnection())
@@ -1038,6 +1059,24 @@ public class ObjectPrxHelperBase implements ObjectPrx
         return delegate;
     }
 
+    synchronized public void
+    __setRequestHandler(_ObjectDel delegate, IceInternal.RequestHandler handler)
+    {
+        if(delegate == _delegate)
+        {
+            if(_delegate instanceof _ObjectDelM)
+            {
+                _delegate = __createDelegateM();
+                _delegate.__setRequestHandler(handler);
+            }
+            else if(_delegate instanceof _ObjectDelD)
+            {
+                _delegate = __createDelegateD();
+                _delegate.__setRequestHandler(handler);
+            }
+        }
+    }
+    
     protected _ObjectDelM
     __createDelegateM()
     {

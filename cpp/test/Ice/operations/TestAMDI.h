@@ -135,6 +135,7 @@ public:
 private:
 
     IceUtil::ThreadPtr _opVoidThread;
+    IceUtil::Mutex _opVoidMutex;
 };
 
 #endif

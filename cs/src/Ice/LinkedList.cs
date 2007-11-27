@@ -22,6 +22,20 @@ namespace IceUtil
             _count = 0;
         }
 
+        public LinkedList(LinkedList l)
+        {
+            _head = null;
+            _tail = null;
+            _count = 0;
+
+            Node cursor = l._head;
+            while(cursor != null)
+            {
+                Add(cursor.val);
+                cursor = cursor.next;
+            }
+        }
+
         public int Count
         {
             get
@@ -142,7 +156,22 @@ namespace IceUtil
             _count++;
         }
 
-        private void Remove(Node n)
+        public bool Remove(object value)
+        {
+            Node n = _head;
+            while(n != null)
+            {
+                if(n.val == value)
+                {
+                    RemoveNode(n);
+                    return true;
+                }
+                n = n.next;
+            }
+            return false;
+        }
+
+        private void RemoveNode(Node n)
         {
             Debug.Assert(n != null);
             Debug.Assert(_count != 0);
@@ -257,7 +286,7 @@ namespace IceUtil
                 _removed = true;
                 _moveNext = _current.next; // Remember where to move next for call to MoveNext().
                 _movePrev = _current.prev; // Remember where to move next for call to MovePrev().
-                _list.Remove(_current);
+                _list.RemoveNode(_current);
                 _current = null;
             }
 
@@ -269,4 +298,3 @@ namespace IceUtil
         }
     }
 }
-

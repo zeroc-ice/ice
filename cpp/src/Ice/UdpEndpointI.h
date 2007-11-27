@@ -40,15 +40,18 @@ public:
     virtual bool unknown() const;
     virtual TransceiverPtr transceiver(EndpointIPtr&) const;
     virtual std::vector<ConnectorPtr> connectors() const;
+    virtual void connectors_async(const EndpointI_connectorsPtr&) const;
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
     virtual std::vector<EndpointIPtr> expand() const;
-    virtual bool equivalent(const ConnectorPtr&) const;
+    virtual bool equivalent(const EndpointIPtr&) const;
 
     virtual bool operator==(const EndpointI&) const;
     virtual bool operator!=(const EndpointI&) const;
     virtual bool operator<(const EndpointI&) const;
 
 private:
+
+    virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_in>&) const;
 
 #if defined(__SUNPRO_CC)
     //

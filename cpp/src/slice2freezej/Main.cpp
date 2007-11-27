@@ -541,9 +541,9 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         {
             out << nl << "__os.endWriteEncaps();";
         }
-        out << nl << "java.nio.ByteBuffer __buf = __os.prepareWrite();";
-        out << nl << "byte[] __r = new byte[__buf.limit()];";
-        out << nl << "__buf.get(__r);";
+        out << nl << "IceInternal.Buffer __buf = __os.prepareWrite();";
+        out << nl << "byte[] __r = new byte[__buf.size()];";
+        out << nl << "__buf.b.get(__r);";
         out << nl << "return __r;";
         out << eb;
 
@@ -559,10 +559,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             out << nl << "__is.sliceObjects(false);";
         }
         out << nl << "__is.resize(b.length, true);";
-        out << nl << "java.nio.ByteBuffer __buf = __is.prepareRead();";
-        out << nl << "__buf.position(0);";
-        out << nl << "__buf.put(b);";
-        out << nl << "__buf.position(0);";
+        out << nl << "IceInternal.Buffer __buf = __is.getBuffer();";
+        out << nl << "__buf.b.position(0);";
+        out << nl << "__buf.b.put(b);";
+        out << nl << "__buf.b.position(0);";
         if(encaps)
         {
             out << nl << "__is.startReadEncaps();";
@@ -696,9 +696,9 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             writeMarshalUnmarshalCode(out, "", indexTypes[i], keyS, true, iter, false);
             assert(!indexTypes[i]->usesClasses());
 
-            out << nl << "java.nio.ByteBuffer buf = __os.prepareWrite();";
-            out << nl << "byte[] r = new byte[buf.limit()];";
-            out << nl << "buf.get(r);";
+            out << nl << "IceInternal.Buffer buf = __os.prepareWrite();";
+            out << nl << "byte[] r = new byte[buf.size()];";
+            out << nl << "buf.b.get(r);";
             out << nl << "return r;";
         }
         out << eb;
@@ -720,10 +720,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         {
             out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
             out << nl << "__is.resize(bytes.length, true);";
-            out << nl << "java.nio.ByteBuffer buf = __is.prepareRead();";
-            out << nl << "buf.position(0);";
-            out << nl << "buf.put(bytes);";
-            out << nl << "buf.position(0);";
+            out << nl << "IceInternal.Buffer buf = __is.getBuffer();";
+            out << nl << "buf.b.position(0);";
+            out << nl << "buf.b.put(bytes);";
+            out << nl << "buf.b.position(0);";
             
             int iter = 0;
             list<string> metaData;
@@ -1057,9 +1057,9 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     {
         out << nl << "__os.writePendingObjects();";
     }
-    out << nl << "java.nio.ByteBuffer __buf = __os.prepareWrite();";
-    out << nl << "byte[] __r = new byte[__buf.limit()];";
-    out << nl << "__buf.get(__r);";
+    out << nl << "IceInternal.Buffer __buf = __os.prepareWrite();";
+    out << nl << "byte[] __r = new byte[__buf.size()];";
+    out << nl << "__buf.b.get(__r);";
     out << nl << "return __r;";
     out << eb;
 

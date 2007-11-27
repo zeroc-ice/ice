@@ -100,7 +100,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        FixedReference ref = new FixedReference(_instance, _communicator, ident, context, facet, mode,
+        FixedReference ref = new FixedReference(_instance, _communicator, ident, context, facet, mode, 
                                                 fixedConnections);
         return updateCache(ref);
     }

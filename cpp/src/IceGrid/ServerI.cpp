@@ -194,7 +194,7 @@ public:
     {
     }
     
-    virtual void run()
+    virtual void runTimerTask()
     {
         _command->timeout();
     }
@@ -214,7 +214,7 @@ public:
     {
     }
     
-    virtual void run()
+    virtual void runTimerTask()
     {
         try
         {

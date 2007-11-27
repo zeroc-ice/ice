@@ -162,7 +162,7 @@ public final class Network
         }
     }
 
-    private static void
+    public static void
     closeSocketNoThrow(java.nio.channels.SelectableChannel fd)
     {
         try
@@ -274,12 +274,73 @@ public final class Network
         }
     }
 
-    public static void
+    public static boolean
     doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr, int timeout)
     {
         try
         {
             if(!fd.connect(addr))
+            {
+                if(timeout == 0)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    doFinishConnect(fd, timeout);
+                }
+                catch(Ice.LocalException ex)
+                {
+                    closeSocketNoThrow(fd);
+                    throw ex;
+                }
+                return true;
+            }
+        }
+        catch(java.net.ConnectException ex)
+        {
+            closeSocketNoThrow(fd);
+
+            Ice.ConnectFailedException se;
+            if(connectionRefused(ex))
+            {
+                se = new Ice.ConnectionRefusedException();
+            }
+            else
+            {
+                se = new Ice.ConnectFailedException();
+            }
+            se.initCause(ex);
+            throw se;
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+
+        if(addr.equals(fd.socket().getLocalSocketAddress()))
+        {
+            closeSocketNoThrow(fd);
+            throw new Ice.ConnectionRefusedException();
+        }
+        return true;
+    }
+
+    public static void
+    doFinishConnect(java.nio.channels.SocketChannel fd, int timeout)
+    {
+        //
+        // Note: we don't close the socket if there's an exception. It's the responsibility
+        // of the caller to do so.
+        //
+
+        if(timeout != 0)
+        {
+            try
             {
                 java.nio.channels.Selector selector = java.nio.channels.Selector.open();
                 try
@@ -288,16 +349,12 @@ public final class Network
                     {
                         try
                         {
-                            java.nio.channels.SelectionKey key =
+                            java.nio.channels.SelectionKey key = 
                                 fd.register(selector, java.nio.channels.SelectionKey.OP_CONNECT);
                             int n;
                             if(timeout > 0)
                             {
                                 n = selector.select(timeout);
-                            }
-                            else if(timeout == 0)
-                            {
-                                n = selector.selectNow();
                             }
                             else
                             {
@@ -306,7 +363,6 @@ public final class Network
                             
                             if(n == 0)
                             {
-                                closeSocketNoThrow(fd);
                                 throw new Ice.ConnectTimeoutException();
                             }
                             
@@ -335,17 +391,35 @@ public final class Network
                         // Ignore
                     }
                 }
+            }
+            catch(java.io.IOException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+        }
 
-                if(!fd.finishConnect())
-                {
-                    throw new Ice.ConnectFailedException();
-                }
+        try
+        {
+            if(!fd.finishConnect())
+            {
+                throw new Ice.ConnectFailedException();
+            }
+
+            //
+            // Prevent self connect (self connect happens on Linux when a client tries to connect to
+            // a server which was just deactivated if the client socket re-uses the same ephemeral
+            // port as the server).
+            //
+            java.net.SocketAddress addr = fd.socket().getRemoteSocketAddress();
+            if(addr != null && addr.equals(fd.socket().getLocalSocketAddress()))
+            {
+                throw new Ice.ConnectionRefusedException();
             }
         }
         catch(java.net.ConnectException ex)
         {
-            closeSocketNoThrow(fd);
-
             Ice.ConnectFailedException se;
             if(connectionRefused(ex))
             {
@@ -360,7 +434,6 @@ public final class Network
         }
         catch(java.io.IOException ex)
         {
-            closeSocketNoThrow(fd);
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
             throw se;

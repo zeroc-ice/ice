@@ -18,6 +18,11 @@ public interface ProtocolPluginFacade
     Ice.Communicator getCommunicator();
 
     //
+    // Get the endpoint host resolver.
+    //
+    IceInternal.EndpointHostResolver getEndpointHostResolver();
+
+    //
     // Get the default hostname to be used in endpoints.
     //
     String getDefaultHost();
@@ -32,4 +37,9 @@ public interface ProtocolPluginFacade
     // Register an EndpointFactory.
     //
     void addEndpointFactory(EndpointFactory factory);
+
+    //
+    // Get an EndpointFactory.
+    //
+    EndpointFactory getEndpointFactory(short type);
 }

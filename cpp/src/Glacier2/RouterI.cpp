@@ -18,13 +18,11 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
-                           const ConnectionPtr& connection, const string& userId, const SessionPrx& session,
-                           const Identity& controlId, const FilterManagerPtr& filters,
+Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& connection, const string& userId, 
+                           const SessionPrx& session, const Identity& controlId, const FilterManagerPtr& filters,
                            const Ice::Context& sslContext) :
-    _communicator(clientAdapter->getCommunicator()),
-    _clientBlobject(new ClientBlobject(_communicator, filters, sslContext)),
-    _serverAdapter(serverAdapter),
+    _instance(instance),
+    _clientBlobject(new ClientBlobject(_instance, filters, sslContext)),
     _connection(connection),
     _userId(userId),
     _session(session),
@@ -36,13 +34,13 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     // If Glacier2 will be used with pre 3.2 clients, then the client proxy must be set.
     // Otherwise getClientProxy just needs to return a nil proxy.
     //
-    if(_communicator->getProperties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
+    if(_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
         const_cast<Ice::ObjectPrx&>(_clientProxy) = 
-            clientAdapter->createProxy(_communicator->stringToIdentity("dummy"));
+            _instance->clientObjectAdapter()->createProxy(_instance->communicator()->stringToIdentity("dummy"));
     }
 
-    if(serverAdapter)
+    if(_instance->serverObjectAdapter())
     {
         ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
         Identity ident;
@@ -55,10 +53,10 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
             const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255
             ident.category[i] = 33 + c % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
         }
-        serverProxy = serverAdapter->createProxy(ident);
+        serverProxy = _instance->serverObjectAdapter()->createProxy(ident);
 
         ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
-        serverBlobject = new ServerBlobject(_communicator, _connection);
+        serverBlobject = new ServerBlobject(_instance, _connection);
     }
 }
 
@@ -67,27 +65,20 @@ Glacier2::RouterI::~RouterI()
 }
 
 void
-Glacier2::RouterI::destroy()
+Glacier2::RouterI::destroy(const AMI_Session_destroyPtr& amiCB)
 {
     _connection->close(true);
 
-    _clientBlobject->destroy();
-    
-    if(_serverBlobject)
-    {
-        _serverBlobject->destroy();
-    }
-
     if(_session)
     {
-        if(_serverAdapter)
+        if(_instance->serverObjectAdapter())
         {
             try
             {
                 //
                 // Remove the session control object.
                 //
-                _serverAdapter->remove(_controlId);
+                _instance->serverObjectAdapter()->remove(_controlId);
             }
             catch(const NotRegisteredException&)
             {
@@ -100,17 +91,13 @@ Glacier2::RouterI::destroy()
             }
         }
 
-        //
-        // This can raise an exception, therefore it must be the last
-        // statement in this destroy() function.
-        //
         if(_sslContext.size() > 0)
         {
-            _session->destroy(_sslContext);
+            _session->destroy_async(amiCB, _sslContext);
         }
         else
         {
-            _session->destroy();
+            _session->destroy_async(amiCB);
         }
     }
 }
@@ -154,18 +141,18 @@ Glacier2::RouterI::getCategoryForClient(const Ice::Current&) const
     return 0;
 }
 
-SessionPrx
-Glacier2::RouterI::createSession(const std::string&, const std::string&, const Current&)
+void
+Glacier2::RouterI::createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,
+                                       const Current&)
 {
     assert(false); // Must not be called in this router implementation.
-    return 0;
 }
 
-SessionPrx
-Glacier2::RouterI::createSessionFromSecureConnection(const Current&)
+void
+Glacier2::RouterI::createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
+                                                           const Current&)
 {
     assert(false); // Must not be called in this router implementation.
-    return 0;
 }
 
 void

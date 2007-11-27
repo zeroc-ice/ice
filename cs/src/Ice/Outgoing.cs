@@ -12,33 +12,41 @@ namespace IceInternal
 
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading;
 
-    public class Outgoing
+    public interface OutgoingMessageCallback
     {
-        public Outgoing(Ice.ConnectionI connection, Reference r, string operation, Ice.OperationMode mode,
-                        Dictionary<string, string> context, bool compress)
+        void sent(bool notify);
+        void finished(Ice.LocalException ex);
+    }
+
+    public class Outgoing : OutgoingMessageCallback
+    {
+        public Outgoing(RequestHandler handler, string operation, Ice.OperationMode mode,
+                        Dictionary<string, string> context)
         {
-            _connection = connection;
-            _reference = r;
             _state = StateUnsent;
-            _is = new BasicStream(r.getInstance());
-            _os = new BasicStream(r.getInstance());
-            _compress = compress;
-            
+            _sent = false;
+            _handler = handler;
+
+            Instance instance = _handler.getReference().getInstance();
+            _is = new BasicStream(instance);
+            _os = new BasicStream(instance);
+
             writeHeader(operation, mode, context);
         }
 
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public void reset(Reference r, string operation, Ice.OperationMode mode,
-                          Dictionary<string, string> context, bool compress)
+        public void reset(RequestHandler handler, string operation, Ice.OperationMode mode,
+                          Dictionary<string, string> context)
         {
-            _reference = r;
             _state = StateUnsent;
             _exception = null;
-            _compress = compress;
-            
+            _sent = false;
+            _handler = handler;
+
             writeHeader(operation, mode, context);
         }
 
@@ -47,55 +55,47 @@ namespace IceInternal
             _is.reset();
             _os.reset();
         }
-        
+
         // Returns true if ok, false if user exception.
         public bool invoke()
         {
             Debug.Assert(_state == StateUnsent);
 
             _os.endWriteEncaps();
-            
-            switch(_reference.getMode())
-            {
-                case Reference.Mode.ModeTwoway: 
-                {
-                    //
-                    // We let all exceptions raised by sending directly
-                    // propagate to the caller, because they can be
-                    // retried without violating "at-most-once". In case
-                    // of such exceptions, the connection object does not
-                    // call back on this object, so we don't need to lock
-                    // the mutex, keep track of state, or save exceptions.
-                    //
-                    _connection.sendRequest(_os, this, _compress);
 
-                    //
-                    // Wait until the request has completed, or until the
-                    // request times out.
-                    //
+            switch(_handler.getReference().getMode())
+            {
+                case Reference.Mode.ModeTwoway:
+                {
+                    _state = StateInProgress;
+
+                    Ice.ConnectionI connection = _handler.sendRequest(this);
 
                     bool timedOut = false;
-                    
+
                     lock(this)
                     {
+
                         //
-                        // It's possible that the request has already
-                        // completed, due to a regular response, or because of
-                        // an exception. So we only change the state to "in
-                        // progress" if it is still "unsent".
+                        // If the request is being sent in the background we first wait for the
+                        // sent notification.
                         //
-                        if(_state == StateUnsent)
+                        while(_state != StateFailed && !_sent)
                         {
-                            _state = StateInProgress;
+                            Monitor.Wait(this);
                         }
 
-                        int timeout = _connection.timeout();
+                        //
+                        // Wait until the request has completed, or until the request
+                        // times out.
+                        //
+                        int timeout = connection.timeout();
                         while(_state == StateInProgress && !timedOut)
                         {
                             if(timeout >= 0)
                             {
-                                System.Threading.Monitor.Wait(this, timeout);
-                                
+                                Monitor.Wait(this, timeout);
+
                                 if(_state == StateInProgress)
                                 {
                                     timedOut = true;
@@ -103,18 +103,18 @@ namespace IceInternal
                             }
                             else
                             {
-                                System.Threading.Monitor.Wait(this);
+                                Monitor.Wait(this);
                             }
                         }
                     }
-                    
+
                     if(timedOut)
                     {
                         //
                         // Must be called outside the synchronization of
                         // this object
                         //
-                        _connection.exception(new Ice.TimeoutException());
+                        connection.exception(new Ice.TimeoutException());
 
                         //
                         // We must wait until the exception set above has
@@ -124,14 +124,14 @@ namespace IceInternal
                         {
                             while(_state == StateInProgress)
                             {
-                                System.Threading.Monitor.Wait(this);
+                                Monitor.Wait(this);
                             }
                         }
                     }
-                    
+
                     if(_exception != null)
                     {
-                        //      
+                        //
                         // A CloseConnectionException indicates graceful
                         // server shutdown, and is therefore always repeatable
                         // without violating "at-most-once". That's because by
@@ -142,11 +142,13 @@ namespace IceInternal
                         // An ObjectNotExistException can always be retried as
                         // well without violating "at-most-once".
                         //
-                        if(_exception is Ice.CloseConnectionException || _exception is Ice.ObjectNotExistException)
+                        if(!_sent ||
+                           _exception is Ice.CloseConnectionException ||
+                           _exception is Ice.ObjectNotExistException)
                         {
                             throw _exception;
                         }
-                        
+
                         //
                         // Throw the exception wrapped in a LocalExceptionWrapper, to
                         // indicate that the request cannot be resent without
@@ -154,35 +156,46 @@ namespace IceInternal
                         //
                         throw new LocalExceptionWrapper(_exception, false);
                     }
-                    
+
                     if(_state == StateUserException)
                     {
                         return false;
                     }
-                    
-                    Debug.Assert(_state == StateOK);
-                    break;
+                    else
+                    {
+                        Debug.Assert(_state == StateOK);
+                        return true;
+                    }
                 }
-                
-                case Reference.Mode.ModeOneway: 
-                case Reference.Mode.ModeDatagram: 
+
+                case Reference.Mode.ModeOneway:
+                case Reference.Mode.ModeDatagram:
                 {
-                    //
-                    // For oneway and datagram requests, the
-                    // connection object never calls back on this
-                    // object. Therefore we don't need to lock the
-                    // mutex or save exceptions. We simply let all
-                    // exceptions from sending propagate to the
-                    // caller, because such exceptions can be retried
-                    // without violating "at-most-once".
-                    //
                     _state = StateInProgress;
-                    _connection.sendRequest(_os, null, _compress);
-                    break;
+                    if(_handler.sendRequest(this) != null)
+                    {
+                        //
+                        // If the handler returns the connection, we must wait for the sent callback.
+                        //
+                        lock(this)
+                        {
+                            while(_state != StateFailed && !_sent)
+                            {
+                                Monitor.Wait(this);
+                            }
+
+                            if(_exception != null)
+                            {
+                                Debug.Assert(!_sent);
+                                throw _exception;
+                            }
+                        }
+                    }
+                    return true;
                 }
-                
-                case Reference.Mode.ModeBatchOneway: 
-                case Reference.Mode.ModeBatchDatagram: 
+
+                case Reference.Mode.ModeBatchOneway:
+                case Reference.Mode.ModeBatchDatagram:
                 {
                     //
                     // For batch oneways and datagrams, the same rules
@@ -190,28 +203,29 @@ namespace IceInternal
                     // comment above) apply.
                     //
                     _state = StateInProgress;
-                    _connection.finishBatchRequest(_os, _compress);
-                    break;
+                    _handler.finishBatchRequest(_os);
+                    return true;
                 }
             }
-            
-            return true;
+
+            Debug.Assert(false);
+            return false;
         }
-        
+
         public void abort(Ice.LocalException ex)
         {
             Debug.Assert(_state == StateUnsent);
-            
+
             //
             // If we didn't finish a batch oneway or datagram request,
             // we must notify the connection about that we give up
             // ownership of the batch stream.
             //
-            if(_reference.getMode() == Reference.Mode.ModeBatchOneway ||
-               _reference.getMode() == Reference.Mode.ModeBatchDatagram)
+            Reference.Mode mode = _handler.getReference().getMode();
+            if(mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
-                _connection.abortBatchRequest();
- 
+                _handler.abortBatchRequest();
+
                 //
                 // If we abort a batch requests, we cannot retry,
                 // because not only the batch request that caused the
@@ -220,15 +234,35 @@ namespace IceInternal
                 //
                 throw new LocalExceptionWrapper(ex, false);
             }
-            
+
             throw ex;
+        }
+
+        public void sent(bool notify)
+        {
+            if(notify)
+            {
+                lock(this)
+                {
+                    _sent = true;
+                    Monitor.Pulse(this);
+                }
+            }
+            else
+            {
+                //
+                // No synchronization is necessary if called from sendRequest() because the connection
+                // send mutex is locked and no other threads can call on Outgoing until it's released.
+                //
+                _sent = true;
+            }
         }
 
         public void finished(BasicStream istr)
         {
             lock(this)
             {
-                Debug.Assert(_reference.getMode() == Reference.Mode.ModeTwoway); // Can only be called for twoways.
+                Debug.Assert(_handler.getReference().getMode() == Reference.Mode.ModeTwoway); // Only for twoways.
 
                 Debug.Assert(_state <= StateInProgress);
 
@@ -248,7 +282,7 @@ namespace IceInternal
                         _state = StateOK; // The state must be set last, in case there is an exception.
                         break;
                     }
-                
+
                     case ReplyStatus.replyUserException:
                     {
                         //
@@ -260,7 +294,7 @@ namespace IceInternal
                         _state = StateUserException; // The state must be set last, in case there is an exception.
                         break;
                     }
-                
+
                     case ReplyStatus.replyObjectNotExist:
                     case ReplyStatus.replyFacetNotExist:
                     case ReplyStatus.replyOperationNotExist:
@@ -273,26 +307,26 @@ namespace IceInternal
                                 ex = new Ice.ObjectNotExistException();
                                 break;
                             }
-                        
+
                             case ReplyStatus.replyFacetNotExist:
                             {
                                 ex = new Ice.FacetNotExistException();
                                 break;
                             }
-                        
+
                             case ReplyStatus.replyOperationNotExist:
                             {
                                 ex = new Ice.OperationNotExistException();
                                 break;
                             }
-                        
+
                             default:
                             {
                                 Debug.Assert(false);
                                 break;
                             }
                         }
-                    
+
                         ex.id = new Ice.Identity();
                         ex.id.read__(_is);
 
@@ -319,7 +353,7 @@ namespace IceInternal
                         _state = StateLocalException; // The state must be set last, in case there is an exception.
                         break;
                     }
-                
+
                     case ReplyStatus.replyUnknownException:
                     case ReplyStatus.replyUnknownLocalException:
                     case ReplyStatus.replyUnknownUserException:
@@ -332,33 +366,33 @@ namespace IceInternal
                                 ex = new Ice.UnknownException();
                                 break;
                             }
-                        
+
                             case ReplyStatus.replyUnknownLocalException:
                             {
                                 ex = new Ice.UnknownLocalException();
                                 break;
                             }
-                        
-                            case ReplyStatus.replyUnknownUserException: 
+
+                            case ReplyStatus.replyUnknownUserException:
                             {
                                 ex = new Ice.UnknownUserException();
                                 break;
                             }
-                        
+
                             default:
                             {
                                 Debug.Assert(false);
                                 break;
                             }
                         }
-                    
+
                         ex.unknown = _is.readString();
                         _exception = ex;
 
                         _state = StateLocalException; // The state must be set last, in case there is an exception.
                         break;
                     }
-                
+
                     default:
                     {
                         _exception = new Ice.UnknownReplyStatusException();
@@ -367,62 +401,59 @@ namespace IceInternal
                     }
                 }
 
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
-        
+
         public void finished(Ice.LocalException ex)
         {
             lock(this)
             {
-                Debug.Assert(_reference.getMode() == Reference.Mode.ModeTwoway); // Can only be called for twoways.
-            
                 Debug.Assert(_state <= StateInProgress);
-
-                _state = StateLocalException;
+                _state = StateFailed;
                 _exception = ex;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
-        
+
         public BasicStream istr()
         {
             return _is;
         }
-        
+
         public BasicStream ostr()
         {
             return _os;
         }
-        
+
         private void writeHeader(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
         {
-            switch(_reference.getMode())
+            switch(_handler.getReference().getMode())
             {
-                case Reference.Mode.ModeTwoway: 
-                case Reference.Mode.ModeOneway: 
-                case Reference.Mode.ModeDatagram: 
+                case Reference.Mode.ModeTwoway:
+                case Reference.Mode.ModeOneway:
+                case Reference.Mode.ModeDatagram:
                 {
                     _os.writeBlob(IceInternal.Protocol.requestHdr);
                     break;
                 }
-                
-                case Reference.Mode.ModeBatchOneway: 
-                case Reference.Mode.ModeBatchDatagram: 
+
+                case Reference.Mode.ModeBatchOneway:
+                case Reference.Mode.ModeBatchDatagram:
                 {
-                    _connection.prepareBatchRequest(_os);
+                    _handler.prepareBatchRequest(_os);
                     break;
                 }
             }
 
             try
             {
-                _reference.getIdentity().write__(_os);
+                _handler.getReference().getIdentity().write__(_os);
 
                 //
                 // For compatibility with the old FacetPath.
                 //
-                string facet = _reference.getFacet();
+                string facet = _handler.getReference().getFacet();
                 if(facet == null || facet.Length == 0)
                 {
                     _os.writeStringSeq(null);
@@ -449,11 +480,9 @@ namespace IceInternal
                     //
                     // Implicit context
                     //
-                    Ice.ImplicitContextI implicitContext =
-                        _reference.getInstance().getImplicitContext();
-                    
-                    Dictionary<string, string> prxContext = _reference.getContext();
-                    
+                    Ice.ImplicitContextI implicitContext = _handler.getReference().getInstance().getImplicitContext();
+                    Dictionary<string, string> prxContext = _handler.getReference().getContext();
+
                     if(implicitContext == null)
                     {
                         Ice.ContextHelper.write(_os, prxContext);
@@ -463,7 +492,7 @@ namespace IceInternal
                         implicitContext.write(prxContext, _os);
                     }
                 }
-                
+
                 //
                 // Input and output parameters are always sent in an
                 // encapsulation, which makes it possible to forward requests as
@@ -476,24 +505,98 @@ namespace IceInternal
                 abort(ex);
             }
         }
-        
-        private Ice.ConnectionI _connection;
-        private Reference _reference;
+
+        internal RequestHandler _handler;
+        internal BasicStream _is;
+        internal BasicStream _os;
+        internal bool _sent;
+
         private Ice.LocalException _exception;
-        
+
         private const int StateUnsent = 0;
         private const int StateInProgress = 1;
         private const int StateOK = 2;
         private const int StateUserException = 3;
         private const int StateLocalException = 4;
+        private const int StateFailed = 5;
         private int _state;
-        
-        private BasicStream _is;
-        private BasicStream _os;
 
-        private bool _compress; // Immutable after construction
-        
         public Outgoing next; // For use by Ice.ObjectDelM_
+    }
+
+    public class BatchOutgoing : OutgoingMessageCallback
+    {
+        public BatchOutgoing(Ice.ConnectionI connection, Instance instance)
+        {
+            _connection = connection;
+            _sent = false;
+            _os = new BasicStream(instance);
+        }
+
+        public BatchOutgoing(RequestHandler handler)
+        {
+            _handler = handler;
+            _sent = false;
+            _os = new BasicStream(handler.getReference().getInstance());
+        }
+
+        public void invoke()
+        {
+            Debug.Assert(_handler != null || _connection != null);
+
+            if(_handler != null && !_handler.flushBatchRequests(this) ||
+               _connection != null && !_connection.flushBatchRequests(this))
+            {
+                lock(this)
+                {
+                    while(_exception == null && !_sent)
+                    {
+                        Monitor.Wait(this);
+                    }
+
+                    if(_exception != null)
+                    {
+                        throw _exception;
+                    }
+                }
+            }
+        }
+
+        public void sent(bool notify)
+        {
+            if(notify)
+            {
+                lock(this)
+                {
+                    _sent = true;
+                    Monitor.Pulse(this);
+                }
+            }
+            else
+            {
+                _sent = true;
+            }
+        }
+
+        public void finished(Ice.LocalException ex)
+        {
+            lock(this)
+            {
+                _exception = ex;
+                Monitor.Pulse(this);
+            }
+        }
+
+        public BasicStream ostr()
+        {
+            return _os;
+        }
+
+        private RequestHandler _handler;
+        private Ice.ConnectionI _connection;
+        private BasicStream _os;
+        private bool _sent;
+        private Ice.LocalException _exception;
     }
 
 }

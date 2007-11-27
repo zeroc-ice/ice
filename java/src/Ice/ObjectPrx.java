@@ -138,5 +138,8 @@ public interface ObjectPrx
     Connection ice_getConnection();
     Connection ice_getCachedConnection();
 
+    void ice_flushBatchRequests();
+    void ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
+
     boolean equals(java.lang.Object r);
 }

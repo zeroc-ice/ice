@@ -11,6 +11,8 @@
 #define ICE_ENDPOINT_I_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Thread.h>
+#include <IceUtil/Monitor.h>
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/InstanceF.h>
@@ -18,10 +20,29 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
 
+#ifdef _WIN32
+#   include <winsock2.h>
+#else
+#   include <netinet/in.h> // For struct sockaddr_in
+#endif
+
+#include <deque>
+
 namespace IceInternal
 {
 
 class BasicStream;
+
+class ICE_API EndpointI_connectors : public virtual IceUtil::Shared
+{
+public:
+
+    virtual ~EndpointI_connectors() { }
+
+    virtual void connectors(const std::vector<ConnectorPtr>&) = 0;
+    virtual void exception(const Ice::LocalException&) = 0;
+};
+typedef IceUtil::Handle<EndpointI_connectors> EndpointI_connectorsPtr;
 
 class ICE_API EndpointI : public Ice::Endpoint
 {
@@ -97,6 +118,7 @@ public:
     // connector is available.
     //
     virtual std::vector<ConnectorPtr> connectors() const = 0;
+    virtual void connectors_async(const EndpointI_connectorsPtr&) const = 0;
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
@@ -114,9 +136,9 @@ public:
     virtual std::vector<EndpointIPtr> expand() const = 0;
 
     //
-    // Check whether the endpoint is equivalent to a specific Connector.
+    // Check whether the endpoint is equivalent to another one.
     //
-    virtual bool equivalent(const ConnectorPtr&) const = 0;
+    virtual bool equivalent(const EndpointIPtr&) const = 0;
 
     //
     // Compare endpoints for sorting purposes.
@@ -127,6 +149,9 @@ public:
 
 private:
 
+    virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_in>&) const;
+    friend class EndpointHostResolver;
+
 #if defined(__SUNPRO_CC) || defined(__HP_aCC)
     //
     // COMPILERFIX: prevent the compiler from emitting a warning about
@@ -135,6 +160,32 @@ private:
     using LocalObject::operator==;
     using LocalObject::operator<;
 #endif
+};
+
+class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    EndpointHostResolver(const InstancePtr&);
+
+    void resolve(const std::string&, int, const EndpointIPtr&, const EndpointI_connectorsPtr&);
+    void destroy();
+
+    virtual void run();
+
+private:
+
+    struct ResolveEntry
+    {
+        std::string host;
+        int port;
+        EndpointIPtr endpoint;
+        EndpointI_connectorsPtr callback;
+    };
+
+    const InstancePtr _instance;
+    bool _destroyed;
+    std::deque<ResolveEntry> _queue;
 };
 
 }

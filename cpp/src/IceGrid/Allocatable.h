@@ -42,7 +42,7 @@ public:
     bool pending();
     bool allocate(const AllocatablePtr&, const SessionIPtr&);
     void cancel(const AllocationException&);
-    void run(); // Implementation of IceUtil::TimerTask::run()
+    void runTimerTask(); // Implementation of IceUtil::TimerTask::runTimerTask()
 
     int getTimeout() const { return _timeout; }
     const SessionIPtr& getSession() const { return _session; }

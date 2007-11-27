@@ -80,7 +80,7 @@ public final class EndpointFactoryManager
                 EndpointI e = f.create(s.substring(m.end()), server);
                 BasicStream bs = new BasicStream(_instance, true);
                 e.streamWrite(bs);
-                java.nio.ByteBuffer buf = bs.prepareRead();
+                java.nio.ByteBuffer buf = bs.getBuffer();
                 buf.position(0);
                 short type = bs.readShort();
                 EndpointI ue = new IceInternal.UnknownEndpointI(type, bs);
@@ -110,8 +110,8 @@ public final class EndpointFactoryManager
                     //
                     BasicStream bs = new BasicStream(_instance, true);
                     ue.streamWrite(bs);
-                    java.nio.ByteBuffer buf = bs.prepareRead();
-                    buf.position(0);
+                    Buffer buf = bs.getBuffer();
+                    buf.b.position(0);
                     short type = bs.readShort();
                     return f.read(bs);
                 }
@@ -136,7 +136,6 @@ public final class EndpointFactoryManager
                 return f.read(s);
             }
         }
-
         return new UnknownEndpointI(type, s);
     }
 

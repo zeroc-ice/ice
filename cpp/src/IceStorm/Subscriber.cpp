@@ -233,12 +233,11 @@ SubscriberOneway::flush()
         vector<Ice::Byte> dummy;
         if(v.size() > 1 && !_batch)
         {
+            Ice::ConnectionPtr conn = _objBatch->ice_getConnection();
             for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
             {
                 _objBatch->ice_invoke((*p)->op, (*p)->mode, (*p)->data, dummy, (*p)->context);
             }
-            Ice::ConnectionPtr conn = _objBatch->ice_getCachedConnection();
-            assert(conn);
             conn->flushBatchRequests();
         }
         else

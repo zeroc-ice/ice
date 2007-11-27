@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
+#include <IceUtil/RecMutex.h>
 #include <IceUtil/Time.h>
 #include <TestCommon.h>
 #include <Test.h>

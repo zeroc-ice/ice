@@ -2258,7 +2258,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "__checkTwowayOnly(" << p->flattenedScope() + p->name() + "_name);";
     }
-    C << nl << "__delBase = __getDelegate();";
+    C << nl << "__delBase = __getDelegate(false);";
     C << nl << "::IceDelegate" << thisPointer << " __del = dynamic_cast< ::IceDelegate"
       << thisPointer << ">(__delBase.get());";
     C << nl;
@@ -2603,8 +2603,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
     C << sb;
-    C << nl << "::IceInternal::Outgoing __og(__connection.get(), __reference.get(), " << flatName << ", "
-      << operationModeToString(p->sendMode()) << ", __context, __compress);";
+    C << nl << "::IceInternal::Outgoing __og(__handler.get(), " << flatName << ", "
+      << operationModeToString(p->sendMode()) << ", __context);";
     if(!inParams.empty())
     {
         C << nl << "try";
@@ -5217,6 +5217,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl << "try";
         C << sb;
+        if(p->returnsData())
+        {
+            C << nl << "__prx->__checkTwowayOnly(\"" << p->name() <<  "\");";
+        }
         C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
         writeMarshalCode(C, inParams, 0, StringList(), true);
         if(p->sendsClasses())

@@ -13,8 +13,8 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::ServerBlobject::ServerBlobject(const CommunicatorPtr& communicator, const ConnectionPtr& connection) :
-    Glacier2::Blobject(communicator, true, Ice::Context()),
+Glacier2::ServerBlobject::ServerBlobject(const InstancePtr& instance, const ConnectionPtr& connection) :
+    Glacier2::Blobject(instance, true, Ice::Context()),
     _connection(connection)
 {
 }

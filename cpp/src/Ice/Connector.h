@@ -14,6 +14,12 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/TransceiverF.h>
 
+#ifdef _WIN32
+#   include <winsock2.h>
+#else
+#   define SOCKET int
+#endif
+
 namespace IceInternal
 {
 
@@ -22,6 +28,7 @@ class ICE_API Connector : public ::IceUtil::Shared
 public:
     
     virtual TransceiverPtr connect(int) = 0;
+
     virtual Ice::Short type() const = 0;
     virtual std::string toString() const = 0;
 

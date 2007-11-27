@@ -15,6 +15,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ConnectionIF.h>
+#include <Ice/RequestHandlerF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/Endpoint.h>
 #include <Ice/ObjectF.h>
@@ -235,6 +236,9 @@ public:
     ::Ice::ConnectionPtr ice_getConnection();
     ::Ice::ConnectionPtr ice_getCachedConnection() const;
 
+    void ice_flushBatchRequests();
+    void ice_flushBatchRequests_async(const ::Ice::AMI_Object_ice_flushBatchRequestsPtr&);
+
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
@@ -246,7 +250,9 @@ public:
     void __checkTwowayOnly(const char*) const;
     void __checkTwowayOnly(const ::std::string&) const;
 
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate(bool);
+    void __setRequestHandler(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
+                             const ::IceInternal::RequestHandlerPtr&);
 
 protected:
 
@@ -299,8 +305,10 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
                             const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
                             ::std::vector< ::Ice::Byte>&, const ::Ice::Context*) = 0;
+    virtual void ice_flushBatchRequests() = 0;
 
-    virtual ::Ice::ConnectionIPtr __getConnection(bool&) const = 0;
+    virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const = 0;
+    virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&) = 0;
 };
 
 } }
@@ -321,20 +329,20 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
                             const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
                             ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
+    virtual void ice_flushBatchRequests();
 
-    virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
+    virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const;
+    virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
 
 protected:
 
-    ::IceInternal::ReferencePtr __reference;
-    ::Ice::ConnectionIPtr __connection;
-    bool __compress;
+    ::IceInternal::RequestHandlerPtr __handler;
 
 private:
 
-    void setup(const ::IceInternal::ReferencePtr&);
+    void setup(const ::IceInternal::ReferencePtr&, const ::Ice::ObjectPrx&, bool);
     friend class ::IceProxy::Ice::Object;
 };
 
@@ -354,8 +362,10 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
                             const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
                             ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
+    virtual void ice_flushBatchRequests();
 
-    virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
+    virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const;
+    virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
 

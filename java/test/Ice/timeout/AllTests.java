@@ -266,7 +266,7 @@ public class AllTests
             to.holdAdapter(500);
             try
             {
-                byte[] seq = new byte[100000];
+                byte[] seq = new byte[512 * 1024];
                 to.sendData(seq);
             }
             catch(Ice.TimeoutException ex)
@@ -313,7 +313,7 @@ public class AllTests
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
             to.holdAdapter(2000);
-            byte[] seq = new byte[100000];
+            byte[] seq = new byte[512 * 1024];
             AMISendDataEx cb = new AMISendDataEx();
             to.sendData_async(cb, seq);
             test(cb.check());
@@ -325,7 +325,7 @@ public class AllTests
             timeout.op(); // Ensure adapter is active.
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1500));
             to.holdAdapter(500);
-            byte[] seq = new byte[100000];
+            byte[] seq = new byte[512 * 1024];
             AMISendData cb = new AMISendData();
             to.sendData_async(cb, seq);
             test(cb.check());

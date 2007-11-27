@@ -158,14 +158,46 @@ public final class Instance
         return _serverThreadPool;
     }
 
+    public synchronized SelectorThread
+    selectorThread()
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }        
+
+        if(_selectorThread == null) // Lazy initialization.
+        {
+            _selectorThread = new SelectorThread(this);
+        }
+
+        return _selectorThread;
+    }
+
+    public synchronized EndpointHostResolver
+    endpointHostResolver()
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }        
+
+        if(_endpointHostResolver == null) // Lazy initialization.
+        {
+            _endpointHostResolver = new EndpointHostResolver(this);
+        }
+
+        return _endpointHostResolver;
+    }
+
     synchronized public Timer
     timer()
     {
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
-        }
-        
+        }        
+
         if(_timer == null) // Lazy initialization.
         {
             _timer = new Timer(this);
@@ -184,6 +216,12 @@ public final class Instance
     threadPerConnectionStackSize()
     {
         return _threadPerConnectionStackSize;
+    }
+
+    public boolean
+    background()
+    {
+        return _background;
     }
 
     public synchronized EndpointFactoryManager
@@ -598,6 +636,8 @@ public final class Instance
                 _threadPerConnectionStackSize = stackSize;
             }
 
+            _background = _initData.properties.getPropertyAsInt("Ice.Background") > 0;
+
             _routerManager = new RouterManager();
 
             _locatorManager = new LocatorManager();
@@ -655,6 +695,8 @@ public final class Instance
         IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
         IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
         IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
+        IceUtil.Assert.FinalizerAssert(_selectorThread == null);
+        IceUtil.Assert.FinalizerAssert(_endpointHostResolver == null);
         IceUtil.Assert.FinalizerAssert(_timer == null);
         IceUtil.Assert.FinalizerAssert(_routerManager == null);
         IceUtil.Assert.FinalizerAssert(_locatorManager == null);
@@ -777,6 +819,8 @@ public final class Instance
         
         ThreadPool serverThreadPool = null;
         ThreadPool clientThreadPool = null;
+        SelectorThread selectorThread = null;
+        EndpointHostResolver endpointHostResolver = null;
 
         synchronized(this)
         {
@@ -802,6 +846,20 @@ public final class Instance
                 _clientThreadPool.destroy();
                 clientThreadPool = _clientThreadPool;
                 _clientThreadPool = null;
+            }
+
+            if(_selectorThread != null)
+            {
+                _selectorThread.destroy();
+                selectorThread = _selectorThread;
+                _selectorThread = null;
+            }
+
+            if(_endpointHostResolver != null)
+            {
+                _endpointHostResolver.destroy();
+                endpointHostResolver = _endpointHostResolver;
+                _endpointHostResolver = null;
             }
 
             if(_timer != null)
@@ -857,8 +915,7 @@ public final class Instance
         }
 
         //
-        // Join with the thread pool threads outside the
-        // synchronization.
+        // Join with threads outside the synchronization.
         //
         if(clientThreadPool != null)
         {
@@ -867,6 +924,14 @@ public final class Instance
         if(serverThreadPool != null)
         {
             serverThreadPool.joinWithAllThreads();
+        }
+        if(selectorThread != null)
+        {
+            selectorThread.joinWithThread();
+        }
+        if(endpointHostResolver != null)
+        {
+            endpointHostResolver.joinWithThread();
         }
 
         if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
@@ -935,9 +1000,12 @@ public final class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
+    private SelectorThread _selectorThread;
+    private EndpointHostResolver _endpointHostResolver;
     private Timer _timer;
     private final boolean _threadPerConnection;
     private final int _threadPerConnectionStackSize;
+    private final boolean _background;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
     private java.util.Map _defaultContext;

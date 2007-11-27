@@ -15,6 +15,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/EndpointIF.h>
 
 namespace IceInternal
 {
@@ -51,9 +52,19 @@ public:
     const char* getNetworkTraceCategory() const;
 
     //
+    // Get the endpoint host resolver.
+    //
+    EndpointHostResolverPtr getEndpointHostResolver() const;
+
+    //
     // Register an EndpointFactory.
     //
     void addEndpointFactory(const EndpointFactoryPtr&) const;
+
+    //
+    // Get an EndpointFactory.
+    //
+    EndpointFactoryPtr getEndpointFactory(Ice::Short) const;
 
 private:
 

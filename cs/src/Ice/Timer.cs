@@ -15,8 +15,8 @@ namespace IceInternal
 
     public interface TimerTask
     {
-        void run();
-    };
+        void runTimerTask();
+    }
 
     public sealed class Timer
     {
@@ -38,7 +38,6 @@ namespace IceInternal
 
             _thread.Join();
         }
-
 
         public void schedule(TimerTask task, long delay)
         {
@@ -212,7 +211,7 @@ namespace IceInternal
                 {
                     try
                     {
-                        token.task.run();
+                        token.task.runTimerTask();
                     }
                     catch(System.Exception ex)
                     {

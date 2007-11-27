@@ -63,7 +63,7 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     IceUtil::Mutex::Lock sync(_shutdownReadWriteMutex);
     _shutdownReadWrite = true;
 
-#if defined(_WIN32) || defined(__sun) || defined(__hppa) || defined(_AIX)
+#if defined(_WIN32) || defined(__sun) || defined(__hppa) || defined(_AIX) || defined(__APPLE__)
     //
     // On certain platforms, we have to explicitly wake up a thread blocked in
     // select(). This is only relevant when using thread per connection.
@@ -105,8 +105,8 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
 #endif
 }
 
-void
-IceInternal::UdpTransceiver::write(Buffer& buf, int)
+bool
+IceInternal::UdpTransceiver::write(Buffer& buf, int timeout)
 {
     assert(buf.i == buf.b.begin());
     //
@@ -120,6 +120,7 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
         //
         // We don't log a warning here because the client gets an exception anyway.
         //
+        cerr << packetSize << " " << _maxPacketSize << " " << _sndSize << endl;
         throw DatagramLimitException(__FILE__, __LINE__);
     }
 
@@ -127,11 +128,9 @@ repeat:
 
     assert(_fd != INVALID_SOCKET);
 #ifdef _WIN32
-    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), 
-                         static_cast<int>(buf.b.size()), 0);
+    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0);
 #else
-    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), 
-                         buf.b.size(), 0);
+    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0);
 #endif    
 
     if(ret == SOCKET_ERROR)
@@ -145,16 +144,33 @@ repeat:
         {
         repeatSelect:
 
+            if(timeout == 0)
+            {
+                return false;
+            }
+
+            int rs;
             assert(_fd != INVALID_SOCKET);
 #ifdef _WIN32
             FD_SET(_fd, &_wFdSet);
-            int rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
+            
+            if(timeout >= 0)
+            {
+                struct timeval tv;
+                tv.tv_sec = timeout / 1000;
+                tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
+                rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, &tv);
+            }
+            else
+            {
+                rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
+            }
 #else
-            struct pollfd fdSet[1];
-            fdSet[0].fd = _fd;
-            fdSet[0].events = POLLOUT;
-            int rs = ::poll(fdSet, 1, -1);
-#endif
+            struct pollfd pollFd[1];
+            pollFd[0].fd = _fd;
+            pollFd[0].events = POLLOUT;
+            rs = ::poll(pollFd, 1, timeout);
+#endif          
             if(rs == SOCKET_ERROR)
             {
                 if(interrupted())
@@ -165,6 +181,11 @@ repeat:
                 SocketException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
+            }
+
+            if(rs == 0)
+            {
+                throw new Ice::TimeoutException(__FILE__, __LINE__);
             }
             
             goto repeat;
@@ -188,10 +209,11 @@ repeat:
 
     assert(ret == static_cast<ssize_t>(buf.b.size()));
     buf.i = buf.b.end();
+    return true;
 }
 
-void
-IceInternal::UdpTransceiver::read(Buffer& buf, int)
+bool
+IceInternal::UdpTransceiver::read(Buffer& buf, int timeout)
 {
     assert(buf.i == buf.b.begin());
 
@@ -270,6 +292,11 @@ repeat:
         
         if(wouldBlock())
         {
+            if(timeout == 0)
+            {
+                return false;
+            }
+
         repeatSelect:
             
             assert(_fd != INVALID_SOCKET);
@@ -295,6 +322,11 @@ repeat:
                 throw ex;
             }
             
+            if(rs == 0)
+            {
+                throw TimeoutException(__FILE__, __LINE__);
+            }
+
             goto repeat;
         }
 
@@ -328,6 +360,7 @@ repeat:
 
     buf.b.resize(ret);
     buf.i = buf.b.end();
+    return true;
 }
 
 string
@@ -351,9 +384,10 @@ IceInternal::UdpTransceiver::toString() const
     }
 }
 
-void
+SocketStatus
 IceInternal::UdpTransceiver::initialize(int)
 {
+    return Finished;
 }
 
 void

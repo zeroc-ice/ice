@@ -20,11 +20,14 @@ SRCS		= Acceptor.cs \
 		  AssemblyUtil.cs \
                   Base64.cs \
 		  BasicStream.cs \
+		  Buffer.cs \
 		  ByteBuffer.cs \
 		  CommunicatorI.cs \
                   Compare.cs \
 		  CollectionBase.cs \
+		  ConnectRequestHandler.cs \
 		  ConnectionI.cs \
+		  ConnectionRequestHandler.cs \
 		  ConnectionFactory.cs \
 		  ConnectionMonitor.cs \
 		  Connector.cs \
@@ -35,6 +38,7 @@ SRCS		= Acceptor.cs \
 		  EndpointI.cs \
 		  EndpointFactory.cs \
 		  EndpointFactoryManager.cs \
+		  EndpointHostResolver.cs \
 		  EventHandler.cs \
 		  Exception.cs \
 		  ImplicitContextI.cs \
@@ -69,7 +73,9 @@ SRCS		= Acceptor.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
                   ReplyStatus.cs \
+                  RequestHandler.cs \
 		  RouterInfo.cs \
+		  SelectorThread.cs \
 		  ServantManager.cs \
 		  Set.cs \
 		  SliceChecksums.cs \

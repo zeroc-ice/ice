@@ -22,7 +22,7 @@ class ServerBlobject : public Glacier2::Blobject
 {
 public:
 
-    ServerBlobject(const Ice::CommunicatorPtr&, const Ice::ConnectionPtr&);
+    ServerBlobject(const InstancePtr&, const Ice::ConnectionPtr&);
     virtual ~ServerBlobject();
 
     virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,

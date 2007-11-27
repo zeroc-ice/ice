@@ -18,6 +18,12 @@ public abstract class Reference implements Cloneable
     public final static int ModeBatchDatagram = 4;
     public final static int ModeLast = ModeBatchDatagram;
 
+    public interface GetConnectionCallback
+    {
+        void setConnection(Ice.ConnectionI connection, boolean compress);
+        void setException(Ice.LocalException ex);
+    }
+
     public final int
     getMode()
     {
@@ -325,6 +331,7 @@ public abstract class Reference implements Cloneable
     }
 
     public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
+    public abstract void getConnection(GetConnectionCallback callback);
 
     public boolean
     equals(java.lang.Object obj)

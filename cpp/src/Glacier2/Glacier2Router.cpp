@@ -11,6 +11,7 @@
 #include <IceUtil/UUID.h>
 #include <IceUtil/Options.h>
 #include <Ice/Service.h>
+#include <Glacier2/Instance.h>
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
@@ -60,6 +61,7 @@ private:
 
     void usage(const std::string&);
 
+    InstancePtr _instance;
     SessionRouterIPtr _sessionRouter;
 };
 
@@ -428,12 +430,16 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
 
     //
+    // Create the instance object.
+    //
+    _instance = new Instance(communicator(), clientAdapter, serverAdapter);
+
+    //
     // Create the session router. The session router registers itself
     // and all required servant locators, so no registration has to be
     // done here.
     //
-    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier, sessionManager, sslVerifier,
-                                        sslSessionManager);
+    _sessionRouter = new SessionRouterI(_instance, verifier, sessionManager, sslVerifier, sslSessionManager);
 
     //
     // If we have an admin adapter, we add an admin object.
@@ -482,6 +488,12 @@ Glacier2::RouterService::stop()
         _sessionRouter->destroy();
         _sessionRouter = 0;
     }
+
+    if(_instance)
+    {
+        _instance->destroy();
+        _instance = 0;
+    }
     return true;
 }
 
@@ -493,11 +505,6 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[],
     initData.properties = createProperties(argc, argv, initializationData.properties);
  
     //
-    // Glacier2 always runs in thread-per-connection mode.
-    //
-    initData.properties->setProperty("Ice.ThreadPerConnection", "1");
-    
-    //
     // Make sure that Glacier2 doesn't use a router.
     //
     initData.properties->setProperty("Ice.Default.Router", "");
@@ -508,17 +515,6 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[],
     //
     initData.properties->setProperty("Ice.ACM.Client", "0");
     initData.properties->setProperty("Ice.ACM.Server", "0");
-    
-    //
-    // Ice.MonitorConnections defaults to the smaller of Ice.ACM.Client
-    // or Ice.ACM.Server, which we set to 0 above. However, we still want
-    // the connection monitor thread for AMI timeouts. We only set
-    // this value if it hasn't been set explicitly already.
-    //
-    if(initData.properties->getProperty("Ice.MonitorConnections").empty())
-    {
-        initData.properties->setProperty("Ice.MonitorConnections", "60");
-    }
 
     //
     // We do not need to set Ice.RetryIntervals to -1, i.e., we do

@@ -190,9 +190,9 @@ public class OutputStreamI implements OutputStream
     public byte[]
     finished()
     {
-        java.nio.ByteBuffer buf = _os.prepareWrite();
-        byte[] result = new byte[buf.limit()];
-        buf.get(result);
+        IceInternal.Buffer buf = _os.prepareWrite();
+        byte[] result = new byte[buf.b.limit()];
+        buf.b.get(result);
 
         return result;
     }

@@ -332,17 +332,16 @@ final class TcpEndpointI extends EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public java.util.ArrayList
+    public java.util.List
     connectors()
     {
-        java.util.ArrayList connectors = new java.util.ArrayList();
-        java.util.ArrayList addresses = Network.getAddresses(_host, _port);
-        java.util.Iterator p = addresses.iterator();
-        while(p.hasNext())
-        {
-            connectors.add(new TcpConnector(_instance, (java.net.InetSocketAddress)p.next(), _timeout, _connectionId));
-        }
-        return connectors;
+        return connectors(Network.getAddresses(_host, _port));
+    }
+
+    public void
+    connectors_async(EndpointI_connectors callback)
+    {
+        _instance.endpointHostResolver().resolve(_host, _port, this, callback);
     }
 
     //
@@ -364,7 +363,7 @@ final class TcpEndpointI extends EndpointI
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //
-    public java.util.ArrayList
+    public java.util.List
     expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
@@ -389,21 +388,21 @@ final class TcpEndpointI extends EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific Connector
+    // Check whether the endpoint is equivalent to another one.
     //
     public boolean
-    equivalent(Connector connector)
+    equivalent(EndpointI endpoint)
     {
-        TcpConnector tcpConnector = null;
+        TcpEndpointI tcpEndpointI = null;
         try
         {
-            tcpConnector = (TcpConnector)connector;
+            tcpEndpointI = (TcpEndpointI)endpoint;
         }
         catch(ClassCastException ex)
         {
             return false;
         }
-        return tcpConnector.equivalent(_host, _port);
+        return tcpEndpointI._host.equals(_host) && tcpEndpointI._port == _port;
     }
 
     public int
@@ -487,6 +486,18 @@ final class TcpEndpointI extends EndpointI
     requiresThreadPerConnection()
     {
         return false;
+    }
+
+    public java.util.List
+    connectors(java.util.List addresses)
+    {
+        java.util.ArrayList connectors = new java.util.ArrayList();
+        java.util.Iterator p = addresses.iterator();
+        while(p.hasNext())
+        {
+            connectors.add(new TcpConnector(_instance, (java.net.InetSocketAddress)p.next(), _timeout, _connectionId));
+        }
+        return connectors;
     }
 
     private void

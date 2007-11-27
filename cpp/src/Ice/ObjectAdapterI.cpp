@@ -256,7 +256,6 @@ Ice::ObjectAdapterI::waitForDeactivate()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
         if(_destroyed)
         {
             return;
@@ -365,7 +364,6 @@ Ice::ObjectAdapterI::destroy()
         _routerInfo = 0;
         _publishedEndpoints.clear();
         _locatorInfo = 0;
-        _connectors.clear();
 
         objectAdapterFactory = _objectAdapterFactory;
         _objectAdapterFactory = 0;
@@ -583,14 +581,6 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
         oldPublishedEndpoints = _publishedEndpoints;
         _publishedEndpoints = parsePublishedEndpoints();
 
-        _connectors.clear();
-        vector<IncomingConnectionFactoryPtr>::const_iterator p;
-        for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
-        {
-            vector<ConnectorPtr> cons = (*p)->endpoint()->connectors();
-            _connectors.insert(_connectors.end(), cons.begin(), cons.end());
-        }
-
         locatorInfo = _locatorInfo;
         if(!_noConfig)
         {
@@ -671,10 +661,18 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     //
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-        vector<ConnectorPtr>::const_iterator q;
-        for(q = _connectors.begin(); q != _connectors.end(); ++q)
+        vector<IncomingConnectionFactoryPtr>::const_iterator q;
+        for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
         {
-            if((*p)->equivalent(*q))
+            if((*p)->equivalent((*q)->endpoint()))
+            {
+                return true;
+            }
+        }
+        vector<EndpointIPtr>::const_iterator r;
+        for(r = _publishedEndpoints.begin(); r != _publishedEndpoints.end(); ++r)
+        {
+            if((*p)->equivalent(*r))
             {
                 return true;
             }
@@ -944,9 +942,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             {
                 IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(instance, *p, this, _name);
                 _incomingConnectionFactories.push_back(factory);
-
-                vector<ConnectorPtr> cons = factory->endpoint()->connectors();
-                _connectors.insert(_connectors.end(), cons.begin(), cons.end());
             }
             if(endpoints.empty())
             {

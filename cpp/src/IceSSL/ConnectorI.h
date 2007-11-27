@@ -31,6 +31,7 @@ class ConnectorI : public IceInternal::Connector
 public:
     
     virtual IceInternal::TransceiverPtr connect(int);
+
     virtual Ice::Short type() const;
     virtual std::string toString() const;
 
@@ -38,8 +39,6 @@ public:
     virtual bool operator!=(const IceInternal::Connector&) const;
     virtual bool operator<(const IceInternal::Connector&) const;
 
-    bool equivalent(const std::string&, int) const;
-    
 private:
     
     ConnectorI(const InstancePtr&, const struct sockaddr_in&, Ice::Int, const std::string&);
@@ -52,6 +51,7 @@ private:
     struct sockaddr_in _addr;
     const Ice::Int _timeout;
     const std::string _connectionId;
+    SOCKET _fd;
 };
 
 }

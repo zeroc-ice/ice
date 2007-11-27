@@ -37,10 +37,13 @@ private:
 void
 MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current& current)
 {
-    if(_opVoidThread)
     {
-        _opVoidThread->getThreadControl().join();
-        _opVoidThread = 0;
+        IceUtil::Mutex::Lock sync(_opVoidMutex);
+        if(_opVoidThread)
+        {
+            _opVoidThread->getThreadControl().join();
+            _opVoidThread = 0;
+        }
     }
 
     current.adapter->getCommunicator()->shutdown();
@@ -50,6 +53,7 @@ MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const I
 void
 MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::Current&)
 {
+    IceUtil::Mutex::Lock sync(_opVoidMutex);
     if(_opVoidThread)
     {
         _opVoidThread->getThreadControl().join();

@@ -33,6 +33,7 @@ ROBJS		= Blobject.obj \
 		  ClientBlobject.obj \
 		  CryptPermissionsVerifierI.obj \
 		  Glacier2Router.obj \
+		  Instance.obj \
 		  ProxyVerifier.obj \
 		  RequestQueue.obj \
 		  RouterI.obj \

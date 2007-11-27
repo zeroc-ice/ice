@@ -89,7 +89,7 @@ public class TwowaysAMI
 
         public override void ice_exception(Ice.Exception ex)
         {
-            test(ex is Ice.TwowayOnlyException);
+            test(ex is Ice.NoEndpointException);
             callback.called();
         }
 
@@ -132,7 +132,7 @@ public class TwowaysAMI
 
         public override void ice_exception(Ice.Exception ex)
         {
-            test(ex is Ice.TwowayOnlyException);
+            test(ex is Ice.NoEndpointException);
             callback.called();
         }
 
@@ -963,13 +963,13 @@ public class TwowaysAMI
     internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
-            // Check that a call to a void operation raises TwowayOnlyException
+            // Check that a call to a void operation raises NoEndpointException
             // in the ice_exception() callback instead of at the point of call.
-            Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+            Test.MyClassPrx indirect = Test.MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
             try
             {
-                oneway.opVoid_async(cb);
+                indirect.opVoid_async(cb);
             }
             catch(Ice.Exception)
             {
@@ -979,13 +979,13 @@ public class TwowaysAMI
         }
 
         {
-            // Check that a call to a twoway operation raises TwowayOnlyException
+            // Check that a call to a twoway operation raises NoEndpointException
             // in the ice_exception() callback instead of at the point of call.
-            Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+            Test.MyClassPrx indirect = Test.MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
             try
             {
-                oneway.opByte_async(cb, (byte)0, (byte)0);
+                indirect.opByte_async(cb, (byte)0, (byte)0);
             }
             catch(Ice.Exception)
             {

@@ -19,6 +19,7 @@ public class Server
         //
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+        properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
         properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010 -t 30000:udp");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");

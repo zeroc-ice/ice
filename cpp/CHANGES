@@ -1,6 +1,39 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Improved Glacier2 to take advantage of the new non-blocking aspects
+  of Ice. Glacier2 now uses the thread pool concurrency model by
+  default and in buffered mode, Glacier2 only uses a single thread to
+  forward queued requests. As a result, Glacier2 now requires a fixed
+  number of threads regardless of the number of connected clients.
+
+- Modified the collocation optimization check to not perform DNS
+  lookups. Invocations on a direct proxy will use collocation
+  optimization only if the host and port of one of its endpoint
+  matches the host and port of one of the endpoint or published
+  endpoint of an object adapter from the same communicator.
+
+- Added proxy methods flushBatchRequests() and
+  flushBatchRequests_async() to respectively synchronously and
+  asynchronously flush the batch requests of the connection associated
+  with the proxy. Like AMI requests, flushBatchRequests_async() is
+  guaranteed to not block.
+
+- Added support for oneway AMI requests. The ice_response() method of
+  the AMI callback is never called for oneway requests sent with AMI.
+  Unlike regular oneway requests which might block until the request
+  is passed to the TCP/IP stack, oneway AMI requests can't block.
+
+- Added support for server-side non-blocking connection creation.
+  Accepting a connection from a client can no longer block a thread
+  from server thread pool. In particular, the connection validation
+  and the SSL handshake can't block anymore.
+
+- Added support for non-blocking AMI and batch requests. The DNS
+  lookup, endpoint resolution, connection establishment and sending 
+  of the request is now done in the background by a separate thread 
+  if necessary.
+
 - Glacier2 filters are now disabled by default for IceGrid client
   and administrative sessions created with the IceGrid session 
   managers. If you rely on these filters to be set, you now need

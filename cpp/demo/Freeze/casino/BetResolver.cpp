@@ -42,7 +42,7 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
         }
 
         virtual void 
-        run()
+        runTimerTask()
         {
             try
             {

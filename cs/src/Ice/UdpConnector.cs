@@ -11,11 +11,10 @@ namespace IceInternal
 {
     using System.Diagnostics;
     using System.Net;
+    using System.Net.Sockets;
 
     sealed class UdpConnector : Connector, System.IComparable
     {
-        internal const short TYPE = 3;
-        
         public Transceiver connect(int timeout)
         {
             return new UdpTransceiver(instance_, _addr, _mcastInterface, _mcastTtl);
@@ -23,62 +22,7 @@ namespace IceInternal
 
         public short type()
         {
-            return TYPE;
-        }
-
-        public override string ToString()
-        {
-            return Network.addrToString(_addr);
-        }
-
-        internal bool equivalent(string host, int port)
-        {
-            IPEndPoint addr; 
-            try
-            {
-                addr = Network.getAddress(host, port);
-            }
-            catch(Ice.DNSException)
-            {
-                return false;
-            } 
-            return addr.Equals(_addr);
-        }
-
-        //
-        // Only for use by TcpEndpoint
-        //
-        internal UdpConnector(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl, 
-                              byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor,
-                              string connectionId)
-        {
-            instance_ = instance;
-            _addr = addr;
-            _mcastInterface = mcastInterface;
-            _mcastTtl = mcastTtl;
-            _protocolMajor = protocolMajor;
-            _protocolMinor = protocolMinor;
-            _encodingMajor = encodingMajor;
-            _encodingMinor = encodingMinor;
-            _connectionId = connectionId;
-
-            _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _mcastInterface.GetHashCode();
-            _hashCode = 5 * _hashCode + _mcastTtl.GetHashCode();
-            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
-        }
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
-
-        //
-        // Compare endpoints for sorting purposes
-        //
-        public override bool Equals(object obj)
-        {
-            return CompareTo(obj) == 0;
+            return UdpEndpointI.TYPE;
         }
 
         public int CompareTo(object obj)
@@ -166,6 +110,44 @@ namespace IceInternal
             return Network.compareAddress(_addr, p._addr);
         }
 
+        //
+        // Only for use by TcpEndpoint
+        //
+        internal UdpConnector(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl, 
+                              byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor,
+                              string connectionId)
+        {
+            instance_ = instance;
+            _addr = addr;
+            _mcastInterface = mcastInterface;
+            _mcastTtl = mcastTtl;
+            _protocolMajor = protocolMajor;
+            _protocolMinor = protocolMinor;
+            _encodingMajor = encodingMajor;
+            _encodingMinor = encodingMinor;
+            _connectionId = connectionId;
+
+            _hashCode = _addr.GetHashCode();
+            _hashCode = 5 * _hashCode + _mcastInterface.GetHashCode();
+            _hashCode = 5 * _hashCode + _mcastTtl.GetHashCode();
+            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return CompareTo(obj) == 0;
+        }
+
+        public override string ToString()
+        {
+            return Network.addrToString(_addr);
+        }
+
+        public override int GetHashCode()
+        {
+            return _hashCode;
+        }
+
         private Instance instance_;
         private IPEndPoint _addr;
         private string _mcastInterface;
@@ -176,7 +158,5 @@ namespace IceInternal
         private byte _encodingMinor;
         private string _connectionId;
         private int _hashCode;
-
     }
-
 }

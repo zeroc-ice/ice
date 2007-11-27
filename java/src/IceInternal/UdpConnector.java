@@ -11,18 +11,23 @@ package IceInternal;
 
 final class UdpConnector implements Connector, java.lang.Comparable
 {
-    final static short TYPE = 3;
-
     public Transceiver
     connect(int timeout)
     {
         return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
     }
 
+    public java.nio.channels.SelectableChannel
+    fd()
+    {
+        assert(false); // Shouldn't be called, startConnect always completes immediately.
+        return null;
+    }
+
     public short
     type()
     {
-        return TYPE;
+        return UdpEndpointI.TYPE;
     }
 
     public String
@@ -35,21 +40,6 @@ final class UdpConnector implements Connector, java.lang.Comparable
     hashCode()
     {
         return _hashCode;
-    }
-
-    final public boolean
-    equivalent(String host, int port)
-    {
-        java.net.InetSocketAddress addr; 
-        try
-        {
-            addr = Network.getAddress(host, port);
-        }
-        catch(Ice.DNSException ex)
-        {
-            return false;
-        }
-        return addr.equals(_addr);
     }
 
     //

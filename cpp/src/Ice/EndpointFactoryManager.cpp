@@ -66,8 +66,6 @@ IceInternal::EndpointFactoryManager::get(Short type) const
 EndpointIPtr
 IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) const
 {
-    IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
-
     const string delim = " \t\n\r";
 
     string::size_type beg = str.find_first_not_of(delim);
@@ -91,30 +89,40 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         protocol = _instance->defaultsAndOverrides()->defaultProtocol;
     }
 
-    //
-    // TODO: Optimize with a map?
-    //
-    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    EndpointFactoryPtr factory;
     {
-        if(_factories[i]->protocol() == protocol)
+        IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
+        
+        //
+        // TODO: Optimize with a map?
+        //
+        for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
         {
-#if 1
-            return _factories[i]->create(str.substr(end), oaEndpoint);
-#else
-            // Code below left in place for debugging.
-
-            EndpointIPtr e = _factories[i]->create(str.substr(end), oaEndpoint);
-            BasicStream bs(_instance.get());
-            e->streamWrite(&bs);
-            bs.i = bs.b.begin();
-            short type;
-            bs.read(type);
-            EndpointIPtr ue = new IceInternal::UnknownEndpointI(type, &bs);
-            cerr << "Normal: " << e->toString() << endl;
-            cerr << "Opaque: " << ue->toString() << endl;
-            return e;
-#endif
+            if(_factories[i]->protocol() == protocol)
+            {
+                factory = _factories[i];
+            }
         }
+    }
+
+    if(factory)
+    {
+#if 1
+        return factory->create(str.substr(end), oaEndpoint);
+#else
+        // Code below left in place for debugging.
+        
+        EndpointIPtr e = factory->create(str.substr(end), oaEndpoint);
+        BasicStream bs(_instance.get());
+        e->streamWrite(&bs);
+        bs.i = bs.b.begin();
+        short type;
+        bs.read(type);
+        EndpointIPtr ue = new IceInternal::UnknownEndpointI(type, &bs);
+        cerr << "Normal: " << e->toString() << endl;
+        cerr << "Opaque: " << ue->toString() << endl;
+        return e;
+#endif
     }
 
     //
@@ -124,22 +132,20 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     if(protocol == "opaque")
     {
         EndpointIPtr ue = new UnknownEndpointI(str.substr(end));
-        for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+        factory = get(ue->type());
+        if(factory)
         {
-            if(_factories[i]->type() == ue->type())
-            {
-                //
-                // Make a temporary stream, write the opaque endpoint data into the stream,
-                // and ask the factory to read the endpoint data from that stream to create
-                // the actual endpoint.
-                //
-                BasicStream bs(_instance.get());
-                ue->streamWrite(&bs);
-                bs.i = bs.b.begin();
-                short type;
-                bs.read(type);
-                return _factories[i]->read(&bs);
-            }
+            //
+            // Make a temporary stream, write the opaque endpoint data into the stream,
+            // and ask the factory to read the endpoint data from that stream to create
+            // the actual endpoint.
+            //
+            BasicStream bs(_instance.get());
+            ue->streamWrite(&bs);
+            bs.i = bs.b.begin();
+            short type;
+            bs.read(type);
+            return factory->read(&bs);
         }
         return ue; // Endpoint is opaque, but we don't have a factory for its type.
     }
@@ -150,20 +156,13 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 EndpointIPtr
 IceInternal::EndpointFactoryManager::read(BasicStream* s) const
 {
-    IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
-
     Short type;
     s->read(type);
 
-    //
-    // TODO: Optimize with a map?
-    //
-    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    EndpointFactoryPtr factory = get(type);
+    if(factory)
     {
-        if(_factories[i]->type() == type)
-        {
-            return _factories[i]->read(s);
-        }
+        return factory->read(s);
     }
 
     return new UnknownEndpointI(type, s);

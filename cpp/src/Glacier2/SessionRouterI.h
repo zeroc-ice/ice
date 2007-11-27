@@ -15,6 +15,7 @@
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifierF.h>
 #include <Glacier2/Router.h>
+#include <Glacier2/Instance.h>
 #include <set>
 #include <IceUtil/DisableWarnings.h>
 
@@ -27,28 +28,58 @@ typedef IceUtil::Handle<RouterI> RouterIPtr;
 class SessionRouterI;
 typedef IceUtil::Handle<SessionRouterI> SessionRouterIPtr;
 
-class Authorizer : public IceUtil::Shared
+class FilterManager;
+typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
+
+class CreateSession;
+typedef IceUtil::Handle<CreateSession> CreateSessionPtr;
+    
+class CreateSession : public IceUtil::Shared
 {
 public:
 
-    virtual bool authorize(std::string&, const Ice::Context&) = 0;
-};
-typedef IceUtil::Handle<Authorizer> AuthorizerPtr;
+    CreateSession(const SessionRouterIPtr&, const std::string&, const Ice::Current&, const Ice::Context&);
 
-class SessionFactory : public IceUtil::Shared
-{
-public:
+    void create();
+    void addPendingCallback(const CreateSessionPtr&);
 
-    virtual SessionPrx create(const SessionControlPrx&, const Ice::Context&) = 0;
+    void authorized(bool);
+    void unexpectedAuthorizeException(const Ice::Exception&);
+
+    void sessionCreated(const SessionPrx&);
+    void unexpectedCreateSessionException(const Ice::Exception&);
+
+    void exception(const Ice::Exception&);
+
+    virtual void authorize() = 0;
+    virtual void createSession() = 0;
+    virtual FilterManagerPtr createFilterManager() = 0;
+    virtual void finished(const SessionPrx&) = 0;
+    virtual void finished(const Ice::Exception&) = 0;
+
+protected:
+
+    const InstancePtr _instance;
+    const SessionRouterIPtr _sessionRouter;
+    const std::string _user;
+    const Ice::Current _current;
+    Ice::Context _sslContext;
+    std::vector<CreateSessionPtr> _pendingCallbacks;
+    SessionControlPrx _control;
+    FilterManagerPtr _filterManager;
 };
-typedef IceUtil::Handle<SessionFactory> SessionFactoryPtr;
+
+class UserPasswordCreateSession;
+typedef IceUtil::Handle<UserPasswordCreateSession> UserPasswordCreateSessionPtr;
+
+class SSLCreateSession;
+typedef IceUtil::Handle<SSLCreateSession> SSLCreateSessionPtr;
 
 class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
-                   const PermissionsVerifierPrx&, const SessionManagerPrx&,
+    SessionRouterI(const InstancePtr&, const PermissionsVerifierPrx&, const SessionManagerPrx&,
                    const SSLPermissionsVerifierPrx&, const SSLSessionManagerPrx&);
     virtual ~SessionRouterI();
     void destroy();
@@ -58,8 +89,10 @@ public:
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
-    virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
-    virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
+    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&, 
+                               const Ice::Current&);
+    virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
+                                                         const Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
 
@@ -70,17 +103,19 @@ public:
 
     void destroySession(const ::Ice::ConnectionPtr&);
 
+    int sessionTraceLevel() const { return _sessionTraceLevel; }
+    
 private:
 
-    SessionPrx createSessionInternal(const std::string&, bool, const AuthorizerPtr&, const SessionFactoryPtr&,
-                                     const Ice::Context&, const Ice::Current&);
+    bool startCreateSession(const CreateSessionPtr&, const Ice::ConnectionPtr&);
+    void finishCreateSession(const Ice::ConnectionPtr&, const RouterIPtr&);
+    friend class Glacier2::CreateSession;
+    friend class Glacier2::UserPasswordCreateSession;
+    friend class Glacier2::SSLCreateSession;
 
-    const Ice::PropertiesPtr _properties;
-    const Ice::LoggerPtr _logger;
+    const InstancePtr _instance;
     const int _sessionTraceLevel;
     const int _rejectTraceLevel;
-    const Ice::ObjectAdapterPtr _clientAdapter;
-    const Ice::ObjectAdapterPtr _serverAdapter;
     const PermissionsVerifierPrx _verifier;
     const SessionManagerPrx _sessionManager;
     const SSLPermissionsVerifierPrx _sslVerifier;
@@ -111,7 +146,7 @@ private:
     std::map<std::string, RouterIPtr> _routersByCategory;
     mutable std::map<std::string, RouterIPtr>::iterator _routersByCategoryHint;
 
-    std::set<Ice::ConnectionPtr> _pending;
+    std::map<Ice::ConnectionPtr, CreateSessionPtr> _pending;
 
     bool _destroy;
 };

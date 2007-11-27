@@ -15,6 +15,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(EventHandler* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(ThreadPoolWorkItem* p) { return p; }
 
 InstancePtr
 IceInternal::EventHandler::instance() const

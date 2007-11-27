@@ -28,7 +28,7 @@ public:
     }
     
     virtual void 
-    run()
+    runTimerTask()
     {
         Lock sync(*this);
         ++_count;
@@ -83,6 +83,13 @@ public:
         }
     }
 
+    void 
+    clear()
+    {
+        _run = IceUtil::Time();
+        _count = 0;
+    }
+
 private:
 
     IceUtil::Time _run;
@@ -101,19 +108,20 @@ int main(int argc, char* argv[])
             TestTaskPtr task = new TestTask();
             timer->schedule(task, IceUtil::Time());
             task->waitForRun();
+            task->clear();
 	    while(true)
 	    {
-                TestTaskPtr task = new TestTask();
-		timer->schedule(task, IceUtil::Time::milliSeconds(-10));
 		try
 		{
+                    timer->schedule(task, IceUtil::Time::milliSeconds(-10));
 		    timer->schedule(task, IceUtil::Time());
-		    test(task->hasRun());
 		}
 		catch(const IceUtil::IllegalArgumentException&)
 		{
 		    break;
 		}
+                task->waitForRun();
+                task->clear();
 	    }
         }
 

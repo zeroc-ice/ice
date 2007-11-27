@@ -29,19 +29,21 @@ class RouterI : public Router, public IceUtil::Mutex
 {
 public:
 
-    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ConnectionPtr&, const std::string&,
-            const SessionPrx&, const Ice::Identity&, const FilterManagerPtr&, const Ice::Context& sslContext);
+    RouterI(const InstancePtr&, const Ice::ConnectionPtr&, const std::string&, const SessionPrx&, const Ice::Identity&,
+            const FilterManagerPtr&, const Ice::Context&);
             
     virtual ~RouterI();
-    void destroy();
+    void destroy(const AMI_Session_destroyPtr&);
 
-    virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
-    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
+    virtual Ice::ObjectPrx getClientProxy(const Ice::Current& = Ice::Current()) const;
+    virtual Ice::ObjectPrx getServerProxy(const Ice::Current& = Ice::Current()) const;
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
-    virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
-    virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
+    virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&, 
+                                     const Ice::Current&);
+    virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
+                                                         const Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
 
@@ -56,12 +58,11 @@ public:
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
+    const InstancePtr _instance;
     const Ice::ObjectPrx _clientProxy;
     const Ice::ObjectPrx _serverProxy;
     const ClientBlobjectPtr _clientBlobject;
     const ServerBlobjectPtr _serverBlobject;
-    const Ice::ObjectAdapterPtr _serverAdapter;
     const Ice::ConnectionPtr _connection;
     const std::string _userId;
     const SessionPrx _session;

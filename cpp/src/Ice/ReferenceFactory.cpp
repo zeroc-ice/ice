@@ -623,8 +623,7 @@ IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix
         }
         else
         {
-            ref = ref->changeRouter(
-                RouterPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+            ref = ref->changeRouter(RouterPrx::uncheckedCast(_communicator->propertyToProxy(property)));
         }
     }
 

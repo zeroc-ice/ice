@@ -46,7 +46,7 @@ public:
     // Read data via the event handler. May only be called if
     // readable() returns true.
     //
-    virtual void read(BasicStream&) = 0;
+    virtual bool read(BasicStream&) = 0;
 
     //
     // A complete message has been received.
@@ -77,13 +77,19 @@ protected:
 
     const InstancePtr _instance;
 
-private:
-
     //
-    // The _stream data member is for use by ThreadPool only
+    // The _stream data member is for use by ThreadPool or by the
+    // connection for connection validation only.
     //
     BasicStream _stream;
     friend class ThreadPool;
+};
+
+class ThreadPoolWorkItem : virtual public IceUtil::Shared
+{
+public:
+    
+    virtual void execute(const ThreadPoolPtr&) = 0;
 };
 
 }

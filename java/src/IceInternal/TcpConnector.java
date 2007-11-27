@@ -11,8 +11,6 @@ package IceInternal;
 
 final class TcpConnector implements Connector, java.lang.Comparable
 {
-    final static short TYPE = 1;
-
     public Transceiver
     connect(int timeout)
     {
@@ -25,21 +23,22 @@ final class TcpConnector implements Connector, java.lang.Comparable
         java.nio.channels.SocketChannel fd = Network.createTcpSocket();
         Network.setBlock(fd, false);
         Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
-        Network.doConnect(fd, _addr, timeout);
-
-        if(_traceLevels.network >= 1)
+        boolean connected = Network.doConnect(fd, _addr, timeout);
+        if(connected)
         {
-            String s = "tcp connection established\n" + Network.fdToString(fd);
-            _logger.trace(_traceLevels.networkCat, s);
+            if(_traceLevels.network >= 1)
+            {
+                String s = "tcp connection established\n" + Network.fdToString(fd);
+                _logger.trace(_traceLevels.networkCat, s);
+            }
         }
-
-        return new TcpTransceiver(_instance, fd);
+        return new TcpTransceiver(_instance, fd, connected);
     }
 
     public short
     type()
     {
-        return TYPE;
+        return TcpEndpointI.TYPE;
     }
 
     public String
@@ -52,21 +51,6 @@ final class TcpConnector implements Connector, java.lang.Comparable
     hashCode()
     {
         return _hashCode;
-    }
-
-    public final boolean
-    equivalent(String host, int port)
-    {
-        java.net.InetSocketAddress addr;
-        try
-        {
-            addr = Network.getAddress(host, port);
-        }
-        catch(Ice.DNSException ex)
-        {
-            return false;
-        }
-        return addr.equals(_addr);
     }
 
     //
@@ -148,6 +132,13 @@ final class TcpConnector implements Connector, java.lang.Comparable
 
         return Network.compareAddress(_addr, p._addr);
     } 
+
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        super.finalize();
+    }
 
     private Instance _instance;
     private TraceLevels _traceLevels;

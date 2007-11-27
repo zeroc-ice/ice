@@ -29,12 +29,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     derived->opDerived();
     cout << "ok" << endl;
 
+    cout << "testing oneway operations... " << flush;
+    void oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+    oneways(communicator, cl);
+    cout << "ok" << endl;
+
     if(!collocated)
     {
         cout << "testing twoway operations with AMI... " << flush;
         void twowaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
         twowaysAMI(communicator, cl);
         twowaysAMI(communicator, derived);
+        cout << "ok" << endl;
+
+        cout << "testing oneway operations with AMI... " << flush;
+        void onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+        onewaysAMI(communicator, cl);
         cout << "ok" << endl;
 
         cout << "testing batch oneway operations... " << flush;

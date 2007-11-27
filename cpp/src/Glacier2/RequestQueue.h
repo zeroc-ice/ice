@@ -20,8 +20,8 @@ namespace Glacier2
 class Request;
 typedef IceUtil::Handle<Request> RequestPtr;
 
-class RequestQueue;
-typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;
+class RequestQueueThread;
+typedef IceUtil::Handle<RequestQueueThread> RequestQueueThreadPtr;
 
 class Request : public IceUtil::Shared
 {
@@ -30,10 +30,9 @@ public:
     Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
             const Ice::Context&, const Ice::AMD_Array_Object_ice_invokePtr&);
     
-    bool invoke(const RequestQueuePtr&);
+    bool invoke();
     bool override(const RequestPtr&) const;
-    bool isBatch() const;
-    Ice::ConnectionPtr getConnection() const;
+    const Ice::ObjectPrx& getProxy() const { return _proxy; }
 
 private:
 
@@ -46,47 +45,42 @@ private:
     const Ice::AMD_Array_Object_ice_invokePtr _amdCB;
 };
 
-class Response : public IceUtil::Shared
+class RequestQueue : public IceUtil::Mutex, public IceUtil::Shared
 {
 public:
 
-    Response(const Ice::AMD_Array_Object_ice_invokePtr&, bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&);
-    Response(const Ice::AMD_Array_Object_ice_invokePtr&, const Ice::Exception&);
+    RequestQueue(const RequestQueueThreadPtr&);
 
-    void invoke();
-    
-private:
-
-    const Ice::AMD_Array_Object_ice_invokePtr _amdCB;
-    const bool _ok;
-    const Ice::ByteSeq _outParams;
-    const std::auto_ptr<Ice::Exception> _exception;
-};
-
-class Response;
-typedef IceUtil::Handle<Response> ResponsePtr;
-
-class RequestQueue : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    RequestQueue(const IceUtil::Time&);
-    virtual ~RequestQueue();
-    
-    void destroy();
     bool addRequest(const RequestPtr&);
-    void addResponse(const ResponsePtr&);
+    void flushRequests(std::set<Ice::ObjectPrx>&);
+
+private:
+    
+    const RequestQueueThreadPtr _requestQueueThread;
+    std::vector<RequestPtr> _requests;
+};
+typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;
+
+
+class RequestQueueThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    RequestQueueThread(const IceUtil::Time&);
+    virtual ~RequestQueueThread();
+
+    void flushRequestQueue(const RequestQueuePtr&);
+    void destroy();
 
     virtual void run();
 
 private:
 
     const IceUtil::Time _sleepTime;
-    std::vector<RequestPtr> _requests;
-    std::vector<ResponsePtr> _responses;
     bool _destroy;
     bool _sleep;
     IceUtil::Time _sleepDuration;
+    std::vector<RequestQueuePtr> _queues;
 };
 
 }

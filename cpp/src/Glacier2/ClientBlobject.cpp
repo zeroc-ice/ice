@@ -16,14 +16,14 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
+Glacier2::ClientBlobject::ClientBlobject(const InstancePtr& instance,
                                          const FilterManagerPtr& filters,
                                          const Ice::Context& sslContext):
                                          
-    Glacier2::Blobject(communicator, false, sslContext),
-    _routingTable(new RoutingTable(communicator)),
+    Glacier2::Blobject(instance, false, sslContext),
+    _routingTable(new RoutingTable(_instance->communicator())),
     _filters(filters),
-    _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
+    _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
 }
 
@@ -117,9 +117,9 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
     {
         if(_rejectTraceLevel >= 1)
         {
-            Trace out(_logger, "Glacier2");
+            Trace out(_instance->logger(), "Glacier2");
             out << "rejecting request: " << rejectedFilters << "\n";
-            out << "identity: " << _communicator->identityToString(current.id);
+            out << "identity: " << _instance->communicator()->identityToString(current.id);
         }
 
         ObjectNotExistException ex(__FILE__, __LINE__);

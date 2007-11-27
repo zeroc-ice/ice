@@ -116,7 +116,7 @@ public class DirectReference extends RoutableReference
         return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
                                                        getSecure(), getPreferSecure(), newAdapterId, getRouterInfo(),
                                                        locatorInfo, getCollocationOptimization(), getCacheConnection(),
-                                                       getEndpointSelection(), getThreadPerConnection(),
+                                                       getEndpointSelection(), getThreadPerConnection(), 
                                                        getLocatorCacheTimeout());
     }
 
@@ -188,28 +188,57 @@ public class DirectReference extends RoutableReference
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder comp)
     {
-        EndpointI[] endpts = super.getRoutedEndpoints();
-        applyOverrides(endpts);
-
-        if(endpts.length == 0)
-        {
-            endpts = _endpoints; // Endpoint overrides are already applied on these endpoints.
-        }
-
-        Ice.ConnectionI connection = createConnection(endpts, comp);
-
-        //
-        // If we have a router, set the object adapter for this router
-        // (if any) to the new connection, so that callbacks from the
-        // router can be received over this new connection.
-        //
         if(getRouterInfo() != null)
         {
-            connection.setAdapter(getRouterInfo().getAdapter());
+            //
+            // If we route, we send everything to the router's client
+            // proxy endpoints.
+            //
+            EndpointI[] endpts = getRouterInfo().getClientEndpoints();
+            if(endpts.length > 0)
+            {
+                applyOverrides(endpts);
+                return createConnection(endpts, comp);
+            }
         }
 
-        assert(connection != null);
-        return connection;
+        return createConnection(_endpoints, comp);
+    }
+
+    public void
+    getConnection(final GetConnectionCallback callback)
+    {
+        if(getRouterInfo() != null)
+        {
+            //
+            // If we route, we send everything to the router's client
+            // proxy endpoints.
+            //
+            getRouterInfo().getClientEndpoints(new RouterInfo.GetClientEndpointsCallback()
+                {
+                    public void
+                    setEndpoints(EndpointI[] endpts)
+                    {
+                        if(endpts.length > 0)
+                        {
+                            applyOverrides(endpts);
+                            createConnection(endpts, callback);
+                            return;
+                        }
+
+                        createConnection(_endpoints, callback);
+                    }
+
+                    public void
+                    setException(Ice.LocalException ex)
+                    {
+                        callback.setException(ex);
+                    }
+                });
+            return;
+        }
+
+        createConnection(_endpoints, callback);
     }
 
     public boolean

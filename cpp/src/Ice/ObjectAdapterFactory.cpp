@@ -79,7 +79,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
         _waitForShutdown = true;
         adapters = _adapters;
     }
-    
+
     //
     // Now we wait for deactivation of each object adapter.
     //

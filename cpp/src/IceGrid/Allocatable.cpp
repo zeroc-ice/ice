@@ -107,7 +107,7 @@ AllocationRequest::cancel(const AllocationException& ex)
 }
 
 void
-AllocationRequest::run() // TimerTask::run() method implementation
+AllocationRequest::runTimerTask() // TimerTask::runTimerTask() method implementation
 {
     Lock sync(*this);
     switch(_state)

@@ -50,6 +50,7 @@ tests = [
     "Ice/custom",
     "Ice/retry",
     "Ice/timeout",
+    "Ice/background",
     "Ice/servantLocator",
     "Ice/threads",
     "Ice/interceptor",

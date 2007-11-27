@@ -238,10 +238,16 @@ final class UnknownEndpointI extends EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public java.util.ArrayList
+    public java.util.List
     connectors()
     {
         return new java.util.ArrayList();
+    }
+
+    public void
+    connectors_async(EndpointI_connectors callback)
+    {
+        callback.connectors(new java.util.ArrayList());
     }
 
     //
@@ -262,7 +268,7 @@ final class UnknownEndpointI extends EndpointI
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //
-    public java.util.ArrayList
+    public java.util.List
     expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
@@ -271,10 +277,10 @@ final class UnknownEndpointI extends EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific Conenctor.
+    // Check whether the endpoint is equivalent to another one.
     //
     public boolean
-    equivalent(Connector connector)
+    equivalent(EndpointI endpoint)
     {
         return false;
     }

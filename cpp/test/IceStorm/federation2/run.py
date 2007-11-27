@@ -298,6 +298,11 @@ sys.stdout.flush()
 onewayStatus = doTest(0, iceStormReference)
 print "ok"
 
+#
+# Give some time for the error to be reported
+#
+time.sleep(2)
+
 if onewayStatus or expectorThread.matches(index) != 1:
     TestUtil.killServers()
     sys.exit(1)

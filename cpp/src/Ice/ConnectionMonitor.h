@@ -36,7 +36,7 @@ private:
     virtual ~ConnectionMonitor();
     friend class Instance;
 
-    virtual void run();
+    virtual void runTimerTask();
 
     InstancePtr _instance;
     std::set<Ice::ConnectionIPtr> _connections;

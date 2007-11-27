@@ -11,8 +11,8 @@ package IceInternal;
 
 interface TimerTask
 {
-    void run();
-};
+    void runTimerTask();
+}
 
 public final class Timer extends Thread
 {
@@ -224,7 +224,7 @@ public final class Timer extends Thread
             {
                 try
                 {
-                    token.task.run();
+                    token.task.runTimerTask();
                 }
                 catch(Exception ex)
                 {

@@ -40,9 +40,10 @@ public:
     virtual bool unknown() const;
     virtual IceInternal::TransceiverPtr transceiver(IceInternal::EndpointIPtr&) const;
     virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
+    virtual void connectors_async(const IceInternal::EndpointI_connectorsPtr&) const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;
-    virtual bool equivalent(const IceInternal::ConnectorPtr&) const;
+    virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
     virtual bool operator==(const IceInternal::EndpointI&) const;
     virtual bool operator!=(const IceInternal::EndpointI&) const;
@@ -50,6 +51,8 @@ public:
 
 private:
 
+    virtual std::vector<IceInternal::ConnectorPtr> connectors(const std::vector<struct sockaddr_in>&) const;
+    
 #if defined(__SUNPRO_CC)
     //
     // COMPILERFIX: prevent the compiler from emitting a warning about

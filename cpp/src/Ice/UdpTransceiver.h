@@ -36,11 +36,11 @@ public:
     virtual void close();
     virtual void shutdownWrite();
     virtual void shutdownReadWrite();
-    virtual void write(Buffer&, int);
-    virtual void read(Buffer&, int);
+    virtual bool write(Buffer&, int);
+    virtual bool read(Buffer&, int);
     virtual std::string type() const;
     virtual std::string toString() const;
-    virtual void initialize(int);
+    virtual SocketStatus initialize(int);
     virtual void checkSendSize(const Buffer&, size_t);
 
     int effectivePort() const;

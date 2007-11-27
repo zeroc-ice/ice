@@ -32,15 +32,16 @@ IceInternal::TcpConnector::connect(int timeout)
     SOCKET fd = createSocket(false);
     setBlock(fd, false);
     setTcpBufSize(fd, _instance->initializationData().properties, _logger);
-    doConnect(fd, _addr, timeout);
-
-    if(_traceLevels->network >= 1)
+    bool connected = doConnect(fd, _addr, timeout);
+    if(connected)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "tcp connection established\n" << fdToString(fd);
+        if(_traceLevels->network >= 1)
+        {
+            Trace out(_logger, _traceLevels->networkCat);
+            out << "tcp connection established\n" << fdToString(fd);
+        }
     }
-
-    return new TcpTransceiver(_instance, fd);
+    return new TcpTransceiver(_instance, fd, connected);
 }
 
 Short
@@ -116,21 +117,6 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
     }
 
     return compareAddress(_addr, p->_addr) == -1;
-}
-
-bool
-IceInternal::TcpConnector::equivalent(const string& host, int port) const
-{
-    struct sockaddr_in addr;
-    try
-    {
-        getAddress(host, port, addr);
-    }
-    catch(const DNSException&)
-    {
-        return false;
-    }
-    return compareAddress(addr, _addr) == 0;
 }
 
 IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_in& addr, Ice::Int timeout,

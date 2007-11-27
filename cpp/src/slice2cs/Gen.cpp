@@ -3100,7 +3100,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << "checkTwowayOnly__(\"" << op->name() << "\");";
         }
-        _out << nl << "delBase__ = getDelegate__();";
+        _out << nl << "delBase__ = getDelegate__(false);";
         _out << nl << name << "Del_ del__ = (" << name << "Del_)delBase__;";
         _out << nl;
         if(ret)
@@ -3834,9 +3834,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
              << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
         _out << sb;
 
-        _out << nl << "IceInternal.Outgoing og__ = getOutgoing(\"" << op->name() << "\", " 
-             << sliceModeToIceMode(op->sendMode())
-             << ", context__);";
+        _out << nl << "IceInternal.Outgoing og__ = handler__.getOutgoing(\"" << op->name() << "\", " 
+             << sliceModeToIceMode(op->sendMode()) << ", context__);";
         _out << nl << "try";
         _out << sb;
         if(!inParams.empty())
@@ -3979,7 +3978,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
         _out << nl << "finally";
         _out << sb;
-        _out << nl << "reclaimOutgoing(og__);";
+        _out << nl << "handler__.reclaimOutgoing(og__);";
         _out << eb;
         _out << eb;
     }
@@ -4411,8 +4410,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << sb;
         _out << nl << "try";
         _out << sb;
-        _out << nl << "prepare__(prx__, \"" << name << "\", " << sliceModeToIceMode(p->sendMode()) 
-             << ", ctx__);";
+        if(p->returnsData())
+        {
+            _out << nl << "((Ice.ObjectPrxHelperBase)prx__).checkTwowayOnly__(\"" << p->name() << "\");";
+        }
+        _out << nl << "prepare__(prx__, \"" << name << "\", " << sliceModeToIceMode(p->sendMode()) << ", ctx__);";
         for(q = inParams.begin(); q != inParams.end(); ++q)
         {
             string typeS = typeToString(q->first);

@@ -84,8 +84,8 @@ namespace IceInternal
                 // Create new reference
                 //
                 IndirectReference @ref = new IndirectReference(instance_,  _communicator, ident, context, facet, mode,
-                                                               secure, preferSecure, adapterId, routerInfo, locatorInfo,
-                                                               collocationOptimization, cacheConnection,
+                                                               secure, preferSecure, adapterId, routerInfo,
+                                                               locatorInfo, collocationOptimization, cacheConnection,
                                                                endpointSelection, threadPerConnection,
                                                                locatorCacheTimeout);
                 return updateCache(@ref);
@@ -590,7 +590,8 @@ namespace IceInternal
                 }
                 else
                 {
-                    @ref = @ref.changeRouter(Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+                    @ref = @ref.changeRouter(
+                        Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
                 }
             }
 

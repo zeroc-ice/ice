@@ -242,9 +242,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing AMI read timeout... " << flush;
     {
         //
-        // The resolution of AMI timeouts is limited by the connection monitor
-        // thread. We set Ice.MonitorConnections=1 (one second) in main().
-        //
         // Expect TimeoutException.
         //
         TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(500));
@@ -266,9 +263,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing AMI write timeout... " << flush;
     {
-        //
-        // The resolution of AMI timeouts is limited by the connection monitor
-        // thread. We set Ice.MonitorConnections=1 (one second) in main().
         //
         // Expect TimeoutException.
         //

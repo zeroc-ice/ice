@@ -163,23 +163,38 @@ public class IndirectReference extends RoutableReference
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder comp)
     {
-        Ice.ConnectionI connection;
+        if(getRouterInfo() != null)
+        {
+            //
+            // If we route, we send everything to the router's client
+            // proxy endpoints.
+            //
+            EndpointI[] endpts = getRouterInfo().getClientEndpoints();
+            if(endpts.length > 0)
+            {
+                applyOverrides(endpts);
+                return createConnection(endpts, comp);
+            }
+        }
 
         while(true)
         {
-            EndpointI[] endpts = super.getRoutedEndpoints();
             Ice.BooleanHolder cached = new Ice.BooleanHolder(false);
-            if(endpts.length == 0 && _locatorInfo != null)
+            EndpointI[] endpts = null;
+            if(_locatorInfo != null)
             {
                 endpts = _locatorInfo.getEndpoints(this, _locatorCacheTimeout, cached);
+                applyOverrides(endpts);
             }
 
-            applyOverrides(endpts);
+            if(endpts == null || endpts.length == 0)
+            {
+                throw new Ice.NoEndpointException(toString());
+            }
 
             try
             {
-                connection = createConnection(endpts, comp);
-                assert(connection != null);
+                return createConnection(endpts, comp);
             }
             catch(Ice.NoEndpointException ex)
             {
@@ -187,44 +202,132 @@ public class IndirectReference extends RoutableReference
             }
             catch(Ice.LocalException ex)
             {
-                if(getRouterInfo() == null)
+                assert(_locatorInfo != null);
+                _locatorInfo.clearCache(this);
+                if(cached.value) 
                 {
-                    assert(_locatorInfo != null);
-                    _locatorInfo.clearCache(this);
-
-                    if(cached.value)
+                    TraceLevels traceLevels = getInstance().traceLevels();
+                    if(traceLevels.retry >= 2)
                     {
-                        TraceLevels traceLevels = getInstance().traceLevels();
-                        
-                        if(traceLevels.retry >= 2)
-                        {
-                            String s = "connection to cached endpoints failed\n" +
-                                       "removing endpoints from cache and trying one more time\n" + ex;
-                            getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
-                        }
-                        
-                        continue;
+                        String s = "connection to cached endpoints failed\n" +
+                            "removing endpoints from cache and trying one more time\n" + ex;
+                        getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
                     }
+                    continue; // Try again if the endpoints were cached.
                 }
-
                 throw ex;
             }
-
-            break;
         }
+    }
 
-        //
-        // If we have a router, set the object adapter for this router
-        // (if any) to the new connection, so that callbacks from the
-        // router can be received over this new connection.
-        //
+    public void
+    getConnection(final GetConnectionCallback callback)
+    {
         if(getRouterInfo() != null)
         {
-            connection.setAdapter(getRouterInfo().getAdapter());
-        }
+            //
+            // If we route, we send everything to the router's client
+            // proxy endpoints.
+            //
+            getRouterInfo().getClientEndpoints(new RouterInfo.GetClientEndpointsCallback()
+                {
+                    public void
+                    setEndpoints(EndpointI[] endpts)
+                    {
+                        if(endpts.length > 0)
+                        {
+                            applyOverrides(endpts);
+                            createConnection(endpts, callback);
+                        }
+                        else
+                        {
+                            getConnectionNoRouterInfo(callback);
+                        }
+                    }
 
-        assert(connection != null);
-        return connection;
+                    public void
+                    setException(Ice.LocalException ex)
+                    {
+                        callback.setException(ex);
+                    }
+                });
+        }
+        else
+        {
+            getConnectionNoRouterInfo(callback);
+        }
+    }
+
+    private void
+    getConnectionNoRouterInfo(final GetConnectionCallback callback)
+    {
+        final IndirectReference self = this;
+        if(_locatorInfo != null)
+        {
+            _locatorInfo.getEndpoints(this, _locatorCacheTimeout, new LocatorInfo.GetEndpointsCallback()
+            {
+                public void
+                setEndpoints(EndpointI[] endpoints, final boolean cached)
+                {
+                    if(endpoints.length == 0)
+                    {
+                        callback.setException(new Ice.NoEndpointException(self.toString()));
+                        return;
+                    }
+                        
+                    applyOverrides(endpoints);
+                    createConnection(endpoints, new GetConnectionCallback()
+                    {
+                        public void
+                        setConnection(Ice.ConnectionI connection, boolean compress)
+                        {
+                            callback.setConnection(connection, compress);
+                        }
+                        
+                        public void
+                        setException(Ice.LocalException exc)
+                        {
+                            try
+                            {
+                                throw exc;
+                            }
+                            catch(Ice.NoEndpointException ex)
+                            {
+                                callback.setException(ex); // No need to retry if there's no endpoints.
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                assert(_locatorInfo != null);
+                                _locatorInfo.clearCache(self);
+                                if(cached)
+                                {
+                                    TraceLevels traceLvls = getInstance().traceLevels();
+                                    if(traceLvls.retry >= 2)
+                                    {
+                                        String s = "connection to cached endpoints failed\n" +
+                                            "removing endpoints from cache and trying one more time\n" + ex;
+                                        getInstance().initializationData().logger.trace(traceLvls.retryCat, s);
+                                    }
+                                    getConnectionNoRouterInfo(callback); // Retry.
+                                    return;
+                                }
+                                callback.setException(ex);
+                            }
+                        }
+                        });
+                }
+                
+                public void
+                setException(Ice.LocalException ex)
+                {
+                    callback.setException(ex);
+                }
+            });
+        }
+        else
+        {
+            callback.setException(new Ice.NoEndpointException(toString()));
+        }
     }
 
     public synchronized int

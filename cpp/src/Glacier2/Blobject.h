@@ -12,6 +12,7 @@
 
 #include <Ice/Ice.h>
 #include <Glacier2/RequestQueue.h>
+#include <Glacier2/Instance.h>
 
 namespace Glacier2
 {
@@ -20,25 +21,20 @@ class Blobject : public Ice::BlobjectArrayAsync
 {
 public:
     
-    Blobject(const Ice::CommunicatorPtr&, bool, const Ice::Context&);
+    Blobject(const InstancePtr&, bool, const Ice::Context&);
     virtual ~Blobject();
-
-    virtual void destroy();
 
 protected:
 
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Array_Object_ice_invokePtr&, 
                 const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
 
-    const Ice::CommunicatorPtr _communicator;
-    const Ice::PropertiesPtr _properties;
-    const Ice::LoggerPtr _logger;
+    const InstancePtr _instance;
 
 private:
 
     const bool _reverse;
     const bool _forwardContext;
-    const bool _buffered;
     const bool _alwaysBatch;
     const int _requestTraceLevel;
     const int _overrideTraceLevel;

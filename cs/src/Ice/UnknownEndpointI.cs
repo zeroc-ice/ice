@@ -11,6 +11,7 @@ namespace IceInternal
 {
 
     using System.Collections;
+    using System.Collections.Generic;
 
     sealed class UnknownEndpointI : EndpointI
     {
@@ -225,16 +226,21 @@ namespace IceInternal
             endpoint = null;
             return null;
         }
-        
+
         //
         // Return connectors for this endpoint, or empty list if no connector
         // is available.
         //
-        public override ArrayList connectors()
+        public override List<Connector> connectors()
         {
-            return new ArrayList();
+            return new List<Connector>();
         }
-        
+
+        public override void connectors_async(EndpointI_connectors callback)
+        {
+            callback.connectors(new List<Connector>());
+        }
+
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available. In case an acceptor is created, this operation
@@ -252,18 +258,18 @@ namespace IceInternal
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY.
         //
-        public override ArrayList
+        public override List<EndpointI>
         expand()
         {
-            ArrayList endps = new ArrayList();
+            List<EndpointI> endps = new List<EndpointI>();
             endps.Add(this);
             return endps;
         }
         
         //
-        // Check whether the endpoint is equivalent to a specific Connector.
+        // Check whether the endpoint is equivalent to another one.
         //
-        public override bool equivalent(Connector connector)
+        public override bool equivalent(EndpointI endpoint)
         {
             return false;
         }

@@ -480,14 +480,13 @@ IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::UdpEndpointI::connectors() const
 {
-    vector<ConnectorPtr> connectors;
-    vector<struct sockaddr_in> addresses = getAddresses(_host, _port);
-    for(unsigned int i = 0; i < addresses.size(); ++i)
-    {
-        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _protocolMajor,
-                                              _protocolMinor, _encodingMajor, _encodingMinor, _connectionId));
-    }
-    return connectors;
+    return connectors(getAddresses(_host, _port));
+}
+
+void
+IceInternal::UdpEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+{
+    _instance->endpointHostResolver()->resolve(_host, _port, const_cast<UdpEndpointI*>(this), callback);
 }
 
 AcceptorPtr
@@ -522,14 +521,14 @@ IceInternal::UdpEndpointI::expand() const
 }
 
 bool
-IceInternal::UdpEndpointI::equivalent(const ConnectorPtr& connector) const
+IceInternal::UdpEndpointI::equivalent(const EndpointIPtr& endpoint) const
 {
-    const UdpConnector* udpConnector = dynamic_cast<const UdpConnector*>(connector.get());
-    if(!udpConnector)
+    const UdpEndpointI* udpEndpointI = dynamic_cast<const UdpEndpointI*>(endpoint.get());
+    if(!udpEndpointI)
     {
         return false;
     }
-    return udpConnector->equivalent(_host, _port);
+    return udpEndpointI->_host == _host && udpEndpointI->_port == _port;
 }
 
 bool
@@ -724,6 +723,18 @@ IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
     }
 
     return false;
+}
+
+vector<ConnectorPtr>
+IceInternal::UdpEndpointI::connectors(const vector<struct sockaddr_in>& addresses) const
+{
+    vector<ConnectorPtr> connectors;
+    for(unsigned int i = 0; i < addresses.size(); ++i)
+    {
+        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _protocolMajor,
+                                              _protocolMinor, _encodingMajor, _encodingMinor, _connectionId));
+    }
+    return connectors;
 }
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const InstancePtr& instance)

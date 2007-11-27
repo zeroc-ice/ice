@@ -91,7 +91,7 @@ interface Locator
      * be found.
      *
      **/
-    ["amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id)
+    ["ami", "amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id)
         throws ObjectNotFoundException;
 
     /**
@@ -107,7 +107,7 @@ interface Locator
      * found.
      *
      **/
-    ["amd", "nonmutating", "cpp:const"] idempotent Object* findAdapterById(string id)
+    ["ami", "amd", "nonmutating", "cpp:const"] idempotent Object* findAdapterById(string id)
         throws AdapterNotFoundException;
 
     /**

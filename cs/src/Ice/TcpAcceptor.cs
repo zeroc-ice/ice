@@ -72,7 +72,7 @@ namespace IceInternal
                 _logger.trace(_traceLevels.networkCat, s);
             }
             
-            return new TcpTransceiver(instance_, fd);
+            return new TcpTransceiver(instance_, fd, true);
         }
 
         public virtual void connectToSelf()

@@ -32,7 +32,8 @@ SUBDIRS         = application \
                   interceptor \
 		  threads \
                   dictMapping \
-                  seqMapping
+                  seqMapping \
+                  background
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

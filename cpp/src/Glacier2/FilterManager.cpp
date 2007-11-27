@@ -109,13 +109,14 @@ Glacier2::FilterManager::~FilterManager()
 void 
 Glacier2::FilterManager::destroy()
 {
-    if(_adapter)
+    Ice::ObjectAdapterPtr adapter = _instance->serverObjectAdapter();
+    if(adapter)
     {
         try
         {
             if(_categoriesPrx)
             {
-                _adapter->remove(_categoriesPrx->ice_getIdentity());
+                adapter->remove(_categoriesPrx->ice_getIdentity());
             }
         }
         catch(const Exception&)
@@ -125,7 +126,7 @@ Glacier2::FilterManager::destroy()
         {
             if(_adapterIdsPrx)
             {
-                _adapter->remove(_adapterIdsPrx->ice_getIdentity());
+                adapter->remove(_adapterIdsPrx->ice_getIdentity());
             }
         }
         catch(const Exception&)
@@ -135,7 +136,7 @@ Glacier2::FilterManager::destroy()
         {
             if(_identitiesPrx)
             {
-                _adapter->remove(_identitiesPrx->ice_getIdentity());
+                adapter->remove(_identitiesPrx->ice_getIdentity());
             }
         }
         catch(const Exception&)
@@ -144,21 +145,22 @@ Glacier2::FilterManager::destroy()
     }
 }
 
-Glacier2::FilterManager::FilterManager(const ObjectAdapterPtr& adapter, const Glacier2::StringSetIPtr& categories, 
+Glacier2::FilterManager::FilterManager(const InstancePtr& instance, const Glacier2::StringSetIPtr& categories, 
                                        const Glacier2::StringSetIPtr& adapters,
                                        const Glacier2::IdentitySetIPtr& identities) :
     _categories(categories),
     _adapters(adapters),
     _identities(identities),
-    _adapter(adapter)
+    _instance(instance)
 {
     try
     {
-        if(_adapter)
+        Ice::ObjectAdapterPtr adapter = _instance->serverObjectAdapter();
+        if(adapter)
         {
-            _categoriesPrx = Glacier2::StringSetPrx::uncheckedCast(_adapter->addWithUUID(_categories));
-            _adapterIdsPrx = Glacier2::StringSetPrx::uncheckedCast(_adapter->addWithUUID(_adapters));
-            _identitiesPrx = Glacier2::IdentitySetPrx::uncheckedCast(_adapter->addWithUUID(_identities));
+            _categoriesPrx = Glacier2::StringSetPrx::uncheckedCast(adapter->addWithUUID(_categories));
+            _adapterIdsPrx = Glacier2::StringSetPrx::uncheckedCast(adapter->addWithUUID(_adapters));
+            _identitiesPrx = Glacier2::IdentitySetPrx::uncheckedCast(adapter->addWithUUID(_identities));
         }
     }
     catch(...)
@@ -169,10 +171,9 @@ Glacier2::FilterManager::FilterManager(const ObjectAdapterPtr& adapter, const Gl
 }
 
 Glacier2::FilterManager*
-Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const ObjectAdapterPtr& adapter, const string& userId,
-                                const bool allowAddUser)
+Glacier2::FilterManager::create(const InstancePtr& instance, const string& userId, const bool allowAddUser)
 {
-    PropertiesPtr props = communicator->getProperties();
+    PropertiesPtr props = instance->properties();
     string allow = props->getProperty("Glacier2.Filter.Category.Accept");
     vector<string> allowSeq;
     stringToSeq(allow, allowSeq);
@@ -211,8 +212,8 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
     // 
     IdentitySeq allowIdSeq;
     allow = props->getProperty("Glacier2.Filter.Identity.Accept");
-    stringToSeq(communicator, allow, allowIdSeq);
+    stringToSeq(instance->communicator(), allow, allowIdSeq);
     Glacier2::IdentitySetIPtr identityFilter = new Glacier2::IdentitySetI(allowIdSeq);
 
-    return new Glacier2::FilterManager(adapter, categoryFilter, adapterIdFilter, identityFilter);
+    return new Glacier2::FilterManager(instance, categoryFilter, adapterIdFilter, identityFilter);
 }

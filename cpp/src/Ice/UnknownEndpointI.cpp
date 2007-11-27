@@ -213,6 +213,12 @@ IceInternal::UnknownEndpointI::connectors() const
     return ret;
 }
 
+void
+IceInternal::UnknownEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+{
+    callback->connectors(vector<ConnectorPtr>());
+}
+
 AcceptorPtr
 IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
@@ -229,7 +235,7 @@ IceInternal::UnknownEndpointI::expand() const
 }
 
 bool
-IceInternal::UnknownEndpointI::equivalent(const ConnectorPtr&) const
+IceInternal::UnknownEndpointI::equivalent(const EndpointIPtr&) const
 {
     return false;
 }

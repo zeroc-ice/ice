@@ -17,20 +17,6 @@ public abstract class RoutableReference extends Reference
         return _routerInfo;
     }
 
-    public final EndpointI[]
-    getRoutedEndpoints()
-    {
-        if(_routerInfo != null)
-        {
-            //
-            // If we route, we send everything to the router's client
-            // proxy endpoints.
-            //
-            return _routerInfo.getClientEndpoints();
-        }
-        return new EndpointI[0];
-    }
-
     public final boolean
     getSecure()
     {
@@ -252,6 +238,7 @@ public abstract class RoutableReference extends Reference
         {
             return false;
         }
+        
         return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
     }
 
@@ -304,8 +291,8 @@ public abstract class RoutableReference extends Reference
         }
     }
 
-    protected Ice.ConnectionI
-    createConnection(EndpointI[] allEndpoints, Ice.BooleanHolder compress)
+    private EndpointI[]
+    filterEndpoints(EndpointI[] allEndpoints)
     {
         java.util.ArrayList endpoints = new java.util.ArrayList();
 
@@ -413,25 +400,30 @@ public abstract class RoutableReference extends Reference
             java.util.Collections.sort(endpoints, _preferNonSecureEndpointComparator);
         }
 
-        if(endpoints.size() == 0)
+        return (EndpointI[])endpoints.toArray(new EndpointI[endpoints.size()]);
+    }
+
+    protected Ice.ConnectionI
+    createConnection(EndpointI[] allEndpoints, Ice.BooleanHolder compress)
+    {
+        EndpointI[] endpoints = filterEndpoints(allEndpoints);
+        if(endpoints.length == 0)
         {
-            Ice.NoEndpointException ex = new Ice.NoEndpointException();
-            ex.proxy = toString();
-            throw ex;
+            throw new Ice.NoEndpointException(toString());
         }
         
         //
         // Finally, create the connection.
         //
         OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-        if(getCacheConnection() || endpoints.size() == 1)
+        Ice.ConnectionI connection = null;
+        if(getCacheConnection() || endpoints.length == 1)
         {
             //
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            return factory.create((EndpointI[])endpoints.toArray(
-                new EndpointI[endpoints.size()]), false, _threadPerConnection, getEndpointSelection(), compress);
+            connection = factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(), compress);
         }
         else
         {
@@ -444,16 +436,16 @@ public abstract class RoutableReference extends Reference
             //
             
             Ice.LocalException exception = null;
-            EndpointI[] endpoint = new EndpointI[1];
-            
-            java.util.Iterator i = endpoints.iterator();
-            while(i.hasNext())
+            EndpointI[] endpoint = new EndpointI[1];            
+            for(int i = 0; i < endpoints.length; ++i)
             {
                 try
                 {
-                    endpoint[0] = (EndpointI)i.next();
-                    return factory.create(endpoint, i.hasNext(), _threadPerConnection, getEndpointSelection(),
-                                          compress);
+                    endpoint[0] = endpoints[i];
+                    final boolean more = i != endpoints.length - 1;
+                    connection = factory.create(endpoint, more, _threadPerConnection, getEndpointSelection(),
+                                                compress);
+                    break;
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -461,8 +453,123 @@ public abstract class RoutableReference extends Reference
                 }
             }
 
-            assert(exception != null);
-            throw exception;
+            if(connection == null)
+            {
+                assert(exception != null);
+                throw exception;
+            }
+        }
+
+        assert(connection != null);
+
+        //        
+        // If we have a router, set the object adapter for this router
+        // (if any) to the new connection, so that callbacks from the
+        // router can be received over this new connection.
+        //
+        if(_routerInfo != null)
+        {
+            connection.setAdapter(_routerInfo.getAdapter());
+        }
+                
+        return connection;
+    }
+
+    protected void
+    createConnection(EndpointI[] allEndpoints, final GetConnectionCallback callback)
+    {
+        final EndpointI[] endpoints = filterEndpoints(allEndpoints);
+        if(endpoints.length == 0)
+        {
+            callback.setException(new Ice.NoEndpointException(toString()));
+            return;
+        }
+        
+        //
+        // Finally, create the connection.
+        //
+        final OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
+        if(getCacheConnection() || endpoints.length == 1)
+        {
+            //
+            // Get an existing connection or create one if there's no
+            // existing connection to one of the given endpoints.
+            //
+            factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(), 
+                           new OutgoingConnectionFactory.CreateConnectionCallback()
+                           {
+                               public void
+                               setConnection(Ice.ConnectionI connection, boolean compress)
+                               {
+                                   //        
+                                   // If we have a router, set the object adapter for this router
+                                   // (if any) to the new connection, so that callbacks from the
+                                   // router can be received over this new connection.
+                                   //
+                                   if(_routerInfo != null)
+                                   {
+                                       connection.setAdapter(_routerInfo.getAdapter());
+                                   }
+                                   callback.setConnection(connection, compress);
+                               }
+                               
+                               public void
+                               setException(Ice.LocalException ex)
+                               {
+                                   callback.setException(ex);
+                               }
+                           });
+        }
+        else
+        {
+            //
+            // Go through the list of endpoints and try to create the
+            // connection until it succeeds. This is different from just
+            // calling create() with the given endpoints since this might
+            // create a new connection even if there's an existing
+            // connection for one of the endpoints.
+            //
+            
+            factory.create(new EndpointI[]{ endpoints[0] }, true, _threadPerConnection, getEndpointSelection(), 
+                           new OutgoingConnectionFactory.CreateConnectionCallback()
+                           {
+                               public void
+                               setConnection(Ice.ConnectionI connection, boolean compress)
+                               {
+                                   //        
+                                   // If we have a router, set the object adapter for this router
+                                   // (if any) to the new connection, so that callbacks from the
+                                   // router can be received over this new connection.
+                                   //
+                                   if(_routerInfo != null)
+                                   {
+                                       connection.setAdapter(_routerInfo.getAdapter());
+                                   }
+                                   callback.setConnection(connection, compress);
+                               }
+                               
+                               public void
+                               setException(final Ice.LocalException ex)
+                               {
+                                   if(_exception == null)
+                                   {
+                                       _exception = ex;
+                                   }
+                                   
+                                   if(++_i == endpoints.length)
+                                   {
+                                       callback.setException(_exception);
+                                       return;
+                                   }
+                                   
+                                   final boolean more = _i != endpoints.length - 1;
+                                   final EndpointI[] endpoint = new EndpointI[]{ endpoints[_i] };
+                                   factory.create(endpoint, more, _threadPerConnection, getEndpointSelection(), this);
+                               }
+
+                               private int _i = 0;
+                               private Ice.LocalException _exception = null;
+                           });
         }
     }
 

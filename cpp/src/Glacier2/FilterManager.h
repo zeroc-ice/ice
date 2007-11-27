@@ -14,6 +14,7 @@
 // It'd be better if we didn't have to include this everywhere, but
 // this is the most expeditious approach for now.
 //
+#include <Glacier2/Instance.h>
 #include <Glacier2/FilterI.h>
 #include <Ice/ObjectAdapter.h>
 
@@ -67,7 +68,7 @@ public:
     }
 
     static FilterManager* 
-    create(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const std::string&, const bool);
+    create(const InstancePtr&, const std::string&, const bool);
 
 private:
 
@@ -78,9 +79,9 @@ private:
     const StringSetIPtr _categories;
     const StringSetIPtr _adapters;
     const IdentitySetIPtr _identities;
-    const Ice::ObjectAdapterPtr _adapter;
+    const InstancePtr _instance;
 
-    FilterManager(const Ice::ObjectAdapterPtr& , const StringSetIPtr&, const StringSetIPtr&, const IdentitySetIPtr&);
+    FilterManager(const InstancePtr& , const StringSetIPtr&, const StringSetIPtr&, const IdentitySetIPtr&);
 };
 };
 

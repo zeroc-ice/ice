@@ -11,9 +11,10 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe collocated.exe serveramd.exe
 
-C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs BatchOneways.cs
+C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs BatchOneways.cs Oneways.cs OnewaysAMI.cs
 S_SRCS		= MyDerivedClassI.cs Server.cs
-COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs Twoways.cs TwowaysAMI.cs BatchOneways.cs
+COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs Twoways.cs TwowaysAMI.cs BatchOneways.cs Oneways.cs \
+		  OnewaysAMI.cs
 SAMD_SRCS	= MyDerivedClassAMDI.cs Server.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice

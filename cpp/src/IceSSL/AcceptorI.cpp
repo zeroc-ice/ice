@@ -108,7 +108,7 @@ IceSSL::AcceptorI::accept(int timeout)
     // SSL handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
     //
-    return new TransceiverI(_instance, ssl, fd, true, _adapterName);
+    return new TransceiverI(_instance, ssl, fd, true, true, _adapterName);
 }
 
 void

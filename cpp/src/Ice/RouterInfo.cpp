@@ -154,12 +154,168 @@ IceInternal::RouterInfo::getRouter() const
 vector<EndpointIPtr>
 IceInternal::RouterInfo::getClientEndpoints()
 {
-    IceUtil::Mutex::Lock sync(*this);
-    
-    if(_clientEndpoints.size() == 0) // Lazy initialization.
     {
-        ObjectPrx clientProxy = _router->getClientProxy();
-        if(!clientProxy)
+        IceUtil::Mutex::Lock sync(*this);
+        if(!_clientEndpoints.empty())
+        {
+            return _clientEndpoints;
+        }
+    }
+
+    return setClientEndpoints(_router->getClientProxy());
+}
+
+void
+IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr& callback)
+{
+    vector<EndpointIPtr> clientEndpoints;
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        clientEndpoints = _clientEndpoints;
+    }
+
+    if(!clientEndpoints.empty())
+    {
+        callback->setEndpoints(clientEndpoints);
+        return;
+    }
+
+    class Callback : public AMI_Router_getClientProxy
+    {
+    public:
+
+        virtual void
+        ice_response(const Ice::ObjectPrx& clientProxy)
+        {
+            _callback->setEndpoints(_routerInfo->setClientEndpoints(clientProxy));
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+        }
+
+        Callback(const RouterInfoPtr& routerInfo, const GetClientEndpointsCallbackPtr& callback) :
+            _routerInfo(routerInfo), _callback(callback)
+        {
+        }
+
+    private:
+
+        const RouterInfoPtr _routerInfo;
+        const GetClientEndpointsCallbackPtr _callback;
+    };
+
+    _router->getClientProxy_async(new Callback(this, callback));
+}
+
+vector<EndpointIPtr>
+IceInternal::RouterInfo::getServerEndpoints()
+{
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        if(!_serverEndpoints.empty())
+        {
+            return _serverEndpoints;
+        }
+    }
+
+    return setServerEndpoints(_router->getServerProxy());
+}
+
+void
+IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
+{
+    assert(proxy); // Must not be called for null proxies.
+
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
+        {
+            //
+            // Only add the proxy to the router if it's not already in our local map.
+            //
+            return;
+        }
+    }
+
+    ObjectProxySeq proxies;
+    proxies.push_back(proxy);
+    addAndEvictProxies(proxy, _router->addProxies(proxies));
+}
+
+bool
+IceInternal::RouterInfo::addProxy(const Ice::ObjectPrx& proxy, const AddProxyCallbackPtr& callback)
+{
+    assert(proxy);
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        if(_identities.find(proxy->ice_getIdentity()) == _identities.end())
+        {
+            //
+            // Only add the proxy to the router if it's not already in our local map.
+            //
+            return true;
+        }
+    }
+
+    class Callback : public AMI_Router_addProxies
+    {
+    public:
+        
+        virtual void
+        ice_response(const Ice::ObjectProxySeq& evictedProxies)
+        {
+            _routerInfo->addAndEvictProxies(_proxy, evictedProxies);
+            _callback->addedProxy();
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+        }
+
+        Callback(const RouterInfoPtr& routerInfo, const Ice::ObjectPrx& proxy, const AddProxyCallbackPtr& callback) :
+            _routerInfo(routerInfo), _proxy(proxy), _callback(callback)
+        {
+        }
+        
+    private:
+        
+        const RouterInfoPtr _routerInfo;
+        const Ice::ObjectPrx _proxy;
+        const AddProxyCallbackPtr _callback;
+    };
+
+    Ice::ObjectProxySeq proxies;
+    proxies.push_back(proxy);
+    _router->addProxies_async(new Callback(this, proxy, callback), proxies);
+    return false;
+}
+
+void
+IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    _adapter = adapter;
+}
+
+ObjectAdapterPtr
+IceInternal::RouterInfo::getAdapter() const
+{
+    IceUtil::Mutex::Lock sync(*this);
+    return _adapter;
+}
+
+vector<EndpointIPtr>
+IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrx& proxy)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    if(_clientEndpoints.empty())
+    {
+        if(!proxy)
         {
             //
             // If getClientProxy() return nil, use router endpoints.
@@ -168,7 +324,7 @@ IceInternal::RouterInfo::getClientEndpoints()
         }
         else
         {
-            clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
+            Ice::ObjectPrx clientProxy = proxy->ice_router(0); // The client proxy cannot be routed.
 
             //
             // In order to avoid creating a new connection to the router,
@@ -187,16 +343,15 @@ IceInternal::RouterInfo::getClientEndpoints()
             _clientEndpoints = clientProxy->__reference()->getEndpoints();
         }
     }
-
     return _clientEndpoints;
 }
 
+
 vector<EndpointIPtr>
-IceInternal::RouterInfo::getServerEndpoints()
+IceInternal::RouterInfo::setServerEndpoints(const Ice::ObjectPrx& serverProxy)
 {
     IceUtil::Mutex::Lock sync(*this);
-    
-    if(_serverEndpoints.size() == 0) // Lazy initialization.
+    if(_serverEndpoints.empty()) // Lazy initialization.
     {
         ObjectPrx serverProxy = _router->getServerProxy();
         if(!serverProxy)
@@ -208,53 +363,45 @@ IceInternal::RouterInfo::getServerEndpoints()
 
         _serverEndpoints = serverProxy->__reference()->getEndpoints();
     }
-    
     return _serverEndpoints;
 }
 
 void
-IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
+IceInternal::RouterInfo::addAndEvictProxies(const Ice::ObjectPrx& proxy, const Ice::ObjectProxySeq& evictedProxies)
 {
-    assert(proxy); // Must not be called for null proxies.
-
     IceUtil::Mutex::Lock sync(*this);
 
-    set<Identity>::iterator p = _identities.find(proxy->ice_getIdentity());
-
-    if(p == _identities.end())
+    //
+    // Check if the proxy hasn't already been evicted by a concurrent addProxies call. 
+    // If it's the case, don't add it to our local map.
+    //
+    multiset<Identity>::iterator p = _evictedIdentities.find(proxy->ice_getIdentity());
+    if(p != _evictedIdentities.end())
+    {
+        _evictedIdentities.erase(p);
+    }
+    else
     {
         //
-        // Only add the proxy to the router if it's not already in our local map.
+        // If we successfully added the proxy to the router,
+        // we add it to our local map.
         //
-        ObjectProxySeq proxies;
-        proxies.push_back(proxy);
-        ObjectProxySeq evictedProxies = _router->addProxies(proxies);
-
-        //
-        // If we successfully added the proxy to the router, we add it to our local map.
-        //
-        _identities.insert(_identities.begin(), proxy->ice_getIdentity());
-
-        //
-        // We also must remove whatever proxies the router evicted.
-        //
-        for(ObjectProxySeq::iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+        _identities.insert(proxy->ice_getIdentity());
+    }
+    
+    //
+    // We also must remove whatever proxies the router evicted.
+    //
+    for(Ice::ObjectProxySeq::const_iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+    {
+        if(_identities.erase((*q)->ice_getIdentity()) == 0)
         {
-            _identities.erase((*q)->ice_getIdentity());
+            //
+            // It's possible for the proxy to not have been
+            // added yet in the local map if two threads
+            // concurrently call addProxies.
+            //
+            _evictedIdentities.insert((*q)->ice_getIdentity());
         }
     }
-}
-
-void
-IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
-{
-    IceUtil::Mutex::Lock sync(*this);
-    _adapter = adapter;
-}
-
-ObjectAdapterPtr
-IceInternal::RouterInfo::getAdapter() const
-{
-    IceUtil::Mutex::Lock sync(*this);
-    return _adapter;
 }

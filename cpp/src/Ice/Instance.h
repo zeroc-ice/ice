@@ -24,6 +24,7 @@
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
+#include <Ice/SelectorThreadF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionMonitorF.h>
 #include <Ice/ObjectFactoryManagerF.h>
@@ -67,6 +68,8 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
+    SelectorThreadPtr selectorThread();
+    EndpointHostResolverPtr endpointHostResolver();
     IceUtil::TimerPtr timer();
     bool threadPerConnection() const;
     size_t threadPerConnectionStackSize() const;
@@ -122,6 +125,8 @@ private:
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
+    SelectorThreadPtr _selectorThread;
+    EndpointHostResolverPtr _endpointHostResolver;
     IceUtil::TimerPtr _timer;
     const bool _threadPerConnection;
     const size_t _threadPerConnectionStackSize;

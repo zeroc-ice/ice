@@ -21,6 +21,10 @@ class EventHandler;
 IceUtil::Shared* upCast(EventHandler*);
 typedef Handle<EventHandler> EventHandlerPtr;
 
+class ThreadPoolWorkItem;
+IceUtil::Shared* upCast(ThreadPoolWorkItem*);
+typedef Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
+
 }
 
 #endif
