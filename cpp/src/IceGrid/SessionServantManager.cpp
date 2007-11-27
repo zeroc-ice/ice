@@ -176,7 +176,8 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
     //
     if(p->second.admin && p->second.connection)
     {
-        _adminConnections.erase(p->second.connection);
+        assert(_adminConnections.find(p->second.connection) != _adminConnections.end());
+        _adminConnections.erase(_adminConnections.find(p->second.connection));
     }
 
     _sessions.erase(p);
