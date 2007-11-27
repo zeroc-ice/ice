@@ -78,7 +78,7 @@ SessionServantManager::addSession(const Ice::ObjectPtr& session, const Ice::Conn
     // Keep track of all the connections which have an admin session to allow access
     // to server admin objects.
     //
-    if(admin)
+    if(admin && con)
     {
         _adminConnections.insert(con);
     }
@@ -174,7 +174,7 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
     //
     // If this is an admin session, remove its connection from the admin connections.
     //
-    if(p->second.admin)
+    if(p->second.admin && p->second.connection)
     {
         _adminConnections.erase(p->second.connection);
     }
