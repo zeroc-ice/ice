@@ -3153,7 +3153,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         vector<string> paramsInvoke = getParamsAsync(p, false);
 
-        _out << nl << "public delegate void AMI_" << cl->name() << "_" << name << "_response" << spar << params << epar;
+        _out << nl << "public delegate void AMI_" << cl->name() << "_" << name << "_response" << spar << params 
+             << epar << ";";
         _out << nl << "public delegate void AMI_" << cl->name() << "_" << name << "_exception(Ice.Exception ex);";
 
         _out << sp << nl << "public class AMI_" << cl->name() << '_'
@@ -3168,20 +3169,20 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "exception_ = exception;";
         _out << eb;
         _out << nl;
-        _out << nl << "public AMI_" << cl->name() << "_" << name << "();";
+        _out << nl << "public AMI_" << cl->name() << "_" << name << "()";
         _out << sb;
         _out << eb;
         _out << nl;
         
         _out << nl << "public virtual void ice_response" << spar << params << epar;
         _out << sb;
-        _out << nl << "Debug.Assert(response_ != null);";
-        _out << nl << "response_" << spar << args << epar;
+        _out << nl << "System.Diagnostics.Debug.Assert(response_ != null);";
+        _out << nl << "response_" << spar << args << epar << ";";
         _out << eb;
         _out << nl;
-        _out << nl << "public virtual void ice_exception(Ice.Exception ex)";
+        _out << nl << "public override void ice_exception(Ice.Exception ex)";
         _out << sb;
-        _out << nl << "Debug.Assert(exception_ != null);";
+        _out << nl << "System.Diagnostics.Debug.Assert(exception_ != null);";
         _out << nl << "exception_(ex);";
         _out << eb;
 

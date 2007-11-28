@@ -27,19 +27,6 @@ namespace helloC
 {
     public partial class Page : Canvas
     {
-        private class AMI_Hello_sayHelloI : Demo.AMI_Hello_sayHello
-        {
-            public override void ice_response()
-            {
-                _tb.Text = "Call succeeded";
-            }
-
-            public override void ice_exception(Ice.Exception ex)
-            {
-                _tb.Text = "Call failed with exception:\n" + ex.ToString();
-            }
-        }
-
         public void Page_Loaded(object o, EventArgs e)
         {
             // Required to initialize variables
@@ -134,6 +121,16 @@ namespace helloC
             }
         }       
 
+        void sayHelloResponse()
+        {
+            _tb.Text = "Call succeeded";
+        }
+
+        void sayHelloException(Ice.Exception ex)
+        {
+            _tb.Text = "Call failed with exception:\n" + ex.ToString();
+        }
+
         void OnClickAMI(object sender, MouseEventArgs e)
         {
             //
@@ -143,7 +140,7 @@ namespace helloC
             //
             try
             {
-                _hello.sayHello_async(new AMI_Hello_sayHelloI(), 0);
+                _hello.sayHello_async(new Demo.AMI_Hello_sayHello(sayHelloResponse, sayHelloException), 0);
                 _tb.Text = "Calling sayHello()...";
             }
             catch (Exception ex)
