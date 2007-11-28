@@ -81,10 +81,8 @@ SessionServantManager::addSession(const Ice::ObjectPtr& session, const Ice::Conn
     // Keep track of all the connections which have an admin session to allow access
     // to server admin objects.
     //
-    if(category != "")
+    if(category != "" && con != 0)
     {
-        assert(con != 0);
-
         _adminConnections.insert(con);
         _adminCallbackRouter->addMapping(category, con);
     }
@@ -180,10 +178,13 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
     //
     // If this is an admin session, remove its connection from the admin connections.
     //
-    if(p->second.category != "")
+
+    if(p->second.category != "" && p->second.connection)
     {
+        assert(_adminConnections.find(p->second.connection) != _adminConnections.end());
+        _adminConnections.erase(_adminConnections.find(p->second.connection));
+
         _adminConnections.erase(p->second.connection);
-        _adminCallbackRouter->removeMapping(p->second.category);
     }
 
     _sessions.erase(p);

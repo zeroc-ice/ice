@@ -421,8 +421,6 @@ ServerEntry::getAdminProxy()
     adminId.name = _id;
     adminId.category = _cache.getInstanceName() + "-NodeRouter";
 
-    // TODO: what's this upToDate parameter about??
-
     try
     {
         return getProxy(true)->ice_identity(adminId);

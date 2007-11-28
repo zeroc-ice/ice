@@ -96,15 +96,18 @@ public:
     void clearCache(const IndirectReferencePtr&);
     void clearObjectCache(const IndirectReferencePtr&);
 
-private:
-
-    void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointIPtr>&);
-
+    //
+    // The following methods need to be public for access by AMI callbacks.
+    //
     void getEndpointsException(const IndirectReferencePtr&, const Ice::Exception&);
     void getWellKnownObjectEndpoints(const IndirectReferencePtr&, const Ice::ObjectPrx&, int, bool, 
                                      const GetEndpointsCallbackPtr&);
     void getEndpointsException(const IndirectReferencePtr&, const Ice::Exception&, const GetEndpointsCallbackPtr&);
     void getEndpointsTrace(const IndirectReferencePtr&, const std::vector<EndpointIPtr>&, bool);
+
+private:
+
+    void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointIPtr>&);
 
     const Ice::LocatorPrx _locator;
     Ice::LocatorRegistryPrx _locatorRegistry;

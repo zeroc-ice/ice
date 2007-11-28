@@ -833,17 +833,30 @@ void
 ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::ProcessPrx& process, const Ice::Current&)
 {
     bool deact = false;
+    ServerCommandPtr command;
     {
         Lock sync(*this);
         checkDestroyed();
         _process = process;
-        deact = _state == DeactivatingWaitForProcess;
-        notifyAll();
+        if(_state == DeactivatingWaitForProcess)
+        {
+            deact = true;
+        }
+        else
+        {
+            checkActivation();
+            command = nextCommand();
+        }
     }
     amdCB->ice_response();
+
     if(deact)
     {
         deactivate();
+    }
+    else if(command)
+    {
+        command->execute();
     }
 }
 
@@ -2282,7 +2295,12 @@ ServerI::checkActivation()
     //assert(locked());
     if(_state == ServerI::WaitForActivation || _state == ServerI::ActivationTimeout)
     {
-        if(includes(_activatedAdapters.begin(), _activatedAdapters.end(),
+        //
+        // Mark the server as active if the server process proxy is registered (or it's not expecting 
+        // one to be registered) and if all the server lifetime adapters have been activated.
+        //
+        if((!_desc->processRegistered || _process) &&
+           includes(_activatedAdapters.begin(), _activatedAdapters.end(),
                     _serverLifetimeAdapters.begin(), _serverLifetimeAdapters.end()))
         {
             setStateNoSync(ServerI::Active);

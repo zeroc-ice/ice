@@ -44,6 +44,8 @@ print "ok"
 
 IceGridAdmin.registryOptions += \
                              r' --IceGrid.Registry.DynamicRegistration' + \
+                             r' --IceGrid.Registry.SessionFilters' + \
+                             r' --IceGrid.Registry.AdminSessionFilters' + \
                              r' --IceGrid.Registry.PermissionsVerifier="ClientPermissionsVerifier"' + \
                              r' --IceGrid.Registry.AdminPermissionsVerifier="AdminPermissionsVerifier:tcp -p 12002"'+ \
                              r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"'
