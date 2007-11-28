@@ -17,7 +17,7 @@
       <TextBlock Canvas.Top="3" Canvas.Left="13" FontSize="12" Foreground="White" Text="Click Me" />
    </Canvas>
 
-  <Canvas x:Name="Button2" Canvas.Top="50" Width="100" Height="30" Background="Gray">
+  <Canvas x:Name="Button2" Canvas.Top="50" Width="100" Height="30" Background="White">
     <TextBlock></TextBlock>
   </Canvas>
 </Canvas>

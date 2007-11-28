@@ -68,9 +68,9 @@ namespace operationsC
                 //
                 initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                _comm = Ice.Util.initialize(initData);
 
-                _myClass = AllTests.allTests(comm, out _callbacks);
+                _myClass = AllTests.allTests(_comm, out _callbacks);
             }
             catch (Exception ex)
             {
@@ -99,6 +99,15 @@ namespace operationsC
             {
                 _myClass.shutdown();
                 _tb.Text = "Test Passed";
+
+                try
+                {
+                    _comm.destroy();
+                }
+                catch (Exception ex)
+                {
+                    _tb.Text = ex.ToString();
+                }
             }
             else
             {
@@ -106,6 +115,7 @@ namespace operationsC
             }
         }
 
+        private Ice.Communicator _comm;
         private List<Callback> _callbacks;
         private Test.MyClassPrx _myClass;
     }

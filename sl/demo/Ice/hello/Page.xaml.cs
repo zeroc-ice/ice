@@ -59,8 +59,8 @@ namespace helloC
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = Ice.Util.createProperties();
                 initData.properties.setProperty("Ice.BridgeUri", "http://localhost:1287/IceBridge.ashx");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
-                _hello = Demo.HelloPrxHelper.uncheckedCast(comm.stringToProxy("hello:tcp -p 10000"));
+                _comm = Ice.Util.initialize(initData);
+                _hello = Demo.HelloPrxHelper.uncheckedCast(_comm.stringToProxy("hello:tcp -p 10000"));
                 _helloOneway = Demo.HelloPrxHelper.uncheckedCast(_hello.ice_oneway());
             }
             catch(Exception ex)
@@ -68,10 +68,27 @@ namespace helloC
                 _tb.Text = "Initialization failed with exception:\n" + ex.ToString();
             }
         }
+
         public Page()
         {
             //this.Loaded += new EventHandler(EventHandlingCanvas_Loaded);
         }
+
+        ~Page()
+        {
+            if(_comm != null)
+            {
+                try
+                {
+                    _comm.destroy();
+                }
+                catch(Exception ex)
+                {
+                    _tb.Text = "Destroy failed with exception:\n" + ex.ToString();
+                }
+            }
+        }
+
 
         void EventHandlingCanvas_Loaded(object sender, EventArgs e)
         { 
@@ -135,7 +152,8 @@ namespace helloC
                 return;
             }
         }       
-
+        
+        private Ice.Communicator _comm = null;
         private Demo.HelloPrx _hello;
         private Demo.HelloPrx _helloOneway;
         private static TextBlock _tb;
