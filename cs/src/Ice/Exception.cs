@@ -160,9 +160,7 @@ namespace IceInternal
                 if(ex is Ice.UnknownException ||
                    ex is Ice.ObjectNotExistException ||
                    ex is Ice.OperationNotExistException ||
-                   ex is Ice.FacetNotExistException ||
-                   ex is Ice.CollocationOptimizationException ||
-                   ex is Ice.SystemException)
+                   ex is Ice.FacetNotExistException)
                 {
                     throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
                 }

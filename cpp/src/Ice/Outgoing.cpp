@@ -52,9 +52,7 @@ IceInternal::LocalExceptionWrapper::throwWrapper(const std::exception& ex)
         if(dynamic_cast<const UnknownException*>(le) ||
            dynamic_cast<const ObjectNotExistException*>(le) ||
            dynamic_cast<const OperationNotExistException*>(le) ||
-           dynamic_cast<const FacetNotExistException*>(le) ||
-           dynamic_cast<const CollocationOptimizationException*>(le) ||
-           dynamic_cast<const SystemException*>(le))
+           dynamic_cast<const FacetNotExistException*>(le))
         {
             throw LocalExceptionWrapper(*le, false);
         }

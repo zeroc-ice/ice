@@ -56,9 +56,7 @@ public class LocalExceptionWrapper extends Exception
             if(ex instanceof Ice.UnknownException ||
                ex instanceof Ice.ObjectNotExistException ||
                ex instanceof Ice.OperationNotExistException ||
-               ex instanceof Ice.FacetNotExistException ||
-               ex instanceof Ice.CollocationOptimizationException ||
-               ex instanceof Ice.SystemException)
+               ex instanceof Ice.FacetNotExistException)
             {
                 throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
             }
