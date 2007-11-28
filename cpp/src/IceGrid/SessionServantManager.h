@@ -32,7 +32,7 @@ public:
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     void deactivate(const std::string&);
 
-    Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string& = "");
+    Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string&);
     void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);
     Glacier2::IdentitySetPrx getGlacier2IdentitySet(const Ice::ObjectPtr&);
     Glacier2::StringSetPrx getGlacier2AdapterIdSet(const Ice::ObjectPtr&);

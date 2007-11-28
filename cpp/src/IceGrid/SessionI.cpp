@@ -169,7 +169,7 @@ SessionI::_register(const SessionServantManagerPtr& servantManager, const Ice::C
     // This is supposed to be called after creation only, no need to synchronize.
     //
     _servantManager = servantManager;
-    return _servantManager->addSession(this, con, false);
+    return _servantManager->addSession(this, con, "");
 }
 
 void

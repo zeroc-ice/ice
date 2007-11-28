@@ -74,7 +74,7 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
     //
     _servantManager = servantManager;
 
-    string category = "";
+    string category;
 
     if(con != 0)
     {
