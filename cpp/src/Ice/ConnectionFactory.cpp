@@ -202,7 +202,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
     // Try to establish the connection to the connectors.
     //
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-    for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+    for(vector<ConnectorInfo>::const_iterator q = connectors.begin(); q != connectors.end(); ++q)
     {
         try
         {
@@ -217,10 +217,10 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
                 // It is not necessary to check for overrideTimeout, the endpoint has already 
                 // been modified with this override, if set.
                 //
-                timeout = p->endpoint->timeout();
+                timeout = q->endpoint->timeout();
             }
 
-            connection = createConnection(p->connector->connect(timeout), *p);
+            connection = createConnection(q->connector->connect(timeout), *q);
             connection->start(0);
 
             if(defaultsAndOverrides->overrideCompress)
@@ -229,7 +229,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
             }
             else
             {
-                compress = p->endpoint->compress();
+                compress = q->endpoint->compress();
             }
 
             break;
@@ -237,14 +237,14 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         catch(const Ice::CommunicatorDestroyedException& ex)
         {
             exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
-            handleException(*exception.get(), *p, connection, hasMore || p != connectors.end() - 1);
+            handleException(*exception.get(), *q, connection, hasMore || q != connectors.end() - 1);
             connection = 0;
             break; // No need to continue
         }
         catch(const Ice::LocalException& ex)
         {
             exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
-            handleException(*exception.get(), *p, connection, hasMore || p != connectors.end() - 1);
+            handleException(*exception.get(), *q, connection, hasMore || q != connectors.end() - 1);
             connection = 0;
         }
     }
@@ -667,10 +667,10 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
         // the _pending set to indicate that we're attempting connection establishment to 
         // these connectors.
         //
-        for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+        for(vector<ConnectorInfo>::const_iterator r = connectors.begin(); r != connectors.end(); ++r)
         {
-            assert(_pending.find(*p) == _pending.end());
-            _pending.insert(pair<ConnectorInfo, set<ConnectCallbackPtr> >(*p, set<ConnectCallbackPtr>()));
+            assert(_pending.find(*r) == _pending.end());
+            _pending.insert(pair<ConnectorInfo, set<ConnectCallbackPtr> >(*r, set<ConnectCallbackPtr>()));
         }
     }
 

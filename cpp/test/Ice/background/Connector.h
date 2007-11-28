@@ -26,10 +26,9 @@ public:
     virtual bool operator!=(const IceInternal::Connector&) const;
     virtual bool operator<(const IceInternal::Connector&) const;
 
-private:
-    
     Connector(const IceInternal::ConnectorPtr& connector);
-    friend class EndpointI;
+
+private:
 
     const IceInternal::ConnectorPtr _connector;
     const ConfigurationPtr _configuration;

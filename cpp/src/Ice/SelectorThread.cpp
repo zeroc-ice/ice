@@ -136,7 +136,7 @@ IceInternal::SelectorThread::run()
         catch(const Ice::LocalException& ex)
         {
             Error out(_instance->initializationData().logger);
-            out << "exception in selector thread:\n" << ex; 
+            out << "exception in selector thread:\n" << ex;
             continue;
         }
 
@@ -153,7 +153,7 @@ IceInternal::SelectorThread::run()
                 // 1. The selector thread has been destroyed.
                 // 2. A socket was registered or unregistered.
                 //
-                
+
                 //
                 // Thread destroyed?
                 //
@@ -252,19 +252,19 @@ IceInternal::SelectorThread::run()
         }
 
         readyList.clear();
-        
+
         if(finishedList.empty())
         {
             continue;
         }
-        
-        for(vector<SocketInfo*>::const_iterator p = finishedList.begin(); p != finishedList.end(); ++p)
+
+        for(vector<SocketInfo*>::const_iterator q = finishedList.begin(); q != finishedList.end(); ++q)
         {
-            if((*p)->status != Finished)
+            if((*q)->status != Finished)
             {
-                _selector.remove((*p)->fd, (*p)->status); 
+                _selector.remove((*q)->fd, (*q)->status);
             }
-            socketMap.erase((*p)->fd);
+            socketMap.erase((*q)->fd);
         }
         finishedList.clear();
     }
@@ -297,7 +297,7 @@ IceInternal::SelectorThread::HelperThread::run()
     catch(...)
     {
         Error out(_selectorThread->_instance->initializationData().logger);
-        out << "unknown exception in selector thread"; 
+        out << "unknown exception in selector thread";
     }
 
     if(_selectorThread->_instance->initializationData().threadHook)
