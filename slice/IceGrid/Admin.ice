@@ -594,6 +594,20 @@ interface Admin
     ["nonmutating", "cpp:const"] idempotent int getServerPid(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
+
+    /**
+     *
+     * Get the category for server admin objects. You can manufacture a server admin
+     * proxy from the admin proxy by changing its identity: use the server ID as name
+     * and the returned category as category.
+     *
+     * @return The category for server admin objects.
+     *
+     **/
+    ["cpp:const"] 
+    idempotent string getServerAdminCategory();
+
+
     /**
      *
      * Get a proxy to the server's admin object
@@ -601,19 +615,11 @@ interface Admin
      * @param id The server id.
      *
      * @return A proxy to the server's admin object
-     * 
-     * @throws ServerNotExistException Raised if the server doesn't exist.
-     *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
-     *
-     * @throws DeploymentException Raised if the server couldn't be
-     * deployed on the node.
      *
      **/
-    ["ami", "cpp:const"] 
-    idempotent Object* getServerAdmin(string id)
-        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+    ["cpp:const"] 
+    idempotent Object* getServerAdmin(string id);
+
 
     /**
      *
@@ -1180,6 +1186,21 @@ interface AdminSession extends Glacier2::Session
      **/
     ["nonmutating", "cpp:const"] idempotent Admin* getAdmin();
 
+
+    /**
+     *
+     * Get a "template" proxy for admin callback objects.
+     * An Admin client uses this proxy to set the category of its callback
+     * objects, and the published endpoints of the object adapter hosting
+     * the admin callback objects.
+     *
+     * @return A template proxy. The returned proxy is null when the Admin
+     * session was established using Glacier2.
+     *
+     **/
+    ["cpp:const"] idempotent Object* getAdminCallbackTemplate();
+
+
     /**
      *
      * Set the observer proxies that receive
@@ -1456,6 +1477,7 @@ interface AdminSession extends Glacier2::Session
      **/
     FileIterator * openRegistryStdOut(string name, int count)
         throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
+
 };
 
 };

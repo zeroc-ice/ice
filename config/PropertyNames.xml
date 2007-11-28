@@ -411,9 +411,11 @@ generated from the section label.
         <property name="Node.UserAccounts" />
         <property name="Node.UserAccountMapper" class="proxy" />
         <property name="Node.WaitTime" />
+        <property name="Registry.AdminCallbackRouter" class="objectadapter" />
         <property name="Registry.AdminCryptPasswords" />
         <property name="Registry.AdminPermissionsVerifier" class="proxy" />
         <property name="Registry.AdminSessionFilters" />
+        <property name="Registry.AdminSessionManager" class="objectadapter" />
         <property name="Registry.AdminSSLPermissionsVerifier" class="proxy" />
         <property name="Registry.Client" class="objectadapter" />
         <property name="Registry.CryptPasswords" />
@@ -428,7 +430,6 @@ generated from the section label.
         <property name="Registry.Server" class="objectadapter" />
         <property name="Registry.SessionFilters" />
         <property name="Registry.SessionManager" class="objectadapter" />
-        <property name="Registry.AdminSessionManager" class="objectadapter" />
         <property name="Registry.SessionTimeout" />
         <property name="Registry.SSLPermissionsVerifier" class="proxy" />
         <property name="Registry.Trace.Application" />

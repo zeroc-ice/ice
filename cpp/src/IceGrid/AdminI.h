@@ -49,6 +49,7 @@ public:
     virtual ServerInfo getServerInfo(const ::std::string&, const Ice::Current&) const;
     virtual ServerState getServerState(const ::std::string&, const Ice::Current&) const;
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
+    virtual std::string getServerAdminCategory(const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerAdmin(const std::string&, const Ice::Current&) const;
     virtual void startServer(const ::std::string&, const Ice::Current&);
     virtual void stopServer(const ::std::string&, const Ice::Current&);
@@ -95,6 +96,7 @@ private:
     const RegistryIPtr _registry;
     const TraceLevelsPtr _traceLevels;
     const AdminSessionIPtr _session;
+
 };
 typedef IceUtil::Handle<AdminI> AdminIPtr;
 

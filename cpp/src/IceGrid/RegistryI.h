@@ -70,6 +70,8 @@ public:
     
     std::string getServerAdminCategory() const { return _instanceName + "-RegistryRouter"; }
 
+    Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
+
 private:
 
     Ice::LocatorRegistryPrx setupLocatorRegistry(const Ice::ObjectAdapterPtr&); 
@@ -99,6 +101,7 @@ private:
 
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;
+    Ice::ObjectAdapterPtr _serverAdapter;
     WellKnownObjectsManagerPtr _wellKnownObjects;
     std::string _instanceName;
     bool _master;

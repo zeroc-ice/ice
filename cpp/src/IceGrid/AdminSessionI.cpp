@@ -73,7 +73,21 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
     // This is supposed to be called after creation only, no need to synchronize.
     //
     _servantManager = servantManager;
-    Ice::ObjectPrx session =  _servantManager->addSession(this, con, true);
+
+    string category = "";
+
+    if(con != 0)
+    {
+        category = _database->getInstanceName() + "-" + IceUtil::generateUUID();
+     
+        Ice::Identity templateId;
+        templateId.name = "pick-a-name";
+        templateId.category = category;
+        
+        _adminCallbackTemplate = _registry->createAdminCallbackProxy(templateId);
+    }
+
+    Ice::ObjectPrx session =  _servantManager->addSession(this, con, category);
 
     _admin = AdminPrx::uncheckedCast(_servantManager->add(new AdminI(_database, _registry, this), this));
 
@@ -84,6 +98,12 @@ AdminPrx
 AdminSessionI::getAdmin(const Ice::Current& current) const
 {
     return _admin;
+}
+
+Ice::ObjectPrx
+AdminSessionI::getAdminCallbackTemplate(const Ice::Current& current) const
+{
+    return _adminCallbackTemplate;
 }
 
 void

@@ -10,6 +10,7 @@
 #ifndef ICE_GRID_SESSIONSERVANTLOCATOR_H
 #define ICE_GRID_SESSIONSERVANTLOCATOR_H
 
+#include <IceGrid/AdminCallbackRouter.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/ServantLocator.h>
 
@@ -25,13 +26,13 @@ class SessionServantManager : public Ice::ServantLocator, public IceUtil::Mutex
 public:
 
     SessionServantManager(const Ice::ObjectAdapterPtr&, const std::string&, bool, const std::string&,
-                          const Ice::ObjectPtr&);
+                          const Ice::ObjectPtr&, const AdminCallbackRouterPtr&);
 
     Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     void deactivate(const std::string&);
 
-    Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, bool);
+    Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string& = "");
     void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);
     Glacier2::IdentitySetPrx getGlacier2IdentitySet(const Ice::ObjectPtr&);
     Glacier2::StringSetPrx getGlacier2AdapterIdSet(const Ice::ObjectPtr&);
@@ -58,10 +59,10 @@ private:
 
     struct SessionInfo
     {
-        SessionInfo(const Ice::ConnectionPtr& c, bool a) : connection(c), admin(a) { }
+        SessionInfo(const Ice::ConnectionPtr& c, const std::string& cat) : connection(c), category(cat) { }
 
         const Ice::ConnectionPtr connection;
-        const bool admin;
+        const std::string category;
         Glacier2::SessionControlPrx sessionControl;
         Glacier2::IdentitySetPrx identitySet;
         Glacier2::StringSetPrx adapterIdSet;
@@ -73,6 +74,7 @@ private:
     const bool _checkConnection;
     const std::string _serverAdminCategory;
     const Ice::ObjectPtr _serverAdminRouter;
+    const AdminCallbackRouterPtr _adminCallbackRouter;
 
     std::map<Ice::Identity, ServantInfo> _servants;
     std::map<Ice::ObjectPtr, SessionInfo> _sessions;

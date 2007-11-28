@@ -56,7 +56,8 @@ NODE_OBJS	= NodeI.o \
 	          Activator.o \
 		  NodeSessionManager.o
 
-REGISTRY_OBJS   = RegistryI.o \
+REGISTRY_OBJS   = AdminCallbackRouter.o \
+                  RegistryI.o \
                   RegistryServerAdminRouter.o \
 	  	  InternalRegistryI.o \
 		  StringApplicationInfoDict.o \

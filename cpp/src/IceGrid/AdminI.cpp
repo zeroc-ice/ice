@@ -358,6 +358,12 @@ AdminI::getServerPid(const string& id, const Current&) const
     }
 }
 
+string
+AdminI::getServerAdminCategory(const Current&) const
+{
+    return _registry->getServerAdminCategory();
+}
+
 Ice::ObjectPrx
 AdminI::getServerAdmin(const string& id, const Current& current) const
 {

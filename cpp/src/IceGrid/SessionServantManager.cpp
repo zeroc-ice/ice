@@ -19,12 +19,15 @@ SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapte
                                              const string& instanceName,
                                              const bool checkConnection,
                                              const string& serverAdminCategory,
-                                             const Ice::ObjectPtr& serverAdminRouter) : 
+                                             const Ice::ObjectPtr& serverAdminRouter,
+                                             const AdminCallbackRouterPtr& adminCallbackRouter
+    ) : 
     _adapter(adapter),
     _instanceName(instanceName),
     _checkConnection(checkConnection),
     _serverAdminCategory(serverAdminCategory),
-    _serverAdminRouter(serverAdminRouter)
+    _serverAdminRouter(serverAdminRouter),
+    _adminCallbackRouter(adminCallbackRouter)
 {
 }
 
@@ -69,18 +72,21 @@ SessionServantManager::deactivate(const std::string&)
 }
 
 Ice::ObjectPrx
-SessionServantManager::addSession(const Ice::ObjectPtr& session, const Ice::ConnectionPtr& con, bool admin)
+SessionServantManager::addSession(const Ice::ObjectPtr& session, const Ice::ConnectionPtr& con, const string& category)
 {
     Lock sync(*this);
-    _sessions.insert(make_pair(session, SessionInfo(con, admin)));
+    _sessions.insert(make_pair(session, SessionInfo(con, category)));
 
     //
     // Keep track of all the connections which have an admin session to allow access
     // to server admin objects.
     //
-    if(admin)
+    if(category != "")
     {
+        assert(con != 0);
+
         _adminConnections.insert(con);
+        _adminCallbackRouter->addMapping(category, con);
     }
 
     return addImpl(session, session); // Register a servant for the session and return its proxy.
@@ -109,7 +115,7 @@ SessionServantManager::setSessionControl(const Ice::ObjectPtr& session,
     //
     // Allow invocations on server admin objects.
     //
-    if(p->second.admin && _serverAdminRouter) 
+    if(p->second.category != "" && _serverAdminRouter) 
     {
         Ice::StringSeq seq;
         seq.push_back(_serverAdminCategory);
@@ -174,9 +180,10 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
     //
     // If this is an admin session, remove its connection from the admin connections.
     //
-    if(p->second.admin)
+    if(p->second.category != "")
     {
         _adminConnections.erase(p->second.connection);
+        _adminCallbackRouter->removeMapping(p->second.category);
     }
 
     _sessions.erase(p);

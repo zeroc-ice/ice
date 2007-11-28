@@ -36,6 +36,7 @@ public:
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
     virtual AdminPrx getAdmin(const Ice::Current& = Ice::Current()) const;
+    virtual Ice::ObjectPrx getAdminCallbackTemplate(const Ice::Current&) const;
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const ApplicationObserverPrx&,
                               const AdapterObserverPrx&, const ObjectObserverPrx&, const Ice::Current&);
@@ -75,6 +76,7 @@ private:
     AdminPrx _admin;
     std::map<TopicName, Ice::ObjectPrx> _observers;
     RegistryIPtr _registry;
+    Ice::ObjectPrx _adminCallbackTemplate;
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 
