@@ -33,13 +33,13 @@ Compiler
 
 Ice for Silverlight requires:
 
-- Microsoft Visual Studio 2008 Beta 2
+- Microsoft Visual Studio 2008
 
-  http://msdn2.microsoft.com/en-us/evalcenter/bb655864.aspx
+  http://msdn2.microsoft.com/en-us/vstudio/aa700831.aspx
 
 - Microsoft Visual Studio 2008 Silverlight Tools
 
-  http://www.microsoft.com/downloads/details.aspx?familyid=b52aeb39-1f10-49a6-85fc-a0a19cac99af&displaylang=en
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=25144C27-6514-4AD4-8BCB-E2E051416E03&displaylang=en
 
 
 Silverlight Runtime
@@ -106,7 +106,7 @@ You can download one of the other mappings of Ice here:
 
 Now to compile and run the demo do the following:
 
-1) Start the Visual Studio 2008 Beta 2 IDE and open the solution file
+1) Start the Visual Studio 2008 IDE and open the solution file
    (demo\Ice\hello\hello.sln). 
 
 2) Select Build->Build Solution to build both projects in the 
