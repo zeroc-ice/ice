@@ -47,12 +47,13 @@ namespace facetsC
 
         void OnClick(object sender, MouseEventArgs e)
         {
+            Ice.Communicator comm = null;
             try
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = Ice.Util.createProperties();
                 initData.properties.setProperty("Ice.BridgeUri", "http://localhost:1287/IceBridge.ashx");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
+                comm = Ice.Util.initialize(initData);
 
                 Test.GPrx g = AllTests.allTests(comm);
                 g.shutdown();
@@ -63,6 +64,18 @@ namespace facetsC
                 return;
             }
             _tb.Text = "Test Passed";
+
+            if(comm != null)
+            {
+                try
+                {
+                    comm.destroy();
+                }
+                catch (Exception ex)
+                {
+                    _tb.Text = ex.ToString();
+                }
+            }
         }       
     }
 }

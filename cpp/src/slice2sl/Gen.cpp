@@ -3153,11 +3153,38 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         vector<string> paramsInvoke = getParamsAsync(p, false);
 
-        _out << sp << nl << "public abstract class AMI_" << cl->name() << '_'
+        _out << nl << "public delegate void AMI_" << cl->name() << "_" << name << "_response" << spar << params 
+             << epar << ";";
+        _out << nl << "public delegate void AMI_" << cl->name() << "_" << name << "_exception(Ice.Exception ex);";
+
+        _out << sp << nl << "public class AMI_" << cl->name() << '_'
              << name << " : IceInternal.OutgoingAsync";
         _out << sb;
         _out << sp;
-        _out << nl << "public abstract void ice_response" << spar << params << epar << ';';
+
+        _out << nl << "public AMI_" << cl->name() << "_" << name << "(AMI_" << cl->name() << "_" << name 
+             << "_response response, AMI_" << cl->name() << "_" << name << "_exception exception)";
+        _out << sb;
+        _out << nl << "response_ = response;";
+        _out << nl << "exception_ = exception;";
+        _out << eb;
+        _out << nl;
+        _out << nl << "public AMI_" << cl->name() << "_" << name << "()";
+        _out << sb;
+        _out << eb;
+        _out << nl;
+        
+        _out << nl << "public virtual void ice_response" << spar << params << epar;
+        _out << sb;
+        _out << nl << "System.Diagnostics.Debug.Assert(response_ != null);";
+        _out << nl << "response_" << spar << args << epar << ";";
+        _out << eb;
+        _out << nl;
+        _out << nl << "public override void ice_exception(Ice.Exception ex)";
+        _out << sb;
+        _out << nl << "System.Diagnostics.Debug.Assert(exception_ != null);";
+        _out << nl << "exception_(ex);";
+        _out << eb;
 
         _out << sp << nl << "public void invoke__" << spar << "Ice.ObjectPrx prx__"
              << paramsInvoke << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
@@ -3287,6 +3314,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
         _out << nl << "ice_response" << spar << args << epar << ';';
         _out << eb;
+        
+        _out << nl;
+        _out << nl << "private AMI_" << cl->name() << "_" << name << "_response response_ = null;";
+        _out << nl << "private AMI_" << cl->name() << "_" << name << "_exception exception_ = null;";
         _out << eb;
     }
 }

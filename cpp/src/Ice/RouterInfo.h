@@ -84,11 +84,14 @@ public:
     void setAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr getAdapter() const;
 
-private:
-
+    //
+    // The following methods need to be public for access by AMI callbacks.
+    //
     std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrx&);
     std::vector<EndpointIPtr> setServerEndpoints(const Ice::ObjectPrx&);
     void addAndEvictProxies(const Ice::ObjectPrx&, const Ice::ObjectProxySeq&);
+
+private:
 
     const Ice::RouterPrx _router;
     std::vector<EndpointIPtr> _clientEndpoints;
