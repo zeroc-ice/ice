@@ -602,6 +602,13 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         if(marshal)
         {
+            if(streamingAPI)
+            {
+                out << nl << "if((int)" << param << " < 0 || (int)" << param << " >= " << sz << ")";
+                out << sb;
+                out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
+                out << eb;
+            }
             out << nl << stream << '.' << func << '(' << cast << param;
             if(!streamingAPI)
             {
@@ -617,6 +624,13 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 out << sz;
             }
             out << ")" << ';';
+            if(streamingAPI)
+            {
+                out << nl << "if((int)" << param << " < 0 || (int)" << param << " >= " << sz << ")";
+                out << sb;
+                out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
+                out << eb;
+            }
         }
         return;
     }
