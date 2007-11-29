@@ -361,7 +361,7 @@ Slice::CsVisitor::getParams(const OperationPtr& op)
 }
 
 vector<string>
-Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd)
+Slice::CsVisitor::getParamsAsync(const OperationPtr& op, AsyncType type )
 {
     vector<string> params;
 
@@ -369,7 +369,15 @@ Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd)
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container); // Get the class containing the op.
     string scope = fixId(cl->scope());
-    params.push_back(scope + (amd ? "AMD_" : "AMI_") + cl->name() + '_' + op->name() + " cb__");
+    if(type == AMIDelegate)
+    {
+        params.push_back(scope + "AMI_" + cl->name() + '_' + op->name() + "_response resp__");
+        params.push_back(scope + "AMI_" + cl->name() + '_' + op->name() + "_exception ex__");
+    }
+    else
+    {
+        params.push_back(scope + (type == AMD ? "AMD_" : "AMI_") + cl->name() + '_' + op->name() + " cb__");
+    }
 
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -2155,7 +2163,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
-        vector<string> paramsAMI = getParamsAsync(p, false);
+        vector<string> paramsAMI = getParamsAsync(p, AMIDelegate);
 
         //
         // Write two versions of the operation - with and without a
@@ -2272,7 +2280,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 
         if(amd)
         {
-            params = getParamsAsync(op, true);
+            params = getParamsAsync(op, AMD);
         }
         else
         {
@@ -2601,7 +2609,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << sp << nl << "#region Asynchronous operations";
                 hasAsyncOps = true;
             }
-            vector<string> paramsAMI = getParamsAsync(op, false);
+            vector<string> paramsAMI = getParamsAsync(op, AMI);
+            vector<string> paramsAMIDel = getParamsAsync(op, AMIDelegate);
             vector<string> argsAMI = getArgsAsync(op);
 
             string opName = op->name();
@@ -2610,16 +2619,21 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             // Write two versions of the operation - with and without a
             // context parameter
             //
+
+            string callbackName = fixId(p->scope()) + "AMI_" + p->name() + "_" + opName;
+
             _out << sp;
-            _out << nl << "public void " << opName << "_async" << spar << paramsAMI << epar;
+            _out << nl << "public void " << opName << "_async" << spar << paramsAMIDel << epar;
             _out << sb;
+            _out << nl << callbackName << "  cb__ = new " << callbackName << "(resp__, ex__);";
             _out << nl << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
             _out << eb;
 
             _out << sp;
-            _out << nl << "public void " << opName << "_async" << spar << paramsAMI
+            _out << nl << "public void " << opName << "_async" << spar << paramsAMIDel
                  << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
             _out << sb;
+            _out << nl << callbackName << "  cb__ = new " << callbackName << "(resp__, ex__);";
             _out << nl << opName << "_async" << spar << argsAMI << "ctx__" << "true" << epar << ';';
             _out << eb;
 
@@ -3151,13 +3165,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         vector<string> params = getParamsAsyncCB(p);
         vector<string> args = getArgsAsyncCB(p);
 
-        vector<string> paramsInvoke = getParamsAsync(p, false);
+        vector<string> paramsInvoke = getParamsAsync(p, AMI);
 
         _out << nl << "public delegate void AMI_" << cl->name() << "_" << name << "_response" << spar << params 
              << epar << ";";
         _out << nl << "public delegate void AMI_" << cl->name() << "_" << name << "_exception(Ice.Exception ex);";
 
-        _out << sp << nl << "public class AMI_" << cl->name() << '_'
+        _out << sp << nl << "public sealed class AMI_" << cl->name() << '_'
              << name << " : IceInternal.OutgoingAsync";
         _out << sb;
         _out << sp;
@@ -3167,25 +3181,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << sb;
         _out << nl << "response_ = response;";
         _out << nl << "exception_ = exception;";
-        _out << eb;
         _out << nl;
-        _out << nl << "public AMI_" << cl->name() << "_" << name << "()";
-        _out << sb;
-        _out << eb;
-        _out << nl;
-        
-        _out << nl << "public virtual void ice_response" << spar << params << epar;
-        _out << sb;
         _out << nl << "System.Diagnostics.Debug.Assert(response_ != null);";
-        _out << nl << "response_" << spar << args << epar << ";";
-        _out << eb;
-        _out << nl;
-        _out << nl << "public override void ice_exception(Ice.Exception ex)";
-        _out << sb;
         _out << nl << "System.Diagnostics.Debug.Assert(exception_ != null);";
-        _out << nl << "exception_(ex);";
         _out << eb;
-
+        
         _out << sp << nl << "public void invoke__" << spar << "Ice.ObjectPrx prx__"
              << paramsInvoke << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
@@ -3312,9 +3312,14 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "return;";
             _out << eb;
         }
-        _out << nl << "ice_response" << spar << args << epar << ';';
+        _out << nl << "response_" << spar << args << epar << ';';
         _out << eb;
         
+        _out << sp << nl << "protected override void exception__(Ice.Exception ex)";
+        _out << sb;
+        _out << nl << "exception_(ex);";
+        _out << eb;
+
         _out << nl;
         _out << nl << "private AMI_" << cl->name() << "_" << name << "_response response_ = null;";
         _out << nl << "private AMI_" << cl->name() << "_" << name << "_exception exception_ = null;";
