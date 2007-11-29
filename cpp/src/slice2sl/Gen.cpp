@@ -2620,7 +2620,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             // context parameter
             //
 
-            string callbackName = fixId(p->scope()) + "AMI_" + p->name() + "_" + opName;
+            string callbackName = fixId(p->scope()) + "AMI_" + containingClass->name() + "_" + opName;
 
             _out << sp;
             _out << nl << "public void " << opName << "_async" << spar << paramsAMIDel << epar;

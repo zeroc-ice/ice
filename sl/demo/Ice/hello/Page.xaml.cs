@@ -140,7 +140,7 @@ namespace helloC
             //
             try
             {
-                _hello.sayHello_async(new Demo.AMI_Hello_sayHello(sayHelloResponse, sayHelloException), 0);
+                _hello.sayHello_async(sayHelloResponse, sayHelloException, 0);
                 _tb.Text = "Calling sayHello()...";
             }
             catch (Exception ex)
