@@ -368,13 +368,14 @@ generated from the section label.
     </section>
 
     <section name="IceBox">
+        <property name="InheritProperties" />
         <property name="InstanceName" />
         <property name="LoadOrder" />
         <property name="PrintServicesReady" />
         <property name="Service.[any]" />
         <property name="ServiceManager" class="objectadapter" />
+        <property name="Trace.ServiceObserver" />
         <property name="UseSharedCommunicator.[any]" />
-        <property name="InheritProperties" />
     </section>
 
     <section name="IceBoxAdmin">

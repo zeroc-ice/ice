@@ -101,7 +101,7 @@ private:
 
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;
-    Ice::ObjectAdapterPtr _serverAdapter;
+    Ice::ObjectAdapterPtr _adminCallbackRouterAdapter;
     WellKnownObjectsManagerPtr _wellKnownObjects;
     std::string _instanceName;
     bool _master;

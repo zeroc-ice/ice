@@ -30,6 +30,9 @@ public:
 
     virtual void startService(const std::string&, const ::Ice::Current&);
     virtual void stopService(const std::string&, const ::Ice::Current&);
+
+    virtual void addObserver(const ServiceObserverPrx&, const Ice::Current&);
+
     virtual void shutdown(const ::Ice::Current&);
 
     int run();
@@ -48,16 +51,25 @@ public:
     bool start();
     void stop();
 
+    void removeObserver(const ServiceObserverPrx&, const Ice::Exception&);
+
 private:
 
     void load(const std::string&, const std::string&);
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stopAll();
 
+    void servicesStarted(const std::vector<std::string>&);
+    void servicesStopped(const std::vector<std::string>&);
+    void observerRemoved(const ServiceObserverPrx&, const std::exception&);
+
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::LoggerPtr _logger;
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
     std::vector<ServiceInfo> _services;
+
+    std::set<ServiceObserverPrx> _observers;
+    int _traceServiceObserver;
 };
 
 typedef IceUtil::Handle<ServiceManagerI> ServiceManagerIPtr;

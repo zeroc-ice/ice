@@ -9,6 +9,9 @@
 
 using System;
 
+namespace IceBox
+{
+
 public class Server : Ice.Application
 {
     private static void usage()
@@ -54,4 +57,5 @@ public class Server : Ice.Application
             System.Environment.Exit(status);
         }
     }
+}
 }

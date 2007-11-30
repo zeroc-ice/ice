@@ -76,7 +76,7 @@ public class LiveActions
                 }
             };
         _array[TreeNode.START].putValue(Action.SHORT_DESCRIPTION, 
-                                        "Start this server");
+                                        "Start this server or service");
 
         _array[TreeNode.STOP] = new AbstractAction(
             "Stop", Utils.getIcon("/icons/16x16/stop.png"))
@@ -87,7 +87,7 @@ public class LiveActions
                 }
             };
         _array[TreeNode.STOP].putValue(Action.SHORT_DESCRIPTION, 
-                                            "Stop this server");
+                                       "Stop this server or service");
         
 
         _array[TreeNode.ENABLE] = new AbstractAction(

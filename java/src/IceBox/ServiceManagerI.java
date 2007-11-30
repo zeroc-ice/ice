@@ -21,6 +21,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         _server = server;
         _logger = _server.communicator().getLogger();
         _argv = args;
+        _traceServiceObserver = _server.communicator().getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
     public java.util.Map
@@ -64,6 +65,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
                                     sw.toString());
                 }
 
+                if(info.active)
+                {
+                    java.util.List<String> services = new java.util.Vector<String>();
+                    services.add(name);
+                    servicesStarted(services);
+                }
+                
                 return;
             }
         }
@@ -105,12 +113,78 @@ public class ServiceManagerI extends _ServiceManagerDisp
                                     sw.toString());
                 }
 
+                if(!info.active)
+                {
+                    java.util.List<String> services = new java.util.Vector<String>();
+                    services.add(name);
+                    servicesStopped(services);
+                }
+
                 return;
             }
         }
 
         throw new NoSuchServiceException();
     }
+
+    public synchronized void
+    addObserver(final ServiceObserverPrx observer, Ice.Current current)
+    {
+        //
+        // Null observers and duplicate registrations are ignored
+        //
+
+        if(observer != null && _observers.add(observer))
+        {
+            if(_traceServiceObserver >= 1)
+            {
+                _logger.trace("IceBox.ServiceObserver",
+                              "Added service observer: " + _server.communicator().proxyToString(observer));
+            } 
+
+            java.util.List<String> activeServices = new java.util.LinkedList<String>();
+            
+            for(ServiceInfo info: _services)
+            {
+                if(info.active)
+                {
+                    activeServices.add(info.name);
+                }
+            }
+            
+            if(activeServices.size() > 0)
+            {
+                AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
+                    {
+                        public void ice_response()
+                        {
+                            // ok, success
+                        }
+                        
+                        public void ice_exception(Ice.LocalException ex)
+                        {
+                            //
+                            // Drop this observer
+                            //
+                            removeObserver(observer, ex);
+                        }
+                    };
+                
+
+                try
+                {
+                    observer.servicesStarted_async(cb, activeServices.toArray(new String[0]));
+                }
+                catch(RuntimeException ex)
+                {
+                    _observers.remove(observer);
+                    observerRemoved(observer, ex);
+                    throw ex;
+                }
+            }
+        }
+    }
+
 
     public void
     shutdown(Ice.Current current)
@@ -292,6 +366,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
         return 0;
     }
+
 
     private void
     load(String name, String value)
@@ -492,6 +567,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 info.args = serviceArgs.value;
                 info.service.start(service, communicator, info.args);
                 info.active = true;
+
+                //
+                // There is no need to notify the observers since the 'start all'
+                // (that indirectly calls this method) occurs before the creation of 
+                // the Server Admin object, and before the activation of the main 
+                // object adapter (so before any observer can be registered)
+                //
             }
             catch(Throwable ex)
             {
@@ -554,6 +636,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
     synchronized private void
     stopAll()
     {
+        java.util.List<String> stoppedServices = new java.util.Vector<String>();
+
         //
         // First, for each service, we call stop on the service and flush its database environment to 
         // the disk. Services are stopped in the reverse order of the order they were started.
@@ -568,6 +652,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 {
                     info.service.stop();
                     info.active = false;
+                    stoppedServices.add(info.name);
                 }
                 catch(java.lang.Exception e)
                 {
@@ -620,9 +705,118 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
         }
 
+        servicesStopped(stoppedServices);
+
         _services.clear();
     }
 
+    
+    private void
+    servicesStarted(java.util.List<String> services)
+    {
+        assert Thread.holdsLock(this);
+
+        if(services.size() > 0)
+        {
+            String[] servicesArray = services.toArray(new String[0]);
+
+            java.util.Iterator<ServiceObserverPrx> p = _observers.iterator();
+            while(p.hasNext())
+            {
+                final ServiceObserverPrx observer = p.next();
+
+                AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
+                    {
+                        public void ice_response()
+                        {
+                            // ok, success
+                        }
+                        
+                        public void ice_exception(Ice.LocalException ex)
+                        {
+                            //
+                            // Drop this observer
+                            //
+                            removeObserver(observer, ex);
+                        }
+                    };
+
+                try
+                {
+                    observer.servicesStarted_async(cb, servicesArray);
+                }
+                catch(RuntimeException ex)
+                {
+                    p.remove();
+                    observerRemoved(observer, ex);
+                }
+            }
+        }
+    }
+
+    private void
+    servicesStopped(java.util.List<String> services)
+    {
+        assert Thread.holdsLock(this);
+
+        if(services.size() > 0)
+        {
+            String[] servicesArray = services.toArray(new String[0]);
+
+            java.util.Iterator<ServiceObserverPrx> p = _observers.iterator();
+            while(p.hasNext())
+            {
+                final ServiceObserverPrx observer = p.next();
+
+                AMI_ServiceObserver_servicesStopped cb = new AMI_ServiceObserver_servicesStopped()
+                    {
+                        public void ice_response()
+                        {
+                            // ok, success
+                        }
+                        
+                        public void ice_exception(Ice.LocalException ex)
+                        {
+                            //
+                            // Drop this observer
+                            //
+                            removeObserver(observer, ex);
+                        }
+                    };
+
+                try
+                {
+                    observer.servicesStopped_async(cb, servicesArray);
+                }
+                catch(RuntimeException ex)
+                {
+                    p.remove();
+                    observerRemoved(observer, ex);
+                }
+            }
+        }
+    }
+
+    private synchronized void
+    removeObserver(ServiceObserverPrx observer, Ice.LocalException ex)
+    {
+        if(_observers.remove(observer))
+        {
+            observerRemoved(observer, ex);
+        }
+    }
+    
+    private void 
+    observerRemoved(ServiceObserverPrx observer, RuntimeException ex)
+    {
+        if(_traceServiceObserver >= 1)
+        {
+            _logger.trace("IceBox.ServiceObserver",
+                          "Removed service observer: " + _server.communicator().proxyToString(observer)
+                          + "\nafter catching " + ex.toString());
+        } 
+    } 
+    
     class ServiceInfo
     {
         public String name;
@@ -635,5 +829,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private Ice.Application _server;
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
-    private java.util.List _services = new java.util.LinkedList();
+    private java.util.List<ServiceInfo> _services = new java.util.LinkedList<ServiceInfo>();
+
+    java.util.Set<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
+    int _traceServiceObserver = 0;
 }

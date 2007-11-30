@@ -55,7 +55,7 @@ class SessionKeeper
             
             try
             {
-                _admin = session.getAdmin();
+                _admin = _session.getAdmin();
             }
             catch(Ice.LocalException e)
             {
@@ -71,6 +71,47 @@ class SessionKeeper
             if(_coordinator.getCommunicator().getDefaultRouter() == null)
             {
                 _admin = AdminPrxHelper.uncheckedCast(_admin.ice_endpoints(session.ice_getEndpoints()));
+            }
+
+            try
+            {
+                if(_coordinator.getCommunicator().getDefaultRouter() == null)
+                {
+                    Ice.ObjectPrx adminCallbackTemplate = _session.getAdminCallbackTemplate();
+
+                    if(adminCallbackTemplate != null)
+                    {
+                        _adminCallbackCategory = adminCallbackTemplate.ice_getIdentity().category;
+                        
+                        Ice.Endpoint[] endpoints = adminCallbackTemplate.ice_getEndpoints();
+                        String publishedEndpoints = null;
+                        for(int i = 0; i < endpoints.length; ++i)
+                        {
+                            String endpointString = endpoints[i].toString();
+                            if(publishedEndpoints == null)
+                            {
+                                publishedEndpoints = endpointString;
+                            }
+                            else
+                            {
+                                publishedEndpoints += ":" + endpointString;
+                            }
+                        }
+                        _coordinator.getCommunicator().getProperties().setProperty("CallbackAdapter.PublishedEndpoints", publishedEndpoints);
+                    }
+                }
+                _serverAdminCategory = _admin.getServerAdminCategory();
+
+            }
+            catch(Ice.LocalException e)
+            {
+                logout(true);
+                JOptionPane.showMessageDialog(
+                    parent,
+                    "Could not retrieve admin callback template or server admin category: " + e.toString(),
+                    "Login failed",
+                    JOptionPane.ERROR_MESSAGE);
+                throw e;
             }
 
             _thread = new Pinger(_session, keepAliveperiod);
@@ -110,6 +151,11 @@ class SessionKeeper
             return _admin;
         }
 
+        String getServerAdminCategory()
+        {
+            return _serverAdminCategory;
+        }
+
         AdminPrx getRoutedAdmin()
         {
             assert _admin != null;
@@ -134,6 +180,30 @@ class SessionKeeper
             return _routedAdmin;
         }
 
+        Ice.ObjectPrx addCallback(Ice.Object servant, String name, String facet)
+        {
+            if(_adminCallbackCategory == null)
+            {
+                return null;
+            }
+            else
+            {
+                return _adapter.addFacet(servant, new Ice.Identity(name, _adminCallbackCategory), facet);
+            }
+        }
+
+        Ice.Object removeCallback(String name, String facet)
+        {
+            if(_adminCallbackCategory == null)
+            {
+                return null;
+            }
+            else
+            {
+                return _adapter.removeFacet(new Ice.Identity(name, _adminCallbackCategory), facet);
+            }
+        }
+
         void close(boolean destroySession)
         {
             if(_thread != null)
@@ -155,45 +225,8 @@ class SessionKeeper
             
             if(_adapter != null)
             {
-                try
-                {
-                    _adapter.remove(_applicationObserverIdentity);
-                }
-                catch(Ice.NotRegisteredException e)
-                {
-                }
-
-                try
-                {
-                    _adapter.remove(_adapterObserverIdentity);
-                }
-                catch(Ice.NotRegisteredException e)
-                {
-                }
-
-                try
-                {
-                    _adapter.remove(_objectObserverIdentity);
-                }
-                catch(Ice.NotRegisteredException e)
-                {
-                }
-                
-                try
-                {
-                    _adapter.remove(_registryObserverIdentity);
-                }
-                catch(Ice.NotRegisteredException e)
-                {
-                }
-
-                try
-                {
-                    _adapter.remove(_nodeObserverIdentity);
-                }
-                catch(Ice.NotRegisteredException e)
-                {
-                }
+                _adapter.destroy();
+                _adapter = null;
             }
 
             if(destroySession)
@@ -215,16 +248,19 @@ class SessionKeeper
             if(router == null)
             {
                 category = "observer";
+              
+                String adapterName = _adminCallbackCategory == null ? "" : "CallbackAdapter";
 
                 _adapter = 
-                    _coordinator.getCommunicator().createObjectAdapter("");
+                    _coordinator.getCommunicator().createObjectAdapter(adapterName);
                 _adapter.activate();
                 _session.ice_getConnection().setAdapter(_adapter);
             }
             else
             {
                 category = router.getCategoryForClient();
-                
+                _adminCallbackCategory = category;
+
                 _adapter = 
                     _coordinator.getCommunicator().createObjectAdapterWithRouter("RoutedAdapter", router);
                 _adapter.activate();
@@ -302,10 +338,13 @@ class SessionKeeper
 
 
         private final AdminSessionPrx _session;
+      
         private Pinger _thread;
         
         private Ice.ObjectAdapter _adapter;
         private AdminPrx _admin;
+        private String _serverAdminCategory;
+        private String _adminCallbackCategory;
         private AdminPrx _routedAdmin;
         private Ice.Identity _applicationObserverIdentity = new Ice.Identity();
         private Ice.Identity _adapterObserverIdentity = new Ice.Identity();
@@ -1274,6 +1313,21 @@ class SessionKeeper
     AdminPrx getAdmin()
     {
         return _session == null ? null : _session.getAdmin();
+    }
+
+    String getServerAdminCategory()
+    {
+        return _session == null ? null : _session.getServerAdminCategory();
+    }
+
+    Ice.ObjectPrx addCallback(Ice.Object servant, String name, String facet)
+    {
+        return _session == null ? null : _session.addCallback(servant, name, facet);
+    }
+
+    Ice.Object removeCallback(String name, String facet)
+    {
+        return _session == null ? null : _session.removeCallback(name, facet);
     }
 
     AdminPrx getRoutedAdmin()

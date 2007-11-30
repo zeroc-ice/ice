@@ -20,10 +20,50 @@ using namespace std;
 
 typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
-IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
-    : _communicator(communicator)
+namespace 
+{
+
+template<class T>
+class AMICallback : public T
+{
+public:
+    
+    AMICallback(const ServiceManagerIPtr& serviceManager, const ServiceObserverPrx& observer) :
+        _serviceManager(serviceManager),
+        _observer(observer)
+    {
+    }
+    
+    virtual void ice_response()
+    {
+        // ok, success
+    }
+    
+    virtual void ice_exception(const Ice::Exception& ex)
+    {
+        //
+        // Drop this observer
+        //
+        _serviceManager->removeObserver(_observer, ex);
+    }
+    
+private:
+    ServiceManagerIPtr _serviceManager;
+    ServiceObserverPrx _observer;
+};
+
+}
+
+
+
+
+IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) : 
+    _communicator(communicator),
+    _traceServiceObserver(0)
 { 
     _logger = _communicator->getLogger();
+
+    _traceServiceObserver = _communicator->getProperties()->getPropertyAsInt("IceBox.Trace.ServiceObserver");
 
     for(int i = 1; i < argc; i++)
     {
@@ -78,6 +118,13 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
                 out << "ServiceManager: unknown exception in start for service " << info.name;
             }
 
+            if(info.active)
+            {
+                vector<string> services;
+                services.push_back(name);
+                servicesStarted(services);
+            }
+
             return;
         }
     }
@@ -122,12 +169,88 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
                 out << "ServiceManager: unknown exception in stop for service " << info.name;
             }
 
+            if(!info.active)
+            {
+                vector<string> services;
+                services.push_back(name);
+                servicesStopped(services);
+            }
+
             return;
         }
     }
 
     throw NoSuchServiceException();
 }
+
+
+void
+IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const Ice::Current&)
+{
+    //
+    // Null observers and duplicate registrations are ignored
+    //
+
+    IceUtil::Mutex::Lock lock(*this);
+    if(observer != 0 && _observers.insert(observer).second)
+    {
+        if(_traceServiceObserver >= 1)
+        {
+            Trace out(_logger, "IceBox.ServiceObserver");
+            out << "Added service observer: " << _communicator->proxyToString(observer);
+        } 
+
+        vector<string> activeServices;
+        for(vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
+        {
+            const ServiceInfo& info = *p;
+            if(info.active)
+            {
+                activeServices.push_back(info.name);
+            }
+        }
+       
+        if(activeServices.size() > 0)
+        {
+            try
+            {
+                observer->servicesStarted_async(new AMICallback<AMI_ServiceObserver_servicesStarted>(this, observer),
+                                                activeServices);
+            }
+            catch(const std::exception& ex)
+            {
+                _observers.erase(observer);
+                observerRemoved(observer, ex);
+            }
+            catch(...)
+            {
+                _observers.erase(observer);
+                throw;
+            }
+        }
+    }
+}
+
+
+void
+IceBox::ServiceManagerI::removeObserver(const ServiceObserverPrx& observer, const Ice::Exception& ex)
+{
+    IceUtil::Mutex::Lock lock(*this);
+
+    //
+    // It's possible to remove several times the same observer, e.g. multiple concurrent
+    // requests that fail
+    //
+    
+    set<ServiceObserverPrx>::iterator p = _observers.find(observer);
+    if(p != _observers.end())
+    {
+        ServiceObserverPrx observer = *p;
+        _observers.erase(p);
+        observerRemoved(observer, ex);
+    }
+} 
+
 
 void
 IceBox::ServiceManagerI::shutdown(const Current&)
@@ -495,6 +618,13 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         {
             info.service->start(service, communicator, info.args);
             info.active = true;
+
+            //
+            // There is no need to notify the observers since the 'start all'
+            // (that indirectly calls this function) occurs before the creation of 
+            // the Server Admin object, and before the activation of the main 
+            // object adapter (so before any observer can be registered)
+            //
         }
         catch(...)
         {
@@ -563,6 +693,8 @@ IceBox::ServiceManagerI::stopAll()
     //
     vector<ServiceInfo>::reverse_iterator p;
 
+    vector<string> stoppedServices;
+
     //
     // First, for each service, we call stop on the service and flush its database environment to 
     // the disk.
@@ -576,6 +708,7 @@ IceBox::ServiceManagerI::stopAll()
             {
                 info.service->stop();
                 info.active = false;
+                stoppedServices.push_back(info.name);
             }
             catch(const Ice::Exception& ex)
             {
@@ -590,6 +723,8 @@ IceBox::ServiceManagerI::stopAll()
             }
         }
     }
+
+    servicesStopped(stoppedServices);
 
     for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
@@ -674,3 +809,66 @@ IceBox::ServiceManagerI::stopAll()
     _services.clear();
 }
 
+
+void
+IceBox::ServiceManagerI::servicesStarted(const vector<string>& services)
+{
+    if(services.size() > 0)
+    {
+        //
+        // Must be called with 'this' locked
+        //
+        for(set<ServiceObserverPrx>::iterator p = _observers.begin(); p != _observers.end(); ++p)
+        {
+            ServiceObserverPrx observer = *p;
+
+            try
+            {
+                observer->servicesStarted_async(new AMICallback<AMI_ServiceObserver_servicesStarted>(this, observer),
+                                                services);
+            }
+            catch(const std::exception& ex)
+            {
+                _observers.erase(p);
+                observerRemoved(observer, ex);
+            }
+        }
+    }
+}
+
+void
+IceBox::ServiceManagerI::servicesStopped(const vector<string>& services)
+{
+    if(services.size() > 0)
+    {
+        //
+        // Must be called with 'this' locked
+        //
+        for(set<ServiceObserverPrx>::iterator p = _observers.begin(); p != _observers.end(); ++p)
+        {
+            ServiceObserverPrx observer = *p;
+
+            try
+            {
+                observer->servicesStopped_async(new AMICallback<AMI_ServiceObserver_servicesStopped>(this, observer),
+                                                services);
+            }
+            catch(const std::exception& ex)
+            {
+                _observers.erase(p);
+                observerRemoved(observer, ex);
+            }
+        }
+    }
+}
+
+void
+IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, const std::exception& ex)
+{ 
+    if(_traceServiceObserver >= 1)
+    {
+        Trace out(_logger, "IceBox.ServiceObserver");
+        out << "Removed service observer: " << _communicator->proxyToString(observer)
+            << "\nafter catching " << ex.what();
+    } 
+} 

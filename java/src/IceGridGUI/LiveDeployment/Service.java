@@ -9,6 +9,7 @@
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -29,12 +30,131 @@ class Service extends ListArrayTreeNode
     {
         boolean[] actions = new boolean[ACTION_COUNT];
 
-        if(((Server)_parent).getState() != null)
+        ServerState serverState = ((Server)_parent).getState();
+
+        if(serverState != null)
         {
             actions[RETRIEVE_LOG] = _serviceDescriptor.logs.length > 0;
         }
+        if(serverState == ServerState.Active)
+        {
+            if(((Server)_parent).hasServiceObserver())
+            {
+                actions[START] = !_started;
+                actions[STOP] = _started;
+            }
+            else
+            {
+                actions[START] = true;
+                actions[STOP] = true;
+            }
+        }
+        
         return actions;
     }
+
+    public void start()
+    {
+        Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
+        
+        if(serverAdmin != null)
+        {
+            final String prefix = "Starting service '" + _id + "'...";
+            getCoordinator().getStatusBar().setText(prefix);
+            
+            IceBox.AMI_ServiceManager_startService cb = new IceBox.AMI_ServiceManager_startService()
+            {
+                //
+                // Called by another thread!
+                //
+                public void ice_response()
+                {
+                    amiSuccess(prefix);
+                }
+                
+                public void ice_exception(Ice.UserException e)
+                {
+                    if(e instanceof IceBox.AlreadyStartedException)
+                    {
+                        amiSuccess(prefix);
+                    }
+                    else
+                    {
+                        amiFailure(prefix, "Failed to start service " + _id, e.toString());
+                    }
+                }
+
+                public void ice_exception(Ice.LocalException e)
+                {
+                    amiFailure(prefix, "Failed to start service " + _id, e.toString());
+                }
+            };
+            
+            IceBox.ServiceManagerPrx serviceManager = IceBox.ServiceManagerPrxHelper.
+                uncheckedCast(serverAdmin.ice_facet("IceBox.ServiceManager"));
+        
+            try
+            {   
+                serviceManager.startService_async(cb, _id);
+            }
+            catch(Ice.LocalException e)
+            {
+                failure(prefix, "Failed to start service " + _id, e.toString());
+            }
+        }
+    }
+    
+    public void stop()
+    {
+        Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
+        
+        if(serverAdmin != null)
+        {
+            final String prefix = "Stopping service '" + _id + "'...";
+            getCoordinator().getStatusBar().setText(prefix);
+            
+            IceBox.AMI_ServiceManager_stopService cb = new IceBox.AMI_ServiceManager_stopService()
+            {
+                //
+                // Called by another thread!
+                //
+                public void ice_response()
+                {
+                    amiSuccess(prefix);
+                }
+                
+                public void ice_exception(Ice.UserException e)
+                {
+                    if(e instanceof IceBox.AlreadyStoppedException)
+                    {
+                        amiSuccess(prefix);
+                    }
+                    else
+                    {
+                        amiFailure(prefix, "Failed to stop service " + _id, e.toString());
+                    }
+                }
+
+                public void ice_exception(Ice.LocalException e)
+                {
+                    amiFailure(prefix, "Failed to stop service " + _id, e.toString());
+                }
+            };
+            
+            IceBox.ServiceManagerPrx serviceManager = IceBox.ServiceManagerPrxHelper.
+                uncheckedCast(serverAdmin.ice_facet("IceBox.ServiceManager"));
+        
+            try
+            {   
+                serviceManager.stopService_async(cb, _id);
+            }
+            catch(Ice.LocalException e)
+            {
+                failure(prefix, "Failed to stop service " + _id, e.toString());
+            }
+        }
+    }
+
 
     public void retrieveLog()
     {
@@ -107,12 +227,22 @@ class Service extends ListArrayTreeNode
         if(_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
-            _cellRenderer.setOpenIcon(
-                Utils.getIcon("/icons/16x16/service.png"));
 
-            _cellRenderer.setClosedIcon(
-                Utils.getIcon("/icons/16x16/service.png"));
+            _startedIcon = Utils.getIcon("/icons/16x16/service_started.png");
+            _stoppedIcon = Utils.getIcon("/icons/16x16/service.png");
         }
+        
+        Icon icon = _started ?  _startedIcon : _stoppedIcon;
+        
+        if(expanded)
+        {
+            _cellRenderer.setOpenIcon(icon);
+        }
+        else
+        {
+            _cellRenderer.setClosedIcon(icon);
+        }
+
 
         return _cellRenderer.getTreeCellRendererComponent(
             tree, value, sel, expanded, leaf, row, hasFocus);
@@ -122,7 +252,7 @@ class Service extends ListArrayTreeNode
     {
         if(_editor == null)
         {
-            _editor = new ServiceEditor();
+            _editor = new ServiceEditor(getCoordinator());
         }
         _editor.show(this);
         return _editor;
@@ -135,6 +265,9 @@ class Service extends ListArrayTreeNode
         if(_popup == null)
         {
             _popup = new JPopupMenu();
+            _popup.add(la.get(START));
+            _popup.add(la.get(STOP));
+            _popup.addSeparator();
             _popup.add(la.get(RETRIEVE_LOG));
         }
         
@@ -198,6 +331,29 @@ class Service extends ListArrayTreeNode
         {
             Adapter adapter = (Adapter)p.next();
             adapter.update((AdapterDynamicInfo)null);
+        }
+    }
+
+    boolean isStarted()
+    {
+        return _started;
+    }
+
+    void started()
+    {
+        if(!_started)
+        {
+            _started = true;
+            getRoot().getTreeModel().nodeChanged(this);
+        }
+    }
+
+    void stopped()
+    {
+        if(_started)
+        {
+            _started = false;
+            getRoot().getTreeModel().nodeChanged(this);
         }
     }
 
@@ -284,7 +440,11 @@ class Service extends ListArrayTreeNode
     private final java.util.List _adapters = new java.util.LinkedList();
     private final java.util.List _dbEnvs = new java.util.LinkedList();
 
+    private boolean _started = false;
+
     static private ServiceEditor _editor;
     static private DefaultTreeCellRenderer _cellRenderer;
     static private JPopupMenu _popup;
+    static private Icon _startedIcon;
+    static private Icon _stoppedIcon;
 }

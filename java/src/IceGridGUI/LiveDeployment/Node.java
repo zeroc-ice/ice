@@ -393,6 +393,7 @@ class Node extends ListTreeNode
                 }
                 else
                 {
+                    server.removeCallbacks();
                     removeDescriptor(nodeDesc, server);
                     int index = getIndex(server); 
                     _children.remove(server);

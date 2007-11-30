@@ -1578,6 +1578,21 @@ public class Coordinator
         return _sessionKeeper.getAdmin();
     }
 
+    public String getServerAdminCategory()
+    {
+        return _sessionKeeper.getServerAdminCategory();
+    }
+
+    public Ice.ObjectPrx addCallback(Ice.Object servant, String name, String facet)
+    {
+        return _sessionKeeper.addCallback(servant, name, facet);
+    }
+
+    public Ice.Object removeCallback(String name, String facet)
+    {
+        return _sessionKeeper.removeCallback(name, facet);
+    }
+
     public StatusBar getStatusBar()
     {
         return _statusBar;
@@ -2309,7 +2324,7 @@ public class Coordinator
         _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);        
     }
 
-    JComponent getLiveDeploymentPane()
+    public LiveDeploymentPane getLiveDeploymentPane()
     {
         return _liveDeploymentPane;
     }

@@ -84,7 +84,10 @@ SessionServantManager::addSession(const Ice::ObjectPtr& session, const Ice::Conn
     if(!category.empty() && con != 0)
     {
         _adminConnections.insert(con);
-        _adminCallbackRouter->addMapping(category, con);
+        if(_adminCallbackRouter != 0)
+        {
+            _adminCallbackRouter->addMapping(category, con);
+        }
     }
 
     return addImpl(session, session); // Register a servant for the session and return its proxy.
@@ -184,7 +187,10 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
         assert(_adminConnections.find(p->second.connection) != _adminConnections.end());
         _adminConnections.erase(_adminConnections.find(p->second.connection));
 
-        _adminCallbackRouter->removeMapping(p->second.category);
+        if(_adminCallbackRouter != 0)
+        {
+            _adminCallbackRouter->removeMapping(p->second.category);
+        }
     }
 
     _sessions.erase(p);

@@ -113,6 +113,22 @@ local interface Service
     void stop();
 };
 
+
+/**
+ *
+ * An Observer interface implemented by admin clients
+ * interested in the status of services
+ *
+ * @see ServiceManager
+ *
+ **/
+interface ServiceObserver
+{
+    ["ami"] void servicesStarted(Ice::StringSeq services);
+    ["ami"] void servicesStopped(Ice::StringSeq services);
+};
+
+
 /**
  *
  * Administers a set of [Service] instances.
@@ -138,7 +154,7 @@ interface ServiceManager
      * @param service The service name.
      *
      **/
-    void startService(string service)
+    ["ami"] void startService(string service)
         throws AlreadyStartedException, NoSuchServiceException;
 
     /**
@@ -148,8 +164,19 @@ interface ServiceManager
      * @param service The service name.
      *
      **/
-    void stopService(string service)
+    ["ami"] void stopService(string service)
         throws AlreadyStoppedException, NoSuchServiceException;
+
+    
+    /**
+     *
+     * Registers a new observer with the ServiceManager
+     * 
+     * @param observer The new observer
+     *
+     **/
+    ["ami"] void addObserver(ServiceObserver* observer);
+
 
     /**
      *

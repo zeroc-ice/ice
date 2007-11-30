@@ -139,7 +139,7 @@ class Server extends ListArrayTreeNode
         {   
             getCoordinator().getMainFrame().setCursor(
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-           getCoordinator().getAdmin().stopServer_async(cb, _id);
+            getCoordinator().getAdmin().stopServer_async(cb, _id);
         }
         catch(Ice.LocalException e)
         {
@@ -359,9 +359,9 @@ class Server extends ListArrayTreeNode
         {   
             getCoordinator().getMainFrame().setCursor(
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-           getCoordinator().getAdmin().
-               patchServer_async(cb, _id, 
-                                 shutdown == JOptionPane.YES_OPTION);
+            getCoordinator().getAdmin().
+                patchServer_async(cb, _id, 
+                                  shutdown == JOptionPane.YES_OPTION);
         }
         catch(Ice.LocalException e)
         {
@@ -377,7 +377,7 @@ class Server extends ListArrayTreeNode
     private void enableServer(boolean enable)
     {
         final String prefix = (enable ?
-            "Enabling" : "Disabling") + " server '" + _id + "'...";
+                               "Enabling" : "Disabling") + " server '" + _id + "'...";
         
         final String action = enable ? "enable" : "disable";
         
@@ -408,7 +408,7 @@ class Server extends ListArrayTreeNode
         {   
             getCoordinator().getMainFrame().setCursor(
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-           getCoordinator().getAdmin().enableServer_async(cb, _id, enable);
+            getCoordinator().getAdmin().enableServer_async(cb, _id, enable);
         }
         catch(Ice.LocalException e)
         {
@@ -423,74 +423,61 @@ class Server extends ListArrayTreeNode
 
     public void showRuntimeProperties()
     {
-         Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
-            {
-                public void ice_response(final java.util.Map properties)
+        Ice.ObjectPrx serverAdmin = getServerAdmin();
+            
+        if(serverAdmin == null)
+        {
+            _editor.setBuildId("", this);
+        }
+        else
+        {
+            Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
                 {
-                    SwingUtilities.invokeLater(new Runnable() 
-                        {
-                            public void run() 
+                    public void ice_response(final java.util.Map properties)
+                    {
+                        SwingUtilities.invokeLater(new Runnable() 
                             {
-                                _editor.setRuntimeProperties((java.util.SortedMap)properties, Server.this);
-                            }
-                        });
-                }
+                                public void run() 
+                                {
+                                    _editor.setRuntimeProperties((java.util.SortedMap)properties, Server.this);
+                                }
+                            });
+                    }
                 
-                public void ice_exception(final Ice.LocalException e)
-                {
-                    SwingUtilities.invokeLater(new Runnable() 
-                        {
-                            public void run() 
+                    public void ice_exception(final Ice.LocalException e)
+                    {
+                        SwingUtilities.invokeLater(new Runnable() 
                             {
-                                if(e instanceof Ice.ObjectNotExistException)
+                                public void run() 
                                 {
-                                    _editor.setBuildId("Error: can't reach this server's Admin object", Server.this);
+                                    if(e instanceof Ice.ObjectNotExistException)
+                                    {
+                                        _editor.setBuildId("Error: can't reach this server's Admin object", Server.this);
+                                    }
+                                    else if(e instanceof Ice.FacetNotExistException)
+                                    {
+                                        _editor.setBuildId("Error: this server's Admin object does not provide a 'Properties' facet", 
+                                                           Server.this);
+                                    }
+                                    else
+                                    {
+                                        _editor.setBuildId("Error: " + e.toString(), Server.this);
+                                    }
                                 }
-                                else if(e instanceof Ice.FacetNotExistException)
-                                {
-                                    _editor.setBuildId("Error: this server's Admin object does not provide a 'Properties' facet", 
-                                                       Server.this);
-                                }
-                                else
-                                {
-                                    _editor.setBuildId("Error: " + e.toString(), Server.this);
-                                }
-                            }
-                        });
-                }
-            };
+                            });
+                    }
+                };
 
-        try
-        {   
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            
-            IceGrid.AdminPrx admin = getCoordinator().getAdmin();
-            
-            if(admin == null)
-            {
-                _editor.setBuildId("", this);
-            }
-            else
-            {
-                //
-                // Build serverAdmin object
-                //
-                Ice.Identity adminId = new Ice.Identity(_id, getRoot().getInstanceName() + "-RegistryRouter");
-                Ice.ObjectPrx serverAdmin = admin.ice_identity(adminId);
 
+            try
+            {    
                 Ice.PropertiesAdminPrx propAdmin = Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("Properties"));
                 propAdmin.getPropertiesForPrefix_async(cb, "");
             }
-        }
-        catch(Ice.LocalException e)
-        {
-            _editor.setBuildId("Error: " + e.toString(), this);
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            catch(Ice.LocalException e)
+            {
+                _editor.setBuildId("Error: " + e.toString(), this);
+            }
         }
     }
 
@@ -546,13 +533,13 @@ class Server extends ListArrayTreeNode
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus) 
     {
         if(_cellRenderer == null)
         {
@@ -700,6 +687,11 @@ class Server extends ListArrayTreeNode
     {
         return _state;
     }
+
+    boolean hasServiceObserver()
+    {
+        return _serviceObserver != null;
+    }
     
     int getPid()
     {
@@ -714,6 +706,15 @@ class Server extends ListArrayTreeNode
     Utils.Resolver getResolver()
     {
         return _resolver;
+    }
+
+    void removeCallbacks()
+    {
+        if(_serviceObserver != null)
+        {
+            getCoordinator().removeCallback(_serviceObserver.ice_getIdentity().name, _serviceObserver.ice_getFacet());
+            _serviceObserver = null;
+        }
     }
 
     void rebuild(Server server)
@@ -792,6 +793,110 @@ class Server extends ListArrayTreeNode
             else
             {
                 _stateIconIndex = _state.value() + 1;
+            }
+
+            if(_serverDescriptor instanceof IceBoxDescriptor)
+            {
+                if(_state == ServerState.Active)
+                {
+                    if(_serviceObserver == null)
+                    {
+                        IceBox.ServiceObserver servant = new IceBox._ServiceObserverDisp()
+                            {
+                                public void servicesStarted(final String[] services, Ice.Current current)
+                                {
+                                    final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
+                                    
+                                    SwingUtilities.invokeLater(new Runnable() 
+                                        {
+                                            public void run() 
+                                            {
+                                                for(Service service: _services)
+                                                {
+                                                    if(serviceSet.contains(service.getId()))
+                                                    {
+                                                        service.started();
+                                                    }
+                                                }
+                                                getCoordinator().getLiveDeploymentPane().refresh();
+                                            }
+                                        });
+                                }
+                                
+                                public void servicesStopped(final String[] services, Ice.Current current)
+                                {
+                                    final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
+                                    
+                                    SwingUtilities.invokeLater(new Runnable() 
+                                        {
+                                            public void run() 
+                                            {
+                                                for(Service service: _services)
+                                                {
+                                                    if(serviceSet.contains(service.getId()))
+                                                    {
+                                                        service.stopped();
+                                                    }
+                                                }
+                                                getCoordinator().getLiveDeploymentPane().refresh();
+                                            }
+                                        });
+                                }
+                                
+                            };
+                        
+                        _serviceObserver = IceBox.ServiceObserverPrxHelper.uncheckedCast(
+                            getCoordinator().addCallback(servant, _id, "IceBox.ServiceManager")); 
+
+                        if(_serviceObserver == null)
+                        {
+                            // TODO: log/report condition (observer not available, e.g. adapter not configured)
+                        }
+                    }
+
+                    if(_serviceObserver != null)
+                    {
+                        //
+                        // Add observer to service manager using AMI call
+                        //
+                        
+                        IceBox.AMI_ServiceManager_addObserver cb = new IceBox.AMI_ServiceManager_addObserver()
+                            {
+                                public void ice_response()
+                                {
+                                    // all is good
+                                }
+                                
+                                public void ice_exception(Ice.LocalException e)
+                                {
+                                    // TODO: log/report exception
+                                }
+                            };
+                        
+                        Ice.ObjectPrx serverAdmin = getServerAdmin();
+                        if(serverAdmin != null)
+                        {
+                            IceBox.ServiceManagerPrx serviceManager = 
+                                IceBox.ServiceManagerPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.ServiceManager"));
+                            
+                            try
+                            {
+                                serviceManager.addObserver_async(cb, _serviceObserver);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                // TODO: log/report exception
+                            }
+                        }
+                    }
+                }
+                else if(_state == null || _state == ServerState.Inactive)
+                {
+                    for(Service service: _services)
+                    {
+                        service.stopped(); 
+                    }
+                }
             }
 
             if(fireEvent)
@@ -986,6 +1091,26 @@ class Server extends ListArrayTreeNode
         _services.add(new Service(this, serviceName, serviceResolver,
                                   descriptor, serviceDescriptor, serverInstancePSDescriptor));
     }
+
+    Ice.ObjectPrx getServerAdmin()
+    {
+        if(_state != ServerState.Active)
+        {
+            return null;
+        }
+
+        AdminPrx admin = getCoordinator().getAdmin();
+        if(admin == null)
+        {
+            return null;
+        }
+        else
+        {
+            Ice.Identity adminId = new Ice.Identity(_id, getCoordinator().getServerAdminCategory());
+            return admin.ice_identity(adminId);
+        }
+    }
+   
     
     static private String toolTip(ServerState state, int pid, boolean enabled)
     {
@@ -1013,13 +1138,15 @@ class Server extends ListArrayTreeNode
     private Utils.Resolver _resolver;
     private java.util.List _adapters = new java.util.LinkedList();
     private java.util.List _dbEnvs = new java.util.LinkedList();
-    private java.util.List _services = new java.util.LinkedList();
+    private java.util.List<Service> _services = new java.util.LinkedList<Service>();
 
     private ServerState _state;
     private boolean _enabled;
     private int _stateIconIndex;
     private int _pid;
     private String _toolTip;
+
+    private IceBox.ServiceObserverPrx _serviceObserver;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon[][][] _icons;
