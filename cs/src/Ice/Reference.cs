@@ -569,7 +569,8 @@ namespace IceInternal
             try
             {
                 bool compress;
-                callback.setConnection(getConnection(out compress), compress);
+                Ice.ConnectionI connection = getConnection(out compress);
+                callback.setConnection(connection, compress);
             }
             catch(Ice.LocalException ex)
             {
