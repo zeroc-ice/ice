@@ -27,19 +27,6 @@ namespace helloC
 {
     public partial class Page : Canvas
     {
-        private class AMI_Hello_sayHelloI : Demo.AMI_Hello_sayHello
-        {
-            public override void ice_response()
-            {
-                _tb.Text = "Call succeeded";
-            }
-
-            public override void ice_exception(Ice.Exception ex)
-            {
-                _tb.Text = "Call failed with exception:\n" + ex.ToString();
-            }
-        }
-
         public void Page_Loaded(object o, EventArgs e)
         {
             // Required to initialize variables
@@ -59,8 +46,8 @@ namespace helloC
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = Ice.Util.createProperties();
                 initData.properties.setProperty("Ice.BridgeUri", "http://localhost:1287/IceBridge.ashx");
-                Ice.Communicator comm = Ice.Util.initialize(initData);
-                _hello = Demo.HelloPrxHelper.uncheckedCast(comm.stringToProxy("hello:tcp -p 10000"));
+                _comm = Ice.Util.initialize(initData);
+                _hello = Demo.HelloPrxHelper.uncheckedCast(_comm.stringToProxy("hello:tcp -p 10000"));
                 _helloOneway = Demo.HelloPrxHelper.uncheckedCast(_hello.ice_oneway());
             }
             catch(Exception ex)
@@ -68,10 +55,27 @@ namespace helloC
                 _tb.Text = "Initialization failed with exception:\n" + ex.ToString();
             }
         }
+
         public Page()
         {
             //this.Loaded += new EventHandler(EventHandlingCanvas_Loaded);
         }
+
+        ~Page()
+        {
+            if(_comm != null)
+            {
+                try
+                {
+                    _comm.destroy();
+                }
+                catch(Exception ex)
+                {
+                    _tb.Text = "Destroy failed with exception:\n" + ex.ToString();
+                }
+            }
+        }
+
 
         void EventHandlingCanvas_Loaded(object sender, EventArgs e)
         { 
@@ -117,6 +121,16 @@ namespace helloC
             }
         }       
 
+        void sayHelloResponse()
+        {
+            _tb.Text = "Call succeeded";
+        }
+
+        void sayHelloException(Ice.Exception ex)
+        {
+            _tb.Text = "Call failed with exception:\n" + ex.ToString();
+        }
+
         void OnClickAMI(object sender, MouseEventArgs e)
         {
             //
@@ -126,7 +140,7 @@ namespace helloC
             //
             try
             {
-                _hello.sayHello_async(new AMI_Hello_sayHelloI(), 0);
+                _hello.sayHello_async(sayHelloResponse, sayHelloException, 0);
                 _tb.Text = "Calling sayHello()...";
             }
             catch (Exception ex)
@@ -135,7 +149,8 @@ namespace helloC
                 return;
             }
         }       
-
+        
+        private Ice.Communicator _comm = null;
         private Demo.HelloPrx _hello;
         private Demo.HelloPrx _helloOneway;
         private static TextBlock _tb;

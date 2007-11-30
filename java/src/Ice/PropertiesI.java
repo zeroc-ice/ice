@@ -186,7 +186,7 @@ public final class PropertiesI implements Properties
                 String pattern = IceInternal.PropertyNames.validProps[i][0].pattern();
                 dotPos = pattern.indexOf('.');
                 assert(dotPos != -1);
-                String propPrefix = pattern.substring(1, dotPos - 1);
+                String propPrefix = pattern.substring(0, dotPos - 1);
                 if(!propPrefix.equals(prefix))
                 {
                     continue;

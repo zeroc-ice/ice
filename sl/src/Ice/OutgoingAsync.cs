@@ -24,8 +24,6 @@ namespace IceInternal
 
     public abstract class OutgoingAsync : OutgoingBase
     {
-        public abstract void ice_exception(Ice.Exception ex);
-        
         public void responseReady__(IAsyncResult iar)
         {
             lock(this)
@@ -148,7 +146,7 @@ namespace IceInternal
 
                 try
                 {
-                    ice_exception(exc);
+                    exception__(exc);
                 }
                 catch(System.Exception ex)
                 {
@@ -299,6 +297,7 @@ namespace IceInternal
         }
 
         protected abstract void response__(bool ok);
+        protected abstract void exception__(Ice.Exception ex);
 
         private void warning(System.Exception ex)
         {

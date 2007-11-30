@@ -25,10 +25,12 @@ public:
 
 protected:
 
+    enum AsyncType { AMD, AMI, AMIDelegate };
+   
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatchAndMarshalling(const ClassDefPtr&);
     virtual std::vector<std::string> getParams(const OperationPtr&);
-    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool);
+    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, AsyncType);
     virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&);
     virtual std::vector<std::string> getArgs(const OperationPtr&);
     virtual std::vector<std::string> getArgsAsync(const OperationPtr&);

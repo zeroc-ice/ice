@@ -12,13 +12,31 @@
 #include "PatchClientDlg.h"
 
 #include <IcePatch2/ClientUtil.h>
-#include <IcePatch2/Util.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 using namespace std;
+
+string
+getBasename(const string& path)
+{
+    string::size_type pos = path.rfind('/');
+    if(pos == string::npos)
+    {
+	pos = path.rfind('\\');
+    }
+
+    if(pos == string::npos)
+    {
+        return path;
+    }
+    else
+    {
+        return path.substr(pos + 1);
+    }
+}
 
 class DialogPatcherFeedback : public IcePatch2::PatcherFeedback
 {
@@ -130,7 +148,7 @@ CPatchDlg::checksumProgress(const string& path)
     // TODO: indicate busy progress
  
     CString file;
-    file.Format(L" %s", IceUtil::stringToWstring(IcePatch2::getBasename(path)).c_str());
+    file.Format(L" %s", IceUtil::stringToWstring(getBasename(path)).c_str());
     _file->SetWindowText(file);
 
     processMessages();
@@ -188,7 +206,7 @@ CPatchDlg::patchStart(const string& path, Ice::Long size, Ice::Long totalProgres
     }
 
     CString file;
-    file.Format(L" %s", IceUtil::stringToWstring(IcePatch2::getBasename(path)).c_str());
+    file.Format(L" %s", IceUtil::stringToWstring(getBasename(path)).c_str());
     _file->SetWindowText(file);
 
     return patchProgress(0, size, totalProgress, totalSize);

@@ -204,7 +204,8 @@ public class FixedReference extends Reference
         try
         {
             Ice.BooleanHolder compress = new Ice.BooleanHolder();
-            callback.setConnection(getConnection(compress), compress.value);
+            Ice.ConnectionI connection = getConnection(compress);
+            callback.setConnection(connection, compress.value);
         }
         catch(Ice.LocalException ex)
         {
