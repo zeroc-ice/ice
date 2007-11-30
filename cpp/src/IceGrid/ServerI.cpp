@@ -743,30 +743,17 @@ ServerI::getPid(const Ice::Current&) const
 }
 
 Ice::ObjectPrx
-ServerI::getRealAdmin() const
+ServerI::getProcess() const
 {
     Lock sync(*this);
-
-    //
-    // Don't wait for the process activation to avoid blocking the thread. The 
-    // caller should ensure that the server is active before invoking server
-    // admin objects instead. He can do that by calling Admin::startServer().
-    //
-//     //
-//     // Wait for _process to be set if the server is being activated.
-//     //
-//     while(_desc->processRegistered && _process == 0 && _state > Inactive && _state < Deactivating)
-//     {
-//         wait();
-//     }
-    
+ 
     if(_process == 0 || _state <= Inactive || _state >= Deactivating)
     {
         return 0;
     }
     else
     {
-        return _process->ice_facet("");
+        return _process;
     }
 }
 

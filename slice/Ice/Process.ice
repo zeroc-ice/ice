@@ -46,7 +46,7 @@ interface Process
      * @param fd 1 for stdout, 2 for stderr.
      *
      **/
-    void writeMessage(string message, int fd);
+    ["ami"] void writeMessage(string message, int fd);
 };
 
 };

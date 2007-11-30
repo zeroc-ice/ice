@@ -341,6 +341,32 @@ class ServiceManagerI : ServiceManagerDisp_
             Ice.Application.shutdownOnInterrupt();
 
             //
+            // Register "this" as a facet to the Admin object and create Admin object
+            //
+            try
+            {
+                Ice.Application.communicator().addAdminFacet(this, "ServiceManager");
+
+                //
+                // Add a Properties facet for each service
+                // 
+                foreach(ServiceInfo info in _services)
+                {
+                    Ice.Communicator communicator = info.communicator != null ? info.communicator : Ice.Application.communicator();
+                    Ice.Application.communicator().addAdminFacet(new PropertiesAdminI(communicator.getProperties()),
+                                                                 "IceBox.Service." + info.name + ".Properties");
+                }
+
+                Ice.Application.communicator().getAdmin();
+            }
+            catch(Ice.ObjectAdapterDeactivatedException)
+            {
+                //
+                // Expected if the communicator has been shutdown.
+                //
+            }
+
+            //
             // Start request dispatching after we've started the services.
             //
             if(adapter != null)
@@ -357,20 +383,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
             }
 
-            //
-            // Register "this" as a facet to the Admin object and create Admin object
-            //
-            try
-            {
-                Ice.Application.communicator().addAdminFacet(this, "ServiceManager");
-                Ice.Application.communicator().getAdmin();
-            }
-            catch(Ice.ObjectAdapterDeactivatedException)
-            {
-                //
-                // Expected if the communicator has been shutdown.
-                //
-            }
+
 
             Ice.Application.communicator().waitForShutdown();
             // XXX:
@@ -723,6 +736,15 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     try
                     {
+                        Ice.Application.communicator().removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        // Ignored
+                    }
+
+                    try
+                    {
                         info.communicator.shutdown();
                         info.communicator.waitForShutdown();
                     }
@@ -850,8 +872,6 @@ class ServiceManagerI : ServiceManagerDisp_
         } 
     } 
     
-
-
     struct ServiceInfo
     {
         public string name;
@@ -859,6 +879,28 @@ class ServiceManagerI : ServiceManagerDisp_
         public Ice.Communicator communicator;
         public bool active;
         public string[] args;
+    }
+
+    class PropertiesAdminI : Ice.PropertiesAdminDisp_
+    {
+        public PropertiesAdminI(Ice.Properties properties)
+        {
+            _properties = properties;
+        }
+
+        public override string
+        getProperty(string name, Ice.Current current)
+        {
+            return _properties.getProperty(name);
+        }
+        
+        public override Dictionary<string, string>
+        getPropertiesForPrefix(string name, Ice.Current current)
+        {
+            return _properties.getPropertiesForPrefix(name);
+        }
+        
+        private Ice.Properties _properties;
     }
 
     private Ice.Logger _logger;

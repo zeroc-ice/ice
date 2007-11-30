@@ -52,9 +52,31 @@ private:
     ServiceObserverPrx _observer;
 };
 
+class PropertiesAdminI : public PropertiesAdmin
+{
+public:
+    
+    PropertiesAdminI(const PropertiesPtr& properties) :
+        _properties(properties)
+    {
+    }
+    
+    virtual string getProperty(const string& name, const Current&)
+    {
+        return _properties->getProperty(name);
+    }
+
+    virtual PropertyDict getPropertiesForPrefix(const string& prefix, const Current&)
+    {
+        return _properties->getPropertiesForPrefix(prefix);
+    }
+    
+private:
+
+    const PropertiesPtr _properties; 
+};
+
 }
-
-
 
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) : 
@@ -355,6 +377,34 @@ IceBox::ServiceManagerI::start()
             cout << bundleName << " ready" << endl;
         }
 
+        //
+        // Register "this" as a facet to the Admin object, and then create
+        // Admin object
+        //
+        try
+        {
+            _communicator->addAdminFacet(this, "IceBox.ServiceManager");
+
+            //
+            // Add a Properties facet for each service
+            // 
+            for(vector<ServiceInfo>::iterator r = _services.begin(); r != _services.end(); ++r)
+            {
+                const ServiceInfo& info = *r;
+                CommunicatorPtr communicator = info.communicator != 0 ? info.communicator : _communicator;
+                _communicator->addAdminFacet(new PropertiesAdminI(communicator->getProperties()),
+                                             "IceBox.Service." + info.name + ".Properties");
+            }
+          
+            _communicator->getAdmin();
+        }
+        catch(const ObjectAdapterDeactivatedException&)
+        {
+            //
+            // Expected if the communicator has been shutdown.
+            //
+        }
+
         if(adapter)
         {
             try
@@ -367,22 +417,6 @@ IceBox::ServiceManagerI::start()
                 // Expected if the communicator has been shutdown.
                 //
             }
-        }
-
-        //
-        // Register "this" as a facet to the Admin object, and then create
-        // Admin object
-        //
-        try
-        {
-            _communicator->addAdminFacet(this, "IceBox.ServiceManager");
-            _communicator->getAdmin();
-        }
-        catch(const ObjectAdapterDeactivatedException&)
-        {
-            //
-            // Expected if the communicator has been shutdown.
-            //
         }
     }
     catch(const FailureException& ex)
@@ -702,6 +736,7 @@ IceBox::ServiceManagerI::stopAll()
     for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
+
         if(info.active)
         {
             try
@@ -732,6 +767,15 @@ IceBox::ServiceManagerI::stopAll()
 
         if(info.communicator)
         {
+            try
+            {
+                _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+            }
+            catch(const LocalException&)
+            {
+                // Ignored
+            }
+
             try
             {
                 info.communicator->shutdown();

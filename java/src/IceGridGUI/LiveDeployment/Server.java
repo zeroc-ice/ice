@@ -296,18 +296,11 @@ class Server extends ListArrayTreeNode
         
         try
         {   
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             getCoordinator().getAdmin().sendSignal_async(cb, _id, s);
         }
         catch(Ice.LocalException e)
         {
             failure(prefix, "Failed to deliver signal " + s + " to " + _id, e.toString());
-        }
-        finally
-        {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -421,7 +414,7 @@ class Server extends ListArrayTreeNode
         }
     }
 
-    public void showRuntimeProperties()
+    void showRuntimeProperties()
     {
         Ice.ObjectPrx serverAdmin = getServerAdmin();
             
@@ -993,6 +986,11 @@ class Server extends ListArrayTreeNode
         }
 
         return Utils.propertySetsToMap(psList, _resolver);
+    }
+
+    int getIceVersion()
+    {
+        return Utils.getIntVersion(Utils.substitute(_serverDescriptor.iceVersion, _resolver));
     }
 
     private void createAdapters()

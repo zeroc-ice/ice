@@ -64,124 +64,122 @@ class WriteMessageDialog extends JDialog
                 public void actionPerformed(ActionEvent e)
                 {
                     final Coordinator c = root.getCoordinator();
-                    final String target = _target;
-                    final String prefix = "Writing message to server '" + target + "'...";
-
-
-                    AMI_Admin_writeMessage cb = new AMI_Admin_writeMessage()
-                        {
-                            public void ice_response()
-                            {
-                                SwingUtilities.invokeLater(new Runnable() 
-                                    {   
-                                        public void run() 
-                                        {
-                                            c.getStatusBar().setText(prefix + "done.");
-                                        }
-                                    });
-                            }
-                            
-                            public void ice_exception(final Ice.UserException e)
-                            {
-                                SwingUtilities.invokeLater(new Runnable() 
-                                    {
-                                        public void run() 
-                                        {
-                                            handleFailure("IceGrid exception: " + e.toString());
-                                        }
-                                        
-                                    });
-                            }
-                                            
-                            public void ice_exception(final Ice.LocalException e)
-                            {
-                                SwingUtilities.invokeLater(new Runnable() 
-                                    {
-                                        public void run() 
-                                        {
-                                            handleFailure("Communication exception: " + e.toString());
-                                        }
-                                    });
-                            }
-
-                            private void handleFailure(String message)
-                            {
-                                c.getStatusBar().setText(prefix + "failed!");
-                                
-                                JOptionPane.showMessageDialog(
-                                    _mainFrame,
-                                    message,
-                                    "Writing message to server '" + target + "' failed",
-                                    JOptionPane.ERROR_MESSAGE);
-                            }
-                        };
-                  
-                    try
+                 
+                    AdminPrx admin = c.getAdmin();
+                    if(admin == null)
                     {
-                        c.getStatusBar().setText(prefix);
-                        _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-                        c.getAdmin().writeMessage_async(
-                            cb, _target, _message.getText(), _stdOut.isSelected() ? 1 : 2);
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        c.getStatusBar().setText(prefix + "failed.");
                         JOptionPane.showMessageDialog(
                             _mainFrame,
-                            "Communication exception: " + ex.toString(),
-                            "Writing message to server '" + target + "' failed",
+                            "No longer connected to IceGrid Registry",
+                            "Writing message to server '" + _target + "' failed",
                             JOptionPane.ERROR_MESSAGE);
-                
-                        return;
                     }
-                    finally
+                    else
                     {
-                        _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    }
+                 
+                        Ice.Identity adminId = new Ice.Identity(_target, c.getServerAdminCategory());
+                    
+                        final Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(
+                            admin.ice_identity(adminId).ice_facet("Process"));
+                    
+                        final String prefix = "Writing message to server '" + _target + "'...";
+                        c.getStatusBar().setText(prefix);
 
+                        Ice.AMI_Process_writeMessage cb = new Ice.AMI_Process_writeMessage()
+                            {
+                                public void ice_response()
+                                {
+                                    SwingUtilities.invokeLater(new Runnable() 
+                                        {   
+                                            public void run() 
+                                            {
+                                                c.getStatusBar().setText(prefix + "done.");
+                                            }
+                                        });
+                                }
+                                            
+                                public void ice_exception(final Ice.LocalException e)
+                                {
+                                    SwingUtilities.invokeLater(new Runnable() 
+                                        {
+                                            public void run() 
+                                            {
+                                                handleFailure("Communication exception: " + e.toString());
+                                            }
+                                        });
+                                }
+
+                                private void handleFailure(String message)
+                                {
+                                    c.getStatusBar().setText(prefix + "failed!");
+                                
+                                    JOptionPane.showMessageDialog(
+                                        _mainFrame,
+                                        message,
+                                        "Writing message to server '" + process.ice_getIdentity().name + "' failed",
+                                        JOptionPane.ERROR_MESSAGE);
+                                }
+                            };
+                  
+                        try
+                        {
+                            process.writeMessage_async(cb, _message.getText(), _stdOut.isSelected() ? 1 : 2);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            c.getStatusBar().setText(prefix + "failed.");
+                            JOptionPane.showMessageDialog(
+                                _mainFrame,
+                                "Communication exception: " + ex.toString(),
+                                "Writing message to server '" + _target + "' failed",
+                                JOptionPane.ERROR_MESSAGE);
+                
+                            return;
+                        }
+                    }
+                    
                     setVisible(false);
                 }
             };
-            okButton.addActionListener(okListener);
-            getRootPane().setDefaultButton(okButton);
+        okButton.addActionListener(okListener);
+        getRootPane().setDefaultButton(okButton);
         
-            JButton cancelButton = new JButton("Cancel");
-            ActionListener cancelListener = new ActionListener()
+        JButton cancelButton = new JButton("Cancel");
+        ActionListener cancelListener = new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
                 {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        setVisible(false);
-                    }
-                };
-            cancelButton.addActionListener(cancelListener);
+                    setVisible(false);
+                }
+            };
+        cancelButton.addActionListener(cancelListener);
 
-            FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
-            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            builder.setDefaultDialogBorder();
-            builder.setRowGroupingEnabled(true);
-            builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+        FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+        builder.setRowGroupingEnabled(true);
+        builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
 
-            _message.setLineWrap(true);
-            JScrollPane scrollPane = new JScrollPane(_message,
-                                                     JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-                                                     JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            builder.append(scrollPane, 3);
-            builder.nextLine();
-            builder.append(_stdOut);
-            builder.append(stdErr);
-            builder.nextLine();
-            JComponent buttonBar = 
-                ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
-            buttonBar.setBorder(Borders.DIALOG_BORDER);
+        _message.setLineWrap(true);
+        JScrollPane scrollPane = new JScrollPane(_message,
+                                                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                                                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        builder.append(scrollPane, 3);
+        builder.nextLine();
+        builder.append(_stdOut);
+        builder.append(stdErr);
+        builder.nextLine();
+        JComponent buttonBar = 
+            ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
+        buttonBar.setBorder(Borders.DIALOG_BORDER);
 
-            Container contentPane = getContentPane();
-            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-            contentPane.add(builder.getPanel());
-            contentPane.add(buttonBar);
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+        contentPane.add(builder.getPanel());
+        contentPane.add(buttonBar);
 
-            pack();
-            setResizable(false);
+        pack();
+        setResizable(false);
     }
 
     void showDialog(String serverId)

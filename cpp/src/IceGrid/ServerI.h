@@ -110,9 +110,9 @@ public:
     void terminated(const std::string&, int);
 
     //
-    // A proxy to the real Admin object; called by the AdminFacade servant implementation
+    // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation
     //
-    Ice::ObjectPrx getRealAdmin() const;
+    Ice::ObjectPrx getProcess() const;
 
 private:
     

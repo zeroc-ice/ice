@@ -119,40 +119,36 @@ class ServerEditor extends CommunicatorEditor
         {
             _currentState.setText(state.toString());
             _enabled.setSelected(server.isEnabled());
+
             int pid = server.getPid();
             if(pid == 0)
             {
                 _currentPid.setText("");
-                _buildId.setText("");
-                _properties.clear();
-                _refreshButton.setEnabled(false);
             }
             else
             {
                 _currentPid.setText(Integer.toString(pid));
-           
-                int iceIntVersion = Utils.getIntVersion(resolver.substitute(descriptor.iceVersion));
+            }
 
-                if(iceIntVersion == 0 || iceIntVersion >= 30300)
-                {
-                    _buildId.setText("Retrieving...");
-                    _properties.clear();
-                    
-                    //
-                    // Retrieve all properties in background
-                    //
-                    _target.showRuntimeProperties();
-                    _refreshButton.setEnabled(true);
-                }
-                else
-                {
-                    _buildId.setText("");
-                    _properties.clear();
-                    _refreshButton.setEnabled(false);
-                }
+            int iceIntVersion = server.getIceVersion();
+            if(state == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
+            {
+                _buildId.setText("Retrieving...");
+                _properties.clear();
+                
+                //
+                // Retrieve all properties in background
+                //
+                _target.showRuntimeProperties();
+                _refreshButton.setEnabled(true);
+            }
+            else
+            {
+                _buildId.setText("");
+                _properties.clear();
+                _refreshButton.setEnabled(false);
             }
         }
-
       
         _application.setText(resolver.find("application"));
 
@@ -210,7 +206,7 @@ class ServerEditor extends CommunicatorEditor
         // That's to report error messages
         //
 
-        if(server == _target && _target.getPid() != 0)
+        if(server == _target)
         {
             _buildId.setText(buildString);
         }
@@ -221,7 +217,7 @@ class ServerEditor extends CommunicatorEditor
 
     void setRuntimeProperties(java.util.SortedMap map, Server server)
     {
-        if(server == _target && _target.getPid() != 0)
+        if(server == _target)
         {
             _properties.setSortedMap(map);
             

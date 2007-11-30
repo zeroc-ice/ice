@@ -65,9 +65,9 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Array_Object_ice_invo
     }
     
     //
-    // Then get a proxy to the real admin object
+    // Then get a proxy to the Process facet of the real admin object
     //
-    ObjectPrx target = server->getRealAdmin();
+    ObjectPrx target = server->getProcess();
 
     if(target == 0)
     {
@@ -75,9 +75,15 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Array_Object_ice_invo
     }
     
     //
-    // Set the facet
+    // If this is a legacy Process proxy with no facet, we keep target as is
     //
-    target = target->ice_facet(current.facet);
+    if(current.facet != "Process")
+    {
+        //
+        // Set the facet
+        //
+        target = target->ice_facet(current.facet);
+    }
 
     //
     // Call with AMI

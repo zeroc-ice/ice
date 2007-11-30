@@ -756,11 +756,13 @@ interface Admin
      *
      **/
     ["ami"] void sendSignal(string id, string signal)
-        throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
+       throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
 
     /**
      *
      * Write message on server stdout or stderr.
+     *
+     * <p class="Deprecated">This operation is deprecated as of version 3.3.
      *
      * @param id The server id.
      *
@@ -778,8 +780,9 @@ interface Admin
      * deployed on the node.
      *
      **/
-    ["ami"] void writeMessage(string id, string message, int fd)
-        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+     ["ami","deprecate:writeMessage is deprecated, use instead the Process facet of the server Admin object."]
+     void writeMessage(string id, string message, int fd)
+         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *

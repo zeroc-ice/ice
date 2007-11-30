@@ -13,6 +13,7 @@ import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -354,6 +355,68 @@ class Service extends ListArrayTreeNode
         {
             _started = false;
             getRoot().getTreeModel().nodeChanged(this);
+        }
+    }
+
+    
+    void showRuntimeProperties()
+    {
+        Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
+            
+        if(serverAdmin == null)
+        {
+            _editor.setBuildId("", this);
+        }
+        else
+        {
+            Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
+                {
+                    public void ice_response(final java.util.Map properties)
+                    {
+                        SwingUtilities.invokeLater(new Runnable() 
+                            {
+                                public void run() 
+                                {
+                                    _editor.setRuntimeProperties((java.util.SortedMap)properties, Service.this);
+                                }
+                            });
+                    }
+                
+                    public void ice_exception(final Ice.LocalException e)
+                    {
+                        SwingUtilities.invokeLater(new Runnable() 
+                            {
+                                public void run() 
+                                {
+                                    if(e instanceof Ice.ObjectNotExistException)
+                                    {
+                                        _editor.setBuildId("Error: can't reach the icebox Admin object", Service.this);
+                                    }
+                                    else if(e instanceof Ice.FacetNotExistException)
+                                    {
+                                        _editor.setBuildId("Error: this icebox Admin object does not provide a 'Properties' facet for this service", 
+                                                           Service.this);
+                                    }
+                                    else
+                                    {
+                                        _editor.setBuildId("Error: " + e.toString(), Service.this);
+                                    }
+                                }
+                            });
+                    }
+                };
+
+
+            try
+            {    
+                Ice.PropertiesAdminPrx propAdmin = Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." 
+                                                                                                                    + _id + ".Properties"));
+                propAdmin.getPropertiesForPrefix_async(cb, "");
+            }
+            catch(Ice.LocalException e)
+            {
+                _editor.setBuildId("Error: " + e.toString(), this);
+            }
         }
     }
 
