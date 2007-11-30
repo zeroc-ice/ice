@@ -631,7 +631,8 @@ IceInternal::FixedReference::getConnection(const GetConnectionCallbackPtr& callb
     try
     {
 	bool compress;
-	callback->setConnection(getConnection(compress), compress);
+        ConnectionIPtr connection = getConnection(compress);
+	callback->setConnection(connection, compress);
     }
     catch(const Ice::LocalException& ex)
     {
