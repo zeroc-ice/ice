@@ -144,7 +144,9 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
             {
                 vector<string> services;
                 services.push_back(name);
-                servicesStarted(services);
+                set<ServiceObserverPrx> observers = _observers;
+                lock.release();
+                servicesStarted(services, observers);
             }
 
             return;
@@ -195,7 +197,9 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
             {
                 vector<string> services;
                 services.push_back(name);
-                servicesStopped(services);
+                set<ServiceObserverPrx> observers = _observers;
+                lock.release();
+                servicesStopped(services, observers);
             }
 
             return;
@@ -234,21 +238,9 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
        
         if(activeServices.size() > 0)
         {
-            try
-            {
-                observer->servicesStarted_async(new AMICallback<AMI_ServiceObserver_servicesStarted>(this, observer),
-                                                activeServices);
-            }
-            catch(const std::exception& ex)
-            {
-                _observers.erase(observer);
-                observerRemoved(observer, ex);
-            }
-            catch(...)
-            {
-                _observers.erase(observer);
-                throw;
-            }
+            lock.release();
+            observer->servicesStarted_async(new AMICallback<AMI_ServiceObserver_servicesStarted>(this, observer),
+                                            activeServices);
         }
     }
 }
@@ -759,8 +751,6 @@ IceBox::ServiceManagerI::stopAll()
         }
     }
 
-    servicesStopped(stoppedServices);
-
     for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
@@ -851,57 +841,45 @@ IceBox::ServiceManagerI::stopAll()
     }
 
     _services.clear();
+
+    set<ServiceObserverPrx> observers = _observers;
+    lock.release();
+    servicesStopped(stoppedServices, observers);
 }
 
 
 void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services)
+IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers)
 {
+    //
+    // Must be called with 'this' unlocked
+    //
+
     if(services.size() > 0)
     {
-        //
-        // Must be called with 'this' locked
-        //
-        for(set<ServiceObserverPrx>::iterator p = _observers.begin(); p != _observers.end(); ++p)
+        for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
         {
             ServiceObserverPrx observer = *p;
-
-            try
-            {
-                observer->servicesStarted_async(new AMICallback<AMI_ServiceObserver_servicesStarted>(this, observer),
-                                                services);
-            }
-            catch(const std::exception& ex)
-            {
-                _observers.erase(p);
-                observerRemoved(observer, ex);
-            }
+            observer->servicesStarted_async(new AMICallback<AMI_ServiceObserver_servicesStarted>(this, observer),
+                                            services);
         }
     }
 }
 
 void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services)
+IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers)
 {
+    //
+    // Must be called with 'this' unlocked
+    //
+
     if(services.size() > 0)
     {
-        //
-        // Must be called with 'this' locked
-        //
-        for(set<ServiceObserverPrx>::iterator p = _observers.begin(); p != _observers.end(); ++p)
+        for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
         {
             ServiceObserverPrx observer = *p;
-
-            try
-            {
-                observer->servicesStopped_async(new AMICallback<AMI_ServiceObserver_servicesStopped>(this, observer),
-                                                services);
-            }
-            catch(const std::exception& ex)
-            {
-                _observers.erase(p);
-                observerRemoved(observer, ex);
-            }
+            observer->servicesStopped_async(new AMICallback<AMI_ServiceObserver_servicesStopped>(this, observer),
+                                            services);
         }
     }
 }

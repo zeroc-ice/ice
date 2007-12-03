@@ -91,17 +91,25 @@ class ServiceManagerI : ServiceManagerDisp_
     public override void
     startService(string name, Ice.Current current)
     {
+        bool found = false;
+        Dictionary<ServiceObserverPrx, bool> observers = null;
+
         lock(this)
         {
             //
             // Search would be more efficient if services were contained in
             // a map, but order is required for shutdown.
             //
-            for(int i = 0; i < _services.Count; ++i)
+
+            int i = 0;
+
+            while(!found &&  i < _services.Count)
             {
-                ServiceInfo info = (ServiceInfo)_services[i];
+                ServiceInfo info = _services[i];
                 if(info.name.Equals(name))
                 {
+                    found = true;
+
                     if(info.active)
                     {
                         throw new AlreadyStartedException();
@@ -113,42 +121,54 @@ class ServiceManagerI : ServiceManagerDisp_
                                                                                 : info.communicator, info.args);
                         info.active = true;
                         _services[i] = info;
+                        observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
                     }
                     catch(Exception e)
                     {
                         _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" + 
                                         e.ToString());
                     }
-
-                    if(info.active)
-                    {
-                        List<string> services = new List<string>();
-                        services.Add(name);
-                        servicesStarted(services);
-                    }
-
-                    return;
                 }
+                ++i;
             }
-
+        }
+        
+        
+        if(!found)
+        {
             throw new NoSuchServiceException();
+        }
+
+        if(observers != null)
+        {
+            List<string> services = new List<string>();
+            services.Add(name);
+            servicesStarted(services, observers.Keys);
         }
     }
 
     public override void
     stopService(string name, Ice.Current current)
     {
+        bool found = false;
+        Dictionary<ServiceObserverPrx, bool> observers = null;
+
         lock(this)
         {
             //
             // Search would be more efficient if services were contained in
             // a map, but order is required for shutdown.
             //
-            for(int i = 0; i < _services.Count; ++i)
+            int i = 0;
+
+            while(!found &&  i < _services.Count)
             {
-                ServiceInfo info = (ServiceInfo)_services[i];
+                ServiceInfo info = _services[i];
+          
                 if(info.name.Equals(name))
                 {
+                    found = true;
+
                     if(!info.active)
                     {
                         throw new AlreadyStoppedException();
@@ -159,31 +179,36 @@ class ServiceManagerI : ServiceManagerDisp_
                         info.service.stop();
                         info.active = false;
                         _services[i] = info;
+                        observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
                     }
                     catch(Exception e)
                     {
                         _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
                                         e.ToString());
                     }
-
-                    if(!info.active)
-                    {
-                        List<string> services = new List<string>();
-                        services.Add(name);
-                        servicesStopped(services);
-                    }
-
-                    return;
                 }
+                ++i;
             }
+        }
 
+        if(!found)
+        {
             throw new NoSuchServiceException();
+        }
+
+        if(observers != null)
+        {
+            List<string> services = new List<string>();
+            services.Add(name);
+            servicesStarted(services, observers.Keys);
         }
     }
 
     public override void
     addObserver(ServiceObserverPrx observer, Ice.Current current)
     {
+        List<string> activeServices = new List<string>();
+
         //
         // Null observers and duplicate registrations are ignored
         //
@@ -207,8 +232,6 @@ class ServiceManagerI : ServiceManagerDisp_
                                   "Added service observer: " + Ice.Application.communicator().proxyToString(observer));
                 } 
 
-                List<string> activeServices = new List<string>();
-                
                 foreach(ServiceInfo info in _services)
                 {
                     if(info.active)
@@ -216,22 +239,13 @@ class ServiceManagerI : ServiceManagerDisp_
                         activeServices.Add(info.name);
                     }
                 }
-       
-                if(activeServices.Count > 0)
-                {
-                    try
-                    {
-                        observer.servicesStarted_async(new AMIServicesStartedCallback(this, observer),
-                                                       activeServices.ToArray());
-                    }
-                    catch(System.Exception ex)
-                    {
-                        _observers.Remove(observer);
-                        observerRemoved(observer, ex);
-                        throw;
-                    }
-                }
             }
+        }
+
+        if(activeServices.Count > 0)
+        {
+            observer.servicesStarted_async(new AMIServicesStartedCallback(this, observer),
+                                                       activeServices.ToArray());          
         }
     }
 
@@ -707,10 +721,11 @@ class ServiceManagerI : ServiceManagerDisp_
     private void
     stopAll()
     {
+        List<string> stoppedServices = new List<string>();
+        Dictionary<ServiceObserverPrx, bool> observers = null;
+
         lock(this)
         {
-            List<string> stoppedServices = new List<string>();
-
             //
             // First, for each service, we call stop on the service and flush its database environment to 
             // the disk. Services are stopped in the reverse order of which they were started.
@@ -773,78 +788,47 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
             }
 
-            servicesStopped(stoppedServices);
-
             _services.Clear();
+            observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
         }
+
+        servicesStopped(stoppedServices, observers.Keys);
     }
 
     private void
-    servicesStarted(List<String> services)
+        servicesStarted(List<String> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
         //
-        // Must be called with 'this' locked
+        // Must be called with 'this' unlocked
         //
 
         if(services.Count > 0)
         {
             string[] servicesArray = services.ToArray();
-            List<ServiceObserverPrx> deadObservers = new List<ServiceObserverPrx>();
-
-
-            foreach(ServiceObserverPrx observer in _observers.Keys)
+          
+            foreach(ServiceObserverPrx observer in observers)
             {
                 AMI_ServiceObserver_servicesStarted cb = new AMIServicesStartedCallback(this, observer);
-
-                try
-                {
-                    observer.servicesStarted_async(cb, servicesArray);
-                }
-                catch(System.Exception ex)
-                {
-                    deadObservers.Add(observer);
-                    observerRemoved(observer, ex);
-                }
-            }
-
-            foreach(ServiceObserverPrx observer in deadObservers)
-            {
-                _observers.Remove(observer);
+                observer.servicesStarted_async(cb, servicesArray);
             }
         }
     }
 
     private void
-    servicesStopped(List<string> services)
+    servicesStopped(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
         //
-        // Must be called with 'this' locked
+        // Must be called with 'this' unlocked
         //
 
         if(services.Count > 0)
         {
             string[] servicesArray = services.ToArray();
-            List<ServiceObserverPrx> deadObservers = new List<ServiceObserverPrx>();
-
-
-            foreach(ServiceObserverPrx observer in _observers.Keys)
+            
+            foreach(ServiceObserverPrx observer in observers)
             {
                 AMI_ServiceObserver_servicesStopped cb = new AMIServicesStoppedCallback(this, observer);
-
-                try
-                {
-                    observer.servicesStopped_async(cb, servicesArray);
-                }
-                catch(System.Exception ex)
-                {
-                    deadObservers.Add(observer);
-                    observerRemoved(observer, ex);
-                }
-            }
-
-            foreach(ServiceObserverPrx observer in deadObservers)
-            {
-                _observers.Remove(observer);
+                observer.servicesStopped_async(cb, servicesArray);
             }
         }
     }

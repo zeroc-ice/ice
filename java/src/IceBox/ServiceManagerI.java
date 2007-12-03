@@ -30,158 +30,174 @@ public class ServiceManagerI extends _ServiceManagerDisp
         return SliceChecksums.checksums;
     }
 
-    synchronized public void
+    public void
     startService(String name, Ice.Current current)
         throws AlreadyStartedException, NoSuchServiceException
     {
-        //
-        // Search would be more efficient if services were contained in
-        // a map, but order is required for shutdown.
-        //
-        java.util.Iterator p = _services.iterator();
-        while(p.hasNext())
+
+        boolean found = false;
+        java.util.Set<ServiceObserverPrx> observers = null;
+
+        synchronized(this)
         {
-            ServiceInfo info = (ServiceInfo)p.next();
-            if(info.name.equals(name))
+            //
+            // Search would be more efficient if services were contained in
+            // a map, but order is required for shutdown.
+            //
+            java.util.Iterator<ServiceInfo> p = _services.iterator();
+            while(p.hasNext() && !found)
             {
-                if(info.active)
+                ServiceInfo info = p.next();
+                if(info.name.equals(name))
                 {
-                    throw new AlreadyStartedException();
-                }
+                    found = true;
 
-                try
-                {
-                    info.service.start(name, info.communicator == null ? _server.communicator() : info.communicator,
-                                       info.args);
-                    info.active = true;
-                }
-                catch(java.lang.Exception e)
-                {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                    sw.toString());
-                }
+                    if(info.active)
+                    {
+                        throw new AlreadyStartedException();
+                    }
 
-                if(info.active)
-                {
-                    java.util.List<String> services = new java.util.Vector<String>();
-                    services.add(name);
-                    servicesStarted(services);
+                    try
+                    {
+                        info.service.start(name, info.communicator == null ? _server.communicator() : info.communicator,
+                                           info.args);
+                        info.active = true;
+                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
+                    }
+                    catch(java.lang.Exception e)
+                    {
+                        java.io.StringWriter sw = new java.io.StringWriter();
+                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        pw.flush();
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                                        sw.toString());
+                    }
                 }
-                
-                return;
             }
         }
+        
+        if(!found)
+        {
+            throw new NoSuchServiceException();
+        }
 
-        throw new NoSuchServiceException();
+        if(observers != null)
+        {
+            java.util.List<String> services = new java.util.Vector<String>();
+            services.add(name);
+            servicesStarted(services, observers);
+        }
     }
 
     synchronized public void
     stopService(String name, Ice.Current current)
         throws AlreadyStoppedException, NoSuchServiceException
     {
-        //
-        // Search would be more efficient if services were contained in
-        // a map, but order is required for shutdown.
-        //
-        java.util.Iterator p = _services.iterator();
-        while(p.hasNext())
+        boolean found = false;
+        java.util.Set<ServiceObserverPrx> observers = null;
+
+        synchronized(this)
         {
-            ServiceInfo info = (ServiceInfo)p.next();
-            if(info.name.equals(name))
+            //
+            // Search would be more efficient if services were contained in
+            // a map, but order is required for shutdown.
+            //
+            java.util.Iterator<ServiceInfo> p = _services.iterator();
+            while(p.hasNext() && !found)
             {
-                if(!info.active)
+                ServiceInfo info = p.next();
+                if(info.name.equals(name))
                 {
-                    throw new AlreadyStoppedException();
+                    found = true;
+                    
+                    if(!info.active)
+                    {
+                        throw new AlreadyStoppedException();
+                    }
+                    
+                    try
+                    {
+                        info.service.stop();
+                        info.active = false;
+                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
+                    }
+                    catch(java.lang.Exception e)
+                    {
+                        java.io.StringWriter sw = new java.io.StringWriter();
+                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        pw.flush();
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                                        sw.toString());
+                    }
                 }
-
-                try
-                {
-                    info.service.stop();
-                    info.active = false;
-                }
-                catch(java.lang.Exception e)
-                {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                    sw.toString());
-                }
-
-                if(!info.active)
-                {
-                    java.util.List<String> services = new java.util.Vector<String>();
-                    services.add(name);
-                    servicesStopped(services);
-                }
-
-                return;
             }
         }
 
-        throw new NoSuchServiceException();
+        if(!found)
+        {
+            throw new NoSuchServiceException();
+        }
+
+        if(observers != null)
+        {
+            java.util.List<String> services = new java.util.Vector<String>();
+            services.add(name);
+            servicesStopped(services, observers);
+        }
     }
 
-    public synchronized void
+    public void
     addObserver(final ServiceObserverPrx observer, Ice.Current current)
     {
+        java.util.List<String> activeServices = new java.util.LinkedList<String>();
+
         //
         // Null observers and duplicate registrations are ignored
         //
 
-        if(observer != null && _observers.add(observer))
+        synchronized(this)
         {
-            if(_traceServiceObserver >= 1)
+            if(observer != null && _observers.add(observer))
             {
-                _logger.trace("IceBox.ServiceObserver",
-                              "Added service observer: " + _server.communicator().proxyToString(observer));
-            } 
-
-            java.util.List<String> activeServices = new java.util.LinkedList<String>();
-            
-            for(ServiceInfo info: _services)
-            {
-                if(info.active)
+                if(_traceServiceObserver >= 1)
                 {
-                    activeServices.add(info.name);
-                }
-            }
-            
-            if(activeServices.size() > 0)
-            {
-                AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
-                    {
-                        public void ice_response()
-                        {
-                            // ok, success
-                        }
-                        
-                        public void ice_exception(Ice.LocalException ex)
-                        {
-                            //
-                            // Drop this observer
-                            //
-                            removeObserver(observer, ex);
-                        }
-                    };
+                    _logger.trace("IceBox.ServiceObserver",
+                                  "Added service observer: " + _server.communicator().proxyToString(observer));
+                } 
                 
-
-                try
+                
+                for(ServiceInfo info: _services)
                 {
-                    observer.servicesStarted_async(cb, activeServices.toArray(new String[0]));
+                    if(info.active)
+                    {
+                        activeServices.add(info.name);
+                    }
                 }
-                catch(RuntimeException ex)
-                {
-                    _observers.remove(observer);
-                    observerRemoved(observer, ex);
-                    throw ex;
-                }
+                
             }
+        }
+         
+        if(activeServices.size() > 0)
+        {
+            AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
+                {
+                    public void ice_response()
+                    {
+                        // ok, success
+                    }
+                    
+                    public void ice_exception(Ice.LocalException ex)
+                    {
+                        //
+                        // Drop this observer
+                        //
+                        removeObserver(observer, ex);
+                    }
+                };
+            
+            observer.servicesStarted_async(cb, activeServices.toArray(new String[0]));
         }
     }
 
@@ -645,107 +661,110 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
     }
 
-    synchronized private void
+    private void
     stopAll()
     {
         java.util.List<String> stoppedServices = new java.util.Vector<String>();
+        java.util.Set<ServiceObserverPrx> observers = null;
 
-        //
-        // First, for each service, we call stop on the service and flush its database environment to 
-        // the disk. Services are stopped in the reverse order of the order they were started.
-        //
-        java.util.ListIterator p = _services.listIterator(_services.size());
-        while(p.hasPrevious())
+        
+        synchronized(this)
         {
-            ServiceInfo info = (ServiceInfo)p.previous();
-            if(info.active)
+            //
+            // First, for each service, we call stop on the service and flush its database environment to 
+            // the disk. Services are stopped in the reverse order of the order they were started.
+            //
+            java.util.ListIterator p = _services.listIterator(_services.size());
+            while(p.hasPrevious())
             {
-                try
+                ServiceInfo info = (ServiceInfo)p.previous();
+                if(info.active)
                 {
-                    info.service.stop();
-                    info.active = false;
-                    stoppedServices.add(info.name);
+                    try
+                    {
+                        info.service.stop();
+                        info.active = false;
+                        stoppedServices.add(info.name);
+                    }
+                    catch(java.lang.Exception e)
+                    {
+                        java.io.StringWriter sw = new java.io.StringWriter();
+                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        pw.flush();
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                                        sw.toString());
+                    }
                 }
-                catch(java.lang.Exception e)
+
+                if(info.communicator != null)
                 {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                    sw.toString());
+                    try
+                    {
+                        _server.communicator().removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+                    }
+                    catch(Ice.LocalException e)
+                    {
+                        // Ignored
+                    }
+                
+                    try
+                    {
+                        info.communicator.shutdown();
+                        info.communicator.waitForShutdown();
+                    }
+                    catch(Ice.CommunicatorDestroyedException e)
+                    {
+                        //
+                        // Ignore, the service might have already destroyed
+                        // the communicator for its own reasons.
+                        //
+                    }
+                    catch(java.lang.Exception e)
+                    {
+                        java.io.StringWriter sw = new java.io.StringWriter();
+                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        pw.flush();
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                                        sw.toString());
+                    }
+            
+                    try
+                    {
+                        info.communicator.destroy();
+                    }
+                    catch(java.lang.Exception e)
+                    {
+                        java.io.StringWriter sw = new java.io.StringWriter();
+                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        pw.flush();
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                                        sw.toString());
+                    }
                 }
             }
 
-            if(info.communicator != null)
-            {
-                try
-                {
-                    _server.communicator().removeAdminFacet("IceBox.Service." + info.name + ".Properties");
-                }
-                catch(Ice.LocalException e)
-                {
-                    // Ignored
-                }
-                
-                try
-                {
-                    info.communicator.shutdown();
-                    info.communicator.waitForShutdown();
-                }
-                catch(Ice.CommunicatorDestroyedException e)
-                {
-                    //
-                    // Ignore, the service might have already destroyed
-                    // the communicator for its own reasons.
-                    //
-                }
-                catch(java.lang.Exception e)
-                {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                    sw.toString());
-                }
-            
-                try
-                {
-                    info.communicator.destroy();
-                }
-                catch(java.lang.Exception e)
-                {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                    sw.toString());
-                }
-            }
+            _services.clear();
+            observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
         }
 
-        servicesStopped(stoppedServices);
-
-        _services.clear();
+        servicesStopped(stoppedServices, observers);
     }
 
     
     private void
-    servicesStarted(java.util.List<String> services)
+    servicesStarted(java.util.List<String> services, java.util.Set<ServiceObserverPrx> observers)
     {
-        assert Thread.holdsLock(this);
+        assert !Thread.holdsLock(this);
 
         if(services.size() > 0)
         {
             String[] servicesArray = services.toArray(new String[0]);
 
-            java.util.Iterator<ServiceObserverPrx> p = _observers.iterator();
-            while(p.hasNext())
+            for(final ServiceObserverPrx observer: observers)
             {
-                final ServiceObserverPrx observer = p.next();
-
                 AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
                     {
                         public void ice_response()
@@ -762,33 +781,22 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         }
                     };
 
-                try
-                {
-                    observer.servicesStarted_async(cb, servicesArray);
-                }
-                catch(RuntimeException ex)
-                {
-                    p.remove();
-                    observerRemoved(observer, ex);
-                }
+                observer.servicesStarted_async(cb, servicesArray);
             }
         }
     }
 
     private void
-    servicesStopped(java.util.List<String> services)
+    servicesStopped(java.util.List<String> services, java.util.Set<ServiceObserverPrx> observers)
     {
-        assert Thread.holdsLock(this);
+        assert !Thread.holdsLock(this);
 
         if(services.size() > 0)
         {
             String[] servicesArray = services.toArray(new String[0]);
 
-            java.util.Iterator<ServiceObserverPrx> p = _observers.iterator();
-            while(p.hasNext())
+            for(final ServiceObserverPrx observer: observers)
             {
-                final ServiceObserverPrx observer = p.next();
-
                 AMI_ServiceObserver_servicesStopped cb = new AMI_ServiceObserver_servicesStopped()
                     {
                         public void ice_response()
@@ -805,18 +813,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         }
                     };
 
-                try
-                {
-                    observer.servicesStopped_async(cb, servicesArray);
-                }
-                catch(RuntimeException ex)
-                {
-                    p.remove();
-                    observerRemoved(observer, ex);
-                }
+                observer.servicesStopped_async(cb, servicesArray);
             }
         }
     }
+
 
     private synchronized void
     removeObserver(ServiceObserverPrx observer, Ice.LocalException ex)
@@ -874,6 +875,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private String[] _argv; // Filtered server argument vector
     private java.util.List<ServiceInfo> _services = new java.util.LinkedList<ServiceInfo>();
 
-    java.util.Set<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
+    java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
     int _traceServiceObserver = 0;
 }

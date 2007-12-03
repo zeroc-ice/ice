@@ -59,8 +59,8 @@ private:
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stopAll();
 
-    void servicesStarted(const std::vector<std::string>&);
-    void servicesStopped(const std::vector<std::string>&);
+    void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
+    void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
     void observerRemoved(const ServiceObserverPrx&, const std::exception&);
 
     ::Ice::CommunicatorPtr _communicator;
