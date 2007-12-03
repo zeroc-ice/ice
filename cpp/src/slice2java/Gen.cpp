@@ -466,6 +466,8 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         assert(cl);
 
+        string deprecateReason = getDeprecateReason(op, cl, "operation");
+
         bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
 
         vector<string> params;
@@ -538,7 +540,12 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         }
         if(generateOperation)
         {
-            out << sp << nl << "public final " << typeToString(ret, TypeModeReturn, package, op->getMetaData())
+            out << sp;
+            if(!deprecateReason.empty())
+            {
+                out << nl << "/** @deprecated **/";
+            }
+            out << nl << "public final " << typeToString(ret, TypeModeReturn, package, op->getMetaData())
                 << nl << opName << spar << params << epar;
             if(op->hasMetaData("UserException"))
             {
@@ -573,9 +580,15 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         ContainerPtr container = op->container();
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         assert(cl);
+        string deprecateReason = getDeprecateReason(op, cl, "operation");
 
         string opName = op->name();
-        out << sp << nl << "public static Ice.DispatchStatus" << nl << "___" << opName << '(' << name
+        out << sp;
+        if(!deprecateReason.empty())
+        {
+            out << nl << "/** @deprecated **/";
+        }
+        out << nl << "public static Ice.DispatchStatus" << nl << "___" << opName << '(' << name
             << " __obj, IceInternal.Incoming __inS, Ice.Current __current)";
         out << sb;
 
@@ -3340,11 +3353,17 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort();
         throws.unique();
 
+        string deprecateReason = getDeprecateReason(op, cl, "operation");
+
         //
         // Write two versions of the operation - with and without a
         // context parameter
         //
         out << sp;
+        if(!deprecateReason.empty())
+        {
+            out << nl << "/** @deprecated **/";
+        }
         out << nl << "public " << retS << nl << opName << spar << params << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -3357,6 +3376,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         out << sp;
+        if(!deprecateReason.empty())
+        {
+            out << nl << "/** @deprecated **/";
+        }
         out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -3439,12 +3462,20 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             // context parameter
             //
             out << sp;
+            if(!deprecateReason.empty())
+            {
+                out << nl << "/** @deprecated **/";
+            }
             out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
             out << sb;
             out << nl << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
             out << eb;
 
             out << sp;
+            if(!deprecateReason.empty())
+            {
+                out << nl << "/** @deprecated **/";
+            }
             out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
             out << sb;
             out << nl << opName << "_async" << spar << argsAMI << "__ctx" << "true" << epar << ';';
@@ -4311,6 +4342,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort();
         throws.unique();
 
+        string deprecateReason = getDeprecateReason(op, cl, "operation");
+
         //
         // Arrange exceptions into most-derived to least-derived order. If we don't
         // do this, a base exception handler can appear before a derived exception
@@ -4322,11 +4355,14 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-
         vector<string> params = getParams(op, package, true);
         vector<string> args = getArgs(op);
 
         out << sp;
+        if(!deprecateReason.empty())
+        {
+            out << nl << "/** @deprecated **/";
+        }
         out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
@@ -4353,6 +4389,10 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "__direct = new IceInternal.Direct(__current)";
             out << sb;
+            if(!deprecateReason.empty())
+            {
+                out << nl << "/** @deprecated **/";
+            }
             out << nl << "public Ice.DispatchStatus run(Ice.Object __obj)";
             out << sb;
             out << nl << fixKwd(name) << " __servant = null;";
