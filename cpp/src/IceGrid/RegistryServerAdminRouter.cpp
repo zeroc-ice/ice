@@ -61,6 +61,12 @@ IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Array_Object_ice_
     catch(const ServerNotExistException&)
     {
     }
+    catch(const NodeUnreachableException&)
+    {
+    }
+    catch(const DeploymentException&)
+    {
+    }
 
     if(target == 0)
     {

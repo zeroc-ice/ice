@@ -38,6 +38,15 @@ public:
     {
         _proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node);
     }
+
+    ServerProxyWrapper(const ServerProxyWrapper& wrapper) : 
+        _id(wrapper._id), 
+        _proxy(wrapper._proxy), 
+        _activationTimeout(wrapper._activationTimeout),
+        _deactivationTimeout(wrapper._deactivationTimeout),
+        _node(wrapper._node)
+    {
+    }
     
     void
     useActivationTimeout()
@@ -58,7 +67,7 @@ public:
     }
 
     void
-    handleException(const Ice::Exception& ex)
+    handleException(const Ice::Exception& ex) const
     {
         try
         {
@@ -367,6 +376,8 @@ AdminI::getServerAdminCategory(const Current&) const
 Ice::ObjectPrx
 AdminI::getServerAdmin(const string& id, const Current& current) const
 {
+    ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
+
     Ice::Identity adminId;
     adminId.name = id;
     adminId.category = _registry->getServerAdminCategory();
@@ -374,36 +385,99 @@ AdminI::getServerAdmin(const string& id, const Current& current) const
 }
 
 void
-AdminI::startServer(const string& id, const Current&)
+AdminI::startServer_async(const AMD_Admin_startServerPtr& amdCB, const string& id, const Current&)
 {
     ServerProxyWrapper proxy(_database, id);
     proxy.useActivationTimeout();
-    try
+
+    class StartCB : public AMI_Server_start
     {
-        proxy->start();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-    }
+    public:
+
+        StartCB(const ServerProxyWrapper& proxy, const AMD_Admin_startServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
+        {
+        }
+
+        virtual void
+        ice_response()
+        {
+            _amdCB->ice_response();
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            try
+            {
+                _proxy.handleException(ex);
+                assert(false);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                _amdCB->ice_exception(ex);
+            }
+        }
+
+    private:
+
+        const ServerProxyWrapper _proxy;
+        const AMD_Admin_startServerPtr _amdCB;
+    };
+    
+    //
+    // Since the server might take a while to be activated, we use AMI.
+    // 
+    proxy->start_async(new StartCB(proxy, amdCB));
 }
 
 void
-AdminI::stopServer(const string& id, const Current&)
+AdminI::stopServer_async(const AMD_Admin_stopServerPtr& amdCB, const string& id, const Current&)
 {
     ServerProxyWrapper proxy(_database, id);
     proxy.useDeactivationTimeout();
-    try
+
+    class StopCB : public AMI_Server_stop
     {
-        proxy->stop();
-    }
-    catch(const Ice::TimeoutException&)
-    {
-    }
-    catch(const Ice::Exception& ex)
-    {
-        proxy.handleException(ex);
-    }
+    public:
+
+        StopCB(const ServerProxyWrapper& proxy, const AMD_Admin_stopServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
+        {
+        }
+
+        virtual void
+        ice_response()
+        {
+            _amdCB->ice_response();
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            try
+            {
+                _proxy.handleException(ex);
+                assert(false);
+            }
+            catch(const Ice::TimeoutException&)
+            {
+                _amdCB->ice_response();
+            }
+            catch(const Ice::Exception& ex)
+            {
+                _amdCB->ice_exception(ex);
+            }
+        }
+
+    private:
+
+        const ServerProxyWrapper _proxy;
+        const AMD_Admin_stopServerPtr _amdCB;
+    };
+    
+    //
+    // Since the server might take a while to be deactivated, we use AMI.
+    // 
+    proxy->stop_async(new StopCB(proxy, amdCB));
 }
 
 void

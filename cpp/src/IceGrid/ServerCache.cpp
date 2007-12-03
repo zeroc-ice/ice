@@ -360,6 +360,11 @@ ServerEntry::getId() const
 ServerPrx
 ServerEntry::getProxy(bool upToDate)
 {
+    //
+    // NOTE: this might throw ServerNotExistException, NodeUnreachableException 
+    // or DeploymentException.
+    //
+
     int actTimeout, deactTimeout;
     string node;
     return getProxy(actTimeout, deactTimeout, node, upToDate);
@@ -368,6 +373,11 @@ ServerEntry::getProxy(bool upToDate)
 ServerPrx
 ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& node, bool upToDate)
 {
+    //
+    // NOTE: this might throw ServerNotExistException, NodeUnreachableException 
+    // or DeploymentException.
+    //
+
     {
         Lock sync(*this);
         if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
@@ -420,20 +430,17 @@ ServerEntry::getAdminProxy()
     Ice::Identity adminId;
     adminId.name = _id;
     adminId.category = _cache.getInstanceName() + "-NodeRouter";
-
-    try
-    {
-        return getProxy(true)->ice_identity(adminId);
-    }
-    catch(const ServerNotExistException&)
-    {
-        return 0;
-    }
+    return getProxy(true)->ice_identity(adminId);
 }
 
 AdapterPrx
 ServerEntry::getAdapter(const string& id, bool upToDate)
 {
+    //
+    // NOTE: this might throw AdapterNotExistException, NodeUnreachableException 
+    // or DeploymentException.
+    //
+
     int activationTimeout, deactivationTimeout;
     return getAdapter(activationTimeout, deactivationTimeout, id, upToDate);
 }
@@ -441,6 +448,11 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 AdapterPrx
 ServerEntry::getAdapter(int& activationTimeout, int& deactivationTimeout, const string& id, bool upToDate)
 {
+    //
+    // NOTE: this might throw AdapterNotExistException, NodeUnreachableException 
+    // or DeploymentException.
+    //
+
     {
         Lock sync(*this);
         if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine

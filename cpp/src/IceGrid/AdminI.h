@@ -51,8 +51,8 @@ public:
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
     virtual std::string getServerAdminCategory(const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerAdmin(const std::string&, const Ice::Current&) const;
-    virtual void startServer(const ::std::string&, const Ice::Current&);
-    virtual void stopServer(const ::std::string&, const Ice::Current&);
+    virtual void startServer_async(const AMD_Admin_startServerPtr&, const ::std::string&, const Ice::Current&);
+    virtual void stopServer_async(const AMD_Admin_stopServerPtr&, const ::std::string&, const Ice::Current&);
     virtual void patchServer_async(const AMD_Admin_patchServerPtr&, const ::std::string&, bool, const Ice::Current&);
     virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);
     virtual void writeMessage(const ::std::string&, const ::std::string&, Ice::Int, const Ice::Current&);

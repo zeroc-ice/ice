@@ -219,7 +219,7 @@ interface Server extends FileReader
      * otherwise.
      *
      **/
-    ["amd"] void start()
+    ["amd", "ami"] void start()
         throws ServerStartException;
 
     /**
@@ -229,7 +229,7 @@ interface Server extends FileReader
      * amount of time, it will be killed.
      *
      **/
-    ["amd"] void stop()
+    ["amd", "ami"] void stop()
         throws ServerStopException;
     
     /**

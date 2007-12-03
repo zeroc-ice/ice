@@ -594,7 +594,6 @@ interface Admin
     ["nonmutating", "cpp:const"] idempotent int getServerPid(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-
     /**
      *
      * Get the category for server admin objects. You can manufacture a server admin
@@ -607,7 +606,6 @@ interface Admin
     ["cpp:const"] 
     idempotent string getServerAdminCategory();
 
-
     /**
      *
      * Get a proxy to the server's admin object
@@ -616,10 +614,18 @@ interface Admin
      *
      * @return A proxy to the server's admin object
      *
+     * @throws ServerNotExistException Raised if the server doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
+     *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     ["cpp:const"] 
-    idempotent Object* getServerAdmin(string id);
-
+    idempotent Object* getServerAdmin(string id)
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -685,7 +691,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    ["ami"] void startServer(string id)
+    ["ami", "amd"] void startServer(string id)
         throws ServerNotExistException, ServerStartException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -707,7 +713,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    ["ami"] void stopServer(string id)
+    ["ami", "amd"] void stopServer(string id)
         throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
 
     /**

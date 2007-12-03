@@ -1075,7 +1075,19 @@ Parser::writeMessage(const list<string>& args, int fd)
     {
         list<string>::const_iterator p = args.begin();
         string server = *p++;
-        _admin->writeMessage(server, *p,  fd);
+
+        Ice::ObjectPrx serverAdmin = _admin->getServerAdmin(server);
+        Ice::ProcessPrx process = Ice::ProcessPrx::uncheckedCast(serverAdmin, "Process");
+
+        process->writeMessage(*p,  fd);
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        error("couldn't reach the server's Admin object");
+    }
+    catch(const Ice::FacetNotExistException&)
+    {
+        error("the server's Admin object does not provide a 'Process' facet");
     }
     catch(const Ice::Exception& ex)
     {
