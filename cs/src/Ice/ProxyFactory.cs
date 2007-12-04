@@ -85,6 +85,16 @@ namespace IceInternal
             TraceLevels traceLevels = instance_.traceLevels();
             Ice.Logger logger = instance_.initializationData().logger;
 
+            //
+            // We don't retry batch requests because the exception might have caused
+            // the all the requests batched with the connection to be aborted and we
+            // want the application to be notified.
+            //
+            if(@ref.getMode() == Reference.Mode.ModeBatchOneway || @ref.getMode() == Reference.Mode.ModeBatchDatagram)
+            {
+                throw ex;
+            }
+
             if(ex is Ice.ObjectNotExistException)
             {
                 Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;

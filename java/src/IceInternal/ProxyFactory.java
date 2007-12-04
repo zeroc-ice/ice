@@ -88,6 +88,17 @@ public final class ProxyFactory
     {
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.initializationData().logger;
+        
+        //
+        // We don't retry batch requests because the exception might have caused
+        // the all the requests batched with the connection to be aborted and we
+        // want the application to be notified.
+        //
+        if(ref.getMode() == IceInternal.Reference.ModeBatchOneway ||
+           ref.getMode() == IceInternal.Reference.ModeBatchDatagram)
+        {
+            throw ex;
+        }
 
         if(ex instanceof Ice.ObjectNotExistException)
         {

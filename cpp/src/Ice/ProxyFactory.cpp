@@ -99,6 +99,16 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     LoggerPtr logger = _instance->initializationData().logger;
 
+    //
+    // We don't retry batch requests because the exception might have caused
+    // the all the requests batched with the connection to be aborted and we
+    // want the application to be notified.
+    //
+    if(ref->getMode() == Reference::ModeBatchOneway || ref->getMode() == Reference::ModeBatchDatagram)
+    {
+        ex.ice_throw();
+    }
+
     const ObjectNotExistException* one = dynamic_cast<const ObjectNotExistException*>(&ex);
 
     if(one)

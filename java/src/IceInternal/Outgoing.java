@@ -267,14 +267,6 @@ public final class Outgoing implements OutgoingMessageCallback
         if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
         {
             _handler.abortBatchRequest();
-
-            //
-            // If we abort a batch requests, we cannot retry, because
-            // not only the batch request that caused the problem will
-            // be aborted, but all other requests in the batch as
-            // well.
-            //
-            throw new LocalExceptionWrapper(ex, false);
         }
 
         throw ex;

@@ -225,14 +225,6 @@ namespace IceInternal
             if(mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
                 _handler.abortBatchRequest();
-
-                //
-                // If we abort a batch requests, we cannot retry,
-                // because not only the batch request that caused the
-                // problem will be aborted, but all other requests in
-                // the batch as well.
-                //
-                throw new LocalExceptionWrapper(ex, false);
             }
 
             throw ex;
