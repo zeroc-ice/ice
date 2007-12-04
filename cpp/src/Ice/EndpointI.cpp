@@ -44,10 +44,18 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
     // entry and the thread will take care of getting the endpoint addresses.
     //
-    vector<struct sockaddr_in> addrs = getAddresses(host, port, false);
-    if(!addrs.empty())
+    try
     {
-        callback->connectors(endpoint->connectors(addrs));
+        vector<struct sockaddr_in> addrs = getAddresses(host, port, false);
+        if(!addrs.empty())
+        {
+            callback->connectors(endpoint->connectors(addrs));
+            return;
+        }
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        callback->exception(ex);
         return;
     }
 

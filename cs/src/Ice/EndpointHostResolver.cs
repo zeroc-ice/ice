@@ -31,10 +31,18 @@ namespace IceInternal
             // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
             // entry and the thread will take care of getting the endpoint addresses.
             //
-            List<IPEndPoint> addrs = Network.getAddresses(host, port, false);
-            if(addrs.Count > 0)
+            try
             {
-                callback.connectors(endpoint.connectors(addrs));
+                List<IPEndPoint> addrs = Network.getAddresses(host, port, false);
+                if(addrs.Count > 0)
+                {
+                    callback.connectors(endpoint.connectors(addrs));
+                    return;
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                callback.exception(ex);
                 return;
             }
 

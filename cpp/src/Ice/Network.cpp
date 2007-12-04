@@ -1414,8 +1414,12 @@ IceInternal::getAddresses(const string& host, int port, bool blocking)
             rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
         }
         while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
-      
-        if(rs != 0)
+
+        if(!blocking && rs == EAI_NONAME)
+        {
+            return result; // Empty result indicates that a blocking lookup is necessary.
+        }
+        else if(rs != 0)
         {
             DNSException ex(__FILE__, __LINE__);
             ex.error = rs;
