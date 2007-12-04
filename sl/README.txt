@@ -6,7 +6,7 @@ Asynchronous Message Invocation (AMI)
 
 AMI is implemented differently in Ice for Silverlight than it is in
 Ice for C#. Specifically, the means by which you define the callbacks
-that are called once the AMI call either succeeds or fails is 
+that are called once the AMI method either succeeds or fails is 
 different.
 
 In Ice for C# it is necessary for the application to extend an AMI
