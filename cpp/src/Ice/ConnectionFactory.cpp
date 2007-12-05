@@ -732,7 +732,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
                                                             const ConnectCallbackPtr& cb,
                                                             const ConnectionIPtr& connection)
 {
-    vector<ConnectCallbackPtr> callbacks;
+    set<ConnectCallbackPtr> callbacks;
 
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -747,7 +747,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
         {
             map<ConnectorInfo, set<ConnectCallbackPtr> >::iterator q = _pending.find(*p);
             assert(q != _pending.end());
-            callbacks.insert(callbacks.end(), q->second.begin(), q->second.end());
+            callbacks.insert(q->second.begin(), q->second.end());
             _pending.erase(q);
         }
         notifyAll();
@@ -765,7 +765,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
     //
     // Notify any waiting callbacks.
     //
-    for(vector<ConnectCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+    for(set<ConnectCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
     {
         (*p)->getConnection();
     }

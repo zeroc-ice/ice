@@ -814,7 +814,7 @@ public final class OutgoingConnectionFactory
     private void
     finishGetConnection(java.util.List connectors, ConnectCallback cb, Ice.ConnectionI connection)
     {
-        java.util.ArrayList callbacks = new java.util.ArrayList();
+        java.util.Set callbacks = new java.util.HashSet();
 
         synchronized(this)
         {

@@ -246,6 +246,7 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
+            assert(_connection == null && _exception == null);
             _connection = connection;
             _compress = compress;
         }
@@ -271,6 +272,7 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
+            assert(!_initialized && _exception == null);
             _exception = ex;
             _proxy = null; // Break cyclic reference count.
             _delegate = null; // Break cyclic reference count.
@@ -373,7 +375,7 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
-            assert(_connection != null);
+            assert(_connection != null && !_initialized);
             
             if(_batchRequestInProgress)
             {

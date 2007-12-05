@@ -227,6 +227,7 @@ namespace IceInternal
         {
             lock(this)
             {
+                Debug.Assert(_connection == null && _exception == null);
                 _connection = connection;
                 _compress = compress;
             }
@@ -251,6 +252,7 @@ namespace IceInternal
         {
             lock(this)
             {
+                Debug.Assert(!_initialized && _exception == null);
                 _exception = ex;
                 _proxy = null; // Break cyclic reference count.
                 _delegate = null; // Break cyclic reference count.
@@ -340,7 +342,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                Debug.Assert(_connection != null);
+                Debug.Assert(_connection != null && !_initialized);
 
                 if(_batchRequestInProgress)
                 {

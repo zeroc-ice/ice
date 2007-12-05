@@ -226,6 +226,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 {
     {
         Lock sync(*this);
+        assert(!_exception.get() && !_connection);
         _connection = connection;
         _compress = compress;
     }
@@ -251,6 +252,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
     {
         Lock sync(*this);
+        assert(!_initialized && !_exception.get());
         _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
         _proxy = 0; // Break cyclic reference count.
         _delegate = 0; // Break cyclic reference count.
@@ -316,7 +318,7 @@ ConnectRequestHandler::flushRequests()
 {
     {
         Lock sync(*this);
-        assert(_connection);
+        assert(_connection && !_initialized);
         
         while(_batchRequestInProgress)
         {
@@ -396,6 +398,7 @@ ConnectRequestHandler::flushRequests()
         
     {
         Lock sync(*this);
+        assert(!_initialized);
         _initialized = true;
         _flushing = false;
         notifyAll();

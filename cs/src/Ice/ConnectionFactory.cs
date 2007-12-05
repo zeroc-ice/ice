@@ -777,7 +777,7 @@ namespace IceInternal
 
         private void finishGetConnection(List<ConnectorInfo> connectors, ConnectCallback cb, Ice.ConnectionI connection)
         {
-            List<ConnectCallback> callbacks = new List<ConnectCallback>();
+            Set callbacks = new Set();
 
             lock(this)
             {
