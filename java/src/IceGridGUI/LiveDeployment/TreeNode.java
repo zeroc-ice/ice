@@ -215,4 +215,10 @@ public abstract class TreeNode extends TreeNodeBase
             title,
             JOptionPane.ERROR_MESSAGE);
     }  
+
+    void reparent(TreeNode newParent)
+    {
+        assert newParent != null;
+        _parent = newParent;
+    }
 }

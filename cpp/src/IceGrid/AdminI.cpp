@@ -14,6 +14,8 @@
 #include <Ice/TraceUtil.h>
 #include <Ice/SliceChecksums.h>
 
+#include <IceUtil/DisableWarnings.h>
+
 #include <IceGrid/AdminI.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/Database.h>
@@ -22,6 +24,7 @@
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/NodeSessionI.h>
+
 
 using namespace std;
 using namespace Ice;

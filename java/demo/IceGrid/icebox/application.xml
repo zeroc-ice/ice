@@ -20,7 +20,6 @@
          <icebox id="IceBox" activation="on-demand" exe="java">
             <description>A sample IceBox server</description>
             <option>IceBox.Server</option>
-            <env>CLASSPATH=$CLASSPATH:classes</env>
             <properties>
                <property name="IceBox.InstanceName" value="${server}"/>
                <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>

@@ -13,10 +13,12 @@
 
     <target name="all">
         <ant dir="simple"/>
+        <ant dir="icebox"/>
     </target>
 
     <target name="clean">
         <ant dir="simple" target="clean"/>
+        <ant dir="icebox" target="clean"/>
     </target>
 
 </project>

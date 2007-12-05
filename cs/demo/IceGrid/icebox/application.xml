@@ -17,9 +17,8 @@
          <object identity="hello" type="::Demo::Hello"/>
       </replica-group>
       <node name="localhost">
-         <icebox id="IceBox" activation="on-demand" exe="mono">
+         <icebox id="IceBox" activation="on-demand" exe="iceboxnet.exe">
             <description>A sample IceBox server</description>
-            <option>../../../bin/iceboxnet.exe</option>
             <properties>
                <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
                <property name="IceBox.InstanceName" value="${server}"/>

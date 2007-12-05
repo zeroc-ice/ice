@@ -27,4 +27,10 @@ You may use the IceGrid Admin graphical tool to stop and later
 restart IceBox services. You can do the same with the command-line
 utility; for example to stop and restart the 'Lisa' service:
 
-<TBD>
+$ icegridadmin --Ice.Config=config.grid
+ >>> service stop IceBox Lisa
+ >>> service start IceBox Lisa
+
+
+
+

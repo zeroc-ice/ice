@@ -716,11 +716,29 @@ class Server extends ListArrayTreeNode
         _instanceDescriptor = server._instanceDescriptor;
         _serverDescriptor = server._serverDescriptor;
         _application = server._application;
+
         _adapters = server._adapters;
         _dbEnvs = server._dbEnvs;
-
         _services = server._services;
         
+        //
+        // Need to re-parent all the children
+        //
+        for(Adapter adapter: _adapters)
+        {
+            adapter.reparent(this);
+        }
+
+        for(DbEnv dbEnv: _dbEnvs)
+        {
+            dbEnv.reparent(this);
+        }
+
+        for(Service service: _services)
+        {
+            service.reparent(this);
+        }
+
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
         _childrenArray[2] = _services;
@@ -1134,8 +1152,8 @@ class Server extends ListArrayTreeNode
     private ApplicationDescriptor _application;
 
     private Utils.Resolver _resolver;
-    private java.util.List _adapters = new java.util.LinkedList();
-    private java.util.List _dbEnvs = new java.util.LinkedList();
+    private java.util.List<Adapter> _adapters = new java.util.LinkedList<Adapter>();
+    private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<DbEnv>();
     private java.util.List<Service> _services = new java.util.LinkedList<Service>();
 
     private ServerState _state;
