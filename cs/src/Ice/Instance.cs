@@ -519,16 +519,16 @@ namespace IceInternal
                 Ice.Object result = null;
                 if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
                 {
-                    result = (Ice.Object)_adminFacets[facet];
-                    
-                    if(result == null)
+                    try
+                    {
+                        result = _adminFacets[facet];
+                    }
+                    catch(KeyNotFoundException)
                     {
                         throw new Ice.NotRegisteredException("facet", facet);
                     }
-                    else
-                    {
-                        _adminFacets.Remove(facet);
-                    }
+                    
+                    _adminFacets.Remove(facet);
                 }
                 else
                 {

@@ -1,0 +1,6 @@
+Hello.Proxy=hello
+
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:default -p 4061

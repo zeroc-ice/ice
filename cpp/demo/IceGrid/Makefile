@@ -14,7 +14,8 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= simple \
 		  sessionActivation \
 		  allocate \
-		  replication
+		  replication \
+                  icebox
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

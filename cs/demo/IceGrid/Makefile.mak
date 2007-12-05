@@ -11,7 +11,8 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-SUBDIRS		= simple
+SUBDIRS		= simple \
+                  icebox
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

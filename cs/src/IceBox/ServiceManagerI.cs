@@ -78,7 +78,7 @@ class ServiceManagerI : ServiceManagerDisp_
         _logger = Ice.Application.communicator().getLogger();
         _argv = args;
         _traceServiceObserver = Ice.Application.communicator().getProperties().
-            getPropertyAsInt("Trace.ServiceObserver");
+            getPropertyAsInt("IceBox.Trace.ServiceObserver");
 
     }
 
@@ -200,7 +200,7 @@ class ServiceManagerI : ServiceManagerDisp_
         {
             List<string> services = new List<string>();
             services.Add(name);
-            servicesStarted(services, observers.Keys);
+            servicesStopped(services, observers.Keys);
         }
     }
 
@@ -229,7 +229,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 if(_traceServiceObserver >= 1)
                 {
                     _logger.trace("IceBox.ServiceObserver",
-                                  "Added service observer: " + Ice.Application.communicator().proxyToString(observer));
+                                  "Added service observer " + Ice.Application.communicator().proxyToString(observer));
                 } 
 
                 foreach(ServiceInfo info in _services)
@@ -245,7 +245,7 @@ class ServiceManagerI : ServiceManagerDisp_
         if(activeServices.Count > 0)
         {
             observer.servicesStarted_async(new AMIServicesStartedCallback(this, observer),
-                                                       activeServices.ToArray());          
+                                           activeServices.ToArray());          
         }
     }
 
@@ -268,12 +268,12 @@ class ServiceManagerI : ServiceManagerDisp_
             // will most likely need to be firewalled for security reasons.
             //
             Ice.ObjectAdapter adapter = null;
-            if(!properties.getProperty("ServiceManager.Endpoints").Equals(""))
+            if(!properties.getProperty("IceBox.ServiceManager.Endpoints").Equals(""))
             {
-                adapter = Ice.Application.communicator().createObjectAdapter("ServiceManager");
+                adapter = Ice.Application.communicator().createObjectAdapter("IceBox.ServiceManager");
 
                 Ice.Identity identity = new Ice.Identity();
-                identity.category = properties.getPropertyWithDefault("InstanceName", "IceBox");
+                identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
                 identity.name = "ServiceManager";
                 adapter.add(this, identity);
             }
@@ -281,7 +281,7 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             // Parse the LoadOrder property.
             //
-            string order = properties.getProperty("LoadOrder");
+            string order = properties.getProperty("IceBox.LoadOrder");
             string[] loadOrder = null;
             if(order.Length > 0)
             {
@@ -299,7 +299,7 @@ class ServiceManagerI : ServiceManagerDisp_
             // We load the services specified in LoadOrder first,
             // then load any remaining services.
             //
-            string prefix = "Service.";
+            string prefix = "IceBox.Service.";
             Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
             if(loadOrder != null)
             {
@@ -340,7 +340,7 @@ class ServiceManagerI : ServiceManagerDisp_
             // This must be done after start() has been invoked on the
             // services.
             //
-            string bundleName = properties.getProperty("PrintServicesReady");
+            string bundleName = properties.getProperty("IceBox.PrintServicesReady");
             if(bundleName.Length > 0)
             {
                 Console.Out.WriteLine(bundleName + " ready");
@@ -359,7 +359,7 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             try
             {
-                Ice.Application.communicator().addAdminFacet(this, "ServiceManager");
+                Ice.Application.communicator().addAdminFacet(this, "IceBox.ServiceManager");
 
                 //
                 // Add a Properties facet for each service
@@ -583,14 +583,14 @@ class ServiceManagerI : ServiceManagerDisp_
             try
             {
                 //
-                // If Ice.UseSharedCommunicator.<name> is defined, create a
+                // If IceBox.UseSharedCommunicator.<name> is defined, create a
                 // communicator for the service. The communicator inherits
                 // from the shared communicator properties. If it's not
                 // defined, add the service properties to the shared
                 // commnunicator property set.
                 //
                 Ice.Properties properties = Ice.Application.communicator().getProperties();
-                if(properties.getPropertyAsInt("UseSharedCommunicator." + service) > 0)
+                if(properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
                 {
                     Ice.Properties serviceProperties = Ice.Util.createProperties(ref info.args, properties);
 
@@ -621,7 +621,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     string name = properties.getProperty("Ice.ProgramName");
                     Ice.Properties serviceProperties;
-                    if(properties.getPropertyAsInt("InheritProperties") > 0)
+                    if(properties.getPropertyAsInt("IceBox.InheritProperties") > 0)
                     {
                         //
                         // Inherit all except Ice.Admin.Endpoints!
@@ -742,7 +742,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     }
                     catch(Exception e)
                     {
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
+                        _logger.warning("IceBox.ServiceManager: exception in stop for service " + info.name + "\n" +
                                         e.ToString());
                     }
                 }
@@ -850,9 +850,9 @@ class ServiceManagerI : ServiceManagerDisp_
     {
         if(_traceServiceObserver >= 1)
         {
-            _logger.trace("ServiceObserver",
-                          "Removed service observer: " + Ice.Application.communicator().proxyToString(observer)
-                          + "\nafter catching " + ex.Message);
+            _logger.trace("IceBox.ServiceObserver",
+                          "Removed service observer " + Ice.Application.communicator().proxyToString(observer)
+                          + "\nafter catching " + ex.ToString());
         } 
     } 
     
@@ -890,7 +890,7 @@ class ServiceManagerI : ServiceManagerDisp_
     private Ice.Logger _logger;
     private string[] _argv; // Filtered server argument vector
     private List<ServiceInfo> _services = new List<ServiceInfo>();
-    private Dictionary<ServiceObserverPrx, bool> _observers;
+    private Dictionary<ServiceObserverPrx, bool> _observers = new  Dictionary<ServiceObserverPrx, bool>();
     private int _traceServiceObserver = 0;
 }
 

@@ -164,7 +164,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 if(_traceServiceObserver >= 1)
                 {
                     _logger.trace("IceBox.ServiceObserver",
-                                  "Added service observer: " + _server.communicator().proxyToString(observer));
+                                  "Added service observer " + _server.communicator().proxyToString(observer));
                 } 
                 
                 
@@ -834,7 +834,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         if(_traceServiceObserver >= 1)
         {
             _logger.trace("IceBox.ServiceObserver",
-                          "Removed service observer: " + _server.communicator().proxyToString(observer)
+                          "Removed service observer " + _server.communicator().proxyToString(observer)
                           + "\nafter catching " + ex.toString());
         } 
     } 

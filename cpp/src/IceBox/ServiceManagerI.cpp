@@ -223,7 +223,7 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
         if(_traceServiceObserver >= 1)
         {
             Trace out(_logger, "IceBox.ServiceObserver");
-            out << "Added service observer: " << _communicator->proxyToString(observer);
+            out << "Added service observer " << _communicator->proxyToString(observer);
         } 
 
         vector<string> activeServices;
@@ -890,7 +890,7 @@ IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, con
     if(_traceServiceObserver >= 1)
     {
         Trace out(_logger, "IceBox.ServiceObserver");
-        out << "Removed service observer: " << _communicator->proxyToString(observer)
+        out << "Removed service observer " << _communicator->proxyToString(observer)
             << "\nafter catching " << ex.what();
     } 
 } 

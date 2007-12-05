@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- This file was written by IceGrid Admin -->
+<icegrid>
+   <application name="HelloSimpsons">
+      <service-template id="HelloService">
+         <parameter name="name"/>
+         <service name="${name}" entry="HelloServiceI">
+            <description>A very simple service named after ${name}</description>
+            <properties>
+               <property name="Hello.Identity" value="hello"/>
+            </properties>
+            <adapter name="Hello-${name}" endpoints="default" id="Hello-${name}" replica-group="HelloGroup" server-lifetime="false"/>
+         </service>
+      </service-template>
+      <replica-group id="HelloGroup">
+         <load-balancing type="round-robin" n-replicas="1"/>
+         <object identity="hello" type="::Demo::Hello"/>
+      </replica-group>
+      <node name="localhost">
+         <icebox id="IceBox" activation="on-demand" exe="java">
+            <description>A sample IceBox server</description>
+            <option>IceBox.Server</option>
+            <env>CLASSPATH=$CLASSPATH:classes</env>
+            <properties>
+               <property name="IceBox.InstanceName" value="${server}"/>
+               <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+               <property name="IceBox.Trace.ServiceObserver" value="1"/>
+            </properties>
+            <service-instance template="HelloService" name="Homer"/>
+            <service-instance template="HelloService" name="Marge"/>
+            <service-instance template="HelloService" name="Bart"/>
+            <service-instance template="HelloService" name="Lisa"/>
+            <service-instance template="HelloService" name="Maggie"/>
+         </icebox>
+      </node>
+   </application>
+</icegrid>

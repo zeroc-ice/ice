@@ -4,6 +4,10 @@ Demos in this directory:
 
   This demo shows how to use the allocation feature of IceGrid.
 
+- icebox
+
+  This demo shows a simple IceGrid deployment with an IceBox server.
+
 - replication
 
   This example demonstrates IceGrid's registry replication feature.

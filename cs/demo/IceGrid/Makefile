@@ -11,7 +11,8 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= simple
+SUBDIRS		= simple \
+                  icebox
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
