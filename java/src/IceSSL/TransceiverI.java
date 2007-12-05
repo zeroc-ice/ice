@@ -228,7 +228,13 @@ final class TransceiverI implements IceInternal.Transceiver
     write(IceInternal.Buffer buf, int timeout)
         throws IceInternal.LocalExceptionWrapper
     {
-        assert(_state == StateHandshakeComplete);
+        //
+        // If the handshake isn't completed yet, we shouldn't be writing.
+        //
+        if(_state < StateHandshakeComplete)
+        {
+            throw new Ice.ConnectionLostException();
+        }
 
         IceInternal.SocketStatus status;
         do
@@ -253,7 +259,15 @@ final class TransceiverI implements IceInternal.Transceiver
     public boolean
     read(IceInternal.Buffer buf, int timeout, Ice.BooleanHolder moreData)
     {
-        assert(_state == StateHandshakeComplete);
+        //
+        // If the handshake isn't completed yet, we shouldn't be reading (read can be 
+        // called by the thread pool when the connection is registered/unregistered 
+        // with the pool to be closed).
+        //
+        if(_state < StateHandshakeComplete)
+        {
+            throw new Ice.ConnectionLostException();
+        }
 
         int rem = 0;
         if(_instance.networkTraceLevel() >= 3)
