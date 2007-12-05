@@ -103,6 +103,12 @@ public:
     void propertiesServer(const std::list<std::string>&, bool);
     void listAllServers(const std::list<std::string>&);
 
+    void startService(const std::list<std::string>&);
+    void stopService(const std::list<std::string>&);
+    void propertiesService(const std::list<std::string>&, bool);
+    void describeService(const std::list<std::string>&);
+    void listServices(const std::list<std::string>&);
+    
     void endpointsAdapter(const std::list<std::string>&);
     void removeAdapter(const std::list<std::string>&);
     void listAllAdapters(const std::list<std::string>&);

@@ -16,6 +16,7 @@
 #include <IceGrid/Util.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IceGrid/DescriptorHelper.h>
+#include <IceBox/IceBox.h>
 
 #ifdef HAVE_READLINE
 #   include <readline/readline.h>
@@ -146,7 +147,7 @@ static const char* _commandsHelp[][3] = {
 "server stop ID            Stop server ID.\n" 
 },
 { "server", "patch",
- "server patch ID           Patch server ID.\n" 
+"server patch ID           Patch server ID.\n" 
 },
 { "server", "signal", 
 "server signal ID SIGNAL   Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n" 
@@ -171,6 +172,29 @@ static const char* _commandsHelp[][3] = {
 { "server", "disable",
 "server disable ID         Disable server ID (a disabled server can't be\n"
 "                          started on demand or administratively).\n" 
+},
+
+{ "service", "start",
+"service start ID NAME     Starts service NAME from IceBox server ID.\n"
+},
+{ "service", "stop",
+"service stop ID NAME      Stops service NAME from IceBox server ID.\n"
+},
+{ "service", "describe",
+"service describe ID NAME  Describes service NAME from IceBox server ID.\n"
+},
+{ "service", "properties",
+"service properties ID NAME\n"
+"                          Get runtime properties of service NAME from\n"
+"                          IceBox server ID.\n"
+},
+{ "service", "property",
+"service property ID NAME PROPERTY\n"
+"                          Get runtime property PROPERTY of service NAME\n"
+"                          from IceBox server ID.\n"
+},
+{ "service", "list",
+"service list ID NAME      Stops service NAME from IceBox server ID.\n"
 },
 
 { "adapter", "list",
@@ -270,6 +294,7 @@ Parser::usage()
          "  node: commands to manage nodes\n" 
          "  registry: commands to manage registries\n" 
          "  server: commands to manage servers\n" 
+         "  service: commands to manage services\n"
          "  adapter: commands to manage adapters\n" 
          "  object: commands to manage objects\n"
          "  server template: commands to manage server templates\n" 
@@ -1306,6 +1331,244 @@ Parser::listAllServers(const list<string>& args)
         exception(ex);
     }
 }
+
+void
+Parser::startService(const list<string>& args)
+{
+    if(args.size() != 2)
+    {
+        invalidCommand("service start", "requires exactly two arguments");
+        return;
+    }
+
+    string server = args.front();
+    string service = *(++args.begin());
+    try
+    {
+        Ice::ObjectPrx admin = _admin->getServerAdmin(server);
+        IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::uncheckedCast(admin, "IceBox.ServiceManager");
+        manager->startService(service);
+    }
+    catch(const IceBox::AlreadyStartedException&)
+    {
+        error("the service `" + service + "' is already started");
+    }
+    catch(const IceBox::NoSuchServiceException&)
+    {
+        error("couldn't find service `" + service + "'");
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        error("couldn't reach the server's Admin object");
+    }
+    catch(const Ice::FacetNotExistException&)
+    {
+        error("the server's Admin object does not provide a 'IceBox.ServiceManager' facet");
+    }
+    catch(const Ice::Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
+Parser::stopService(const list<string>& args)
+{
+    if(args.size() != 2)
+    {
+        invalidCommand("service stop", "requires exactly two arguments");
+        return;
+    }
+
+    string server = args.front();
+    string service = *(++args.begin());
+    try
+    {
+        Ice::ObjectPrx admin = _admin->getServerAdmin(server);
+        IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::uncheckedCast(admin, "IceBox.ServiceManager");
+        manager->stopService(service);
+    }
+    catch(const IceBox::AlreadyStoppedException&)
+    {
+        error("the service `" + service + "' is already stopped");
+    }
+    catch(const IceBox::NoSuchServiceException&)
+    {
+        error("couldn't find service `" + service + "'");
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        error("couldn't reach the server's Admin object");
+    }
+    catch(const Ice::FacetNotExistException&)
+    {
+        error("the server's Admin object does not provide a 'IceBox.ServiceManager' facet");
+    }
+    catch(const Ice::Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
+Parser::describeService(const list<string>& args)
+{
+    if(args.size() != 2)
+    {
+        invalidCommand("service describe", "requires exactly two arguments");
+        return;
+    }
+    
+    string server = args.front();
+    string service = *(++args.begin());
+    try
+    {
+        ServerInfo info = _admin->getServerInfo(server);
+        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        if(!iceBox)
+        {
+            error("server `" + server + "' is not an IceBox server");
+            return;
+        }
+
+        Output out(cout);
+        bool found = false;
+        for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+        {
+            if(p->descriptor && p->descriptor->name == service)
+            {
+                ServiceHelper(p->descriptor).print(_communicator, out);
+                out << nl;
+                found = true;
+                break;
+            }
+        }
+        
+        if(!found)
+        {
+            error("couldn't find service `" + service + "'");
+            return;
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
+Parser::propertiesService(const list<string>& args, bool single)
+{
+    if(single && args.size() != 3)
+    {
+        invalidCommand("service property", "requires exactly three arguments");
+        return;
+    }
+    else if(!single && args.size() != 2)
+    {
+        invalidCommand("service properties", "requires exactly two argument");
+        return;
+    }
+
+    list<string>::const_iterator a = args.begin();
+    string server = *a++;
+    string service = *a++;
+    string property = single ? *a++ : string();
+
+    try
+    {
+        //
+        // First, we ensure that the service exists.
+        //
+        ServerInfo info = _admin->getServerInfo(server);
+        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        if(!iceBox)
+        {
+            error("server `" + server + "' is not an IceBox server");
+            return;
+        }
+
+        bool found = false;
+        for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+        {
+            if(p->descriptor && p->descriptor->name == service)
+            {
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+        {
+            error("couldn't find service `" + service + "'");
+            return;
+        }
+
+        Ice::ObjectPrx admin = _admin->getServerAdmin(server);
+        Ice::PropertiesAdminPrx propAdmin = 
+            Ice::PropertiesAdminPrx::uncheckedCast(admin, "IceBox.Service." + service + ".Properties");
+
+        if(single)
+        {
+            string val = propAdmin->getProperty(property);
+            cout << val << endl;
+        }
+        else
+        {
+            Ice::PropertyDict properties = propAdmin->getPropertiesForPrefix("");
+            for(Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+            {
+                cout << p->first << "=" << p->second << endl;
+            }
+        }
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        error("couldn't reach the server's Admin object");
+    }
+    catch(const Ice::FacetNotExistException&)
+    {
+        error("the server's Admin object does not provide an 'IceBox.Service." + service + ".Properties' facet");
+    }
+    catch(const Ice::Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
+Parser::listServices(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+        invalidCommand("service list", "requires exactly one argument");
+        return;
+    }
+
+    string server = args.front();
+    string service = *(++args.begin());
+    try
+    {
+        ServerInfo info = _admin->getServerInfo(server);
+        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+        if(!iceBox)
+        {
+            error("server `" + server + "' is not an IceBox server");
+            return;
+        }
+        for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+        {
+            if(p->descriptor)
+            {
+                cout << p->descriptor->name << endl;
+            }
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
 
 void
 Parser::endpointsAdapter(const list<string>& args)

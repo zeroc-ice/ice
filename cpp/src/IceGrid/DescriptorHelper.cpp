@@ -1585,11 +1585,14 @@ IceBoxHelper::print(const Ice::CommunicatorPtr& communicator, Output& out, const
     string endpoints = getProperty("IceBox.ServiceManager.Endpoints");
     out << nl << "service manager endpoints = `" << endpoints << "'";
     printImpl(communicator, out, info);
-    for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
+    out << nl << "services";
+    out << sb;
+    for(ServiceInstanceDescriptorSeq::const_iterator p = _desc->services.begin(); p != _desc->services.end(); ++p)
     {
-        out << nl;
-        p->print(communicator, out);
+        assert(p->descriptor);
+        out << nl << p->descriptor->name;
     }
+    out << eb;
     out << eb;
 }
 

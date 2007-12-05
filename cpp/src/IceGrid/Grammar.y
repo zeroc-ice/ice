@@ -425,6 +425,54 @@ command
 {
     parser->usage("server", "show");
 }
+| ICE_GRID_SERVICE ICE_GRID_START strings ';'
+{
+    parser->startService($3);
+}
+| ICE_GRID_SERVICE ICE_GRID_START ICE_GRID_HELP ';'
+{
+    parser->usage("service", "start");
+}
+| ICE_GRID_SERVICE ICE_GRID_STOP strings ';'
+{
+    parser->stopService($3);
+}
+| ICE_GRID_SERVICE ICE_GRID_STOP ICE_GRID_HELP ';'
+{
+    parser->usage("service", "stop");
+}
+| ICE_GRID_SERVICE ICE_GRID_DESCRIBE strings ';'
+{
+    parser->describeService($3);
+}
+| ICE_GRID_SERVICE ICE_GRID_DESCRIBE ICE_GRID_HELP ';'
+{
+    parser->usage("service", "describe");
+}
+| ICE_GRID_SERVICE ICE_GRID_PROPERTIES strings ';'
+{
+    parser->propertiesService($3, false);
+}
+| ICE_GRID_SERVICE ICE_GRID_PROPERTIES ICE_GRID_HELP ';'
+{
+    parser->usage("service", "properties");
+}
+| ICE_GRID_SERVICE ICE_GRID_PROPERTY strings ';'
+{
+    parser->propertiesService($3, true);
+}
+| ICE_GRID_SERVICE ICE_GRID_PROPERTY ICE_GRID_HELP ';'
+{
+    parser->usage("service", "property");
+}
+| ICE_GRID_SERVICE ICE_GRID_LIST strings ';'
+{
+    parser->listServices($3);
+}
+| ICE_GRID_SERVICE ICE_GRID_LIST ICE_GRID_HELP ';'
+{
+    parser->usage("service", "list");
+}
 | ICE_GRID_ADAPTER ICE_GRID_ENDPOINTS strings ';'
 {
     parser->endpointsAdapter($3);
