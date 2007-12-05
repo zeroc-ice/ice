@@ -844,7 +844,7 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
 void
 ServerDescriptorBuilder::finish()
 {
-    if(!isSet(_descriptor->propertySet.properties, "Ice.Admin.Enpoints"))
+    if(!isSet(_descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
     {
         _hiddenProperties.push_back(createProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1"));
     }

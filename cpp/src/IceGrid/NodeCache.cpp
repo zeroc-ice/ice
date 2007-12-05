@@ -873,9 +873,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     if(iceVersion == 0 || iceVersion >= 30300)
     {
         props.push_back(createProperty("Ice.Admin.ServerId", info.descriptor->id));
-
-        server->processRegistered =
-            getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "";
+        server->processRegistered = getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "";
     }
     else
     {
@@ -896,8 +894,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         {
             ServiceDescriptorPtr s = p->descriptor;
             const string path = _session->getInfo()->dataDir + "/servers/" + server->id + "/config/config_" + s->name;
-            props.push_back(
-                createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config=\"" + path + "\""));
+            props.push_back(createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config=\"" + path + "\""));
             servicesStr += s->name + " ";
         }
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
