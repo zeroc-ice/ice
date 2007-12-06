@@ -48,6 +48,9 @@ public:
     PropertyDescriptorSeq getProperties(const Ice::StringSeq&) const;
     void addIgnored(const std::string&);
 
+    void setVersion(const std::string&);
+    int getVersion() const;
+
     void exception(const std::string&) const;
 
     TemplateDescriptor getServerTemplate(const std::string&) const;
@@ -76,6 +79,7 @@ private:
     PropertySetDescriptorDict _propertySets;
     std::map<std::string, std::string> _reserved;
     std::set<std::string> _ignore;
+    int _version;
 };
 
 class CommunicatorHelper

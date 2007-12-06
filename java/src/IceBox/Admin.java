@@ -22,8 +22,8 @@ public final class Admin
                 "-h, --help          Show this message.\n" +
                 "\n" +
                 "Commands:\n" +
-                "start SERVICE       Start a service." +
-                "stop SERVICE        Stop a service." +
+                "start SERVICE       Start a service.\n" +
+                "stop SERVICE        Stop a service.\n" +
                 "shutdown            Shutdown the server.");
         }
 

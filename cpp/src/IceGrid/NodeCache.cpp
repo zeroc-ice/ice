@@ -28,9 +28,11 @@ namespace IceGrid
 
 struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPtr&, void>
 {
-    ToInternalServerDescriptor(const InternalServerDescriptorPtr& descriptor, const InternalNodeInfoPtr& node) :
+    ToInternalServerDescriptor(const InternalServerDescriptorPtr& descriptor, const InternalNodeInfoPtr& node, 
+                               int iceVersion) :
         _desc(descriptor),
-        _node(node)
+        _node(node),
+        _iceVersion(iceVersion)
     {
     }
     
@@ -48,16 +50,33 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
         {
             filename += "_" + svc->name;
         }
-        PropertyDescriptorSeq& props = _desc->properties[filename];
 
+        PropertyDescriptorSeq& props = _desc->properties[filename];
         PropertyDescriptorSeq communicatorProps = desc->propertySet.properties;
 
+        //
+        // If this is a service communicator and the IceBox server has admin 
+        // endpoints configured, we ignore the server-lifetime attributes of 
+        // the service object adapters and assume it's set to false.
+        //
+        bool ignoreServerLifetime = false;
+        if(svc)
+        {
+            if(_iceVersion == 0 || _iceVersion >= 30300)
+            {
+                if(getProperty(_desc->properties["config"], "Ice.Admin.Endpoints") != "")
+                {
+                    ignoreServerLifetime = true;
+                }
+            }
+        }
         //
         // Add the adapters and their configuration.
         //
         for(AdapterDescriptorSeq::const_iterator q = desc->adapters.begin(); q != desc->adapters.end(); ++q)
         {
-            _desc->adapters.push_back(new InternalAdapterDescriptor(q->id, q->serverLifetime));
+            _desc->adapters.push_back(new InternalAdapterDescriptor(q->id, 
+                                                                    ignoreServerLifetime ? false : q->serverLifetime));
 
             props.push_back(createProperty("# Object adapter " + q->name));
             PropertyDescriptor prop = removeProperty(communicatorProps, q->name + ".Endpoints");
@@ -134,6 +153,7 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
 
     InternalServerDescriptorPtr _desc;
     InternalNodeInfoPtr _node;
+    int _iceVersion;
 };
 
 class LoadCB : public AMI_Node_loadServer
@@ -899,7 +919,6 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         }
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
 
-
         if(iceVersion != 0 && iceVersion < 30300)
         {
             if(isSet(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess"))
@@ -926,7 +945,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     // logs, adapters, db envs and properties to the internal server 
     // descriptor.
     //
-    forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo()))(info.descriptor);
+    forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo(), iceVersion))(info.descriptor);
 
     return server;
 }

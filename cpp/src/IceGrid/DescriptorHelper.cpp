@@ -260,7 +260,8 @@ Resolver::Resolver(const ApplicationDescriptor& app, const Ice::CommunicatorPtr&
     _enableWarning(enableWarning),
     _context("application `" + app.name + "'"),
     _variables(app.variables),
-    _reserved(getReserved())
+    _reserved(getReserved()),
+    _version(0)
 {
     //
     // Make sure the variables don't override reserved variables.
@@ -347,7 +348,8 @@ Resolver::Resolver(const Resolver& resolve,
     _parameters(!params ? resolve._parameters : values),
     _propertySets(resolve._propertySets),
     _reserved(resolve._reserved),
-    _ignore(resolve._ignore)
+    _ignore(resolve._ignore),
+    _version(resolve._version)
 {
     if(params)
     {
@@ -374,7 +376,8 @@ Resolver::Resolver(const InternalNodeInfoPtr& info, const Ice::CommunicatorPtr& 
     _escape(true),
     _enableWarning(false),
     _context("node `" + info->name + "'"),
-    _reserved(getReserved())
+    _reserved(getReserved()),
+    _version(0)
 {
     setReserved("node", info->name);
     setReserved("node.os", info->os);
@@ -397,11 +400,11 @@ Resolver::operator()(const string& value, const string& name, bool allowEmpty) c
         }
         catch(const string& reason)
         {
-            throw "invalid variable `" + value + "': " + reason;
+            throw "invalid variable `" + value + "':\n " + reason;
         }
         catch(const char* reason)
         {
-            throw "invalid variable `" + value + "': " + reason;
+            throw "invalid variable `" + value + "':\n " + reason;
         }
 
         if(!allowEmpty)
@@ -669,6 +672,32 @@ void
 Resolver::addIgnored(const string& name)
 {
     _ignore.insert(name);
+}
+
+void
+Resolver::setVersion(const string& version)
+{
+    string v = operator()(version, "ice version");
+    if(!v.empty())
+    {
+        _version = getMMVersion(v);
+        if(_version < 0)
+        {
+            exception("invalid ice version: " + v);
+        }
+        else if(_version > ICE_INT_VERSION && warningEnabled())
+        {
+            Ice::Warning out(_communicator->getLogger());
+            out << "invalid ice version: " << _version << " is superior to the IceGrid ";
+            out << "registry version (" << ICE_STRING_VERSION << ")";
+        }
+    }
+}
+
+int
+Resolver::getVersion() const
+{
+    return _version;
 }
 
 void
@@ -1464,28 +1493,7 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
 
     instance->id = resolve.asId(_desc->id, "id", false);
     instance->exe = resolve(_desc->exe, "executable", false);
-
     instance->iceVersion = resolve(_desc->iceVersion, "ice version");
-    if(!instance->iceVersion.empty())
-    {
-        int version = getMMVersion(instance->iceVersion);
-        if(version < 0)
-        {
-            resolve.exception("invalid ice version: " + instance->iceVersion);
-        }
-        else if(version > ICE_INT_VERSION)
-        {
-            //resolve.exception("invalid ice version: " + instance->iceVersion + " is superior to the IceGrid \n"
-            //"registry version (" + ICE_STRING_VERSION + ")");
-            if(resolve.warningEnabled())
-            {
-                Ice::Warning out(resolve.getCommunicator()->getLogger());
-                out << "invalid ice version: " << instance->iceVersion << " is superior to the IceGrid ";
-                out << "registry version (" << ICE_STRING_VERSION << ")";
-            }
-        }
-    }
-    
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
     instance->applicationDistrib = _desc->applicationDistrib;
@@ -1841,8 +1849,9 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     // Setup the resolver.
     //
     Resolver svrResolve(resolve, parameterValues, true);
-    svrResolve.setReserved("server", svrResolve(def->id, "server id", false));
+    svrResolve.setReserved("server", svrResolve.asId(def->id, "server id", false));
     svrResolve.setContext("server `${server}'");
+    svrResolve.setVersion(def->iceVersion);
     _id = svrResolve("${server}");
 
     //
