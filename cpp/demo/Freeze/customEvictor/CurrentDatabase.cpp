@@ -22,13 +22,18 @@ using namespace IceUtil;
    #define __thread __declspec(thread)
 #endif
 
+//
+// GCC on MacOS doesn't support __thread; and on HP-UX with aC++, there
+// is strange compiler or linker bug when using __thread.
+//
+#if defined(__HP_aCC) || defined(__APPLE__)
+   #define USE_PTHREAD_KEY 1
+#endif
+
 namespace
 {
 
-#ifdef __HP_aCC
-//
-// Strange HP aCC (or linker) bug, so we use directly the pthread calls
-//
+#ifdef USE_PTHREAD_KEY
 pthread_key_t dbKey;
 #else
 __thread Database* db = 0;
@@ -41,7 +46,7 @@ CurrentDatabase::CurrentDatabase(const Ice::CommunicatorPtr& comm, const string&
     _envName(envName),
     _dbName(dbName)
 {
-#ifdef __HP_aCC
+#ifdef USE_PTHREAD_KEY
     int rs = pthread_key_create(&dbKey, 0);
     assert(rs == 0);
 #endif
@@ -58,7 +63,7 @@ CurrentDatabase::~CurrentDatabase()
 Database&
 CurrentDatabase::get()
 {
-#ifdef __HP_aCC
+#ifdef USE_PTHREAD_KEY
     Database* db = static_cast<Database*>(pthread_getspecific(dbKey));
 #endif
 
@@ -69,7 +74,7 @@ CurrentDatabase::get()
 
         Mutex::Lock sync(_dbListMutex);
         _dbList.push_back(db);
-#ifdef __HP_aCC
+#ifdef USE_PTHREAD_KEY
 	int rs = pthread_setspecific(dbKey, db);
 	assert(rs == 0);
 #endif
