@@ -30,3 +30,27 @@ utility; for example to stop and restart the 'Lisa' service:
  $ icegridadmin --Ice.Config=config.grid
  >>> service stop IceBox Lisa
  >>> service start IceBox Lisa
+
+Administration through Glacier2
+-------------------------------
+
+This demo also includes the configuration for a Glacier2 router
+(DemoGlacier2), to show how you could administer IceGrid from
+ "the other side" of a firewall. (In these demo, however, everything
+is on the same system).
+
+Follow these steps:
+
+ - connect to the IceGrid registry with icegridadmin or the
+   IceGrid Admin graphical utility
+
+ - start the DemoGlacier2 server
+
+ - reconnect to the IceGrid registry with icegridadmin:
+   $ icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"
+
+   or with the IceGrid Admin graphical utility using the Routed
+   tab of the Login dialog. DemoGlacier2 is configured to use its built-in
+   NullPermissionsVerifier, so you can login using any username/password
+   combination.
+

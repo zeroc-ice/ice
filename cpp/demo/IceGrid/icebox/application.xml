@@ -12,11 +12,32 @@
             <adapter name="Hello-${name}" endpoints="default" id="Hello-${name}" replica-group="HelloGroup" server-lifetime="false"/>
          </service>
       </service-template>
+      <server-template id="Glacier2">
+         <parameter name="instance-name" default="${application}.Glacier2"/>
+         <parameter name="client-endpoints"/>
+         <parameter name="server-endpoints"/>
+         <parameter name="session-timeout" default="0"/>
+         <server id="${instance-name}" activation="manual" exe="glacier2router">
+            <properties>
+               <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+               <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+               <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+               <property name="Glacier2.InstanceName" value="${instance-name}"/>
+               <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+            </properties>
+         </server>
+      </server-template>
       <replica-group id="HelloGroup">
          <load-balancing type="round-robin" n-replicas="1"/>
          <object identity="hello" type="::Demo::Hello"/>
       </replica-group>
       <node name="localhost">
+         <server-instance template="Glacier2" instance-name="DemoGlacier2" client-endpoints="tcp -h localhost -p 4063" server-endpoints="tcp">
+            <properties>
+               <property name="Glacier2.SessionManager" value="DemoIceGrid/AdminSessionManager"/>
+               <property name="Glacier2.PermissionsVerifier" value="DemoGlacier2/NullPermissionsVerifier"/>
+            </properties>
+         </server-instance>
          <icebox id="IceBox" activation="on-demand" exe="icebox">
             <description>A sample IceBox server</description>
             <properties>
