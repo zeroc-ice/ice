@@ -5025,6 +5025,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << sp << nl << "public final void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
             << paramsInvoke << contextParam << epar;
         out << sb;
+        out << nl << "__acquire(__prx);";
         out << nl << "try";
         out << sb;
         if(p->returnsData())
@@ -5045,13 +5046,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << nl << "__os.writePendingObjects();";
         }
         out << nl << "__os.endWriteEncaps();";
+        out << nl << "__send();";
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "__finished(__ex);";
-        out << nl << "return;";
+        out << nl << "__release(__ex);";
         out << eb;
-        out << nl << "__send();";
         out << eb;
 
         out << sp << nl << "protected final void" << nl << "__response(boolean __ok)";
@@ -5096,8 +5096,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         {
             out << nl << "catch(" << getAbsolute(*r, classPkg) << " __ex)";
             out << sb;
-            out << nl << "ice_exception(__ex);";
-            out << nl << "return;";
+            out << nl << "throw __ex;";
             out << eb;
         }
         out << nl << "catch(Ice.UserException __ex)";
@@ -5137,12 +5136,32 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << nl << "__is.readPendingObjects();";
         }
         out << eb;
+        if(!throws.empty())
+        {
+            out << nl << "catch(Ice.UserException __ex)";
+            out << sb;
+            out << nl << "try";
+            out << sb;
+            out << nl << "ice_exception(__ex);";
+            out << eb;
+            out << nl << "catch(java.lang.Exception ex)";
+            out << sb;
+            out << nl << "__warning(ex);";
+            out << eb;
+            out << nl << "finally";
+            out << sb;
+            out << nl << "__release();";
+            out << eb;
+            out << nl << "return;";
+            out << eb;
+        }
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
         out << nl << "__finished(__ex);";
         out << nl << "return;";
         out << eb;
         out << nl << "ice_response" << spar << args << epar << ';';
+        out << nl << "__release();";
         out << eb;
         out << eb;
 

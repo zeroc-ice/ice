@@ -903,6 +903,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
             if(_batchRequestNum == 0)
             {
+                out.sent(false);
                 return true;
             }
 
@@ -971,6 +972,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
             if(_batchRequestNum == 0)
             {
+                outAsync.__sent(this);
                 return;
             }
 
@@ -2035,10 +2037,6 @@ public final class ConnectionI extends IceInternal.EventHandler
                         return IceInternal.SocketStatus.NeedWrite;
                     }
                 }
-                catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
-                {
-                    throw ex.get();
-                }
                 catch(Ice.TimeoutException ex)
                 {
                     throw new Ice.ConnectTimeoutException();
@@ -2169,21 +2167,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                 
             }
 
-            try
+            if(!_transceiver.write(message.stream.getBuffer(), timeout))
             {
-                if(!_transceiver.write(message.stream.getBuffer(), timeout))
-                {
-                    assert(timeout == 0);
-                    return false;
-                }
-            }
-            catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
-            {
-                if(!ex.retry())
-                {
-                    message.sent(this, timeout == 0);
-                }
-                throw ex.get();
+                assert(timeout == 0);
+                return false;
             }
                     
             message.sent(this, timeout == 0); // timeout == 0 indicates that this is called by the selector thread.
@@ -2276,25 +2263,14 @@ public final class ConnectionI extends IceInternal.EventHandler
             IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
         }
         
-        try
+        if(!foreground && _transceiver.write(message.stream.getBuffer(), 0))
         {
-            if(!foreground && _transceiver.write(message.stream.getBuffer(), 0))
+            message.sent(this, false);
+            if(_acmTimeout > 0)
             {
-                message.sent(this, false);
-                if(_acmTimeout > 0)
-                {
-                    _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
-                }
-                return false;
+                _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
-        }
-        catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
-        {
-            if(!ex.retry())
-            {
-                message.sent(this, false);
-            }
-            throw ex.get();
+            return false;
         }
 
         _sendStreams.addLast(message);

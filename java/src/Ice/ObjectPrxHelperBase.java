@@ -790,8 +790,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
                 __del = __getDelegate(false);
-                // Wait for the connection to be established.
-                return __del.__getRequestHandler().getConnection(true);
+                return __del.__getRequestHandler().getConnection(true); // Wait for the connection to be established.
+
             }
             catch(LocalException __ex)
             {
@@ -826,24 +826,21 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public void
     ice_flushBatchRequests()
     {
-        int __cnt = 0;
-        while(true)
+        //
+        // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+        // requests were queued with the connection, they would be lost without being noticed.
+        //
+        _ObjectDel __del = null;
+        int __cnt = -1; // Don't retry.
+        try
         {
-            _ObjectDel __del = null;
-            try
-            {
-                __del = __getDelegate(false);
-                __del.ice_flushBatchRequests();
-                return;
-            }
-            catch(IceInternal.LocalExceptionWrapper __ex)
-            {
-                __handleExceptionWrapper(__del, __ex);
-            }
-            catch(LocalException __ex)
-            {
-                __cnt = __handleException(__del, __ex, __cnt);
-            }
+            __del = __getDelegate(false);
+            __del.ice_flushBatchRequests();
+            return;
+        }
+        catch(LocalException __ex)
+        {
+            __cnt = __handleException(__del, __ex, __cnt);
         }
     }
 
@@ -947,6 +944,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
             {
                 _delegate = null;
             }
+        }
+
+        if(cnt == -1) // Don't retry if the retry count is -1.
+        {
+            throw ex;
         }
 
         IceInternal.ProxyFactory proxyFactory;

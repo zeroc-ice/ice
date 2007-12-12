@@ -175,6 +175,7 @@ IceInternal::Outgoing::invoke()
             _state = StateInProgress;
 
             Ice::ConnectionI* connection = _handler->sendRequest(this);
+            assert(connection);
 
             bool timedOut = false;
     

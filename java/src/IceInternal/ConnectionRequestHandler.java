@@ -33,24 +33,21 @@ public class ConnectionRequestHandler implements RequestHandler
     sendRequest(Outgoing out)
         throws LocalExceptionWrapper
     {
-        return (!_connection.sendRequest(out, _compress, _response) || _response) ? _connection : null;
+        if(!_connection.sendRequest(out, _compress, _response) || _response)
+        {
+            return _connection; // The request has been sent or we're expecting a response.
+        }
+        else
+        {
+            return null; // The request hasn't been sent yet.
+        }
     }
 
     public void
     sendAsyncRequest(OutgoingAsync out)
+        throws LocalExceptionWrapper
     {
-        try
-        {
-            _connection.sendAsyncRequest(out, _compress, _response);
-        }
-        catch(LocalExceptionWrapper ex)
-        {
-            out.__finished(ex);
-        }
-        catch(Ice.LocalException ex)
-        {
-            out.__finished(ex);
-        }
+        _connection.sendAsyncRequest(out, _compress, _response);
     }
 
     public boolean
@@ -62,14 +59,7 @@ public class ConnectionRequestHandler implements RequestHandler
     public void
     flushAsyncBatchRequests(BatchOutgoingAsync out)
     {
-        try
-        {
-            _connection.flushAsyncBatchRequests(out);
-        }
-        catch(Ice.LocalException ex)
-        {
-            out.__finished(ex);
-        }
+        _connection.flushAsyncBatchRequests(out);
     }
 
     public Outgoing

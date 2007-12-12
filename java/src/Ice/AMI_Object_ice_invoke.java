@@ -17,18 +17,18 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
     public final void __invoke(Ice.ObjectPrx prx, String operation, OperationMode mode,
                                byte[] inParams, java.util.Map context)
     {
+        __acquire(prx);
         try
         {
             __prepare(prx, operation, mode, context);
             __os.writeBlob(inParams);
             __os.endWriteEncaps();
+            __send();
         }
         catch(LocalException ex)
         {
-            __finished(ex);
-            return;
+            __release(ex);
         }
-        __send();
     }
 
     protected final void __response(boolean ok) // ok == true means no user exception.
@@ -45,5 +45,6 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
             return;
         }
         ice_response(ok, outParams);
+        __release();
     }
 }

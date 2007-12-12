@@ -483,12 +483,6 @@ final class EndpointI extends IceInternal.EndpointI
         return _host.compareTo(p._host);
     }
 
-    public boolean
-    requiresThreadPerConnection()
-    {
-        return false;
-    }
-
     public java.util.List
     connectors(java.util.List addresses)
     {

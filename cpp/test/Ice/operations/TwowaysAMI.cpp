@@ -916,6 +916,28 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
+        // Check that CommunicatorDestroyedException is raised directly.
+        Ice::InitializationData initData;
+        initData.properties = communicator->getProperties()->clone();
+        Ice::CommunicatorPtr ic = Ice::initialize(initData);
+        Ice::ObjectPrx obj = ic->stringToProxy(p->ice_toString());
+        Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(obj);
+
+        ic->destroy();
+    
+        AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
+        try
+        {
+            p2->opVoid_async(cb);
+            test(false);
+        }
+        catch(const Ice::CommunicatorDestroyedException& ex)
+        {
+            // Expected.
+        }
+    }
+
+    {
         AMI_MyClass_opByteIPtr cb = new AMI_MyClass_opByteI;
         p->opByte_async(cb, Ice::Byte(0xff), Ice::Byte(0x0f));
         test(cb->check());

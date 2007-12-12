@@ -179,7 +179,6 @@ final class TcpTransceiver implements Transceiver
 
     public boolean
     write(Buffer buf, int timeout)
-        throws LocalExceptionWrapper
     {
         while(writeBuffer(buf.b))
         {

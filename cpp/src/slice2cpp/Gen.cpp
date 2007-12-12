@@ -5215,6 +5215,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
           << paramsDeclInvoke << epar;
         C << sb;
+        C << nl << "__acquire(__prx);";
         C << nl << "try";
         C << sb;
         if(p->returnsData())
@@ -5228,13 +5229,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             C << nl << "__os->writePendingObjects();";
         }
         C << nl << "__os->endWriteEncaps();";
+        C << nl << "__send();";
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
         C << sb;
-        C << nl << "__finished(__ex);";
-        C << nl << "return;";
+        C << nl << "__release(__ex);";
         C << eb;
-        C << nl << "__send();";
         C << eb;
 
         C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__response(bool __ok)";
@@ -5265,14 +5265,14 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             string scoped = (*i)->scoped();
             C << nl << "catch(const " << fixKwd((*i)->scoped()) << "& __ex)";
             C << sb;
-            C << nl << "ice_exception(__ex);";
-            C << nl << "return;";
+            C << nl << "__exception(__ex);";
             C << eb;
         }
         C << nl << "catch(const ::Ice::UserException& __ex)";
         C << sb;
         C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
         C << eb;
+        C << nl << "return;";
         C << eb;
 
         writeUnmarshalCode(C, outParams, 0, StringList(), true);
@@ -5291,6 +5291,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << nl << "return;";
         C << eb;
         C << nl << "ice_response" << spar << args << epar << ';';
+        C << nl << "__release();";
         C << eb;
     }
 

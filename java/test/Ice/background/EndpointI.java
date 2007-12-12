@@ -311,12 +311,6 @@ final class EndpointI extends IceInternal.EndpointI
         return _endpoint.compareTo(p._endpoint);
     }
 
-    public boolean
-    requiresThreadPerConnection()
-    {
-        return _endpoint.requiresThreadPerConnection();
-    }
-
     private IceInternal.EndpointI _endpoint;
     private Configuration _configuration;
 }

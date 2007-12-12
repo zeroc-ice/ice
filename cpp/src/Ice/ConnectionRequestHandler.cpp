@@ -61,24 +61,20 @@ ConnectionRequestHandler::abortBatchRequest()
 Ice::ConnectionI*
 ConnectionRequestHandler::sendRequest(Outgoing* out)
 {
-    return (!_connection->sendRequest(out, _compress, _response) || _response) ? _connection.get() : 0;
+    if(!_connection->sendRequest(out, _compress, _response) || _response)
+    {
+        return _connection.get(); // The request has been sent or we're expecting a response.
+    }
+    else
+    {
+        return 0; // The request hasn't been sent yet.
+    }
 }
 
 void
 ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
 {
-    try
-    {
-        _connection->sendAsyncRequest(out, _compress, _response);
-    }
-    catch(const LocalExceptionWrapper& ex)
-    {
-        out->__finished(ex);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        out->__finished(ex);
-    }
+    _connection->sendAsyncRequest(out, _compress, _response);
 }
 
 bool
@@ -90,14 +86,7 @@ ConnectionRequestHandler::flushBatchRequests(BatchOutgoing* out)
 void
 ConnectionRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& out)
 {
-    try
-    {
-        _connection->flushAsyncBatchRequests(out);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        out->__finished(ex);
-    }
+    _connection->flushAsyncBatchRequests(out);
 }
 
 Ice::ConnectionIPtr

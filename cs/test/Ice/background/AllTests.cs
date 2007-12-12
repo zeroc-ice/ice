@@ -182,7 +182,7 @@ public class AllTests
 
     private class FlushBatchRequestsCallback : Ice.AMI_Object_ice_flushBatchRequests
     {
-        public override void ice_exception(Ice.LocalException ex)
+        public override void ice_exception(Ice.Exception ex)
         {
             test(false);
         }

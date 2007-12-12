@@ -76,7 +76,6 @@ final class Transceiver implements IceInternal.Transceiver
 
     public boolean
     write(IceInternal.Buffer buf, int timeout)
-        throws  IceInternal.LocalExceptionWrapper
     {
         if(!_initialized)
         {

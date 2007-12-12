@@ -42,7 +42,8 @@ public class TwowaysAMI
                         return false; // Must be timeout.
                     }
                 }
-                
+
+                _called = false;
                 return true;
             }
         }
@@ -998,8 +999,33 @@ public class TwowaysAMI
             AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
             p.opVoid_async(cb);
             test(cb.check());
+            // Let's check if we can reuse the callback object for another call.
+            p.opVoid_async(cb);
+            test(cb.check());
         }
-        
+
+        {
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties().ice_clone_();
+            Ice.Communicator ic = Ice.Util.initialize(initData);
+
+            Ice.ObjectPrx obj = ic.stringToProxy(p.ice_toString());
+            Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(obj);
+            
+            ic.destroy();
+            
+            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
+            try
+            {
+                p2.opVoid_async(cb);
+                test(false);
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Expected.
+            }
+        }
+
         {
             AMI_MyClass_opByteI cb = new AMI_MyClass_opByteI();
             p.opByte_async(cb, 0xff, 0x0f);

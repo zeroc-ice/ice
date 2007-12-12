@@ -841,24 +841,21 @@ namespace Ice
 
         public void ice_flushBatchRequests()
         {
-            int cnt__ = 0;
-            while(true)
+            //
+            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+            // requests were queued with the connection, they would be lost without being noticed.
+            //
+            ObjectDel_ del__ = null;
+            int cnt__ = -1; // Don't retry.
+            try
             {
-                ObjectDel_ del__ = null;
-                try
-                {
-                    del__ = getDelegate__(false);
-                    del__.ice_flushBatchRequests();
-                    return;
-                }
-                catch(IceInternal.LocalExceptionWrapper ex__)
-                {
-                    handleExceptionWrapper__(del__, ex__);
-                }
-                catch(LocalException ex__)
-                {
-                    cnt__ = handleException__(del__, ex__, cnt__);
-                }
+                del__ = getDelegate__(false);
+                del__.ice_flushBatchRequests();
+                return;
+            }
+            catch(LocalException ex__)
+            {
+                cnt__ = handleException__(del__, ex__, cnt__);
             }
         }
 
@@ -951,6 +948,11 @@ namespace Ice
                 {
                     _delegate = null;
                 }
+            }
+
+            if(cnt == -1) // Don't retry if the retry count is -1.
+            {
+                throw ex;
             }
 
             IceInternal.ProxyFactory proxyFactory;
@@ -1652,19 +1654,7 @@ namespace Ice
         public virtual void ice_flushBatchRequests()
         {
             IceInternal.BatchOutgoing @out = new IceInternal.BatchOutgoing(handler__);
-            try
-            {
-                @out.invoke();
-            }
-            catch(Ice.LocalException ex)
-            {
-                //
-                // We never retry flusing the batch requests as the connection batched
-                // requests were discarded and the caller needs to be notified of the
-                // failure.
-                //
-                throw new IceInternal.LocalExceptionWrapper(ex, false);
-            }
+            @out.invoke();
         }
 
         public virtual IceInternal.RequestHandler getRequestHandler__()

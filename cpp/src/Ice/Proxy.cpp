@@ -827,7 +827,8 @@ IceProxy::Ice::Object::ice_getConnection()
         try
         {
             __del = __getDelegate(false);
-            return __del->__getRequestHandler()->getConnection(true);
+            return __del->__getRequestHandler()->getConnection(true); // Wait for the connection to be established.
+
         }
         catch(const LocalException& __ex)
         {
@@ -861,24 +862,20 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
 void
 IceProxy::Ice::Object::ice_flushBatchRequests()
 {
-    int __cnt;
-    while(true)
+    //
+    // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+    // requests were queued with the connection, they would be lost without being noticed.
+    //
+    Handle< ::IceDelegate::Ice::Object> __del;
+    int __cnt = -1; // Don't retry.
+    try
     {
-        Handle< ::IceDelegate::Ice::Object> __del;
-        try
-        {
-            __del = __getDelegate(false);
-            __del->ice_flushBatchRequests();
-            return;
-        }
-        catch(const LocalExceptionWrapper& __ex)
-        {
-            __handleExceptionWrapper(__del, __ex);
-        }
-        catch(const LocalException& __ex)
-        {
-            __handleException(__del, __ex, __cnt);
-        }
+        __del = __getDelegate(false);
+        __del->ice_flushBatchRequests();
+    }
+    catch(const LocalException& __ex)
+    {
+        __handleException(__del, __ex, __cnt);
     }
 }
 
@@ -956,6 +953,11 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
         _delegate = 0;
     }
 
+    if(cnt == -1) // Don't retry if the retry count is -1.
+    {
+        ex.ice_throw();
+    }
+
     ProxyFactoryPtr proxyFactory;
     try
     {
@@ -967,7 +969,6 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
         // The communicator is already destroyed, so we cannot retry.
         //
         ex.ice_throw();
-        
     }
 
     proxyFactory->checkRetryAfterException(ex, _reference, cnt);
@@ -1315,19 +1316,7 @@ void
 IceDelegateM::Ice::Object::ice_flushBatchRequests()
 {
     BatchOutgoing __og(__handler.get());
-    try
-    {
-        __og.invoke();
-    }
-    catch(const ::Ice::LocalException& __ex)
-    {
-        //
-        // We never retry flusing the batch requests as the connection batched
-        // requests were discarded and the caller needs to be notified of the 
-        // failure.
-        //
-        throw ::IceInternal::LocalExceptionWrapper(__ex, false);
-    }
+    __og.invoke();
 }
 
 RequestHandlerPtr

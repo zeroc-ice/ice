@@ -34,22 +34,24 @@ public final class BatchOutgoing implements OutgoingMessageCallback
 
         if(_handler != null && !_handler.flushBatchRequests(this) || 
            _connection != null && !_connection.flushBatchRequests(this))
-        synchronized(this)
         {
-            while(_exception == null && !_sent)
+            synchronized(this)
             {
-                try
+                while(_exception == null && !_sent)
                 {
-                    wait();
+                    try
+                    {
+                        wait();
+                    }
+                    catch(java.lang.InterruptedException ex)
+                    {
+                    }
                 }
-                catch(java.lang.InterruptedException ex)
+                
+                if(_exception != null)
                 {
+                    throw _exception;
                 }
-            }
-        
-            if(_exception != null)
-            {
-                throw _exception;
             }
         }
     }

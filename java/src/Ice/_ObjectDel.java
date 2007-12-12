@@ -27,8 +27,7 @@ public interface _ObjectDel
                        java.util.Map context)
         throws IceInternal.LocalExceptionWrapper;
 
-    void ice_flushBatchRequests()
-        throws IceInternal.LocalExceptionWrapper;
+    void ice_flushBatchRequests();
     
     IceInternal.RequestHandler __getRequestHandler();
     void __setRequestHandler(IceInternal.RequestHandler handler);

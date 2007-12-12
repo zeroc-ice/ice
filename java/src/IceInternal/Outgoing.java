@@ -64,6 +64,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 _state = StateInProgress;
 
                 Ice.ConnectionI connection = _handler.sendRequest(this);
+                assert(connection != null);
 
                 boolean timedOut = false;
 
@@ -186,52 +187,33 @@ public final class Outgoing implements OutgoingMessageCallback
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-                try
+                _state = StateInProgress;
+                if(_handler.sendRequest(this) != null)
                 {
-                    _state = StateInProgress;
-                    if(_handler.sendRequest(this) != null)
+                    //
+                    // If the handler returns the connection, we must wait for the sent callback.
+                    //
+                    synchronized(this)
                     {
-                        //
-                        // If the handler returns the connection, we must wait for the sent callback.
-                        //
-                        synchronized(this)
+                        while(_state != StateFailed && !_sent)
                         {
-                            while(_state != StateFailed && !_sent)
+                            try
                             {
-                                try
-                                {
-                                    wait();
-                                }
-                                catch(java.lang.InterruptedException ex)
-                                {
-                                }
+                                wait();
                             }
-                            
-                            if(_exception != null)
+                            catch(java.lang.InterruptedException ex)
                             {
-                                assert(!_sent);
-                                throw _exception;
                             }
                         }
-                    }
-                    return true;
-                }
-                catch(Ice.LocalException ex) // Java specfic work-around (see ConnectionI.sendRequest())
-                {
-                    if(!_sent) // The send might have failed but the request might still be sent...
-                    {
-                        throw ex;
-                    }
-                    else
-                    {
-                        //                    
-                        // We wrap the exception into a LocalExceptionWrapper  to indicate that 
-                        // the request cannot be resent without potentially violating the 
-                        // "at-most-once" principle.
-                        //
-                        throw new IceInternal.LocalExceptionWrapper(ex, false);
+                        
+                        if(_exception != null)
+                        {
+                            assert(!_sent);
+                            throw _exception;
+                        }
                     }
                 }
+                return true;
             }
 
             case Reference.ModeBatchOneway:

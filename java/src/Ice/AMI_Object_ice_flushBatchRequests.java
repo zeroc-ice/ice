@@ -15,21 +15,29 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
 
     public final void __invoke(Ice.ObjectPrx prx)
     {
-        Ice._ObjectDel delegate;
-        IceInternal.RequestHandler handler;
+        __acquire(prx);
         try
         {
+            //
+            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+            // requests were queued with the connection, they would be lost without being noticed.
+            //
+            Ice._ObjectDel delegate = null;
+            int cnt = -1; // Don't retry.
             Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)prx;
-            __prepare(proxy.__reference().getInstance());
-            delegate = proxy.__getDelegate(true);
-            handler = delegate.__getRequestHandler();
+            try
+            {
+                delegate = proxy.__getDelegate(true);
+                delegate.__getRequestHandler().flushAsyncBatchRequests(this);
+            }
+            catch(Ice.LocalException ex)
+            {
+                cnt = proxy.__handleException(delegate, ex, cnt);
+            }
         }
         catch(Ice.LocalException ex)
         {
-            __finished(ex);
-            return;
+            __release(ex);
         }
-
-        handler.flushAsyncBatchRequests(this);
     }
 }

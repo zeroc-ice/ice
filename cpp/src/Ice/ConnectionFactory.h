@@ -83,8 +83,7 @@ private:
         bool threadPerConnection;
     };
 
-    class ConnectCallback : public Ice::ConnectionI::StartCallback, public IceInternal::EndpointI_connectors,
-                            public IceInternal::ThreadPoolWorkItem
+    class ConnectCallback : public Ice::ConnectionI::StartCallback, public IceInternal::EndpointI_connectors
     {
     public:
 
@@ -97,7 +96,8 @@ private:
         virtual void connectors(const std::vector<ConnectorPtr>&);
         virtual void exception(const Ice::LocalException&);
 
-        virtual void execute(const ThreadPoolPtr&);
+        void getConnectors();
+        void nextEndpoint();
 
         void getConnection();
         void nextConnector();
@@ -105,8 +105,6 @@ private:
         bool operator<(const ConnectCallback&) const;
         
     private:
-        
-        void handleException();
 
         const OutgoingConnectionFactoryPtr _factory;
         const SelectorThreadPtr _selectorThread;
@@ -118,16 +116,14 @@ private:
         std::vector<EndpointIPtr>::const_iterator _endpointsIter;
         std::vector<ConnectorInfo> _connectors;
         std::vector<ConnectorInfo>::const_iterator _iter;
-        std::auto_ptr<Ice::LocalException> _exception;
-        Ice::ConnectionIPtr _connection;
     };
     typedef IceUtil::Handle<ConnectCallback> ConnectCallbackPtr;
     friend class ConnectCallback;
 
     std::vector<EndpointIPtr> applyOverrides(const std::vector<EndpointIPtr>&);
     Ice::ConnectionIPtr findConnection(const std::vector<EndpointIPtr>&, bool, bool&);
-    void addPendingEndpoints(const std::vector<EndpointIPtr>&);
-    void removePendingEndpoints(const std::vector<EndpointIPtr>&);
+    void incPendingConnectCount();
+    void decPendingConnectCount();
     Ice::ConnectionIPtr getConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, bool&);
     void finishGetConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, const Ice::ConnectionIPtr&);
     Ice::ConnectionIPtr findConnection(const std::vector<ConnectorInfo>&, bool&);
@@ -143,7 +139,7 @@ private:
     std::map<ConnectorInfo, std::set<ConnectCallbackPtr> > _pending;
 
     std::multimap<EndpointIPtr, Ice::ConnectionIPtr> _connectionsByEndpoint;
-    std::multiset<EndpointIPtr> _pendingEndpoints;
+    int _pendingConnectCount;
 };
 
 class IncomingConnectionFactory : public EventHandler, 

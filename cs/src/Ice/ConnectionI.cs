@@ -870,6 +870,7 @@ namespace Ice
 
                 if(_batchRequestNum == 0)
                 {
+                    @out.sent(false);
                     return true;
                 }
 
@@ -931,6 +932,7 @@ namespace Ice
 
                 if(_batchRequestNum == 0)
                 {
+                    outAsync.sent__(this);
                     return;
                 }
 

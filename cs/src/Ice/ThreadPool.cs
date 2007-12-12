@@ -29,11 +29,8 @@ namespace IceInternal
     using System.Net.Sockets;
     using System.Threading;
     using IceUtil;
-
-    public interface ThreadPoolWorkItem
-    {
-        void execute(ThreadPool threadPool);
-    }
+    
+    public delegate void ThreadPoolExecuteDelegate(ThreadPool threadPool);
 
     public sealed class ThreadPool
     {  
@@ -137,7 +134,6 @@ namespace IceInternal
 
                 Debug.Assert(!_destroyed);
                 Debug.Assert(_handlerMap.Count == 0);
-                Debug.Assert(_changes.Count == 0);
                 _destroyed = true;
                 setInterrupt();
             }
@@ -181,11 +177,14 @@ namespace IceInternal
             }
         }
 
-        public void execute(ThreadPoolWorkItem workItem)
+        public void execute(ThreadPoolExecuteDelegate workItem)
         {
             lock(this)
             {
-                Debug.Assert(!_destroyed);
+                if(_destroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
                 _workItems.AddLast(workItem);
                 setInterrupt();
             }
@@ -382,7 +381,7 @@ namespace IceInternal
                 Network.doSelect(readList, null, null, _timeout > 0 ? _timeout * 1000 : -1);
 
                 EventHandler handler = null;
-                ThreadPoolWorkItem workItem = null;
+                ThreadPoolExecuteDelegate workItem = null;
                 bool finished = false;
                 bool shutdown = false;
 
@@ -403,7 +402,7 @@ namespace IceInternal
                         if(readList.Contains(_fdIntrRead))
                         {
                             #if TRACE_SELECT || TRACE_INTERRUPT
-                                trace("detected interrupt");
+                            trace("detected interrupt");
                             #endif
 
                             //
@@ -416,37 +415,46 @@ namespace IceInternal
                             // 3. A work item has been scheduled.
                             //
 
-                            //
-                            // Thread pool destroyed?
-                            //
-                            if(_destroyed)
+                            if(_workItems.Count > 0)
+                            {
+                                //
+                                // Remove the interrupt channel from the readList.
+                                //
+                                readList.Remove(_fdIntrRead);
+                                clearInterrupt();
+
+                                //
+                                // Work items must be executed first even if the thread pool is destroyed.
+                                //
+                                workItem = _workItems.First.Value;
+                                _workItems.RemoveFirst();
+                            }
+                            else if(_destroyed)
                             {
                                 #if TRACE_SHUTDOWN
                                     trace("destroyed, thread id = " + System.Threading.Thread.CurrentThread.Name);
                                 #endif
 
                                 //
-                                // Don't clear the interrupt fd if
-                                // destroyed, so that the other threads
+                                // Don't clear the interrupt fd if destroyed, so that the other threads
                                 // exit as well.
                                 //
                                 return true;
                             }
-
-                            //
-                            // Remove the interrupt channel from the
-                            // readList.
-                            //
-                            readList.Remove(_fdIntrRead);
-
-                            clearInterrupt();
-
-                            //
-                            // An event handler must have been registered
-                            // or unregistered.
-                            //
-                            if(_changes.Count > 0)
+                            else
                             {
+                                //
+                                // Remove the interrupt channel from the readList.
+                                //
+                                readList.Remove(_fdIntrRead);
+                                clearInterrupt();
+                                
+                                //
+                                // An event handler must have been registered
+                                // or unregistered.
+                                //
+                                Debug.Assert(_changes.Count > 0);
+
                                 LinkedList.Enumerator first = (LinkedList.Enumerator)_changes.GetEnumerator();
                                 first.MoveNext();
                                 FdHandlerPair change = (FdHandlerPair)first.Current;
@@ -477,12 +485,6 @@ namespace IceInternal
                                     // finished() on the event handler below,
                                     // outside the thread synchronization.
                                 }
-                            }
-                            else
-                            {
-                                Debug.Assert(_workItems.Count > 0);
-                                workItem = _workItems.First.Value;
-                                _workItems.RemoveFirst();
                             }
                         }
                         else
@@ -541,7 +543,7 @@ namespace IceInternal
                 {
                     try
                     {
-                        workItem.execute(this);
+                        workItem(this);
                     }
                     catch(Ice.LocalException ex)
                     {
@@ -939,7 +941,7 @@ namespace IceInternal
         private Socket _fdIntrWrite;
 
         private IceUtil.LinkedList _changes = new IceUtil.LinkedList();
-        private LinkedList<ThreadPoolWorkItem> _workItems = new LinkedList<ThreadPoolWorkItem>();
+        private LinkedList<ThreadPoolExecuteDelegate> _workItems = new LinkedList<ThreadPoolExecuteDelegate>();
 
         private Hashtable _handlerMap = new Hashtable();
 

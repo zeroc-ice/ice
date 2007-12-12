@@ -126,7 +126,6 @@ IceInternal::ThreadPool::destroy()
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(!_destroyed);
     assert(_handlerMap.empty());
-    assert(_changes.empty());
     assert(_workItems.empty());
     _destroyed = true;
     _selector.setInterrupt();
@@ -176,7 +175,10 @@ void
 IceInternal::ThreadPool::execute(const ThreadPoolWorkItemPtr& workItem)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    assert(!_destroyed);
+    if(_destroyed)
+    {
+        throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
     _workItems.push_back(workItem);
     _selector.setInterrupt();
 }
@@ -302,37 +304,34 @@ IceInternal::ThreadPool::run()
                     //
                     // 3. A work item has been schedulded.
                     //
-                    
-                    //
-                    // Thread pool destroyed?
-                    //
-                    if(_destroyed)
+
+                    if(!_workItems.empty())
                     {
                         //
-                        // Don't clear the interrupt if destroyed, so that
-                        // the other threads exit as well.
+                        // Work items must be executed first even if the thread pool is destroyed.
                         //
-                        return true;
-                    }
-                    
-                    _selector.clearInterrupt();
-                    
-                    //
-                    // An event handler must have been registered or
-                    // unregistered.
-                    //
-                    if(_changes.empty())
-                    {
-                        assert(!_workItems.empty());
+                        _selector.clearInterrupt();
                         workItem = _workItems.front();
                         _workItems.pop_front();
                     }
+                    else if(_destroyed)
+                    {
+                        //
+                        // Don't clear the interrupt if destroyed, so that the other threads exit as well.
+                        //
+                        return true;
+                    }
                     else
                     {
+                        //
+                        // An event handler must have been registered or unregistered.
+                        //
+                        _selector.clearInterrupt();
+                        
                         assert(!_changes.empty());
                         pair<SOCKET, EventHandlerPtr> change = _changes.front();
                         _changes.pop_front();
-                    
+                        
                         if(change.second) // Addition if handler is set.
                         {
                             _handlerMap.insert(change);
@@ -347,9 +346,8 @@ IceInternal::ThreadPool::run()
                             finished = true;
                             _handlerMap.erase(p);
                             _selector.remove(change.first, NeedRead);
-                            // Don't continue; we have to call
-                            // finished() on the event handler below, outside
-                            // the thread synchronization.
+                            // Don't continue; we have to call finished() on the event handler below,
+                            // outside the thread synchronization.
                         }
                     }
                 }
