@@ -77,6 +77,7 @@ private:
     friend class MapHelperI;
     friend class IteratorHelperI;
     friend class SharedDb;
+    friend class MapDb;
 
     std::string _name;
     MapIndexI* _impl;
@@ -140,6 +141,8 @@ public:
     virtual const MapIndexBasePtr&
     index(const std::string&) const = 0;
 
+    virtual void
+    closeDb() = 0;
 };
 
 
@@ -1094,6 +1097,15 @@ public:
     void destroy()
     {
         _helper->destroy();
+    }
+
+
+    //
+    // closeDb closes the underlying Berkeley DB database
+    //
+    void closeDb()
+    {
+        _helper->closeDb();
     }
     
     iterator find(const key_type& key)

@@ -203,8 +203,20 @@ private:
 int
 run(const CommunicatorPtr& communicator, const string& envName)
 {
-    const string dbName = "binary";
     Freeze::ConnectionPtr connection = createConnection(communicator, envName);
+    const string dbName = "binary";
+
+    //
+    // Open/close db within transaction
+    //
+    {
+        TransactionHolder txHolder(connection);
+        ByteIntMap m1(connection, dbName);
+
+        m1.put((ByteIntMap::value_type('a', 1)));
+        // rollback in dtor of txHolder
+    }
+ 
     ByteIntMap m1(connection, dbName);
     
     //
@@ -654,6 +666,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
             }
         }
         txHolder.commit();
+        iim.closeDb();
     }
     
     { 

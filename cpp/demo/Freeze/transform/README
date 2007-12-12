@@ -67,7 +67,7 @@ Running the demo
    $  transformdb --old ContactData.ice --new NewContactData.ice \
        -f transform.xml  db dbnew
 
- - read the transformend contacts map:
+ - read the transformed contacts map:
    $ readnew
    You'll notice the sort order (looks random), and the corrupt
    index. The index is actually created by readnew when it opens

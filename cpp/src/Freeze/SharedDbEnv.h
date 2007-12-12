@@ -10,10 +10,11 @@
 #ifndef FREEZE_SHARED_DB_ENV_H
 #define FREEZE_SHARED_DB_ENV_H
 
-#include <Ice/Config.h>
+#include <Freeze/Map.h>
 #include <Ice/Ice.h>
-#include <IceUtil/Handle.h>
 #include <db_cxx.h>
+#include <map>
+#include <list>
 
 namespace Freeze
 {
@@ -24,11 +25,13 @@ typedef IceUtil::Handle<CheckpointThread> CheckpointThreadPtr;
 class SharedDbEnv;
 typedef IceUtil::Handle<SharedDbEnv> SharedDbEnvPtr;
 
-class SharedDb;
-typedef IceUtil::Handle<SharedDb> SharedDbPtr;
+class MapDb;
 
 class Transaction;
 typedef IceInternal::Handle<Transaction> TransactionPtr;
+
+class ConnectionI;
+typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
 
 class TransactionalEvictorContext;
 typedef IceUtil::Handle<TransactionalEvictorContext> TransactionalEvictorContextPtr;
@@ -41,6 +44,18 @@ public:
 
     ~SharedDbEnv();
 
+    //
+    // Returns a shared map Db; the caller should NOT close/delete this Db.
+    //
+    MapDb* getSharedMapDb(const std::string&,const std::string&, const std::string&,
+                          const KeyCompareBasePtr&, const std::vector<MapIndexBasePtr>&, bool);
+
+    //
+    // Tell SharedDbEnv to close and remove this Shared Db from the map
+    //
+    void removeSharedMapDb(const std::string&);
+
+    
     void __incRef();
     void __decRef();
    
@@ -54,18 +69,20 @@ public:
     DbEnv* getEnv() const;
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;
-    const SharedDbPtr& getCatalog() const;
-    const SharedDbPtr& getCatalogIndexList() const;
+
+    typedef std::map<std::string, MapDb*> SharedDbMap;
 
 private:
     SharedDbEnv(const std::string&, const Ice::CommunicatorPtr&, DbEnv* env);
     
+    void cleanup();
+
     DbEnv* _env;
     std::auto_ptr<DbEnv> _envHolder;
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
-    SharedDbPtr _catalog;
-    SharedDbPtr _catalogIndexList;
+    MapDb* _catalog;
+    MapDb* _catalogIndexList;
 
     int _refCount;
     int _trace;
@@ -75,8 +92,10 @@ private:
     DWORD _tsdKey;
 #else
     pthread_key_t _tsdKey;
-#endif    
+#endif
 
+    SharedDbMap _sharedDbMap;
+    IceUtil::Mutex _mutex;
 };
 
 inline DbEnv*
@@ -96,19 +115,6 @@ SharedDbEnv::getCommunicator() const
 {
     return _communicator;
 }
-
-inline const SharedDbPtr&
-SharedDbEnv::getCatalog() const
-{
-    return _catalog;
-}
-
-inline const SharedDbPtr&
-SharedDbEnv::getCatalogIndexList() const
-{
-    return _catalogIndexList;
-}
-
 
 }
 #endif

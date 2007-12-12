@@ -8,9 +8,10 @@
 // **********************************************************************
 
 #include <Freeze/MapI.h>
+#include <Freeze/MapDb.h>
 #include <Freeze/Exception.h>
-#include <Freeze/SharedDb.h>
 #include <Freeze/Util.h>
+#include <Freeze/TransactionHolder.h>
 #include <Freeze/Catalog.h>
 #include <Freeze/CatalogIndexList.h>
 #include <IceUtil/UUID.h>
@@ -201,7 +202,7 @@ Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection,
                 Db oldDb(connectionI->dbEnv()->getEnv(), 0);
                 oldDb.open(txn, oldDbName.c_str(), 0, DB_BTREE, DB_THREAD, FREEZE_DB_MODE);
                     
-                SharedDbPtr newDb = SharedDb::create(connectionI, dbName, key, value, keyCompare, indices);
+                auto_ptr<MapDb> newDb(new MapDb(connectionI, dbName, key, value, keyCompare, indices, true));
                 
                 if(connectionI->trace() >= 2)
                 {
@@ -1002,7 +1003,7 @@ Freeze::MapHelperI::MapHelperI(const ConnectionIPtr& connection,
                                const vector<MapIndexBasePtr>& indices,
                                bool createDb) :
     _connection(connection),
-    _db(SharedDb::get(connection, dbName, key, value, keyCompare, indices, createDb)),
+    _db(connection->dbEnv()->getSharedMapDb(dbName, key, value, keyCompare, indices, createDb)),
     _dbName(dbName),
     _trace(connection->trace())
 { 
@@ -1407,6 +1408,11 @@ Freeze::MapHelperI::destroy()
         throw DatabaseException(__FILE__, __LINE__, "This map is closed");
     }
 
+    if(_connection->currentTransaction())
+    {
+        throw DatabaseException(__FILE__, __LINE__, "Cannot destroy map within transaction");
+    }
+
     if(_trace >= 1)
     {
         Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
@@ -1418,23 +1424,14 @@ Freeze::MapHelperI::destroy()
     {
         indexNames.push_back(p->second->name());
     }
-            
-    close();
-
-    TransactionPtr tx = _connection->currentTransaction();
-    bool ownTx = (tx == 0);
-
+ 
+    closeDb();
 
     for(;;)
     {
         try
         {
-            if(ownTx)
-            {
-                tx = 0;
-                tx = _connection->beginTransaction();
-            }
-        
+            TransactionHolder tx(_connection);
             DbTxn* txn = _connection->dbTxn();
 
             Catalog catalog(_connection, catalogName());
@@ -1453,60 +1450,26 @@ Freeze::MapHelperI::destroy()
                 _connection->removeMapIndex(_dbName, *q);
             }
             
-            if(ownTx)
-            {
-                tx->commit();
-            }
+            tx.commit();
+         
             break; // for(;;)
         }
         catch(const DbDeadlockException& dx)
         {
-            if(ownTx)
+            if(_connection->deadlockWarning())
             {
-                if(_connection->deadlockWarning())
-                {
-                    Warning out(_connection->communicator()->getLogger());
-                    out << "Deadlock in Freeze::MapHelperI::destroy on Map \"" 
-                        << _dbName << "\"; retrying ...";
-                }
-
-                //
-                // Ignored, try again
-                //
+                Warning out(_connection->communicator()->getLogger());
+                out << "Deadlock in Freeze::MapHelperI::destroy on Map \"" 
+                    << _dbName << "\"; retrying ...";
             }
-            else
-            {
-                throw DeadlockException(__FILE__, __LINE__, dx.what(), tx);
-            }
+            
+            //
+            // Ignored, try again
+            //
         }
         catch(const DbException& dx)
         {
-            if(ownTx)
-            {
-                try
-                {
-                    tx->rollback();
-                }
-                catch(...)
-                {
-                }
-            }
-            
             throw DatabaseException(__FILE__, __LINE__, dx.what());
-        }
-        catch(...)
-        {
-            if(ownTx && tx != 0)
-            {   
-                try
-                {
-                    tx->rollback();
-                }
-                catch(...)
-                {
-                }
-            }
-            throw;
         }
     }
 }
@@ -1515,9 +1478,6 @@ Freeze::MapHelperI::destroy()
 size_t
 Freeze::MapHelperI::size() const
 {
-    //
-    // TODO: DB_FAST_STAT doesn't seem to do what the documentation says...
-    //
     DB_BTREE_STAT* s;
 
     try
@@ -1567,6 +1527,13 @@ Freeze::MapHelperI::index(const string& name) const
 }
 
 void
+Freeze::MapHelperI::closeDb()
+{
+    close();
+    _connection->dbEnv()->removeSharedMapDb(_dbName);
+}
+
+void
 Freeze::MapHelperI::close()
 {
     if(_db != 0)
@@ -1582,6 +1549,8 @@ Freeze::MapHelperI::close()
     //
     _indices.clear();
 }
+
+
 
 void
 Freeze::MapHelperI::closeAllIteratorsExcept(const IteratorHelperI::TxPtr& tx) const
@@ -1632,7 +1601,7 @@ callback(Db* secondary, const Dbt* key, const Dbt* value, Dbt* result)
     return index->secondaryKeyCreate(secondary, key, value, result);
 }
 
-Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, SharedDb& db,
+Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, MapDb& db,
                              DbTxn* txn, bool createDb, const MapIndexBasePtr& index) :
     _index(index)
 {

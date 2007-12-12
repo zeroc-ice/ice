@@ -11,11 +11,12 @@
 #define FREEZE_MAP_I_H
 
 #include <Freeze/Map.h>
-#include <Freeze/SharedDb.h>
+#include <Freeze/ConnectionI.h>
 
 namespace Freeze
 {
 
+class MapDb;
 class MapHelperI;
 
 
@@ -146,6 +147,9 @@ public:
 
     virtual const MapIndexBasePtr&
     index(const std::string&) const;
+
+    virtual void
+    closeDb();
  
     void
     close();
@@ -168,7 +172,7 @@ private:
 
     const ConnectionIPtr _connection;
     mutable std::list<IteratorHelperI*> _iteratorList;
-    SharedDbPtr _db;
+    MapDb* _db;
     const std::string _dbName;
     IndexMap _indices;
 

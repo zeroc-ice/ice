@@ -200,6 +200,18 @@ public class Client
     {
         Freeze.Connection connection = Freeze.Util.createConnection(communicator, envName);
 
+        //
+        // Open/close db within transaction
+        //
+        {
+            Transaction tx = connection.beginTransaction();
+            ByteIntMap m = new ByteIntMap(connection, dbName, true);
+            
+            m.put(new Byte((byte)'a'), new Integer(1));
+            m.close();
+            tx.rollback();
+        }
+
         java.util.Map m = new ByteIntMap(connection, dbName, true);
 
         //
@@ -614,7 +626,7 @@ public class Client
                 }
             }
             tx.commit();
-            iim.close();
+            iim.closeDb();
         }
         
         {

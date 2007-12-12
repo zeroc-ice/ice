@@ -20,6 +20,7 @@ public abstract class Map extends java.util.AbstractMap
         boolean createDb, java.util.Comparator comparator)
     {
         _connection = (ConnectionI)connection;
+        _dbName = dbName;
         _comparator = (comparator == null) ? null : new Comparator(comparator);
                 
         _errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
@@ -32,6 +33,7 @@ public abstract class Map extends java.util.AbstractMap
     Map(Connection connection, String dbName, java.util.Comparator comparator)
     {
         _connection = (ConnectionI)connection;
+        _dbName = dbName;
         _comparator = (comparator == null) ? null : new Comparator(comparator);
 
         _errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
@@ -48,7 +50,7 @@ public abstract class Map extends java.util.AbstractMap
 
         if(dbName.equals(Util.catalogName()) || dbName.equals(Util.catalogIndexListName()))
         {
-            throw new DatabaseException(errorPrefix(envName, dbName) + "You cannot destroy recreate the \"" 
+            throw new DatabaseException(errorPrefix(envName, dbName) + "You cannot recreate the \"" 
                                         + dbName + "\" database");
         }
 
@@ -65,7 +67,7 @@ public abstract class Map extends java.util.AbstractMap
         com.sleepycat.db.DatabaseEntry valueEntry = new com.sleepycat.db.DatabaseEntry();
        
         com.sleepycat.db.Database oldDb = null;
-        SharedDb newDb = null;     
+        MapDb newDb = null;     
 
         for(;;)
         {
@@ -123,7 +125,7 @@ public abstract class Map extends java.util.AbstractMap
                 
                 oldDb = connection.dbEnv().getEnv().openDatabase(txn, oldDbName, null, oldDbConfig);
                     
-                newDb = SharedDb.create(connection, dbName, key, value, indices, map._comparator, indexComparators);
+                newDb = new MapDb(connection, dbName, key, value, map._comparator, indices, indexComparators, true);
                 map.init(newDb, indices);
 
 
@@ -259,13 +261,12 @@ public abstract class Map extends java.util.AbstractMap
     init(Freeze.Map.Index[] indices, String dbName, 
          String key, String value, boolean createDb, java.util.Map indexComparators)
     {
-        init(SharedDb.get(_connection, dbName, key, 
-                          value, indices, createDb, _comparator,
-                          indexComparators), indices);
+        init(_connection.dbEnv().getSharedMapDb(dbName, key, value, _comparator, indices, indexComparators, createDb), 
+             indices);
     }
 
     protected void
-    init(SharedDb db, Freeze.Map.Index[] indices)
+    init(MapDb db, Freeze.Map.Index[] indices)
     {
         _db = db;
         _token = _connection.registerMap(this);
@@ -284,6 +285,13 @@ public abstract class Map extends java.util.AbstractMap
     close()
     {
         close(false);
+    }
+
+    public void
+    closeDb()
+    {
+        close(false);
+        _connection.dbEnv().removeSharedMapDb(_dbName);
     }
 
     //
@@ -851,27 +859,24 @@ public abstract class Map extends java.util.AbstractMap
             throw new DatabaseException(_errorPrefix + "You cannot destroy the \"" + dbName + "\" database");
         }
         
+        if(_connection.currentTransaction() != null)
+        {
+            throw new DatabaseException(_errorPrefix + "You cannot destroy a database within an active transaction");
+        }
+
         if(_trace >= 1)
         {
             _connection.communicator().getLogger().trace("Freeze.Map", "destroying \"" + dbName + "\"");
         }
 
-
-        close();
-
-        Transaction tx = _connection.currentTransaction();
-        boolean ownTx = (tx == null);
+        closeDb();
 
         for(;;)
         {   
+            Transaction tx = null;
             try
             {
-                if(ownTx)
-                {   
-                    tx = null;
-                    tx = _connection.beginTransaction();
-                }
-                
+                tx = _connection.beginTransaction();
                 com.sleepycat.db.Transaction txn = _connection.dbTxn();
             
 
@@ -892,67 +897,44 @@ public abstract class Map extends java.util.AbstractMap
                     
                 }
                 
-                if(ownTx)
-                {
-                    tx.commit();
-                }
+                tx.commit();
+              
                 break; // for(;;)
             }
             catch(java.io.FileNotFoundException dx)
             {
-                if(ownTx)
+                try
                 {
-                    if(ownTx)
-                    {
-                        try
-                        {
-                            tx.rollback();
-                        }
-                        catch(DatabaseException e)
-                        {
-                        }
-                    }
+                    tx.rollback();
                 }
-                
+                catch(DatabaseException e)
+                {
+                }
+                 
                 DatabaseException e = new DatabaseException(_errorPrefix + "file not found");
                 e.initCause(dx);
                 throw e;
             }
             catch(com.sleepycat.db.DeadlockException dx)
             {
-                if(ownTx)
+                if(_connection.deadlockWarning())
                 {
-                    if(_connection.deadlockWarning())
-                    {
-                        _connection.communicator().getLogger().warning("Deadlock in Freeze.Map.destroy on Db \"" +
-                                                                       dbName + "\"; retrying...");
-                    }
-                    
-                    //
-                    // Ignored, try again
-                    //
+                    _connection.communicator().getLogger().warning("Deadlock in Freeze.Map.destroy on Db \"" +
+                                                                   dbName + "\"; retrying...");
                 }
-                else
-                {
-                    DeadlockException e = new DeadlockException(_errorPrefix + dx.getMessage(), tx);
-                    e.initCause(dx);
-                    throw e;
-                }
+                
+                //
+                // Ignored, try again
+                //
             }
             catch(com.sleepycat.db.DatabaseException dx)
-            {
-                if(ownTx)
+            {   
+                try
                 {
-                    if(ownTx)
-                    {
-                        try
-                        {
-                            tx.rollback();
-                        }
-                        catch(DatabaseException e)
-                        {
-                        }
-                    }
+                    tx.rollback();
+                }
+                catch(DatabaseException e)
+                {
                 }
                 
                 DatabaseException e = new DatabaseException(_errorPrefix + dx.getMessage());
@@ -960,17 +942,15 @@ public abstract class Map extends java.util.AbstractMap
                 throw e;
             }
             catch(RuntimeException rx)
-            {
-                if(ownTx && tx != null)
+            {   
+                try
                 {
-                    try
-                    {
-                        tx.rollback();
-                    }
-                    catch(DatabaseException e)
-                    {
-                    }
+                    tx.rollback();
                 }
+                catch(DatabaseException e)
+                {
+                }
+            
                 throw rx;
             }
         }   
@@ -1011,10 +991,9 @@ public abstract class Map extends java.util.AbstractMap
         {
             if(_db != null)
             {
-                closeAllIteratorsExcept(null, finalizing);
                 try
                 {
-                    _db.close();
+                    closeAllIteratorsExcept(null, finalizing);
                 }
                 finally
                 {
@@ -1563,7 +1542,7 @@ public abstract class Map extends java.util.AbstractMap
         void close()
         {
             //
-            // close() is called by SharedDb only on the "main" index
+            // close() is called by MapDb only on the "main" index
             // (the one that was associated)
             //
 
@@ -2501,9 +2480,10 @@ public abstract class Map extends java.util.AbstractMap
     
     protected ConnectionI _connection;
     private final Comparator _comparator;
+    private final String _dbName;
 
     protected java.util.Iterator _token;
-    protected SharedDb _db;
+    protected MapDb _db;
     protected String _errorPrefix;
     protected int _trace;
 
