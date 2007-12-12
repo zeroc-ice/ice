@@ -556,11 +556,12 @@ local interface ObjectAdapter
     void setLocator(Locator* loc);
 
     /**
-     * Refresh the set of published endpoints. The PublishedEndpoints
-     * property will be reread if it is set. Also the list of local
-     * interfaces will be rechecked for any endpoints configured to listen
-     * on INADDR_ANY and published endpoints will be updated with new
-     * address list.
+     * Refresh the set of published endpoints. The run time re-reads
+     * the PublishedEndpoints property if it is set and re-reads the
+     * list of local interfaces if the adapter is configured to listen
+     * on all endpoints. This operation is useful to refresh the endpoint
+     * information that is published in the proxies that are created by
+     * an object adapter if the network interfaces used by a host changes.
      *
      **/
     void refreshPublishedEndpoints();
