@@ -22,9 +22,9 @@ class DirectoryI(Filesystem.Directory):
         # Create an identity. The parent has the fixed identity "RootDir"
         #
         if self._parent:
-            myID = Ice.stringToIdentity(Ice.generateUUID())
+            myID = self.communicator().stringToIdentity(Ice.generateUUID())
         else:
-            myID = Ice.stringToIdentity("RootDir")
+            myID = self.communicator().stringToIdentity("RootDir")
 
         # Add the identity to the object adapter
         #
@@ -64,7 +64,7 @@ class FileI(Filesystem.File):
 
         # Create an identity
         #
-        myID = Ice.stringToIdentity(Ice.generateUUID())
+        myID = self.communicator().stringToIdentity(Ice.generateUUID())
 
         # Add the identity to the object adapter
         #
