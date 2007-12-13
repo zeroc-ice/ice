@@ -22,7 +22,8 @@ SUBDIRS		= minimal \
 		  bidir \
 		  session \
 		  converter \
-		  async
+		  async \
+		  multicast
 
 !if "$(CPP_COMPILER)" != "BCC2006" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
 SUBDIRS		= $(SUBDIRS) MFC

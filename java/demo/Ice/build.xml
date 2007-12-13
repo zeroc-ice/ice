@@ -23,6 +23,7 @@
         <ant dir="value"/>
         <ant dir="session"/>
         <ant dir="async"/>
+        <ant dir="multicast"/>
     </target>
 
     <target name="clean">
@@ -37,6 +38,7 @@
         <ant dir="value" target="clean"/>
         <ant dir="session" target="clean"/>
         <ant dir="async" target="clean"/>
+        <ant dir="multicast" target="clean"/>
     </target>
 
 </project>

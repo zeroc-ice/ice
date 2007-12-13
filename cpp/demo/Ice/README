@@ -42,7 +42,11 @@ Demos in this directory:
 
   This demo illustrates a minimal Ice application.
 
-- MFC
+- multicast 
+
+  This demo illistrates the use of UDP multicast.
+
+- MFC (Windows Only)
 
   Shows how to use Ice in conjunction with the Microsoft Foundation
   Classes.

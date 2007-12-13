@@ -21,7 +21,8 @@ SUBDIRS		= bidir \
 		  session \
 		  throughput \
 		  value \
-		  async
+		  async \
+		  multicast
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

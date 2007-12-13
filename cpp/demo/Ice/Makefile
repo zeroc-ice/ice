@@ -22,7 +22,8 @@ SUBDIRS		= minimal \
 		  bidir \
 		  session \
 		  converter \
-		  async
+		  async \
+		  multicast
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

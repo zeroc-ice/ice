@@ -38,6 +38,10 @@ Demos in this directory:
 
   This demo illustrates a minimal Ice application.
 
+- multicast
+
+  This demo illustrates the use of UDP multicast.
+
 - nested
 
   A demo to illustrate how nested callbacks work, and how the size of

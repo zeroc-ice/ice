@@ -67,6 +67,7 @@ demos = [
     "Ice/invoke",
     "Ice/latency",
     "Ice/minimal",
+    "Ice/multicast",
     "Ice/nested",
     "Ice/session",
     "Ice/throughput",
