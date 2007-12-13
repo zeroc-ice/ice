@@ -1454,7 +1454,7 @@ Freeze::MapHelperI::destroy()
          
             break; // for(;;)
         }
-        catch(const DbDeadlockException& dx)
+        catch(const DbDeadlockException&)
         {
             if(_connection->deadlockWarning())
             {

@@ -31,11 +31,11 @@ OBJS		= BackgroundSaveEvictor.obj \
                   Exception.obj \
                   IndexI.obj \
                   Index.obj \
+                  MapDb.obj \
 	  	  MapI.obj \
                   ObjectStore.obj \
 		  PingObject.obj \
                   SharedDbEnv.obj \
-                  SharedDb.obj \
                   TransactionalEvictor.obj \
                   TransactionalEvictorI.obj \
                   TransactionalEvictorContext.obj \
