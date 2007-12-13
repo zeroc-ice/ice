@@ -120,7 +120,6 @@ IceGrid/UserAccountMapper
 IcePatch2/ClientUtil
 IcePatch2/FileInfo
 IcePatch2/FileServer
-IcePatch2/Util
 IceSSL/Plugin
 IceStorm/IceStorm
 IceStorm/Service

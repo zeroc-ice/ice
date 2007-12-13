@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.2.0 Third Party Packages for Visual Studio 2005</subject>
+		<subject>Ice 3.3.0 Third Party Packages for Visual Studio 2005</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
@@ -1137,8 +1137,8 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.2.0_THIRDPARTY_VC80</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-ThirdParty-VC80</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.2.0_THIRDPARTY_VC80</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0_THIRDPARTY_VC80</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3.0-ThirdParty-VC80</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.3.0_THIRDPARTY_VC80</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1795,11 +1795,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.2.0-ThirdParty-VC80</td></row>
-		<row><td>ZEROC</td><td>PackageCode</td><td>{C1AA107F-6B97-4129-8E7F-E12CD6EBEFC7}</td></row>
-		<row><td>ZEROC</td><td>ProductCode</td><td>{4140870E-7844-482D-9CB8-684BDEEB3042}</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-ThirdParty-VC80</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{F1779DC0-CD5F-41D2-90D5-808237248D65}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{2F0AAC46-1AD3-4737-8A84-B1D0E390AA6A}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
-		<row><td>ZEROC</td><td>UpgradeCode</td><td>{9E49A9BC-91C1-428B-8839-A8B558280227}</td></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{94971278-0721-4111-A591-9A06E4C13028}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2901,11 +2901,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{16888E89-D574-48F5-8241-9CE2BB41CDBF}</td><td/></row>
+		<row><td>ProductCode</td><td>{BE3E8AE3-A25D-471F-88EF-3D7074E07F5A}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 2005</td><td/></row>
-		<row><td>ProductVersion</td><td>3.2.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3.0 Third Party Packages for Visual Studio 2005</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2914,7 +2914,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{2105326A-E260-46E0-951A-A9440FE5D608}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{1818C2DC-2095-491C-8294-8692BDF34306}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

@@ -10,8 +10,11 @@
 
 import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
-import components
 import textwrap
+
+resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "src", "windows")
+sys.path.append(resources)
+import components
 
 # 
 # Current default third party library versions.
@@ -22,8 +25,7 @@ STLPortVer = '4.6.2'
 ExpatVer = '2.0.0'
 DBVer = '4.5.20'
 
-DistPrefixes = ["Ice-%s", "IceJ-%s-java2", "IceJ-%s-java5", "IceCS-%s", "IcePy-%s", "IcePHP-%s", "IceVB-%s", 
-        "IceRuby-%s"]
+DistPrefixes = ["Ice-%s"]
 
 class DistEnvironmentError:
     def __init__(self, msg = None):
@@ -112,8 +114,10 @@ def checkSources(buildDir, sourceDir):
     installFiles = os.path.join(buildDir, "install")
     if not os.path.exists(installFiles):
         os.mkdir(os.path.join(buildDir, "install"))
-    result = os.system("gzip -dc " + os.path.join(os.path.join(sourceDir, "distfiles.tar.gz")) + " | tar xf - -C " +
-                       installFiles)
+    command = 'bash -c "gzip -dc `cygpath ' + \
+            os.path.join(os.path.join(sourceDir, "distfiles.tar.gz")).replace("\\", r'/') + \
+            "` | tar xf - -C " + installFiles.replace("\\", r'/') + '"' 
+    result = os.system(command)
     if result != 0:
         print "Unable to extract distfile.tar.gz"
         sys.exit(1)
@@ -195,16 +199,12 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     prependEnvPathList('INCLUDE', include)
 
     #
-    # XXX Rewrite starts here.
-    #
-
-    #
     # Run debug builds first.
     #
     origPath = os.environ['PATH']
     origLib = os.environ['LIB']
     origInclude = os.environ['INCLUDE']
-    iceHome = os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion)
+    iceHome = os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion, "cpp")
     os.environ['ICE_HOME'] = iceHome
     prependEnvPath('PATH', os.path.join(iceHome, "bin"))
     prependEnvPath('LIB', os.path.join(iceHome, "lib"))
@@ -214,14 +214,17 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
     os.chdir(os.path.join(iceHome, "src"))
     runprog("nmake /f Makefile.mak")
-    os.chdir(os.path.join(iceHome, "test"))
-    runprog("nmake /f Makefile.mak")
+    # 
+    # NOTE: Uncomment to build tests every time.
+    #
+    # os.chdir(os.path.join(iceHome, "test"))
+    # runprog("nmake /f Makefile.mak")
 
     if installVersion in ["vc80"]:
         #
         # Ice for C#
         #
-        os.chdir(os.path.join(sourcesDir, "debug", "IceCS-" + sourcesVersion))
+        os.chdir(os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion, "cs" ))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
@@ -231,25 +234,22 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         #
         # Ice for Visual Basic
         #
-        os.chdir(os.path.join(sourcesDir, "debug", "IceVB-" + sourcesVersion))
+        os.chdir(os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion, "vb" ))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), False)
-        f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
-        for l in f:
-            i = l.find("\\cs\\") 
-            if i <> -1:
-                print l.rstrip('\n').replace("\\cs\\", "\\IceCS-%s\\" % sourcesVersion)
-            else:
-                print l.rstrip('\n')
+        #f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
+        #for l in f:
+        #    i = l.find("\\cs\\") 
+        ##    if i <> -1:
+        #        print l.rstrip('\n').replace("\\cs\\", "\\Ice-%s\\" % sourcesVersion)
+        #    else:
+        #        print l.rstrip('\n')
 
-        f.close()
+        #f.close()
 
         runprog("nmake /f Makefile.mak")
 
-        #
-        # Ice for C#
-        #
-        os.chdir(os.path.join(sourcesDir, "release", "IceCS-" + sourcesVersion))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "cs" ))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
@@ -258,18 +258,18 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         #
         # Ice for Visual Basic
         #
-        os.chdir(os.path.join(sourcesDir, "release", "IceVB-" + sourcesVersion))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "vb"))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
-        f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
-        for l in f:
-            i = l.find("\\cs\\") 
-            if i <> -1:
-                print l.rstrip('\n').replace("\\cs\\", "\\IceCS-%s\\" % sourcesVersion)
-            else:
-                print l.rstrip('\n')
+        #f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
+        #for l in f:
+        #    i = l.find("\\cs\\") 
+        #    if i <> -1:
+        #        print l.rstrip('\n').replace("\\cs\\", "\\Ice-%s\\" % sourcesVersion)
+        #    else:
+        #        print l.rstrip('\n')
 
-        f.close()
+        #f.close()
 
         runprog("nmake /f Makefile.mak")
 
@@ -280,7 +280,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     os.environ['LIB'] = origLib
     os.environ['INCLUDE'] = origInclude
 
-    iceHome = os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion)
+    iceHome = os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "cpp")
     os.environ['ICE_HOME'] = iceHome
     prependEnvPath('PATH', os.path.join(iceHome, "bin"))
     prependEnvPath('LIB', os.path.join(iceHome, "lib"))
@@ -290,8 +290,11 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
     os.chdir(os.path.join(iceHome, "src"))
     runprog("nmake /f Makefile.mak")
-    os.chdir(os.path.join(iceHome, "test"))
-    runprog("nmake /f Makefile.mak")
+    #os.chdir(os.path.join(iceHome, "test"))
+    #runprog("nmake /f Makefile.mak")
+    #
+    # Make sure there are no unwanted demo build files kicking around.
+    #
     os.chdir(os.path.join(iceHome, "demo"))
     runprog("nmake /f Makefile.mak clean")
 
@@ -303,11 +306,17 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         prependEnvPath('LIB', os.path.join(pythonHome, "libs"))
         prependEnvPath('INCLUDE', os.path.join(pythonHome, "include"))
 
-        os.chdir(os.path.join(sourcesDir, "release", "IcePy-" + sourcesVersion))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + sourcesVersion, "py"))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak")
 
+        #
+        # Ice for C#
+        #
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "java" ))
+        print "Building in " + os.getcwd() + "..."
+        runprog("ant -Dice.mapping=java2")
         
     if installVersion == "vc60":
         #
@@ -329,11 +338,11 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         ]
         prependEnvPathList('INCLUDE', phpInc)
 
-        os.chdir(os.path.join(sourcesDir, "release", "IcePHP-" + sourcesVersion))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + sourcesVersion, "php"))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak") 
-        os.chdir(os.path.join(sourcesDir, "release", "IceRuby-%s" % sourcesVersion))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "ruby" ))
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         print "Building in " + os.getcwd() + "..."
         runprog("nmake /f Makefile.mak") 
@@ -648,7 +657,7 @@ def main():
         # Where all the files will be staged so that the install projects
         # can find them.
         #
-        targetDir = os.path.join(installDir, target)
+        targetDir = os.path.join(installDir, "src", "windows", target)
         stageDir = os.path.join(targetDir, "install")
 
         logging.info("Install Tool: " + installDir)
@@ -703,7 +712,7 @@ libraries."""
         #
         # Gather and generate license files.
         #
-        convertLicensesToRTF(os.path.dirname(__file__), target)
+        convertLicensesToRTF(resources, target)
 
         #
         # The third party packages need to be staged before building the
