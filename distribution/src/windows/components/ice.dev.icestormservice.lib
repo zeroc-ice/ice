@@ -1,0 +1,2 @@
+f,IceStorm/%(OutDir)sDebug/icestormserviced.lib
+f,IceStorm/%(OutDir)sRelease/icestormservice.lib
