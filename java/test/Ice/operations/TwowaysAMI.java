@@ -1119,6 +1119,29 @@ class TwowaysAMI
         }
 
         {
+            // Check that CommunicatorDestroyedException is raised directly.
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            Ice.Communicator ic = Ice.Util.initialize(initData);
+            Ice.ObjectPrx obj = ic.stringToProxy(p.ice_toString());
+            Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(obj);
+            
+            ic.destroy();
+            
+            AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
+            try
+            {
+                p2.opVoid_async(cb);
+                test(false);
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+                // Expected.
+            }
+        }
+
+
+        {
             AMI_MyClass_opByteI cb = new AMI_MyClass_opByteI();
             p.opByte_async(cb, (byte)0xff, (byte)0x0f);
             test(cb.check());

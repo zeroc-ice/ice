@@ -59,7 +59,7 @@ namespace IceInternal
                 // anymore. Only then we can be sure the _connections
                 // contains all connections.
                 //
-                while(!_destroyed || _pending.Count > 0 || _pendingEndpoints.Count > 0)
+                while(!_destroyed || _pending.Count > 0 || _pendingConnectCount > 0)
                 {
                     Monitor.Wait(this);
                 }
@@ -88,6 +88,7 @@ namespace IceInternal
             lock(this)
             {
                 _connections = null;
+                _connectionsByEndpoint = null;
             }
         }
 
@@ -283,16 +284,24 @@ namespace IceInternal
             //
             // Try to find a connection to one of the given endpoints.
             //
-            bool compress;
-            Ice.ConnectionI connection = findConnection(endpoints, tpc, out compress);
-            if(connection != null)
+            try
             {
-                callback.setConnection(connection, compress);
+                bool compress;
+                Ice.ConnectionI connection = findConnection(endpoints, tpc, out compress);
+                if(connection != null)
+                {
+                    callback.setConnection(connection, compress);
+                    return;
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                callback.setException(ex);
                 return;
             }
 
             ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType, tpc);
-            cb.getConnection();
+            cb.getConnectors();
         }
 
         public void setRouterInfo(IceInternal.RouterInfo routerInfo)
@@ -455,6 +464,11 @@ namespace IceInternal
         {
             lock(this)
             {
+                if(_destroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+
                 DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
                 Debug.Assert(endpoints.Count > 0);
 
@@ -535,28 +549,35 @@ namespace IceInternal
             return null;
         }
 
-        internal void addPendingEndpoints(List<EndpointI> endpoints)
+        internal void incPendingConnectCount()
         {
+            //
+            // Keep track of the number of pending connects. The outgoing connection factory 
+            // waitUntilFinished() method waits for all the pending connects to terminate before
+            // to return. This ensures that the communicator client thread pool isn't destroyed
+            // too soon and will still be available to execute the ice_exception() callbacks for
+            // the asynchronous requests waiting on a connection to be established.
+            //
+            
             lock(this)
             {
                 if(_destroyed)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                foreach(EndpointI endpoint in endpoints)
-                {
-                    _pendingEndpoints.AddLast(endpoint);
-                }
+                ++_pendingConnectCount;
             }
         }
 
-        internal void removePendingEndpoints(List<EndpointI> endpoints)
+        internal void decPendingConnectCount()
         {
             lock(this)
             {
-                foreach(EndpointI endpoint in endpoints)
+                --_pendingConnectCount;
+                Debug.Assert(_pendingConnectCount >= 0);
+                if(_destroyed && _pendingConnectCount == 0)
                 {
-                    _pendingEndpoints.Remove(endpoint);
+                    Monitor.PulseAll(this);
                 }
             }
         }
@@ -927,7 +948,7 @@ namespace IceInternal
             public bool threadPerConnection;
         }
 
-        private class ConnectCallback : Ice.ConnectionI.StartCallback, EndpointI_connectors, ThreadPoolWorkItem
+        private class ConnectCallback : Ice.ConnectionI.StartCallback, EndpointI_connectors
         {
             internal ConnectCallback(OutgoingConnectionFactory f, List<EndpointI> endpoints, bool more,
                                      CreateConnectionCallback cb, Ice.EndpointSelectionType selType,
@@ -949,8 +970,6 @@ namespace IceInternal
             {
                 lock(this)
                 {
-                    Debug.Assert(_exception == null && connection == _connection);
-
                     bool compress;
                     DefaultsAndOverrides defaultsAndOverrides = _factory.instance_.defaultsAndOverrides();
                     if(defaultsAndOverrides.overrideCompress)
@@ -963,8 +982,8 @@ namespace IceInternal
                     }
 
                     _factory.finishGetConnection(_connectors, this, connection);
-                    _factory.removePendingEndpoints(_endpoints);
                     _callback.setConnection(connection, compress);
+                    _factory.decPendingConnectCount(); // Must be called last.
                 }
             }
 
@@ -972,10 +991,23 @@ namespace IceInternal
             {
                 lock(this)
                 {
-                    Debug.Assert(_exception == null && connection == _connection);
-
-                    _exception = ex;
-                    handleException();
+                    _factory.handleException(ex, _current, connection, _hasMore || _iter < _connectors.Count);
+                    if(ex is Ice.CommunicatorDestroyedException) // No need to continue.
+                    {
+                        _factory.finishGetConnection(_connectors, this, null);
+                        _callback.setException(ex);                
+                        _factory.decPendingConnectCount(); // Must be called last.
+                    }
+                    else if(_iter < _connectors.Count) // Try the next connector.
+                    {
+                        nextConnector();
+                    }
+                    else
+                    {
+                        _factory.finishGetConnection(_connectors, this, null);
+                        _callback.setException(ex);
+                        _factory.decPendingConnectCount(); // Must be called last.
+                    }
                 }
             }
 
@@ -1009,8 +1041,7 @@ namespace IceInternal
 
                 if(_endpointsIter < _endpoints.Count)
                 {
-                    _currentEndpoint = _endpoints[_endpointsIter++];
-                    _currentEndpoint.connectors_async(this);
+                    nextEndpoint();
                 }
                 else
                 {
@@ -1030,8 +1061,7 @@ namespace IceInternal
                 _factory.handleException(ex, _hasMore || _endpointsIter < _endpoints.Count);
                 if(_endpointsIter < _endpoints.Count)
                 {
-                    _currentEndpoint = _endpoints[_endpointsIter++];
-                    _currentEndpoint.connectors_async(this);
+                    nextEndpoint();
                 }
                 else if(_connectors.Count > 0)
                 {
@@ -1044,42 +1074,47 @@ namespace IceInternal
                 }
                 else
                 {
-                    _exception = ex;
-                    _factory.instance_.clientThreadPool().execute(this);
+                    _callback.setException(ex);
+                    _factory.decPendingConnectCount(); // Must be called last.
                 }
             }
 
-            //
-            // Methods from ThreadPoolWorkItem
-            //
-            public void execute(ThreadPool threadPool)
+            public void getConnectors()
             {
-                threadPool.promoteFollower();
-                Debug.Assert(_exception != null);
-                _factory.removePendingEndpoints(_endpoints);
-                _callback.setException(_exception);
+                try
+                {
+                    //
+                    // Notify the factory that there's an async connect pending. This is necessary
+                    // to prevent the outgoing connection factory to be destroyed before all the
+                    // pending asynchronous connects are finished.
+                    //
+                    _factory.incPendingConnectCount();
+                }
+                catch(Ice.LocalException ex)
+                {
+                    _callback.setException(ex);
+                    return;
+                }
+
+                nextEndpoint();
+            }
+
+            void nextEndpoint()
+            {
+                try
+                {
+                    Debug.Assert(_endpointsIter < _endpoints.Count);
+                    _currentEndpoint = _endpoints[_endpointsIter++];
+                    _currentEndpoint.connectors_async(this);
+                }
+                catch(Ice.LocalException ex)
+                {
+                    exception(ex);
+                }
             }
 
             internal void getConnection()
             {
-                //
-                // First, get the connectors for all the endpoints.
-                //
-                if(_endpointsIter < _endpoints.Count)
-                {
-                    try
-                    {
-                        _factory.addPendingEndpoints(_endpoints);
-                        _currentEndpoint = _endpoints[_endpointsIter++];
-                        _currentEndpoint.connectors_async(this);
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        _callback.setException(ex);
-                    }
-                    return;
-                }
-
                 try
                 {
                     bool compress;
@@ -1095,52 +1130,29 @@ namespace IceInternal
                         return;
                     }
 
-                    _factory.removePendingEndpoints(_endpoints);
                     _callback.setConnection(connection, compress);
+                    _factory.decPendingConnectCount(); // Must be called last.
                 }
                 catch(Ice.LocalException ex)
                 {
-                    _exception = ex;
-                    _factory.instance_.clientThreadPool().execute(this);
+                    _callback.setException(ex);
+                    _factory.decPendingConnectCount(); // Must be called last.
                 }
             }
 
             internal void nextConnector()
             {
-                _current = _connectors[_iter++];
+                Ice.ConnectionI connection = null;
                 try
                 {
-                    _exception = null;
-                    _connection = _factory.createConnection(_current.connector.connect(0), _current);
-                    _connection.start(this);
+                    Debug.Assert(_iter < _connectors.Count);
+                    _current = _connectors[_iter++];
+                    connection = _factory.createConnection(_current.connector.connect(0), _current);
+                    connection.start(this);
                 }
                 catch(Ice.LocalException ex)
                 {
-                    _exception = ex;
-                    handleException();
-                }
-            }
-
-            private void handleException()
-            {
-                Debug.Assert(_current != null && _exception != null);
-
-                _factory.handleException(_exception, _current, _connection, _hasMore || _iter < _connectors.Count);
-                if(_exception is Ice.CommunicatorDestroyedException) // No need to continue.
-                {
-                    _factory.finishGetConnection(_connectors, this, null);
-                    _factory.removePendingEndpoints(_endpoints);
-                    _callback.setException(_exception);                
-                }
-                else if(_iter < _connectors.Count) // Try the next connector.
-                {
-                    nextConnector();
-                }
-                else
-                {
-                    _factory.finishGetConnection(_connectors, this, null);
-                    _factory.removePendingEndpoints(_endpoints);
-                    _callback.setException(_exception);
+                    connectionStartFailed(connection, ex);
                 }
             }
 
@@ -1155,18 +1167,15 @@ namespace IceInternal
             private List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
             private int _iter;
             private ConnectorInfo _current;
-            private Ice.LocalException _exception;
-            private Ice.ConnectionI _connection;
         }
 
         private readonly Instance instance_;
         private bool _destroyed;
 
         private Dictionary<ConnectorInfo, LinkedList> _connections = new Dictionary<ConnectorInfo, LinkedList>();
-        private Dictionary<ConnectorInfo, Set> _pending = new Dictionary<ConnectorInfo, Set>();
-
         private Dictionary<EndpointI, LinkedList> _connectionsByEndpoint = new Dictionary<EndpointI, LinkedList>();
-        private LinkedList<EndpointI> _pendingEndpoints = new LinkedList<EndpointI>();
+        private Dictionary<ConnectorInfo, Set> _pending = new Dictionary<ConnectorInfo, Set>();
+        private int _pendingConnectCount = 0;
 
         private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
     }

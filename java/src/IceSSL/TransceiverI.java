@@ -226,7 +226,6 @@ final class TransceiverI implements IceInternal.Transceiver
     //
     public synchronized boolean
     write(IceInternal.Buffer buf, int timeout)
-        throws IceInternal.LocalExceptionWrapper
     {
         //
         // If the handshake isn't completed yet, we shouldn't be writing.

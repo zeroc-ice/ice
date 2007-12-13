@@ -974,6 +974,7 @@ Ice::ConnectionI::flushBatchRequests(BatchOutgoing* out)
 
         if(_batchRequestNum == 0)
         {
+            out->sent(false);
             return true;
         }
 
@@ -1043,6 +1044,7 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
 
         if(_batchRequestNum == 0)
         {
+            outAsync->__sent(this);
             return;
         }
 

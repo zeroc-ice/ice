@@ -94,7 +94,6 @@ final class UdpTransceiver implements Transceiver
 
     public boolean
     write(Buffer buf, int timeout)
-        throws LocalExceptionWrapper
     {
         assert(buf.b.position() == 0);
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);

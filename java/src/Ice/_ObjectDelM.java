@@ -205,22 +205,9 @@ public class _ObjectDelM implements _ObjectDel
 
     public void
     ice_flushBatchRequests()
-        throws IceInternal.LocalExceptionWrapper
     {
         IceInternal.BatchOutgoing out = new IceInternal.BatchOutgoing(__handler);
-        try
-        {
-            out.invoke();
-        }
-        catch(Ice.LocalException ex)
-        {
-            //
-            // We never retry flusing the batch requests as the connection batched
-            // requests were discarded and the caller needs to be notified of the 
-            // failure.
-            //
-            throw new IceInternal.LocalExceptionWrapper(ex, false);
-        }
+        out.invoke();
     }
 
     public IceInternal.RequestHandler

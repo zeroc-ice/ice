@@ -4408,6 +4408,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << sp << nl << "public void invoke__" << spar << "Ice.ObjectPrx prx__"
              << paramsInvoke << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
+        _out << nl << "acquire__(prx__);";
         _out << nl << "try";
         _out << sb;
         if(p->returnsData())
@@ -4425,13 +4426,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "os__.writePendingObjects();";
         }
         _out << nl << "os__.endWriteEncaps();";
+        _out << nl << "send__();";
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";
         _out << sb;
-        _out << nl << "finished__(ex__);";
-        _out << nl << "return;";
+        _out << nl << "release__(ex__);";
         _out << eb;
-        _out << nl << "send__();";
         _out << eb;
 
         _out << sp << nl << "protected override void response__(bool ok__)";
@@ -4456,15 +4456,16 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << eb;
         for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
         {
-            _out << nl << "catch(" << fixId((*r)->scoped()) << ')';
+            _out << nl << "catch(" << fixId((*r)->scoped()) << " ex__)";
             _out << sb;
-            _out << nl << "throw;";
+            _out << nl << "exception__(ex__);";
             _out << eb;
         }
-        _out << nl << "catch(Ice.UserException ex)";
+        _out << nl << "catch(Ice.UserException ex__)";
         _out << sb;
-        _out << nl << "throw new Ice.UnknownUserException(ex.ice_name(), ex);";
+        _out << nl << "throw new Ice.UnknownUserException(ex__.ice_name(), ex__);";
         _out << eb;
+        _out << "return;";
         _out << eb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
@@ -4526,15 +4527,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "finished__(ex__);";
         _out << nl << "return;";
         _out << eb;
-        if(!throws.empty())
-        {
-            _out << nl << "catch(Ice.UserException ex__)";
-            _out << sb;
-            _out << nl << "ice_exception(ex__);";
-            _out << nl << "return;";
-            _out << eb;
-        }
         _out << nl << "ice_response" << spar << args << epar << ';';
+        _out << nl << "release__();";
         _out << eb;
         _out << eb;
     }

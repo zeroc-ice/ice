@@ -31,23 +31,19 @@ namespace IceInternal
 
         public Ice.ConnectionI sendRequest(Outgoing @out)
         {
-            return (!_connection.sendRequest(@out, _compress, _response) || _response) ? _connection : null;
+            if(!_connection.sendRequest(@out, _compress, _response) || _response)
+            {
+                return _connection; // The request has been sent or we're expecting a response.
+            }
+            else
+            {
+                return null; // The request hasn't been sent yet.
+            }
         }
 
         public void sendAsyncRequest(OutgoingAsync @out)
         {
-            try
-            {
-                _connection.sendAsyncRequest(@out, _compress, _response);
-            }
-            catch(LocalExceptionWrapper ex)
-            {
-                @out.finished__(ex);
-            }
-            catch(Ice.LocalException ex)
-            {
-                @out.finished__(ex);
-            }
+            _connection.sendAsyncRequest(@out, _compress, _response);
         }
 
         public bool flushBatchRequests(BatchOutgoing @out)
@@ -57,14 +53,7 @@ namespace IceInternal
 
         public void flushAsyncBatchRequests(BatchOutgoingAsync @out)
         {
-            try
-            {
-                _connection.flushAsyncBatchRequests(@out);
-            }
-            catch(Ice.LocalException ex)
-            {
-                @out.finished__(ex);
-            }
+            _connection.flushAsyncBatchRequests(@out);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)

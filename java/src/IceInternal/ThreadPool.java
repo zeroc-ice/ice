@@ -145,7 +145,6 @@ public final class ThreadPool
 
         assert(!_destroyed);
         assert(_handlerMap.isEmpty());
-        assert(_changes.isEmpty());
         assert(_workItems.isEmpty());
         _destroyed = true;
         setInterrupt();
@@ -197,7 +196,10 @@ public final class ThreadPool
     public synchronized void
     execute(ThreadPoolWorkItem workItem)
     {
-        assert(!_destroyed);
+        if(_destroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
         _workItems.add(workItem);
         setInterrupt();
     }
@@ -529,9 +531,21 @@ public final class ThreadPool
                             // 3. A work item has been scheduled.
                             //
 
-                            // Thread pool destroyed?
-                            //
-                            if(_destroyed)
+                            if(!_workItems.isEmpty())
+                            {
+                                //
+                                // Work items must be executed first even if the thread pool is destroyed.
+                                //
+                                
+                                //
+                                // Remove the interrupt channel from the selected key set.
+                                //
+                                _keys.remove(_fdIntrReadKey);
+                                clearInterrupt();
+                                assert(!_workItems.isEmpty());
+                                workItem = (ThreadPoolWorkItem)_workItems.removeFirst();
+                            }
+                            else if(_destroyed)
                             {
                                 if(TRACE_SHUTDOWN)
                                 {
@@ -539,27 +553,22 @@ public final class ThreadPool
                                 }
                                 
                                 //
-                                // Don't clear the interrupt fd if
-                                // destroyed, so that the other threads
-                                // exit as well.
+                                // Don't clear the interrupt fd if destroyed, so that the other threads exit as well.
                                 //
                                 return true;
                             }
-                            
-                            //
-                            // Remove the interrupt channel from the
-                            // selected key set.
-                            //
-                            _keys.remove(_fdIntrReadKey);
-                            
-                            clearInterrupt();
-                            
-                            //
-                            // An event handler must have been registered
-                            // or unregistered.
-                            //
-                            if(!_changes.isEmpty())
+                            else
                             {
+                                //
+                                // Remove the interrupt channel from the selected key set.
+                                //
+                                _keys.remove(_fdIntrReadKey);
+                                clearInterrupt();
+                            
+                                //
+                                // An event handler must have been registered or unregistered.
+                                //
+                                assert(!_changes.isEmpty());
                                 FdHandlerPair change = (FdHandlerPair)_changes.removeFirst();
                                 
                                 if(change.handler != null) // Addition if handler is set.
@@ -626,11 +635,6 @@ public final class ThreadPool
                                     // finished() on the event handler below,
                                     // outside the thread synchronization.
                                 }
-                            }
-                            else
-                            {
-                                assert(!_workItems.isEmpty());
-                                workItem = (ThreadPoolWorkItem)_workItems.removeFirst();
                             }
                         }
                         else

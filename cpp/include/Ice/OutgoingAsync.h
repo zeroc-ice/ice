@@ -30,24 +30,13 @@ class ICE_API OutgoingAsyncMessageCallback : virtual public IceUtil::Shared
 {
 public:
 
-    virtual ~OutgoingAsyncMessageCallback() { }
+    OutgoingAsyncMessageCallback();    
+    virtual ~OutgoingAsyncMessageCallback();
 
     virtual void __sent(Ice::ConnectionI*) = 0;
     virtual void __finished(const Ice::LocalException&) = 0;
-};
 
-//
-// We need virtual inheritance from shared, because the user might use
-// multiple inheritance from IceUtil::Shared.
-//
-class ICE_API OutgoingAsync : public OutgoingAsyncMessageCallback, public IceUtil::TimerTask
-{
-public:
-
-    OutgoingAsync();
-    virtual ~OutgoingAsync();
-
-    void __sent(Ice::ConnectionI*);
+    virtual void ice_exception(const Ice::Exception&) = 0;
 
     BasicStream*
     __getOs()
@@ -55,7 +44,36 @@ public:
         return __os;
     }
 
-    virtual void ice_exception(const Ice::Exception&) = 0;
+    void __exception(const Ice::Exception&);
+
+protected:
+
+    void __acquire(const Ice::ObjectPrx&);
+    void __release(const Ice::LocalException&);
+    void __release()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(__monitor);
+        __releaseNoSync();
+    }
+    void __releaseNoSync();
+
+    void __warning(const std::exception&) const;
+    void __warning() const;
+
+    IceUtil::Monitor<IceUtil::Mutex> __monitor;
+    BasicStream* __is;
+    BasicStream* __os;
+};
+
+//
+// We need virtual inheritance from shared, because the user might use
+// multiple inheritance from IceUtil::Shared.
+//
+class ICE_API OutgoingAsync : public OutgoingAsyncMessageCallback, private IceUtil::TimerTask
+{
+public:
+
+    void __sent(Ice::ConnectionI*);
 
     void __finished(BasicStream&);
     void __finished(const Ice::LocalException&);
@@ -68,17 +86,13 @@ protected:
 
     virtual void __response(bool) = 0;
 
-    BasicStream* __is;
-    BasicStream* __os;
-
 private:
 
+    void handleException(const Ice::LocalException&);
+    void handleException(const LocalExceptionWrapper&);
+
     void runTimerTask(); // Implementation of TimerTask::runTimerTask()
-
-    void warning(const std::exception&) const;
-    void warning() const;
-
-    void cleanup();
+    Ice::ConnectionIPtr _timerTaskConnection;
 
     bool _sent;
     bool _response;
@@ -86,38 +100,18 @@ private:
     Handle< ::IceDelegate::Ice::Object> _delegate;
     int _cnt;
     Ice::OperationMode _mode;
-
-    Ice::ConnectionIPtr _timerTaskConnection;
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };
 
 class ICE_API BatchOutgoingAsync : public OutgoingAsyncMessageCallback
 {
 public:
 
-    BatchOutgoingAsync();
-
-    void __prepare(const InstancePtr&);
     virtual void __sent(Ice::ConnectionI*);
     virtual void __finished(const Ice::LocalException&);
     
-    BasicStream*
-    __getOs()
-    {
-        return _os;
-    }
+protected:
 
-    virtual void ice_exception(const Ice::Exception&) = 0;
-
-private:
-
-    void warning(const std::exception&) const;
-    void warning() const;
-
-    void cleanup();
-
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
-    BasicStream* _os;
+    void __prepare(const InstancePtr&);
 };
 
 }

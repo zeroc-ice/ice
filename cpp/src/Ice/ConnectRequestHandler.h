@@ -19,6 +19,8 @@
 #include <Ice/ProxyF.h>
 #include <Ice/BasicStream.h>
 
+#include <deque>
+
 namespace IceInternal
 {
 
@@ -51,6 +53,9 @@ public:
 
     virtual void addedProxy();
 
+    void flushRequestsWithException(const Ice::LocalException&);
+    void flushRequestsWithException(const LocalExceptionWrapper&);
+
 private:
 
     bool initialized();
@@ -75,7 +80,7 @@ private:
     bool _initialized;
     bool _flushing;
 
-    std::vector<Request> _requests;
+    std::deque<Request> _requests;
     bool _batchRequestInProgress;
     size_t _batchRequestsSize;
     BasicStream _batchStream;

@@ -40,13 +40,7 @@ public interface Transceiver
     // block until all the data is written or the specified timeout
     // expires.
     //
-    // NOTE: In Java, write() can raise LocalExceptionWrapper to indicate that
-    //       retrying may not be safe, which is necessary to address an issue
-    //       in the IceSSL implementation for JDK 1.4. We can remove this if
-    //       we ever drop support for JDK 1.4 (also see Ice.ConnectionI).
-    //
-    boolean write(Buffer buf, int timeout)
-        throws LocalExceptionWrapper;
+    boolean write(Buffer buf, int timeout);
 
     //
     // Read data.

@@ -1132,8 +1132,8 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 	    try
 	    {
 		endpoint.back() = *p;
-		connection =  factory->create(endpoint, p + 1 == endpoints.end(), _threadPerConnection,
-					      getEndpointSelection(), comp);
+		connection = factory->create(endpoint, p + 1 == endpoints.end(), _threadPerConnection,
+                                             getEndpointSelection(), comp);
 		break;
 	    }
 	    catch(const LocalException& ex)

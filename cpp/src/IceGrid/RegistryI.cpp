@@ -992,11 +992,11 @@ RegistryI::shutdown()
 }
 
 Ice::ObjectPrx 
-RegistryI::createAdminCallbackProxy(const Identity& identity) const
+RegistryI::createAdminCallbackProxy(const Identity& id) const
 {
     if(_adminCallbackRouterAdapter != 0)
     {
-        return _adminCallbackRouterAdapter->createProxy(identity);
+        return _adminCallbackRouterAdapter->createProxy(id);
     }
     else
     {
