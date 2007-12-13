@@ -152,6 +152,8 @@ cd $WORKINGDIR/$LABEL
 cat > common.exclude.file.list << COMMON_RM_FILES
 makedist.py
 allDemos.py
+ICE_LICENSE
+LICENSE
 COMMON_RM_FILES
 
 #
@@ -202,7 +204,7 @@ do
     #
     mappingdir=`basename $f`
     case "$mappingdir" in 
-      cpp|java|cs|php|py|vb|rb)
+      cpp|java|cs|php|py|vb|rb|certs|config|slice)
       # 
       # No-op. We are looking to continue if the path doesn't match any of
       # those specified.
@@ -242,6 +244,11 @@ do
     #
     tar c $mappingdir -X exclusions.dat | tar xf - -C $DISTRIBUTION
 done
+
+cp Makefile $DISTRIBUTION
+cp Makefile.mak $DISTRIBUTION
+cp cpp/LICENSE $DISTRIBUTION
+cp cpp/ICE_LICENSE $DISTRIBUTION
 
 echo "Fixing version markup..."
 
