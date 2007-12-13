@@ -931,7 +931,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             p2->opVoid_async(cb);
             test(false);
         }
-        catch(const Ice::CommunicatorDestroyedException& ex)
+        catch(const Ice::CommunicatorDestroyedException&)
         {
             // Expected.
         }
