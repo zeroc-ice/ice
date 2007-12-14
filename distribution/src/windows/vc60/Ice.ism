@@ -6,12 +6,12 @@
    <!ATTLIST msi xmlns:dt   CDATA #IMPLIED
                  codepage   CDATA #IMPLIED
                  compression (MSZIP|LZX|none) "LZX">
-
+   
    <!ELEMENT summary       (codepage?,title?,subject?,author?,keywords?,comments?,
                             template,lastauthor?,revnumber,lastprinted?,
                             createdtm?,lastsavedtm?,pagecount,wordcount,
                             charcount?,appname?,security?)>
-
+                            
    <!ELEMENT codepage      (#PCDATA)>
    <!ELEMENT title         (#PCDATA)>
    <!ELEMENT subject       (#PCDATA)>
@@ -28,8 +28,8 @@
    <!ELEMENT wordcount     (#PCDATA)>
    <!ELEMENT charcount     (#PCDATA)>
    <!ELEMENT appname       (#PCDATA)>
-   <!ELEMENT security      (#PCDATA)>
-
+   <!ELEMENT security      (#PCDATA)>                            
+                                
    <!ELEMENT table         (col+,row*)>
    <!ATTLIST table
                 name        CDATA #REQUIRED>
@@ -38,9 +38,9 @@
    <!ATTLIST col
                  key       (yes|no) #IMPLIED
                  def       CDATA #IMPLIED>
-
+                 
    <!ELEMENT row            (td+)>
-
+   
    <!ELEMENT td             (#PCDATA)>
    <!ATTLIST td
                  href       CDATA #IMPLIED
@@ -48,7 +48,7 @@
                  md5        CDATA #IMPLIED>
 ]>
 <msi version="2.0" xmlns:dt="urn:schemas-microsoft-com:datatypes">
-
+	
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
@@ -58,7 +58,7 @@
 		<comments>##ID_STRING18##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{4FB04C05-6AB1-4329-A170-5E04618B2D5B}</revnumber>
+		<revnumber>{3B691D67-E990-44EE-A646-85861565336F}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -68,7 +68,7 @@
 		<appname>InstallShield Developer</appname>
 		<security>1</security>
 	</summary>
-
+	
 	<table name="ActionText">
 		<col key="yes" def="s72">Action</col>
 		<col def="L64">Description</col>
@@ -1045,11 +1045,11 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.2.0_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-VC60</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0-VC60</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.3.0_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
-		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0</td><td/><td>0</td><td/></row>
+		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0</td><td/><td>0</td><td/></row>
 		<row><td>ISUpdateServiceFolder</td><td>ISCommonFilesFolder</td><td>UPDATE~1|UpdateService</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
@@ -2793,7 +2793,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{c1e6ab0c-8577-4df5-b83e-2a3361d9e4ad}</td><td/></row>
+		<row><td>ProductCode</td><td>{14A3A6BF-2D1F-42D6-87C3-2845179923D2}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
 		<row><td>ProductName</td><td>Ice 3.3.0 for Visual Studio 6.0</td><td/></row>
@@ -2806,7 +2806,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{8aaa395e-c45e-4697-a3ba-886e040e0326}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{6FE983A8-E883-4E6A-8BD4-2615605038B6}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

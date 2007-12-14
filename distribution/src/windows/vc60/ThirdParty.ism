@@ -6,12 +6,12 @@
    <!ATTLIST msi xmlns:dt   CDATA #IMPLIED
                  codepage   CDATA #IMPLIED
                  compression (MSZIP|LZX|none) "LZX">
-
+   
    <!ELEMENT summary       (codepage?,title?,subject?,author?,keywords?,comments?,
                             template,lastauthor?,revnumber,lastprinted?,
                             createdtm?,lastsavedtm?,pagecount,wordcount,
                             charcount?,appname?,security?)>
-
+                            
    <!ELEMENT codepage      (#PCDATA)>
    <!ELEMENT title         (#PCDATA)>
    <!ELEMENT subject       (#PCDATA)>
@@ -28,8 +28,8 @@
    <!ELEMENT wordcount     (#PCDATA)>
    <!ELEMENT charcount     (#PCDATA)>
    <!ELEMENT appname       (#PCDATA)>
-   <!ELEMENT security      (#PCDATA)>
-
+   <!ELEMENT security      (#PCDATA)>                            
+                                
    <!ELEMENT table         (col+,row*)>
    <!ATTLIST table
                 name        CDATA #REQUIRED>
@@ -38,9 +38,9 @@
    <!ATTLIST col
                  key       (yes|no) #IMPLIED
                  def       CDATA #IMPLIED>
-
+                 
    <!ELEMENT row            (td+)>
-
+   
    <!ELEMENT td             (#PCDATA)>
    <!ATTLIST td
                  href       CDATA #IMPLIED
@@ -48,7 +48,7 @@
                  md5        CDATA #IMPLIED>
 ]>
 <msi version="2.0" xmlns:dt="urn:schemas-microsoft-com:datatypes">
-
+	
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
@@ -58,7 +58,7 @@
 		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{62BB2BA2-1FA5-460D-B499-0BE1ABE49898}</revnumber>
+		<revnumber>{11E6EFE7-3D4B-41D0-8A58-01EA7866E88D}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -68,7 +68,7 @@
 		<appname>InstallShield Developer</appname>
 		<security>1</security>
 	</summary>
-
+	
 	<table name="ActionText">
 		<col key="yes" def="s72">Action</col>
 		<col def="L64">Description</col>
@@ -1158,7 +1158,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.2.0_THIRDPARTY_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0_THIRDPARTY_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.3.0_THIRDPARTY_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -2955,7 +2955,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty22</td><td>0</td><td/></row>
 		<row><td>NewProperty3</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{86DDB1C1-40F9-4CF1-ADB7-D9B159036700}</td><td/></row>
+		<row><td>ProductCode</td><td>{C2784E71-50C7-4F54-A439-EEE9BA2DD42C}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
 		<row><td>ProductName</td><td>Ice 3.3.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
@@ -2968,7 +2968,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{46B073D9-8163-4C05-B31E-CBEF2FFCF9BA}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{D79C2612-EA64-4417-97DA-36245F2F6DF8}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
