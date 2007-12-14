@@ -16,7 +16,7 @@ resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "s
 sys.path.append(resources)
 import components
 
-# 
+#
 # Current default third party library versions.
 #
 OpenSSLVer = '0.9.8d'
@@ -116,7 +116,7 @@ def checkSources(buildDir, sourceDir):
         os.mkdir(os.path.join(buildDir, "install"))
     command = 'bash -c "gzip -dc `cygpath ' + \
             os.path.join(os.path.join(sourceDir, "distfiles.tar.gz")).replace("\\", r'/') + \
-            "` | tar xf - -C " + installFiles.replace("\\", r'/') + '"' 
+            "` | tar xf - -C " + installFiles.replace("\\", r'/') + '"'
     result = os.system(command)
     if result != 0:
         print "Unable to extract distfile.tar.gz"
@@ -214,7 +214,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
     os.chdir(os.path.join(iceHome, "src"))
     runprog("nmake /f Makefile.mak")
-    # 
+    #
     # NOTE: Uncomment to build tests every time.
     #
     # os.chdir(os.path.join(iceHome, "test"))
@@ -228,7 +228,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
-        runprog("nmake /f Makefile.mak") 
+        runprog("nmake /f Makefile.mak")
 
 
         #
@@ -239,7 +239,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), False)
         #f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         #for l in f:
-        #    i = l.find("\\cs\\") 
+        #    i = l.find("\\cs\\")
         ##    if i <> -1:
         #        print l.rstrip('\n').replace("\\cs\\", "\\Ice-%s\\" % sourcesVersion)
         #    else:
@@ -253,7 +253,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
-        runprog("nmake /f Makefile.mak") 
+        runprog("nmake /f Makefile.mak")
 
         #
         # Ice for Visual Basic
@@ -263,7 +263,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         #f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         #for l in f:
-        #    i = l.find("\\cs\\") 
+        #    i = l.find("\\cs\\")
         #    if i <> -1:
         #        print l.rstrip('\n').replace("\\cs\\", "\\Ice-%s\\" % sourcesVersion)
         #    else:
@@ -298,6 +298,13 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     os.chdir(os.path.join(iceHome, "demo"))
     runprog("nmake /f Makefile.mak clean")
 
+    #
+    # Ice for Java
+    #
+    os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "java" ))
+    print "Building in " + os.getcwd() + "..."
+    runprog("ant -Dice.mapping=java2")
+
     if installVersion == "vc80":
         #
         # Ice for Python
@@ -311,13 +318,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak")
 
-        #
-        # Ice for C#
-        #
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "java" ))
-        print "Building in " + os.getcwd() + "..."
-        runprog("ant -Dice.mapping=java2")
-        
     if installVersion == "vc60":
         #
         # Ice for PHP
@@ -341,11 +341,11 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         os.chdir(os.path.join(sourcesDir, "release", "Ice-" + sourcesVersion, "php"))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-        runprog("nmake /f Makefile.mak") 
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "ruby" ))
+        runprog("nmake /f Makefile.mak")
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "rb" ))
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         print "Building in " + os.getcwd() + "..."
-        runprog("nmake /f Makefile.mak") 
+        runprog("nmake /f Makefile.mak")
 
 def list2english(l):
     if len(l) == 1:
@@ -353,7 +353,7 @@ def list2english(l):
     elif len(l) == 2:
         return l[0] + " and " + list2english(l[1:])
     else:
-        return l[0] + ", " + list2english(l[1:]) 
+        return l[0] + ", " + list2english(l[1:])
 
 def convertLicensesToRTF(toolDir, installTarget):
     openssl = (os.path.join(os.environ["OPENSSL_HOME"], "LICENSE"), "OpenSSL", "OPENSSL_LICENSE.rtf")
@@ -368,16 +368,16 @@ def convertLicensesToRTF(toolDir, installTarget):
     line_string = "-------------------------------------------------------------------------------------------"
     rtfhdr = file(os.path.join(toolDir, "docs", "rtf.hdr")).readlines()
     rtfftr = file(os.path.join(toolDir, "docs", "rtf.footer")).readlines()
-    
+
     core = [ berkeleydb, bzip2, openssl, expat ]
 
     collection = core
-    jgoodies =[(os.path.join(os.environ["JGOODIES_FORMS"], "license.txt"), "JGoodies Forms", 
+    jgoodies =[(os.path.join(os.environ["JGOODIES_FORMS"], "license.txt"), "JGoodies Forms",
                             "JGOODIES_FORMS_LICENSE.rtf"),
-               (os.path.join(os.environ["JGOODIES_LOOKS"], "license.txt"), "JGoodies Looks", 
+               (os.path.join(os.environ["JGOODIES_LOOKS"], "license.txt"), "JGoodies Looks",
                             "JGOODIES_LOOKS_LICENSE.rtf")]
     if installTarget == "vc60":
-        collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),  
+        collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),
                            "STLport", "STLPORT_LICENSE.rtf"))
         collection.extend(jgoodies)
     elif installTarget in ["vc71", "vc80", "vc80_x64"]:
@@ -402,7 +402,7 @@ def convertLicensesToRTF(toolDir, installTarget):
 
     #
     # textwrap module has got to be one of the coolest things since
-    # sliced bread. 
+    # sliced bread.
     #
     licensefile.write(third_party_sources_file_hdr)
     licensefile.write(textwrap.fill(text, 75))
@@ -412,14 +412,14 @@ def convertLicensesToRTF(toolDir, installTarget):
     # THIRD_PARTY_SOURCES is the file used by the Ice installer while
     # SOURCES is used by the third party installer.
     #
-    shutil.copy(os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_SOURCES"), 
-            os.path.join(toolDir, "docs", installTarget, "SOURCES")) 
+    shutil.copy(os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_SOURCES"),
+            os.path.join(toolDir, "docs", installTarget, "SOURCES"))
 
     licensefile = file(os.path.join(toolDir, "docs", installTarget, "LICENSE"), "w")
     for f in collection:
         contents = None
         if f[0].endswith(".html"):
-            # 
+            #
             # Here's me wishing the Python standard library had a class
             # for converting HTML to plain text. In the meantime, we'll
             # have to leverage 'links' in cygwin.
@@ -435,7 +435,7 @@ def convertLicensesToRTF(toolDir, installTarget):
         else:
             contents = file(f[0]).readlines()
         hdr = section_header % f[1]
-        
+
         licensefile.write(hdr)
         licensefile.write(line_string[:len(hdr)] + "\n\n")
         licensefile.writelines(contents)
@@ -516,7 +516,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     # <brent> Were we doing something special with third-party merge
     # modules at one point, like redistributing them?</brent>
     #
-    
+
     zipPath = "ThirdPartyMergeModules-" + sourcesVersion + "-" + installVersion.upper() + ".zip"
     zip = zipfile.ZipFile(os.path.join(stageDir, zipPath), 'w')
     for project, release in modules:
@@ -553,7 +553,7 @@ def environToString(tbl):
         for k, v in tbl.iteritems():
             ofile.write('%s=%s\n' % (k, v))
         result = ofile.getvalue()
-    finally:    
+    finally:
         ofile.close()
     return result
 
@@ -572,15 +572,15 @@ def main():
     #
     installDir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     os.environ['INSTALL_TOOLS'] = installDir
-    
+
     try:
         #
         # Process args.
         #
         try:
             optionList, args = getopt.getopt(
-                sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug", 
-                "logfile", "vc60", "vc71", "vc80", "vc80_x64", "sslhome=", "expathome=", "dbhome=", "stlporthome=", 
+                sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
+                "logfile", "vc60", "vc71", "vc80", "vc80_x64", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
                 "bzip2home=", "thirdparty="])
         except getopt.GetoptError:
             usage()
@@ -668,7 +668,7 @@ def main():
             print('You have indicated you want to ''clean'' files, starting from scratch.')
             confirm = ''
             while not confirm in ['y', 'n']:
-                confirm = raw_input('Are you sure? [y/N]') 
+                confirm = raw_input('Are you sure? [y/N]')
                 if confirm == '':
                     confirm = 'n'
             if confirm == 'n':
@@ -692,7 +692,7 @@ def main():
         defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
         if sourcesVersion.find('b') != -1:
             defaults['dllversion'] = defaults['dllversion'] + 'b'
-        
+
         if target == "vc80_x64":
             defaults['OutDir'] = "x64/"
         else:
@@ -703,7 +703,7 @@ def main():
                 shutil.rmtree(stageDir)
             except IOError:
                 print """
-If you are getting a permission error here, try running 'attrib -r /s' 
+If you are getting a permission error here, try running 'attrib -r /s'
 on both the stage directory and the source location for the third party
 libraries."""
                 raise
@@ -725,12 +725,12 @@ libraries."""
 
         #
         # Build the merge module projects.
-        # 
+        #
         if installer:
             buildMergeModules(targetDir, stageDir, sourcesVersion, target)
             buildInstallers(targetDir, stageDir, sourcesVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
 
-        # 
+        #
         # Screw clean rules, run the ultimate clean!
         #
         if clean:
@@ -763,7 +763,7 @@ libraries."""
         if build:
             buildIceDists(stageDir, buildDir, sourcesVersion, target)
 
-        # 
+        #
         # Stage Ice!
         #
         components.stage(os.path.join(os.path.dirname(components.__file__), "components", "components.ini"),

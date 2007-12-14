@@ -6,12 +6,12 @@
    <!ATTLIST msi xmlns:dt   CDATA #IMPLIED
                  codepage   CDATA #IMPLIED
                  compression (MSZIP|LZX|none) "LZX">
-   
+
    <!ELEMENT summary       (codepage?,title?,subject?,author?,keywords?,comments?,
                             template,lastauthor?,revnumber,lastprinted?,
                             createdtm?,lastsavedtm?,pagecount,wordcount,
                             charcount?,appname?,security?)>
-                            
+
    <!ELEMENT codepage      (#PCDATA)>
    <!ELEMENT title         (#PCDATA)>
    <!ELEMENT subject       (#PCDATA)>
@@ -28,8 +28,8 @@
    <!ELEMENT wordcount     (#PCDATA)>
    <!ELEMENT charcount     (#PCDATA)>
    <!ELEMENT appname       (#PCDATA)>
-   <!ELEMENT security      (#PCDATA)>                            
-                                
+   <!ELEMENT security      (#PCDATA)>
+
    <!ELEMENT table         (col+,row*)>
    <!ATTLIST table
                 name        CDATA #REQUIRED>
@@ -38,9 +38,9 @@
    <!ATTLIST col
                  key       (yes|no) #IMPLIED
                  def       CDATA #IMPLIED>
-                 
+
    <!ELEMENT row            (td+)>
-   
+
    <!ELEMENT td             (#PCDATA)>
    <!ATTLIST td
                  href       CDATA #IMPLIED
@@ -48,11 +48,11 @@
                  md5        CDATA #IMPLIED>
 ]>
 <msi version="2.0" xmlns:dt="urn:schemas-microsoft-com:datatypes">
-	
+
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.2.0 Third Party Packages for Visual Studio 6.0</subject>
+		<subject>Ice 3.3.0 Third Party Packages for Visual Studio 6.0</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
@@ -68,7 +68,7 @@
 		<appname>InstallShield Developer</appname>
 		<security>1</security>
 	</summary>
-	
+
 	<table name="ActionText">
 		<col key="yes" def="s72">Action</col>
 		<col def="L64">Description</col>
@@ -1159,7 +1159,7 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.2.0_THIRDPARTY_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.2.0_THIRDPARTY_VC60</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.3.0_THIRDPARTY_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1819,7 +1819,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.2.0-ThirdParty-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-ThirdParty-VC60</td></row>
 		<row><td>ZEROC</td><td>PackageCode</td><td>{BF91AD1B-7B44-482B-ACFD-18C80DD32CD7}</td></row>
 		<row><td>ZEROC</td><td>ProductCode</td><td>{92A8F9E6-A111-4B7F-94E0-13157469415D}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
@@ -1924,7 +1924,7 @@
 		<col def="I4">TimeStamp</col>
 		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC, Inc.</td><td>0</td><td/><td>1234816852</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td>	</td><td>479664453</td></row>
-		<row><td>ICE_VERSION</td><td>1033</td><td>3.2.0</td><td>0</td><td/><td>1973063787</td></row>
+		<row><td>ICE_VERSION</td><td>1033</td><td>3.3.0</td><td>0</td><td/><td>1973063787</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>The operating system is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
@@ -2958,8 +2958,8 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ProductCode</td><td>{86DDB1C1-40F9-4CF1-ADB7-D9B159036700}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.2.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
