@@ -1,0 +1,5 @@
+#
+# XXX - delete me.
+#
+f,IceStorm/%(OutDir)sDebug/icestormservice32d.dll
+f,IceStorm/%(OutDir)sDebug/icestormservice32d.pdb

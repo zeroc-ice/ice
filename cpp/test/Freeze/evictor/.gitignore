@@ -6,5 +6,6 @@ server
 Test.cpp
 Test.h
 db/__catalog
+db/__catalogIndexList
 db/Test
 db/log.*
