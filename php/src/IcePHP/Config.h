@@ -10,10 +10,9 @@
 #ifndef ICE_PHP_CONFIG_H
 #define ICE_PHP_CONFIG_H
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1300)
-    // Necessary for TryEnterCriticalSection. VC 7.x only.
-#   define _WIN32_WINNT 0x0400
-#   include <winsock2.h>
+#if defined(_MSC_VER)
+  #   define _WIN32_WINNT 0x0400
+  #   include <winsock2.h>
 #endif
 
 #include <Ice/Ice.h>
