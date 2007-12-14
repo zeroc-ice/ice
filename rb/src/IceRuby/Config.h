@@ -37,6 +37,7 @@
 #   undef close
 #   undef read
 #   undef write
+#   undef sleep
 #endif
 
 extern "C"
