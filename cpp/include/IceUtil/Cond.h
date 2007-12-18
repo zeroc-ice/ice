@@ -218,6 +218,11 @@ Cond::waitImpl(const M& mutex) const
 template <typename M> inline bool
 Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
 {
+    if(timeout < Time::microSeconds(0))
+    {
+        throw InvalidTimeoutException(__FILE__, __LINE__, timeout);
+    }
+
     typedef typename M::LockState LockState;
     
     LockState state;

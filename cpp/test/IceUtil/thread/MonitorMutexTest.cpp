@@ -181,6 +181,16 @@ MonitorMutexTest::run()
     // TEST: timedWait
     {
         Monitor<Mutex>::Lock lock(monitor);
+
+        try
+        {
+            monitor.timedWait(Time::milliSeconds(-1));
+            test(false);
+        }
+        catch(const IceUtil::InvalidTimeoutException&)
+        {
+        }
+
         test(!monitor.timedWait(Time::milliSeconds(500)));
     }
 }

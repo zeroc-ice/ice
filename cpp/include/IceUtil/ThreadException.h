@@ -11,6 +11,7 @@
 #define ICE_UTIL_THREAD_EXCEPTION_H
 
 #include <IceUtil/Exception.h>
+#include <IceUtil/Time.h>
 
 namespace IceUtil
 {
@@ -85,6 +86,22 @@ public:
 
 private:
 
+    static const char* _name;
+};
+
+class ICE_UTIL_API InvalidTimeoutException : public Exception
+{
+public:
+
+    InvalidTimeoutException(const char*, int, const Time&);
+    virtual std::string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+private:
+    
+    Time _timeout;
     static const char* _name;
 };
     

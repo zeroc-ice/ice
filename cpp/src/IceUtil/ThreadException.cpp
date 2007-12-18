@@ -180,3 +180,37 @@ IceUtil::BadThreadControlException::ice_throw() const
 {
     throw *this;
 }
+
+IceUtil::InvalidTimeoutException::InvalidTimeoutException(const char* file, int line, 
+                                                          const IceUtil::Time& timeout) : 
+    Exception(file, line),
+    _timeout(timeout)
+{
+}
+    
+const char* IceUtil::InvalidTimeoutException::_name = "IceUtil::InvalidTimeoutException";
+
+string
+IceUtil::InvalidTimeoutException::ice_name() const
+{
+    return _name;
+}
+
+void
+IceUtil::InvalidTimeoutException::ice_print(ostream& os) const
+{
+    Exception::ice_print(os);
+    os << ":\ninvalid timeout: " << _timeout << " seconds";
+}
+
+IceUtil::Exception*
+IceUtil::InvalidTimeoutException::ice_clone() const
+{
+    return new InvalidTimeoutException(*this);
+}
+
+void
+IceUtil::InvalidTimeoutException::ice_throw() const
+{
+    throw *this;
+}
