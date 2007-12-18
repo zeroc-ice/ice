@@ -21,7 +21,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Ice", "faultTolerance")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.join(toplevel, "py", "test", name)
 
 cwd = os.getcwd()
 os.chdir(testdir)
@@ -35,7 +35,7 @@ base = 12340
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
     sys.stdout.flush()
-    command = "python " + server + TestUtil.serverOptions + " %d" % (base + i)
+    command = TestUtil.getCommandLine(server, TestUtil.DriverConfig("server")) + " %d" % (base + i)
     if TestUtil.debug:
         print "(" + command + ")",
     serverPipe = os.popen(command + " 2>&1")
@@ -47,7 +47,7 @@ ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-command = "python " + client + TestUtil.clientOptions + " " + ports
+command = TestUtil.getCommandLine(client, TestUtil.DriverConfig("client")) + ports
 if TestUtil.debug:
     print "(" + command + ")",
 clientPipe = os.popen(command + " 2>&1")
