@@ -2255,7 +2255,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         _out.inc();
         _out << nl << "extends ";
         _out.inc();
-        _out << nl << toString(base, e);
+        _out << nl << toString(base, e, false);
         _out.dec();
         _out.dec();
     }
@@ -2372,7 +2372,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     ClassList bases = c->bases();
     if(!bases.empty() && !bases.front()->isInterface())
     {
-        _out << " extends " << toString(bases.front(), c);
+        _out << " extends " << toString(bases.front(), c, false);
         bases.pop_front();
     }
 
