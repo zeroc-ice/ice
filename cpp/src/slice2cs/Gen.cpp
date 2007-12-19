@@ -3201,17 +3201,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return null;";
     _out << eb;
-    _out << nl << "if(b is " << name << "Prx)";
-    _out << sb;
-    _out << nl << "return (" << name << "Prx)b;";
-    _out << eb;
-    _out << nl << "if(b.ice_isA(\"" << p->scoped() << "\"))";
+    _out << nl << name << "Prx r = b as " << name << "Prx;";
+    _out << nl << "if((r == null) && b.ice_isA(\"" << p->scoped() << "\"))";
     _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(b);";
-    _out << nl << "return h;";
+    _out << nl << "r = h;";
     _out << eb;
-    _out << nl << "return null;";
+    _out << nl << "return r;";
     _out << eb;
 
     _out << sp << nl << "public static " << name
@@ -3221,17 +3218,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return null;";
     _out << eb;
-    _out << nl << "if(b is " << name << "Prx)";
-    _out << sb;
-    _out << nl << "return (" << name << "Prx)b;";
-    _out << eb;
-    _out << nl << "if(b.ice_isA(\"" << p->scoped() << "\", ctx))";
+    _out << nl << name << "Prx r = b as " << name << "Prx;";
+    _out << nl << "if((r == null) && b.ice_isA(\"" << p->scoped() << "\", ctx))";
     _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(b);";
-    _out << nl << "return h;";
+    _out << nl << "r = h;";
     _out << eb;
-    _out << nl << "return null;";
+    _out << nl << "return r;";
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx b, string f)";
@@ -3286,9 +3280,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return null;";
     _out << eb;
+    _out << nl << name << "Prx r = b as " << name << "Prx;";
+    _out << nl << "if(r == null)";
+    _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(b);";
-    _out << nl << "return h;";
+    _out << nl << "r = h;";
+    _out << eb;
+    _out << nl << "return r;";
     _out << eb;
 
     _out << sp << nl << "public static " << name << "Prx uncheckedCast(Ice.ObjectPrx b, string f)";

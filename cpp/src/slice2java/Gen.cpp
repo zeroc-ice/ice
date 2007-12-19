@@ -3600,9 +3600,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx __d = null;";
     out << nl << "if(__obj != null)";
     out << sb;
+    out << nl << "try";
+    out << sb;
+    out << nl << "__d = (" << name << "Prx)__obj;";
+    out << eb;
+    out << nl << "catch(ClassCastException ex)";
+    out << sb;
     out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
     out << nl << "__h.__copyFrom(__obj);";
     out << nl << "__d = __h;";
+    out << eb;
     out << eb;
     out << nl << "return __d;";
     out << eb;
