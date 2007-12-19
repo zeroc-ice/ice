@@ -249,6 +249,7 @@ cp Makefile $DISTRIBUTION
 cp Makefile.mak $DISTRIBUTION
 cp cpp/LICENSE $DISTRIBUTION
 cp cpp/ICE_LICENSE $DISTRIBUTION
+cp allTests.py $DISTRIBUTION
 
 echo "Fixing version markup..."
 
