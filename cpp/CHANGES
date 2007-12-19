@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- IceInteral::GCShared now derives from IceUtil::Shared.
+  This now makes it possible to have a servant class derived
+  from IceUtil::Thread (which, previously, was impossible).
+
 - Improved Glacier2 to take advantage of the new non-blocking aspects
   of Ice. Glacier2 now uses the thread pool concurrency model by
   default and in buffered mode, Glacier2 only uses a single thread to
