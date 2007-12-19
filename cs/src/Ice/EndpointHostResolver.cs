@@ -33,7 +33,7 @@ namespace IceInternal
             //
             try
             {
-                List<IPEndPoint> addrs = Network.getAddresses(host, port, false);
+                List<IPEndPoint> addrs = Network.getAddresses(host, port, _instance.protocolSupport(), false);
                 if(addrs.Count > 0)
                 {
                     callback.connectors(endpoint.connectors(addrs));
@@ -100,7 +100,7 @@ namespace IceInternal
                 }
 
                 resolve.callback.connectors(resolve.endpoint.connectors(
-                    Network.getAddresses(resolve.host, resolve.port)));
+                    Network.getAddresses(resolve.host, resolve.port, _instance.protocolSupport())));
             }
 
             foreach(ResolveEntry entry in _queue)

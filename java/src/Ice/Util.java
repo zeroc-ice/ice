@@ -277,7 +277,7 @@ public final class Util
 
         if(_localAddress == null)
         {
-            java.net.InetAddress addr = IceInternal.Network.getLocalAddress();
+            java.net.InetAddress addr = IceInternal.Network.getLocalAddress(IceInternal.Network.EnableBoth);
 
             byte[] ip = addr.getAddress();
             _localAddress = "";

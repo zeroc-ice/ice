@@ -40,7 +40,7 @@ IceSSL::ConnectorI::connect(int timeout)
         out << "trying to establish ssl connection to " << toString();
     }
 
-    SOCKET fd = IceInternal::createSocket(false);
+    SOCKET fd = IceInternal::createSocket(false, _addr.ss_family);
     IceInternal::setBlock(fd, false);
     IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
     bool connected = IceInternal::doConnect(fd, _addr, timeout);
@@ -147,10 +147,9 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
     return IceInternal::compareAddress(_addr, p->_addr) == -1;
 }
 
-IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const struct sockaddr_in& addr, Ice::Int timeout,
+IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const struct sockaddr_storage& addr, Ice::Int timeout,
                                const string& connectionId) :
     _instance(instance),
-    _host(IceInternal::inetAddrToString(addr.sin_addr)),
     _logger(instance->communicator()->getLogger()),
     _addr(addr),
     _timeout(timeout),

@@ -23,6 +23,11 @@ namespace IceInternal
         IceInternal.EndpointHostResolver getEndpointHostResolver();
 
         //
+        // Get the protocol support.
+        //
+        int getProtocolSupport();
+
+        //
         // Get the default hostname to be used in endpoints.
         //
         string getDefaultHost();
@@ -68,6 +73,14 @@ namespace IceInternal
         public IceInternal.EndpointHostResolver getEndpointHostResolver()
         {
             return _instance.endpointHostResolver();
+        }
+
+        //
+        // Get the protocol support.
+        //
+        public int getProtocolSupport()
+        {
+            return _instance.protocolSupport();
         }
 
         //

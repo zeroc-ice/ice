@@ -27,7 +27,7 @@ public class AllTests
     }
 
     private static Ice.Properties
-    createClientProps(string testDir, string defaultHost)
+    createClientProps(Ice.Properties defaultProperties, string testDir, string defaultHost)
     {
         Ice.Properties result = Ice.Util.createProperties();
         //
@@ -41,6 +41,10 @@ public class AllTests
         //
         result.setProperty("Ice.Plugin.IceSSL", testDir + "/../../../bin/icesslcs.dll:IceSSL.PluginFactory");
         result.setProperty("Ice.ThreadPerConnection", "1");
+        if(defaultProperties.getProperty("Ice.IPv6").length() > 0)
+        {
+            result.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
+        }
         if(defaultHost.Length > 0)
         {
             result.setProperty("Ice.Default.Host", defaultHost);
@@ -54,6 +58,10 @@ public class AllTests
         Dictionary<string, string> result = new Dictionary<string, string>();
         result["Ice.Plugin.IceSSL"] = testDir + "/../../../bin/icesslcs.dll:IceSSL.PluginFactory";
         result["Ice.ThreadPerConnection"] = "1";
+        if(defaultProperties.getProperty("Ice.IPv6").length() > 0)
+        {
+            result["Ice.IPv6"] = defaultProperties.getProperty("Ice.IPv6");
+        }
         if(defaultHost.Length > 0)
         {
             result["Ice.Default.Host"] = defaultHost;

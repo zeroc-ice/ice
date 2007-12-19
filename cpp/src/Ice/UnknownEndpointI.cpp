@@ -138,7 +138,6 @@ IceInternal::UnknownEndpointI::streamWrite(BasicStream* s) const
 string
 IceInternal::UnknownEndpointI::toString() const
 {
-
     ostringstream s;
     string val = IceUtil::Base64::encode(_rawBytes);
     s << "opaque -t " << _type << " -v " << val;

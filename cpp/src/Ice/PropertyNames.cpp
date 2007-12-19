@@ -66,6 +66,8 @@ const IceInternal::Property IcePropsData[] =
     IceInternal::Property("Ice.Default.Router.CollocationOptimized", false, 0),
     IceInternal::Property("Ice.Default.Router.ThreadPerConnection", false, 0),
     IceInternal::Property("Ice.Default.Router", false, 0),
+    IceInternal::Property("Ice.IPv4", false, 0),
+    IceInternal::Property("Ice.IPv6", false, 0),
     IceInternal::Property("Ice.EventLog.Source", false, 0),
     IceInternal::Property("Ice.GC.Interval", false, 0),
     IceInternal::Property("Ice.ImplicitContext", false, 0),

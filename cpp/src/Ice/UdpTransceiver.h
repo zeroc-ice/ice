@@ -18,7 +18,7 @@
 #include <IceUtil/Mutex.h>
 
 #ifndef _WIN32
-#   include <netinet/in.h> // For struct sockaddr_in
+#   include <netinet/in.h> // For struct sockaddr_storage
 #endif
 
 namespace IceInternal
@@ -47,7 +47,7 @@ public:
 
 private:
 
-    UdpTransceiver(const InstancePtr&, const struct sockaddr_in&, const std::string&, int);
+    UdpTransceiver(const InstancePtr&, const struct sockaddr_storage&, const std::string&, int);
     UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string&, bool);
     virtual ~UdpTransceiver();
 
@@ -62,7 +62,7 @@ private:
     const bool _incoming;
 
     SOCKET _fd;
-    struct sockaddr_in _addr;
+    struct sockaddr_storage _addr;
     bool _mcastServer;
 #ifdef _WIN32
     fd_set _rFdSet;

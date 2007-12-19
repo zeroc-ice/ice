@@ -78,7 +78,7 @@ IceInternal::TcpAcceptor::accept(int timeout)
 void
 IceInternal::TcpAcceptor::connectToSelf()
 {
-    SOCKET fd = createSocket(false);
+    SOCKET fd = createSocket(false, _addr.ss_family);
     setBlock(fd, false);
     doConnect(fd, _addr, -1);
     closeSocket(fd);
@@ -91,9 +91,9 @@ IceInternal::TcpAcceptor::toString() const
 }
 
 int
-IceInternal::TcpAcceptor::effectivePort()
+IceInternal::TcpAcceptor::effectivePort() const
 {
-    return ntohs(_addr.sin_port);
+    return getPort(_addr);
 }
 
 IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port) :
@@ -109,9 +109,9 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
 
     try
     {
-        _fd = createSocket(false);
+        getAddressForServer(host, port, _addr, _instance->protocolSupport());
+        _fd = createSocket(false, _addr.ss_family);
         setBlock(_fd, false);
-        getAddress(host, port, _addr);
         setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
 #ifndef _WIN32
         //

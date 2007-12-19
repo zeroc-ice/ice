@@ -45,7 +45,7 @@ public final class EndpointFactoryManager
     }
 
     public synchronized EndpointI
-    create(String str, boolean server)
+    create(String str, boolean oaEndpoint)
     {
         String s = str.trim();
         if(s.length() == 0)
@@ -72,12 +72,12 @@ public final class EndpointFactoryManager
             EndpointFactory f = (EndpointFactory)_factories.get(i);
             if(f.protocol().equals(protocol))
             {
-                return f.create(s.substring(m.end()), server);
+                return f.create(s.substring(m.end()), oaEndpoint);
 
                 // Code below left in place for debugging.
 
                 /*
-                EndpointI e = f.create(s.substring(m.end()), server);
+                EndpointI e = f.create(s.substring(m.end()), oaEndpoint);
                 BasicStream bs = new BasicStream(_instance, true);
                 e.streamWrite(bs);
                 java.nio.ByteBuffer buf = bs.getBuffer();

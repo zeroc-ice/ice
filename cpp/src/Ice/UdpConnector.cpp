@@ -168,7 +168,8 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) == -1;
 }
 
-IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const struct sockaddr_in& addr, 
+
+IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const struct sockaddr_storage& addr, 
                                         const string& mcastInterface, int mcastTtl, Ice::Byte protocolMajor,
                                         Ice::Byte protocolMinor, Ice::Byte encodingMajor, Ice::Byte encodingMinor,
                                         const std::string& connectionId) :

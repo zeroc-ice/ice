@@ -1827,12 +1827,9 @@ public final class ConnectionI extends IceInternal.EventHandler
                         unregisterWithPool();
                     }
 
-                    if(_state >= StateNotValidated)
-                    {
-                        _transceiver.shutdownWrite();
-                    }
+                    _transceiver.shutdownWrite();
                 }
-                else if(_startCallback == null && _state <= StateNotValidated || _threadPerConnection)
+                else if(_state <= StateNotValidated || _threadPerConnection)
                 {
                     //
                     // If we are in thread per connection mode and the thread is started, we

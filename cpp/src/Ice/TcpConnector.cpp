@@ -29,7 +29,7 @@ IceInternal::TcpConnector::connect(int timeout)
         out << "trying to establish tcp connection to " << toString();
     }
 
-    SOCKET fd = createSocket(false);
+    SOCKET fd = createSocket(false, _addr.ss_family);
     setBlock(fd, false);
     setTcpBufSize(fd, _instance->initializationData().properties, _logger);
     bool connected = doConnect(fd, _addr, timeout);
@@ -115,12 +115,11 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
     {
         return false;
     }
-
     return compareAddress(_addr, p->_addr) == -1;
 }
 
-IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_in& addr, Ice::Int timeout,
-                                        const string& connectionId) :
+IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_storage& addr,
+                                        Ice::Int timeout, const string& connectionId) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),

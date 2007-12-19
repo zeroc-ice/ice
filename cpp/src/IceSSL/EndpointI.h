@@ -51,7 +51,7 @@ public:
 
 private:
 
-    virtual std::vector<IceInternal::ConnectorPtr> connectors(const std::vector<struct sockaddr_in>&) const;
+    virtual std::vector<IceInternal::ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
     
 #if defined(__SUNPRO_CC)
     //

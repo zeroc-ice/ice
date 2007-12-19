@@ -538,6 +538,12 @@ IceSSL::Instance::endpointHostResolver() const
     return _facade->getEndpointHostResolver();
 }
 
+IceInternal::ProtocolSupport
+IceSSL::Instance::protocolSupport() const
+{
+    return _facade->getProtocolSupport();
+}
+
 string
 IceSSL::Instance::defaultHost() const
 {

@@ -100,7 +100,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if listening on INADDR_NAY.
+    // host if listening on INADDR_ANY.
     //
     public abstract java.util.List expand();
 

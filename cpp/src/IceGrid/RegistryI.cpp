@@ -1215,10 +1215,24 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     try
     {
         IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(connection);
-        sslinfo.remotePort = ntohs(info.remoteAddr.sin_port);
-        sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr.sin_addr);
-        sslinfo.localPort = ntohs(info.localAddr.sin_port);
-        sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr.sin_addr);
+        if(info.remoteAddr.ss_family == AF_INET)
+        {
+            sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in*>(&info.remoteAddr)->sin_port);
+        }
+        else
+        {
+            sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in6*>(&info.remoteAddr)->sin6_port);
+        }
+        sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
+        if(info.remoteAddr.ss_family == AF_INET)
+        {
+            sslinfo.localPort = ntohs(reinterpret_cast<sockaddr_in*>(&info.localAddr)->sin_port);
+        }
+        else
+        {
+            sslinfo.localPort = ntohs(reinterpret_cast<sockaddr_in6*>(&info.localAddr)->sin6_port);
+        }
+        sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr);
 
         sslinfo.cipher = info.cipher;
 

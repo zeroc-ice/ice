@@ -679,7 +679,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
                 }
             }
         }
-            
+
         if(_destroyed)
         {
             throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -688,12 +688,14 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
         //
         // No connection to any of our endpoints exists yet; we add the given connectors to
         // the _pending set to indicate that we're attempting connection establishment to 
-        // these connectors.
+        // these connectors. We might attempt to connect to the same connector multiple times.
         //
         for(vector<ConnectorInfo>::const_iterator r = connectors.begin(); r != connectors.end(); ++r)
         {
-            assert(_pending.find(*r) == _pending.end());
-            _pending.insert(pair<ConnectorInfo, set<ConnectCallbackPtr> >(*r, set<ConnectCallbackPtr>()));
+            if(_pending.find(*r) == _pending.end())
+            {
+                _pending.insert(pair<ConnectorInfo, set<ConnectCallbackPtr> >(*r, set<ConnectCallbackPtr>()));
+            }
         }
     }
 
@@ -769,9 +771,11 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
         for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
         {
             map<ConnectorInfo, set<ConnectCallbackPtr> >::iterator q = _pending.find(*p);
-            assert(q != _pending.end());
-            callbacks.insert(q->second.begin(), q->second.end());
-            _pending.erase(q);
+            if(q != _pending.end())
+            {
+                callbacks.insert(q->second.begin(), q->second.end());
+                _pending.erase(q);
+            }
         }
         notifyAll();
 

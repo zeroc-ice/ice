@@ -19,7 +19,7 @@ Ice::LocalObject* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
 
 vector<ConnectorPtr>
-IceInternal::EndpointI::connectors(const vector<struct sockaddr_in>& addrs) const
+IceInternal::EndpointI::connectors(const vector<struct sockaddr_storage>& addrs) const
 {
     //
     // This method must be extended by endpoints which use the EndpointHostResolver to create
@@ -37,7 +37,7 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 }
 
 void
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint, 
+IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint,
                                            const EndpointI_connectorsPtr& callback)
 { 
     //
@@ -46,7 +46,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     //
     try
     {
-        vector<struct sockaddr_in> addrs = getAddresses(host, port, false);
+        vector<struct sockaddr_storage> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
         if(!addrs.empty())
         {
             callback->connectors(endpoint->connectors(addrs));
@@ -109,7 +109,9 @@ IceInternal::EndpointHostResolver::run()
             _queue.pop_front();
         }
 
-        resolve.callback->connectors(resolve.endpoint->connectors(getAddresses(resolve.host, resolve.port)));
+        resolve.callback->connectors(
+            resolve.endpoint->connectors(
+                getAddresses(resolve.host, resolve.port, _instance->protocolSupport(), true)));
     }
 
     for(deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)

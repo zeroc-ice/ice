@@ -337,7 +337,15 @@ namespace IceInternal
                 WaitHandle[] handles = new WaitHandle[2];
                 handles[0] = _shutdownReadWriteEvent;
 
-                EndPoint peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                EndPoint peerAddr = null;
+                if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                }
+                else if(_addr.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                }
 
                 //
                 // Check the shutdown flag.
@@ -477,7 +485,7 @@ namespace IceInternal
         }
 
         //
-        // Only for use by UdpEndpoint
+        // Only for use by UdpConnector
         //
         internal UdpTransceiver(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl)
         {
@@ -490,7 +498,7 @@ namespace IceInternal
 
             try
             {
-                _fd = Network.createSocket(true);
+                _fd = Network.createSocket(true, _addr.AddressFamily);
                 setBufSize(instance);
                 Network.setBlock(_fd, false);
                 Network.doConnect(_fd, _addr, -1);
@@ -500,7 +508,7 @@ namespace IceInternal
                     IPAddress ip = IPAddress.Any;
                     if(mcastInterface.Length != 0)
                     {
-                        ip = Network.getAddress(mcastInterface, _addr.Port).Address;
+                        ip = Network.getAddress(mcastInterface, _addr.Port, Network.EnableBoth).Address;
                     }
                     Network.setMcastGroup(_fd, _addr.Address, ip);
 
@@ -537,10 +545,10 @@ namespace IceInternal
 
             try
             {
-                _fd = Network.createSocket(true);
+                _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
+                _fd = Network.createSocket(true, _addr.AddressFamily);
                 setBufSize(instance);
                 Network.setBlock(_fd, false);
-                _addr = Network.getAddress(host, port);
                 if(_traceLevels.network >= 2)
                 {
                     string s = "attempting to bind to udp socket " + Network.addrToString(_addr);
@@ -549,11 +557,11 @@ namespace IceInternal
                 if(Network.isMulticast(_addr))
                 {
                     Network.setReuseAddress(_fd, true);
-                    Network.doBind(_fd, Network.getAddress("0.0.0.0", port));
+                    Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
                     IPAddress addr;
                     if(mcastInterface.Length != 0)
                     {
-                        addr = Network.getAddress(mcastInterface, port).Address;
+                        addr = Network.getAddress(mcastInterface, port, Network.EnableIPv4).Address;
                     }
                     else
                     {

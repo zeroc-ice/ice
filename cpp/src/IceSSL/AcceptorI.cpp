@@ -114,7 +114,7 @@ IceSSL::AcceptorI::accept(int timeout)
 void
 IceSSL::AcceptorI::connectToSelf()
 {
-    SOCKET fd = IceInternal::createSocket(false);
+    SOCKET fd = IceInternal::createSocket(false, _addr.ss_family);
     IceInternal::setBlock(fd, false);
     IceInternal::doConnect(fd, _addr, -1);
     IceInternal::closeSocket(fd);
@@ -127,9 +127,16 @@ IceSSL::AcceptorI::toString() const
 }
 
 int
-IceSSL::AcceptorI::effectivePort()
+IceSSL::AcceptorI::effectivePort() const
 {
-    return ntohs(_addr.sin_port);
+    if(_addr.ss_family == AF_INET)
+    {
+        return ntohs(reinterpret_cast<const sockaddr_in*>(&_addr)->sin_port);
+    }
+    else
+    {
+        return ntohs(reinterpret_cast<const sockaddr_in6*>(&_addr)->sin6_port);
+    }
 }
 
 IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterName, const string& host, int port) :
@@ -145,9 +152,9 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
 
     try
     {
-        _fd = IceInternal::createSocket(false);
+        IceInternal::getAddressForServer(host, port, _addr, _instance->protocolSupport());
+        _fd = IceInternal::createSocket(false, _addr.ss_family);
         IceInternal::setBlock(_fd, false);
-        IceInternal::getAddress(host, port, _addr);
         IceInternal::setTcpBufSize(_fd, _instance->communicator()->getProperties(), _logger);
 #ifndef _WIN32
         //

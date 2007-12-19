@@ -58,6 +58,16 @@ extern const ::Ice::Byte requestHdr[headerSize + sizeof(Ice::Int)];
 extern const ::Ice::Byte requestBatchHdr[headerSize + sizeof(Ice::Int)];
 extern const ::Ice::Byte replyHdr[headerSize];
 
+//
+// IPv4/IPv6 support enumeration.
+//
+enum ProtocolSupport
+{
+    EnableIPv4,
+    EnableIPv6,
+    EnableBoth
+};
+
 }
 
 #endif

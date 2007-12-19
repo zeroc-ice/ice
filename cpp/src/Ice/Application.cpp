@@ -651,7 +651,7 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
         }
         catch(const std::exception& ex)
         {
-            cerr << _appName << ex.what() << endl;
+            cerr << _appName << ": " << ex.what() << endl;
             status = EXIT_FAILURE;
         }
         catch(...)

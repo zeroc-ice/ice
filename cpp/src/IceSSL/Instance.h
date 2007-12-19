@@ -36,6 +36,7 @@ public:
 
     Ice::CommunicatorPtr communicator() const;
     IceInternal::EndpointHostResolverPtr endpointHostResolver() const;
+    IceInternal::ProtocolSupport protocolSupport() const;
     std::string defaultHost() const;
     int networkTraceLevel() const;
     std::string networkTraceCategory() const;

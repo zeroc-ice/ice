@@ -16,6 +16,7 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
+#include <Ice/Protocol.h>
 
 namespace IceInternal
 {

@@ -551,59 +551,64 @@ public class AllTests
         Ice.ObjectPrx p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         String pstr = communicator.proxyToString(p1);
         test(pstr.Equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
-        
-        // Working?
-        bool ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("ssl");
-        if(!ssl)
-        {
-            p1.ice_ping();
-        }
 
-        // Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
-        pstr = communicator.proxyToString(p1);
-        test(pstr.Equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
+        if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
+        {
+            // Working?
+            bool ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("ssl");
+            if(!ssl)
+            {
+                p1.ice_ping();
+            }
 
-        // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
-        p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-        pstr = communicator.proxyToString(p1);
-        if(!ssl)
-        {
-            test(pstr.Equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
-        }
-        else
-        {
-            test(pstr.Equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
-        }
+            // Two legal TCP endpoints expressed as opaque endpoints
+            p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+            pstr = communicator.proxyToString(p1);
+            test(pstr.Equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
-        // Try to invoke on the SSL endpoint to verify that we get a
-        // NoEndpointException (or ConnectionRefusedException when
-        // running with SSL).
-        try
-        {
-            p1.ice_ping();
-            test(false);
-        }
-        catch(Ice.NoEndpointException)
-        {
-            test(!ssl);
-        }
-        catch(Ice.ConnectionRefusedException)
-        {
-            test(ssl);
-        }
+            // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
+            p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            pstr = communicator.proxyToString(p1);
+            if(!ssl)
+            {
+                test(pstr.Equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+            }
+            else
+            {
+                test(pstr.Equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
+            }
 
-        // Test that the proxy with an SSL endpoint and a nonsense endpoint (which the server doesn't understand either)
-        // can be sent over the wire and returned by the server without losing the opaque endpoints.
-        Ice.ObjectPrx p2 = derived.echo(p1);
-        pstr = communicator.proxyToString(p2);
-        if(!ssl)
-        {
-            test(pstr.Equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
-        }
-        else
-        {
-            test(pstr.Equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
+            // Try to invoke on the SSL endpoint to verify that we get a
+            // NoEndpointException (or ConnectionRefusedException when
+            // running with SSL).
+            try
+            {
+                p1.ice_ping();
+                test(false);
+            }
+            catch(Ice.NoEndpointException)
+            {
+                test(!ssl);
+            }
+            catch(Ice.ConnectionRefusedException)
+            {
+                test(ssl);
+            }
+
+            // Test that the proxy with an SSL endpoint and a nonsense
+            // endpoint (which the server doesn't understand either)
+            // can be sent over the wire and returned by the server
+            // without losing the opaque endpoints.
+            Ice.ObjectPrx p2 = derived.echo(p1);
+            pstr = communicator.proxyToString(p2);
+            if(!ssl)
+            {
+                test(pstr.Equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+            }
+            else
+            {
+                test(pstr.Equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
+            }
         }
 
         Console.Out.WriteLine("ok");

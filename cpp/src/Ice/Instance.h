@@ -66,6 +66,7 @@ public:
     ConnectionMonitorPtr connectionMonitor() const;
     ObjectFactoryManagerPtr servantFactoryManager() const;
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
+    ProtocolSupport protocolSupport() const;
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
     SelectorThreadPtr selectorThread();
@@ -123,6 +124,7 @@ private:
     ConnectionMonitorPtr _connectionMonitor;
     ObjectFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
+    ProtocolSupport _protocolSupport;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     SelectorThreadPtr _selectorThread;

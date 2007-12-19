@@ -23,6 +23,11 @@ public interface ProtocolPluginFacade
     IceInternal.EndpointHostResolver getEndpointHostResolver();
 
     //
+    // Get the protocol support.
+    //
+    int getProtocolSupport();
+
+    //
     // Get the default hostname to be used in endpoints.
     //
     String getDefaultHost();

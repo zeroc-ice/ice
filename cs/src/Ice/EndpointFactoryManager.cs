@@ -163,6 +163,7 @@ namespace IceInternal
         
         private readonly Instance instance_;
         private readonly ArrayList _factories;
+        private readonly int _protocolSupport;
     }
 
 }

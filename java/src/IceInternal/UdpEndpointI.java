@@ -33,7 +33,7 @@ final class UdpEndpointI extends EndpointI
     }
 
     public
-    UdpEndpointI(Instance instance, String str, boolean server)
+    UdpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
         _instance = instance;
         _host = null;
@@ -66,6 +66,10 @@ final class UdpEndpointI extends EndpointI
             if(i < arr.length && arr[i].charAt(0) != '-')
             {
                 argument = arr[i++];
+                if(argument.charAt(0) == '\"' && argument.charAt(argument.length() - 1) == '\"')
+                {
+                    argument = argument.substring(1, argument.length() - 1);
+                }
             }
 
             if(option.equals("-v"))
@@ -247,22 +251,24 @@ final class UdpEndpointI extends EndpointI
         if(_host == null)
         {
             _host = _instance.defaultsAndOverrides().defaultHost;
-            if(_host == null)
-            {
-                if(server)
-                {
-                    _host = "0.0.0.0";
-                }
-                else
-                {
-                    _host = "127.0.0.1";
-                }
-            }
         }
         else if(_host.equals("*"))
         {
-            _host = "0.0.0.0";
+            if(oaEndpoint)
+            {
+                _host = null;
+            }
+            else
+            {
+                throw new Ice.EndpointParseException("udp " + str);
+            }
         }
+
+        if(_host == null)
+        {
+            _host = "";
+        }
+
         calcHashValue();
     }
 
@@ -350,7 +356,22 @@ final class UdpEndpointI extends EndpointI
                 + "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
         }
 
-        s += " -h " + _host + " -p " + _port;
+        if(_host != null && _host.length() > 0)
+        {
+            s += " -h "; 
+            boolean addQuote = _host.indexOf(':') != -1;
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += _host; 
+            if(addQuote)
+            {
+                s += "\"";
+            }
+        }
+
+        s += " -p " + _port;
 
         if(_mcastInterface.length() != 0)
         {
@@ -504,7 +525,7 @@ final class UdpEndpointI extends EndpointI
     public java.util.List
     connectors()
     {
-        return connectors(Network.getAddresses(_host, _port));
+        return connectors(Network.getAddresses(_host, _port, _instance.protocolSupport()));
     }
 
     public void
@@ -535,24 +556,20 @@ final class UdpEndpointI extends EndpointI
     expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
-        if(_host.equals("0.0.0.0"))
+        java.util.ArrayList hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+        if(hosts == null || hosts.isEmpty())
         {
-            java.util.ArrayList hosts = Network.getLocalHosts();
-            java.util.Iterator iter = hosts.iterator();
-            while(iter.hasNext())
-            {
-                String host = (String)iter.next();
-                if(hosts.size() == 1 || !host.equals("127.0.0.1"))
-                {
-                    endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl, _protocolMajor, 
-                                               _protocolMinor, _encodingMajor, _encodingMinor, _connect,
-                                               _connectionId, _compress));
-                }
-            }
+            endps.add(this);
         }
         else
         {
-            endps.add(this);
+            java.util.Iterator p = hosts.iterator();
+            while(p.hasNext())
+            {
+                endps.add(new UdpEndpointI(_instance, (String)p.next(), _port, _mcastInterface, _mcastTtl,
+                                           _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor,
+                                           _connect, _connectionId, _compress));
+            }
         }
         return endps;
     }
@@ -572,6 +589,7 @@ final class UdpEndpointI extends EndpointI
         {
             return false;
         }
+
         return udpEndpointI._host.equals(_host) && udpEndpointI._port == _port;
     }
 
@@ -720,15 +738,7 @@ final class UdpEndpointI extends EndpointI
     private void
     calcHashValue()
     {
-        try
-        {
-            java.net.InetSocketAddress addr = Network.getAddress(_host, _port);
-            _hashCode = addr.getAddress().getHostAddress().hashCode();
-        }
-        catch(Ice.DNSException ex)
-        {
-            _hashCode = _host.hashCode();
-        }
+        _hashCode = _host.hashCode();
         _hashCode = 5 * _hashCode + _port;
         _hashCode = 5 * _hashCode + _mcastInterface.hashCode();
         _hashCode = 5 * _hashCode + _mcastTtl;

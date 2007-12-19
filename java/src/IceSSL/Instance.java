@@ -513,6 +513,12 @@ class Instance
         return _facade.getEndpointHostResolver();
     }
 
+    int
+    protocolSupport()
+    {
+        return _facade.getProtocolSupport();
+    }
+
     String
     defaultHost()
     {

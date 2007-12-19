@@ -26,7 +26,7 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     public
-    EndpointI(Instance instance, String str, boolean server)
+    EndpointI(Instance instance, String str, boolean oaEndpoint)
     {
         _instance = instance;
         _host = null;
@@ -55,6 +55,10 @@ final class EndpointI extends IceInternal.EndpointI
             if(i < arr.length && arr[i].charAt(0) != '-')
             {
                 argument = arr[i++];
+                if(argument.charAt(0) == '\"' && argument.charAt(argument.length() - 1) == '\"')
+                {
+                    argument = argument.substring(1, argument.length() - 1);
+                }
             }
 
             switch(option.charAt(1))
@@ -134,22 +138,24 @@ final class EndpointI extends IceInternal.EndpointI
         if(_host == null)
         {
             _host = _instance.defaultHost();
-            if(_host == null)
-            {
-                if(server)
-                {
-                    _host = "0.0.0.0";
-                }
-                else
-                {
-                    _host = "127.0.0.1";
-                }
-            }
         }
         else if(_host.equals("*"))
         {
-            _host = "0.0.0.0";
+            if(oaEndpoint)
+            {
+                _host = null;
+            }
+            else
+            {
+                throw new Ice.EndpointParseException("ssl " + str);
+            }
         }
+
+        if(_host == null)
+        {
+            _host = "";
+        }
+
         calcHashValue();
     }
 
@@ -194,7 +200,25 @@ final class EndpointI extends IceInternal.EndpointI
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        String s = "ssl -h " + _host + " -p " + _port;
+        String s = "ssl";
+
+        if(_host != null && _host.length() > 0)
+        {
+            s += " -h "; 
+            boolean addQuote = _host.indexOf(':') != -1;
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += _host; 
+            if(addQuote)
+            {
+                s += "\"";
+            }
+        }
+
+        s += " -p " + _port;
+
         if(_timeout != -1)
         {
             s += " -t " + _timeout;
@@ -335,7 +359,7 @@ final class EndpointI extends IceInternal.EndpointI
     public java.util.List
     connectors()
     {
-        return connectors(IceInternal.Network.getAddresses(_host, _port));
+        return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport()));
     }
 
     public void
@@ -355,7 +379,8 @@ final class EndpointI extends IceInternal.EndpointI
     acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
         AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
-        endpoint.value = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
+        endpoint.value = 
+            new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
         return p;
     }
 
@@ -367,23 +392,18 @@ final class EndpointI extends IceInternal.EndpointI
     expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
-        if(_host.equals("0.0.0.0"))
+        java.util.ArrayList hosts = IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+        if(hosts == null || hosts.isEmpty())
         {
-            java.util.ArrayList hosts = IceInternal.Network.getLocalHosts();
-            java.util.Iterator iter = hosts.iterator();
-            while(iter.hasNext())
-            {
-                String host = (String)iter.next();
-                if(hosts.size() == 1 || !host.equals("127.0.0.1"))
-                {
-                    endps.add(new EndpointI(_instance, host, _port, _timeout, _connectionId, _compress));
-                                        
-                }
-            }
+            endps.add(this);
         }
         else
         {
-            endps.add(this);
+            java.util.Iterator p = hosts.iterator();
+            while(p.hasNext())
+            {
+                endps.add(new EndpointI(_instance, (String)p.next(), _port, _timeout, _connectionId, _compress));
+            }
         }
         return endps;
     }
@@ -498,15 +518,7 @@ final class EndpointI extends IceInternal.EndpointI
     private void
     calcHashValue()
     {
-        try
-        {
-            java.net.InetSocketAddress addr = IceInternal.Network.getAddress(_host, _port);
-            _hashCode = addr.getAddress().getHostAddress().hashCode();
-        }
-        catch(Ice.DNSException ex)
-        {
-            _hashCode = _host.hashCode();
-        }
+        _hashCode = _host.hashCode();
         _hashCode = 5 * _hashCode + _port;
         _hashCode = 5 * _hashCode + _timeout;
         _hashCode = 5 * _hashCode + _connectionId.hashCode();

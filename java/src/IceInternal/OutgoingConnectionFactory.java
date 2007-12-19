@@ -738,12 +738,16 @@ public final class OutgoingConnectionFactory
             //
             // No connection to any of our endpoints exists yet; we add the given connectors to
             // the _pending set to indicate that we're attempting connection establishment to 
-            // these connectors.
+            // these connectors. We might attempt to connect to the same connector multiple times. 
             //
             p = connectors.iterator();
             while(p.hasNext())
             {
-                _pending.put(p.next(), new java.util.HashSet());
+                Object obj = p.next();
+                if(!_pending.containsKey(obj))
+                {
+                    _pending.put(obj, new java.util.HashSet());
+                }
             }
         }
 
@@ -820,7 +824,11 @@ public final class OutgoingConnectionFactory
             java.util.Iterator p = connectors.iterator();
             while(p.hasNext())
             {
-                callbacks.addAll((java.util.Set)_pending.remove(p.next()));
+                java.util.Set cbs = (java.util.Set)_pending.remove(p.next());
+                if(cbs != null)
+                {
+                    callbacks.addAll(cbs);
+                }
             }
             notifyAll();
 

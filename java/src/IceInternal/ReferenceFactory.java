@@ -418,10 +418,47 @@ public final class ReferenceFactory
             {
                 beg = end + 1;
                 
-                end = s.indexOf(':', beg);
-                if(end == -1)
+                end = beg;
+                while(true)
                 {
-                    end = s.length();
+                    end = s.indexOf(':', end);
+                    if(end == -1)
+                    {
+                        end = s.length();
+                        break;
+                    }
+                    else
+                    {
+                        boolean quoted = false;
+                        int quote = beg;
+                        while(true)
+                        {
+                            quote = s.indexOf('\"', quote);
+                            if(quote == -1 || end < quote)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                quote = s.indexOf('\"', ++quote);
+                                if(quote == -1)
+                                {
+                                    break;
+                                }
+                                else if(end < quote)
+                                {
+                                    quoted = true;
+                                    break;
+                                }
+                                ++quote;
+                            }
+                        }
+                        if(!quoted)
+                        {
+                            break;
+                        }
+                        ++end;
+                    }
                 }
                 
                 String es = s.substring(beg, end);

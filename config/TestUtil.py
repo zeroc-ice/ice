@@ -22,6 +22,7 @@ host = "127.0.0.1"              # Default to loopback.
 debug = 0                       # Set to 1 to enable test suite debugging.
 mono =  0                       # Set to 1 to use Mono as the default .NET CLR.
 keepGoing = 0                   # Set to 1 to have the tests continue on failure.
+ipv6 = 0                        # Default to use IPv4 only
 
 javaCmd = "java"                # Default java loader
 phpCmd = "php"                  # Name of default php binary (usually php or php5)
@@ -44,8 +45,8 @@ import sys, os, re, errno, getopt, time, StringIO
 from threading import Thread
 
 usageMessage = "usage: " + sys.argv[0] + """
-  --all                   Run all permutations of the tests."
-  --start=<regex>         Start running the tests at the given test."
+  --all                   Run all permutations of the tests.
+  --start=<regex>         Start running the tests at the given test.
   --start-after=<regex>   Start running the tests after the given test.
   --loop                  Run the tests in a loop.
   --filter=<regex>        Run all the tests that match the given regex.
@@ -56,6 +57,7 @@ usageMessage = "usage: " + sys.argv[0] + """
   --host=host             Set --Ice.Default.Host=<host>.
   --threadPerConnection   Run with thread-per-connection concurrency model.
   --continue              Keep running when a test fails
+  --ipv6                  Use IPv6 addresses.
 """
 
 def configurePaths():
@@ -622,6 +624,7 @@ class DriverConfig:
     mono = False
     type = None
     overrides = None
+    ipv6 = 0
 
     def __init__(self, type = None):
         global protocol
@@ -629,6 +632,7 @@ class DriverConfig:
         global threadPerConnection
         global host 
         global mono
+        global ipv6
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -636,6 +640,7 @@ class DriverConfig:
         self.host = host
         self.mono = mono
         self.type = type
+        self.ipv6 = ipv6
         
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -662,7 +667,7 @@ def getCommandLine(exe, config, env = getTestEnv()):
     # sequence, which is initialized with command line options common to
     # all test drivers.
     #
-    components = ["--Ice.NullHandleAbort", "--Ice.Warn.Connections"]
+    components = ["--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1"]
 
     #
     # Turn on network tracing.
@@ -677,19 +682,21 @@ def getCommandLine(exe, config, env = getTestEnv()):
         components.append(sslConfigTree[config.lang]["plugin"] % env)
         components.append(sslConfigTree[config.lang][config.type] % env)
     if config.compress:
-        components.append("--Ice.Override.Compress")
+        components.append("--Ice.Override.Compress=1")
 
     if config.threadPerConnection:
-        components.append("--Ice.ThreadPerConnection")
+        components.append("--Ice.ThreadPerConnection=1")
     if config.type == "server":
-        components.append("--Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=30")
+        components.append("--Ice.PrintProcessId=1 --Ice.PrintAdapterReady=1 --Ice.ServerIdleTime=30")
         if not (config.protocol == "ssl" and config.lang == "cs"):
             components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
 
     if config.protocol == "ssl" and config.lang == "cs":
         components.append("--Ice.ThreadPerConnection=1")
 
-    if config.host != None and len(config.host) != 0:
+    if config.ipv6 == 1:
+        components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1 --Ice.IPv6=1")
+    elif config.host != None and len(config.host) != 0:
         components.append("--Ice.Default.Host=%s" % config.host)
 
     #
@@ -1009,7 +1016,7 @@ def getCertsDir(currentDir):
 
 validShortArgs = "lr:R:"
 validLongArgs = ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug", "protocol=",
-                 "compress", "host=", "threadPerConnection", "continue"]
+                 "compress", "host=", "threadPerConnection", "continue", "ipv6"]
 
 opts = []
 args = []
@@ -1040,6 +1047,8 @@ for o, a in opts:
         threadPerConnection = 1
     elif o == "--host":
         host = a
+    elif o == "--ipv6":
+        ipv6 = 1
     elif o in ("-l", "--loop"):
         loop = True
     elif o in ("-r", "-R", "--filter", '--rfilter'):
@@ -1048,18 +1057,6 @@ for o, a in opts:
             removeFilter = True
     elif o == "--all" :
         all = True
-    elif o in ( "--protocol", "--host", "--debug", "--compress", "--threadPerConnection" ):
-        if o == "--protocol":
-            if a not in ( "ssl", "tcp"):
-                usage()
-            protocol = a
-        arg += " " + o
-
-        if o == "--debug":
-            debug = 1
-
-        if len(a) > 0:
-            arg += " " + a
     elif o in ('--start', "--start-after"):
         start = index(tests, re.compile(a))
         if start == -1:
@@ -1068,6 +1065,17 @@ for o, a in opts:
         if o == "--start-after":
             start += 1
         tests = tests[start:]
+    elif o == "--debug":
+        debug = 1
+    elif o == "--protocol":
+        if a not in ( "ssl", "tcp"):
+            usage()
+        protocol = a
+            
+    if o in ( "--protocol", "--host", "--debug", "--compress", "--threadPerConnection", "--ipv6"):
+        arg += " " + o
+        if len(a) > 0:
+            arg += " " + a
 
 if all and len(arg) > 0:
     usage()

@@ -28,6 +28,7 @@
 #  include <ws2tcpip.h>
 #elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
 #  include <ifaddrs.h>
+#  include <net/if.h>
 #else
 #  include <sys/ioctl.h>
 #  include <net/if.h>
@@ -44,17 +45,350 @@ using namespace IceInternal;
 #    define INADDR_NONE (in_addr_t)0xffffffff
 #endif
 
-static IceUtil::StaticMutex inetMutex = ICE_STATIC_MUTEX_INITIALIZER;
+namespace
+{
 
-string
-IceInternal::inetAddrToString(const struct in_addr& in)
+vector<struct sockaddr_storage>
+getLocalAddresses(ProtocolSupport protocol)
+{
+    vector<struct sockaddr_storage> result;
+
+#if defined(_WIN32)
+    try
+    {
+        for(int i = 0; i < 2; i++)
+        {
+            if((i == 0 && protocol == EnableIPv6) || (i == 1 && protocol == EnableIPv4))
+            {
+                continue;
+            }
+
+            SOCKET fd = createSocket(false, i == 0 ? AF_INET : AF_INET6);
+
+            vector<unsigned char> buffer;
+            buffer.resize(1024);
+            unsigned long len = 0;
+            DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, 
+                                &buffer[0], static_cast<DWORD>(buffer.size()),
+                                &len, 0, 0);
+            if(rs == SOCKET_ERROR)
+            {
+                //
+                // If the buffer wasn't big enough, resize it to the
+                // required length and try again.
+                //
+                if(getSocketErrno() == WSAEFAULT)
+                {
+                    buffer.resize(len);
+                    rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, 
+                                  &buffer[0], static_cast<DWORD>(buffer.size()),
+                                  &len, 0, 0);
+                }
+
+                if(rs == SOCKET_ERROR)
+                {
+                    closeSocketNoThrow(fd);
+                    SocketException ex(__FILE__, __LINE__);
+                    ex.error = getSocketErrno();
+                    throw ex;
+                }
+            }
+
+            //        
+            // Add the local interface addresses.
+            //
+            SOCKET_ADDRESS_LIST* addrs = reinterpret_cast<SOCKET_ADDRESS_LIST*>(&buffer[0]);
+            for (int i = 0; i < addrs->iAddressCount; ++i)
+            {
+		sockaddr_storage addr;
+		memcpy(&addr, addrs->Address[i].lpSockaddr, addrs->Address[i].iSockaddrLength);
+		if(addr.ss_family == AF_INET && protocol != EnableIPv6)
+		{
+		    if(reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr.s_addr != 0)
+		    {
+			result.push_back(addr);
+		    }
+		}
+		else if(addr.ss_family == AF_INET6 && protocol != EnableIPv4)
+		{
+		    struct in6_addr* inaddr6 = &reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr;
+		    if(!IN6_IS_ADDR_UNSPECIFIED(inaddr6) && !IN6_IS_ADDR_LOOPBACK(inaddr6))
+		    {
+			result.push_back(addr);
+		    }
+		}
+            }
+
+            closeSocket(fd);
+        }
+    }
+    catch(const Ice::LocalException&)
+    {
+        //
+        // TODO: Warning?
+        //
+    }
+#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+    struct ifaddrs* ifap;
+    if(::getifaddrs(&ifap) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+
+    struct ifaddrs* curr = ifap;
+    while(curr != 0)
+    {
+        if(curr->ifa_addr && !(curr->ifa_flags & IFF_LOOPBACK))  // Don't include loopback interface addresses
+        {
+            if(curr->ifa_addr->sa_family == AF_INET && protocol != EnableIPv6)
+            {
+		sockaddr_storage addr;
+		memcpy(&addr, curr->ifa_addr, sizeof(sockaddr_in));
+                if(reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr.s_addr != 0)
+                {
+                    result.push_back(addr);
+                }
+            }
+            else if(curr->ifa_addr->sa_family == AF_INET6 && protocol != EnableIPv4)
+            {
+		sockaddr_storage addr;
+		memcpy(&addr, curr->ifa_addr, sizeof(sockaddr_in6));
+                if(!IN6_IS_ADDR_UNSPECIFIED(&reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr))
+                {
+                    result.push_back(*reinterpret_cast<struct sockaddr_storage*>(curr->ifa_addr));
+                }
+            }
+        }
+    
+        curr = curr->ifa_next;
+    }
+
+    ::freeifaddrs(ifap);
+#else
+    for(int i = 0; i < 2; i++)
+    {
+        if((i == 0 && protocol == EnableIPv6) || (i == 1 && protocol == EnableIPv4))
+        {
+            continue;
+        }
+        SOCKET fd = createSocket(false, i == 0 ? AF_INET : AF_INET6);
+
+#ifdef _AIX
+        int cmd = CSIOCGIFCONF;
+#else
+        int cmd = SIOCGIFCONF;
+#endif
+        struct ifconf ifc;
+        int numaddrs = 10;
+        int old_ifc_len = 0;
+
+        //
+        // Need to call ioctl multiple times since we do not know up front
+        // how many addresses there will be, and thus how large a buffer we need.
+        // We keep increasing the buffer size until subsequent calls return
+        // the same length, meaning we have all the addresses.
+        //
+        while(true)
+        {
+            int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
+            ifc.ifc_len = bufsize;
+            ifc.ifc_buf = (char*)malloc(bufsize);
+        
+            int rs = ioctl(fd, cmd, &ifc);
+            if(rs == SOCKET_ERROR)
+            {
+                free(ifc.ifc_buf);
+                closeSocketNoThrow(fd);
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = getSocketErrno();
+                throw ex;
+            }
+            else if(ifc.ifc_len == old_ifc_len)
+            {
+                //
+                // Returned same length twice in a row, finished.
+                //
+                break;
+            }
+            else
+            {
+                old_ifc_len = ifc.ifc_len;
+            }
+        
+            numaddrs += 10;
+            free(ifc.ifc_buf);
+        }
+        closeSocket(fd);
+
+        numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
+        struct ifreq* ifr = ifc.ifc_req;
+        for(int i = 0; i < numaddrs; ++i)
+        {
+            if(!(ifr[i].ifr_flags & IFF_LOOPBACK)) // Don't include loopback interface addresses
+            {
+                if(ifr[i].ifr_addr.sa_family == AF_INET && protocol != EnableIPv6)
+                {
+		    sockaddr_storage addr;
+		    memcpy(&addr, &ifr[i].ifr_addr, sizeof(sockaddr_in));
+		    if(reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr.s_addr != 0)
+		    {
+			result.push_back(addr);
+		    }
+                }
+                else if(ifr[i].ifr_addr.sa_family == AF_INET6 && protocol != EnableIPv4)
+                {
+		    sockaddr_storage addr;
+		    memcpy(&addr, &ifr[i].ifr_addr, sizeof(sockaddr_in6));
+		    if(!IN6_IS_ADDR_UNSPECIFIED(&reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr))
+		    {
+			result.push_back(*reinterpret_cast<struct sockaddr_storage*>(curr->ifa_addr));
+		    }
+                }
+            }
+        }
+        free(ifc.ifc_buf);
+    }
+#endif
+
+    return result;
+}
+
+void
+getAddressImpl(const string& host, int port, struct sockaddr_storage& addr, ProtocolSupport protocol, bool server)
 {
     //
-    // inet_ntoa uses static memory on some platforms so we protect
-    // access and make a copy.
+    // We now use getaddrinfo() on Windows.
     //
-    IceUtil::StaticMutex::Lock lock(inetMutex);
-    return string(inet_ntoa(in));
+// #ifdef _WIN32
+    
+//         //
+//         // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
+//         //
+        
+//         //
+//         // gethostbyname() is thread safe on Windows, with a separate hostent per thread
+//         //
+//         struct hostent* entry;
+//         int retry = 5;
+//         do
+//         {
+//             entry = gethostbyname(host.c_str());
+//         }
+//         while(entry == 0 && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
+        
+//         if(entry == 0)
+//         {
+//             DNSException ex(__FILE__, __LINE__);
+
+//             ex.error = WSAGetLastError();
+//             ex.host = host;
+//             throw ex;
+//         }
+//         memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
+
+// #else
+
+    memset(&addr, 0, sizeof(struct sockaddr_storage));
+    struct addrinfo* info = 0;
+    int retry = 5;
+    
+    struct addrinfo hints = { 0 };
+
+    if(server)
+    {
+        //
+        // If host is empty, getaddrinfo will return the wildcard
+        // address instead of the loopack address.
+        // 
+        hints.ai_flags |= AI_PASSIVE;
+    }
+
+    if(protocol == EnableIPv4)
+    {
+        hints.ai_family = PF_INET;
+    }
+    else if(protocol == EnableIPv6)
+    {
+        hints.ai_family = PF_INET6;
+    }
+    else
+    {
+        hints.ai_family = PF_UNSPEC;
+    }
+
+    int rs = 0;
+    do
+    {
+        if(host.empty())
+        {
+            rs = getaddrinfo(0, "0", &hints, &info);
+        }
+        else
+        {
+            rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
+        }
+    }
+    while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+    
+    if(rs != 0)
+    {
+        DNSException ex(__FILE__, __LINE__);
+        ex.error = rs;
+        ex.host = host;
+        throw ex;
+    }
+
+    memcpy(&addr, info->ai_addr, info->ai_addrlen);
+    if(info->ai_family != PF_INET)
+    {
+        reinterpret_cast<sockaddr_in*>(&addr)->sin_port = htons(port);
+    }
+    else if(info->ai_family != AF_INET6)
+    {
+        reinterpret_cast<sockaddr_in6*>(&addr)->sin6_port = htons(port);
+    }
+    else // Unknown address family.
+    {
+        freeaddrinfo(info);
+        DNSException ex(__FILE__, __LINE__);
+        ex.host = host;
+        throw ex;
+    }
+    freeaddrinfo(info);
+}
+
+bool
+isWildcard(const string& host, ProtocolSupport protocol)
+{
+    try
+    {
+        sockaddr_storage addr;
+        getAddressImpl(host, 0, addr, protocol, false);
+        if(addr.ss_family == AF_INET)
+        {
+            struct sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
+            if(addrin->sin_addr.s_addr == INADDR_ANY)
+            {
+                return true;
+            }
+        }
+        else if(addr.ss_family)
+        {
+            struct sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
+            if(IN6_IS_ADDR_UNSPECIFIED(&addrin6->sin6_addr))
+            {
+                return true;
+            }
+        }
+    }
+    catch(const DNSException&)
+    {
+    }
+    return false;
+}
+
 }
 
 int
@@ -209,17 +543,17 @@ IceInternal::recvTruncated()
 }
 
 SOCKET
-IceInternal::createSocket(bool udp)
+IceInternal::createSocket(bool udp, int family)
 {
     SOCKET fd;
 
     if(udp)
     {
-        fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        fd = socket(family, SOCK_DGRAM, IPPROTO_UDP);
     }
     else
     {
-        fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+        fd = socket(family, SOCK_STREAM, IPPROTO_TCP);
     }
 
     if(fd == INVALID_SOCKET)
@@ -533,9 +867,19 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 }
 
 void
-IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
+IceInternal::doBind(SOCKET fd, struct sockaddr_storage& addr)
 {
-    if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
+    int size;
+    if(addr.ss_family == AF_INET)
+    {
+        size = sizeof(sockaddr_in);
+    }
+    else if(addr.ss_family == AF_INET6)
+    {
+        size = sizeof(sockaddr_in6);
+    }
+
+    if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), size) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -571,10 +915,20 @@ repeatListen:
 }
 
 bool
-IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
+IceInternal::doConnect(SOCKET fd, struct sockaddr_storage& addr, int timeout)
 {
 repeatConnect:
-    if(::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
+    int size;
+    if(addr.ss_family == AF_INET)
+    {
+        size = sizeof(sockaddr_in);
+    }
+    else if(addr.ss_family == AF_INET6)
+    {
+        size = sizeof(sockaddr_in6);
+    }
+
+    if(::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), size) == SOCKET_ERROR)
     {
         if(interrupted())
         {
@@ -627,7 +981,7 @@ repeatConnect:
     // a server which was just deactivated if the client socket re-uses the same ephemeral
     // port as the server).
     //
-    struct sockaddr_in localAddr;
+    struct sockaddr_storage localAddr;
     fdToLocalAddress(fd, localAddr);
     if(compareAddress(addr, localAddr) == 0)
     {
@@ -744,9 +1098,9 @@ IceInternal::doFinishConnect(SOCKET fd, int timeout)
     // a server which was just deactivated if the client socket re-uses the same ephemeral
     // port as the server).
     //
-    struct sockaddr_in localAddr;
+    struct sockaddr_storage localAddr;
     fdToLocalAddress(fd, localAddr);
-    struct sockaddr_in remoteAddr;
+    struct sockaddr_storage remoteAddr;
     if(fdToRemoteAddress(fd, remoteAddr) && compareAddress(remoteAddr, localAddr) == 0)
     {
         ConnectionRefusedException ex(__FILE__, __LINE__);
@@ -830,20 +1184,24 @@ repeatAccept:
 }
 
 void
-IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
+IceInternal::getAddressForServer(const string& host, int port, struct sockaddr_storage& addr, ProtocolSupport protocol)
 {
-    memset(&addr, 0, sizeof(struct sockaddr_in));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = inet_addr(host.c_str());
+    getAddressImpl(host, port, addr, protocol, true);
+}
 
-    if(addr.sin_addr.s_addr == INADDR_NONE)
-    {
-        //
-        // We now use getaddrinfo() on Windows.
-        //
+void
+IceInternal::getAddress(const string& host, int port, struct sockaddr_storage& addr, ProtocolSupport protocol)
+{
+    getAddressImpl(host, port, addr, protocol, false);
+}
+
+vector<struct sockaddr_storage>
+IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, bool blocking)
+{
+    //
+    // We now use getaddrinfo() on Windows.
+    //
 // #ifdef _WIN32
-
 //         //
 //         // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
 //         //
@@ -851,83 +1209,185 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 //         //
 //         // gethostbyname() is thread safe on Windows, with a separate hostent per thread
 //         //
-//         struct hostent* entry;
+//         struct hostent* entry = 0;
 //         int retry = 5;
+
 //         do
 //         {
 //             entry = gethostbyname(host.c_str());
 //         }
-//         while(entry == 0 && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
-        
+//         while(entry == 0 && h_errno == TRY_AGAIN && --retry >= 0);
+    
 //         if(entry == 0)
 //         {
 //             DNSException ex(__FILE__, __LINE__);
-
-//             ex.error = WSAGetLastError();
+//             ex.error = h_errno;
 //             ex.host = host;
 //             throw ex;
 //         }
-//         memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
+
+//         char** p = entry->h_addr_list;
+//         while(*p)
+//         {
+//             memcpy(&addr.sin_addr, *p, entry->h_length);
+//             result.push_back(addr);
+//             p++;
+//         } 
 
 // #else
 
-        struct addrinfo* info = 0;
-        int retry = 5;
+    vector<struct sockaddr_storage> result;
+    struct sockaddr_storage addr;
+    memset(&addr, 0, sizeof(struct sockaddr_storage));
 
-        struct addrinfo hints = { 0 };
+    struct addrinfo* info = 0;
+    int retry = 5;
+
+    struct addrinfo hints = { 0 };
+    if(protocol == EnableIPv4)
+    {
         hints.ai_family = PF_INET;
-
-        int rs = 0;
-        do
-        {
-            rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
-        }
-        while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
-        
-        if(rs != 0)
-        {
-            DNSException ex(__FILE__, __LINE__);
-            ex.error = rs;
-            ex.host = host;
-            throw ex;
-        }
-
-        assert(info->ai_family == PF_INET);
-        struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(info->ai_addr);
-
-        addr.sin_addr.s_addr = sin->sin_addr.s_addr;
-        freeaddrinfo(info);
     }
+    else if(protocol == EnableIPv6)
+    {
+        hints.ai_family = PF_INET6;
+    }
+    else
+    {
+        hints.ai_family = PF_UNSPEC;
+    }
+
+    if(!blocking)
+    {
+        hints.ai_flags = AI_NUMERICHOST;
+    }
+        
+    int rs = 0;
+    do
+    {
+        if(host.empty())
+        {
+            rs = getaddrinfo(0, "0", &hints, &info); // Get the address of the loopback interface
+        }
+        else
+        {
+            rs = getaddrinfo(host.c_str(), 0, &hints, &info);
+        }
+    }
+    while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+
+    if(!blocking && rs == EAI_NONAME)
+    {
+        return result; // Empty result indicates that a blocking lookup is necessary.
+    }
+    else if(rs != 0)
+    {
+        DNSException ex(__FILE__, __LINE__);
+        ex.error = rs;
+        ex.host = host;
+        throw ex;
+    }
+
+    struct addrinfo* p;
+    for(p = info; p != NULL; p = p->ai_next)
+    {
+        memcpy(&addr, p->ai_addr, p->ai_addrlen);
+        if(p->ai_family == PF_INET)
+        {
+            struct sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
+            addrin->sin_port = htons(port);
+            if(addrin->sin_addr.s_addr == 0)
+            {
+                continue;
+            }
+        }
+        else if(p->ai_family == PF_INET6)
+        {
+            struct sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
+            addrin6->sin6_port = htons(port);
+            if(IN6_IS_ADDR_UNSPECIFIED(&addrin6->sin6_addr))
+            {
+                continue;
+            }
+        }
+
+        bool found = false;
+        for(unsigned int i = 0; i < result.size(); ++i)
+        {
+            if(compareAddress(result[i], addr) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+        {
+            result.push_back(addr);
+        }
+    }
+
+    freeaddrinfo(info);
+    return result;
 }
 
 int
-IceInternal::compareAddress(const struct sockaddr_in& addr1, const struct sockaddr_in& addr2)
+IceInternal::compareAddress(const struct sockaddr_storage& addr1, const struct sockaddr_storage& addr2)
 {
-    if(addr1.sin_family < addr2.sin_family)
+    if(addr1.ss_family < addr2.ss_family)
     {
         return -1;
     }
-    else if(addr2.sin_family < addr1.sin_family)
+    else if(addr2.ss_family < addr1.ss_family)
     {
         return 1;
     }
 
-    if(addr1.sin_port < addr2.sin_port)
+    if(addr1.ss_family == AF_INET)
     {
-        return -1;
-    }
-    else if(addr2.sin_port < addr1.sin_port)
-    {
-        return 1;
-    }
+        const struct sockaddr_in* addr1in = reinterpret_cast<const sockaddr_in*>(&addr1);
+        const struct sockaddr_in* addr2in = reinterpret_cast<const sockaddr_in*>(&addr2);
 
-    if(addr1.sin_addr.s_addr < addr2.sin_addr.s_addr)
-    {
-        return -1;
+        if(addr1in->sin_port < addr2in->sin_port)
+        {
+            return -1;
+        }
+        else if(addr2in->sin_port < addr1in->sin_port)
+        {
+            return 1;
+        }
+
+        if(addr1in->sin_addr.s_addr < addr2in->sin_addr.s_addr)
+        {
+            return -1;
+        }
+        else if(addr2in->sin_addr.s_addr < addr1in->sin_addr.s_addr)
+        {
+            return 1;
+        }
     }
-    else if(addr2.sin_addr.s_addr < addr1.sin_addr.s_addr)
+    else
     {
-        return 1;
+        const struct sockaddr_in6* addr1in = reinterpret_cast<const sockaddr_in6*>(&addr1);
+        const struct sockaddr_in6* addr2in = reinterpret_cast<const sockaddr_in6*>(&addr2);
+
+        if(addr1in->sin6_port < addr2in->sin6_port)
+        {
+            return -1;
+        }
+        else if(addr2in->sin6_port < addr1in->sin6_port)
+        {
+            return 1;
+        }
+        
+        int res = memcmp(&addr1in->sin6_addr, &addr2in->sin6_addr, sizeof(struct in6_addr));
+        if(res < 0)
+        {
+            return -1;
+        }
+        else if(res > 0)
+        {
+            return 1;
+        }
     }
 
     return 0;
@@ -938,21 +1398,23 @@ IceInternal::createPipe(SOCKET fds[2])
 {
 #ifdef _WIN32
 
-    SOCKET fd = createSocket(false);
+    SOCKET fd = createSocket(false, AF_INET);
     setBlock(fd, true);
     
-    struct sockaddr_in addr;
+    struct sockaddr_storage addr;
     memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(0);
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+    struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&addr);
+    addrin->sin_family = AF_INET;
+    addrin->sin_port = htons(0);
+    addrin->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
     doBind(fd, addr);
     doListen(fd, 1);
 
     try
     {
-        fds[0] = createSocket(false);
+        fds[0] = createSocket(false, AF_INET);
     }
     catch(...)
     {
@@ -1268,17 +1730,17 @@ IceInternal::fdToString(SOCKET fd)
         return "<closed>";
     }
 
-    struct sockaddr_in localAddr;
+    struct sockaddr_storage localAddr;
     fdToLocalAddress(fd, localAddr);
 
-    struct sockaddr_in remoteAddr;
+    struct sockaddr_storage remoteAddr;
     bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
 
     return addressesToString(localAddr, remoteAddr, peerConnected);
 };
 
 std::string
-IceInternal::addressesToString(const struct sockaddr_in& localAddr, const struct sockaddr_in& remoteAddr,
+IceInternal::addressesToString(const struct sockaddr_storage& localAddr, const struct sockaddr_storage& remoteAddr,
                                bool peerConnected)
 {
     ostringstream s;
@@ -1295,9 +1757,9 @@ IceInternal::addressesToString(const struct sockaddr_in& localAddr, const struct
 }
 
 void
-IceInternal::fdToLocalAddress(SOCKET fd, struct sockaddr_in& addr)
+IceInternal::fdToLocalAddress(SOCKET fd, struct sockaddr_storage& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_in));
+    socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_storage));
     if(getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
@@ -1308,9 +1770,9 @@ IceInternal::fdToLocalAddress(SOCKET fd, struct sockaddr_in& addr)
 }
 
 bool
-IceInternal::fdToRemoteAddress(SOCKET fd, struct sockaddr_in& addr)
+IceInternal::fdToRemoteAddress(SOCKET fd, struct sockaddr_storage& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_in));
+    socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_storage));
     if(getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
     {
         if(notConnected())
@@ -1330,296 +1792,89 @@ IceInternal::fdToRemoteAddress(SOCKET fd, struct sockaddr_in& addr)
 }
 
 string
-IceInternal::addrToString(const struct sockaddr_in& addr)
+IceInternal::inetAddrToString(const struct sockaddr_storage& ss)
 {
-    ostringstream s;
-    s << inetAddrToString(addr.sin_addr) << ':' << ntohs(addr.sin_port);
-    return s.str();
+    int size;
+    if(ss.ss_family == AF_INET)
+    {
+        size = sizeof(sockaddr_in);
+    }
+    else if(ss.ss_family == AF_INET6)
+    {
+        size = sizeof(sockaddr_in6);
+    }
+
+    char namebuf[1024];
+    namebuf[0] = '\0';
+    getnameinfo(reinterpret_cast<const struct sockaddr *>(&ss), size, namebuf, sizeof(namebuf), 0, 0, NI_NUMERICHOST);
+    return string(namebuf);
 }
 
-vector<struct sockaddr_in>
-IceInternal::getAddresses(const string& host, int port, bool blocking)
+string
+IceInternal::addrToString(const struct sockaddr_storage& addr)
 {
-    vector<struct sockaddr_in> result;
-
-    if(host == "0.0.0.0")
+    ostringstream s;
+    string port;
+    s << inetAddrToString(addr) << ':';
+    if(addr.ss_family == AF_INET)
     {
-        vector<string> hosts = getLocalHosts();
-        for(unsigned int i = 0; i < hosts.size(); ++i)
-        {
-            struct sockaddr_in addr;
-            getAddress(hosts[i], port, addr);
-            result.push_back(addr);
-        }
+        const struct sockaddr_in* addrin = reinterpret_cast<const sockaddr_in*>(&addr);
+        s << ntohs(addrin->sin_port);
     }
     else
     {
-        struct sockaddr_in addr;
-        memset(&addr, 0, sizeof(struct sockaddr_in));
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(port);
-
-        //
-        // We now use getaddrinfo() on Windows.
-        //
-// #ifdef _WIN32
-
-//         //
-//         // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
-//         //
-        
-//         //
-//         // gethostbyname() is thread safe on Windows, with a separate hostent per thread
-//         //
-//         struct hostent* entry = 0;
-//         int retry = 5;
-
-//         do
-//         {
-//             entry = gethostbyname(host.c_str());
-//         }
-//         while(entry == 0 && h_errno == TRY_AGAIN && --retry >= 0);
-    
-//         if(entry == 0)
-//         {
-//             DNSException ex(__FILE__, __LINE__);
-//             ex.error = h_errno;
-//             ex.host = host;
-//             throw ex;
-//         }
-
-//         char** p = entry->h_addr_list;
-//         while(*p)
-//         {
-//             memcpy(&addr.sin_addr, *p, entry->h_length);
-//             result.push_back(addr);
-//             p++;
-//         } 
-
-// #else
-
-        struct addrinfo* info = 0;
-        int retry = 5;
-
-        struct addrinfo hints = { 0 };
-        hints.ai_family = PF_INET;
-        if(!blocking)
-        {
-            hints.ai_flags = AI_NUMERICHOST;
-        }
-        
-        int rs = 0;
-        do
-        {
-            rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
-        }
-        while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
-
-        if(!blocking && rs == EAI_NONAME)
-        {
-            return result; // Empty result indicates that a blocking lookup is necessary.
-        }
-        else if(rs != 0)
-        {
-            DNSException ex(__FILE__, __LINE__);
-            ex.error = rs;
-            ex.host = host;
-            throw ex;
-        }
-
-        struct addrinfo* p;
-        for(p = info; p != NULL; p = p->ai_next)
-        {
-            assert(p->ai_family == PF_INET);
-            struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(p->ai_addr);
-            if(sin->sin_addr.s_addr != 0)
-            {
-                addr.sin_addr.s_addr = sin->sin_addr.s_addr;
-
-                bool found = false;
-                for(unsigned int i = 0; i < result.size(); ++i)
-                {
-                    if(compareAddress(result[i], addr) == 0)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found)
-                {
-                    result.push_back(addr);
-                }
-            }
-        }
-
-        freeaddrinfo(info);
-
-//#endif
+        const struct sockaddr_in6* addrin = reinterpret_cast<const sockaddr_in6*>(&addr);
+        s << ntohs(addrin->sin6_port);
     }
+    return s.str();
+}
 
-    return result;
+int
+IceInternal::getPort(const struct sockaddr_storage& addr)
+{
+    if(addr.ss_family == AF_INET)
+    {
+        return ntohs(reinterpret_cast<const sockaddr_in*>(&addr)->sin_port);
+    }
+    else
+    {
+        return ntohs(reinterpret_cast<const sockaddr_in6*>(&addr)->sin6_port);
+    }
 }
 
 vector<string>
-IceInternal::getLocalHosts()
+IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport)
 {
-    vector<string> result;
-
-#if defined(_WIN32)
-    try
+    vector<string> hosts;
+    if(host.empty() || isWildcard(host, protocolSupport))
     {
-        SOCKET fd = createSocket(false);
-
-        vector<unsigned char> buffer;
-        buffer.resize(1024);
-        unsigned long len = 0;
-        DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, 
-                            &buffer[0], static_cast<DWORD>(buffer.size()),
-                            &len, 0, 0);
-        if(rs == SOCKET_ERROR)
+        vector<struct sockaddr_storage> addrs = getLocalAddresses(protocolSupport);
+        for(vector<struct sockaddr_storage>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
         {
             //
-            // If the buffer wasn't big enough, resize it to the
-            // required length and try again.
+            // NOTE: We don't publish link-local IPv6 addresses as these addresses can only 
+            // be accessed in general with a scope-id.
             //
-            if(getSocketErrno() == WSAEFAULT)
+            if(p->ss_family != AF_INET6 || 
+               !IN6_IS_ADDR_LINKLOCAL(&reinterpret_cast<const struct sockaddr_in6*>(&(*p))->sin6_addr))
             {
-                buffer.resize(len);
-                rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, 
-                              &buffer[0], static_cast<DWORD>(buffer.size()),
-                              &len, 0, 0);
-            }
-
-            if(rs == SOCKET_ERROR)
-            {
-                closeSocketNoThrow(fd);
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                hosts.push_back(inetAddrToString(*p));
             }
         }
 
-        //        
-        // Add the local interface addresses.
-        //
-        SOCKET_ADDRESS_LIST* addrs = reinterpret_cast<SOCKET_ADDRESS_LIST*>(&buffer[0]);
-        for (int i = 0; i < addrs->iAddressCount; ++i)
+        if(hosts.empty())
         {
-            result.push_back(
-                inetAddrToString(reinterpret_cast<struct sockaddr_in*>(addrs->Address[i].lpSockaddr)->sin_addr));
-        }
-
-        //
-        // Add the loopback interface address.
-        //
-        struct sockaddr_in addr;
-        memset(&addr, 0, sizeof(addr));
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(0);
-        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-        result.push_back(inetAddrToString(addr.sin_addr));
-
-        closeSocket(fd);
-    }
-    catch(const Ice::LocalException&)
-    {
-        //
-        // TODO: Warning?
-        //
-    }
-#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
-    struct ifaddrs* ifap;
-    if(::getifaddrs(&ifap) == SOCKET_ERROR)
-    {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
-    }
-
-    struct ifaddrs* curr = ifap;
-    while(curr != 0)
-    {
-        if(curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET)
-        {
-            struct sockaddr_in* addr = reinterpret_cast<struct sockaddr_in*>(curr->ifa_addr);
-            if(addr->sin_addr.s_addr != 0)
+            if(protocolSupport != EnableIPv6)
             {
-                result.push_back(inetAddrToString((*addr).sin_addr));
+                hosts.push_back("127.0.0.1");
             }
-        }
-    
-        curr = curr->ifa_next;
-    }
-
-    ::freeifaddrs(ifap);
-#else
-    SOCKET fd = createSocket(false);
-
-#ifdef _AIX
-    int cmd = CSIOCGIFCONF;
-#else
-    int cmd = SIOCGIFCONF;
-#endif
-    struct ifconf ifc;
-    int numaddrs = 10;
-    int old_ifc_len = 0;
-
-    //
-    // Need to call ioctl multiple times since we do not know up front
-    // how many addresses there will be, and thus how large a buffer we need.
-    // We keep increasing the buffer size until subsequent calls return
-    // the same length, meaning we have all the addresses.
-    //
-    while(true)
-    {
-        int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
-        ifc.ifc_len = bufsize;
-        ifc.ifc_buf = (char*)malloc(bufsize);
-    
-        int rs = ioctl(fd, cmd, &ifc);
-        if(rs == SOCKET_ERROR)
-        {
-            free(ifc.ifc_buf);
-            closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
-        }
-        else if(ifc.ifc_len == old_ifc_len)
-        {
-            //
-            // Returned same length twice in a row, finished.
-            //
-            break;
-        }
-        else
-        {
-            old_ifc_len = ifc.ifc_len;
-        }
-    
-        numaddrs += 10;
-        free(ifc.ifc_buf);
-    }
-
-    numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
-    struct ifreq* ifr = ifc.ifc_req;
-    for(int i = 0; i < numaddrs; ++i)
-    {
-        if(ifr[i].ifr_addr.sa_family == AF_INET)
-        {
-            struct sockaddr_in* addr = reinterpret_cast<struct sockaddr_in*>(&ifr[i].ifr_addr);
-            if(addr->sin_addr.s_addr != 0)
+            if(protocolSupport != EnableIPv4)
             {
-                result.push_back(inetAddrToString((*addr).sin_addr));
+                hosts.push_back("0:0:0:0:0:0:0:1");
             }
         }
     }
-
-    free(ifc.ifc_buf);
-    closeSocket(fd);
-#endif
-
-    return result;
+    return hosts; // An empty host list indicates to just use the given host.
 }
 
 void

@@ -433,10 +433,47 @@ namespace IceInternal
                 {
                     beg = end + 1;
                     
-                    end = s.IndexOf(':', beg);
-                    if(end == -1)
+                    end = beg;
+                    while(true)
                     {
-                        end = s.Length;
+                        end = s.IndexOf(':', end);
+                        if(end == -1)
+                        {
+                            end = s.Length;
+                            break;
+                        }
+                        else
+                        {
+                            bool quoted = false;
+                            int quote = beg;
+                            while(true)
+                            {
+                                quote = s.IndexOf((System.Char) '\"', quote);
+                                if(quote == -1 || end < quote)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    quote = s.IndexOf((System.Char) '\"', ++quote);
+                                    if(quote == -1)
+                                    {
+                                        break;
+                                    }
+                                    else if(end < quote)
+                                    {
+                                        quoted = true;
+                                        break;
+                                    }
+                                    ++quote;
+                                }
+                            }
+                            if(!quoted)
+                            {
+                                break;
+                            }
+                            ++end;
+                        }
                     }
                     
                     string es = s.Substring(beg, end - beg);

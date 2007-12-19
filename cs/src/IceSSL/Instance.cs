@@ -293,6 +293,11 @@ namespace IceSSL
             return facade_.getCommunicator();
         }
 
+        internal int protocolSupport()
+        {
+            return facade_.getProtocolSupport();
+        }
+
         internal string defaultHost()
         {
             return facade_.getDefaultHost();

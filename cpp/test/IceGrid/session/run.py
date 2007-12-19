@@ -37,7 +37,7 @@ else:
     IceGridAdmin.cleanDbDir(node1Dir)
 
 print "starting admin permissions verifier...",
-verifierPipe = TestUtil.startServer(os.path.join(testdir, "verifier"), " 2>&1")
+verifierPipe = TestUtil.startServer(os.path.join(testdir, "verifier"), " 2>&1", TestUtil.DriverConfig("server"))
 TestUtil.getServerPid(verifierPipe)
 TestUtil.getAdapterReady(verifierPipe)
 print "ok"

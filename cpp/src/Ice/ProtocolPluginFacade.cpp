@@ -56,6 +56,12 @@ IceInternal::ProtocolPluginFacade::getEndpointHostResolver() const
     return _instance->endpointHostResolver();
 }
 
+ProtocolSupport
+IceInternal::ProtocolPluginFacade::getProtocolSupport() const
+{
+    return _instance->protocolSupport();
+}
+
 void
 IceInternal::ProtocolPluginFacade::addEndpointFactory(const EndpointFactoryPtr& factory) const
 {

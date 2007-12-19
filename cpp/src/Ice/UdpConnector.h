@@ -13,11 +13,12 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Connector.h>
+#include <Ice/Protocol.h>
 
 #ifdef _WIN32
 #   include <winsock2.h>
 #else
-#   include <netinet/in.h> // For struct sockaddr_in
+#   include <netinet/in.h> // For struct sockaddr_storage
 #endif
 
 namespace IceInternal
@@ -38,13 +39,13 @@ public:
 
 private:
     
-    UdpConnector(const InstancePtr&, const struct sockaddr_in&, const std::string&, int, Ice::Byte, Ice::Byte, 
+    UdpConnector(const InstancePtr&, const struct sockaddr_storage&, const std::string&, int, Ice::Byte, Ice::Byte, 
                  Ice::Byte, Ice::Byte, const std::string&);
     virtual ~UdpConnector();
     friend class UdpEndpointI;
 
     const InstancePtr _instance;
-    struct sockaddr_in _addr;
+    struct sockaddr_storage _addr;
     const std::string _mcastInterface;
     const int _mcastTtl;
     const Ice::Byte _protocolMajor;

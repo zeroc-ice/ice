@@ -199,6 +199,19 @@ IceInternal::Instance::objectAdapterFactory() const
     return _objectAdapterFactory;
 }
 
+ProtocolSupport
+IceInternal::Instance::protocolSupport() const
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    return _protocolSupport;
+}
+
 ThreadPoolPtr
 IceInternal::Instance::clientThreadPool()
 {
@@ -623,7 +636,8 @@ IceInternal::Instance::getAdmin()
                 }
                 catch(const ServerNotFoundException&)
                 {
-                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" + serverId + "'");
+                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" + 
+                                                                      serverId + "'");
                 }
             }
 
@@ -890,6 +904,24 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _proxyFactory = new ProxyFactory(this);
 
+        bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+        bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", 0) > 0;
+        if(!ipv4 && !ipv6)
+        {
+            throw InitializationException(__FILE__, __LINE__, "Both IPV4 and IPv6 support cannot be disabled.");
+        }
+        else if(ipv4 && ipv6)
+        {
+            _protocolSupport = EnableBoth;
+        }
+        else if(ipv4)
+        {
+            _protocolSupport = EnableIPv4;
+        }
+        else
+        {
+            _protocolSupport = EnableIPv6;
+        }
         _endpointFactoryManager = new EndpointFactoryManager(this);
         EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(this);
         _endpointFactoryManager->add(tcpEndpointFactory);

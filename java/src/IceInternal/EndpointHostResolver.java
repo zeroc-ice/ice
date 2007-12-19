@@ -89,7 +89,8 @@ public class EndpointHostResolver
                 resolve = (ResolveEntry)_queue.removeFirst();
             }
 
-            resolve.callback.connectors(resolve.endpoint.connectors(Network.getAddresses(resolve.host, resolve.port)));
+            resolve.callback.connectors(resolve.endpoint.connectors(
+                        Network.getAddresses(resolve.host, resolve.port, _instance.protocolSupport())));
         }
 
         java.util.Iterator p = _queue.iterator();

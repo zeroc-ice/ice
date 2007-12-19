@@ -27,7 +27,7 @@ public final class SysLoggerI implements Logger
         // 
         try
         {
-            _host = IceInternal.Network.getLocalAddress();
+            _host = IceInternal.Network.getLocalAddress(IceInternal.Network.EnableBoth);
             _socket = new DatagramSocket();
             _socket.connect(_host, _port);
         }
