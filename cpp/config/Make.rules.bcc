@@ -54,5 +54,5 @@ BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
 LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
 
 BZIP2_LIBS      = libbz2.lib
-DB_LIBS         = libdb45.lib
+DB_LIBS         = libdb46.lib
 ICONV_LIB       = libiconv-bcc.lib
