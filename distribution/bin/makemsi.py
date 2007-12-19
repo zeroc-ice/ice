@@ -23,7 +23,7 @@ OpenSSLVer = '0.9.8d'
 Bzip2Ver = '1.0.3'
 STLPortVer = '4.6.2'
 ExpatVer = '2.0.0'
-DBVer = '4.5.20'
+DBVer = '4.6.21'
 
 DistPrefixes = ["Ice-%s"]
 
@@ -303,7 +303,18 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     #
     os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "java" ))
     print "Building in " + os.getcwd() + "..."
-    runprog("ant -Dice.mapping=java2")
+    runprog("ant clean && ant -Dice.mapping=java2 jar")
+    if not os.path.exists("java2"):
+        os.mkdir("java2")
+    shutil.copyfile(os.path.join("lib", "Ice.jar"), os.path.join("java2", "Ice.jar"))
+    shutil.copyfile(os.path.join("lib", "IceGridGUI.jar"), os.path.join("java2", "IceGridGUI.jar"))
+
+    #
+    # Ice for Java
+    #
+    os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "java" ))
+    print "Building in " + os.getcwd() + "..."
+    runprog("ant clean && ant jar")
 
     if installVersion == "vc80":
         #
@@ -687,7 +698,7 @@ def main():
         sourcesVersion = checkSources(buildDir, os.environ['SOURCES'])
 
         defaults = os.environ
-        defaults['dbver'] = '45'
+        defaults['dbver'] = '46'
         defaults['version'] = sourcesVersion
         defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
         if sourcesVersion.find('b') != -1:

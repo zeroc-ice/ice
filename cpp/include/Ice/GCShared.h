@@ -10,6 +10,7 @@
 #ifndef ICE_GC_SHARED_H
 #define ICE_GC_SHARED_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/Config.h>
 #include <Ice/GCCountMap.h>
 
@@ -18,7 +19,7 @@ namespace IceInternal
 
 class GC;
 
-class ICE_API GCShared
+class ICE_API GCShared : public virtual IceUtil::Shared
 {
 public:
 

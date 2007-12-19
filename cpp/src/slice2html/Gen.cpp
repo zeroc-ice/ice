@@ -1902,7 +1902,7 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
     _out << nl << "<hr>";
 
     start("h1", "Symbol");
-    _out << toString(m, m->container(), true);
+    _out << m->scoped().substr(2);
     end();
 
     string metadata, deprecateReason;
@@ -2224,7 +2224,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
     _out << nl << "<hr>";
 
     start("h1", "Symbol");
-    _out << toString(e, e, true);
+    _out << e->scoped().substr(2);
     end();
 
     string metadata, deprecateReason;
@@ -2255,7 +2255,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         _out.inc();
         _out << nl << "extends ";
         _out.inc();
-        _out << nl << toString(base, e);
+        _out << nl << toString(base, e, false);
         _out.dec();
         _out.dec();
     }
@@ -2342,7 +2342,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     _out << nl << "<hr>";
 
     start("h1", "Symbol");
-    _out << toString(c, c, true);
+    _out << c->scoped().substr(2);
     end();
 
     string metadata, deprecateReason;
@@ -2372,7 +2372,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     ClassList bases = c->bases();
     if(!bases.empty() && !bases.front()->isInterface())
     {
-        _out << " extends " << toString(bases.front(), c);
+        _out << " extends " << toString(bases.front(), c, false);
         bases.pop_front();
     }
 
@@ -2546,7 +2546,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
     _out << nl << "<hr>";
 
     start("h1", "Symbol");
-    _out << toString(s, s, true);
+    _out << s->scoped().substr(2);
     end();
 
     string metadata, deprecateReason;
@@ -2654,7 +2654,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     _out << nl << "<hr>";
 
     start("h1", "Symbol");
-    _out << toString(e, e->container(), true);
+    _out << e->scoped().substr(2);
     end();
 
     string metadata, deprecateReason;

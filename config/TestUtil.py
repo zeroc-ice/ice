@@ -681,7 +681,7 @@ def getCommandLine(exe, config, env = getTestEnv()):
 
     if config.threadPerConnection:
         components.append("--Ice.ThreadPerConnection")
-    elif config.type == "server":
+    if config.type == "server":
         components.append("--Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=30")
         if not (config.protocol == "ssl" and config.lang == "cs"):
             components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
