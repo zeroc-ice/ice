@@ -19,7 +19,6 @@ OBJS		= Scanner.obj \
 		  Parser.obj \
 		  CPlusPlusUtil.obj \
 		  CsUtil.obj \
-		  VbUtil.obj \
 		  JavaUtil.obj \
 		  Preprocessor.obj \
 		  Checksum.obj \

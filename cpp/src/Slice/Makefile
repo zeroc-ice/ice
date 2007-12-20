@@ -20,7 +20,6 @@ OBJS		= Scanner.o \
 		  Parser.o \
 		  CPlusPlusUtil.o \
 		  CsUtil.o \
-		  VbUtil.o \
 		  JavaUtil.o \
 		  Preprocessor.o \
 		  Checksum.o \
