@@ -2106,15 +2106,15 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     assert(_out.currIndent() == indent);
 
-    EnumList enums = p->enums();
+    ConstList consts = p->consts();
 
-    if(!enums.empty())
+    if(!consts.empty())
     {
         start("h2");
-        _out << "Enumeration Index";
+        _out << "Constant Index";
         end();
         start("dl");
-        for(EnumList::const_iterator q = enums.begin(); q != enums.end(); ++q)
+        for(ConstList::const_iterator q = consts.begin(); q != consts.end(); ++q)
         {
             start("dt", "Symbol");
             _out << toString(*q, p, false, true);
@@ -2127,15 +2127,17 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         end();
     }
 
-    ConstList consts = p->consts();
+    assert(_out.currIndent() == indent);
 
-    if(!consts.empty())
+    EnumList enums = p->enums();
+
+    if(!enums.empty())
     {
         start("h2");
-        _out << "Constant Index";
+        _out << "Enumeration Index";
         end();
         start("dl");
-        for(ConstList::const_iterator q = consts.begin(); q != consts.end(); ++q)
+        for(EnumList::const_iterator q = enums.begin(); q != enums.end(); ++q)
         {
             start("dt", "Symbol");
             _out << toString(*q, p, false, true);
