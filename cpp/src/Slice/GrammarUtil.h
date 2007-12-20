@@ -25,7 +25,7 @@ class FloatingTok;
 class ExceptionListTok;
 class ClassListTok;
 class EnumeratorListTok;
-class SyntaxTreeBaseStringTok;
+class ConstDefTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
 typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
@@ -37,7 +37,7 @@ typedef ::IceUtil::Handle<FloatingTok> FloatingTokPtr;
 typedef ::IceUtil::Handle<ExceptionListTok> ExceptionListTokPtr;
 typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
-typedef ::IceUtil::Handle<SyntaxTreeBaseStringTok> SyntaxTreeBaseStringTokPtr;
+typedef ::IceUtil::Handle<ConstDefTok> ConstDefTokPtr;
 
 // ----------------------------------------------------------------------
 // StringTok
@@ -49,6 +49,7 @@ public:
 
     StringTok() { }
     std::string v;
+    std::string literal;
 };
 
 // ----------------------------------------------------------------------
@@ -97,6 +98,7 @@ public:
 
     IntegerTok() { }
     IceUtil::Int64 v;
+    std::string literal;
 };
 
 // ----------------------------------------------------------------------
@@ -109,6 +111,7 @@ public:
 
     FloatingTok() { }
     double v;
+    std::string literal;
 };
 
 // ----------------------------------------------------------------------
@@ -160,15 +163,15 @@ public:
 };
 
 // ----------------------------------------------------------------------
-// SyntaxTreeBaseStringTok
+// ConstDefTok
 // ----------------------------------------------------------------------
 
-class SLICE_API SyntaxTreeBaseStringTok : public GrammarBase
+class SLICE_API ConstDefTok : public GrammarBase
 {
 public:
 
-    SyntaxTreeBaseStringTok() { }
-    SyntaxTreeBaseString v;
+    ConstDefTok() { }
+    ConstDef v;
 };
 
 }

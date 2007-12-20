@@ -14,6 +14,13 @@ module Ice
 {
 
 /**
+ * A constant.
+ *
+ * More blah about the constant...
+ **/
+ const int i = 000;
+
+/**
  *
  * The identity of an Ice object. An empty [name] denotes a null
  * object.

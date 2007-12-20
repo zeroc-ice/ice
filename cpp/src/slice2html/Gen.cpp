@@ -2127,6 +2127,27 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         end();
     }
 
+    ConstList consts = p->consts();
+
+    if(!consts.empty())
+    {
+        start("h2");
+        _out << "Constant Index";
+        end();
+        start("dl");
+        for(ConstList::const_iterator q = consts.begin(); q != consts.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
+    }
+
     assert(_out.currIndent() == indent);
 
     if(!sequences.empty())
@@ -2185,6 +2206,46 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             TypePtr valueType = (*q)->valueType();
             _out << "dictionary&lt;" << toString(keyType, p, false, true) << ", "
                  << toString(valueType, p, false, true) << "&gt; " << toString(*q, p);
+            end();
+            end();
+
+            start("dd");
+            string metadata, deprecateReason;
+            if((*q)->findMetaData("deprecate", metadata))
+            {
+                deprecateReason = "This type is deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    deprecateReason = metadata.substr(10);
+                }
+            }
+
+            printComment(*q, p, deprecateReason, true);
+            end();
+            end();
+        }
+    }
+
+    if(!consts.empty())
+    {
+        start("h2");
+        _out << "Constants";
+        end();
+        for(ConstList::const_iterator q = consts.begin(); q != consts.end(); ++q)
+        {
+            start("dl");
+            start("dt");
+            start("span", "Synopsis");
+            _out << "const " << toString((*q)->type(), p, false, true) << " " << toString(*q, p) << " = ";
+            if(EnumPtr::dynamicCast((*q)->type()))
+            {
+                _out << toString((*q)->value(), p, false, true);
+            }
+            else
+            {
+                 _out << (*q)->literal();
+            }
+            _out << ";";
             end();
             end();
 
