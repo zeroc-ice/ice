@@ -2430,11 +2430,16 @@ IcePy::ExceptionWriter::ExceptionWriter(const Ice::CommunicatorPtr& communicator
 
 IcePy::ExceptionWriter::~ExceptionWriter() throw()
 {
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    _ex = 0;
 }
 
 void
 IcePy::ExceptionWriter::write(const Ice::OutputStreamPtr& os) const
 {
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
     ObjectMap objectMap;
     _info->marshal(_ex.get(), os, &objectMap);
 }
