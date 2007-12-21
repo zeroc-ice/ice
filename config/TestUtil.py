@@ -1024,6 +1024,9 @@ loop = False
 arg = ""
 all = False
 
+if os.environ.has_key("ICE_CONFIG"):
+    os.unsetenv("ICE_CONFIG")
+
 try:
     opts, args = getopt.getopt(sys.argv[1:], validShortArgs,  validLongArgs)
 except getopt.GetoptError:
