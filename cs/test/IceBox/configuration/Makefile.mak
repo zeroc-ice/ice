@@ -9,12 +9,12 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe helloservice.dll
+TARGETS		= client.exe testservice.dll
 
-C_SRCS		= Client.cs
-S_SRCS		= HelloI.cs HelloServiceI.cs
+C_SRCS		= Client.cs AllTests.cs
+S_SRCS		= TestI.cs TestServiceI.cs
 
-GEN_SRCS	= $(GDIR)\Hello.cs
+GEN_SRCS	= $(GDIR)\Test.cs
 
 SDIR		= .
 
@@ -29,7 +29,7 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)
 
-helloservice.dll: $(S_SRCS) $(GEN_SRCS)
+testservice.dll: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:$@ -r:$(bindir)\iceboxcs.dll -r:$(bindir)\icecs.dll \
 		$(S_SRCS) $(GEN_SRCS)
 
