@@ -16,6 +16,7 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= Acceptor.obj \
 		  Application.obj \
+                  Base64.obj \
 		  Buffer.obj \
 		  BasicStream.obj \
 		  BuiltinSequences.obj \

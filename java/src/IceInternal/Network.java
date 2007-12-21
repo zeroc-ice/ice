@@ -11,6 +11,11 @@ package IceInternal;
 
 public final class Network
 {
+    // ProtocolSupport
+    public final static int EnableIPv4 = 0;
+    public final static int EnableIPv6 = 1;
+    public final static int EnableBoth = 2;
+
     public static boolean
     connectionLost(java.io.IOException ex)
     {
@@ -748,32 +753,15 @@ public final class Network
     }
 
     public static java.net.InetSocketAddress
-    getAddress(String host, int port)
+    getAddress(String host, int port, int protocol)
     {
-        try
-        {
-            java.net.InetAddress[] addrs = java.net.InetAddress.getAllByName(host);
-            for(int i = 0; i < addrs.length; ++i)
-            {
-                if(addrs[i] instanceof java.net.Inet4Address)
-                {
-                    return new java.net.InetSocketAddress(addrs[i], port);
-                }
-            }
-        }
-        catch(java.net.UnknownHostException ex)
-        {
-            Ice.DNSException e = new Ice.DNSException();
-            e.host = host;
-            throw e;
-        }
+        return getAddressImpl(host, port, protocol, false);
+    }
 
-        //
-        // No Inet4Address available.
-        //
-        Ice.DNSException e = new Ice.DNSException();
-        e.host = host;
-        throw e;
+    public static java.net.InetSocketAddress
+    getAddressForServer(String host, int port, int protocol)
+    {    
+        return getAddressImpl(host, port, protocol, true);
     }
 
     public static int
@@ -790,7 +778,16 @@ public final class Network
 
         byte[] larr = addr1.getAddress().getAddress();
         byte[] rarr = addr2.getAddress().getAddress();
+        if(larr.length < rarr.length)
+        {
+            return -1;
+        }
+        else if(rarr.length < larr.length)
+        {
+            return 1;
+        }
         assert(larr.length == rarr.length);
+
         for(int i = 0; i < larr.length; i++)
         {
             if(larr[i] < rarr[i])
@@ -807,7 +804,7 @@ public final class Network
     }
 
     public static java.net.InetAddress
-    getLocalAddress()
+    getLocalAddress(int protocol)
     {
         java.net.InetAddress addr = null;
 
@@ -828,31 +825,30 @@ public final class Network
             //
         }
 
-        if(addr == null || addr instanceof java.net.Inet6Address)
+        if(addr == null ||
+           (addr instanceof java.net.Inet4Address && protocol == EnableIPv6) ||
+           (addr instanceof java.net.Inet6Address && protocol == EnableIPv4))
         {
             //
             // Iterate over the network interfaces and pick an IP
             // address (preferably not the loopback address).
             //
-            java.net.InetAddress loopback = null;
-            java.util.ArrayList addrs = getLocalAddresses();
+            java.util.ArrayList addrs = getLocalAddresses(protocol);
             java.util.Iterator iter = addrs.iterator();
             while(addr == null && iter.hasNext())
             {
                 java.net.InetAddress a = (java.net.InetAddress)iter.next();
-                if(!a.isLoopbackAddress())
+                if(protocol == EnableBoth ||
+                   (protocol == EnableIPv4 && a instanceof java.net.Inet4Address) ||
+                   (protocol == EnableIPv6 && a instanceof java.net.Inet6Address))
                 {
                     addr = a;
-                }
-                else
-                {
-                    loopback = a;
                 }
             }
 
             if(addr == null)
             {
-                addr = loopback; // Use the loopback address as the last resort.
+                addr = getLoopbackAddresses(protocol)[0]; // Use the loopback address as the last resort.
             }
         }
 
@@ -861,70 +857,55 @@ public final class Network
     }
 
     public static java.util.ArrayList
-    getAddresses(String host, int port)
+    getAddresses(String host, int port, int protocol)
     {
         java.util.ArrayList addresses = new java.util.ArrayList();
-        if(host.equals("0.0.0.0"))
+        try
         {
-            java.util.ArrayList hosts = getLocalHosts();
-            java.util.Iterator p = hosts.iterator();
-            while(p.hasNext())
+            java.net.InetAddress[] addrs;
+            if(host == null || host.length() == 0)
             {
-                addresses.add(getAddress((String)p.next(), port));
+                addrs = getLoopbackAddresses(protocol);
             }
-        }
-        else
-        {
-            try
+            else
             {
-                java.net.InetAddress[] addrs = java.net.InetAddress.getAllByName(host);
-                for(int i = 0; i < addrs.length; ++i)
-                {
-                    if(addrs[i] instanceof java.net.Inet4Address)
-                    {
-                        addresses.add(new java.net.InetSocketAddress(addrs[i], port));
-                    }
-                }
-            }
-            catch(java.net.UnknownHostException ex)
-            {
-                Ice.DNSException e = new Ice.DNSException();
-                e.host = host;
-                throw e;
+                addrs = java.net.InetAddress.getAllByName(host);
             }
 
-            //
-            // No Inet4Address available.
-            //
-            if(addresses.size() == 0)
+            for(int i = 0; i < addrs.length; ++i)
             {
-                Ice.DNSException e = new Ice.DNSException();
-                e.host = host;
-                throw e;
+                if(protocol == EnableBoth ||
+                   (protocol == EnableIPv4 && addrs[i] instanceof java.net.Inet4Address) ||
+                   (protocol == EnableIPv6 && addrs[i] instanceof java.net.Inet6Address))
+                {
+                    addresses.add(new java.net.InetSocketAddress(addrs[i], port));
+                }
             }
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+            Ice.DNSException e = new Ice.DNSException();
+            e.host = host;
+            throw e;
+        }
+    
+        //
+        // No Inet4Address/Inet6Address available.
+        //
+        if(addresses.size() == 0)
+        {
+            Ice.DNSException e = new Ice.DNSException();
+            e.host = host;
+            throw e;
         }
 
         return addresses;
     }
 
     public static java.util.ArrayList
-    getLocalHosts()
-    {
-        java.util.ArrayList hosts = new java.util.ArrayList();
-        java.util.ArrayList addrs = getLocalAddresses();
-        java.util.Iterator iter = addrs.iterator();
-        while(iter.hasNext())
-        {
-            hosts.add(((java.net.InetAddress)iter.next()).getHostAddress());
-        }
-        return hosts;
-    }
-
-    public static java.util.ArrayList
-    getLocalAddresses()
+    getLocalAddresses(int protocol)
     {
         java.util.ArrayList result = new java.util.ArrayList();
-
         try
         {
             java.util.Enumeration ifaces = java.net.NetworkInterface.getNetworkInterfaces();
@@ -935,9 +916,14 @@ public final class Network
                 while(addrs.hasMoreElements())
                 {
                     java.net.InetAddress addr = (java.net.InetAddress)addrs.nextElement();
-                    if(addr instanceof java.net.Inet4Address)
+                    if(!addr.isLoopbackAddress())
                     {
-                        result.add(addr);
+                        if(protocol == EnableBoth ||
+                           (protocol == EnableIPv4 && addr instanceof java.net.Inet4Address) ||
+                           (protocol == EnableIPv6 && addr instanceof java.net.Inet6Address))
+                        {
+                            result.add(addr);
+                        }
                     }
                 }
             }
@@ -1015,6 +1001,55 @@ public final class Network
         }
         
         return fds;
+    }
+
+    public static java.util.ArrayList
+    getHostsForEndpointExpand(String host, int protocolSupport)
+    {
+        boolean wildcard = (host == null || host.length() == 0);
+        if(!wildcard)
+        {
+            try
+            {
+                wildcard = java.net.InetAddress.getByName(host).isAnyLocalAddress();
+            }
+            catch(java.net.UnknownHostException ex)
+            {
+            }
+        }
+
+        java.util.ArrayList hosts = new java.util.ArrayList();
+        if(wildcard)
+        {
+            java.util.ArrayList addrs = getLocalAddresses(protocolSupport);
+            java.util.Iterator p = addrs.iterator();
+            while(p.hasNext())
+            {
+                //
+                // NOTE: We don't publish link-local IPv6 addresses as these addresses can only 
+                // be accessed in general with a scope-id.
+                //
+                java.net.InetAddress addr = (java.net.InetAddress)p.next();
+                if(!addr.isLinkLocalAddress())
+                {
+                    hosts.add(addr.getHostAddress());
+                }
+            }
+            
+            if(hosts.isEmpty())
+            {
+                if(protocolSupport != EnableIPv6)
+                {
+                    hosts.add("127.0.0.1");
+                }
+                
+                if(protocolSupport != EnableIPv4)
+                {
+                    hosts.add("0:0:0:0:0:0:0:1");
+                }
+            }
+        }
+        return hosts;
     }
     
     public static void
@@ -1186,5 +1221,100 @@ public final class Network
         return ex instanceof java.io.InterruptedIOException ||
             ex.getMessage().indexOf("Interrupted system call") >= 0 ||
             ex.getMessage().indexOf("A system call received an interrupt") >= 0; // AIX JDK 1.4.2
+    }
+
+    private static java.net.InetSocketAddress
+    getAddressImpl(String host, int port, int protocol, boolean server)
+    {
+        try
+        {
+            java.net.InetAddress[] addrs;
+            if(host == null || host.length() == 0)
+            {
+                if(server)
+                {
+                    addrs = getWildcardAddresses(protocol);
+                }
+                else
+                {
+                    addrs = getLoopbackAddresses(protocol);
+                }
+            }
+            else
+            {
+                addrs = java.net.InetAddress.getAllByName(host);
+            }
+
+            for(int i = 0; i < addrs.length; ++i)
+            {
+                if(protocol == EnableBoth ||
+                   (protocol == EnableIPv4 && addrs[i] instanceof java.net.Inet4Address) ||
+                   (protocol == EnableIPv6 && addrs[i] instanceof java.net.Inet6Address))
+                {
+                    return new java.net.InetSocketAddress(addrs[i], port);
+                }
+            }
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+            Ice.DNSException e = new Ice.DNSException();
+            e.host = host;
+            throw e;
+        }
+
+        //
+        // No Inet4Address/Inet6Address available.
+        //
+        Ice.DNSException e = new Ice.DNSException();
+        e.host = host;
+        throw e;
+    }
+
+    private static java.net.InetAddress[]
+    getLoopbackAddresses(int protocol)
+    {
+        try
+        {
+            java.net.InetAddress[] addrs = new java.net.InetAddress[protocol == EnableBoth ? 2 : 1];
+            int i = 0;
+            if(protocol != EnableIPv6)
+            {
+                addrs[i++] = java.net.InetAddress.getByName("127.0.0.1");
+            }
+            if(protocol != EnableIPv4)
+            {
+                addrs[i++] = java.net.InetAddress.getByName("::1");
+            }
+            return addrs;
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+            assert(false);
+            return null;
+        }
+    }
+
+    private static java.net.InetAddress[]
+    getWildcardAddresses(int protocol)
+    {
+        try
+        {
+            java.net.InetAddress[] addrs = new java.net.InetAddress[protocol == EnableBoth ? 2 : 1];
+            int i = 0;
+            if(protocol != EnableIPv4)
+            {
+                addrs[i++] = java.net.InetAddress.getByName("::0");
+            }
+            if(protocol != EnableIPv6)
+            {
+                addrs[i++] = java.net.InetAddress.getByName("0.0.0.0");
+            }
+            return addrs;
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+            assert(false);
+            return null;
+        }
     }
 }

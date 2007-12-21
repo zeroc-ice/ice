@@ -437,7 +437,7 @@ final class UdpTransceiver implements Transceiver
             _fd = Network.createUdpSocket();
             setBufSize(instance);
             Network.setBlock(_fd, false);
-            _addr = new java.net.InetSocketAddress(host, port);
+            _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
             if(_traceLevels.network >= 2)
             {
                 String s = "attempting to bind to udp socket " + Network.addrToString(_addr);
@@ -446,7 +446,7 @@ final class UdpTransceiver implements Transceiver
             if(_addr.getAddress().isMulticastAddress())
             {
                 Network.setReuseAddress(_fd, true);
-                Network.doBind(_fd, Network.getAddress("0.0.0.0", port));
+                Network.doBind(_fd, Network.getAddress("0.0.0.0", port, Network.EnableIPv4));
                 configureMulticast(_addr, mcastInterface, -1);
                 mcastServer = true;
             }
@@ -585,7 +585,7 @@ final class UdpTransceiver implements Transceiver
                     intf = java.net.NetworkInterface.getByName(interfaceAddr);
                     if(intf == null)
                     {
-                        java.net.InetSocketAddress addr = Network.getAddress(interfaceAddr, 0);
+                        java.net.InetSocketAddress addr = Network.getAddress(interfaceAddr, 0, Network.EnableIPv4);
                         intf = java.net.NetworkInterface.getByInetAddress(addr.getAddress());
                     }
                 }

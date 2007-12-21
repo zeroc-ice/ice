@@ -25,7 +25,7 @@ import TestUtil
 #
 tests = [
     "Slice/keyword",
-    "Ice/adapterDeactivation",
+#    "Ice/adapterDeactivation",
     "Ice/binding",
     "Ice/exceptions",
     "Ice/facets",

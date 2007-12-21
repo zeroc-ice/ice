@@ -16,6 +16,7 @@
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/Protocol.h>
 
 namespace IceInternal
 {
@@ -55,6 +56,11 @@ public:
     // Get the endpoint host resolver.
     //
     EndpointHostResolverPtr getEndpointHostResolver() const;
+
+    //
+    // Get the protocol support.
+    //
+    ProtocolSupport getProtocolSupport() const;
 
     //
     // Register an EndpointFactory.

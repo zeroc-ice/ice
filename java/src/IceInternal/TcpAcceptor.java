@@ -218,7 +218,7 @@ class TcpAcceptor implements Acceptor
                 //
                 Network.setReuseAddress(_fd, true);
             }
-            _addr = new java.net.InetSocketAddress(host, port);
+            _addr = Network.getAddressForServer(host, port, _instance.protocolSupport());
             if(_traceLevels.network >= 2)
             {
                 String s = "attempting to bind to tcp socket " + toString();

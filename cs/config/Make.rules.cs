@@ -8,7 +8,7 @@
 # **********************************************************************
 
 #
-# Set value to 1 if you are building Ice for Ruby against an RPM installation
+# Set value to 1 if you are building Ice for C# against an RPM installation
 # of Ice.
 #
 USE_ICE_RPM ?= 0

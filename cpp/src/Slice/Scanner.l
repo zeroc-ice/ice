@@ -177,9 +177,11 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 
 \" {
     StringTokPtr str = new StringTok;
+    str->literal = "\"";
     while(true)
     {
 	char c = static_cast<char>(yyinput());
+        str->literal += c;
 	if(c == '"')
 	{
 	    break;
@@ -196,6 +198,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 	else if(c == '\\')
 	{
 	    char next = static_cast<char>(yyinput());
+            str->literal += next;
 	    switch(next)
 	    {
 		case '\\':
@@ -263,6 +266,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 		    unsigned short us = next - '0';
 		    if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
 		    {
+                        str->literal += next;
 		    	us = us * 8 + next - '0';
 			if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
 			{
@@ -289,6 +293,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 		    IceUtil::Int64 ull = 0;
 		    while(isxdigit(next = static_cast<char>(yyinput())))
 		    {
+                        str->literal += next;
 			ull *= 16;
 			if(isdigit(next))
 			{
@@ -332,6 +337,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 
 {integer_constant} {
     IntegerTokPtr itp = new IntegerTok;
+    itp->literal = string(yytext);
     *yylvalp = itp;
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
     {
@@ -349,6 +355,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
     FloatingTokPtr ftp = new FloatingTok;
     *yylvalp = ftp;
     string literal(yytext);
+    ftp->literal = literal;
     char lastChar = literal[literal.size() - 1];
     if(lastChar == 'f' || lastChar == 'F')
     {

@@ -72,7 +72,7 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     //
     // Save the local address before shutting down or disconnecting.
     //
-    struct sockaddr_in localAddr;
+    struct sockaddr_storage localAddr;
     fdToLocalAddress(_fd, localAddr);
 
     assert(_fd != INVALID_SOCKET);
@@ -84,9 +84,9 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     //
     if(!_connect)
     {
-        struct sockaddr_in unspec;
+        struct sockaddr_storage unspec;
         memset(&unspec, 0, sizeof(unspec));
-        unspec.sin_family = AF_UNSPEC;
+        unspec.ss_family = AF_UNSPEC;
         ::connect(_fd, reinterpret_cast<struct sockaddr*>(&unspec), int(sizeof(unspec)));
     }
 
@@ -94,7 +94,7 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     // Send a dummy packet to the socket. This packet is ignored because we have
     // already set _shutdownReadWrite.
     //
-    SOCKET fd = createSocket(true);
+    SOCKET fd = createSocket(true, localAddr.ss_family);
     setBlock(fd, false);
     doConnect(fd, localAddr, -1);
     ::send(fd, "", 1, 0);
@@ -259,8 +259,8 @@ repeat:
         // If we must connect, then we connect to the first peer that
         // sends us a packet.
         //
-        struct sockaddr_in peerAddr;
-        memset(&peerAddr, 0, sizeof(struct sockaddr_in));
+        struct sockaddr_storage peerAddr;
+        memset(&peerAddr, 0, sizeof(struct sockaddr_storage));
         socklen_t len = static_cast<socklen_t>(sizeof(peerAddr));
         assert(_fd != INVALID_SOCKET);
         ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize,
@@ -374,7 +374,7 @@ IceInternal::UdpTransceiver::toString() const
 {
     if(_mcastServer && _fd != INVALID_SOCKET)
     {
-        struct sockaddr_in remoteAddr;
+        struct sockaddr_storage remoteAddr;
         bool peerConnected = fdToRemoteAddress(_fd, remoteAddr);
         return addressesToString(_addr, remoteAddr, peerConnected);
     }
@@ -407,10 +407,10 @@ IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf, size_t messageSize
 int
 IceInternal::UdpTransceiver::effectivePort() const
 {
-    return ntohs(_addr.sin_port);
+    return getPort(_addr);
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const struct sockaddr_in& addr,
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const struct sockaddr_storage& addr,
                                             const string& mcastInterface, int mcastTtl) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
@@ -423,18 +423,35 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 {
     try
     {
-        _fd = createSocket(true);
+        _fd = createSocket(true, _addr.ss_family);
         setBufSize(instance);
         setBlock(_fd, false);
         doConnect(_fd, _addr, -1);
         _connect = false; // We're connected now
-        if(IN_MULTICAST(ntohl(_addr.sin_addr.s_addr)))
+
+        bool multicast = false;
+        int port;
+        if(_addr.ss_family == AF_INET)
+        {
+            struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&_addr);
+            multicast = IN_MULTICAST(ntohl(addrin->sin_addr.s_addr));
+            port = ntohs(addrin->sin_port);
+        }
+        /*
+        else
+        {
+            struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&_addr);
+            multicast = IN6_IS_ADDR_MULTICAST(&addrin->sin6_addr);
+            port = ntohs(addrin->sin6_port);
+        }
+        */
+        if(multicast)
         {
             if(mcastInterface.length() > 0)
             {
-                struct sockaddr_in addr;
-                getAddress(mcastInterface, ntohs(_addr.sin_port), addr);
-                setMcastInterface(_fd, addr.sin_addr);
+                struct sockaddr_storage addr;
+                getAddress(mcastInterface, port, addr, instance->protocolSupport());
+                setMcastInterface(_fd, reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr);
             }
             if(mcastTtl != -1)
             {
@@ -472,39 +489,56 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 {
     try
     {
-        _fd = createSocket(true);
+        getAddressForServer(host, port, _addr, instance->protocolSupport());
+        _fd = createSocket(true, _addr.ss_family);
         setBufSize(instance);
         setBlock(_fd, false);
-        getAddress(host, port, _addr);
         if(_traceLevels->network >= 2)
         {
             Trace out(_logger, _traceLevels->networkCat);
             out << "attempting to bind to udp socket " << addrToString(_addr);
         }
-        if(IN_MULTICAST(ntohl(_addr.sin_addr.s_addr)))
+        bool multicast = false;
+        int port;
+        if(_addr.ss_family == AF_INET)
+        {
+            struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&_addr);
+            multicast = IN_MULTICAST(ntohl(addrin->sin_addr.s_addr));
+            port = ntohs(addrin->sin_port);
+        }
+        /*
+        else
+        {
+            struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&_addr);
+            multicast = IN6_IS_ADDR_MULTICAST(&addrin->sin6_addr);
+            port = ntohs(addrin->sin6_port);
+        }
+        */
+        if(multicast)
         {
             setReuseAddress(_fd, true);
-            struct sockaddr_in addr;
+            struct sockaddr_storage addr;
 
             //
             // Windows does not allow binding to the mcast address itself
             // so we bind to INADDR_ANY (0.0.0.0) instead.
             //
 #ifdef _WIN32
-            getAddress("0.0.0.0", port, addr);
+            getAddressForServer("", port, addr, instance->protocolSupport());
             doBind(_fd, addr);
 #else
             doBind(_fd, _addr);
 #endif
+            struct sockaddr_in* maddr = reinterpret_cast<sockaddr_in*>(&addr);
             if(mcastInterface.length() > 0)
             {
-                getAddress(mcastInterface, port, addr);
+                getAddress(mcastInterface, port, addr, instance->protocolSupport());
             }
             else
             {
-                addr.sin_addr.s_addr = INADDR_ANY;
+                maddr->sin_addr.s_addr = INADDR_ANY;
             }
-            setMcastGroup(_fd, _addr.sin_addr, addr.sin_addr);
+            setMcastGroup(_fd, reinterpret_cast<struct sockaddr_in*>(&_addr)->sin_addr, maddr->sin_addr);
             _mcastServer = true;
         }
         else

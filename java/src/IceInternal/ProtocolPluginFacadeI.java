@@ -38,6 +38,14 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     }    
 
     //
+    // Get the protocol support.
+    //
+    public int
+    getProtocolSupport()
+    {
+        return _instance.protocolSupport();
+    }    
+    //
     // Get the default hostname to be used in endpoints.
     //
     public String

@@ -9,19 +9,24 @@
 
 namespace IceInternal
 {
-
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Net;
+    using System.Net.NetworkInformation;
     using System.Net.Sockets;
     using System.Runtime.InteropServices;
     using System.Threading;
 
     public sealed class Network
     {
+        // ProtocolSupport
+        public const int EnableIPv4 = 0;
+        public const int EnableIPv6 = 1;
+        public const int EnableBoth = 2;
+
         //
         // Magic numbers taken from winsock2.h
         //
@@ -43,6 +48,86 @@ namespace IceInternal
         const int WSAECONNREFUSED = 10061;
         const int WSAEHOSTUNREACH = 10065;
         const int WSATRY_AGAIN    = 11002;
+
+        private static IPEndPoint getAddressImpl(string host, int port, int protocol, bool server)
+        {
+            if(host.Length == 0)
+            {
+                if(server)
+                {
+                    if(protocol != EnableIPv4)
+                    {
+                        return new IPEndPoint(IPAddress.IPv6Any, port);
+                    }
+                    else
+                    {
+                        return new IPEndPoint(IPAddress.Any, port);
+                    }
+                }
+                else
+                {
+                    if(protocol != EnableIPv4)
+                    {
+                        return new IPEndPoint(IPAddress.IPv6Loopback, port);
+                    }
+                    else
+                    {
+                        return new IPEndPoint(IPAddress.Loopback, port);
+                    }
+                }
+            }
+
+            int retry = 5;
+
+        repeatGetHostByName:
+            try
+            {
+                try
+                {
+                    IPAddress addr = IPAddress.Parse(host);
+                    if((addr.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                       (addr.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                    {
+                        return new IPEndPoint(addr, port);
+                    }
+                }
+                catch (FormatException)
+                {
+                }
+
+                foreach(IPAddress a in Dns.GetHostAddresses(host))
+                {
+                    if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                       (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                    {
+                        return new IPEndPoint(a, port);
+                    }
+                }
+            }
+            catch(Win32Exception ex)
+            {
+                if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
+                {
+                    goto repeatGetHostByName;
+                }
+                Ice.DNSException e = new Ice.DNSException(ex);
+                e.host = host;
+                throw e;
+            }
+            catch(System.Exception ex)
+            {
+                Ice.DNSException e = new Ice.DNSException(ex);
+                e.host = host;
+                throw e;
+            }
+
+            //
+            // No InterNetwork/InterNetworkV6 address available.
+            //
+            Ice.DNSException dns = new Ice.DNSException();
+            dns.host = host;
+            throw dns;
+        }
 
         public static bool interrupted(Win32Exception ex)
         {
@@ -156,7 +241,7 @@ namespace IceInternal
             return true;
         }
 
-        public static Socket createSocket(bool udp)
+        public static Socket createSocket(bool udp, AddressFamily family)
         {
             Socket socket;
 
@@ -164,11 +249,11 @@ namespace IceInternal
             {
                 if(udp)
                 {
-                    socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
                 }
                 else
                 {
-                    socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    socket = new Socket(family, SocketType.Stream, ProtocolType.Tcp);
                 }
             }
             catch(SocketException ex)
@@ -720,52 +805,14 @@ namespace IceInternal
             overwriteList(ce, checkError);
         }
 
-        public static IPEndPoint getAddress(string host, int port)
+        public static IPEndPoint getAddress(string host, int port, int protocol)
         {
-            int retry = 5;
-
-        repeatGetHostByName:
-            try
-            {
-                try
-                {
-                    return new IPEndPoint(IPAddress.Parse(host), port);
-                }
-                catch (FormatException)
-                {
-                }
-                IPHostEntry e = Dns.GetHostEntry(host);
-                for(int i = 0; i < e.AddressList.Length; ++i)
-                {
-                    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
-                    {
-                        return new IPEndPoint(e.AddressList[i], port);
-                    }
-                }
-            }
-            catch(Win32Exception ex)
-            {
-                if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
-                {
-                    goto repeatGetHostByName;
-                }
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
-            }
-            catch(System.Exception ex)
-            {
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
-            }
-
-            //
-            // No InterNetworkV4 address available.
-            //
-            Ice.DNSException dns = new Ice.DNSException();
-            dns.host = host;
-            throw dns;
+            return getAddressImpl(host, port, protocol, false);
+        }
+        
+        public static IPEndPoint getAddressForServer(string host, int port, int protocol)
+        {
+            return getAddressImpl(host, port, protocol, true);
         }
 
         public static int compareAddress(IPEndPoint addr1, IPEndPoint addr2)
@@ -781,7 +828,16 @@ namespace IceInternal
 
             byte[] larr = addr1.Address.GetAddressBytes();
             byte[] rarr = addr2.Address.GetAddressBytes();
-            Debug.Assert(larr.Length == rarr.Length);
+
+            if(larr.Length < rarr.Length)
+            {
+                return -1;
+            }
+            else if(rarr.Length < larr.Length)
+            {
+                return 1;
+            }
+
             for(int i = 0; i < larr.Length; i++)
             {
                 if(larr[i] < rarr[i])
@@ -796,70 +852,33 @@ namespace IceInternal
 
             return 0;
         }
-        
-        public static string getNumericHost(string hostname)
+
+        public static List<IPEndPoint> getAddresses(string host, int port, int protocol)
         {
-            int retry = 5;
-
-        repeatGetHostByName:
-            try
-            {
-                IPHostEntry e = Dns.GetHostEntry(hostname);
-                for(int i = 0; i < e.AddressList.Length; ++i)
-                {
-                    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
-                    {
-                        return e.AddressList[i].ToString();
-                    }
-                }
-            }
-            catch(Win32Exception ex)
-            {
-                if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
-                {
-                    goto repeatGetHostByName;
-                }
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = hostname;
-                throw e;
-            }
-            catch(System.Exception ex)
-            {
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = hostname;
-                throw e;
-            }
-
-            //
-            // No InterNetworkV4 address available.
-            //
-            Ice.DNSException dns = new Ice.DNSException();
-            dns.host = hostname;
-            throw dns;
+            return getAddresses(host, port, protocol, true);
         }
 
-        public static List<IPEndPoint> getAddresses(string host, int port)
-        {
-            return getAddresses(host, port, true);
-        }
-
-        public static List<IPEndPoint> getAddresses(string host, int port, bool blocking)
+        public static List<IPEndPoint> getAddresses(string host, int port, int protocol, bool blocking)
         {
             List<IPEndPoint> addresses = new List<IPEndPoint>();
-
-            if(host.Equals("0.0.0.0"))
+            if(host.Length == 0)
             {
-                string[] hosts = getLocalHosts();
-                for(int i = 0; i < hosts.Length; ++i)
+                if(protocol != EnableIPv4)
                 {
-                    addresses.Add(getAddress(hosts[i], port));
+                    addresses.Add(new IPEndPoint(IPAddress.IPv6Loopback, port));
                 }
+
+                if(protocol != EnableIPv6)
+                {
+                    addresses.Add(new IPEndPoint(IPAddress.Loopback, port));
+                }
+                return addresses;
             }
             else
             {
                 int retry = 5;
 
-            repeatGetHostByName:
+                repeatGetHostByName:
                 try
                 {
                     //
@@ -867,7 +886,13 @@ namespace IceInternal
                     //
                     try
                     {
-                        addresses.Add(new IPEndPoint(IPAddress.Parse(host), port));
+                        IPAddress addr = IPAddress.Parse(host);
+                        if((addr.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                           (addr.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                        {
+                            addresses.Add(new IPEndPoint(addr, port));
+                            return addresses;
+                        }
                     }
                     catch(FormatException)
                     {
@@ -875,14 +900,14 @@ namespace IceInternal
                         {
                             return addresses;
                         }
+                    }
 
-                        IPHostEntry e = Dns.GetHostEntry(host);
-                        for(int i = 0; i < e.AddressList.Length; ++i)
+                    foreach(IPAddress a in Dns.GetHostAddresses(host))
+                    {
+                        if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                           (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                         {
-                            if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
-                            {
-                                addresses.Add(new IPEndPoint(e.AddressList[i], port));
-                            }
+                            addresses.Add(new IPEndPoint(a, port));
                         }
                     }
                 }
@@ -902,30 +927,65 @@ namespace IceInternal
                     e.host = host;
                     throw e;
                 }
+
+                //
+                // No InterNetwork/InterNetworkV6 available.
+                //
+                if(addresses.Count == 0)
+                {
+                    Ice.DNSException e = new Ice.DNSException();
+                    e.host = host;
+                    throw e;
+                }
             }
 
             return addresses;
         }
 
-        public static string[] getLocalHosts()
+        public static IPAddress[] getLocalAddresses(int protocol)
         {
-            ArrayList hosts;
+            ArrayList addresses;
 
             int retry = 5;
 
         repeatGetHostByName:
             try
             {
-                IPHostEntry e = Dns.GetHostEntry(Dns.GetHostName());
-                hosts = new ArrayList();
-                for(int i = 0; i < e.AddressList.Length; ++i)
+                addresses = new ArrayList();
+                if(AssemblyUtil.runtime_ != AssemblyUtil.Runtime.Mono)
                 {
-                    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+                    NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+                    foreach(NetworkInterface ni in nics)
                     {
-                        hosts.Add(e.AddressList[i].ToString());
+                        IPInterfaceProperties ipProps = ni.GetIPProperties();
+                        UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
+                        foreach(UnicastIPAddressInformation uni in uniColl)
+                        {
+                            if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                               (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                            {
+                                if(!IPAddress.IsLoopback(uni.Address))
+                                {
+                                    addresses.Add(uni.Address);
+                                }
+                            }
+                        }
                     }
                 }
-                hosts.Add(IPAddress.Loopback.ToString());
+                else
+                {
+                    foreach(IPAddress a in Dns.GetHostAddresses(Dns.GetHostName()))
+                    {
+                        if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                           (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                        {
+                            if(!IPAddress.IsLoopback(a))
+                            {
+                                addresses.Add(a);
+                            }
+                        }
+                    }
+                }
             }
             catch(Win32Exception ex)
             {
@@ -944,7 +1004,7 @@ namespace IceInternal
                 throw e;
             }
 
-            return (string[])hosts.ToArray(typeof(string));
+            return (IPAddress[])addresses.ToArray(typeof(IPAddress));
         }
 
         public sealed class SocketPair
@@ -954,10 +1014,10 @@ namespace IceInternal
 
             public SocketPair()
             {
-                sink = createSocket(false);
-                Socket listener = createSocket(false);
+                sink = createSocket(false, AddressFamily.InterNetwork);
+                Socket listener = createSocket(false, AddressFamily.InterNetwork);
 
-                doBind(listener, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
+                doBind(listener, new IPEndPoint(IPAddress.Loopback, 0));
                 doListen(listener, 1);
                 doConnect(sink, listener.LocalEndPoint, 1000);
                 try
@@ -1034,6 +1094,48 @@ namespace IceInternal
                     logger.warning("TCP send buffer size: requested size of " + sizeRequested + " adjusted to " + size);
                 }
             }
+        }
+
+        public static List<string> getHostsForEndpointExpand(string host, int protocol)
+        {
+            bool wildcard = host.Length == 0;
+            if(!wildcard)
+            {
+                try
+                {
+                    IPAddress addr = IPAddress.Parse(host);
+                    wildcard = addr.Equals(IPAddress.Any) || addr.Equals(IPAddress.IPv6Any);
+                }
+                catch(Exception)
+                {
+                }
+            }
+
+            List<string> hosts = new List<string>();
+            if(wildcard)
+            {
+                IPAddress[] addrs = getLocalAddresses(protocol);
+                foreach(IPAddress a in addrs)
+                {
+                    if(!a.IsIPv6LinkLocal)
+                    {
+                        hosts.Add(a.ToString());
+                    }
+                }
+                
+                if(hosts.Count == 0)
+                {
+                    if(protocol != EnableIPv6)
+                    {
+                        hosts.Add("127.0.0.1");
+                    }
+                    if(protocol != EnableIPv4)
+                    {
+                        hosts.Add("0:0:0:0:0:0:0:1");
+                    }
+                }
+            }
+            return hosts;
         }
 
         public static SocketPair createPipe()

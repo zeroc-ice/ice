@@ -778,10 +778,10 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection_async(
     try
     {
         IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(current.con);
-        sslinfo.remotePort = ntohs(info.remoteAddr.sin_port);
-        sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr.sin_addr);
-        sslinfo.localPort = ntohs(info.localAddr.sin_port);
-        sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr.sin_addr);
+        sslinfo.remotePort = IceInternal::getPort(info.remoteAddr);
+        sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
+        sslinfo.localPort = IceInternal::getPort(info.localAddr);
+        sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr);
 
         sslinfo.cipher = info.cipher;
 
@@ -804,7 +804,7 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection_async(
             sslCtx["SSL.Remote.Port"] = os.str();
             sslCtx["SSL.Remote.Host"] = sslinfo.remoteHost;
             os.str("");
-            os << ntohs(info.localAddr.sin_port);
+            os << sslinfo.localPort;
             sslCtx["SSL.Local.Port"] = os.str();
             sslCtx["SSL.Local.Host"] = sslinfo.localHost;
             if(info.certs.size() > 0)

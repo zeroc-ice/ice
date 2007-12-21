@@ -96,7 +96,7 @@ public:
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*) = 0;
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*) = 0;
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*) = 0;
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
 };
 typedef IceUtil::Handle<TypeInfo> TypeInfoPtr;
 
@@ -129,7 +129,7 @@ public:
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     static double toDouble(VALUE);
 
@@ -153,7 +153,7 @@ public:
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
     EnumeratorList enumerators;
@@ -190,7 +190,7 @@ public:
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -217,7 +217,7 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -250,8 +250,8 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
-    void printElement(VALUE, VALUE, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
+    void printElement(VALUE, VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -286,11 +286,11 @@ public:
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
-    void printMembers(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    void printMembers(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     bool isA(const ClassInfoPtr&);
 
@@ -320,7 +320,7 @@ public:
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-    virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -341,8 +341,8 @@ public:
     void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
     VALUE unmarshal(const Ice::InputStreamPtr&);
 
-    void print(VALUE, IceUtil::Output&);
-    void printMembers(VALUE, IceUtil::Output&, PrintObjectHistory*);
+    void print(VALUE, IceUtilInternal::Output&);
+    void printMembers(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
     ExceptionInfoPtr base;

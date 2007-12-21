@@ -374,12 +374,12 @@ struct ConnectionInfo
     //
     // The local TCP/IP host & port.
     //
-    struct sockaddr_in localAddr;
+    struct sockaddr_storage localAddr;
 
     //
     // The remote TCP/IP host & port.
     //
-    struct sockaddr_in remoteAddr;
+    struct sockaddr_storage remoteAddr;
 
     //
     // If the connection is incoming this bool is true, false

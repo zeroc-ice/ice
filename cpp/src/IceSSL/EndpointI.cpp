@@ -32,7 +32,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int 
 {
 }
 
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, bool server) :
+IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
     _instance(instance),
     _port(0),
     _timeout(-1),
@@ -76,6 +76,10 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
                 end = str.length();
             }
             argument = str.substr(beg, end - beg);
+            if(argument[0] == '\"' && argument[argument.size() - 1] == '\"')
+            {
+                argument = argument.substr(1, argument.size() - 2);
+            }
         }
 
         switch(option[1])
@@ -140,21 +144,19 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
     if(_host.empty())
     {
         const_cast<string&>(_host) = _instance->defaultHost();
-        if(_host.empty())
-        {
-            if(server)
-            {
-                const_cast<string&>(_host) = "0.0.0.0";
-            }
-            else
-            {
-                const_cast<string&>(_host) = "127.0.0.1";
-            }
-        }
     }
     else if(_host == "*")
     {
-        const_cast<string&>(_host) = "0.0.0.0";
+        if(oaEndpoint)
+        {
+            const_cast<string&>(_host) = string();
+        }
+        else
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "ssl " + str;
+            throw ex;
+        }
     }
 }
 
@@ -195,7 +197,24 @@ IceSSL::EndpointI::toString() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
-    s << "ssl -h " << _host << " -p " << _port;
+    s << "ssl";
+
+    if(!_host.empty())
+    {
+        s << " -h ";
+        bool addQuote = _host.find(':') != string::npos;
+        if(addQuote)
+        {
+            s << "\"";
+        }
+        s << _host;
+        if(addQuote)
+        {
+            s << "\"";
+        }
+    }
+
+    s << " -p " << _port;
     if(_timeout != -1)
     {
         s << " -t " << _timeout;
@@ -292,7 +311,7 @@ IceSSL::EndpointI::transceiver(IceInternal::EndpointIPtr& endp) const
 vector<IceInternal::ConnectorPtr>
 IceSSL::EndpointI::connectors() const
 {
-    return connectors(IceInternal::getAddresses(_host, _port));
+    return connectors(IceInternal::getAddresses(_host, _port, _instance->protocolSupport(), true));
 }
 
 void
@@ -313,20 +332,17 @@ vector<IceInternal::EndpointIPtr>
 IceSSL::EndpointI::expand() const
 {
     vector<IceInternal::EndpointIPtr> endps;
-    if(_host == "0.0.0.0")
+    vector<string> hosts = IceInternal::getHostsForEndpointExpand(_host, _instance->protocolSupport());
+    if(hosts.empty())
     {
-        vector<string> hosts = IceInternal::getLocalHosts();
-        for(unsigned int i = 0; i < hosts.size(); ++i)
-        {
-            if(hosts.size() == 1 || hosts[i] != "127.0.0.1")
-            {
-                endps.push_back(new EndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress));
-            }
-        }
+        endps.push_back(const_cast<EndpointI*>(this));
     }
     else
     {
-        endps.push_back(const_cast<EndpointI*>(this));
+        for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
+        {
+            endps.push_back(new EndpointI(_instance, *p, _port, _timeout, _connectionId, _compress));
+        }
     }
     return endps;
 }
@@ -453,7 +469,7 @@ IceSSL::EndpointI::operator<(const IceInternal::EndpointI& r) const
 }
 
 vector<IceInternal::ConnectorPtr>
-IceSSL::EndpointI::connectors(const vector<struct sockaddr_in>& addresses) const
+IceSSL::EndpointI::connectors(const vector<struct sockaddr_storage>& addresses) const
 {
     vector<IceInternal::ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
@@ -485,9 +501,9 @@ IceSSL::EndpointFactoryI::protocol() const
 }
 
 IceInternal::EndpointIPtr
-IceSSL::EndpointFactoryI::create(const string& str, bool server) const
+IceSSL::EndpointFactoryI::create(const string& str, bool oaEndpoint) const
 {
-    return new EndpointI(_instance, str, server);
+    return new EndpointI(_instance, str, oaEndpoint);
 }
 
 IceInternal::EndpointIPtr

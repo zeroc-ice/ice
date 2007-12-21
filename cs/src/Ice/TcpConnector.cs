@@ -24,8 +24,8 @@ namespace IceInternal
                 string s = "trying to establish tcp connection to " + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-
-            Socket fd = Network.createSocket(false);
+            
+            Socket fd = Network.createSocket(false, _addr.AddressFamily);
             Network.setBlock(fd, false);
             Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
             bool connected = Network.doConnect(fd, _addr, timeout);

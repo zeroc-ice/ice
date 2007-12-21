@@ -13,10 +13,11 @@
 #include <Ice/LoggerF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Acceptor.h>
+#include <Ice/Protocol.h>
 #include <IceSSL/InstanceF.h>
 
 #ifndef _WIN32
-#   include <netinet/in.h> // For struct sockaddr_in
+#   include <netinet/in.h> // For struct sockaddr_storage
 #endif
 
 namespace IceSSL
@@ -35,7 +36,7 @@ public:
     virtual void connectToSelf();
     virtual std::string toString() const;
 
-    int effectivePort();
+    int effectivePort() const;
 
 private:
 
@@ -48,7 +49,7 @@ private:
     Ice::LoggerPtr _logger;
     SOCKET _fd;
     int _backlog;
-    struct sockaddr_in _addr;
+    struct sockaddr_storage _addr;
 };
 
 }

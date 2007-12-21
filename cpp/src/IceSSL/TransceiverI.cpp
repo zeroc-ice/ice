@@ -532,7 +532,7 @@ IceSSL::TransceiverI::initialize(int timeout)
         }
         case SSL_ERROR_SSL:
         {
-            struct sockaddr_in remoteAddr;
+            struct sockaddr_storage remoteAddr;
             string desc;
             if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
             {

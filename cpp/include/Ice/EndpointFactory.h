@@ -13,6 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
+#include <Ice/Protocol.h>
 
 namespace IceInternal
 {

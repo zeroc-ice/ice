@@ -19,6 +19,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
+#include <Ice/Protocol.h>
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -131,7 +132,7 @@ public:
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if listening on INADDR_ANY.
+    // host if listening on INADDR_ANY on server side.
     //
     virtual std::vector<EndpointIPtr> expand() const = 0;
 
@@ -149,7 +150,7 @@ public:
 
 private:
 
-    virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_in>&) const;
+    virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
     friend class EndpointHostResolver;
 
 #if defined(__SUNPRO_CC) || defined(__HP_aCC)

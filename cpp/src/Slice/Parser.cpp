@@ -1023,7 +1023,8 @@ Slice::Container::createEnumerator(const string& name)
 
 ConstPtr
 Slice::Container::createConst(const string name, const TypePtr& constType, const StringList& metaData,
-                              const SyntaxTreeBasePtr& literalType, const string& value, NodeType nt)
+                              const SyntaxTreeBasePtr& literalType, const string& value, const string& literal,
+                              NodeType nt)
 {
     checkPrefix(name);
 
@@ -1084,7 +1085,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
         return 0;
     }
 
-    ConstPtr p = new Const(this, name, constType, metaData, value);
+    ConstPtr p = new Const(this, name, constType, metaData, value, literal);
     _contents.push_back(p);
     return p;
 }
@@ -1441,6 +1442,21 @@ Slice::Container::enums() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         EnumPtr q = EnumPtr::dynamicCast(*p);
+        if(q)
+        {
+            result.push_back(q);
+        }
+    }
+    return result;
+}
+
+ConstList
+Slice::Container::consts() const
+{
+    ConstList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ConstPtr q = ConstPtr::dynamicCast(*p);
         if(q)
         {
             result.push_back(q);
@@ -4093,6 +4109,12 @@ Slice::Const::value() const
     return _value;
 }
 
+string
+Slice::Const::literal() const
+{
+    return _literal;
+}
+
 Contained::ContainedType
 Slice::Const::containedType() const
 {
@@ -4316,12 +4338,13 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
 }
 
 Slice::Const::Const(const ContainerPtr& container, const string& name, const TypePtr& type,
-                    const StringList& typeMetaData, const string& value) :
+                    const StringList& typeMetaData, const string& value, const string& literal) :
     SyntaxTreeBase(container->unit()), 
     Contained(container, name),
     _type(type), 
     _typeMetaData(typeMetaData),
-    _value(value)
+    _value(value),
+    _literal(literal)
 {
 }
 

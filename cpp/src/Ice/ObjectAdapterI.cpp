@@ -932,17 +932,19 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             vector<EndpointIPtr> endpoints;
             if(endpointInfo.empty())
             {
-                endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"));
+                endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
             }
             else
             {
-                endpoints = parseEndpoints(endpointInfo);
+                endpoints = parseEndpoints(endpointInfo, true);
             }
+
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
                 IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(instance, *p, this, _name);
                 _incomingConnectionFactories.push_back(factory);
             }
+
             if(endpoints.empty())
             {
                 TraceLevelsPtr tl = _instance->traceLevels();
@@ -1083,7 +1085,7 @@ Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
 }
 
 vector<EndpointIPtr>
-Ice::ObjectAdapterI::parseEndpoints(const string& endpts) const
+Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) const
 {
     string::size_type beg;
     string::size_type end = 0;
@@ -1099,10 +1101,47 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts) const
             break;
         }
 
-        end = endpts.find(':', beg);
-        if(end == string::npos)
+        end = beg;
+        while(true)
         {
-            end = endpts.length();
+            end = endpts.find(':', end);
+            if(end == string::npos)
+            {
+                end = endpts.length();
+                break;
+            }
+            else
+            {
+                bool quoted = false;
+                string::size_type quote = beg;
+                while(true)
+                {
+                    quote = endpts.find('\"', quote);
+                    if(quote == string::npos || end < quote)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        quote = endpts.find('\"', ++quote);
+                        if(quote == string::npos)
+                        {
+                            break;
+                        }
+                        else if(end < quote)
+                        {
+                            quoted = true;
+                            break;
+                        }
+                        ++quote;
+                    }
+                }
+                if(!quoted)
+                {
+                    break;
+                }
+                ++end;
+            }
         }
         
         if(end == beg)
@@ -1112,7 +1151,7 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts) const
         }
         
         string s = endpts.substr(beg, end - beg);
-        EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, true);
+        EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, oaEndpoints);
         if(endp == 0)
         {
             EndpointParseException ex(__FILE__, __LINE__);
@@ -1135,16 +1174,22 @@ ObjectAdapterI::parsePublishedEndpoints()
     // instead of the connection factory endpoints. 
     //
     string endpts = _communicator->getProperties()->getProperty(_name + ".PublishedEndpoints");
-    vector<EndpointIPtr> endpoints = parseEndpoints(endpts);
-    if(endpoints.empty())
+    vector<EndpointIPtr> endpoints = parseEndpoints(endpts, false);
+    if(!endpoints.empty())
     {
-        transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
-                  back_inserter(endpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+        return endpoints;
     }
 
     //
-    // Expand any endpoints that may be listening on INADDR_ANY to 
-    // include actual addresses in the published endpoints.
+    // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+    // from the OA endpoints.
+    //
+    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
+              back_inserter(endpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+    
+    //
+    // Expand any endpoints that may be listening on INADDR_ANY to include actual
+    // addresses in the published endpoints.
     //
     vector<EndpointIPtr> expandedEndpoints;
     for(unsigned int i = 0; i < endpoints.size(); ++i)

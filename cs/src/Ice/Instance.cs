@@ -147,6 +147,19 @@ namespace IceInternal
                 return _objectAdapterFactory;
             }
         }
+
+        public int protocolSupport()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                return _protocolSupport;
+            }
+        }
         
         public ThreadPool clientThreadPool()
         {
@@ -663,6 +676,24 @@ namespace IceInternal
                 
                 _proxyFactory = new ProxyFactory(this);
                 
+                bool ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+                bool ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", 0) > 0;
+                if(!ipv4 && !ipv6)
+                {
+                    throw new Ice.InitializationException("Both IPV4 and IPv6 support cannot be disabled.");
+                }
+                else if(ipv4 && ipv6)
+                {
+                    _protocolSupport = Network.EnableBoth;
+                }
+                else if(ipv4)
+                {
+                    _protocolSupport = Network.EnableIPv4;
+                }
+                else
+                {
+                    _protocolSupport = Network.EnableIPv6;
+                }
                 _endpointFactoryManager = new EndpointFactoryManager(this);
                 EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
                 _endpointFactoryManager.add(tcpEndpointFactory);
@@ -976,6 +1007,7 @@ namespace IceInternal
         private ConnectionMonitor _connectionMonitor;
         private ObjectFactoryManager _servantFactoryManager;
         private ObjectAdapterFactory _objectAdapterFactory;
+        private int _protocolSupport;
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
         private SelectorThread _selectorThread;

@@ -24,7 +24,8 @@ namespace Ice
             // 
             try
             {
-                _host = IceInternal.Network.getAddress(System.Net.Dns.GetHostName(), _port).Address;
+                _host = IceInternal.Network.getAddress(System.Net.Dns.GetHostName(), _port, 
+                                                       IceInternal.Network.EnableBoth).Address;
                 _socket = new UdpClient();
                 _socket.Connect(_host, _port);
             }

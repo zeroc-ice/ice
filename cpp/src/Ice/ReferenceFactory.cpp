@@ -450,10 +450,47 @@ IceInternal::ReferenceFactory::create(const string& str)
             {
                 beg = end + 1;
                 
-                end = s.find(':', beg);
-                if(end == string::npos)
+                end = beg;
+                while(true)
                 {
-                    end = s.length();
+                    end = s.find(':', end);
+                    if(end == string::npos)
+                    {
+                        end = s.length();
+                        break;
+                    }
+                    else
+                    {
+                        bool quoted = false;
+                        string::size_type quote = beg;
+                        while(true)
+                        {
+                            quote = s.find('\"', quote);
+                            if(quote == string::npos || end < quote)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                quote = s.find('\"', ++quote);
+                                if(quote == string::npos)
+                                {
+                                    break;
+                                }
+                                else if(end < quote)
+                                {
+                                    quoted = true;
+                                    break;
+                                }
+                                ++quote;
+                            }
+                        }
+                        if(!quoted)
+                        {
+                            break;
+                        }
+                        ++end;
+                    }
                 }
                 
                 string es = s.substr(beg, end - beg);

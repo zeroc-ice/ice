@@ -33,13 +33,13 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
         vector<string> argSeq;
         try
         {
-            argSeq = IceUtil::Options::split(cmd);
+            argSeq = IceUtilInternal::Options::split(cmd);
         }
-        catch(const IceUtil::BadOptException& ex)
+        catch(const IceUtilInternal::BadOptException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
-        catch(const IceUtil::APIException& ex)
+        catch(const IceUtilInternal::APIException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
@@ -52,10 +52,10 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             }
         }
 
-        IceUtil::Options opts;
-        opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-        opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-        opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+        IceUtilInternal::Options opts;
+        opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+        opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+        opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
         opts.addOpt("d", "debug");
         opts.addOpt("", "ice");
         opts.addOpt("", "checksum");
@@ -72,11 +72,11 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
                 throw RubyException(rb_eArgError, "no Slice files specified in `%s'", cmd.c_str());
             }
         }
-        catch(const IceUtil::BadOptException& ex)
+        catch(const IceUtilInternal::BadOptException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
-        catch(const IceUtil::APIException& ex)
+        catch(const IceUtilInternal::APIException& ex)
         {
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
@@ -143,7 +143,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             // Generate the Ruby code into a string stream.
             //
             ostringstream codeStream;
-            IceUtil::Output out(codeStream);
+            IceUtilInternal::Output out(codeStream);
             out.setUseTab(false);
             generate(u, all, checksum, includePaths, out);
             u->destroy();

@@ -41,7 +41,7 @@ namespace IceSSL
                 logger_.trace(instance_.networkTraceCategory(), s);
             }
 
-            Socket fd = IceInternal.Network.createSocket(false);
+            Socket fd = IceInternal.Network.createSocket(false, addr_.AddressFamily);
             IceInternal.Network.setBlock(fd, true);
             IceInternal.Network.setTcpBufSize(fd, instance_.communicator().getProperties(), logger_);
             IceInternal.Network.doConnectAsync(fd, addr_, timeout);
@@ -167,17 +167,8 @@ namespace IceSSL
             return IceInternal.Network.addrToString(addr_);
         }
 
-        internal bool equivalent(string host, int port)
+        internal bool equivalent(IPEndPoint addr)
         {
-            IPEndPoint addr; 
-            try
-            {
-                addr = IceInternal.Network.getAddress(host, port);
-            }
-            catch(Ice.DNSException)
-            {
-                return false;
-            }
             return addr.Equals(addr_);
         }
 

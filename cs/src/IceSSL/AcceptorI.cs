@@ -91,18 +91,22 @@ namespace IceSSL
 
         public virtual void connectToSelf()
         {
-            Socket fd = IceInternal.Network.createSocket(false);
+            Socket fd = IceInternal.Network.createSocket(false, addr_.AddressFamily);
             IceInternal.Network.setBlock(fd, false);
             //
             // .Net does not allow connecting to 0.0.0.0
             //
-            if(addr_.Address.ToString().Equals("0.0.0.0"))
+            if(_addr.Address.Equals(IPAddress.Any))
             {
-                IceInternal.Network.doConnect(fd, IceInternal.Network.getAddress("127.0.0.1", addr_.Port), -1);
+                Network.doConnect(fd, new IPEndPoint(IPAddress.Loopback, _addr.Port), -1);
+            }
+            else if(_addr.Address.Equals(IPAddress.IPv6Any))
+            {
+                Network.doConnect(fd, new IPEndPoint(IPAddress.IPv6Loopback, _addr.Port), -1);
             }
             else
             {
-                IceInternal.Network.doConnect(fd, addr_, -1);
+                Network.doConnect(fd, _addr, -1);
             }
             IceInternal.Network.closeSocket(fd);
         }
@@ -118,7 +122,7 @@ namespace IceSSL
         }
 
         internal
-        AcceptorI(Instance instance, string adapterName, string host, int port)
+        AcceptorI(Instance instance, string adapterName, string host, int port, int protocol)
         {
             instance_ = instance;
             adapterName_ = adapterName;
@@ -143,10 +147,10 @@ namespace IceSSL
             
             try
             {
-                fd_ = IceInternal.Network.createSocket(false);
+                addr_ = IceInternal.Network.getAddressForServer(host, port, protocol);
+                fd_ = IceInternal.Network.createSocket(false, addr_.AddressFamily);
                 IceInternal.Network.setBlock(fd_, false);
                 IceInternal.Network.setTcpBufSize(fd_, instance_.communicator().getProperties(), logger_);
-                addr_ = IceInternal.Network.getAddress(host, port);
                 if(IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
                 {
                     //

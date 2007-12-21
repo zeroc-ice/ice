@@ -32,7 +32,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 {
 }
 
-IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str, bool server) :
+IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
     _instance(instance),
     _port(0),
     _timeout(-1),
@@ -76,6 +76,10 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
                 end = str.length();
             }
             argument = str.substr(beg, end - beg);
+            if(argument[0] == '\"' && argument[argument.size() - 1] == '\"')
+            {
+                argument = argument.substr(1, argument.size() - 2);
+            }
         }
 
         switch(option[1])
@@ -140,21 +144,19 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
     if(_host.empty())
     {
         const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
-        if(_host.empty())
-        {
-            if(server)
-            {
-                const_cast<string&>(_host) = "0.0.0.0";
-            }
-            else
-            {
-                const_cast<string&>(_host) = "127.0.0.1";
-            }
-        }
     }
     else if(_host == "*")
     {
-        const_cast<string&>(_host) = "0.0.0.0";
+        if(oaEndpoint)
+        {
+            const_cast<string&>(_host) = string();
+        }
+        else
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "tcp " + str;
+            throw ex;
+        }
     }
 }
 
@@ -195,7 +197,24 @@ IceInternal::TcpEndpointI::toString() const
     // format of proxyToString() before changing this and related code.
     //
     ostringstream s;
-    s << "tcp -h " << _host << " -p " << _port;
+    s << "tcp";
+
+    if(!_host.empty())
+    {
+        s << " -h ";
+        bool addQuote = _host.find(':') != string::npos;
+        if(addQuote)
+        {
+            s << "\"";
+        }
+        s << _host;
+        if(addQuote)
+        {
+            s << "\"";
+        }
+    }
+
+    s << " -p " << _port;
     if(_timeout != -1)
     {
         s << " -t " << _timeout;
@@ -292,7 +311,7 @@ IceInternal::TcpEndpointI::transceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::TcpEndpointI::connectors() const
 {
-    return connectors(getAddresses(_host, _port));
+    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), true));
 }
 
 void
@@ -314,21 +333,18 @@ vector<EndpointIPtr>
 IceInternal::TcpEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
-    if(_host == "0.0.0.0")
+    vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport());
+    if(hosts.empty())
     {
-        vector<string> hosts = getLocalHosts();
-        for(unsigned int i = 0; i < hosts.size(); ++i)
-        {
-            if(hosts.size() == 1 || hosts[i] != "127.0.0.1")
-            {
-                endps.push_back(new TcpEndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress));
-            }
-        }
+        endps.push_back(const_cast<TcpEndpointI*>(this));
     }
     else
     {
-        endps.push_back(const_cast<TcpEndpointI*>(this));
-    }   
+        for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
+        {
+            endps.push_back(new TcpEndpointI(_instance, *p, _port, _timeout, _connectionId, _compress));
+        }
+    }
     return endps;
 }
 
@@ -454,7 +470,7 @@ IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
 }
 
 vector<ConnectorPtr>
-IceInternal::TcpEndpointI::connectors(const vector<struct sockaddr_in>& addresses) const
+IceInternal::TcpEndpointI::connectors(const vector<struct sockaddr_storage>& addresses) const
 {
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
@@ -486,9 +502,9 @@ IceInternal::TcpEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceInternal::TcpEndpointFactory::create(const std::string& str, bool server) const
+IceInternal::TcpEndpointFactory::create(const std::string& str, bool oaEndpoint) const
 {
-    return new TcpEndpointI(_instance, str, server);
+    return new TcpEndpointI(_instance, str, oaEndpoint);
 }
 
 EndpointIPtr

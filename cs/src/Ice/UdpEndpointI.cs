@@ -37,7 +37,7 @@ namespace IceInternal
             calcHashValue();
         }
         
-        public UdpEndpointI(Instance instance, string str, bool server)
+        public UdpEndpointI(Instance instance, string str, bool oaEndpoint)
         {
             instance_ = instance;
             _host = null;
@@ -290,22 +290,24 @@ namespace IceInternal
             if(_host == null)
             {
                 _host = instance_.defaultsAndOverrides().defaultHost;
-                if(_host == null)
-                {
-                    if(server)
-                    {
-                        _host = "0.0.0.0";
-                    }
-                    else
-                    {
-                        _host = "127.0.0.1";
-                    }
-                }
             }
             else if(_host.Equals("*"))
             {
-                _host = "0.0.0.0";
+                if(oaEndpoint)
+                {
+                    _host = null;
+                }
+                else
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }        
             }
+
+            if(_host == null)
+            {
+                _host = "";
+            }
+            
             calcHashValue();
         }
         
@@ -390,7 +392,18 @@ namespace IceInternal
                 s += "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
             }
 
-            s += " -h " + _host + " -p " + _port;
+            s += " -h ";
+            bool addQuote = _host.IndexOf(':') != -1;
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += _host;
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += " -p " + _port;
 
             if(_mcastInterface.Length != 0)
             {
@@ -533,7 +546,7 @@ namespace IceInternal
         //
         public override List<Connector> connectors()
         {
-            return connectors(Network.getAddresses(_host, _port));
+            return connectors(Network.getAddresses(_host, _port, instance_.protocolSupport()));
         }
 
         public override void connectors_async(EndpointI_connectors callback)
@@ -562,22 +575,19 @@ namespace IceInternal
         expand()
         {
             List<EndpointI> endps = new List<EndpointI>();
-            if(_host.Equals("0.0.0.0"))
+            List<string> hosts = IceInternal.Network.getHostsForEndpointExpand(_host, instance_.protocolSupport());
+            if(hosts == null || hosts.Count == 0)
             {
-                string[] hosts = Network.getLocalHosts();
-                for(int i = 0; i < hosts.Length; ++i)
-                {
-                    if(hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
-                    {
-                        endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _mcastInterface, _mcastTtl, 
-                                                   _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor,
-                                                   _connect, _connectionId, _compress));
-                    }
-                }
+                endps.Add(this);
             }
             else
             {
-                endps.Add(this);
+                foreach(string h in hosts)
+                {
+                    endps.Add(new UdpEndpointI(instance_, h, _port, _mcastInterface, _mcastTtl, _protocolMajor, 
+                                               _protocolMinor, _encodingMajor, _encodingMinor, _connect, _connectionId, 
+                                               _compress));
+                }
             }
             return endps;
         }
@@ -742,14 +752,7 @@ namespace IceInternal
         
         private void calcHashValue()
         {
-            try
-            {
-                _hashCode = Network.getNumericHost(_host).GetHashCode();
-            }
-            catch(Ice.DNSException)
-            {
-                _hashCode = _host.GetHashCode();
-            }
+            _hashCode = _host.GetHashCode();
             _hashCode = 5 * _hashCode + _port;
             _hashCode = 5 * _hashCode + _mcastInterface.GetHashCode();
             _hashCode = 5 * _hashCode + _mcastTtl.GetHashCode();
@@ -790,9 +793,9 @@ namespace IceInternal
             return "udp";
         }
         
-        public EndpointI create(string str, bool server)
+        public EndpointI create(string str, bool oaEndpoint)
         {
-            return new UdpEndpointI(instance_, str, server);
+            return new UdpEndpointI(instance_, str, oaEndpoint);
         }
         
         public EndpointI read(BasicStream s)

@@ -932,11 +932,11 @@ public final class ObjectAdapterI implements ObjectAdapter
                 java.util.ArrayList endpoints;
                 if(endpointInfo.length() == 0)
                 {
-                    endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"));
+                    endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                 }
                 else
                 {
-                    endpoints = parseEndpoints(endpointInfo);
+                    endpoints = parseEndpoints(endpointInfo, true);
                 }
                 for(int i = 0; i < endpoints.size(); ++i)
                 {
@@ -1103,7 +1103,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     private java.util.ArrayList
-    parseEndpoints(String endpts)
+    parseEndpoints(String endpts, boolean oaEndpoints)
     {
         int beg;
         int end = 0;
@@ -1119,10 +1119,47 @@ public final class ObjectAdapterI implements ObjectAdapter
                 break;
             }
 
-            end = endpts.indexOf(':', beg);
-            if(end == -1)
+            end = beg;
+            while(true)
             {
-                end = endpts.length();
+                end = endpts.indexOf(':', end);
+                if(end == -1)
+                {
+                    end = endpts.length();
+                    break;
+                }
+                else
+                {
+                    boolean quoted = false;
+                    int quote = beg;
+                    while(true)
+                    {
+                        quote = endpts.indexOf('\"', quote);
+                        if(quote == -1 || end < quote)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            quote = endpts.indexOf('\"', ++quote);
+                            if(quote == -1)
+                            {
+                                break;
+                            }
+                            else if(end < quote)
+                            {
+                                quoted = true;
+                                break;
+                            }
+                            ++quote;
+                        }
+                    }
+                    if(!quoted)
+                    {
+                        break;
+                    }
+                    ++end;
+                }
             }
 
             if(end == beg)
@@ -1132,7 +1169,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
 
             String s = endpts.substring(beg, end);
-            IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, true);
+            IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
             if(endp == null)
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
@@ -1155,15 +1192,21 @@ public final class ObjectAdapterI implements ObjectAdapter
         // instead of the connection factory Endpoints.
         //
         String endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
-        java.util.ArrayList endpoints = parseEndpoints(endpts);
-        if(endpoints.size() == 0)
+        java.util.ArrayList endpoints = parseEndpoints(endpts, false);
+        if(!endpoints.isEmpty())
         {
-            for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
-            {
-                IceInternal.IncomingConnectionFactory factory =
-                    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-                endpoints.add(factory.endpoint());
-            }
+            return endpoints;
+        }
+
+        //
+        // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+        // from the OA endpoints.
+        //
+        for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+        {
+            IceInternal.IncomingConnectionFactory factory =
+                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+            endpoints.add(factory.endpoint());
         }
 
         //
@@ -1174,9 +1217,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         java.util.Iterator p = endpoints.iterator();
         while(p.hasNext())
         {
-            IceInternal.EndpointI endp = (IceInternal.EndpointI)p.next();
-            java.util.List endps = endp.expand();
-            expandedEndpoints.addAll(endps);
+            expandedEndpoints.addAll(((IceInternal.EndpointI)p.next()).expand());
         }
         return expandedEndpoints;
     }

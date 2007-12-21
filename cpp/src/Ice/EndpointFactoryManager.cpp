@@ -111,7 +111,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         return factory->create(str.substr(end), oaEndpoint);
 #else
         // Code below left in place for debugging.
-        
+
         EndpointIPtr e = factory->create(str.substr(end), oaEndpoint);
         BasicStream bs(_instance.get());
         e->streamWrite(&bs);

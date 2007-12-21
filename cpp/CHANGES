@@ -1,9 +1,17 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added support for IPv6. See the Ice manual for more information.
+
+- The "-h *" endpoint option is now only valid for object adapter
+  endpoints. It can no longer be used in proxy endpoints or object
+  adapter published endpoints.
+
 - If a class, interface, or exception a base, slice2html
   now generates a hyperlink to the base. (Previously, only
   the name of the base was shown, without a hyperlink.)
+
+- slice2html now generates documentation for Slice constant definitions.
 
 - slice2html now generates the scoped name for the <h1> element
   of each page instead of the unqualified name. For example,

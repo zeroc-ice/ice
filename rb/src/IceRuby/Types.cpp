@@ -20,6 +20,7 @@
 using namespace std;
 using namespace IceRuby;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 static VALUE _typeInfoClass, _exceptionInfoClass;
 
@@ -345,7 +346,7 @@ IceRuby::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const Unmarshal
 }
 
 void
-IceRuby::PrimitiveInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory*)
+IceRuby::PrimitiveInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
     switch(kind)
     {
@@ -364,7 +365,7 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHist
     case PrimitiveInfo::KindLong:
     {
         Ice::Long l = getLong(value);
-        out << IceUtil::int64ToString(l);
+        out << IceUtilInternal::int64ToString(l);
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -467,7 +468,7 @@ IceRuby::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallb
 }
 
 void
-IceRuby::EnumInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory*)
+IceRuby::EnumInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
     if(!validate(value))
     {
@@ -550,7 +551,7 @@ IceRuby::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCal
 }
 
 void
-IceRuby::StructInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory* history)
+IceRuby::StructInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -689,7 +690,7 @@ IceRuby::SequenceInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 }
 
 void
-IceRuby::SequenceInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory* history)
+IceRuby::SequenceInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -911,7 +912,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindBool:
     {
         pair<const bool*, const bool*> p;
-        IceUtil::ScopedArray<bool> sa(is->readBoolSeq(p));
+        IceUtilInternal::ScopedArray<bool> sa(is->readBoolSeq(p));
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -932,7 +933,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindShort:
     {
         pair<const Ice::Short*, const Ice::Short*> p;
-        IceUtil::ScopedArray<Ice::Short> sa(is->readShortSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Short> sa(is->readShortSeq(p));
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -946,7 +947,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindInt:
     {
         pair<const Ice::Int*, const Ice::Int*> p;
-        IceUtil::ScopedArray<Ice::Int> sa(is->readIntSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Int> sa(is->readIntSeq(p));
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -960,7 +961,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindLong:
     {
         pair<const Ice::Long*, const Ice::Long*> p;
-        IceUtil::ScopedArray<Ice::Long> sa(is->readLongSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Long> sa(is->readLongSeq(p));
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -974,7 +975,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindFloat:
     {
         pair<const Ice::Float*, const Ice::Float*> p;
-        IceUtil::ScopedArray<Ice::Float> sa(is->readFloatSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Float> sa(is->readFloatSeq(p));
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -988,7 +989,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindDouble:
     {
         pair<const Ice::Double*, const Ice::Double*> p;
-        IceUtil::ScopedArray<Ice::Double> sa(is->readDoubleSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Double> sa(is->readDoubleSeq(p));
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -1145,7 +1146,7 @@ namespace
 {
 struct DictionaryPrintIterator : public IceRuby::HashIterator
 {
-    DictionaryPrintIterator(const DictionaryInfoPtr& d, IceUtil::Output& o, PrintObjectHistory* h) :
+    DictionaryPrintIterator(const DictionaryInfoPtr& d, IceUtilInternal::Output& o, PrintObjectHistory* h) :
         dict(d), out(o), history(h)
     {
     }
@@ -1156,13 +1157,13 @@ struct DictionaryPrintIterator : public IceRuby::HashIterator
     }
 
     IceRuby::DictionaryInfoPtr dict;
-    IceUtil::Output& out;
+    IceUtilInternal::Output& out;
     IceRuby::PrintObjectHistory* history;
 };
 }
 
 void
-IceRuby::DictionaryInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory* history)
+IceRuby::DictionaryInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -1196,7 +1197,7 @@ IceRuby::DictionaryInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHis
 }
 
 void
-IceRuby::DictionaryInfo::printElement(VALUE key, VALUE value, IceUtil::Output& out, PrintObjectHistory* history)
+IceRuby::DictionaryInfo::printElement(VALUE key, VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     out << nl << "key = ";
     keyType->print(key, out, history);
@@ -1338,7 +1339,7 @@ IceRuby::ClassInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCall
 }
 
 void
-IceRuby::ClassInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory* history)
+IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -1421,7 +1422,7 @@ IceRuby::ClassInfo::destroy()
 }
 
 void
-IceRuby::ClassInfo::printMembers(VALUE value, IceUtil::Output& out, PrintObjectHistory* history)
+IceRuby::ClassInfo::printMembers(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(base)
     {
@@ -1540,7 +1541,7 @@ IceRuby::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCall
 }
 
 void
-IceRuby::ProxyInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory*)
+IceRuby::ProxyInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
     if(!validate(value))
     {
@@ -1820,7 +1821,7 @@ IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
 }
 
 void
-IceRuby::ExceptionInfo::print(VALUE value, IceUtil::Output& out)
+IceRuby::ExceptionInfo::print(VALUE value, IceUtilInternal::Output& out)
 {
     if(callRuby(rb_obj_is_kind_of, value, rubyClass) == Qfalse)
     {
@@ -1838,7 +1839,7 @@ IceRuby::ExceptionInfo::print(VALUE value, IceUtil::Output& out)
 }
 
 void
-IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtil::Output& out, PrintObjectHistory* history)
+IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(base)
     {
@@ -2148,7 +2149,7 @@ IceRuby_stringify(VALUE /*self*/, VALUE obj, VALUE type)
         TypeInfoPtr info = getType(type);
 
         ostringstream ostr;
-        IceUtil::Output out(ostr);
+        IceUtilInternal::Output out(ostr);
         PrintObjectHistory history;
         history.index = 0;
         info->print(obj, out, &history);
@@ -2171,7 +2172,7 @@ IceRuby_stringifyException(VALUE /*self*/, VALUE ex)
         ExceptionInfoPtr info = getException(type);
 
         ostringstream ostr;
-        IceUtil::Output out(ostr);
+        IceUtilInternal::Output out(ostr);
         info->print(ex, out);
 
         string str = ostr.str();

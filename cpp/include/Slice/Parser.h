@@ -133,11 +133,19 @@ typedef std::list<StructPtr> StructList;
 typedef std::list<SequencePtr> SequenceList;
 typedef std::list<DictionaryPtr> DictionaryList;
 typedef std::list<EnumPtr> EnumList;
+typedef std::list<ConstPtr> ConstList;
 typedef std::list<OperationPtr> OperationList;
 typedef std::list<DataMemberPtr> DataMemberList;
 typedef std::list<ParamDeclPtr> ParamDeclList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
-typedef std::pair<SyntaxTreeBasePtr, std::string> SyntaxTreeBaseString;
+
+struct ConstDef
+{
+    TypePtr type;
+    SyntaxTreeBasePtr value;
+    std::string valueAsString;
+    std::string valueAsLiteral;
+};
 
 // ----------------------------------------------------------------------
 // CICompare -- function object to do case-insensitive string comparison.
@@ -405,7 +413,7 @@ public:
     EnumPtr createEnum(const std::string&, bool, NodeType = Real);
     EnumeratorPtr createEnumerator(const std::string&);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
-                         const std::string&, NodeType = Real);
+                         const std::string&, const std::string&, NodeType = Real);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -417,6 +425,7 @@ public:
     SequenceList sequences() const;
     DictionaryList dictionaries() const;
     EnumList enums() const;
+    ConstList consts() const;
     ContainedList contents() const;
     bool hasNonLocalClassDecls() const;
     bool hasNonLocalClassDefs() const;
@@ -839,6 +848,7 @@ public:
     TypePtr type() const;
     StringList typeMetaData() const;
     std::string value() const;
+    std::string literal() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
@@ -851,12 +861,14 @@ public:
 
 protected:
 
-    Const(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const std::string&);
+    Const(const ContainerPtr&, const std::string&, const TypePtr&,
+          const StringList&, const std::string&, const std::string&);
     friend class Container;
 
     TypePtr _type;
     StringList _typeMetaData;
     std::string _value;
+    std::string _literal;
 };
 
 // ----------------------------------------------------------------------

@@ -266,7 +266,8 @@ final class UnknownEndpointI extends EndpointI
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if listening on INADDR_ANY.
+    // host if listening on INADDR_ANY on server side or if no host
+    // was specified on client side.
     //
     public java.util.List
     expand()

@@ -68,6 +68,8 @@ namespace IceInternal
              new Property(@"^Ice\.Default\.Router\.CollocationOptimized$", false, null),
              new Property(@"^Ice\.Default\.Router\.ThreadPerConnection$", false, null),
              new Property(@"^Ice\.Default\.Router$", false, null),
+             new Property(@"^Ice\.IPv4$", false, null),
+             new Property(@"^Ice\.IPv6$", false, null),
              new Property(@"^Ice\.EventLog\.Source$", false, null),
              new Property(@"^Ice\.GC\.Interval$", false, null),
              new Property(@"^Ice\.ImplicitContext$", false, null),

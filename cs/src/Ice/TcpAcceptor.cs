@@ -77,14 +77,18 @@ namespace IceInternal
 
         public virtual void connectToSelf()
         {
-            Socket fd = Network.createSocket(false);
+            Socket fd = Network.createSocket(false, _addr.AddressFamily);
             Network.setBlock(fd, false);
             //
             // .Net does not allow connecting to 0.0.0.0
             //
-            if(_addr.Address.ToString().Equals("0.0.0.0"))
+            if(_addr.Address.Equals(IPAddress.Any))
             {
-                Network.doConnect(fd, Network.getAddress("127.0.0.1", _addr.Port), -1);
+                Network.doConnect(fd, new IPEndPoint(IPAddress.Loopback, _addr.Port), -1);
+            }
+            else if(_addr.Address.Equals(IPAddress.IPv6Any))
+            {
+                Network.doConnect(fd, new IPEndPoint(IPAddress.IPv6Loopback, _addr.Port), -1);
             }
             else
             {
@@ -118,10 +122,10 @@ namespace IceInternal
             
             try
             {
-                _fd = Network.createSocket(false);
+                _addr = Network.getAddressForServer(host, port, instance_.protocolSupport());
+                _fd = Network.createSocket(false, _addr.AddressFamily);
                 Network.setBlock(_fd, false);
                 Network.setTcpBufSize(_fd, instance_.initializationData().properties, _logger);
-                _addr = Network.getAddress(host, port);
                 if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
                 {
                     //

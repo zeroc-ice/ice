@@ -727,11 +727,14 @@ namespace IceInternal
                 //
                 // No connection to any of our endpoints exists yet; we add the given connectors to
                 // the _pending set to indicate that we're attempting connection establishment to 
-                // these connectors.
+                // these connectors. We might attempt to connect to the same connector multiple times. 
                 //
                 foreach(ConnectorInfo ci in connectors)
                 {
-                    _pending.Add(ci, new Set());
+                    if(!_pending.ContainsKey(ci))
+                    {
+                        _pending.Add(ci, new Set());
+                    }
                 }
             }
 
@@ -810,12 +813,15 @@ namespace IceInternal
 
                 foreach(ConnectorInfo ci in connectors)
                 {
-                    Set s = _pending[ci];
-                    foreach(ConnectCallback c in s)
+                    Set s = null;
+                    if(_pending.TryGetValue(ci, out s))
                     {
-                        callbacks.Add(c);
+                        foreach(ConnectCallback c in s)
+                        {
+                            callbacks.Add(c);
+                        }
+                        _pending.Remove(ci);
                     }
-                    _pending.Remove(ci);
                 }
                 Monitor.PulseAll(this);
 

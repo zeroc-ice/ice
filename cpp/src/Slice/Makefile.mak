@@ -19,13 +19,14 @@ OBJS		= Scanner.obj \
 		  Parser.obj \
 		  CPlusPlusUtil.obj \
 		  CsUtil.obj \
-		  VbUtil.obj \
 		  JavaUtil.obj \
 		  Preprocessor.obj \
 		  Checksum.obj \
 		  PythonUtil.obj \
 		  DotNetNames.obj \
-		  RubyUtil.obj
+		  RubyUtil.obj \
+                  MD5.obj \
+                  MD5I.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

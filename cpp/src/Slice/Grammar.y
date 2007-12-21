@@ -1588,9 +1588,12 @@ const_initializer
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($1);
     ostringstream sstr;
     sstr << intVal->v;
-    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = pair<SyntaxTreeBasePtr,string>(type, sstr.str());
-    $$ = basestring;
+    ConstDefTokPtr def = new ConstDefTok;
+    def->v.type = type;
+    def->v.value = type;
+    def->v.valueAsString = sstr.str();
+    def->v.valueAsLiteral = intVal->literal;
+    $$ = def;
 }
 | ICE_FLOATING_POINT_LITERAL
 {
@@ -1598,18 +1601,24 @@ const_initializer
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($1);
     ostringstream sstr;
     sstr << floatVal->v;
-    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = pair<SyntaxTreeBasePtr,string>(type, sstr.str());
-    $$ = basestring;
+    ConstDefTokPtr def = new ConstDefTok;
+    def->v.type = type;
+    def->v.value = type;
+    def->v.valueAsString = sstr.str();
+    def->v.valueAsLiteral = floatVal->literal;
+    $$ = def;
 }
 | scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
+    ConstDefTokPtr def = new ConstDefTok;
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
     if(cl.empty())
     {
-    	basestring->v = pair<SyntaxTreeBasePtr,string>(TypePtr(0), scoped->v);
+        def->v.type = TypePtr(0);
+        def->v.value = TypePtr(0);
+        def->v.valueAsString = scoped->v;
+        def->v.valueAsLiteral = scoped->v;
     }
     else
     {
@@ -1627,33 +1636,45 @@ const_initializer
 	    unit->error(msg); // $$ is dummy
 	}
 	unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
-	basestring->v = pair<SyntaxTreeBasePtr,string>(enumerator, scoped->v);
+        def->v.type = enumerator->type();
+        def->v.value = enumerator;
+        def->v.valueAsString = scoped->v;
+        def->v.valueAsLiteral = scoped->v;
     }
-    $$ = basestring;
+    $$ = def;
 }
 | ICE_STRING_LITERAL
 {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = pair<SyntaxTreeBasePtr,string>(type, literal->v);
-    $$ = basestring;
+    ConstDefTokPtr def = new ConstDefTok;
+    def->v.type = type;
+    def->v.value = type;
+    def->v.valueAsString = literal->v;
+    def->v.valueAsLiteral = literal->literal;
+    $$ = def;
 }
 | ICE_FALSE
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = pair<SyntaxTreeBasePtr,string>(type, literal->v);
-    $$ = basestring;
+    ConstDefTokPtr def = new ConstDefTok;
+    def->v.type = type;
+    def->v.value = type;
+    def->v.valueAsString = literal->v;
+    def->v.valueAsLiteral = "false";
+    $$ = def;
 }
 | ICE_TRUE
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = pair<SyntaxTreeBasePtr,string>(type, literal->v);
-    $$ = basestring;
+    ConstDefTokPtr def = new ConstDefTok;
+    def->v.type = type;
+    def->v.value = type;
+    def->v.valueAsString = literal->v;
+    def->v.valueAsLiteral = "true";
+    $$ = def;
 }
 ;
 
@@ -1665,17 +1686,19 @@ const_def
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
     TypePtr const_type = TypePtr::dynamicCast($3);
     StringTokPtr ident = StringTokPtr::dynamicCast($4);
-    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($6);
-    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v.first, value->v.second);
+    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($6);
+    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v,
+                                               value->v.value, value->v.valueAsString, value->v.valueAsLiteral);
 }
 | ICE_CONST meta_data type '=' const_initializer
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
     TypePtr const_type = TypePtr::dynamicCast($3);
-    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($5);
+    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($5);
     unit->error("missing constant name");
-    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v.first,
-    					       value->v.second, Dummy); // Dummy
+    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v,
+                                               value->v.value, value->v.valueAsString,
+                                               value->v.valueAsLiteral, Dummy); // Dummy
 }
 ;
 

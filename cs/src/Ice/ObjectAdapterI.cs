@@ -930,11 +930,11 @@ namespace Ice
                     List<IceInternal.EndpointI> endpoints;
                     if(endpointInfo.Length == 0)
                     {
-                        endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"));
+                        endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                     }
                     else
                     {
-                        endpoints = parseEndpoints(endpointInfo);
+                        endpoints = parseEndpoints(endpointInfo, true);
                     }
                     foreach(IceInternal.EndpointI endp in endpoints)
                     {
@@ -1113,7 +1113,7 @@ namespace Ice
             }
         }
 
-        private List<IceInternal.EndpointI> parseEndpoints(string endpts)
+        private List<IceInternal.EndpointI> parseEndpoints(string endpts, bool oaEndpoints)
         {
             int beg;
             int end = 0;
@@ -1129,10 +1129,47 @@ namespace Ice
                     break;
                 }
 
-                end = endpts.IndexOf((System.Char) ':', beg);
-                if(end == -1)
+                end = beg;
+                while(true)
                 {
-                    end = endpts.Length;
+                    end = endpts.IndexOf((System.Char) ':', end);
+                    if(end == -1)
+                    {
+                        end = endpts.Length;
+                        break;
+                    }
+                    else
+                    {
+                        bool quoted = false;
+                        int quote = beg;
+                        while(true)
+                        {
+                            quote = endpts.IndexOf((System.Char) '\"', quote);
+                            if(quote == -1 || end < quote)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                quote = endpts.IndexOf((System.Char) '\"', ++quote);
+                                if(quote == -1)
+                                {
+                                    break;
+                                }
+                                else if(end < quote)
+                                {
+                                    quoted = true;
+                                    break;
+                                }
+                                ++quote;
+                            }
+                        }
+                        if(!quoted)
+                        {
+                            break;
+                        }
+                        ++end;
+                    }
                 }
 
                 if(end == beg)
@@ -1142,7 +1179,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s, true);
+                IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s, oaEndpoints);
                 if(endp == null)
                 {
                     if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono &&
@@ -1172,13 +1209,19 @@ namespace Ice
             // instead of the connection factory endpoints.
             //
             string endpts = instance_.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
-            List<IceInternal.EndpointI> endpoints = parseEndpoints(endpts);
-            if(endpoints.Count == 0)
+            List<IceInternal.EndpointI> endpoints = parseEndpoints(endpts, false);
+            if(endpoints.Count > 0)
             {
-                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    endpoints.Add(factory.endpoint());
-                }
+                return endpoints;
+            }
+
+            //
+            // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+            // from the OA endpoints.
+            //
+            foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+            {
+                endpoints.Add(factory.endpoint());
             }
 
             //
@@ -1188,8 +1231,7 @@ namespace Ice
             List<IceInternal.EndpointI> expandedEndpoints = new List<IceInternal.EndpointI>();
             foreach(IceInternal.EndpointI endp in endpoints)
             {
-                List<IceInternal.EndpointI> endps = endp.expand();
-                expandedEndpoints.AddRange(endps);
+                expandedEndpoints.AddRange(endp.expand());
             }
             return expandedEndpoints;
         }

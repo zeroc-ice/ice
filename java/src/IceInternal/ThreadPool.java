@@ -145,7 +145,6 @@ public final class ThreadPool
 
         assert(!_destroyed);
         assert(_handlerMap.isEmpty());
-        assert(_workItems.isEmpty());
         _destroyed = true;
         setInterrupt();
     }

@@ -155,7 +155,6 @@ ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
 
 ifneq ($(ICE_DIR),)
     ifneq ($(USE_SRC_DIST),0)
-$(error Why is this happening?)
         ICE_FLAGS       = -I$(ICE_DIR)/cpp/include
     else
         ICE_FLAGS	= -I$(ICE_DIR)/include

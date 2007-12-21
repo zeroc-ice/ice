@@ -11,6 +11,7 @@ namespace IceSSL
 {
     using System.Diagnostics;
     using System.Collections;
+    using System.Net;
 
     sealed class EndpointI : IceInternal.EndpointI
     {
@@ -27,7 +28,7 @@ namespace IceSSL
             calcHashValue();
         }
 
-        internal EndpointI(Instance instance, string str, bool server)
+        internal EndpointI(Instance instance, string str, bool oaEndpoint)
         {
             instance_ = instance;
             host_ = null;
@@ -154,22 +155,24 @@ namespace IceSSL
             if(host_ == null)
             {
                 host_ = instance_.defaultHost();
-                if(host_ == null)
-                {
-                    if(server)
-                    {
-                        host_ = "0.0.0.0";
-                    }
-                    else
-                    {
-                        host_ = "127.0.0.1";
-                    }
-                }
             }
             else if(host_.Equals("*"))
             {
-                host_ = "0.0.0.0";
+                if(oaEndpoint)
+                {
+                    host_ = null;
+                }
+                else
+                {
+                    throw new Ice.EndpointParseException("ssl " + str);
+                }        
             }
+
+            if(host_ == null)
+            {
+                host_ = "";
+            }
+
             calcHashValue();
         }
 
@@ -211,7 +214,17 @@ namespace IceSSL
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            string s = "ssl -h " + host_ + " -p " + port_;
+            string s = "ssl -h ";
+            bool addQuote = host_.IndexOf(':') != -1;
+            if(addQuote)
+            {
+                s += "\"";
+            }
+            s += host_;
+            if(addQuote)
+            {
+                s += "\"";
+            }
             if(timeout_ != -1)
             {
                 s += " -t " + timeout_;
@@ -342,7 +355,8 @@ namespace IceSSL
         public override ArrayList connectors()
         {
             ArrayList connectors = new ArrayList();
-            System.Net.IPEndPoint[] addresses = IceInternal.Network.getAddresses(host_, port_);
+            System.Net.IPEndPoint[] addresses = 
+                IceInternal.Network.getAddresses(host_, port_, instance_.protocolSupport());
             for(int i = 0; i < addresses.Length; ++i)
             {
                 connectors.Add(new ConnectorI(instance_, addresses[i], timeout_, connectionId_));
@@ -368,23 +382,21 @@ namespace IceSSL
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY.
         //
-        public override ArrayList expand()
+        public override List<IceInternal.EndpointI>
+        expand()
         {
-            ArrayList endps = new ArrayList();
-            if(host_.Equals("0.0.0.0"))
+            List<EndpointI> endps = new List<EndpointI>();
+            List<string> hosts = IceInternal.Network.getHostsForEndpointExpand(host_, instance_.protocolSupport());
+            if(hosts == null || hosts.Count == 0)
             {
-                string[] hosts = IceInternal.Network.getLocalHosts();
-                for(int i = 0; i < hosts.Length; ++i)
-                {
-                    if(hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
-                    {
-                        endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_));
-                    }
-                }
+                endps.Add(this);
             }
             else
             {
-                endps.Add(this);
+                foreach(string h in hosts)
+                {
+                    endps.Add(new EndpointI(instance_, h, port_, timeout_, connectionId_, compress_));
+                }
             }
             return endps;
         }
@@ -403,7 +415,14 @@ namespace IceSSL
             {
                 return false;
             }
-            return sslConnector.equivalent(host_, port_);
+            try
+            {
+                return sslConnector.equivalent(IceInternal.Network.getAddress(host_, port_, instance_.protocolSupport()));
+            }
+            catch(Ice.DNSException)
+            {
+                return false;
+            }
         }
 
         public override bool requiresThreadPerConnection()
@@ -487,14 +506,7 @@ namespace IceSSL
 
         private void calcHashValue()
         {
-            try
-            {
-                hashCode_ = IceInternal.Network.getNumericHost(host_).GetHashCode();
-            }
-            catch(Ice.DNSException)
-            {
-                hashCode_ = host_.GetHashCode();
-            }
+            hashCode_ = host_.GetHashCode();
             hashCode_ = 5 * hashCode_ + port_;
             hashCode_ = 5 * hashCode_ + timeout_;
             hashCode_ = 5 * hashCode_ + connectionId_.GetHashCode();
@@ -527,9 +539,9 @@ namespace IceSSL
             return "ssl";
         }
 
-        public IceInternal.EndpointI create(string str, bool server)
+        public IceInternal.EndpointI create(string str, bool oaEndpoint)
         {
-            return new EndpointI(instance_, str, server);
+            return new EndpointI(instance_, str, oaEndpoint);
         }
 
         public IceInternal.EndpointI read(IceInternal.BasicStream s)

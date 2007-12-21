@@ -17,9 +17,11 @@
 #include <Ice/Config.h>
 #include <Ice/PropertiesF.h> // For setTcpBufSize
 #include <Ice/LoggerF.h> // For setTcpBufSize
+#include <Ice/Protocol.h> 
 
 #ifdef _WIN32
 #   include <winsock2.h>
+#   include <ws2tcpip.h>
 typedef int ssize_t;
 #else
 #   include <unistd.h>
@@ -76,7 +78,7 @@ ICE_API bool connectionLost();
 ICE_API bool notConnected();
 ICE_API bool recvTruncated();
 
-ICE_API SOCKET createSocket(bool);
+ICE_API SOCKET createSocket(bool, int);
 ICE_API void closeSocket(SOCKET);
 ICE_API void closeSocketNoThrow(SOCKET);
 ICE_API void shutdownSocketWrite(SOCKET);
@@ -94,14 +96,18 @@ ICE_API void setMcastInterface(SOCKET, const struct in_addr&);
 ICE_API void setMcastTtl(SOCKET, int);
 ICE_API void setReuseAddress(SOCKET, bool);
 
-ICE_API void doBind(SOCKET, struct sockaddr_in&);
+ICE_API void doBind(SOCKET, struct sockaddr_storage&);
 ICE_API void doListen(SOCKET, int);
-ICE_API bool doConnect(SOCKET, struct sockaddr_in&, int);
+ICE_API bool doConnect(SOCKET, struct sockaddr_storage&, int);
 ICE_API void doFinishConnect(SOCKET, int);
 ICE_API SOCKET doAccept(SOCKET, int);
 
-ICE_API void getAddress(const std::string&, int, struct sockaddr_in&);
-ICE_API int compareAddress(const struct sockaddr_in&, const struct sockaddr_in&);
+ICE_API void getAddressForServer(const std::string&, int, struct sockaddr_storage&, ProtocolSupport);
+ICE_API void getAddress(const std::string&, int, struct sockaddr_storage&, ProtocolSupport);
+ICE_API std::vector<struct sockaddr_storage> getAddresses(const std::string&, int, ProtocolSupport, bool);
+
+
+ICE_API int compareAddress(const struct sockaddr_storage&, const struct sockaddr_storage&);
 
 ICE_API void createPipe(SOCKET fds[2]);
 
@@ -110,16 +116,17 @@ ICE_API std::string errorToStringDNS(int);
 ICE_API std::string lastErrorToString();
 
 ICE_API std::string fdToString(SOCKET);
-ICE_API std::string addressesToString(const struct sockaddr_in&, const struct sockaddr_in&, bool);
-ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_in&);
-ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_in&);
-ICE_API std::string addrToString(const struct sockaddr_in&);
+ICE_API std::string addressesToString(const struct sockaddr_storage&, const struct sockaddr_storage&, bool);
+ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_storage&);
+ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_storage&);
+ICE_API std::string inetAddrToString(const struct sockaddr_storage&);
+ICE_API std::string addrToString(const struct sockaddr_storage&);
+ICE_API int getPort(const struct sockaddr_storage&);
 
-ICE_API std::vector<struct sockaddr_in> getAddresses(const std::string&, int, bool = true);
-ICE_API std::vector<std::string> getLocalHosts();
+ICE_API std::vector<std::string> getHostsForEndpointExpand(const std::string&, ProtocolSupport);
 ICE_API void setTcpBufSize(SOCKET, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+
 ICE_API int getSocketErrno();
-ICE_API std::string inetAddrToString(const struct in_addr&);
 
 }
 
