@@ -12,6 +12,7 @@
 #include <Ice/LocalException.h>
 
 using namespace IceUtil;
+using namespace IceUtilInternal;
 using namespace std;
 
 

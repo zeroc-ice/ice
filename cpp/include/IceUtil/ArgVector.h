@@ -14,7 +14,7 @@
 #include <vector>
 #include <string>
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 class ICE_UTIL_API ArgVector

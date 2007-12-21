@@ -26,7 +26,9 @@ OBJS		= Scanner.o \
 		  Checksum.o \
 		  PythonUtil.o \
 		  DotNetNames.o \
-		  RubyUtil.o
+		  RubyUtil.o \
+                  MD5.o \
+                  MD5I.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

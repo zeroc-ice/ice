@@ -18,6 +18,7 @@
 #include <Freeze/Catalog.h>
 #include <Freeze/Initialize.h>
 #include <IceXML/Parser.h>
+#include <IceUtil/InputUtil.h>
 #include <db_cxx.h>
 
 using namespace std;
@@ -2383,7 +2384,7 @@ FreezeScript::SymbolTableI::getConstantValue(const string& name) const
             case Slice::Builtin::KindLong:
             {
                 Ice::Long n;
-                if(!IceUtil::stringToInt64(value, n))
+                if(!IceUtilInternal::stringToInt64(value, n))
                 {
                     assert(false);
                 }

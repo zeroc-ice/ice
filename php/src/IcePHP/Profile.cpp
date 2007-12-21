@@ -12,6 +12,7 @@
 
 #include <Slice/Preprocessor.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/InputUtil.h>
 #include <fstream>
 
 using namespace std;
@@ -319,7 +320,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
     vector<string> args;
     try
     {
-        args = IceUtil::Options::split(argStr);
+        args = IceUtilInternal::Options::split(argStr);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -331,10 +332,10 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
         return false;
     }
 
-    IceUtil::Options opts;
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    IceUtilInternal::Options opts;
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "case-sensitive");
@@ -460,7 +461,7 @@ createProfile(const string& name, const string& config, const string& options, c
         vector<string> args;
         try
         {
-            args = IceUtil::Options::split(options);
+            args = IceUtilInternal::Options::split(options);
         }
         catch(const IceUtil::Exception& ex)
         {
@@ -1194,7 +1195,7 @@ IcePHP::CodeVisitor::visitConst(const Slice::ConstPtr& p)
         case Slice::Builtin::KindLong:
         {
             IceUtil::Int64 l;
-            IceUtil::stringToInt64(value, l);
+            IceUtilInternal::stringToInt64(value, l);
             //
             // The platform's 'long' type may not be 64 bits, so we store 64-bit
             // values as a string.

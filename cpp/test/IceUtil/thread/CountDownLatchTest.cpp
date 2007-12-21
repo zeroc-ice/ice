@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 static const string testName("countDownLatch");
 

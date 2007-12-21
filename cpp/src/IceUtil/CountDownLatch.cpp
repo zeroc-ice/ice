@@ -10,36 +10,36 @@
 #include <IceUtil/CountDownLatch.h>
 #include <IceUtil/ThreadException.h>
 
-IceUtil::CountDownLatch::CountDownLatch(int count) :
+IceUtilInternal::CountDownLatch::CountDownLatch(int count) :
     _count(count)
 {
     if(count < 0)
     {
-        throw Exception(__FILE__, __LINE__);
+        throw IceUtil::Exception(__FILE__, __LINE__);
     }
 
 #ifdef _WIN32
     _event = CreateEvent(0, TRUE, FALSE, 0);
     if(_event == 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw  IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 #else
     int rc = pthread_mutex_init(&_mutex, 0);
     if(rc != 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rc);
     }
     
     rc = pthread_cond_init(&_cond, 0);
     if(rc != 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rc);
     }   
 #endif
 }
 
-IceUtil::CountDownLatch::~CountDownLatch()
+IceUtilInternal::CountDownLatch::~CountDownLatch()
 {
 #ifdef _WIN32
     CloseHandle(_event);
@@ -53,7 +53,7 @@ IceUtil::CountDownLatch::~CountDownLatch()
 }
 
 void 
-IceUtil::CountDownLatch::await() const
+IceUtilInternal::CountDownLatch::await() const
 {
 #ifdef _WIN32
     while(InterlockedExchangeAdd(&_count, 0) > 0)
@@ -63,7 +63,7 @@ IceUtil::CountDownLatch::await() const
         
         if(rc == WAIT_FAILED)
         {
-            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
         }
     }
 #else
@@ -74,7 +74,7 @@ IceUtil::CountDownLatch::await() const
         if(rc != 0)
         {
             pthread_mutex_unlock(&_mutex);
-            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rc);
         }
     }
     unlock();
@@ -83,14 +83,14 @@ IceUtil::CountDownLatch::await() const
 }
 
 void 
-IceUtil::CountDownLatch::countDown()
+IceUtilInternal::CountDownLatch::countDown()
 {
 #ifdef _WIN32
     if(InterlockedDecrement(&_count) == 0)
     {
         if(SetEvent(_event) == 0)
         {
-            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
         }
     }
 #else
@@ -112,7 +112,7 @@ IceUtil::CountDownLatch::countDown()
         if(rc != 0)
         {
             pthread_mutex_unlock(&_mutex);
-            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rc);
         }
     }
     unlock();
@@ -125,7 +125,7 @@ IceUtil::CountDownLatch::countDown()
         int rc = pthread_cond_broadcast(&_cond);
         if(rc != 0)
         {
-            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rc);
         }
     }
 #endif
@@ -134,7 +134,7 @@ IceUtil::CountDownLatch::countDown()
 }
 
 int 
-IceUtil::CountDownLatch::getCount() const
+IceUtilInternal::CountDownLatch::getCount() const
 {
 #ifdef _WIN32
     int count = InterlockedExchangeAdd(&_count, 0);
@@ -149,22 +149,22 @@ IceUtil::CountDownLatch::getCount() const
 
 #ifndef _WIN32
 void
-IceUtil::CountDownLatch::lock() const
+IceUtilInternal::CountDownLatch::lock() const
 {
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
 void
-IceUtil::CountDownLatch::unlock() const
+IceUtilInternal::CountDownLatch::unlock() const
 {
     int rc = pthread_mutex_unlock(&_mutex);
     if(rc != 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 

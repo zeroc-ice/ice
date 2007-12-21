@@ -763,7 +763,7 @@ CallbackClient::run(int argc, char* argv[])
         vector<StressClientPtr> clients;
         for(i = 0; i < nClients; ++i)
         {
-            switch(IceUtil::random(3))
+            switch(IceUtilInternal::random(3))
             {
             case 0:
                 clients.push_back(new PingStressClient(i));

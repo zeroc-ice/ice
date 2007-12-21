@@ -294,7 +294,7 @@ Freeze::BackgroundSaveEvictorI::addFacet(const ObjectPtr& servant, const Identit
         ex.id = _communicator->identityToString(ident);
         if(!facet.empty())
         {
-            ex.id += " -f " + IceUtil::escapeString(facet, "");
+            ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
         }
         throw ex;
     }
@@ -418,7 +418,7 @@ Freeze::BackgroundSaveEvictorI::removeFacet(const Identity& ident, const string&
         ex.id = _communicator->identityToString(ident);
         if(!facet.empty())
         {
-            ex.id += " -f " + IceUtil::escapeString(facet, "");
+            ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
         }
         throw ex;
     }
@@ -521,7 +521,7 @@ Freeze::BackgroundSaveEvictorI::keepFacet(const Identity& ident, const string& f
         ex.id = _communicator->identityToString(ident);
         if(!facet.empty())
         {
-            ex.id += " -f " + IceUtil::escapeString(facet, "");
+            ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
         }
         throw ex;
     }
@@ -576,7 +576,7 @@ Freeze::BackgroundSaveEvictorI::releaseFacet(const Identity& ident, const string
     ex.id = _communicator->identityToString(ident);
     if(!facet.empty())
     {
-        ex.id += " -f " + IceUtil::escapeString(facet, "");
+        ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
     }
     throw ex;
 }

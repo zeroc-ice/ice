@@ -55,7 +55,7 @@ private:
     std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true);
     std::string toString(const std::string&, const ContainerPtr&, bool = true);
 
-    ::IceUtil::XMLOutput O;
+    ::IceUtilInternal::XMLOutput O;
 
     bool _standAlone;
     bool _noGlobals;

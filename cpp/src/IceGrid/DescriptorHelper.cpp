@@ -15,6 +15,7 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 using namespace IceGrid;
 
 namespace IceGrid

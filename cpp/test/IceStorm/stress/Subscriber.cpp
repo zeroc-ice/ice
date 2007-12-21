@@ -140,7 +140,7 @@ public:
         Lock sync(*this);
 
         // Randomly close the connection.
-        if(!_done && (IceUtil::random(10) == 1 || ++_count == _total))
+        if(!_done && (IceUtilInternal::random(10) == 1 || ++_count == _total))
         {
             _done = true;
             current.con->close(true);
@@ -180,17 +180,17 @@ struct Subscription
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
-    IceUtil::Options opts;
-    opts.addOpt("", "events", IceUtil::Options::NeedArg);
-    opts.addOpt("", "qos", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    IceUtilInternal::Options opts;
+    opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "qos", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "slow");
-    opts.addOpt("", "erratic", IceUtil::Options::NeedArg);
+    opts.addOpt("", "erratic", IceUtilInternal::Options::NeedArg);
 
     try
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         return EXIT_FAILURE;

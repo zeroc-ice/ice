@@ -161,7 +161,7 @@ public:
                 else
                 {
                     session = _registry->createSession(os.str(), "");
-                    session->setAllocationTimeout(IceUtil::random(200)); // 200ms timeout
+                    session->setAllocationTimeout(IceUtilInternal::random(200)); // 200ms timeout
                 }
             }
 
@@ -169,7 +169,7 @@ public:
             session->keepAlive();
 
             Ice::ObjectPrx object;
-            switch(IceUtil::random(_destroySession ? 4 : 2))
+            switch(IceUtilInternal::random(_destroySession ? 4 : 2))
             {
             case 0:
                 object = allocate(session);
@@ -191,8 +191,8 @@ public:
 
             if(object)
             {
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(IceUtil::random(20)));
-                switch(IceUtil::random(_destroySession ? 2 : 1))
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(IceUtilInternal::random(20)));
+                switch(IceUtilInternal::random(_destroySession ? 2 : 1))
                 {
                 case 0:
                     session->releaseObject(object->ice_getIdentity());
@@ -211,7 +211,7 @@ public:
     allocate(const SessionPrx& session)
     {
         ostringstream os;
-        os << "stress-" << IceUtil::random(6) + 1;
+        os << "stress-" << IceUtilInternal::random(6) + 1;
         try
         {
             return session->allocateObjectById(_communicator->stringToIdentity(os.str()));
@@ -245,7 +245,7 @@ public:
     allocateAndDestroy(const SessionPrx& session)
     {
         ostringstream os;
-        os << "stress-" << IceUtil::random(3);
+        os << "stress-" << IceUtilInternal::random(3);
         session->allocateObjectById_async(new AllocateObjectByIdCallback(), _communicator->stringToIdentity(os.str()));
         session->destroy();
     }
@@ -1106,7 +1106,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         vector<StressClientPtr> clients;
         for(i = 0; i < nClients - 2; ++i)
         {
-            if(IceUtil::random(2) == 1)
+            if(IceUtilInternal::random(2) == 1)
             {
                 clients.push_back(new StressClient(i, registry, false));
             }

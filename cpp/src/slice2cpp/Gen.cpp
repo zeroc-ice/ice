@@ -19,6 +19,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 static string
 getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
@@ -375,7 +376,7 @@ Slice::Gen::generate(const UnitPtr& p)
 }
 
 void
-Slice::Gen::writeExtraHeaders(IceUtil::Output& out)
+Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
 {
     for(vector<string>::const_iterator i = _extraHeaders.begin(); i != _extraHeaders.end(); ++i)
     {
@@ -3370,7 +3371,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         StringList::const_iterator firstIter = ids.begin();
         StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
         assert(scopedIter != ids.end());
-        StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
+        StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
         H << sp;
         H << nl << "virtual bool ice_isA"

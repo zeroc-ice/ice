@@ -40,7 +40,7 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 {
     ptrdiff_t operator()(ptrdiff_t d)
     {
-	return IceUtil::random(static_cast<int>(d));
+	return IceUtilInternal::random(static_cast<int>(d));
     }
 };
 
@@ -225,7 +225,7 @@ IceInternal::Reference::toString() const
 		_instance->initializationData().stringConverter->toUTF8(fs.data(), fs.data() + fs.size(), buffer);
 	    fs = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
 	}
-	fs = IceUtil::escapeString(fs, "");
+	fs = IceUtilInternal::escapeString(fs, "");
 	if(fs.find_first_of(" :@") != string::npos)
 	{
 	    s << '"' << fs << '"';
@@ -1883,7 +1883,7 @@ IceInternal::IndirectReference::toString() const
 	Byte* last = getInstance()->initializationData().stringConverter->toUTF8(a.data(), a.data() + a.size(), buffer);
 	a = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
     }
-    a = IceUtil::escapeString(a, "");
+    a = IceUtilInternal::escapeString(a, "");
     if(a.find_first_of(" ") != string::npos)
     {
 	result.append("\"");

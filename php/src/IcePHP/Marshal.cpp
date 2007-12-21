@@ -509,7 +509,7 @@ IcePHP::PrimitiveMarshaler::validate(zval* zv TSRMLS_DC)
         else
         {
             string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-            if(!IceUtil::stringToInt64(sval, val))
+            if(!IceUtilInternal::stringToInt64(sval, val))
             {
                 php_error_docref(0 TSRMLS_CC, E_ERROR, "invalid long value `%s'", Z_STRVAL_P(zv));
                 return false;
@@ -611,7 +611,7 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         else
         {
             string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-            IceUtil::stringToInt64(sval, val);
+            IceUtilInternal::stringToInt64(sval, val);
         }
         os->writeLong(val);
         break;
@@ -692,7 +692,7 @@ IcePHP::PrimitiveMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TS
         //
         if(sizeof(Ice::Long) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
         {
-            string str = IceUtil::int64ToString(val);
+            string str = IceUtilInternal::int64ToString(val);
             ZVAL_STRINGL(zv, const_cast<char*>(str.c_str()), str.length(), 1);
         }
         else
@@ -868,7 +868,7 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
                 else
                 {
                     string sval(Z_STRVAL_P(*val), Z_STRLEN_P(*val));
-                    IceUtil::stringToInt64(sval, l);
+                    IceUtilInternal::stringToInt64(sval, l);
                 }
                 seq[i++] = l;
                 zend_hash_move_forward_ex(arr, &pos);
@@ -975,7 +975,7 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
         case Slice::Builtin::KindBool:
         {
             pair<const bool*, const bool*> pr;
-            IceUtil::ScopedArray<bool> arr(is->readBoolSeq(pr));
+            IceUtilInternal::ScopedArray<bool> arr(is->readBoolSeq(pr));
             Ice::Int i = 0;
             for(const bool* p = pr.first; p != pr.second; ++p, ++i)
             {
@@ -1003,7 +1003,7 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
         case Slice::Builtin::KindShort:
         {
             pair<const Ice::Short*, const Ice::Short*> pr;
-            IceUtil::ScopedArray<Ice::Short> arr(is->readShortSeq(pr));
+            IceUtilInternal::ScopedArray<Ice::Short> arr(is->readShortSeq(pr));
             Ice::Int i = 0;
             for(const Ice::Short* p = pr.first; p != pr.second; ++p, ++i)
             {
@@ -1017,7 +1017,7 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
         case Slice::Builtin::KindInt:
         {
             pair<const Ice::Int*, const Ice::Int*> pr;
-            IceUtil::ScopedArray<Ice::Int> arr(is->readIntSeq(pr));
+            IceUtilInternal::ScopedArray<Ice::Int> arr(is->readIntSeq(pr));
             Ice::Int i = 0;
             for(const Ice::Int* p = pr.first; p != pr.second; ++p, ++i)
             {
@@ -1031,7 +1031,7 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
         case Slice::Builtin::KindLong:
         {
             pair<const Ice::Long*, const Ice::Long*> pr;
-            IceUtil::ScopedArray<Ice::Long> arr(is->readLongSeq(pr));
+            IceUtilInternal::ScopedArray<Ice::Long> arr(is->readLongSeq(pr));
             Ice::Int i = 0;
             for(const Ice::Long* p = pr.first; p != pr.second; ++p, ++i)
             {
@@ -1043,7 +1043,7 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
                 //
                 if(sizeof(Ice::Long) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
                 {
-                    string str = IceUtil::int64ToString(*p);
+                    string str = IceUtilInternal::int64ToString(*p);
                     ZVAL_STRINGL(val, const_cast<char*>(str.c_str()), str.length(), 1);
                 }
                 else
@@ -1057,7 +1057,7 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
         case Slice::Builtin::KindFloat:
         {
             pair<const Ice::Float*, const Ice::Float*> pr;
-            IceUtil::ScopedArray<Ice::Float> arr(is->readFloatSeq(pr));
+            IceUtilInternal::ScopedArray<Ice::Float> arr(is->readFloatSeq(pr));
             Ice::Int i = 0;
             for(const Ice::Float* p = pr.first; p != pr.second; ++p, ++i)
             {
@@ -1071,7 +1071,7 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
         case Slice::Builtin::KindDouble:
         {
             pair<const Ice::Double*, const Ice::Double*> pr;
-            IceUtil::ScopedArray<Ice::Double> arr(is->readDoubleSeq(pr));
+            IceUtilInternal::ScopedArray<Ice::Double> arr(is->readDoubleSeq(pr));
             Ice::Int i = 0;
             for(const Ice::Double* p = pr.first; p != pr.second; ++p, ++i)
             {

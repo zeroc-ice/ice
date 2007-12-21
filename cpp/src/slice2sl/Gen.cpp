@@ -17,7 +17,6 @@
 #else
 #include <direct.h>
 #endif
-#include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <Slice/DotNetNames.h>
@@ -30,13 +29,13 @@ using namespace Slice;
 // ambigious symbols for constructs like
 // "IceUtil::constMemFun(&Slice::Exception::isLocal)".
 //
-using IceUtil::Output;
-using IceUtil::nl;
-using IceUtil::sp;
-using IceUtil::sb;
-using IceUtil::eb;
-using IceUtil::spar;
-using IceUtil::epar;
+using IceUtilInternal::Output;
+using IceUtilInternal::nl;
+using IceUtilInternal::sp;
+using IceUtilInternal::sb;
+using IceUtilInternal::eb;
+using IceUtilInternal::spar;
+using IceUtilInternal::epar;
 
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(Operation::Mode opMode)
@@ -158,7 +157,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
     _out << sp << nl << "#region Slice type-related members";
 
@@ -581,7 +580,7 @@ Slice::Gen::printHeader()
     _out << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceUtil::Output& out) :
+Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out) :
     CsVisitor(out), _globalMetaDataDone(false)
 {
 }
@@ -614,7 +613,7 @@ Slice::Gen::UnitVisitor::visitModuleStart(const ModulePtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtil::Output& out) :
+Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
     CsVisitor(out)
 {
 }
@@ -886,7 +885,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         StringList::const_iterator firstIter = ids.begin();
         StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
         assert(scopedIter != ids.end());
-        StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
+        StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
         _out << sp << nl << "#region Slice type-related members";
 
@@ -2061,7 +2060,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     _out << eb;
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtil::Output& out)
+Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -2184,7 +2183,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::OpsVisitor::OpsVisitor(IceUtil::Output& out)
+Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -2305,7 +2304,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     _out << eb;
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(IceUtil::Output& out) :
+Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
     CsVisitor(out)
 {
 }
@@ -3010,7 +3009,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtil::Output &out) :
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output &out) :
     CsVisitor(out)
 {
 }
@@ -3075,7 +3074,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-Slice::Gen::AsyncVisitor::AsyncVisitor(::IceUtil::Output &out)
+Slice::Gen::AsyncVisitor::AsyncVisitor(::IceUtilInternal::Output &out)
     : CsVisitor(out)
 {
 }

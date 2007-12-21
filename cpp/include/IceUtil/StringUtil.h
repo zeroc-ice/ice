@@ -13,7 +13,7 @@
 #include <IceUtil/Config.h>
 #include <vector>
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 //

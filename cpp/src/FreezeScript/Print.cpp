@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 namespace FreezeScript
 {
@@ -39,7 +40,7 @@ private:
 
     void printObjectMembers(const Slice::ClassDefPtr&, const DataMemberMap&);
 
-    IceUtil::Output _out;
+    IceUtilInternal::Output _out;
     typedef map<const ObjectData*, int> ObjectHistoryMap;
     ObjectHistoryMap _objectHistory;
     int _objectCount;

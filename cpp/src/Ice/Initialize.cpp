@@ -168,7 +168,7 @@ CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
 {
     CommunicatorPtr communicator;
-    IceUtil::ArgVector av(args);
+    IceUtilInternal::ArgVector av(args);
     communicator = initialize(av.argc, av.argv, initializationData, version);
     args = argsToStringSeq(av.argc, av.argv);
     return communicator;

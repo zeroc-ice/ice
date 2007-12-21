@@ -47,23 +47,23 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
-    opts.addOpt("", "output-dir", IceUtil::Options::NeedArg, ".");
-    opts.addOpt("", "hdr", IceUtil::Options::NeedArg);
-    opts.addOpt("", "ftr", IceUtil::Options::NeedArg);
-    opts.addOpt("", "indexhdr", IceUtil::Options::NeedArg);
-    opts.addOpt("", "indexftr", IceUtil::Options::NeedArg);
-    opts.addOpt("", "index", IceUtil::Options::NeedArg, "1");
-    opts.addOpt("", "image-dir", IceUtil::Options::NeedArg);
-    opts.addOpt("", "logo-url", IceUtil::Options::NeedArg);
-    opts.addOpt("", "search", IceUtil::Options::NeedArg);
-    opts.addOpt("", "summary", IceUtil::Options::NeedArg, "0");
+    opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg, ".");
+    opts.addOpt("", "hdr", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "ftr", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "indexhdr", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "indexftr", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "index", IceUtilInternal::Options::NeedArg, "1");
+    opts.addOpt("", "image-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "logo-url", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "search", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "summary", IceUtilInternal::Options::NeedArg, "0");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
 
@@ -72,7 +72,7 @@ main(int argc, char* argv[])
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         usage(argv[0]);

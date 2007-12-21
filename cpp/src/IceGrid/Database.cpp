@@ -850,12 +850,12 @@ Database::getAllAdapters(const string& expression)
     set<string> groups;
     for(StringAdapterInfoDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
-        if(expression.empty() || IceUtil::match(p->first, expression, true))
+        if(expression.empty() || IceUtilInternal::match(p->first, expression, true))
         {
             result.push_back(p->first);
         }
         string replicaGroupId = p->second.replicaGroupId;
-        if(!replicaGroupId.empty() && (expression.empty() || IceUtil::match(replicaGroupId, expression, true)))
+        if(!replicaGroupId.empty() && (expression.empty() || IceUtilInternal::match(replicaGroupId, expression, true)))
         {
             groups.insert(replicaGroupId);
         }
@@ -1074,7 +1074,7 @@ Database::getObjectByType(const string& type)
     {
         return 0;
     }
-    return objs[IceUtil::random(static_cast<int>(objs.size()))];
+    return objs[IceUtilInternal::random(static_cast<int>(objs.size()))];
 }
 
 Ice::ObjectPrx
@@ -1152,7 +1152,7 @@ Database::getAllObjectInfos(const string& expression)
     IdentityObjectInfoDict objects(connection, _objectDbName); 
     for(IdentityObjectInfoDict::const_iterator p = objects.begin(); p != objects.end(); ++p)
     {
-        if(expression.empty() || IceUtil::match(_communicator->identityToString(p->first), expression, true))
+        if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(p->first), expression, true))
         {
             infos.push_back(p->second);
         }

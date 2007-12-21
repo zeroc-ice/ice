@@ -92,7 +92,7 @@ struct GenerateRandomString
         string s;
         s.resize(20);
         char buf[20];
-        IceUtil::generateRandom(buf, static_cast<int>(sizeof(buf)));
+        IceUtilInternal::generateRandom(buf, static_cast<int>(sizeof(buf)));
         for(unsigned int i = 0; i < sizeof(buf); ++i)
         {
             s[i] = 33 + buf[i] % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
@@ -108,7 +108,7 @@ public:
     int
     operator()()
     {
-        return IceUtil::random();
+        return IceUtilInternal::random();
     }
 
 };

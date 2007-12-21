@@ -19,6 +19,7 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 #ifdef _WIN32
 #   define FREEZE_SCRIPT_DB_MODE 0
@@ -36,7 +37,7 @@ class SliceVisitor : public Slice::ParserVisitor
 {
 public:
 
-    SliceVisitor(IceUtil::XMLOutput&, const Slice::TypePtr&, const Slice::TypePtr&, const string&);
+    SliceVisitor(IceUtilInternal::XMLOutput&, const Slice::TypePtr&, const Slice::TypePtr&, const string&);
 
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
@@ -46,7 +47,7 @@ public:
 
 private:
 
-    IceUtil::XMLOutput& _out;
+    IceUtilInternal::XMLOutput& _out;
 };
 
 class DescriptorHandler : public IceXML::Handler
@@ -134,21 +135,21 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     bool caseSensitive;
     string dbEnvName, dbName;
 
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
-    opts.addOpt("o", "", IceUtil::Options::NeedArg);
-    opts.addOpt("f", "", IceUtil::Options::NeedArg);
-    opts.addOpt("", "load", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("o", "", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("f", "", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "load", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("e");
-    opts.addOpt("", "key", IceUtil::Options::NeedArg);
-    opts.addOpt("", "value", IceUtil::Options::NeedArg);
-    opts.addOpt("", "select", IceUtil::Options::NeedArg);
+    opts.addOpt("", "key", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "value", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "select", IceUtilInternal::Options::NeedArg);
     opts.addOpt("c", "catalog");
     opts.addOpt("", "case-sensitive");
 
@@ -157,7 +158,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         usage(argv[0]);
@@ -399,7 +400,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         valueType = l.front();
 
         ostringstream os;
-        IceUtil::XMLOutput out(os);
+        IceUtilInternal::XMLOutput out(os);
 
         out << se("dumpdb");
 
@@ -613,7 +614,7 @@ main(int argc, char* argv[])
 //
 // SliceVisitor
 //
-FreezeScript::SliceVisitor::SliceVisitor(IceUtil::XMLOutput& out, const Slice::TypePtr& keyType,
+FreezeScript::SliceVisitor::SliceVisitor(IceUtilInternal::XMLOutput& out, const Slice::TypePtr& keyType,
                                          const Slice::TypePtr& valueType, const string& selectExpr) :
     _out(out)
 {

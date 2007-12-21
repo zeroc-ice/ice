@@ -190,8 +190,8 @@ public:
     virtual void ice_response(const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& ret,
                               const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& out)
     {
-        test(ice_distance(out.first, out.second) == static_cast<Ice::Int>(_in.size()));
-        test(ice_distance(ret.first, ret.second) == static_cast<Ice::Int>(_in.size()));
+        test(IceUtilInternal::distance(out.first, out.second) == static_cast<Ice::Int>(_in.size()));
+        test(IceUtilInternal::distance(ret.first, ret.second) == static_cast<Ice::Int>(_in.size()));
         Test::ByteList::const_iterator b;
         Test::ByteList::const_iterator o = out.first;
         Test::ByteList::const_iterator r = ret.first;

@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    GeneratorBase(::IceUtil::XMLOutput&, const Files&);
+    GeneratorBase(::IceUtilInternal::XMLOutput&, const Files&);
     virtual ~GeneratorBase() = 0;
 
     void openDoc(const ::std::string&, const std::string&, const std::string& = "", const std::string& = "");
@@ -68,7 +68,7 @@ protected:
     static ::std::string getImageDir();
     static ::std::string getLogoURL();
 
-    ::IceUtil::XMLOutput& _out;
+    ::IceUtilInternal::XMLOutput& _out;
 
     static size_t _indexCount;
     static size_t _warnSummary;
@@ -117,7 +117,7 @@ private:
     typedef ::std::pair< ::std::string, ::std::string> StringPair;
     typedef ::std::vector<StringPair> ModuleDescriptions;
     ModuleDescriptions _modules;
-    ::IceUtil::XMLOutput _out;
+    ::IceUtilInternal::XMLOutput _out;
 };
 
 class FileVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -170,7 +170,7 @@ private:
 
     ModuleList _modules;
     ContainedList _symbols;
-    ::IceUtil::XMLOutput _out;
+    ::IceUtilInternal::XMLOutput _out;
 };
 
 class TOCVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -193,7 +193,7 @@ class ModuleGenerator : private GeneratorBase
 {
 public:
 
-    ModuleGenerator(::IceUtil::XMLOutput&, const Files&);
+    ModuleGenerator(::IceUtilInternal::XMLOutput&, const Files&);
     void generate(const ModulePtr&);
 
 private:
@@ -205,7 +205,7 @@ class ExceptionGenerator : private GeneratorBase
 {
 public:
 
-    ExceptionGenerator(::IceUtil::XMLOutput&, const Files&);
+    ExceptionGenerator(::IceUtilInternal::XMLOutput&, const Files&);
     void generate(const ExceptionPtr&);
 };
 
@@ -213,7 +213,7 @@ class ClassGenerator : private GeneratorBase
 {
 public:
 
-    ClassGenerator(::IceUtil::XMLOutput&, const Files&);
+    ClassGenerator(::IceUtilInternal::XMLOutput&, const Files&);
     void generate(const ClassDefPtr&);
 };
 
@@ -221,7 +221,7 @@ class StructGenerator : private GeneratorBase
 {
 public:
 
-    StructGenerator(::IceUtil::XMLOutput&, const Files&);
+    StructGenerator(::IceUtilInternal::XMLOutput&, const Files&);
     void generate(const StructPtr&);
 };
 
@@ -229,7 +229,7 @@ class EnumGenerator : private GeneratorBase
 {
 public:
 
-    EnumGenerator(::IceUtil::XMLOutput&, const Files&);
+    EnumGenerator(::IceUtilInternal::XMLOutput&, const Files&);
     void generate(const EnumPtr&);
 };
 

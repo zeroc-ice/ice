@@ -95,7 +95,7 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
                            const Ice::StringSeq* = 0) = 0;
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*) = 0;
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
 };
 typedef IceUtil::Handle<TypeInfo> TypeInfoPtr;
 
@@ -114,7 +114,7 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
                            const Ice::StringSeq* = 0);
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     enum Kind
     {
@@ -149,7 +149,7 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
                            const Ice::StringSeq* = 0);
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
     EnumeratorList enumerators;
@@ -187,7 +187,7 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
                            const Ice::StringSeq* = 0);
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -214,7 +214,7 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
                            const Ice::StringSeq* = 0);
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -266,7 +266,7 @@ public:
                            const Ice::StringSeq* = 0);
     virtual void unmarshaled(PyObject*, PyObject*, void*);
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -302,11 +302,11 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
                            const Ice::StringSeq* = 0);
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
-    void printMembers(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
     bool isAbstract;
@@ -333,7 +333,7 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
                            const Ice::StringSeq* = 0);
 
-    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -353,8 +353,8 @@ public:
     void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     PyObject* unmarshal(const Ice::InputStreamPtr&);
 
-    void print(PyObject*, IceUtil::Output&);
-    void printMembers(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+    void print(PyObject*, IceUtilInternal::Output&);
+    void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
     ExceptionInfoPtr base;

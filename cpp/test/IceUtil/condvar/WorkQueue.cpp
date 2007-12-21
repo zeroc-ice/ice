@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 class Queue: public Monitor<Mutex>, public Shared
 {
@@ -248,7 +249,7 @@ main(int argc, char** argv)
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         return EXIT_FAILURE;

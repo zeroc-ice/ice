@@ -11,6 +11,8 @@
 #define SLICE_CHECKSUM_H
 
 #include <Slice/Parser.h>
+#include <map>
+#include <vector>
 
 namespace Slice
 {

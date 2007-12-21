@@ -12,7 +12,6 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
-#include <IceUtil/InputUtil.h>
 #include <string>
 #include <vector>
 #include <list>

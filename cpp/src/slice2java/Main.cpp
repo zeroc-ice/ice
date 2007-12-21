@@ -48,23 +48,23 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
-    opts.addOpt("", "output-dir", IceUtil::Options::NeedArg);
+    opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "tie");
     opts.addOpt("", "impl");
     opts.addOpt("", "impl-tie");
     opts.addOpt("", "depend");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
-    opts.addOpt("", "checksum", IceUtil::Options::NeedArg);
+    opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "stream");
-    opts.addOpt("", "meta", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "case-sensitive");
 
     vector<string>args;
@@ -72,7 +72,7 @@ main(int argc, char* argv[])
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         usage(argv[0]);

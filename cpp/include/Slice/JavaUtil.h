@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-class SLICE_API JavaOutput : public ::IceUtil::Output
+class SLICE_API JavaOutput : public ::IceUtilInternal::Output
 {
 public:
 
@@ -65,7 +65,7 @@ protected:
     bool open(const std::string&);
     void close();
 
-    ::IceUtil::Output& output() const;
+    ::IceUtilInternal::Output& output() const;
 
     //
     // Check a symbol against any of the Java keywords. If a
@@ -120,42 +120,42 @@ protected:
     //
     // Generate code to marshal or unmarshal a type.
     //
-    void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, const std::string&,
                                    bool, int&, bool = false, const StringList& = StringList(),
                                    const std::string& patchParams = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type.
     //
-    void writeDictionaryMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const DictionaryPtr&,
+    void writeDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const DictionaryPtr&,
                                            const std::string&, bool, int&, bool,
                                            const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a sequence type.
     //
-    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
+    void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
                                            const std::string&, bool, int&, bool,
                                            const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a type using the public stream API.
     //
-    void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
+    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, const std::string&,
                                          bool, int&, bool = false, const StringList& = StringList(),
                                          const std::string& patchParams = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type using the public stream API.
     //
-    void writeStreamDictionaryMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const DictionaryPtr&,
+    void writeStreamDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const DictionaryPtr&,
                                                    const std::string&, bool, int&, bool,
                                                    const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a sequence type using the public stream API.
     //
-    void writeStreamSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
+    void writeStreamSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
                                                  const std::string&, bool, int&, bool,
                                                  const StringList& = StringList());
 
@@ -221,7 +221,7 @@ private:
     friend class JavaGenerator::MetaDataVisitor;
 
     std::string _dir;
-    ::IceUtil::Output* _out;
+    ::IceUtilInternal::Output* _out;
 };
 
 }

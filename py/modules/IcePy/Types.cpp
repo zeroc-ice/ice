@@ -21,6 +21,7 @@
 using namespace std;
 using namespace IcePy;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 typedef map<string, ClassInfoPtr> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
@@ -589,7 +590,7 @@ IcePy::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
 }
 
 void
-IcePy::PrimitiveInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistory*)
+IcePy::PrimitiveInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
     if(!validate(value))
     {
@@ -691,7 +692,7 @@ IcePy::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbac
 }
 
 void
-IcePy::EnumInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistory*)
+IcePy::EnumInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
     if(!validate(value))
     {
@@ -797,7 +798,7 @@ IcePy::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallb
 }
 
 void
-IcePy::StructInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistory* history)
+IcePy::StructInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -948,7 +949,7 @@ IcePy::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCal
 }
 
 void
-IcePy::SequenceInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistory* history)
+IcePy::SequenceInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -1364,7 +1365,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindBool:
     {
         pair<const bool*, const bool*> p;
-        IceUtil::ScopedArray<bool> arr(is->readBoolSeq(p));
+        IceUtilInternal::ScopedArray<bool> arr(is->readBoolSeq(p));
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1414,7 +1415,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindShort:
     {
         pair<const Ice::Short*, const Ice::Short*> p;
-        IceUtil::ScopedArray<Ice::Short> arr(is->readShortSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Short> arr(is->readShortSeq(p));
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1436,7 +1437,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindInt:
     {
         pair<const Ice::Int*, const Ice::Int*> p;
-        IceUtil::ScopedArray<Ice::Int> arr(is->readIntSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Int> arr(is->readIntSeq(p));
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1458,7 +1459,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindLong:
     {
         pair<const Ice::Long*, const Ice::Long*> p;
-        IceUtil::ScopedArray<Ice::Long> arr(is->readLongSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Long> arr(is->readLongSeq(p));
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1480,7 +1481,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindFloat:
     {
         pair<const Ice::Float*, const Ice::Float*> p;
-        IceUtil::ScopedArray<Ice::Float> arr(is->readFloatSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Float> arr(is->readFloatSeq(p));
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1502,7 +1503,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindDouble:
     {
         pair<const Ice::Double*, const Ice::Double*> p;
-        IceUtil::ScopedArray<Ice::Double> arr(is->readDoubleSeq(p));
+        IceUtilInternal::ScopedArray<Ice::Double> arr(is->readDoubleSeq(p));
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1749,7 +1750,7 @@ IcePy::DictionaryInfo::unmarshaled(PyObject* val, PyObject* target, void* closur
 }
 
 void
-IcePy::DictionaryInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistory* history)
+IcePy::DictionaryInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -1898,7 +1899,7 @@ IcePy::ClassInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallba
 }
 
 void
-IcePy::ClassInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistory* history)
+IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -1963,7 +1964,7 @@ IcePy::ClassInfo::destroy()
 }
 
 void
-IcePy::ClassInfo::printMembers(PyObject* value, IceUtil::Output& out, PrintObjectHistory* history)
+IcePy::ClassInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(base)
     {
@@ -2042,7 +2043,7 @@ IcePy::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallba
 }
 
 void
-IcePy::ProxyInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistory*)
+IcePy::ProxyInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
     if(!validate(value))
     {
@@ -2373,7 +2374,7 @@ IcePy::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
 }
 
 void
-IcePy::ExceptionInfo::print(PyObject* value, IceUtil::Output& out)
+IcePy::ExceptionInfo::print(PyObject* value, IceUtilInternal::Output& out)
 {
     if(!PyObject_IsInstance(value, pythonType.get()))
     {
@@ -2391,7 +2392,7 @@ IcePy::ExceptionInfo::print(PyObject* value, IceUtil::Output& out)
 }
 
 void
-IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtil::Output& out, PrintObjectHistory* history)
+IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(base)
     {
@@ -3080,7 +3081,7 @@ IcePy_stringify(PyObject*, PyObject* args)
     assert(info);
 
     ostringstream ostr;
-    IceUtil::Output out(ostr);
+    IceUtilInternal::Output out(ostr);
     PrintObjectHistory history;
     history.index = 0;
     info->print(value, out, &history);
@@ -3105,7 +3106,7 @@ IcePy_stringifyException(PyObject*, PyObject* args)
     assert(info);
 
     ostringstream ostr;
-    IceUtil::Output out(ostr);
+    IceUtilInternal::Output out(ostr);
     info->print(value, out);
 
     string str = ostr.str();

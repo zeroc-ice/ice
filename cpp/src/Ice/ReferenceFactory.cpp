@@ -172,7 +172,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     // or double quotation marks.
     //
     string idstr;
-    end = IceUtil::checkQuote(s, beg);
+    end = IceUtilInternal::checkQuote(s, beg);
     if(end == string::npos)
     {
         ProxyParseException ex(__FILE__, __LINE__);
@@ -285,7 +285,7 @@ IceInternal::ReferenceFactory::create(const string& str)
             if(s[argumentBeg] != '@' && s[argumentBeg] != ':' && s[argumentBeg] != '-')
             {
                 beg = argumentBeg;
-                end = IceUtil::checkQuote(s, beg);
+                end = IceUtilInternal::checkQuote(s, beg);
                 if(end == string::npos)
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
@@ -325,7 +325,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                     throw ex;
                 }
 
-                if(!IceUtil::unescapeString(argument, 0, argument.size(), facet))
+                if(!IceUtilInternal::unescapeString(argument, 0, argument.size(), facet))
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
                     ex.str = str;
@@ -503,7 +503,7 @@ IceInternal::ReferenceFactory::create(const string& str)
             }
 
             string adapterstr;
-            end = IceUtil::checkQuote(s, beg);
+            end = IceUtilInternal::checkQuote(s, beg);
             if(end == string::npos)
             {
                 ProxyParseException ex(__FILE__, __LINE__);
@@ -534,7 +534,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                 throw ex;
             }
 
-            if(!IceUtil::unescapeString(adapterstr, 0, adapterstr.size(), adapter) || adapter.size() == 0)
+            if(!IceUtilInternal::unescapeString(adapterstr, 0, adapterstr.size(), adapter) || adapter.size() == 0)
             {
                 ProxyParseException ex(__FILE__, __LINE__);
                 ex.str = str;

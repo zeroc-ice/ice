@@ -18,6 +18,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 //
 // _mutex and _condVar are used to synchronize the main thread and

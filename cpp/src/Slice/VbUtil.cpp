@@ -25,6 +25,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 static string
 lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)

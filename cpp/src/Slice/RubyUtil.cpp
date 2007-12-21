@@ -10,6 +10,7 @@
 #include <Slice/RubyUtil.h>
 #include <Slice/Checksum.h>
 #include <IceUtil/Functional.h>
+#include <IceUtil/InputUtil.h>
 
 #ifdef __BCPLUSPLUS__
 #include <iterator>
@@ -18,6 +19,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 namespace Slice
 {
@@ -31,7 +33,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtil::Output&);
+    CodeVisitor(IceUtilInternal::Output&);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -1294,7 +1296,7 @@ Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
         case Slice::Builtin::KindLong:
         {
             IceUtil::Int64 l;
-            IceUtil::stringToInt64(value, l);
+            IceUtilInternal::stringToInt64(value, l);
             _out << value;
             break;
         }
@@ -1759,7 +1761,7 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 }
 
 void
-Slice::Ruby::printHeader(IceUtil::Output& out)
+Slice::Ruby::printHeader(IceUtilInternal::Output& out)
 {
     static const char* header =
 "# **********************************************************************\n"

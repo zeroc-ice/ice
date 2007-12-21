@@ -18,6 +18,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool chapter,
                 bool noIndex, bool sortFields) :

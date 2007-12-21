@@ -682,7 +682,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
 int
 Ice::Service::main(StringSeq& args, const InitializationData& initData)
 {
-    IceUtil::ArgVector av(args);
+    IceUtilInternal::ArgVector av(args);
     int rc = main(av.argc, av.argv, initData);
     argsToStringSeq(av.argc, av.argv);
     return rc;

@@ -13,13 +13,13 @@
 #include <IceUtil/Config.h>
 #include <string>
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 //
 // Portable strtoll/_strtoi64
 //
-ICE_UTIL_API Int64 strToInt64(const char*, char**, int);
+ICE_UTIL_API IceUtil::Int64 strToInt64(const char*, char**, int);
 
 //
 // stringToInt64 converts a string into a signed 64-bit integer.
@@ -40,7 +40,7 @@ ICE_UTIL_API Int64 strToInt64(const char*, char**, int);
 //      - result == 0 indicates that no digits were available for conversion
 //      - result == "Int64 Min" or result == "Int64 Max" indicate underflow or overflow.
 //
-ICE_UTIL_API  bool stringToInt64(const std::string&, Int64&);
+ICE_UTIL_API  bool stringToInt64(const std::string&, IceUtil::Int64&);
 
 }
 

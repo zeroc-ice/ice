@@ -15,6 +15,7 @@
 #include <vector>
 
 using namespace IceUtil;
+using namespace IceUtilInternal;
 using namespace std;
 
 #define WS " \f\n\r\t\v"
@@ -117,56 +118,56 @@ main(int, char**)
     cout << "testing string to command line arguments... " << flush;
     vector<string> args;
 
-    test(IceUtil::Options::split("").empty());
+    test(IceUtilInternal::Options::split("").empty());
     
-    args = IceUtil::Options::split("\"\"");
+    args = IceUtilInternal::Options::split("\"\"");
     test(args.size() == 1 && args[0] == "");
-    args = IceUtil::Options::split("''");
+    args = IceUtilInternal::Options::split("''");
     test(args.size() == 1 && args[0] == "");
-    args = IceUtil::Options::split("$''");
+    args = IceUtilInternal::Options::split("$''");
     test(args.size() == 1 && args[0] == "");
 
-    args = IceUtil::Options::split("-a -b -c");
+    args = IceUtilInternal::Options::split("-a -b -c");
     test(args.size() == 3 && args[0] == "-a" && args[1] == "-b" && args[2] == "-c");
-    args = IceUtil::Options::split("\"-a\" '-b' $'-c'");
+    args = IceUtilInternal::Options::split("\"-a\" '-b' $'-c'");
     test(args.size() == 3 && args[0] == "-a" && args[1] == "-b" && args[2] == "-c");
-    args = IceUtil::Options::split("  '-b' \"-a\" $'-c' ");
+    args = IceUtilInternal::Options::split("  '-b' \"-a\" $'-c' ");
     test(args.size() == 3 && args[0] == "-b" && args[1] == "-a" && args[2] == "-c");
-    args = IceUtil::Options::split(" $'-c' '-b' \"-a\"  ");
+    args = IceUtilInternal::Options::split(" $'-c' '-b' \"-a\"  ");
     test(args.size() == 3 && args[0] == "-c" && args[1] == "-b" && args[2] == "-a");
 
     // Testing single quote
-    args = IceUtil::Options::split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
+    args = IceUtilInternal::Options::split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
     test(args.size() == 1 && args[0] == "-Dir=C:\\\\test\\\\file"); // -Dir=C:\\test\\file
-    args = IceUtil::Options::split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
+    args = IceUtilInternal::Options::split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-    args = IceUtil::Options::split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
+    args = IceUtilInternal::Options::split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\filewith\"quote"); // -Dir=C:\test\filewith"quote
 
     // Testing double quote
-    args = IceUtil::Options::split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
+    args = IceUtilInternal::Options::split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-    args = IceUtil::Options::split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
+    args = IceUtilInternal::Options::split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-    args = IceUtil::Options::split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
+    args = IceUtilInternal::Options::split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\filewith\"quote"); // -Dir=C:\test\filewith"quote
 
     // Testing ANSI quote
-    args = IceUtil::Options::split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
+    args = IceUtilInternal::Options::split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-    args = IceUtil::Options::split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
+    args = IceUtilInternal::Options::split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
     test(args.size() == 1 && args[0] == "-Dir=C:\\oest\\oile"); // -Dir=C:\oest\oile
-    args = IceUtil::Options::split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
+    args = IceUtilInternal::Options::split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
     test(args.size() == 1 && args[0] == "-Dir=C:\\oest\\oilewith\"quote"); // -Dir=C:\oest\oilewith"quote
-    args = IceUtil::Options::split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
+    args = IceUtilInternal::Options::split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-    args = IceUtil::Options::split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
+    args = IceUtilInternal::Options::split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
     test(args.size() == 1 && args[0] == "-Dir=C:\\test\\file"); // -Dir=C:\test\file
-    args = IceUtil::Options::split("-Dir=$'\\cM\\c_'"); // Control characters
+    args = IceUtilInternal::Options::split("-Dir=$'\\cM\\c_'"); // Control characters
     test(args.size() == 1 && args[0] == "-Dir=\015\037");
-    args = IceUtil::Options::split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
+    args = IceUtilInternal::Options::split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
     test(args.size() == 1 && args[0] == "-Dir=C:\\ff\015i");
-    args = IceUtil::Options::split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
+    args = IceUtilInternal::Options::split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
     test(args.size() == 1 && args[0] == "-Dir=C:\\\015ffi");
 
     vector<string> badQuoteCommands;
@@ -180,10 +181,10 @@ main(int, char**)
     {
         try
         {
-            IceUtil::Options::split(*p);
+            IceUtilInternal::Options::split(*p);
             test(false);
         }
-        catch(const IceUtil::BadOptException&)
+        catch(const IceUtilInternal::BadOptException&)
         {
         }
     }

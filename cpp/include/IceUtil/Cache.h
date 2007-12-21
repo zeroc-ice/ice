@@ -33,10 +33,10 @@ public:
     // application code should not use them.
     //
 
-    struct Latch : public CountDownLatch
+    struct Latch : public IceUtilInternal::CountDownLatch
     {
         Latch() :
-            CountDownLatch(1),
+            IceUtilInternal::CountDownLatch(1),
             useCount(0)
         { 
         }

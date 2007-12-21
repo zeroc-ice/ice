@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Slice/Checksum.h>
-#include <IceUtil/MD5.h>
+#include <Slice/MD5.h>
 
 using namespace std;
 using namespace Slice;
@@ -299,7 +299,7 @@ Slice::ChecksumVisitor::typeToString(const TypePtr& type)
 void
 Slice::ChecksumVisitor::updateMap(const string& scoped, const string& data)
 {
-    IceUtil::MD5 md5(reinterpret_cast<const unsigned char*>(data.c_str()), static_cast<int>(data.size()));
+    MD5 md5(reinterpret_cast<const unsigned char*>(data.c_str()), static_cast<int>(data.size()));
     vector<unsigned char> bytes;
     bytes.resize(16);
     md5.getDigest(reinterpret_cast<unsigned char*>(&bytes[0]));

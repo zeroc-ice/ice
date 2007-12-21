@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/Random.h>
 #include <Ice/Ice.h>
 #include <Item.h>
 
@@ -54,7 +55,7 @@ public:
         {
             for(int i = 0; i < readCount; ++i)
             {
-                int id = IceUtil::random(objectCount);
+                int id = IceUtilInternal::random(objectCount);
                 ostringstream os;
                 os << "P/N " << id;
                 string name = os.str();
@@ -106,7 +107,7 @@ public:
         {
             for(int i = 0; i < writeCount; ++i)
             {
-                int id = IceUtil::random(objectCount);
+                int id = IceUtilInternal::random(objectCount);
 
                 ostringstream os;
                 os << "P/N " << id;

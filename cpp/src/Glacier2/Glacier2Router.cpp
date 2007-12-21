@@ -97,7 +97,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
 {
     bool nowarn;
 
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("", "nowarn");
@@ -107,7 +107,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         usage(argv[0]);

@@ -10,34 +10,34 @@
 #include <IceUtil/ArgVector.h>
 #include <IceUtil/DisableWarnings.h>
 
-IceUtil::ArgVector::ArgVector(int argc, char *argv[])
+IceUtilInternal::ArgVector::ArgVector(int argc, char *argv[])
 {
     assert(argc >= 0);
     _noDelete = false;
     copyVec(argc, argc, argv);
 }
 
-IceUtil::ArgVector::ArgVector(const ::std::vector< ::std::string>& vec)
+IceUtilInternal::ArgVector::ArgVector(const ::std::vector< ::std::string>& vec)
 {
     _noDelete = false;
     copyVec(vec);
 }
 
-IceUtil::ArgVector::ArgVector(const ArgVector& rhs)
+IceUtilInternal::ArgVector::ArgVector(const ArgVector& rhs)
 {
     _noDelete = false;
     copyVec(rhs.argc, rhs._origArgc, rhs.argv);
 }
 
-IceUtil::ArgVector&
-IceUtil::ArgVector::operator=(const ArgVector& rhs)
+IceUtilInternal::ArgVector&
+IceUtilInternal::ArgVector::operator=(const ArgVector& rhs)
 {
     ArgVector tmp(rhs);
     swap(tmp);
     return *this;
 }
 
-IceUtil::ArgVector::~ArgVector()
+IceUtilInternal::ArgVector::~ArgVector()
 {
     //
     // For use with putenv()--see man putenv.
@@ -53,13 +53,13 @@ IceUtil::ArgVector::~ArgVector()
 }
 
 void
-IceUtil::ArgVector::setNoDelete()
+IceUtilInternal::ArgVector::setNoDelete()
 {
     _noDelete = true;
 }
 
 void
-IceUtil::ArgVector::copyVec(int argc, int origArgc, char** argv)
+IceUtilInternal::ArgVector::copyVec(int argc, int origArgc, char** argv)
 {
     this->argc = argc;
     this->_origArgc = origArgc;
@@ -95,7 +95,7 @@ IceUtil::ArgVector::copyVec(int argc, int origArgc, char** argv)
 }
 
 void
-IceUtil::ArgVector::copyVec(const ::std::vector< ::std::string>& vec)
+IceUtilInternal::ArgVector::copyVec(const ::std::vector< ::std::string>& vec)
 {
     argc = _origArgc = static_cast<int>(vec.size());
     if((argv = new char*[argc + 1]) == 0)
@@ -130,7 +130,7 @@ IceUtil::ArgVector::copyVec(const ::std::vector< ::std::string>& vec)
 }
 
 void
-IceUtil::ArgVector::swap(ArgVector& rhs) throw()
+IceUtilInternal::ArgVector::swap(ArgVector& rhs) throw()
 {
     int argcTmp = rhs.argc;
     int origArgcTmp = rhs._origArgc;

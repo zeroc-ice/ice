@@ -101,7 +101,7 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
         p->second.used = true;
 
         StringSeq result;
-        if(!IceUtil::splitString(p->second.value, " \t\n", result))
+        if(!IceUtilInternal::splitString(p->second.value, " \t\n", result))
         {
             Warning out(getProcessLogger());
             out << "mismatched quotes in property " << key << "'s value, returning default value";
@@ -180,7 +180,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
             for(int j = 0; j < IceInternal::PropertyNames::validProps[i].length && !found; ++j)
             {
                 const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
-                found = IceUtil::match(currentKey, prop.pattern);
+                found = IceUtilInternal::match(currentKey, prop.pattern);
 
                 if(found && prop.deprecated)
                 {

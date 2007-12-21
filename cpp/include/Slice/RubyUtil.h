@@ -21,7 +21,7 @@ namespace Ruby
 //
 // Generate Ruby code for a translation unit.
 //
-SLICE_API void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtil::Output&);
+SLICE_API void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
 
 //
 // Check the given identifier against Ruby's list of reserved words. If it matches
@@ -44,7 +44,7 @@ SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, IdentStyle, const 
 //
 // Emit a comment header.
 //
-SLICE_API void printHeader(IceUtil::Output&);
+SLICE_API void printHeader(IceUtilInternal::Output&);
 
 }
 }

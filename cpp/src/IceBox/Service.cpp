@@ -45,7 +45,7 @@ IceBox::IceBoxService::IceBoxService()
 bool
 IceBox::IceBoxService::start(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
 
@@ -54,7 +54,7 @@ IceBox::IceBoxService::start(int argc, char* argv[])
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         usage(argv[0]);

@@ -51,7 +51,7 @@ Client::usage()
 int
 Client::run(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
 
@@ -60,7 +60,7 @@ Client::run(int argc, char* argv[])
     {
         commands = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << e.reason << endl;
         usage();

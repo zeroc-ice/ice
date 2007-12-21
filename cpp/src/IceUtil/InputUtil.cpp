@@ -20,8 +20,9 @@
 #endif
 
 using namespace std;
+using namespace IceUtil;
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 #if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))

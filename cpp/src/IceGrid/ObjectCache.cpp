@@ -19,7 +19,7 @@
 using namespace std;
 using namespace IceGrid;
 
-pointer_to_unary_function<int, int> ObjectCache::_rand(IceUtil::random);
+pointer_to_unary_function<int, int> ObjectCache::_rand(IceUtilInternal::random);
 
 namespace IceGrid
 {
@@ -167,7 +167,7 @@ ObjectCache::getAll(const string& expression)
     ObjectInfoSeq infos;
     for(map<Ice::Identity, ObjectEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-        if(expression.empty() || IceUtil::match(_communicator->identityToString(p->first), expression, true))
+        if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(p->first), expression, true))
         {
             infos.push_back(p->second->getObjectInfo());
         }

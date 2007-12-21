@@ -31,6 +31,7 @@ extern int yydebug;
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 using namespace Ice;
 using namespace IceGrid;
 
@@ -343,7 +344,7 @@ Parser::addApplication(const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
     
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("n", "no-patch");
     vector<string> args;
     try
@@ -354,7 +355,7 @@ Parser::addApplication(const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
@@ -554,7 +555,7 @@ Parser::patchApplication(const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
     
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("f", "force");
     vector<string> args;
     try
@@ -565,7 +566,7 @@ Parser::patchApplication(const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
@@ -1032,7 +1033,7 @@ Parser::patchServer(const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
 
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("f", "force");
     vector<string> args;
     try
@@ -1043,7 +1044,7 @@ Parser::patchServer(const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
@@ -1798,10 +1799,10 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
     
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("f", "follow");
-    opts.addOpt("h", "head", IceUtil::Options::NeedArg);
-    opts.addOpt("t", "tail", IceUtil::Options::NeedArg);
+    opts.addOpt("h", "head", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("t", "tail", IceUtilInternal::Options::NeedArg);
 
     vector<string> args;
     try
@@ -1812,7 +1813,7 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
         }
         args = opts.parse(args);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         return;
@@ -2187,7 +2188,7 @@ Parser::patchFailed(const Ice::StringSeq& reasons)
     else
     {
         ostringstream os;
-        IceUtil::Output out(os);
+        IceUtilInternal::Output out(os);
         out.setIndent(2);
         out << "the patch failed on some nodes:\n";
         for(Ice::StringSeq::const_iterator p = reasons.begin(); p != reasons.end(); ++p)

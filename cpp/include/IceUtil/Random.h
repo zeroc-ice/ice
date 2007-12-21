@@ -13,10 +13,10 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Exception.h>
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
-class ICE_UTIL_API RandomGeneratorException : public Exception
+class ICE_UTIL_API RandomGeneratorException : public IceUtil::Exception
 {
 public:
     

@@ -35,7 +35,7 @@ private:
 
     Slice::UnitPtr _old;
     Slice::UnitPtr _new;
-    IceUtil::XMLOutput _out;
+    IceUtilInternal::XMLOutput _out;
     AnalyzeTransformVisitor* _visitor;
 };
 

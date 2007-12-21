@@ -21,7 +21,7 @@ namespace Python
 //
 // Generate Python code for a translation unit.
 //
-SLICE_API void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtil::Output&);
+SLICE_API void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
 
 //
 // Convert a scoped name into a Python name.
@@ -54,7 +54,7 @@ SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, const std::string&
 //
 // Emit a comment header.
 //
-SLICE_API void printHeader(IceUtil::Output&);
+SLICE_API void printHeader(IceUtilInternal::Output&);
 
 }
 }

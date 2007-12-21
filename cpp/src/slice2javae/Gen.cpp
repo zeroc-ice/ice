@@ -10,7 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <IceUtil/Functional.h>
-#include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
 
 #include <limits>
@@ -23,13 +22,13 @@ using namespace Slice;
 // about ambigious symbols for constructs like
 // "IceUtil::constMemFun(&Slice::Exception::isLocal)".
 //
-using IceUtil::Output;
-using IceUtil::nl;
-using IceUtil::sp;
-using IceUtil::sb;
-using IceUtil::eb;
-using IceUtil::spar;
-using IceUtil::epar;
+using IceUtilInternal::Output;
+using IceUtilInternal::nl;
+using IceUtilInternal::sp;
+using IceUtilInternal::sb;
+using IceUtilInternal::eb;
+using IceUtilInternal::spar;
+using IceUtilInternal::epar;
 
 static string
 sliceModeToIceMode(Operation::Mode opMode)
@@ -278,7 +277,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
     out << sp << nl << "public static final String[] __ids =";
     out << sb;

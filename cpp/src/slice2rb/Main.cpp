@@ -54,14 +54,14 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
-    opts.addOpt("", "output-dir", IceUtil::Options::NeedArg);
+    opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "all");
@@ -73,7 +73,7 @@ main(int argc, char* argv[])
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         usage(argv[0]);
@@ -190,7 +190,7 @@ main(int argc, char* argv[])
                     file = output + '/' + file;
                 }
 
-                IceUtil::Output out;
+                IceUtilInternal::Output out;
                 out.open(file.c_str());
                 if(!out)
                 {

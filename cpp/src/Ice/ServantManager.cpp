@@ -47,7 +47,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
             ex.id = _instance->identityToString(ident);
             if(!facet.empty())
             {
-                ex.id += " -f " + IceUtil::escapeString(facet, "");
+                ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
             }
             throw ex;
         }
@@ -87,7 +87,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
         ex.id = _instance->identityToString(ident);
         if(!facet.empty())
         {
-            ex.id += " -f " + IceUtil::escapeString(facet, "");
+            ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
         }
         throw ex;
     }
@@ -253,7 +253,7 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
     {
         AlreadyRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant locator";
-        ex.id = IceUtil::escapeString(category, "");
+        ex.id = IceUtilInternal::escapeString(category, "");
         throw ex;
     }
     

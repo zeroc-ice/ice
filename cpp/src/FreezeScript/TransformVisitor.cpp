@@ -9,6 +9,7 @@
 
 #include <FreezeScript/TransformVisitor.h>
 #include <FreezeScript/Util.h>
+#include <IceUtil/InputUtil.h>
 
 using namespace std;
 
@@ -76,7 +77,7 @@ FreezeScript::TransformVisitor::visitInteger(const IntegerDataPtr& dest)
             {
                 string str = s->getValue();
                 Ice::Long value;
-                if(IceUtil::stringToInt64(str, value))
+                if(IceUtilInternal::stringToInt64(str, value))
                 {
                     dest->setValue(value, false);
                 }

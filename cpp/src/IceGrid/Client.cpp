@@ -251,23 +251,23 @@ Client::run(int argc, char* argv[])
     string commands;
     bool debug;
 
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("e", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("u", "username", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
-    opts.addOpt("p", "password", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
+    opts.addOpt("e", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("u", "username", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
+    opts.addOpt("p", "password", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
     opts.addOpt("S", "ssl");
     opts.addOpt("d", "debug");
     opts.addOpt("s", "server");
-    opts.addOpt("r", "replica", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
+    opts.addOpt("r", "replica", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::NoRepeat);
 
     vector<string> args;
     try
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << e.reason << endl;
         usage();

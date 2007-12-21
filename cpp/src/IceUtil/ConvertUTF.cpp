@@ -55,7 +55,9 @@
 #include <stdio.h>
 #endif
 
-namespace IceUtil
+using namespace IceUtil;
+
+namespace IceUtilInternal
 {
 
 static const int halfShift  = 10; /* used for shifting by 10 bits */
@@ -224,34 +226,6 @@ static Boolean isLegalUTF8(const UTF8 *source, int length) {
     }
     if (*source > 0xF4) return false;
     return true;
-}
-
-/* --------------------------------------------------------------------- */
-
-/*
- * Exported function to return whether a UTF-8 sequence is legal or not.
- * This is not used here; it's just exported.
- */
-Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd) {
-    if(source == sourceEnd) {
-        return true;
-    }
-    while(true) {
-        int length = trailingBytesForUTF8[*source]+1;
-        // Is buffer big enough to contain character?
-        if (source+length > sourceEnd) {
-            return false;
-        }
-        // Is character legal UTF8?
-        if(!isLegalUTF8(source, length)) {
-            return false;
-        }
-        // Are we at end of buffer?
-        source += length;
-        if(source == sourceEnd) {
-            return true;
-        }
-    }
 }
 
 /* --------------------------------------------------------------------- */
@@ -460,4 +434,39 @@ ConversionResult ConvertUTF8toUTF32 (
     similarly unrolled loops.
 
    --------------------------------------------------------------------- */
+}
+
+namespace IceUtil
+{
+
+using namespace IceUtilInternal;
+
+/* --------------------------------------------------------------------- */
+
+/*
+ * Exported function to return whether a UTF-8 sequence is legal or not.
+ * This is not used here; it's just exported.
+ */
+Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd) {
+    if(source == sourceEnd) {
+        return true;
+    }
+    while(true) {
+        int length = trailingBytesForUTF8[*source]+1;
+        // Is buffer big enough to contain character?
+        if (source+length > sourceEnd) {
+            return false;
+        }
+        // Is character legal UTF8?
+        if(!isLegalUTF8(source, length)) {
+            return false;
+        }
+        // Are we at end of buffer?
+        source += length;
+        if(source == sourceEnd) {
+            return true;
+        }
+    }
+}
+
 }

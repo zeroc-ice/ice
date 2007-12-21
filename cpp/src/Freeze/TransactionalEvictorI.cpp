@@ -13,6 +13,7 @@
 #include <Freeze/TransactionalEvictorContext.h>
 
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/StringUtil.h>
 
 #include <typeinfo>
 
@@ -164,7 +165,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
         ex.id = _communicator->identityToString(ident);
         if(!facet.empty())
         {
-            ex.id += " -f " + IceUtil::escapeString(facet, "");
+            ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
         }
         throw ex;
     }
@@ -228,7 +229,7 @@ Freeze::TransactionalEvictorI::removeFacet(const Identity& ident, const string& 
         ex.id = _communicator->identityToString(ident);
         if(!facet.empty())
         {
-            ex.id += " -f " + IceUtil::escapeString(facet, "");
+            ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
         }
         throw ex;
     }

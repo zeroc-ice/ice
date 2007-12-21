@@ -24,6 +24,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 Slice::JavaOutput::JavaOutput()
 {

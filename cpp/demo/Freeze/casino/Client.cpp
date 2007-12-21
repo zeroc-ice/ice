@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/Random.h>
 #include <Casino.h>
 
 using namespace std;
@@ -75,7 +76,7 @@ CasinoClient::run(int argc, char* argv[])
     int b;
     for(b = 0; b < 500; ++b)
     {
-        Casino::BetPrx bet = bank->createBet(10, 200 + IceUtil::random(4000));
+        Casino::BetPrx bet = bank->createBet(10, 200 + IceUtilInternal::random(4000));
         for(size_t i = 0; i < players.size(); ++i)
         {
             Casino::PlayerPrx player = players[i];
@@ -104,7 +105,7 @@ CasinoClient::run(int argc, char* argv[])
 
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
        
-    int index = IceUtil::random(players.size());
+    int index = IceUtilInternal::random(players.size());
     Casino::PlayerPrx gonner = players[index];
     players[index] = 0;
 
@@ -136,7 +137,7 @@ CasinoClient::run(int argc, char* argv[])
 
     for(b = 0; b < 100; ++b)
     {
-        Casino::BetPrx bet = bank->createBet(10, 200 + IceUtil::random(4000));
+        Casino::BetPrx bet = bank->createBet(10, 200 + IceUtilInternal::random(4000));
         for(size_t i = 0; i < players.size(); ++i)
         {
             Casino::PlayerPrx player = players[i];

@@ -83,17 +83,10 @@ ICE_UTIL_API std::wstring stringToWstring(const std::string&);
 
 #endif
 
+typedef unsigned char Byte;
 
-//
-// Converts UTF-8 byte-sequences to and from UTF-16 or UTF-32 (with native
-// endianness) depending on sizeof(wchar_t).
-//
-// These are thin wrappers over the UTF8/16/32 converters provided by 
-// unicode.org
-//
-//
-// TODO: provide the same support for /Zc:wchar_t as the functions above
-//
+ICE_UTIL_API bool
+isLegalUTF8Sequence(const Byte* source, const Byte* end);
 
 enum ConversionResult
 {
@@ -102,33 +95,6 @@ enum ConversionResult
         targetExhausted,        /* insuff. room in target for conversion */
         sourceIllegal           /* source sequence is illegal/malformed */
 };
-
-
-enum ConversionFlags 
-{
-    strictConversion = 0,
-    lenientConversion
-};
-
-typedef unsigned char Byte;
-
-ICE_UTIL_API bool
-isLegalUTF8Sequence(const Byte* source, const Byte* end);
-
-ICE_UTIL_API ConversionResult 
-convertUTFWstringToUTF8(const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
-                        Byte*& targetStart, Byte* targetEnd, ConversionFlags flags);
-
-ICE_UTIL_API ConversionResult
-convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd, 
-                        wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
-
-ICE_UTIL_API ConversionResult 
-convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd, 
-                        std::wstring& target, ConversionFlags flags);
-
-
-
 
 //
 // UTFConversionException is raised by wstringToString() or stringToWstring()
@@ -150,6 +116,39 @@ private:
     const ConversionResult _conversionResult;
     static const char* _name;    
 };
+
+}
+
+namespace IceUtilInternal
+{
+
+//
+// Converts UTF-8 byte-sequences to and from UTF-16 or UTF-32 (with native
+// endianness) depending on sizeof(wchar_t).
+//
+// These are thin wrappers over the UTF8/16/32 converters provided by 
+// unicode.org
+//
+
+
+enum ConversionFlags 
+{
+    strictConversion = 0,
+    lenientConversion
+};
+
+
+ICE_UTIL_API IceUtil::ConversionResult 
+convertUTFWstringToUTF8(const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+                        IceUtil::Byte*& targetStart, IceUtil::Byte* targetEnd, ConversionFlags flags);
+
+ICE_UTIL_API IceUtil::ConversionResult
+convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd, 
+                        wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
+
+ICE_UTIL_API IceUtil::ConversionResult 
+convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd, 
+                        std::wstring& target, ConversionFlags flags);
 
 }
 

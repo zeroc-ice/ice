@@ -41,14 +41,14 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     vector<string> argSeq;
     try
     {
-        argSeq = IceUtil::Options::split(cmd);
+        argSeq = IceUtilInternal::Options::split(cmd);
     }
-    catch(const IceUtil::BadOptException& ex)
+    catch(const IceUtilInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
     }
-    catch(const IceUtil::APIException& ex)
+    catch(const IceUtilInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
@@ -62,10 +62,10 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         }
     }
 
-    IceUtil::Options opts;
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    IceUtilInternal::Options opts;
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "checksum");
@@ -83,12 +83,12 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return 0;
         }
     }
-    catch(const IceUtil::BadOptException& ex)
+    catch(const IceUtilInternal::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
     }
-    catch(const IceUtil::APIException& ex)
+    catch(const IceUtilInternal::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
         return 0;
@@ -158,7 +158,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         // Generate the Python code into a string stream.
         //
         ostringstream codeStream;
-        IceUtil::Output out(codeStream);
+        IceUtilInternal::Output out(codeStream);
         out.setUseTab(false);
         generate(u, all, checksum, includePaths, out);
         u->destroy();

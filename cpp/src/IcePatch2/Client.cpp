@@ -237,7 +237,7 @@ Client::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
 
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("t", "thorough");
@@ -247,7 +247,7 @@ Client::run(int argc, char* argv[])
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << e.reason << endl;
         usage(argv[0]);

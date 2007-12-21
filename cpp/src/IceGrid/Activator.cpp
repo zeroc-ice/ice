@@ -611,8 +611,8 @@ Activator::activate(const string& name,
     //
     // Convert to standard argc/argv.
     //
-    IceUtil::ArgVector av(args);
-    IceUtil::ArgVector env(envs);
+    IceUtilInternal::ArgVector av(args);
+    IceUtilInternal::ArgVector env(envs);
     
     //
     // Current directory

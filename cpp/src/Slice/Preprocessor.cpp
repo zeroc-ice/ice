@@ -60,7 +60,7 @@ Slice::Preprocessor::addQuotes(const string& arg)
     // escape the "\" character to ensure that we don't end up with a
     // \" at the end of the string.
     //
-    return "\"" + IceUtil::escapeString(arg, "\\") + "\"";
+    return "\"" + IceUtilInternal::escapeString(arg, "\\") + "\"";
 }
 
 string

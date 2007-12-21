@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
@@ -52,19 +53,19 @@ usage(const string& n)
 int
 Subscriber::run(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("", "datagram");
     opts.addOpt("", "twoway");
     opts.addOpt("", "ordered");
     opts.addOpt("", "oneway");
     opts.addOpt("", "batch");
 
-    IceUtil::Options::StringVector remaining;
+    IceUtilInternal::Options::StringVector remaining;
     try
     {
         remaining = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         usage(appName());

@@ -28,7 +28,7 @@ using namespace std;
 
 static char myPid[2];
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 //
@@ -112,7 +112,7 @@ IceUtil::generateUUID()
     // Randoms by the last 15 bits of the process id.
     //
     char* buffer = reinterpret_cast<char*>(&uuid);
-    generateRandom(buffer, static_cast<int>(sizeof(UUID)));
+    IceUtilInternal::generateRandom(buffer, static_cast<int>(sizeof(UUID)));
 
     //
     // Adjust the bits that say "version 4" UUID

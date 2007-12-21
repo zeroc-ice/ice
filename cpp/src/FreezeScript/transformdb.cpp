@@ -234,26 +234,26 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     string dbEnvName, dbName, dbEnvNameNew;
     bool allDb = false;
 
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
-    opts.addOpt("o", "", IceUtil::Options::NeedArg);
+    opts.addOpt("o", "", IceUtilInternal::Options::NeedArg);
     opts.addOpt("i");
     opts.addOpt("p");
     opts.addOpt("c");
     opts.addOpt("w");
-    opts.addOpt("f", "", IceUtil::Options::NeedArg);
-    opts.addOpt("", "include-old", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("", "include-new", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("", "old", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("", "new", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("f", "", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "include-old", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("", "include-new", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("", "old", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("", "new", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("a");
     opts.addOpt("e");
-    opts.addOpt("", "key", IceUtil::Options::NeedArg);
-    opts.addOpt("", "value", IceUtil::Options::NeedArg);
+    opts.addOpt("", "key", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "value", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "case-sensitive");
 
     vector<string> args;
@@ -261,7 +261,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         usage(argv[0]);

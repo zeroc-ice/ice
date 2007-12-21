@@ -131,7 +131,7 @@ encodeChar(string::value_type b, string& s, const string& special)
 // prefixed with a backslash in the returned string.
 //
 string
-IceUtil::escapeString(const string& s, const string& special)
+IceUtilInternal::escapeString(const string& s, const string& special)
 {
     string::size_type i;
     for(i = 0; i < special.size(); ++i)
@@ -279,7 +279,7 @@ static void decodeString(const string& s, string::size_type start, string::size_
 // Remove escape sequences added by escapeString.
 //
 bool
-IceUtil::unescapeString(const string& s, string::size_type start, string::size_type end, string& result)
+IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end, string& result)
 {
     if(start < 0)
     {
@@ -309,7 +309,7 @@ IceUtil::unescapeString(const string& s, string::size_type start, string::size_t
 }
 
 bool
-IceUtil::splitString(const string& str, const string& delim, vector<string>& result)
+IceUtilInternal::splitString(const string& str, const string& delim, vector<string>& result)
 {
     string::size_type pos = 0;
     string::size_type length = str.length();
@@ -372,7 +372,7 @@ IceUtil::splitString(const string& str, const string& delim, vector<string>& res
 // If no matching closing quote is found, then -1 is returned.
 //
 string::size_type
-IceUtil::checkQuote(const string& s, string::size_type start)
+IceUtilInternal::checkQuote(const string& s, string::size_type start)
 {
     string::value_type quoteChar = s[start];
     if(quoteChar == '"' || quoteChar == '\'')
@@ -399,7 +399,7 @@ IceUtil::checkQuote(const string& s, string::size_type start)
 // (whereas regex() isn't). Only one * per pattern is supported.
 //
 bool
-IceUtil::match(const string& s, const string& pat, bool emptyMatch)
+IceUtilInternal::match(const string& s, const string& pat, bool emptyMatch)
 {
     assert(!s.empty());
     assert(!pat.empty());

@@ -12,11 +12,11 @@
 
 #include <IceUtil/Config.h>
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 template<typename T>
-class ScopedArray : private noncopyable
+class ScopedArray : private IceUtil::noncopyable
 {
 public:
 

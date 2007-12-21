@@ -15,10 +15,10 @@
 #include <stack>
 #include <vector>
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
-ICE_UTIL_API std::string int64ToString(Int64);
+ICE_UTIL_API std::string int64ToString(IceUtil::Int64);
 
 // ----------------------------------------------------------------------
 // OutputBase

@@ -96,13 +96,13 @@ public:
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     virtual void getReplicaGroups(std::set<std::string>&) const;
     
-    void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
+    void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
 
 protected:
 
-    void printDbEnv(IceUtil::Output&, const DbEnvDescriptor&) const;
-    void printObjectAdapter(const Ice::CommunicatorPtr&, IceUtil::Output&, const AdapterDescriptor&) const;
-    void printPropertySet(IceUtil::Output&, const PropertySetDescriptor&) const;
+    void printDbEnv(IceUtilInternal::Output&, const DbEnvDescriptor&) const;
+    void printObjectAdapter(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const AdapterDescriptor&) const;
+    void printPropertySet(IceUtilInternal::Output&, const PropertySetDescriptor&) const;
     virtual std::string getProperty(const std::string&) const;
 
     void instantiateImpl(const CommunicatorDescriptorPtr&, const Resolver&) const;
@@ -126,7 +126,7 @@ public:
     ServiceDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&, 
                                      const PropertySetDescriptorDict&) const;
 
-    void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
+    void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
 
 protected:
 
@@ -152,12 +152,12 @@ public:
     virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&,
                                             const PropertySetDescriptorDict&) const;
 
-    void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
-    void print(const Ice::CommunicatorPtr&, IceUtil::Output&, const ServerInfo&) const;
+    void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
+    void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
 
 protected:
 
-    void printImpl(const Ice::CommunicatorPtr&, IceUtil::Output&, const ServerInfo&) const;
+    void printImpl(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
     void instantiateImpl(const ServerDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&) const;
 
 private:
@@ -191,7 +191,7 @@ public:
     void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     void getReplicaGroups(std::set<std::string>&) const;
 
-    void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
+    void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
 
 private:
     
@@ -216,8 +216,8 @@ public:
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     virtual void getReplicaGroups(std::set<std::string>&) const;
 
-    void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
-    void print(const Ice::CommunicatorPtr&, IceUtil::Output&, const ServerInfo&) const;
+    void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&) const;
+    void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
 
 protected:
 
@@ -285,8 +285,8 @@ public:
     bool hasDistributions(const std::string&) const;
     bool hasServers() const;
     bool hasServer(const std::string&) const;
-    void print(IceUtil::Output&) const;
-    void printDiff(IceUtil::Output&, const NodeHelper&) const;
+    void print(IceUtilInternal::Output&) const;
+    void printDiff(IceUtilInternal::Output&, const NodeHelper&) const;
 
 private:
 
@@ -318,8 +318,8 @@ public:
     const ApplicationDescriptor& getInstance() const;
     void getDistributions(DistributionDescriptor&, std::vector<std::string>&,const std::string& = std::string()) const;
 
-    void print(IceUtil::Output&, const ApplicationInfo&) const;
-    void printDiff(IceUtil::Output&, const ApplicationHelper&) const;
+    void print(IceUtilInternal::Output&, const ApplicationInfo&) const;
+    void printDiff(IceUtilInternal::Output&, const ApplicationHelper&) const;
     std::map<std::string, ServerInfo> getServerInfos(const std::string&, int) const;
 
 private:

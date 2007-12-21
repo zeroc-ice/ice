@@ -12,6 +12,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
 
@@ -778,7 +779,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                 {
                     seqType = fixKwd(seq->scoped());
                 }
-                out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(ice_distance(" 
+                out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(IceUtilInternal::distance(" 
                     << fixedParam << ".first, " << fixedParam << ".second)));"; 
                 out << nl << "for(" << seqType << "::const_iterator ___" << fixedParam << " = "
                     << fixedParam << ".first; ___" << fixedParam << " != " << fixedParam << ".second; ++___"
@@ -879,7 +880,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     {
                        s = " " + s;
                     }
-                    out << nl << "::IceUtil::ScopedArray<" << s << "> ___" << fixedParam << '('
+                    out << nl << "::IceUtilInternal::ScopedArray<" << s << "> ___" << fixedParam << '('
                         << stream << deref << func << fixedParam << "));";
                 }
                 else

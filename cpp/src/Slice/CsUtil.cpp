@@ -25,6 +25,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 //
 // TODO: Temporary work-around for Mono compiler bug: "global::" does not work for generic classes.

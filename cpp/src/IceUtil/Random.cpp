@@ -18,14 +18,15 @@
 #endif
 
 using namespace std;
+using namespace IceUtil;
 
-IceUtil::RandomGeneratorException::RandomGeneratorException(const char* file, int line, int error) :
+IceUtilInternal::RandomGeneratorException::RandomGeneratorException(const char* file, int line, int error) :
     Exception(file, line),
     _error(error)
 {
 }
 
-const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGeneratorException";
+const char* IceUtilInternal::RandomGeneratorException::_name = "IceUtilInternal::RandomGeneratorException";
 
 //
 // The static mutex is required to lazy initialize the file
@@ -40,7 +41,7 @@ const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGenerator
 // widespread. Therefore, we serialize access to /dev/urandom using a
 // static mutex.
 // 
-static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 #ifdef _WIN32
 static HCRYPTPROV context = NULL;
 #else
@@ -78,13 +79,13 @@ static RandomCleanup uuidCleanup;
 }
 
 string
-IceUtil::RandomGeneratorException::ice_name() const
+IceUtilInternal::RandomGeneratorException::ice_name() const
 {
     return _name;
 }
 
 void
-IceUtil::RandomGeneratorException::ice_print(ostream& os) const
+IceUtilInternal::RandomGeneratorException::ice_print(ostream& os) const
 {
     Exception::ice_print(os);
     if(_error != 0)
@@ -119,20 +120,20 @@ IceUtil::RandomGeneratorException::ice_print(ostream& os) const
     }
 }
 
-IceUtil::Exception*
-IceUtil::RandomGeneratorException::ice_clone() const
+Exception*
+IceUtilInternal::RandomGeneratorException::ice_clone() const
 {
     return new RandomGeneratorException(*this);
 }
 
 void
-IceUtil::RandomGeneratorException::ice_throw() const
+IceUtilInternal::RandomGeneratorException::ice_throw() const
 {
     throw *this;
 }
 
 void
-IceUtil::generateRandom(char* buffer, int size)
+IceUtilInternal::generateRandom(char* buffer, int size)
 {
 #ifdef _WIN32
     //
@@ -142,7 +143,7 @@ IceUtil::generateRandom(char* buffer, int size)
     // mutex.
     //
 
-    IceUtil::StaticMutex::Lock lock(staticMutex);
+    IceUtilInternal::StaticMutex::Lock lock(staticMutex);
     if(context == NULL)
     {
         if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
@@ -160,7 +161,7 @@ IceUtil::generateRandom(char* buffer, int size)
     //
     // Serialize access to /dev/urandom; see comment above.
     //
-    IceUtil::StaticMutex::Lock lock(staticMutex);
+    StaticMutex::Lock lock(staticMutex);
     if(fd == -1)
     {
         fd = open("/dev/urandom", O_RDONLY);
@@ -204,7 +205,7 @@ IceUtil::generateRandom(char* buffer, int size)
 }
 
 int
-IceUtil::random(int limit)
+IceUtilInternal::random(int limit)
 {
     int r;
     generateRandom(reinterpret_cast<char*>(&r), static_cast<int>(sizeof(int)));

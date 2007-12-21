@@ -15,6 +15,7 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 using namespace Slice;
 
 static string ICE_ENCODING_COMPARE = "Freeze::IceEncodingCompare";
@@ -1240,22 +1241,22 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
 int
 main(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("", "header-ext", IceUtil::Options::NeedArg, "h");
-    opts.addOpt("", "source-ext", IceUtil::Options::NeedArg, "cpp");
-    opts.addOpt("", "add-header", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "header-ext", IceUtilInternal::Options::NeedArg, "h");
+    opts.addOpt("", "source-ext", IceUtilInternal::Options::NeedArg, "cpp");
+    opts.addOpt("", "add-header", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
-    opts.addOpt("", "include-dir", IceUtil::Options::NeedArg);
-    opts.addOpt("", "dll-export", IceUtil::Options::NeedArg);
-    opts.addOpt("", "dict", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("", "index", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("", "dict-index", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("", "output-dir", IceUtil::Options::NeedArg);
+    opts.addOpt("", "include-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "dll-export", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "dict", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("", "index", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("", "dict-index", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
+    opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "case-sensitive");
@@ -1265,7 +1266,7 @@ main(int argc, char* argv[])
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         usage(argv[0]);

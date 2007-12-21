@@ -20,15 +20,15 @@ using namespace Test;
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
-    IceUtil::Options opts;
-    opts.addOpt("", "events", IceUtil::Options::NeedArg);
+    IceUtilInternal::Options opts;
+    opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "oneway");
 
     try
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
         return EXIT_FAILURE;

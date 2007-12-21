@@ -25,9 +25,9 @@ struct ToIfdef
 
 SLICE_API std::string normalizePath(const std::string&);
 SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
-SLICE_API void printHeader(::IceUtil::Output&);
-SLICE_API void printVersionCheck(::IceUtil::Output&);
-SLICE_API void printDllExportStuff(::IceUtil::Output&, const std::string&);
+SLICE_API void printHeader(::IceUtilInternal::Output&);
+SLICE_API void printVersionCheck(::IceUtilInternal::Output&);
+SLICE_API void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
 
 SLICE_API std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), bool = true);
 SLICE_API std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList());
@@ -37,18 +37,18 @@ SLICE_API std::string operationModeToString(Operation::Mode);
 
 SLICE_API std::string fixKwd(const std::string&);
 
-SLICE_API void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
+SLICE_API void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool,
                                          const std::string& = "", bool = true, const StringList& = StringList(),
                                          bool = false);
                                              
-SLICE_API void writeMarshalCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&, 
+SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const TypePtr&, 
                                 const StringList&, bool = false);
-SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
+SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const TypePtr&,
                                   const StringList&, bool = false);
 
-SLICE_API void writeAllocateCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
+SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const TypePtr&,
                                  const StringList&, bool = false, bool = false);
-SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
+SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool,
                                                const std::string& = "", bool = false, const StringList& = StringList());
 SLICE_API std::string findMetaData(const StringList&, bool);
 SLICE_API bool inWstringModule(const SequencePtr&);

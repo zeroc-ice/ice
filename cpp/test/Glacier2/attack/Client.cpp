@@ -80,16 +80,16 @@ AttackClient::run(int argc, char* argv[])
         Identity ident;
         string::iterator p;
 
-        ident.name.resize(1); // 1 + IceUtil::random() % 2);
+        ident.name.resize(1); // 1 + IceUtilInternal::random() % 2);
         for(p = ident.name.begin(); p != ident.name.end(); ++p)
         {
-            *p = static_cast<char>('A' + IceUtil::random() % 26);
+            *p = static_cast<char>('A' + IceUtilInternal::random() % 26);
         }
 
-        ident.category.resize(IceUtil::random() % 2);
+        ident.category.resize(IceUtilInternal::random() % 2);
         for(p = ident.category.begin(); p != ident.category.end(); ++p)
         {
-            *p = static_cast<char>('a' + IceUtil::random() % 26);
+            *p = static_cast<char>('a' + IceUtilInternal::random() % 26);
         }
 
         BackendPrx newBackend = BackendPrx::uncheckedCast(backendBase->ice_identity(ident));

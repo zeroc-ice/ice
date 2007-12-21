@@ -17,6 +17,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <IcePatch2/Util.h>
 #include <openssl/sha.h>
 #include <bzlib.h>
@@ -117,7 +118,7 @@ bool
 IcePatch2::writeFileInfo(FILE* fp, const FileInfo& info)
 {
     int rc = fprintf(fp, "%s\t%s\t%d\t%d\n", 
-                     IceUtil::escapeString(info.path, "").c_str(),
+                     IceUtilInternal::escapeString(info.path, "").c_str(),
                      bytesToString(info.checksum).c_str(),
                      info.size,
                      static_cast<int>(info.executable));
@@ -148,7 +149,7 @@ IcePatch2::readFileInfo(FILE* fp, FileInfo& info)
 
     string s;
     getline(is, s, '\t');
-    IceUtil::unescapeString(s, 0, s.size(), info.path);
+    IceUtilInternal::unescapeString(s, 0, s.size(), info.path);
 
     getline(is, s, '\t');
     info.checksum = stringToBytes(s);

@@ -10,6 +10,8 @@
 #include <Slice/PythonUtil.h>
 #include <Slice/Checksum.h>
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/StringUtil.h>
+#include <IceUtil/InputUtil.h>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif
@@ -17,6 +19,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 namespace Slice
 {
@@ -89,7 +92,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtil::Output&, set<string>&);
+    CodeVisitor(IceUtilInternal::Output&, set<string>&);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -1343,7 +1346,7 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
         case Slice::Builtin::KindLong:
         {
             IceUtil::Int64 l;
-            IceUtil::stringToInt64(value, l);
+            IceUtilInternal::stringToInt64(value, l);
             //
             // The platform's 'long' type may not be 64 bits, so we store 64-bit
             // values as a string.
@@ -1948,7 +1951,7 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
 }
 
 void
-Slice::Python::printHeader(IceUtil::Output& out)
+Slice::Python::printHeader(IceUtilInternal::Output& out)
 {
     static const char* header =
 "# **********************************************************************\n"

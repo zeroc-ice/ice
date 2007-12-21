@@ -13,6 +13,7 @@
 #include <FreezeScript/Functions.h>
 #include <FreezeScript/Exception.h>
 #include <FreezeScript/Util.h>
+#include <IceUtil/InputUtil.h>
 #include <db_cxx.h>
 #include <set>
 
@@ -1575,7 +1576,7 @@ FreezeScript::SymbolTableI::getConstantValue(const string& name) const
             case Slice::Builtin::KindLong:
             {
                 Ice::Long n;
-                if(!IceUtil::stringToInt64(value, n))
+                if(!IceUtilInternal::stringToInt64(value, n))
                 {
                     assert(false);
                 }

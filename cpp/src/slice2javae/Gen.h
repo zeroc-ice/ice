@@ -59,12 +59,12 @@ protected:
     //
     // Generate code to compute a hash code for a type.
     //
-    void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
+    void writeHashCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int&);
 
     //
     // Generate dispatch methods for a class or interface.
     //
-    void writeDispatch(::IceUtil::Output&, const ClassDefPtr&);
+    void writeDispatch(::IceUtilInternal::Output&, const ClassDefPtr&);
 };
 
 class Gen : private ::IceUtil::noncopyable
@@ -199,17 +199,17 @@ private:
         // Generate code to emit a local variable declaration and initialize it
         // if necessary.
         //
-        void writeDecl(::IceUtil::Output&, const std::string&, const std::string&, const TypePtr&, const StringList&);
+        void writeDecl(::IceUtilInternal::Output&, const std::string&, const std::string&, const TypePtr&, const StringList&);
 
         //
         // Generate code to return a value.
         //
-        void writeReturn(::IceUtil::Output&, const TypePtr&);
+        void writeReturn(::IceUtilInternal::Output&, const TypePtr&);
 
         //
         // Generate an operation.
         //
-        void writeOperation(::IceUtil::Output&, const std::string&, const OperationPtr&, bool);
+        void writeOperation(::IceUtilInternal::Output&, const std::string&, const OperationPtr&, bool);
     };
 
     class ImplVisitor : public BaseImplVisitor

@@ -11,7 +11,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
-#include <IceUtil/Base64.h>
+#include <Ice/Base64.h>
 
 using namespace std;
 using namespace Ice;
@@ -89,14 +89,14 @@ IceInternal::UnknownEndpointI::UnknownEndpointI(const string& str)
                 }
                 for(string::size_type i = 0; i < argument.size(); ++i)
                 {
-                    if(!IceUtil::Base64::isBase64(argument[i]))
+                    if(!Base64::isBase64(argument[i]))
                     {
                         EndpointParseException ex(__FILE__, __LINE__);
                         ex.str = "opaque " + str;
                         throw ex;
                     }
                 }
-                const_cast<vector<Byte>&>(_rawBytes) = IceUtil::Base64::decode(argument);
+                const_cast<vector<Byte>&>(_rawBytes) = Base64::decode(argument);
                 ++vopt;
                 break;
             }
@@ -140,7 +140,7 @@ IceInternal::UnknownEndpointI::toString() const
 {
 
     ostringstream s;
-    string val = IceUtil::Base64::encode(_rawBytes);
+    string val = Base64::encode(_rawBytes);
     s << "opaque -t " << _type << " -v " << val;
     return s.str();
 }

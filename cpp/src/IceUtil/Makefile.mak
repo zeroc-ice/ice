@@ -15,16 +15,13 @@ DLLNAME         = $(top_srcdir)\bin\iceutil$(SOVERSION)$(LIBSUFFIX).dll
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= ArgVector.obj \
-                  Base64.obj \
-		  Cond.obj \
+                  Cond.obj \
                   ConvertUTF.obj \
 		  CountDownLatch.obj \
 		  CtrlCHandler.obj \
 		  Exception.obj \
 		  Shared.obj \
 		  InputUtil.obj \
-		  MD5.obj \
-		  MD5I.obj \
 		  Options.obj \
 		  OutputUtil.obj \
 		  Random.obj \

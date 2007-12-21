@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
 #include <Echo.h>
 #include <StringConverterI.h>
@@ -65,12 +66,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
             if(c == 't')
             {
                 string ret = echo1->echoString(greeting);
-                cout << "Received (LATIN-1): \"" << IceUtil::escapeString(ret, "") << '\"' << endl;
+                cout << "Received (LATIN-1): \"" << IceUtilInternal::escapeString(ret, "") << '\"' << endl;
             }
             else if(c == 'u')
             {
                 string ret = echo2->echoString(greeting);
-                cout << "Received (LATIN-1): \"" << IceUtil::escapeString(ret, "") << '\"' << endl;
+                cout << "Received (LATIN-1): \"" << IceUtilInternal::escapeString(ret, "") << '\"' << endl;
             }
             else if(c == 's')
             {

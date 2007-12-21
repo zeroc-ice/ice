@@ -333,7 +333,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 {integer_constant} {
     IntegerTokPtr itp = new IntegerTok;
     *yylvalp = itp;
-    if(!IceUtil::stringToInt64(string(yytext), itp->v))
+    if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
     {
 	assert(itp->v != 0);
 	string msg = "integer constant `";

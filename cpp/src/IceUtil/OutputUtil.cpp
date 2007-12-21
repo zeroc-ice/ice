@@ -11,8 +11,9 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 NextLine nl;
@@ -28,7 +29,7 @@ EndEscapes endEscapes;
 }
 
 string
-IceUtil::int64ToString(Int64 val)
+IceUtilInternal::int64ToString(Int64 val)
 {
     char buf[64];
 #ifdef _WIN32
@@ -49,7 +50,7 @@ IceUtil::int64ToString(Int64 val)
 // OutputBase
 // ----------------------------------------------------------------------
 
-IceUtil::OutputBase::OutputBase() :
+IceUtilInternal::OutputBase::OutputBase() :
     _out(_fout),
     _pos(0),
     _indent(0),
@@ -59,7 +60,7 @@ IceUtil::OutputBase::OutputBase() :
 {
 }
 
-IceUtil::OutputBase::OutputBase(ostream& os) :
+IceUtilInternal::OutputBase::OutputBase(ostream& os) :
     _out(os),
     _pos(0),
     _indent(0),
@@ -70,7 +71,7 @@ IceUtil::OutputBase::OutputBase(ostream& os) :
 }
 
 
-IceUtil::OutputBase::OutputBase(const char* s) :
+IceUtilInternal::OutputBase::OutputBase(const char* s) :
     _out(_fout),
     _pos(0),
     _indent(0),
@@ -81,24 +82,24 @@ IceUtil::OutputBase::OutputBase(const char* s) :
     open(s);
 }
 
-IceUtil::OutputBase::~OutputBase()
+IceUtilInternal::OutputBase::~OutputBase()
 {
 }
 
 void
-IceUtil::OutputBase::open(const char* s)
+IceUtilInternal::OutputBase::open(const char* s)
 {
     _fout.open(s);
 }
 
 bool
-IceUtil::OutputBase::isOpen()
+IceUtilInternal::OutputBase::isOpen()
 {
     return _fout.is_open();
 }
 
 void
-IceUtil::OutputBase::print(const char* s)
+IceUtilInternal::OutputBase::print(const char* s)
 {
     for(unsigned int i = 0; i < strlen(s); ++i)
     {
@@ -116,34 +117,34 @@ IceUtil::OutputBase::print(const char* s)
 }
 
 void
-IceUtil::OutputBase::inc()
+IceUtilInternal::OutputBase::inc()
 {
     _indent += _indentSize;
 }
 
 void
-IceUtil::OutputBase::dec()
+IceUtilInternal::OutputBase::dec()
 {
     assert(_indent >= _indentSize);
     _indent -= _indentSize;
 }
 
 void
-IceUtil::OutputBase::useCurrentPosAsIndent()
+IceUtilInternal::OutputBase::useCurrentPosAsIndent()
 {
     _indentSave.push(_indent);
     _indent = _pos;
 }
 
 void
-IceUtil::OutputBase::zeroIndent()
+IceUtilInternal::OutputBase::zeroIndent()
 {
     _indentSave.push(_indent);
     _indent = 0;
 }
 
 void
-IceUtil::OutputBase::restoreIndent()
+IceUtilInternal::OutputBase::restoreIndent()
 {
     assert(!_indentSave.empty());
     _indent = _indentSave.top();
@@ -151,25 +152,25 @@ IceUtil::OutputBase::restoreIndent()
 }
 
 int
-IceUtil::OutputBase::currIndent()
+IceUtilInternal::OutputBase::currIndent()
 {
     return _indent;
 }
 
 void 
-IceUtil::OutputBase::setIndent(int indentSize)
+IceUtilInternal::OutputBase::setIndent(int indentSize)
 {
     _indentSize = indentSize; 
 }
 
 void 
-IceUtil::OutputBase::setUseTab(bool useTab)
+IceUtilInternal::OutputBase::setUseTab(bool useTab)
 {
     _useTab = useTab;
 }
 
 void
-IceUtil::OutputBase::newline()
+IceUtilInternal::OutputBase::newline()
 {
     _out << '\n';
     _pos = 0;
@@ -207,7 +208,7 @@ IceUtil::OutputBase::newline()
 }
 
 void
-IceUtil::OutputBase::separator()
+IceUtilInternal::OutputBase::separator()
 {
     if(_separator)
     {
@@ -216,7 +217,7 @@ IceUtil::OutputBase::separator()
 }
 
 bool
-IceUtil::OutputBase::operator!() const
+IceUtilInternal::OutputBase::operator!() const
 {
     return !_out;
 }
@@ -225,7 +226,7 @@ IceUtil::OutputBase::operator!() const
 // Output
 // ----------------------------------------------------------------------
 
-IceUtil::Output::Output() :
+IceUtilInternal::Output::Output() :
     OutputBase(),
     _blockStart("{"),
     _blockEnd("}"),
@@ -233,7 +234,7 @@ IceUtil::Output::Output() :
 {
 }
 
-IceUtil::Output::Output(ostream& os) :
+IceUtilInternal::Output::Output(ostream& os) :
     OutputBase(os),
     _blockStart("{"),
     _blockEnd("}"),
@@ -241,7 +242,7 @@ IceUtil::Output::Output(ostream& os) :
 {
 }
 
-IceUtil::Output::Output(const char* s) :
+IceUtilInternal::Output::Output(const char* s) :
     OutputBase(s),
     _blockStart("{"),
     _blockEnd("}"),
@@ -250,7 +251,7 @@ IceUtil::Output::Output(const char* s) :
 }
 
 void
-IceUtil::Output::print(const char* s)
+IceUtilInternal::Output::print(const char* s)
 {
     if(_par >= 0)
     {
@@ -263,19 +264,19 @@ IceUtil::Output::print(const char* s)
 }
 
 void 
-IceUtil::Output::setBeginBlock(const char *bb)
+IceUtilInternal::Output::setBeginBlock(const char *bb)
 {
     _blockStart = bb;
 }
 
 void 
-IceUtil::Output::setEndBlock(const char *eb)
+IceUtilInternal::Output::setEndBlock(const char *eb)
 {
     _blockEnd = eb;
 }
 
 void
-IceUtil::Output::sb()
+IceUtilInternal::Output::sb()
 {
     if(_blockStart.length())
     {
@@ -288,7 +289,7 @@ IceUtil::Output::sb()
 }
 
 void
-IceUtil::Output::eb()
+IceUtilInternal::Output::eb()
 {
     dec();
     if(_blockEnd.length())
@@ -300,21 +301,21 @@ IceUtil::Output::eb()
 }
 
 void
-IceUtil::Output::spar()
+IceUtilInternal::Output::spar()
 {
     _out << '(';
     _par = 0;
 }
 
 void
-IceUtil::Output::epar()
+IceUtilInternal::Output::epar()
 {
     _par = -1;
     _out << ')';
 }
 
 Output&
-IceUtil::operator<<(Output& out, ios_base& (*val)(ios_base&))
+IceUtilInternal::operator<<(Output& out, ios_base& (*val)(ios_base&))
 {
     ostringstream s;
     s << val;
@@ -326,7 +327,7 @@ IceUtil::operator<<(Output& out, ios_base& (*val)(ios_base&))
 // XMLOutput
 // ----------------------------------------------------------------------
 
-IceUtil::XMLOutput::XMLOutput() :
+IceUtilInternal::XMLOutput::XMLOutput() :
     OutputBase(),
     _se(false),
     _text(false),
@@ -334,7 +335,7 @@ IceUtil::XMLOutput::XMLOutput() :
 {
 }
 
-IceUtil::XMLOutput::XMLOutput(ostream& os) :
+IceUtilInternal::XMLOutput::XMLOutput(ostream& os) :
     OutputBase(os),
     _se(false),
     _text(false),
@@ -342,7 +343,7 @@ IceUtil::XMLOutput::XMLOutput(ostream& os) :
 {
 }
 
-IceUtil::XMLOutput::XMLOutput(const char* s) :
+IceUtilInternal::XMLOutput::XMLOutput(const char* s) :
     OutputBase(s),
     _se(false),
     _text(false),
@@ -351,7 +352,7 @@ IceUtil::XMLOutput::XMLOutput(const char* s) :
 }
 
 void
-IceUtil::XMLOutput::print(const char* s)
+IceUtilInternal::XMLOutput::print(const char* s)
 {
     if(_se)
     {
@@ -372,7 +373,7 @@ IceUtil::XMLOutput::print(const char* s)
 }
 
 void
-IceUtil::XMLOutput::newline()
+IceUtilInternal::XMLOutput::newline()
 {
     if(_se)
     {
@@ -383,7 +384,7 @@ IceUtil::XMLOutput::newline()
 }
 
 void
-IceUtil::XMLOutput::startElement(const string& element)
+IceUtilInternal::XMLOutput::startElement(const string& element)
 {
     newline();
 
@@ -419,7 +420,7 @@ IceUtil::XMLOutput::startElement(const string& element)
 }
 
 void
-IceUtil::XMLOutput::endElement()
+IceUtilInternal::XMLOutput::endElement()
 {
     string element = _elementStack.top();
     _elementStack.pop();
@@ -444,7 +445,7 @@ IceUtil::XMLOutput::endElement()
 }
 
 void
-IceUtil::XMLOutput::attr(const string& name, const string& value)
+IceUtilInternal::XMLOutput::attr(const string& name, const string& value)
 {
     //
     // Precondition: Attributes can only be attached to elements.
@@ -454,19 +455,19 @@ IceUtil::XMLOutput::attr(const string& name, const string& value)
 }
 
 void
-IceUtil::XMLOutput::startEscapes()
+IceUtilInternal::XMLOutput::startEscapes()
 {
     _escape = true;
 }
 
 void
-IceUtil::XMLOutput::endEscapes()
+IceUtilInternal::XMLOutput::endEscapes()
 {
     _escape = false;
 }
 
 string
-IceUtil::XMLOutput::currentElement() const
+IceUtilInternal::XMLOutput::currentElement() const
 {
     if(_elementStack.size() > 0)
     {
@@ -479,7 +480,7 @@ IceUtil::XMLOutput::currentElement() const
 }
 
 string
-IceUtil::XMLOutput::escape(const string& input) const
+IceUtilInternal::XMLOutput::escape(const string& input) const
 {
     string v = input;
 
@@ -539,7 +540,7 @@ IceUtil::XMLOutput::escape(const string& input) const
 }
 
 XMLOutput&
-IceUtil::operator<<(XMLOutput& out, ios_base& (*val)(ios_base&))
+IceUtilInternal::operator<<(XMLOutput& out, ios_base& (*val)(ios_base&))
 {
     ostringstream s;
     s << val;
@@ -547,31 +548,31 @@ IceUtil::operator<<(XMLOutput& out, ios_base& (*val)(ios_base&))
     return out;
 }
 
-IceUtil::StartElement::StartElement(const string& name) :
+IceUtilInternal::StartElement::StartElement(const string& name) :
     _name(name)
 {
 }
     
 const string&
-IceUtil::StartElement::getName() const
+IceUtilInternal::StartElement::getName() const
 {
     return _name;
 }
 
-IceUtil::Attribute::Attribute(const string& name, const string& value) :
+IceUtilInternal::Attribute::Attribute(const string& name, const string& value) :
     _name(name),
     _value(value)
 {
 }
 
 const string&
-IceUtil::Attribute::getName() const
+IceUtilInternal::Attribute::getName() const
 {
     return _name;
 }
 
 const string&
-IceUtil::Attribute::getValue() const
+IceUtilInternal::Attribute::getValue() const
 {
     return _value;
 }

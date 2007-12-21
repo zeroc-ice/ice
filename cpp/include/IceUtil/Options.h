@@ -19,7 +19,7 @@
 #include <vector>
 #include <map>
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 class ICE_UTIL_API APIException : public IceUtil::Exception
@@ -128,7 +128,7 @@ private:
 
     bool parseCalled;
 
-    RecMutex _m;
+    IceUtil::RecMutex _m;
 
     Options(const Options&); // Not allowed.
     void operator=(const Options&); // Not allowed.

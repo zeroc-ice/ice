@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
 #include <EchoI.h>
 
@@ -16,7 +17,7 @@ using namespace std;
 string
 EchoI::echoString(const std::string& uber, const Ice::Current&) const
 {
-    cout << "Received (UTF-8): \"" << IceUtil::escapeString(uber, "") << '\"' << endl;
+    cout << "Received (UTF-8): \"" << IceUtilInternal::escapeString(uber, "") << '\"' << endl;
     return "Bonne journ\303\251e";
 }
 

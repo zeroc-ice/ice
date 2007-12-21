@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <BetResolver.h>
-
+#include <IceUtil/Random.h>
 
 BetResolver::BetResolver() :
     _betCount(0)
@@ -46,7 +46,7 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
         {
             try
             {
-                _bet->complete(IceUtil::random());
+                _bet->complete(IceUtilInternal::random());
             }
             catch(const Ice::ObjectNotExistException&)
             {
@@ -69,7 +69,7 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
     };
 
     IceUtil::Time timeLeft = IceUtil::Time::milliSeconds(closeTime) - IceUtil::Time::now();
-    _timers[IceUtil::random(_timers.size())]->schedule(new Task(*this, bet), timeLeft);
+    _timers[IceUtilInternal::random(_timers.size())]->schedule(new Task(*this, bet), timeLeft);
 
     IceUtil::Mutex::Lock sync(_mutex);
     _betCount++;

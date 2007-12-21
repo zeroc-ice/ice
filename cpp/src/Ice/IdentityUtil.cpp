@@ -47,7 +47,7 @@ Ice::stringToIdentity(const string& s)
 
     if(slash == string::npos)
     {
-        if(!IceUtil::unescapeString(s, 0, s.size(), ident.name))
+        if(!IceUtilInternal::unescapeString(s, 0, s.size(), ident.name))
         {
             IdentityParseException ex(__FILE__, __LINE__);
             ex.str = s;
@@ -56,7 +56,7 @@ Ice::stringToIdentity(const string& s)
     }
     else
     {
-        if(!IceUtil::unescapeString(s, 0, slash, ident.category))
+        if(!IceUtilInternal::unescapeString(s, 0, slash, ident.category))
         {
             IdentityParseException ex(__FILE__, __LINE__);
             ex.str = s;
@@ -64,7 +64,7 @@ Ice::stringToIdentity(const string& s)
         }
         if(slash + 1 < s.size())
         {
-            if(!IceUtil::unescapeString(s, slash + 1, s.size(), ident.name))
+            if(!IceUtilInternal::unescapeString(s, slash + 1, s.size(), ident.name))
             {
                 IdentityParseException ex(__FILE__, __LINE__);
                 ex.str = s;
@@ -81,10 +81,10 @@ Ice::identityToString(const Identity& ident)
 {
     if(ident.category.empty())
     {
-        return IceUtil::escapeString(ident.name, "/");
+        return IceUtilInternal::escapeString(ident.name, "/");
     }
     else
     {
-        return IceUtil::escapeString(ident.category, "/") + '/' + IceUtil::escapeString(ident.name, "/");
+        return IceUtilInternal::escapeString(ident.category, "/") + '/' + IceUtilInternal::escapeString(ident.name, "/");
     }
 }

@@ -16,7 +16,6 @@ LIBNAME		= $(call mklibname,IceUtil)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= ArgVector.o \
-		  Base64.o \
 		  Cond.o \
 		  ConvertUTF.o \
 		  CountDownLatch.o \
@@ -24,8 +23,6 @@ OBJS		= ArgVector.o \
 		  Exception.o \
 		  Shared.o \
 		  InputUtil.o \
-		  MD5.o \
-		  MD5I.o \
 		  Options.o \
 		  OutputUtil.o \
 		  Random.o \

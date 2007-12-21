@@ -18,6 +18,7 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+using namespace IceUtilInternal;
 
 static void
 getIds(const ClassDefPtr& p, StringList& ids)
@@ -1386,7 +1387,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
     C << sp;
     C << nl << "const ::std::string&" << nl << "IceProxy" << scoped << "::ice_staticId()";
@@ -1890,7 +1891,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
     StringList::const_iterator q1;
 

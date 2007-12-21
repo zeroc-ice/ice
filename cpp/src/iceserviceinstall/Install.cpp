@@ -49,7 +49,7 @@ main(int argc, char* argv[])
 int
 Install::run(int argc, char* argv[])
 {
-    IceUtil::Options opts;
+    IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("u", "uninstall");
@@ -59,7 +59,7 @@ Install::run(int argc, char* argv[])
 
     for(size_t i = 0; i < propNames.size(); ++i)
     {
-        opts.addOpt("", propNames[i], IceUtil::Options::NeedArg);
+        opts.addOpt("", propNames[i], IceUtilInternal::Options::NeedArg);
     }
 
     vector<string> commands;
@@ -67,7 +67,7 @@ Install::run(int argc, char* argv[])
     {
         commands = opts.parse(argc, argv);
     }
-    catch(const IceUtil::BadOptException& e)
+    catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << "Error:" << e.reason << endl;
         usage();

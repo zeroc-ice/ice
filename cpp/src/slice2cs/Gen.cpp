@@ -17,7 +17,6 @@
 #else
 #include <direct.h>
 #endif
-#include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
@@ -31,13 +30,13 @@ using namespace Slice;
 // ambigious symbols for constructs like
 // "IceUtil::constMemFun(&Slice::Exception::isLocal)".
 //
-using IceUtil::Output;
-using IceUtil::nl;
-using IceUtil::sp;
-using IceUtil::sb;
-using IceUtil::eb;
-using IceUtil::spar;
-using IceUtil::epar;
+using IceUtilInternal::Output;
+using IceUtilInternal::nl;
+using IceUtilInternal::sp;
+using IceUtilInternal::sb;
+using IceUtilInternal::eb;
+using IceUtilInternal::spar;
+using IceUtilInternal::epar;
 
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(Operation::Mode opMode)
@@ -189,7 +188,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
     
     _out << sp << nl << "#region Slice type-related members";
 
@@ -1244,7 +1243,7 @@ Slice::Gen::printHeader()
     _out << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceUtil::Output& out, bool stream)
+Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out, bool stream)
     : CsVisitor(out), _stream(stream), _globalMetaDataDone(false)
 {
 }
@@ -1277,7 +1276,7 @@ Slice::Gen::UnitVisitor::visitModuleStart(const ModulePtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceUtil::Output& out, bool stream)
+Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out, bool stream)
     : CsVisitor(out), _stream(stream)
 {
 }
@@ -2758,7 +2757,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     _out << eb;
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtil::Output& out)
+Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -2881,7 +2880,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::OpsVisitor::OpsVisitor(IceUtil::Output& out)
+Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -3006,7 +3005,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     _out << eb;
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(IceUtil::Output& out, bool stream)
+Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out, bool stream)
     : CsVisitor(out), _stream(stream)
 {
 }
@@ -3665,7 +3664,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 }
 
-Slice::Gen::DelegateVisitor::DelegateVisitor(IceUtil::Output& out)
+Slice::Gen::DelegateVisitor::DelegateVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -3746,7 +3745,7 @@ Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr&)
     _out << eb;
 }
 
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(IceUtil::Output& out)
+Slice::Gen::DelegateMVisitor::DelegateMVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -3991,7 +3990,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr&)
     _out << eb;
 }
 
-Slice::Gen::DelegateDVisitor::DelegateDVisitor(IceUtil::Output& out)
+Slice::Gen::DelegateDVisitor::DelegateDVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -4209,7 +4208,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr&)
     _out << eb;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtil::Output &out, bool stream)
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output &out, bool stream)
     : CsVisitor(out), _stream(stream)
 {
 }
@@ -4306,7 +4305,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-Slice::Gen::AsyncVisitor::AsyncVisitor(::IceUtil::Output &out)
+Slice::Gen::AsyncVisitor::AsyncVisitor(::IceUtilInternal::Output &out)
     : CsVisitor(out)
 {
 }
@@ -4654,7 +4653,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::TieVisitor::TieVisitor(IceUtil::Output& out)
+Slice::Gen::TieVisitor::TieVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -4895,7 +4894,7 @@ Slice::Gen::TieVisitor::writeInheritedOperationsWithOpNames(const ClassDefPtr& p
     }
 }
 
-Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtil::Output& out)
+Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
 }
@@ -5005,7 +5004,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
 }
 
 
-Slice::Gen::ImplVisitor::ImplVisitor(IceUtil::Output& out)
+Slice::Gen::ImplVisitor::ImplVisitor(IceUtilInternal::Output& out)
     : BaseImplVisitor(out)
 {
 }
@@ -5073,7 +5072,7 @@ Slice::Gen::ImplVisitor::visitClassDefEnd(const ClassDefPtr&)
     _out << eb;
 }
 
-Slice::Gen::ImplTieVisitor::ImplTieVisitor(IceUtil::Output& out)
+Slice::Gen::ImplTieVisitor::ImplTieVisitor(IceUtilInternal::Output& out)
     : BaseImplVisitor(out)
 {
 }

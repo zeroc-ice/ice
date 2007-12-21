@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Functional.h>
+#include <IceUtil/InputUtil.h>
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
 #ifdef __BCPLUSPLUS__
@@ -4274,7 +4275,7 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
     {
         case Builtin::KindByte:
         {
-            IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
             if(l < ByteMin || l > ByteMax)
             {
                 string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type byte";
@@ -4285,7 +4286,7 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
         }
         case Builtin::KindShort:
         {
-            IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
             if(l < Int16Min || l > Int16Max)
             {
                 string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type short";
@@ -4296,7 +4297,7 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
         }
         case Builtin::KindInt:
         {
-            IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
             if(l < Int32Min || l > Int32Max)
             {
                 string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type int";

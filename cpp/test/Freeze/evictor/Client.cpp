@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/Random.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -378,12 +379,12 @@ public:
             //
             // Transfer 100 at random between two distinct accounts 
             //
-            Test::AccountPrx from = _accounts[IceUtil::random(_accounts.size())];
+            Test::AccountPrx from = _accounts[IceUtilInternal::random(_accounts.size())];
             
             Test::AccountPrx to;
             do
             {
-                to = _accounts[IceUtil::random(_accounts.size())];
+                to = _accounts[IceUtilInternal::random(_accounts.size())];
             }
             while(from == to);
                 
