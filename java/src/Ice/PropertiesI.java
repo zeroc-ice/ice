@@ -13,6 +13,12 @@ public final class PropertiesI implements Properties
 {
     class PropertyValue
     {
+        public PropertyValue(PropertyValue v)
+        {
+            value = v.value;
+            used = v.used;
+        }
+
         public PropertyValue(String v, boolean u)
         {
             value = v;
@@ -341,9 +347,19 @@ public final class PropertiesI implements Properties
         return unused;
     }
 
-    PropertiesI(PropertiesI p)
+    PropertiesI(PropertiesI props)
     {
-        _properties = new java.util.HashMap(p._properties);
+        //
+        // NOTE: we can't just do a shallow copy of the map as the map values 
+        // would otherwise be shared between the two PropertiesI object.
+        //
+        //_properties = new java.util.HashMap(p._properties);
+        java.util.Iterator p = props._properties.entrySet().iterator();
+        while(p.hasNext())
+        {
+            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            _properties.put(entry.getKey(), new PropertyValue((PropertyValue)entry.getValue()));
+        }
     }
 
     PropertiesI()

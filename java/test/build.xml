@@ -16,6 +16,7 @@
         <ant dir="IceUtil"/>
         <ant dir="Ice"/>
         <ant dir="Freeze"/>
+        <ant dir="IceBox"/>
         <ant dir="Glacier2"/>
         <ant dir="IceGrid"/>
         <ant dir="IceSSL"/>
@@ -26,6 +27,7 @@
         <ant dir="IceUtil" target="clean"/>
         <ant dir="Ice" target="clean"/>
         <ant dir="Freeze" target="clean"/>
+        <ant dir="IceBox" target="clean"/>
         <ant dir="Glacier2" target="clean"/>
         <ant dir="IceGrid" target="clean"/>
         <ant dir="IceSSL" target="clean"/>

@@ -321,7 +321,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 // 
                 for(ServiceInfo info: _services)
                 {
-                    Ice.Communicator communicator = info.communicator != null ? info.communicator : _server.communicator();
+                    Ice.Communicator communicator = info.communicator != null ? info.communicator : _sharedCommunicator;
                     _server.communicator().addAdminFacet(new PropertiesAdminI(communicator.getProperties()),
                                                          "IceBox.Service." + info.name + ".Properties");
                 }
@@ -510,10 +510,17 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // defined, add the service properties to the shared
             // commnunicator property set.
             //
-            Ice.Properties properties = _server.communicator().getProperties();
-            if(properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+            Ice.Communicator communicator;
+            if(_server.communicator().getProperties().getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
             {
-                Ice.Properties serviceProperties = Ice.Util.createProperties(serviceArgs, properties);
+                if(_sharedCommunicator == null)
+                {
+                    _sharedCommunicator = createCommunicator("", new Ice.StringSeqHolder());
+                }
+                communicator = _sharedCommunicator;
+
+                Ice.Properties properties = _sharedCommunicator.getProperties();
+                Ice.Properties svcProperties = Ice.Util.createProperties(serviceArgs, properties);
 
                 //
                 // Erase properties in 'properties'
@@ -523,17 +530,22 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 while(p.hasNext())
                 {
                     String key = (String)p.next();
-                    if(serviceProperties.getProperty(key).length() == 0)
+                    if(svcProperties.getProperty(key).length() == 0)
                     {
                         properties.setProperty(key, "");
                     }
                 }
                 
                 //
-                // Put all serviceProperties into 'properties'
+                // Add the service properties to the shared communicator properties.
                 //
-                properties.parseCommandLineOptions("", serviceProperties.getCommandLineOptions());
-                
+                p = svcProperties.getPropertiesForPrefix("").entrySet().iterator();
+                while(p.hasNext())
+                {
+                    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+                    properties.setProperty((String)entry.getKey(), (String)entry.getValue());
+                }
+
                 //
                 // Parse <service>.* command line options
                 // (the Ice command line options were parse by the createProperties above)
@@ -542,54 +554,10 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
             else
             {
-                String name = properties.getProperty("Ice.ProgramName");
-                Ice.Properties serviceProperties;
-                if(properties.getPropertyAsInt("IceBox.InheritProperties") > 0)
-                {
-                    //
-                    // Inherit all except Ice.Admin.Endpoints!
-                    //
-                    serviceProperties = properties._clone();
-                    serviceProperties.setProperty("Ice.Admin.Endpoints", "");
-                    serviceProperties = Ice.Util.createProperties(serviceArgs, serviceProperties);
-                }
-                else
-                {
-                    serviceProperties = Ice.Util.createProperties(serviceArgs);
-                }
-
-                if(name.equals(serviceProperties.getProperty("Ice.ProgramName")))
-                {
-                    //
-                    // If the service did not set its own program-name, and 
-                    // the icebox program-name != service, append the service name to the 
-                    // program name.
-                    //
-                    if(!name.equals(service))
-                    {
-                        name = name.length() == 0 ? service : name + "-" + service;
-                    }
-                    serviceProperties.setProperty("Ice.ProgramName", name);
-                }
-                
-                //
-                // Parse <service>.* command line options.
-                // (the Ice command line options were parsed by the createProperties above)
-                //
-                serviceArgs.value = serviceProperties.parseCommandLineOptions(service, serviceArgs.value);
-
-                //
-                // Remaining command line options are passed to the
-                // communicator with argc/argv. This is necessary for Ice
-                // plugin properties (e.g.: IceSSL).
-                //
-                Ice.InitializationData initData = new Ice.InitializationData();
-                initData.properties = serviceProperties;
-                info.communicator = Ice.Util.initialize(serviceArgs, initData);
+                info.communicator = createCommunicator(service, serviceArgs);
+                communicator = info.communicator;
             }
         
-            Ice.Communicator communicator = info.communicator != null ? info.communicator : _server.communicator();
-
             try
             {
                 info.args = serviceArgs.value;
@@ -696,18 +664,18 @@ public class ServiceManagerI extends _ServiceManagerDisp
                                         sw.toString());
                     }
                 }
-
+                
+                try
+                {
+                    _server.communicator().removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+                }
+                catch(Ice.LocalException e)
+                {
+                    // Ignored
+                }
+                
                 if(info.communicator != null)
                 {
-                    try
-                    {
-                        _server.communicator().removeAdminFacet("IceBox.Service." + info.name + ".Properties");
-                    }
-                    catch(Ice.LocalException e)
-                    {
-                        // Ignored
-                    }
-                
                     try
                     {
                         info.communicator.shutdown();
@@ -744,6 +712,24 @@ public class ServiceManagerI extends _ServiceManagerDisp
                                         sw.toString());
                     }
                 }
+            }
+
+            if(_sharedCommunicator != null)
+            {
+                try
+                {
+                    _sharedCommunicator.destroy();
+                }
+                catch(Exception e)
+                {
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    pw.flush();
+                    _logger.warning("ServiceManager: unknown exception while destroying shared communicator:\n" + 
+                                    sw.toString());
+                }
+                _sharedCommunicator = null;
             }
 
             _services.clear();
@@ -870,7 +856,91 @@ public class ServiceManagerI extends _ServiceManagerDisp
         private final Ice.Properties _properties;
     }
 
+    private Ice.Communicator
+    createCommunicator(String service, Ice.StringSeqHolder args)
+    {
+        Ice.Properties communicatorProperties = _server.communicator().getProperties();
+
+        //
+        // Create the service properties. We use the communicator properties as the default
+        // properties if IceBox.InheritProperties is set.
+        //
+        Ice.Properties properties;
+        if(communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
+        {
+            properties = communicatorProperties._clone();
+            properties.setProperty("Ice.Admin.Endpoints", ""); // Inherit all except Ice.Admin.Endpoints!
+        }
+        else
+        {
+            properties = Ice.Util.createProperties();
+        }
+
+        //
+        // Set the default program name for the service properties. By default it's 
+        // the IceBox program name + "-" + the service name, or just the IceBox 
+        // program name if we're creating the shared communicator (service == "").
+        //
+        String programName = communicatorProperties.getProperty("Ice.ProgramName");
+        if(service.length() == 0)
+        {
+            if(programName.length() == 0)
+            {
+                properties.setProperty("Ice.ProgramName", "SharedCommunicator");
+            }
+            else
+            {
+                properties.setProperty("Ice.ProgramName", programName + "-SharedCommunicator");
+            }
+        }
+        else
+        {
+            if(programName.length() == 0)
+            {
+                properties.setProperty("Ice.ProgramName", service);
+            }
+            else
+            {
+                properties.setProperty("Ice.ProgramName", programName + "-" + service);
+            }
+        }
+
+        if(args.value != null && args.value.length > 0)
+        {
+            //
+            // Create the service properties with the given service arguments. This should
+            // read the service config file if it's specified with --Ice.Config.
+            //
+            properties = Ice.Util.createProperties(args, properties);
+        
+            if(service.length() > 0)
+            {
+                //
+                // Next, parse the service "<service>.*" command line options (the Ice command 
+                // line options were parsed by the createProperties above)
+                //
+                args.value = properties.parseCommandLineOptions(service, args.value);
+            }
+        }
+
+        //
+        // Remaining command line options are passed to the communicator. This is 
+        // necessary for Ice plugin properties (e.g.: IceSSL).
+        //
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = properties;
+        if(args.value != null)
+        {
+            return Ice.Util.initialize(args, initData);
+        }
+        else
+        {
+            return Ice.Util.initialize(initData);
+        }
+    }
+
     private Ice.Application _server;
+    private Ice.Communicator _sharedCommunicator;
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
     private java.util.List<ServiceInfo> _services = new java.util.LinkedList<ServiceInfo>();

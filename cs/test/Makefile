@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= Slice IceUtil Ice Glacier2 IceGrid IceSSL
+SUBDIRS		= Slice IceUtil Ice IceBox Glacier2 IceGrid IceSSL
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

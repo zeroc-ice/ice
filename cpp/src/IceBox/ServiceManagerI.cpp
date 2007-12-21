@@ -383,7 +383,7 @@ IceBox::ServiceManagerI::start()
             for(vector<ServiceInfo>::iterator r = _services.begin(); r != _services.end(); ++r)
             {
                 const ServiceInfo& info = *r;
-                CommunicatorPtr communicator = info.communicator != 0 ? info.communicator : _communicator;
+                CommunicatorPtr communicator = info.communicator != 0 ? info.communicator : _sharedCommunicator;
                 _communicator->addAdminFacet(new PropertiesAdminI(communicator->getProperties()),
                                              "IceBox.Service." + info.name + ".Properties");
             }
@@ -542,100 +542,54 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         // add the service properties to the shared commnunicator
         // property set.
         //
-        PropertiesPtr properties = _communicator->getProperties();
-
-
-        if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+        Ice::CommunicatorPtr communicator;
+        if(_communicator->getProperties()->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
         {
-            PropertiesPtr serviceProperties = createProperties(info.args, properties);
+            if(!_sharedCommunicator)
+            {
+                Ice::StringSeq dummy = Ice::StringSeq();
+                _sharedCommunicator = createCommunicator("", dummy);
+            }
+            communicator = _sharedCommunicator;
+
+            PropertiesPtr properties = _sharedCommunicator->getProperties();
+
+            PropertiesPtr svcProperties = createProperties(info.args, properties);
 
             //
-            // Erase properties in 'properties'
+            // Erase properties from the shared communicator which don't exist in the
+            // service properties (which include the shared communicator properties
+            // overriden by the service properties).
             //
             PropertyDict allProps = properties->getPropertiesForPrefix("");
             for(PropertyDict::iterator p = allProps.begin(); p != allProps.end(); ++p)
             {
-                if(serviceProperties->getProperty(p->first) == "")
+                if(svcProperties->getProperty(p->first) == "")
                 {
                     properties->setProperty(p->first, "");
                 }
             }
+
+            //
+            // Add the service properties to the shared communicator properties.
+            //
+            PropertyDict props = svcProperties->getPropertiesForPrefix("");
+            for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+            {
+                properties->setProperty(p->first, p->second);
+            }
             
             //
-            // Put all serviceProperties into 'properties'
-            //
-            properties->parseCommandLineOptions("", serviceProperties->getCommandLineOptions());
-            
-            //
-            // Parse <service>.* command line options
-            // (the Ice command line options were parse by the createProperties above)
+            // Parse <service>.* command line options (the Ice command line options 
+            // were parsed by the createProperties above)
             //
             info.args = properties->parseCommandLineOptions(service, info.args);
         }
         else
         {       
-            string name = properties->getProperty("Ice.ProgramName");
-            PropertiesPtr serviceProperties;
-            if(properties->getPropertyAsInt("IceBox.InheritProperties") > 0)
-            {
-                //
-                // Inherit all except Ice.Admin.Endpoints!
-                //
-                serviceProperties = properties->clone();
-                serviceProperties->setProperty("Ice.Admin.Endpoints", "");
-                serviceProperties = createProperties(info.args, serviceProperties);
-            }
-            else
-            {
-                serviceProperties = createProperties(info.args);
-            }
-         
-            if(name == serviceProperties->getProperty("Ice.ProgramName"))
-            {
-                //
-                // If the service did not set its own program-name, and 
-                // the icebox program-name != service, append the service name to the 
-                // program name.
-                //
-                if(name != service)
-                {
-                    name = name.empty() ? service : name + "-" + service;
-                }
-                serviceProperties->setProperty("Ice.ProgramName", name);
-            }
-            
-            //
-            // Parse <service>.* command line options
-            // (the Ice command line options were parsed by the createProperties above)
-            //
-            info.args = serviceProperties->parseCommandLineOptions(service, info.args);
-
-            //
-            // Remaining command line options are passed to the
-            // communicator with argc/argv. This is necessary for Ice
-            // plugin properties (e.g.: IceSSL).
-            //
-            int argc = static_cast<int>(info.args.size());
-            char** argv = new char*[argc + 1];
-            int i = 0;
-            for(Ice::StringSeq::const_iterator p = info.args.begin(); p != info.args.end(); ++p, ++i)
-            {
-                argv[i] = strdup(p->c_str());
-            }
-            argv[argc] = 0;
-
-            InitializationData initData;
-            initData.properties = serviceProperties;
-            info.communicator = initialize(argc, argv, initData);
-
-            for(i = 0; i < argc + 1; ++i)
-            {
-                free(argv[i]);
-            }
-            delete[] argv;
+            info.communicator = createCommunicator(service, info.args);
+            communicator = info.communicator;
         }
-        
-        CommunicatorPtr communicator = info.communicator ? info.communicator : _communicator;
 
         //
         // Start the service.
@@ -754,18 +708,18 @@ IceBox::ServiceManagerI::stopAll()
     for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
+        
+        try
+        {
+            _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+        }
+        catch(const LocalException&)
+        {
+            // Ignored
+        }
 
         if(info.communicator)
         {
-            try
-            {
-                _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
-            }
-            catch(const LocalException&)
-            {
-                // Ignored
-            }
-
             try
             {
                 info.communicator->shutdown();
@@ -840,6 +794,20 @@ IceBox::ServiceManagerI::stopAll()
         }
     }
 
+    if(_sharedCommunicator)
+    {
+        try
+        {
+            _sharedCommunicator->destroy();
+        }
+        catch(const std::exception& ex)
+        {
+            Warning out(_logger);
+            out << "ServiceManager: unknown exception while destroying shared communicator:\n" << ex.what();
+        }
+        _sharedCommunicator = 0;
+    }
+
     _services.clear();
 
     set<ServiceObserverPrx> observers = _observers;
@@ -894,3 +862,79 @@ IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, con
             << "\nafter catching " << ex.what();
     } 
 } 
+
+Ice::CommunicatorPtr
+IceBox::ServiceManagerI::createCommunicator(const string& service, Ice::StringSeq& args)
+{
+    PropertiesPtr communicatorProperties = _communicator->getProperties();
+
+    //
+    // Create the service properties. We use the communicator properties as the default
+    // properties if IceBox.InheritProperties is set.
+    //
+    PropertiesPtr properties;
+    if(communicatorProperties->getPropertyAsInt("IceBox.InheritProperties") > 0)
+    {
+        properties = communicatorProperties->clone();
+        properties->setProperty("Ice.Admin.Endpoints", ""); // Inherit all except Ice.Admin.Endpoints!
+    }
+    else
+    {
+        properties = createProperties();
+    }
+
+    //
+    // Set the default program name for the service properties. By default it's 
+    // the IceBox program name + "-" + the service name, or just the IceBox 
+    // program name if we're creating the shared communicator (service == "").
+    //
+    string programName = communicatorProperties->getProperty("Ice.ProgramName");
+    if(service.empty())
+    {
+        if(programName.empty())
+        {
+            properties->setProperty("Ice.ProgramName", "SharedCommunicator");
+        }
+        else
+        {
+            properties->setProperty("Ice.ProgramName", programName + "-SharedCommunicator");
+        }
+    }
+    else
+    {
+        if(programName.empty())
+        {
+            properties->setProperty("Ice.ProgramName", service);
+        }
+        else
+        {
+            properties->setProperty("Ice.ProgramName", programName + "-" + service);
+        }
+    }
+
+    if(!args.empty())
+    {
+        //
+        // Create the service properties with the given service arguments. This should
+        // read the service config file if it's specified with --Ice.Config.
+        //
+        properties = createProperties(args, properties);
+        
+        if(!service.empty())
+        {
+            //
+            // Next, parse the service "<service>.*" command line options (the Ice command 
+            // line options were parsed by the createProperties above)
+            //
+            args = properties->parseCommandLineOptions(service, args);
+        }
+    }
+
+    //
+    // Remaining command line options are passed to the communicator. This is 
+    // necessary for Ice plugin properties (e.g.: IceSSL).
+    //
+    InitializationData initData;
+    initData.properties = properties;
+    return initialize(args, initData);
+}

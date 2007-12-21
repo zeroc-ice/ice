@@ -63,7 +63,10 @@ private:
     void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
     void observerRemoved(const ServiceObserverPrx&, const std::exception&);
 
+    Ice::CommunicatorPtr createCommunicator(const std::string&, Ice::StringSeq&);
+    
     ::Ice::CommunicatorPtr _communicator;
+    ::Ice::CommunicatorPtr _sharedCommunicator;
     ::Ice::LoggerPtr _logger;
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
     std::vector<ServiceInfo> _services;

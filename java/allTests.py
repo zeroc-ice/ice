@@ -49,6 +49,7 @@ tests = [
     "Ice/servantLocator",
     "Ice/threads",
     "Ice/interceptor",
+    "IceBox/configuration",
     "Freeze/dbmap",
     "Freeze/complex",
     "Freeze/evictor",

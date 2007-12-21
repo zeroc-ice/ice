@@ -42,4 +42,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
+clean::
+	-rm -rf db/node/* db/registry/*
+
 include .depend

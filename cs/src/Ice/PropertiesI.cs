@@ -18,6 +18,12 @@ namespace Ice
     {
         class PropertyValue
         {
+            public PropertyValue(PropertyValue v)
+            {
+                val = v.val;
+                used = v.used;
+            }
+
             public PropertyValue(string v, bool u)
             {
                 val = v;
@@ -322,7 +328,11 @@ namespace Ice
         
         internal PropertiesI(PropertiesI p)
         {
-            _properties = (Hashtable)p._properties.Clone();
+            _properties = new Hashtable();
+            foreach(DictionaryEntry entry in p._properties)
+            {
+                _properties[entry.Key] = new PropertyValue((PropertyValue)entry.Value);
+            }
         }
 
         internal PropertiesI()
