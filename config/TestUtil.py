@@ -463,27 +463,36 @@ def getIceBox(testdir):
     #
     # Get and return the path of the IceBox executable
     #
+    lang = getDefaultMapping()
+    if lang == "cpp":
+        iceBox = ""
+        if isWin32():
+            #
+            # Read the build.txt file from the test directory to figure out 
+            # how the IceBox service was built ("debug" vs. "release") and 
+            # decide which icebox executable to use.
+            # 
+            build = open(os.path.join(testdir, "build.txt"), "r")
+            type = build.read().strip()
+            if type == "debug":
+                iceBox = os.path.join(getBinDir(testdir), "iceboxd.exe")
+            elif type == "release":
+                iceBox = os.path.join(getBinDir(testdir), "icebox.exe")
+        else:
+            iceBox = os.path.join(getBinDir(testdir), "icebox")
 
-    iceBox = ""
-    if isWin32():
-        #
-        # Read the build.txt file from the test directory to figure out 
-        # how the IceBox service was built ("debug" vs. "release") and 
-        # decide which icebox executable to use.
-        # 
-        build = open(os.path.join(testdir, "build.txt"), "r")
-        type = build.read().strip()
-        if type == "debug":
-            iceBox = os.path.join(getBinDir(testdir), "iceboxd.exe")
-        elif type == "release":
-            iceBox = os.path.join(getBinDir(testdir), "icebox.exe")
-    else:
-        iceBox = os.path.join(getBinDir(testdir), "icebox")
-
-    if iceBox == "" or not os.path.exists(iceBox):
+        if not os.path.exists(iceBox):
+            print "couldn't find icebox executable to run the test"
+            sys.exit(0)
+    elif lang == "java":
+        iceBox = "IceBox.Server"
+    elif lang == "cs":
+        iceBox = os.path.join(getBinDir(testdir), "iceboxnet")
+                
+    if iceBox == "":
         print "couldn't find icebox executable to run the test"
         sys.exit(0)
-
+    
     return iceBox;
 
 def waitServiceReady(pipe, token, createThread = True):
@@ -827,7 +836,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     serverCfg = DriverConfig("server")
     if lang in ["rb", "php"]:
         serverCfg.lang = "cpp"
-    serverCmd = getCommandLine(server, serverCfg) + additionalServerOptions
+    serverCmd = getCommandLine(server, serverCfg) + " " + additionalServerOptions
     if debug:
         print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
@@ -851,7 +860,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
         
     
     print "starting " + clientName + "...",
-    clientCmd = getCommandLine(client, DriverConfig("client")) + additionalClientOptions
+    clientCmd = getCommandLine(client, DriverConfig("client")) + " " + additionalClientOptions
     if debug:
         print "(" + clientCmd + ")",
     clientPipe = os.popen(clientCmd + " 2>&1")

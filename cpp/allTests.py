@@ -57,6 +57,7 @@ tests = [
     "Ice/interceptor",
     "Ice/stringConverter",
     "IceSSL/configuration",
+    "IceBox/configuration",
     "Freeze/dbmap",
     "Freeze/complex",
     "Freeze/evictor",

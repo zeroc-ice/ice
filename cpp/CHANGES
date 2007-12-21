@@ -1,6 +1,12 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- IceBox services configured to use a shared communicator no longer 
+  use the IceBox server communicator. Instead, a separate and 
+  dedicated communicator is used. This shared communicator only 
+  inherits from the IceBox server communicator properties if the 
+  IceBox.InheritProperties property is set to 1.
+
 - Added support for IPv6. See the Ice manual for more information.
 
 - The "-h *" endpoint option is now only valid for object adapter

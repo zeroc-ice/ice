@@ -1,0 +1,6 @@
+Service4OA.Endpoints=default -p 12013
+
+#Ice.ProgramName
+Service=4
+Prop=
+
