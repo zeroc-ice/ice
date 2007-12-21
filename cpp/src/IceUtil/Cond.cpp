@@ -15,54 +15,54 @@
 
 #ifdef _WIN32
 
-IceUtil::Semaphore::Semaphore(long initial)
+IceUtilInternal::Semaphore::Semaphore(long initial)
 {
     _sem = CreateSemaphore(0, initial, 0x7fffffff, 0);
     if(_sem == INVALID_HANDLE_VALUE)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
-IceUtil::Semaphore::~Semaphore()
+IceUtilInternal::Semaphore::~Semaphore()
 {
     CloseHandle(_sem);
 }
 
 void
-IceUtil::Semaphore::wait() const
+IceUtilInternal::Semaphore::wait() const
 {
     int rc = WaitForSingleObject(_sem, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
 bool
-IceUtil::Semaphore::timedWait(const Time& timeout) const
+IceUtilInternal::Semaphore::timedWait(const IceUtil::Time& timeout) const
 {
-    Int64 msTimeout = timeout.toMilliSeconds();
+    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
     if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
     {
-        throw InvalidTimeoutException(__FILE__, __LINE__, timeout);
+        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
     } 
 
     int rc = WaitForSingleObject(_sem, static_cast<DWORD>(msTimeout));
     if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
     return rc != WAIT_TIMEOUT;
 }
 
 void
-IceUtil::Semaphore::post(int count) const
+IceUtilInternal::Semaphore::post(int count) const
 {
     int rc = ReleaseSemaphore(_sem, count, 0);
     if(rc == 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 

@@ -9,10 +9,10 @@
 
 #include <IceUtil/Shared.h>
 
-#ifdef ICE_HAS_ATOMIC_FUNCTIONS
-
 namespace IceUtilInternal
 {
+#ifdef ICE_HAS_ATOMIC_FUNCTIONS
+
 /*
  * atomicSet - set ice_atomic variable
  * @v: pointer of type AtomicCounter
@@ -80,9 +80,8 @@ inline int atomicExchangeAdd(int i, AtomicCounter* v)
         : "memory");
     return tmp + i;
 }
-}
 #endif
-
+}
 
 using namespace IceUtil;
 using namespace IceUtilInternal;

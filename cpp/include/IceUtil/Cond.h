@@ -34,7 +34,7 @@ public:
     ICE_UTIL_API ~Semaphore();
 
     void wait() const;
-    bool timedWait(const Time&) const;
+    bool timedWait(const IceUtil::Time&) const;
     void post(int = 1) const;
 
 private:
@@ -187,8 +187,8 @@ private:
     ICE_UTIL_API void dowait() const;
 
     Mutex _internal;
-    Semaphore _gate;
-    Semaphore _queue;
+    IceUtilInternal::Semaphore _gate;
+    IceUtilInternal::Semaphore _queue;
     mutable long _blocked;
     mutable long _unblocked;
     enum State

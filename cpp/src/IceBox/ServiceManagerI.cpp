@@ -574,9 +574,9 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             // Add the service properties to the shared communicator properties.
             //
             PropertyDict props = svcProperties->getPropertiesForPrefix("");
-            for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+            for(PropertyDict::const_iterator q = props.begin(); q != props.end(); ++q)
             {
-                properties->setProperty(p->first, p->second);
+                properties->setProperty(q->first, q->second);
             }
             
             //

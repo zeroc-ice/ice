@@ -9,6 +9,7 @@
 
 #include <Ice/StringConverter.h>
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/ScopedArray.h>
 #include <Ice/LocalException.h>
 
 using namespace IceUtil;
@@ -149,7 +150,7 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
 
     size_t size = 0;
     int writtenWchar = 0;
-    IceUtil::ScopedArray<wchar_t> wbuffer;
+    ScopedArray<wchar_t> wbuffer;
     do
     {
         size = size == 0 ? static_cast<size_t>(sourceSize) + 2 : 2 * size;
@@ -191,7 +192,7 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     //
     size_t size = 0;
     int writtenChar = 0;
-    IceUtil::ScopedArray<char> buffer;
+    ScopedArray<char> buffer;
     do
     {
         size = size == 0 ? static_cast<size_t>(sourceEnd - sourceStart) + 2 : 2 * size;

@@ -143,7 +143,7 @@ IceUtilInternal::generateRandom(char* buffer, int size)
     // mutex.
     //
 
-    IceUtilInternal::StaticMutex::Lock lock(staticMutex);
+    IceUtil::StaticMutex::Lock lock(staticMutex);
     if(context == NULL)
     {
         if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
