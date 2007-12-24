@@ -27,6 +27,28 @@ an Ice for C++ installation. (The makefiles look there for a bin
 directory that contains slice2cs.)
 
 
+Configuring the bzip library
+----------------------------
+
+The bin directory contains a file icecs.dll.config that specifies
+the bzip2 library. You need to check that the library name specified
+for the target attribute matches the name of the bzip2 library on your
+machine. If the target attribute does not specify the correct name
+or if bzip2 is not installed, the Ice run time silently runs without
+protocol compression.
+
+To test whether you have set the attribute correctly, run the server
+in demo/Ice/minimal as follows:
+
+$ MONO_LOG_LEVEL=info MONO_LOG_MASK=dll mono --debug server.exe
+
+This produces trace that shows whether the bzip2 library could
+be located at run time. If the library could be found, you will
+see a line of trace as follows:
+
+Mono-INFO: Found as 'BZ2_bzlibVersion'.
+
+
 Configuring Linux to recognize Mono binaries
 --------------------------------------------
 

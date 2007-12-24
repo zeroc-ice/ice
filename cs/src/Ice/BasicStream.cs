@@ -20,13 +20,13 @@ namespace IceInternal
 
     public class BasicStream
     {
-        [DllImport("libbz2")]
+        [DllImport("bzip2.dll")]
         static extern IntPtr BZ2_bzlibVersion();
 
         static BasicStream()
         {
             //
-            // Simple trick to find out whether libbz2.dll is
+            // Simple trick to find out whether bzip2 is
             // installed: Call the BZ2_bzlibVersion() function in the
             // library. If we get a DllNotFoundException, the library is
             // not available.
