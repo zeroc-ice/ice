@@ -483,6 +483,13 @@ namespace IceInternal
         repeatConnect:
             try
             {
+                //
+                // Even though we are on the client side, the call to Bind()
+                // is necessary to work around a .NET bug: if a socket is
+                // connected non-blocking, the LocalEndPoint and RemoteEndPoint
+                // properties are null. The call to Bind() fixes this.
+                //
+                fd.Bind(new IPEndPoint(IPAddress.Any, 0));
                 fd.Connect(addr);
             }
             catch(SocketException ex)
@@ -552,7 +559,7 @@ namespace IceInternal
                 try
                 {
                     //
-                    // As with C++ we need to get the SO_ERROR error
+                    // As with C++, we need to get the SO_ERROR error
                     // to determine whether the connect has actually
                     // failed.
                     //
@@ -1143,35 +1150,6 @@ namespace IceInternal
             return new SocketPair();
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct in_addr
-        {
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst=4)]
-            public byte[] sin_addr;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct sockaddr
-        {
-            public short sin_family;
-            public ushort sin_port;
-            public in_addr sin_addr;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst=8)]
-            public byte[] sin_zero;
-        }
-
-        [DllImport("wsock32.dll")]
-        private static extern int getsockname(IntPtr s, ref sockaddr name, ref int namelen);
-
-        [DllImport("wsock32.dll")]
-        private static extern int getpeername(IntPtr s, ref sockaddr name, ref int namelen);
-
-        [DllImport("ws2_32.dll")]
-        private static extern IntPtr inet_ntoa(in_addr a);
-
-        [DllImport("ws2_32.dll")]
-        private static extern ushort ntohs(ushort netshort);
-
         public static string fdToString(Socket socket)
         {
             if(socket == null)
@@ -1210,36 +1188,14 @@ namespace IceInternal
         public static IPEndPoint
         getLocalAddress(Socket socket)
         { 
-            //
-            // .Net BUG: The LocalEndPoint and RemoteEndPoint properties
-            // are null for a socket that was connected in non-blocking
-            // mode. The only way to make this work is to step down to
-            // the native API and use platform invoke :-(
-            //
             IPEndPoint localEndpoint;
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+            try
             {
-                sockaddr addr = new sockaddr();
-                int addrLen = 16;
-
-                if(getsockname(socket.Handle, ref addr, ref addrLen) != 0)
-                {
-                    throw new Ice.SyscallException();
-                }
-                string ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
-                int port = ntohs(addr.sin_port);
-                localEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                localEndpoint = (IPEndPoint)socket.LocalEndPoint;
             }
-            else
+            catch(SocketException ex)
             {
-                try
-                {
-                    localEndpoint = (IPEndPoint)socket.LocalEndPoint;
-                }
-                catch(SocketException ex)
-                {
-                    throw new Ice.SocketException(ex);
-                }
+                throw new Ice.SocketException(ex);
             }
             return localEndpoint;
         }
@@ -1247,35 +1203,14 @@ namespace IceInternal
         public static IPEndPoint
         getRemoteAddress(Socket socket)
         { 
-            //
-            // .Net BUG: The LocalEndPoint and RemoteEndPoint properties
-            // are null for a socket that was connected in non-blocking
-            // mode. The only way to make this work is to step down to
-            // the native API and use platform invoke :-(
-            //
             IPEndPoint remoteEndpoint = null;
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+            try
             {
-                sockaddr addr = new sockaddr();
-                int addrLen = 16;
-
-                if(getpeername(socket.Handle, ref addr, ref addrLen) == 0)
-                { 
-                    string ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
-                    int port = ntohs(addr.sin_port);
-                    remoteEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-                }
+                remoteEndpoint = (IPEndPoint)socket.RemoteEndPoint;
             }
-            else
+            catch(SocketException)
             {
-                try
-                {
-                    remoteEndpoint = (IPEndPoint)socket.RemoteEndPoint;
-                }
-                catch(SocketException)
-                {
-                    remoteEndpoint = null;
-                }
+                remoteEndpoint = null;
             }
             return remoteEndpoint;
         }
