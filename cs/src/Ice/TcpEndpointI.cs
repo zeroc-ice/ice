@@ -58,7 +58,7 @@ namespace IceInternal
                 }
                 
                 string argument = null;
-                if(i < arr.Length && arr[i][0] != '-')
+                if(i < arr.Length && arr[i].Length > 0 && arr[i][0] != '-')
                 {
                     argument = arr[i++];
                     if(argument[0] == '\"' && argument[argument.Length - 1] == '\"')
@@ -219,17 +219,23 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            string s = "tcp -h ";
-            bool addQuote = _host.IndexOf(':') != -1;
-            if(addQuote)
+            string s = "tcp";
+
+            if(_host != null && _host.Length != 0)
             {
-                s += "\"";
+                s += " -h ";
+                bool addQuote = _host.IndexOf(':') != -1;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
+                s += _host;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
             }
-            s += _host;
-            if(addQuote)
-            {
-                s += "\"";
-            }
+
             s += " -p " + _port;
             if(_timeout != -1)
             {

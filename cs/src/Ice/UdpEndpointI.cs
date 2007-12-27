@@ -392,17 +392,21 @@ namespace IceInternal
                 s += "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
             }
 
-            s += " -h ";
-            bool addQuote = _host.IndexOf(':') != -1;
-            if(addQuote)
+            if(_host != null && _host.Length != 0)
             {
-                s += "\"";
+                s += " -h ";
+                bool addQuote = _host.IndexOf(':') != -1;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
+                s += _host;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
             }
-            s += _host;
-            if(addQuote)
-            {
-                s += "\"";
-            }
+
             s += " -p " + _port;
 
             if(_mcastInterface.Length != 0)
