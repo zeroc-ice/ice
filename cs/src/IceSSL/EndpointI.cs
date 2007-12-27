@@ -214,17 +214,23 @@ namespace IceSSL
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            string s = "ssl -h ";
-            bool addQuote = host_.IndexOf(':') != -1;
-            if(addQuote)
+            string s = "ssl";
+
+            if(host_ != null && host_.Length != 0)
             {
-                s += "\"";
+                s += " -h ";
+                bool addQuote = host_.IndexOf(':') != -1;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
+                s += host_;
+                if(addQuote)
+                {
+                    s += "\"";
+                }
             }
-            s += host_;
-            if(addQuote)
-            {
-                s += "\"";
-            }
+
             if(timeout_ != -1)
             {
                 s += " -t " + timeout_;
