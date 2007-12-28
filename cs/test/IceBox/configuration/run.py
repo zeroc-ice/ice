@@ -30,8 +30,8 @@ TestUtil.addLdPath(testdir)
 cwd = os.getcwd()
 os.chdir(testdir)
 
-TestUtil.clientServerTestWithOptionsAndNames(name, "--Ice.Config=config.icebox", "", icebox, "Client")
-TestUtil.clientServerTestWithOptionsAndNames(name, "--Ice.Config=config.icebox2", "", icebox, "Client")
+TestUtil.clientServerTestWithOptionsAndNames(name, "--Ice.Config=config.icebox", "", icebox, "client")
+TestUtil.clientServerTestWithOptionsAndNames(name, "--Ice.Config=config.icebox2", "", icebox, "client")
 
 os.chdir(cwd)
 
