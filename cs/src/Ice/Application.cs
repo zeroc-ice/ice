@@ -15,6 +15,8 @@ namespace Ice
     using System.Runtime.InteropServices;
     using System.Threading;
 
+    public enum SignalPolicy { HandleSignals, NoSignalHandling }
+
     public abstract class Application
     {
         public abstract int run(string[] args);
@@ -30,9 +32,6 @@ namespace Ice
         {
         }
 
-        public const int HandleSignals = 0;
-        public const int NoSignalHandling = 1;
-
         public Application()
         {
 #if !__MonoCS__
@@ -41,12 +40,12 @@ namespace Ice
 #endif
         }
 
-        public Application(int signalPolicy)
+        public Application(SignalPolicy signalPolicy)
         {
             _signalPolicy = signalPolicy;
 
 #if !__MonoCS__
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 bool rc = SetConsoleCtrlHandler(_handler, true); 
                 Debug.Assert(rc);
@@ -138,7 +137,7 @@ namespace Ice
                 //
                 // The default is to destroy when a signal is received.
                 //
-                if(_signalPolicy == HandleSignals)
+                if(_signalPolicy == SignalPolicy.HandleSignals)
                 {
                     destroyOnInterrupt();
                 }
@@ -161,7 +160,7 @@ namespace Ice
             // (post-run), it would not make sense to release a held
             // signal to run shutdown or destroy.
             //
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 ignoreInterrupt();
             }
@@ -231,7 +230,7 @@ namespace Ice
         
         public static void destroyOnInterrupt()
         {
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -255,7 +254,7 @@ namespace Ice
         
         public static void shutdownOnInterrupt()
         {
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -279,7 +278,7 @@ namespace Ice
         
         public static void ignoreInterrupt()
         {
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -303,7 +302,7 @@ namespace Ice
 
         public static void callbackOnInterrupt()
         {   
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -327,7 +326,7 @@ namespace Ice
         
         public static void holdInterrupt()
         {
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback != _holdCallback)
@@ -348,7 +347,7 @@ namespace Ice
         
         public static void releaseInterrupt()
         {
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -571,7 +570,7 @@ namespace Ice
         private static bool _interrupted = false;
         private static bool _released = false;
         private static bool _nohup = false;
-        private static int _signalPolicy = HandleSignals;
+        private static SignalPolicy _signalPolicy = SignalPolicy.HandleSignals;
 
         private delegate Boolean EventHandler(int sig);
 #if !__MonoCS__

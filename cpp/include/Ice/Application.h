@@ -15,11 +15,11 @@
 namespace Ice
 {
 
+enum SignalPolicy { HandleSignals, NoSignalHandling } ;
+
 class ICE_API Application : private IceUtil::noncopyable
 {
 public:
-
-    enum SignalPolicy { HandleSignals, NoSignalHandling } ;
 
     Application(SignalPolicy = HandleSignals);
     virtual ~Application();

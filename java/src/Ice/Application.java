@@ -11,8 +11,6 @@ package Ice;
 
 public abstract class Application
 {
-    public final static int HandleSignals = 0;
-    public final static int NoSignalHandling = 1;
 
     public
     Application()
@@ -20,7 +18,7 @@ public abstract class Application
     }
 
     public
-    Application(int signalPolicy)
+    Application(SignalPolicy signalPolicy)
     {
         _signalPolicy = signalPolicy;
     }
@@ -118,7 +116,7 @@ public abstract class Application
             //
             // The default is to destroy when a signal is received.
             //
-            if(_signalPolicy == HandleSignals)
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
                 destroyOnInterrupt();
             }
@@ -148,7 +146,7 @@ public abstract class Application
         }
 
         // This clears any set interrupt.
-        if(_signalPolicy == HandleSignals)
+        if(_signalPolicy == SignalPolicy.HandleSignals)
         {
             defaultInterrupt();
         }
@@ -242,7 +240,7 @@ public abstract class Application
     public static void
     destroyOnInterrupt()
     {
-        if(_signalPolicy == HandleSignals)
+        if(_signalPolicy == SignalPolicy.HandleSignals)
         {
             synchronized(_mutex)
             {
@@ -274,7 +272,7 @@ public abstract class Application
     public static void
     shutdownOnInterrupt()
     {
-        if(_signalPolicy == HandleSignals)
+        if(_signalPolicy == SignalPolicy.HandleSignals)
         {
             synchronized(_mutex)
             {
@@ -315,7 +313,7 @@ public abstract class Application
     public static void
     setInterruptHook(java.lang.Thread newHook) // Pun intended.
     {
-        if(_signalPolicy == HandleSignals)
+        if(_signalPolicy == SignalPolicy.HandleSignals)
         {
             try
             {
@@ -339,7 +337,7 @@ public abstract class Application
     public static void
     defaultInterrupt()
     {
-        if(_signalPolicy == HandleSignals)
+        if(_signalPolicy == SignalPolicy.HandleSignals)
         {
             changeHook(null);
         }
@@ -549,5 +547,5 @@ public abstract class Application
     private static boolean _callbackInProgress = false;
     private static boolean _destroyed = false;
     private static boolean _interrupted = false;
-    private static int _signalPolicy = HandleSignals;
+    private static SignalPolicy _signalPolicy = SignalPolicy.HandleSignals;
 }

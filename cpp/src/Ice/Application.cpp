@@ -46,7 +46,7 @@ static Application* _application;
 static CommunicatorPtr _communicator;
 static CtrlCHandler* _ctrlCHandler = 0;
 static bool _nohup = false;
-static Application::SignalPolicy _signalPolicy = Application::HandleSignals;
+static SignalPolicy _signalPolicy = HandleSignals;
 
 #ifdef _WIN32
 const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
