@@ -18,7 +18,7 @@ public class AllTests
         }
     }
 
-    private static class TestFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    private static class TestFactory implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)

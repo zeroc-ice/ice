@@ -9,7 +9,7 @@
 
 package Complex;
 
-public class ObjectFactoryI extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+public class ObjectFactoryI implements Ice.ObjectFactory
 {
     public Ice.Object
     create(String type)

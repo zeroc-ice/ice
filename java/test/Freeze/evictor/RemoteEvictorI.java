@@ -9,7 +9,7 @@
 
 public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 {
-    static class Initializer extends Ice.LocalObjectImpl implements Freeze.ServantInitializer
+    static class Initializer implements Freeze.ServantInitializer
     {
         public void
         initialize(Ice.ObjectAdapter adapter, Ice.Identity ident, String facet, Ice.Object servant)

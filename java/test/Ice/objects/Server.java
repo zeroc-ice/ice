@@ -9,7 +9,7 @@
 
 public class Server
 {
-    private static class MyObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    private static class MyObjectFactory implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)

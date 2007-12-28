@@ -1,6 +1,6 @@
 package Evictor;
 
-public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.ServantLocator
+public abstract class EvictorBase implements Ice.ServantLocator
 {
     public
     EvictorBase()
@@ -86,7 +86,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
         evictServants();
     }
 
-    private class EvictorEntry extends Ice.LocalObjectImpl
+    private class EvictorEntry
     {
         Ice.Object servant;
         java.lang.Object userCookie;

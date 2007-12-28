@@ -9,7 +9,7 @@
 
 import Filesystem.*;
 
-public class NodeFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+public class NodeFactory implements Ice.ObjectFactory
 {
     public Ice.Object
     create(String type)

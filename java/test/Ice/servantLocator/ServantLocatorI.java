@@ -10,7 +10,7 @@
 import Test.*;
 import Ice.*;
 
-public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.ServantLocator
+public final class ServantLocatorI implements Ice.ServantLocator
 {
     public
     ServantLocatorI(String category)

@@ -9,7 +9,7 @@
 
 import Filesystem.*;
 
-public class NodeInitializer extends Ice.LocalObjectImpl implements Freeze.ServantInitializer
+public class NodeInitializer implements Freeze.ServantInitializer
 {
     public void
     initialize(Ice.ObjectAdapter adapter, Ice.Identity id, String facet, Ice.Object obj)

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.ServantLocator
+public final class ServantLocatorI implements Ice.ServantLocator
 {
     public Ice.Object locate(Ice.Current curr, Ice.LocalObjectHolder cookie)
     {

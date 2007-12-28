@@ -50,7 +50,7 @@ public class Client
         boolean called = false;
     }
 
-    private static class TestObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    private static class TestObjectFactory implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)
@@ -69,7 +69,7 @@ public class Client
     {
     };
 
-    private static class MyInterfaceFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    private static class MyInterfaceFactory implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)
@@ -95,7 +95,7 @@ public class Client
         Ice.Object obj;
     }
 
-    private static class MyClassFactoryWrapper extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    private static class MyClassFactoryWrapper implements Ice.ObjectFactory
     {
         MyClassFactoryWrapper()
         {

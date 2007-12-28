@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+class ContactFactory implements Ice.ObjectFactory
 {
     public Ice.Object
     create(String type)
