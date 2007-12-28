@@ -17,7 +17,7 @@ using namespace IceGrid;
 
 SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapter, 
                                              const string& instanceName,
-                                             const bool checkConnection,
+					     bool checkConnection,
                                              const string& serverAdminCategory,
                                              const Ice::ObjectPtr& serverAdminRouter,
                                              const AdminCallbackRouterPtr& adminCallbackRouter
@@ -110,7 +110,7 @@ SessionServantManager::setSessionControl(const Ice::ObjectPtr& session,
     // Allow invocations on the session servants and the given objects.
     //
     Ice::IdentitySeq allIds = ids;
-    allIds.insert(allIds.end(), p->second.identities.begin(), p->second.identities.end());
+    copy(p->second.identities.begin(), p->second.identities.end(), back_inserter(allIds));
     p->second.identitySet->add(allIds);
 
     //

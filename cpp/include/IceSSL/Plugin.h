@@ -17,11 +17,11 @@
 #include <vector>
 #include <list>
 
-// For struct sockaddr_in
+// For struct sockaddr_storage
 #ifdef _WIN32
 #   include <winsock2.h>
 #else
-#   include <netinet/in.h>
+#   include <sys/socket.h>
 #endif
 
 #ifndef ICE_SSL_API

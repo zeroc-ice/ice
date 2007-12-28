@@ -10,6 +10,10 @@
 #ifndef ICE_UDP_TRANSCEIVER_H
 #define ICE_UDP_TRANSCEIVER_H
 
+#ifdef __hpux
+#   define _XOPEN_SOURCE_EXTENDED
+#endif
+
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
