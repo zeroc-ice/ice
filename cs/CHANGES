@@ -1,6 +1,10 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- Improved marshaling performance for Ice for .NET running
+  on a big-endian machine. This affects applications running
+  on Mono on big-endian machines only.
+
 - The marshaling code now throws an exception if an enumerator
   that is out of range for its enumeration is sent or received.
 
