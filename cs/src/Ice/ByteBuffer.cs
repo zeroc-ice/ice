@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace IceInternal
 {
@@ -235,26 +236,58 @@ namespace IceInternal
             return this;
         }
 
+        [StructLayout(LayoutKind.Explicit)]
+        struct ValBytes
+        {
+            [FieldOffset(0)]
+            public short shortVal;
+
+            [FieldOffset(0)]
+            public int intVal;
+
+            [FieldOffset(0)]
+            public long longVal;
+
+            [FieldOffset(0)]
+            public float floatVal;
+
+            [FieldOffset(0)]
+            public double doubleVal;
+
+            [FieldOffset(0)]
+            public byte b0;
+            [FieldOffset(1)]
+            public byte b1;
+            [FieldOffset(2)]
+            public byte b2;
+            [FieldOffset(3)]
+            public byte b3;
+            [FieldOffset(4)]
+            public byte b4;
+            [FieldOffset(5)]
+            public byte b5;
+            [FieldOffset(6)]
+            public byte b6;
+            [FieldOffset(7)]
+            public byte b7;
+        }
+
         public short getShort()
         {
             checkUnderflow(2);
-            int index = _position;
-            short ret;
-            unchecked
+            ValBytes ret = new ValBytes();
+            if(NO._o == _order)
             {
-                if(NO._o == _order)
-                {
-                    ret = _bytes[index++];
-                    ret |= (short)((UInt16)_bytes[index++] << 8);
-                }
-                else
-                {
-                    ret = (short)(_bytes[index++] << 8);
-                    ret |= (short)_bytes[index++];
-                }
+                ret.b0 = _bytes[_position];
+                ret.b1 = _bytes[_position + 1];
+            }
+            else
+            {
+                ret.b1 = _bytes[_position];
+                ret.b0 = _bytes[_position + 1];
             }
             _position += 2;
-            return ret;
+            return ret.shortVal;
         }
 
         public void getShortSeq(short[] seq)
@@ -267,15 +300,13 @@ namespace IceInternal
             }
             else
             {
-                int index = _position;
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    unchecked
-                    {
-                        short val = (short)(_bytes[index++] << 8);
-                        val |= (short)_bytes[index++];
-                        seq[i] = (short)val;
-                    }
+                    int index = _position + i * 2;
+                    buf.b1 = _bytes[index];
+                    buf.b0 = _bytes[index + 1];
+                    seq[i] = buf.shortVal;
                 }
             }
             _position += len;
@@ -284,22 +315,17 @@ namespace IceInternal
         public ByteBuffer putShort(short val)
         {
             checkOverflow(2);
-            int index = _position;
+            ValBytes buf = new ValBytes();
+            buf.shortVal = val;
             if(NO._o == _order)
             {
-                unchecked
-                {
-                    _bytes[index++] = (byte)(val & 0x00ff);
-                    _bytes[index] = (byte)((UInt16)val >> 8);
-                }
+                _bytes[_position] = buf.b0;
+                _bytes[_position + 1] = buf.b1;
             }
             else
             {
-                unchecked
-                {
-                    _bytes[index++] = (byte)((UInt16)val >> 8);
-                    _bytes[index] = (byte)(val & 0x00ff);
-                }
+                _bytes[_position + 1] = buf.b0;
+                _bytes[_position] = buf.b1;
             }
             _position += 2;
             return this;
@@ -315,15 +341,13 @@ namespace IceInternal
             }
             else
             {
-                int index = _position;
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    unchecked
-                    {
-                        UInt16 val = (UInt16)seq[i];
-                        _bytes[index++] = (byte)((UInt16)val >> 8);
-                        _bytes[index++] = (byte)(val & 0x00ff);
-                    }
+                    int index = _position + i * 2;
+                    buf.shortVal = seq[i];
+                    _bytes[index + 1] = buf.b0;
+                    _bytes[index] = buf.b1;
                 }
             }
             _position += len;
@@ -333,27 +357,23 @@ namespace IceInternal
         public int getInt()
         {
             checkUnderflow(4);  
-            int index = _position;
-            int ret;
-            unchecked
+            ValBytes ret = new ValBytes();
+            if(NO._o == _order)
             {
-                if(NO._o == _order)
-                {
-                    ret = _bytes[index++];
-                    ret |= _bytes[index++] << 8;
-                    ret |= _bytes[index++] << 16;
-                    ret |= _bytes[index] << 24;
-                }
-                else
-                {
-                    ret = _bytes[index++] << 24;
-                    ret |= _bytes[index++] << 16;
-                    ret |= _bytes[index++] << 8;
-                    ret |= _bytes[index];
-                }
+                ret.b0 = _bytes[_position];
+                ret.b1 = _bytes[_position + 1];
+                ret.b2 = _bytes[_position + 2];
+                ret.b3 = _bytes[_position + 3];
+            }
+            else
+            {
+                ret.b3 = _bytes[_position];
+                ret.b2 = _bytes[_position + 1];
+                ret.b1 = _bytes[_position + 2];
+                ret.b0 = _bytes[_position + 3];
             }
             _position += 4;
-            return ret;
+            return ret.intVal;
         }
 
         public void getIntSeq(int[] seq)
@@ -366,17 +386,15 @@ namespace IceInternal
             }
             else
             {
-                int index = _position;
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    unchecked
-                    {
-                        UInt32 val = (UInt32)_bytes[index++] << 24;
-                        val |= (UInt32)_bytes[index++] << 16;
-                        val |= (UInt32)_bytes[index++] << 8;
-                        val |= _bytes[index++];
-                        seq[i] = (int)val;
-                    }
+                    int index = _position + i * 4;
+                    buf.b3 = _bytes[index];
+                    buf.b2 = _bytes[index + 1];
+                    buf.b1 = _bytes[index + 2];
+                    buf.b0 = _bytes[index + 3];
+                    seq[i] = buf.intVal;
                 }
             }
             _position += len;
@@ -399,25 +417,21 @@ namespace IceInternal
             {
                 throw new ArgumentOutOfRangeException("pos", pos, "position must be less than limit - 4");
             }
+            ValBytes buf = new ValBytes();
+            buf.intVal = val;
             if(NO._o == _order)
             {
-                unchecked
-                {
-                    _bytes[pos++] = (byte)(val & 0x000000ff);
-                    _bytes[pos++] = (byte)((val & 0x0000ff00) >> 8);
-                    _bytes[pos++] = (byte)((val & 0x00ff0000) >> 16);
-                    _bytes[pos] = (byte)((UInt32)val >> 24);
-                }
+                _bytes[pos] = buf.b0;
+                _bytes[pos + 1] = buf.b1;
+                _bytes[pos + 2] = buf.b2;
+                _bytes[pos + 3] = buf.b3;
             }
             else
             {
-                unchecked
-                {
-                    _bytes[pos++] = (byte)((UInt32)val >> 24);
-                    _bytes[pos++] = (byte)((val & 0x00ff0000) >> 16);
-                    _bytes[pos++] = (byte)((val & 0x0000ff00) >> 8);
-                    _bytes[pos] = (byte)(val & 0x000000ff);
-                }
+                _bytes[pos + 3] = buf.b0;
+                _bytes[pos + 2] = buf.b1;
+                _bytes[pos + 1] = buf.b2;
+                _bytes[pos] = buf.b3;
             }
             return this;
         }
@@ -432,17 +446,15 @@ namespace IceInternal
             }
             else
             {
-                int index = _position;
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    unchecked
-                    {
-                        UInt32 val = (UInt32)seq[i];
-                        _bytes[index++] = (byte)(val >> 24);
-                        _bytes[index++] = (byte)((val & 0x00ff0000) >> 16);
-                        _bytes[index++] = (byte)((val & 0x0000ff00) >> 8);
-                        _bytes[index++] = (byte)(val & 0x000000ff);
-                    }
+                    int index = _position + i * 4;
+                    buf.intVal = seq[i];
+                    _bytes[index + 3] = buf.b0;
+                    _bytes[index + 2] = buf.b1;
+                    _bytes[index + 1] = buf.b2;
+                    _bytes[index] = buf.b3;
                 }
             }
             _position += len;
@@ -452,35 +464,31 @@ namespace IceInternal
         public long getLong()
         {
             checkUnderflow(8);  
-            int index = _position;
-            long ret;
-            unchecked
+            ValBytes ret = new ValBytes();
+            if(NO._o == _order)
             {
-                if(NO._o == _order)
-                {
-                    ret = _bytes[index++];
-                    ret |= (long)_bytes[index++] << 8;
-                    ret |= (long)_bytes[index++] << 16;
-                    ret |= (long)_bytes[index++] << 24;
-                    ret |= (long)_bytes[index++] << 32;
-                    ret |= (long)_bytes[index++] << 40;
-                    ret |= (long)_bytes[index++] << 48;
-                    ret |= (long)_bytes[index] << 56;
-                }
-                else
-                {
-                    ret = (long)_bytes[index++] << 56;
-                    ret |= (long)_bytes[index++] << 48;
-                    ret |= (long)_bytes[index++] << 40;
-                    ret |= (long)_bytes[index++] << 32;
-                    ret |= (long)_bytes[index++] << 24;
-                    ret |= (long)_bytes[index++] << 16;
-                    ret |= (long)_bytes[index++] << 8;
-                    ret |= (long)_bytes[index];
-                }
+                ret.b0 = _bytes[_position];
+                ret.b1 = _bytes[_position + 1];
+                ret.b2 = _bytes[_position + 2];
+                ret.b3 = _bytes[_position + 3];
+                ret.b4 = _bytes[_position + 4];
+                ret.b5 = _bytes[_position + 5];
+                ret.b6 = _bytes[_position + 6];
+                ret.b7 = _bytes[_position + 7];
+            }
+            else
+            {
+                ret.b7 = _bytes[_position];
+                ret.b6 = _bytes[_position + 1];
+                ret.b5 = _bytes[_position + 2];
+                ret.b4 = _bytes[_position + 3];
+                ret.b3 = _bytes[_position + 4];
+                ret.b2 = _bytes[_position + 5];
+                ret.b1 = _bytes[_position + 6];
+                ret.b0 = _bytes[_position + 7];
             }
             _position += 8;
-            return ret;
+            return ret.longVal;
         }
 
         public void getLongSeq(long[] seq)
@@ -493,21 +501,19 @@ namespace IceInternal
             }
             else
             {
-                int index = _position;
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    unchecked
-                    {
-                        UInt64 val = (UInt64)_bytes[index++] << 56;
-                        val |= (UInt64)_bytes[index++] << 48;
-                        val |= (UInt64)_bytes[index++] << 40;
-                        val |= (UInt64)_bytes[index++] << 32;
-                        val |= (UInt64)_bytes[index++] << 24;
-                        val |= (UInt64)_bytes[index++] << 16;
-                        val |= (UInt64)_bytes[index++] << 8;
-                        val |= _bytes[index++];
-                        seq[i] = (int)val;
-                    }
+                    int index = _position + i * 8;
+                    buf.b7 = _bytes[index];
+                    buf.b6 = _bytes[index + 1];
+                    buf.b5 = _bytes[index + 2];
+                    buf.b4 = _bytes[index + 3];
+                    buf.b3 = _bytes[index + 4];
+                    buf.b2 = _bytes[index + 5];
+                    buf.b1 = _bytes[index + 6];
+                    buf.b0 = _bytes[index + 7];
+                    seq[i] = buf.longVal;
                 }
             }
             _position += len;
@@ -516,34 +522,29 @@ namespace IceInternal
         public ByteBuffer putLong(long val)
         {
             checkOverflow(8);
-            int index = _position;
+            ValBytes buf = new ValBytes();
+            buf.longVal = val;
             if(NO._o == _order)
             {
-                unchecked
-                {
-                    _bytes[index++] = (byte)(val & 0x00000000000000ff);
-                    _bytes[index++] = (byte)((val & 0x000000000000ff00) >> 8);
-                    _bytes[index++] = (byte)((val & 0x0000000000ff0000) >> 16);
-                    _bytes[index++] = (byte)((val & 0x00000000ff000000) >> 24);
-                    _bytes[index++] = (byte)((val & 0x000000ff00000000) >> 32);
-                    _bytes[index++] = (byte)((val & 0x0000ff0000000000) >> 40);
-                    _bytes[index++] = (byte)((val & 0x00ff000000000000) >> 48);
-                    _bytes[index] = (byte)((UInt64)val >> 56);
-                }
+                _bytes[_position] = buf.b0;
+                _bytes[_position + 1] = buf.b1;
+                _bytes[_position + 2] = buf.b2;
+                _bytes[_position + 3] = buf.b3;
+                _bytes[_position + 4] = buf.b4;
+                _bytes[_position + 5] = buf.b5;
+                _bytes[_position + 6] = buf.b6;
+                _bytes[_position + 7] = buf.b7;
             }
             else
             {
-                unchecked
-                {
-                    _bytes[index++] = (byte)((UInt64)val >> 56);
-                    _bytes[index++] = (byte)((val & 0x00ff000000000000) >> 48);
-                    _bytes[index++] = (byte)((val & 0x0000ff0000000000) >> 40);
-                    _bytes[index++] = (byte)((val & 0x000000ff00000000) >> 32);
-                    _bytes[index++] = (byte)((val & 0x00000000ff000000) >> 24);
-                    _bytes[index++] = (byte)((val & 0x0000000000ff0000) >> 16);
-                    _bytes[index++] = (byte)((val & 0x000000000000ff00) >> 8);
-                    _bytes[index] = (byte)(val & 0x00000000000000ff);
-                }
+                _bytes[_position + 7] = buf.b0;
+                _bytes[_position + 6] = buf.b1;
+                _bytes[_position + 5] = buf.b2;
+                _bytes[_position + 4] = buf.b3;
+                _bytes[_position + 3] = buf.b4;
+                _bytes[_position + 2] = buf.b5;
+                _bytes[_position + 1] = buf.b6;
+                _bytes[_position] = buf.b7;
             }
             _position += 8;
             return this;
@@ -559,21 +560,19 @@ namespace IceInternal
             }
             else
             {
-                int index = _position;
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    unchecked
-                    {
-                        UInt64 val = (UInt64)seq[i];
-                        _bytes[index++] = (byte)((val & 0xff00000000000000) >> 56);
-                        _bytes[index++] = (byte)((val & 0x00ff000000000000) >> 48);
-                        _bytes[index++] = (byte)((val & 0x0000ff0000000000) >> 40);
-                        _bytes[index++] = (byte)((val & 0x000000ff00000000) >> 32);
-                        _bytes[index++] = (byte)((val & 0x00000000ff000000) >> 24);
-                        _bytes[index++] = (byte)((val & 0x0000000000ff0000) >> 16);
-                        _bytes[index++] = (byte)((val & 0x000000000000ff00) >> 8);
-                        _bytes[index++] = (byte)(val & 0x00000000000000ff);
-                    }
+                    int index = _position + i * 8;
+                    buf.longVal = seq[i];
+                    _bytes[index + 7] = buf.b0;
+                    _bytes[index + 6] = buf.b1;
+                    _bytes[index + 5] = buf.b2;
+                    _bytes[index + 4] = buf.b3;
+                    _bytes[index + 3] = buf.b4;
+                    _bytes[index + 2] = buf.b5;
+                    _bytes[index + 1] = buf.b6;
+                    _bytes[index] = buf.b7;
                 }
             }
             _position += len;
@@ -583,22 +582,23 @@ namespace IceInternal
         public float getFloat()
         {
             checkUnderflow(4);  
-            float ret;
+            ValBytes ret = new ValBytes();
             if(NO._o == _order)
             {
-                ret = BitConverter.ToSingle(_bytes, _position);
+                ret.b0 = _bytes[_position];
+                ret.b1 = _bytes[_position + 1];
+                ret.b2 = _bytes[_position + 2];
+                ret.b3 = _bytes[_position + 3];
             }
             else
             {
-                byte[] buf = new byte[4];
-                buf[0] = _bytes[_position + 3];
-                buf[1] = _bytes[_position + 2];
-                buf[2] = _bytes[_position + 1];
-                buf[3] = _bytes[_position];
-                ret = BitConverter.ToSingle(buf, 0);
+                ret.b3 = _bytes[_position];
+                ret.b2 = _bytes[_position + 1];
+                ret.b1 = _bytes[_position + 2];
+                ret.b0 = _bytes[_position + 3];
             }
             _position += 4;
-            return ret;
+            return ret.floatVal;
         }
 
         public void getFloatSeq(float[] seq)
@@ -611,15 +611,15 @@ namespace IceInternal
             }
             else
             {
-                byte[] buf = new byte[4];
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 4;
-                    buf[0] = _bytes[_position + index + 3];
-                    buf[1] = _bytes[_position + index + 2];
-                    buf[2] = _bytes[_position + index + 1];
-                    buf[3] = _bytes[_position + index];
-                    seq[i] = BitConverter.ToSingle(buf, 0);
+                    int index = _position + i * 4;
+                    buf.b3 = _bytes[index];
+                    buf.b2 = _bytes[index + 1];
+                    buf.b1 = _bytes[index + 2];
+                    buf.b0 = _bytes[index + 3];
+                    seq[i] = buf.floatVal;
                 }
             }
             _position += len;
@@ -628,17 +628,21 @@ namespace IceInternal
         public ByteBuffer putFloat(float val)
         {
             checkOverflow(4);
-            byte[] buf = BitConverter.GetBytes(val);
+            ValBytes buf = new ValBytes();
+            buf.floatVal = val;
             if(NO._o == _order)
             {
-                System.Buffer.BlockCopy(buf, 0, _bytes, _position, 4);
+                _bytes[_position] = buf.b0;
+                _bytes[_position + 1] = buf.b1;
+                _bytes[_position + 2] = buf.b2;
+                _bytes[_position + 3] = buf.b3;
             }
             else
             {
-                _bytes[_position + 3] = buf[0];
-                _bytes[_position + 2] = buf[1];
-                _bytes[_position + 1] = buf[2];
-                _bytes[_position] = buf[3];
+                _bytes[_position + 3] = buf.b0;
+                _bytes[_position + 2] = buf.b1;
+                _bytes[_position + 1] = buf.b2;
+                _bytes[_position] = buf.b3;
             }
             _position += 4;
             return this;
@@ -654,13 +658,15 @@ namespace IceInternal
             }
             else
             {
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 4;
-                    _bytes[_position + index] = System.Buffer.GetByte(seq, index + 3);
-                    _bytes[_position + index + 1] = System.Buffer.GetByte(seq, index + 2);
-                    _bytes[_position + index + 2] = System.Buffer.GetByte(seq, index + 1);
-                    _bytes[_position + index + 3] = System.Buffer.GetByte(seq, index);
+                    int index = _position + i * 4;
+                    buf.floatVal = seq[i];
+                    _bytes[index + 3] = buf.b0;
+                    _bytes[index + 2] = buf.b1;
+                    _bytes[index + 1] = buf.b2;
+                    _bytes[index] = buf.b3;
                 }
             }
             _position += len;
@@ -670,26 +676,31 @@ namespace IceInternal
         public double getDouble()
         {
             checkUnderflow(8);  
-            double ret;
+            ValBytes ret = new ValBytes();
             if(NO._o == _order)
             {
-                ret = BitConverter.ToDouble(_bytes, _position);
+                ret.b0 = _bytes[_position];
+                ret.b1 = _bytes[_position + 1];
+                ret.b2 = _bytes[_position + 2];
+                ret.b3 = _bytes[_position + 3];
+                ret.b4 = _bytes[_position + 4];
+                ret.b5 = _bytes[_position + 5];
+                ret.b6 = _bytes[_position + 6];
+                ret.b7 = _bytes[_position + 7];
             }
             else
             {
-                byte[] buf = new byte[8];
-                buf[0] = _bytes[_position + 7];
-                buf[1] = _bytes[_position + 6];
-                buf[2] = _bytes[_position + 5];
-                buf[3] = _bytes[_position + 4];
-                buf[4] = _bytes[_position + 3];
-                buf[5] = _bytes[_position + 2];
-                buf[6] = _bytes[_position + 1];
-                buf[7] = _bytes[_position];
-                ret = BitConverter.ToDouble(buf, 0);
+                ret.b7 = _bytes[_position];
+                ret.b6 = _bytes[_position + 1];
+                ret.b5 = _bytes[_position + 2];
+                ret.b4 = _bytes[_position + 3];
+                ret.b3 = _bytes[_position + 4];
+                ret.b2 = _bytes[_position + 5];
+                ret.b1 = _bytes[_position + 6];
+                ret.b0 = _bytes[_position + 7];
             }
             _position += 8;
-            return ret;
+            return ret.doubleVal;
         }
 
         public void getDoubleSeq(double[] seq)
@@ -702,19 +713,19 @@ namespace IceInternal
             }
             else
             {
-                byte[] buf = new  byte[8];
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 8;
-                    buf[0] = _bytes[_position + index + 7];
-                    buf[1] = _bytes[_position + index + 6];
-                    buf[2] = _bytes[_position + index + 5];
-                    buf[3] = _bytes[_position + index + 4];
-                    buf[4] = _bytes[_position + index + 3];
-                    buf[5] = _bytes[_position + index + 2];
-                    buf[6] = _bytes[_position + index + 1];
-                    buf[7] = _bytes[_position + index];
-                    seq[i] = BitConverter.ToDouble(buf, 0);
+                    int index = _position + i * 8;
+                    buf.b7 = _bytes[index];
+                    buf.b6 = _bytes[index + 1];
+                    buf.b5 = _bytes[index + 2];
+                    buf.b4 = _bytes[index + 3];
+                    buf.b3 = _bytes[index + 4];
+                    buf.b2 = _bytes[index + 5];
+                    buf.b1 = _bytes[index + 6];
+                    buf.b0 = _bytes[index + 7];
+                    seq[i] = buf.doubleVal;
                 }
             }
             _position += len;
@@ -723,21 +734,29 @@ namespace IceInternal
         public ByteBuffer putDouble(double val)
         {
             checkOverflow(8);
-            byte[] buf = BitConverter.GetBytes(val);
+            ValBytes buf = new ValBytes();
+            buf.doubleVal = val;
             if(NO._o == _order)
             {
-                System.Buffer.BlockCopy(buf, 0, _bytes, _position, 8);
+                _bytes[_position] = buf.b0;
+                _bytes[_position + 1] = buf.b1;
+                _bytes[_position + 2] = buf.b2;
+                _bytes[_position + 3] = buf.b3;
+                _bytes[_position + 4] = buf.b4;
+                _bytes[_position + 5] = buf.b5;
+                _bytes[_position + 6] = buf.b6;
+                _bytes[_position + 7] = buf.b7;
             }
             else
             {
-                _bytes[_position + 7] = buf[0];
-                _bytes[_position + 6] = buf[1];
-                _bytes[_position + 5] = buf[2];
-                _bytes[_position + 4] = buf[3];
-                _bytes[_position + 3] = buf[4];
-                _bytes[_position + 2] = buf[5];
-                _bytes[_position + 1] = buf[6];
-                _bytes[_position] = buf[7];
+                _bytes[_position + 7] = buf.b0;
+                _bytes[_position + 6] = buf.b1;
+                _bytes[_position + 5] = buf.b2;
+                _bytes[_position + 4] = buf.b3;
+                _bytes[_position + 3] = buf.b4;
+                _bytes[_position + 2] = buf.b5;
+                _bytes[_position + 1] = buf.b6;
+                _bytes[_position] = buf.b7;
             }
             _position += 8;
             return this;
@@ -753,17 +772,19 @@ namespace IceInternal
             }
             else
             {
+                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 8;
-                    _bytes[_position + index] = System.Buffer.GetByte(seq, index + 7);
-                    _bytes[_position + index + 1] = System.Buffer.GetByte(seq, index + 6);
-                    _bytes[_position + index + 2] = System.Buffer.GetByte(seq, index + 5);
-                    _bytes[_position + index + 3] = System.Buffer.GetByte(seq, index + 4);
-                    _bytes[_position + index + 4] = System.Buffer.GetByte(seq, index + 3);
-                    _bytes[_position + index + 5] = System.Buffer.GetByte(seq, index + 2);
-                    _bytes[_position + index + 6] = System.Buffer.GetByte(seq, index + 1);
-                    _bytes[_position + index + 7] = System.Buffer.GetByte(seq, index);
+                    int index = _position + i * 8;
+                    buf.doubleVal = seq[i];
+                    _bytes[index + 7] = buf.b0;
+                    _bytes[index + 6] = buf.b1;
+                    _bytes[index + 5] = buf.b2;
+                    _bytes[index + 4] = buf.b3;
+                    _bytes[index + 3] = buf.b4;
+                    _bytes[index + 2] = buf.b5;
+                    _bytes[index + 1] = buf.b6;
+                    _bytes[index] = buf.b7;
                 }
             }
             _position += len;
@@ -812,8 +833,7 @@ namespace IceInternal
         {
             static NO()
             {
-                byte[] b = BitConverter.GetBytes((int)1);
-                _o = b[0] == 1 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+                _o = BitConverter.IsLittleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
             }
             internal static readonly ByteOrder _o;
         }
