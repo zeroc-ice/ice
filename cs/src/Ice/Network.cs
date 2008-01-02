@@ -489,7 +489,8 @@ namespace IceInternal
                 // connected non-blocking, the LocalEndPoint and RemoteEndPoint
                 // properties are null. The call to Bind() fixes this.
                 //
-                fd.Bind(new IPEndPoint(IPAddress.Any, 0));
+		IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
+                fd.Bind(new IPEndPoint(any, 0));
                 fd.Connect(addr);
             }
             catch(SocketException ex)
