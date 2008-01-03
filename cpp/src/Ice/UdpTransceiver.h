@@ -18,7 +18,7 @@
 #include <IceUtil/Mutex.h>
 
 #ifndef _WIN32
-#   include <netinet/in.h> // For struct sockaddr_storage
+#   include <sys/socket.h> // For struct sockaddr_storage
 #endif
 
 namespace IceInternal

@@ -243,7 +243,7 @@ getLocalAddresses(ProtocolSupport protocol)
 		    memcpy(&addr, &ifr[i].ifr_addr, sizeof(sockaddr_in6));
 		    if(!IN6_IS_ADDR_UNSPECIFIED(&reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr))
 		    {
-			result.push_back(*reinterpret_cast<struct sockaddr_storage*>(curr->ifa_addr));
+			result.push_back(addr);
 		    }
                 }
             }

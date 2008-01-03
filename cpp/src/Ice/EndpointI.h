@@ -24,7 +24,7 @@
 #ifdef _WIN32
 #   include <winsock2.h>
 #else
-#   include <netinet/in.h> // For struct sockaddr_in
+#   include <sys/socket.h> // For struct sockaddr_storage
 #endif
 
 #include <deque>

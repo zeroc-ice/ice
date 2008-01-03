@@ -89,6 +89,10 @@ ifeq ($(CXX),CC)
 
     CXXFLAGS		    = -mt +p -features=tmplife $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
 
+    ifneq ($(LP64),yes)
+        CXXFLAGS            += -D_FILE_OFFSET_BITS=64
+    endif
+
     ifeq ($(STATICLIBS),)
 	CXXFLAGS	    += -KPIC
     endif
@@ -129,6 +133,10 @@ ifeq ($(CXX),g++)
     endif
 
     CXXFLAGS		    = $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
+
+    ifneq ($(LP64),yes)
+        CXXFLAGS            += -D_FILE_OFFSET_BITS=64
+    endif
 
     ifeq ($(STATICLIBS),)
 	CXXFLAGS	    += -fPIC

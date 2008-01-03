@@ -511,7 +511,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             {
                 if(q->second->endpoint() != p->endpoint)
                 {
-                    _connectionsByEndpoint.insert(make_pair(p->endpoint, q->second));
+                    _connectionsByEndpoint.insert(pair<const EndpointIPtr, ConnectionIPtr>(p->endpoint, q->second));
                 }
 
                 if(defaultsAndOverrides->overrideCompress)
@@ -734,8 +734,8 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
         Ice::ConnectionIPtr connection = new ConnectionI(_instance, transceiver, ci.endpoint->compress(false),
                                                          0, ci.threadPerConnection, 
                                                          _instance->threadPerConnectionStackSize());
-        _connections.insert(make_pair(ci, connection));
-        _connectionsByEndpoint.insert(make_pair(ci.endpoint, connection));
+        _connections.insert(pair<const ConnectorInfo, ConnectionIPtr>(ci, connection));
+        _connectionsByEndpoint.insert(pair<const EndpointIPtr, ConnectionIPtr>(ci.endpoint, connection));
         return connection;
     }
     catch(const Ice::LocalException&)

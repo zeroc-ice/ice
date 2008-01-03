@@ -75,8 +75,8 @@ public:
         }
         return false;
 #else
-        assert(_pollFdSet[0]->fd == _fdIntrRead);
-        return _pollFdSet[0]->revents != 0;
+        assert(_pollFdSet[0].fd == _fdIntrRead);
+        return _pollFdSet[0].revents != 0;
 #endif
     }    
     void setInterrupt();
