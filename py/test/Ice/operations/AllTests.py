@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, Twoways, TwowaysAMI, BatchOneways
+import Ice, Test, Twoways, TwowaysAMI, Oneways, OnewaysAMI, BatchOneways
 
 def test(b):
     if not b:
@@ -26,9 +26,16 @@ def allTests(communicator, collocated):
     derived.opDerived()
     print "ok"
 
+    print "testing oneway operations...",
+    Oneways.oneways(communicator, cl)
+    print "ok"
+
     print "testing twoway operations with AMI...",
     TwowaysAMI.twowaysAMI(communicator, cl)
-    TwowaysAMI.twowaysAMI(communicator, derived)
+    print "ok"
+
+    print "testing oneway operations with AMI...",
+    OnewaysAMI.onewaysAMI(communicator, cl)
     print "ok"
 
     if not collocated:

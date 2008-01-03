@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The Ice locator tracing (enabled with the `Ice.Trace.Locator'
+  property) now traces calls to locator registry when an object
+  adapter updates its endpoints or the server process proxy is
+  registered.
+
 - IceBox services configured to use a shared communicator no longer 
   use the IceBox server communicator. Instead, a separate and 
   dedicated communicator is used. This shared communicator only 

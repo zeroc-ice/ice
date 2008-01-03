@@ -486,7 +486,32 @@ namespace IceInternal
                     }
                     catch(Ice.ServerNotFoundException)
                     {
+                        if(_traceLevels.location >= 1)
+                        {
+                            System.Text.StringBuilder s = new System.Text.StringBuilder();
+                            s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                            s.Append("the server is not known to the locator registry");
+                            _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                        }
+                        
                         throw new Ice.InitializationException("Locator knows nothing about server '" + serverId + "'");
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        if(_traceLevels.location >= 1)
+                        {
+                            System.Text.StringBuilder s = new System.Text.StringBuilder();
+                            s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                            _initData.logger.trace(_traceLevels.locationCat, s.ToString());
+                        }
+                        throw ex; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                    }
+            
+                    if(_traceLevels.location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("registered server `" + serverId + "' with the locator registry");
+                        _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                     }
                 }
                 return adapter.createProxy(_adminIdentity);

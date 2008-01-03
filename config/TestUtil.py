@@ -671,6 +671,7 @@ def argsToDict(argumentString, results):
     return results
             
 def getCommandLine(exe, config, env = getTestEnv()):
+
     #
     # Command lines are built up from the items in the components
     # sequence, which is initialized with command line options common to
@@ -690,15 +691,18 @@ def getCommandLine(exe, config, env = getTestEnv()):
     if config.protocol == "ssl":
         components.append(sslConfigTree[config.lang]["plugin"] % env)
         components.append(sslConfigTree[config.lang][config.type] % env)
+
     if config.compress:
         components.append("--Ice.Override.Compress=1")
 
     if config.threadPerConnection:
         components.append("--Ice.ThreadPerConnection=1")
+
     if config.type == "server":
         components.append("--Ice.PrintProcessId=1 --Ice.PrintAdapterReady=1 --Ice.ServerIdleTime=30")
-        if not (config.protocol == "ssl" and config.lang == "cs"):
-            components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
+
+    if config.type == "server" or config.type == "colloc" and config.lang == "py":
+        components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
 
     if config.protocol == "ssl" and config.lang == "cs":
         components.append("--Ice.ThreadPerConnection=1")

@@ -140,7 +140,10 @@ namespace IceInternal
                         // be repeated.
                         //
                         // An ObjectNotExistException can always be retried as
-                        // well without violating "at-most-once".
+                        // well without violating "at-most-once" (see the
+                        // implementation of the checkRetryAfterException
+                        // method of the ProxyFactory class for the reasons
+                        // why it can be useful).
                         //
                         if(!_sent ||
                            _exception is Ice.CloseConnectionException ||
@@ -150,8 +153,8 @@ namespace IceInternal
                         }
 
                         //
-                        // Throw the exception wrapped in a LocalExceptionWrapper, to
-                        // indicate that the request cannot be resent without
+                        // Throw the exception wrapped in a LocalExceptionWrapper,
+                        // to indicate that the request cannot be resent without
                         // potentially violating the "at-most-once" principle.
                         //
                         throw new LocalExceptionWrapper(_exception, false);

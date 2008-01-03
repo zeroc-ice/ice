@@ -545,8 +545,9 @@ IceInternal::OutgoingAsync::handleException(const Ice::LocalException& exc)
         // can safely be repeated.
         //
         // An ObjectNotExistException can always be retried as well without violating 
-        // "at-most-once".
-        //
+        // "at-most-once" (see the implementation of the checkRetryAfterException method of
+        // the ProxyFactory class for the reasons why it can be useful).
+        // 
         if(!_sent || 
            dynamic_cast<const CloseConnectionException*>(&exc) || 
            dynamic_cast<const ObjectNotExistException*>(&exc))

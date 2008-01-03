@@ -146,10 +146,10 @@ private:
         StateClosed
     };
 
-    bool setState(State, const LocalException&);
-    bool setState(State);
+    void setState(State, const LocalException&);
+    void setState(State);
 
-    bool initiateShutdown(bool);
+    void initiateShutdown();
 
     struct OutgoingMessage
     {
@@ -188,8 +188,7 @@ private:
     IceInternal::SocketStatus initialize();
     IceInternal::SocketStatus validate();
     bool send(int);
-    bool sendMessage(OutgoingMessage&, bool = false);
-    void finishSendMessage();
+    bool sendMessage(OutgoingMessage&);
 
     void finishStart();
     void finishStart(const Ice::LocalException&);

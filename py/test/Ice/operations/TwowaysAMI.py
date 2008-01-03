@@ -56,7 +56,7 @@ class AMI_MyClass_opVoidExI(CallbackBase):
         test(False)
 
     def ice_exception(self, ex):
-        test(isinstance(ex, Ice.TwowayOnlyException))
+        test(isinstance(ex, Ice.NoEndpointException))
         self.called()
 
 class AMI_MyClass_opByteI(CallbackBase):
@@ -79,7 +79,7 @@ class AMI_MyClass_opByteExI(CallbackBase):
         test(False)
 
     def ice_exception(self, ex):
-        test(isinstance(ex, Ice.TwowayOnlyException))
+        test(isinstance(ex, Ice.NoEndpointException))
         self.called()
 
 class AMI_MyClass_opBoolI(CallbackBase):
@@ -522,22 +522,22 @@ class AMI_MyDerivedClass_opDerivedI(CallbackBase):
         test(False)
 
 def twowaysAMI(communicator, p):
-    # Check that a call to a void operation raises TwowayOnlyException
+    # Check that a call to a void operation raises NoEndpointException
     # in the ice_exception() callback instead of at the point of call.
-    oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
+    indirect = Test.MyClassPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = AMI_MyClass_opVoidExI()
     try:
-        oneway.opVoid_async(cb)
+        indirect.opVoid_async(cb)
     except Ice.Exception:
         test(False)
     test(cb.check())
 
-    # Check that a call to a twoway operation raises TwowayOnlyException
+    # Check that a call to a void operation raises NoEndpointException
     # in the ice_exception() callback instead of at the point of call.
-    oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
+    indirect = Test.MyClassPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = AMI_MyClass_opByteExI()
     try:
-        oneway.opByte_async(cb, 0, 0)
+        indirect.opByte_async(cb, 0, 0)
     except Ice.Exception:
         test(False)
     test(cb.check())

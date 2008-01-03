@@ -1250,11 +1250,6 @@ namespace Ice
             // remote call will indirectly call isLocal() on this OA with
             // the OA factory locked).
             //
-            // TODO: This might throw if we can't connect to the
-            // locator. Shall we raise a special exception for the
-            // activate operation instead of a non obvious network
-            // exception?
-            //
             LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
             string serverId = "";
             if(registerProcess)
@@ -1295,6 +1290,14 @@ namespace Ice
                 }
                 catch(AdapterNotFoundException)
                 {
+                    if(instance_.traceLevels().location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                        s.Append("the object adapter is not known to the locator registry");
+                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    }
+
                     NotRegisteredException ex1 = new NotRegisteredException();
                     ex1.kindOfObject = "object adapter";
                     ex1.id = _id;
@@ -1302,6 +1305,14 @@ namespace Ice
                 }
                 catch(InvalidReplicaGroupIdException)
                 {
+                    if(instance_.traceLevels().location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                        s.Append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
+                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    }
+                    
                     NotRegisteredException ex1 = new NotRegisteredException();
                     ex1.kindOfObject = "replica group";
                     ex1.id = _replicaGroupId;
@@ -1309,9 +1320,48 @@ namespace Ice
                 }
                 catch(AdapterAlreadyActiveException)
                 {
+                    if(instance_.traceLevels().location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                        s.Append("the object adapter endpoints are already set");
+                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    }
+
                     ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
                     ex1.id = _id;
                     throw ex1;
+                }
+                catch(LocalException e)
+                {
+                    if(instance_.traceLevels().location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                        s.Append(e.ToString());
+                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    }
+                    throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                }
+
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
+                    s.Append("endpoints = ");
+                    if(proxy != null)
+                    {
+                        Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
+                        for(int i = 0; i < endpoints.Length; i++)
+                        {
+                            s.Append(endpoints[i].ToString());
+                            if(i + 1 < endpoints.Length)
+                            {
+                                s.Append(":");
+                            }
+                        }
+                    }
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
                 }
             }
         
@@ -1329,10 +1379,35 @@ namespace Ice
                 }
                 catch(ServerNotFoundException)
                 {
+                    if(instance_.traceLevels().location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                        s.Append("the server is not known to the locator registry");
+                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    }
+
                     NotRegisteredException ex1 = new NotRegisteredException();
                     ex1.id = serverId;
                     ex1.kindOfObject = "server";
                     throw ex1;
+                }
+                catch(LocalException ex)
+                {
+                    if(instance_.traceLevels().location >= 1)
+                    {
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                        instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
+                    }
+                    throw ex; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                }
+            
+                if(instance_.traceLevels().location >= 1)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("registered server `" + serverId + "' with the locator registry");
+                    instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
                 }
             }
         }

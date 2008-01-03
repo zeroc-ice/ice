@@ -289,35 +289,20 @@ Ice::ConnectionI::hold()
 void
 Ice::ConnectionI::destroy(DestructionReason reason)
 {
-    bool send = false;
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        
-        switch(reason)
-        {
-            case ObjectAdapterDeactivated:
-            {
-                send = setState(StateClosing, ObjectAdapterDeactivatedException(__FILE__, __LINE__));
-                break;
-            }
-            
-            case CommunicatorDestroyed:
-            {
-                send = setState(StateClosing, CommunicatorDestroyedException(__FILE__, __LINE__));
-                break;
-            }
-        }
-    }
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    if(send) // Send the close connection message
+    switch(reason)
     {
-        try
+        case ObjectAdapterDeactivated:
         {
-            finishSendMessage();
+            setState(StateClosing, ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+            break;
         }
-        catch(const Ice::LocalException&)
+        
+        case CommunicatorDestroyed:
         {
-            // Ignore.
+            setState(StateClosing, CommunicatorDestroyedException(__FILE__, __LINE__));
+            break;
         }
     }
 }
@@ -325,42 +310,27 @@ Ice::ConnectionI::destroy(DestructionReason reason)
 void
 Ice::ConnectionI::close(bool force)
 {
-    bool send = false;
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    
+    if(force)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-        if(force)
-        {
-            setState(StateClosed, ForcedCloseConnectionException(__FILE__, __LINE__));
-        }
-        else
-        {
-            //
-            // If we do a graceful shutdown, then we wait until all
-            // outstanding requests have been completed. Otherwise, the
-            // CloseConnectionException will cause all outstanding
-            // requests to be retried, regardless of whether the server
-            // has processed them or not.
-            //
-            while(!_requests.empty() || !_asyncRequests.empty())
-            {
-                wait();
-            }
-            
-            send = setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
-        }
+        setState(StateClosed, ForcedCloseConnectionException(__FILE__, __LINE__));
     }
-
-    if(send) // Send the close connection message
+    else
     {
-        try
+        //
+        // If we do a graceful shutdown, then we wait until all
+        // outstanding requests have been completed. Otherwise, the
+        // CloseConnectionException will cause all outstanding
+        // requests to be retried, regardless of whether the server
+        // has processed them or not.
+        //
+        while(!_requests.empty() || !_asyncRequests.empty())
         {
-            finishSendMessage();
+            wait();
         }
-        catch(const Ice::LocalException&)
-        {
-            // Ignore.
-        }
+        
+        setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
     }
 }
 
@@ -524,45 +494,31 @@ Ice::ConnectionI::waitUntilFinished()
 void
 Ice::ConnectionI::monitor()
 {
-    bool send = false;
+    IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
+    if(!sync.acquired())
     {
-        IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
-        if(!sync.acquired())
-        {
-            return;
-        }
-    
-        if(_state != StateActive)
-        {
-            return;
-        }
-    
-        //
-        // Active connection management for idle connections.
-        //
-        if(_acmTimeout <= 0 ||
-           !_requests.empty() || !_asyncRequests.empty() ||
-           _batchStreamInUse || !_batchStream.b.empty() ||
-           _sendInProgress || _dispatchCount > 0)
-        {
-            return;
-        }
-
-        if(IceUtil::Time::now(IceUtil::Time::Monotonic) >= _acmAbsoluteTimeout)
-        {
-            send = setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
-        }
+        return;
     }
-
-    if(send)
+    
+    if(_state != StateActive)
     {
-        try
-        {
-            finishSendMessage();
-        }
-        catch(const Ice::LocalException&)
-        {
-        }
+        return;
+    }
+    
+    //
+    // Active connection management for idle connections.
+    //
+    if(_acmTimeout <= 0 ||
+       !_requests.empty() || !_asyncRequests.empty() ||
+       _batchStreamInUse || !_batchStream.b.empty() ||
+       _sendInProgress || _dispatchCount > 0)
+    {
+        return;
+    }
+    
+    if(IceUtil::Time::now(IceUtil::Time::Monotonic) >= _acmAbsoluteTimeout)
+    {
+        setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
     }
 }
 
@@ -570,176 +526,136 @@ bool
 Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
 {
     BasicStream* os = out->os();
-    bool send = false;
+
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_exception.get())
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        if(_exception.get())
-        {
-            //
-            // If the connection is closed before we even have a chance
-            // to send our request, we always try to send the request
-            // again.
-            //
-            throw LocalExceptionWrapper(*_exception.get(), true);
-        }
-
-        assert(_state > StateNotValidated);
-        assert(_state < StateClosing);
-
-        Int requestId;
-        if(response)
-        {
-            //
-            // Create a new unique request ID.
-            //
-            requestId = _nextRequestId++;
-            if(requestId <= 0)
-            {
-                _nextRequestId = 1;
-                requestId = _nextRequestId++;
-            }
-
-            //
-            // Fill in the request ID.
-            //
-            const Byte* p = reinterpret_cast<const Byte*>(&requestId);
-#ifdef ICE_BIG_ENDIAN
-            reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
-#else
-            copy(p, p + sizeof(Int), os->b.begin() + headerSize);
-#endif
-        }
-
         //
-        // Send the message. If it can't be sent without blocking the message is added
-        // to _sendStreams and it will be sent by the selector thread or by this thread
-        // if flush is true.
-        // 
-        try
-        {
-            OutgoingMessage message(out, os, compress, response);
-            send = sendMessage(message);
-        }
-        catch(const LocalException& ex)
-        {
-            setState(StateClosed, ex);
-            assert(_exception.get());
-            _exception->ice_throw();
-        }
-
-        if(response)
-        {
-            //
-            // Add to the requests map.
-            //
-            _requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
-        }
-
-        if(!send)
-        {
-            return !_sendInProgress && _queuedStreams.empty(); // The request was sent if it's not queued!
-        }
+        // If the connection is closed before we even have a chance
+        // to send our request, we always try to send the request
+        // again.
+        //
+        throw LocalExceptionWrapper(*_exception.get(), true);
     }
 
-    if(send)
+    assert(_state > StateNotValidated);
+    assert(_state < StateClosing);
+    
+    Int requestId;
+    if(response)
     {
-        try
+        //
+        // Create a new unique request ID.
+        //
+        requestId = _nextRequestId++;
+        if(requestId <= 0)
         {
-            finishSendMessage();
+            _nextRequestId = 1;
+            requestId = _nextRequestId++;
         }
-        catch(const Ice::LocalException&)
-        {
-            assert(_exception.get());
-            if(!response) // Twoway calls are notified through finished()
-            {
-                throw;
-            }   
-        }
+        
+        //
+        // Fill in the request ID.
+        //
+        const Byte* p = reinterpret_cast<const Byte*>(&requestId);
+#ifdef ICE_BIG_ENDIAN
+        reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#else
+        copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#endif
     }
-    return true; // The request was sent.
+
+    //
+    // Send the message. If it can't be sent without blocking the message is added
+    // to _sendStreams and it will be sent by the selector thread or by this thread
+    // if flush is true.
+    // 
+    bool sent = false;
+    try
+    {
+        OutgoingMessage message(out, os, compress, response);
+        sent = sendMessage(message);
+    }
+    catch(const LocalException& ex)
+    {
+        setState(StateClosed, ex);
+        assert(_exception.get());
+        _exception->ice_throw();
+    }
+
+    if(response)
+    {
+        //
+        // Add to the requests map.
+        //
+        _requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
+    }
+
+    return sent;
 }
 
 void
 Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, bool response)
 {
     BasicStream* os = out->__getOs();
-    bool send = false;
 
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_exception.get())
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        if(_exception.get())
-        {
-            //
-            // If the exception is closed before we even have a chance
-            // to send our request, we always try to send the request
-            // again.
-            //
-            throw LocalExceptionWrapper(*_exception.get(), true);
-        }
-
-        assert(_state > StateNotValidated);
-        assert(_state < StateClosing);
-
-        Int requestId;
-        if(response)
-        {
-            //
-            // Create a new unique request ID.
-            //
-            requestId = _nextRequestId++;
-            if(requestId <= 0)
-            {
-                _nextRequestId = 1;
-                requestId = _nextRequestId++;
-            }
-            
-            //
-            // Fill in the request ID.
-            //
-            const Byte* p = reinterpret_cast<const Byte*>(&requestId);
-#ifdef ICE_BIG_ENDIAN
-            reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
-#else
-            copy(p, p + sizeof(Int), os->b.begin() + headerSize);
-#endif
-        }
-
-        try
-        {
-            OutgoingMessage message(out, os, compress, response);
-            send = sendMessage(message);
-        }
-        catch(const LocalException& ex)
-        {
-            setState(StateClosed, ex);
-            assert(_exception.get());
-            _exception->ice_throw();
-        }
-
-        if(response)
-        {
-            //
-            // Add to the async requests map.
-            //
-            _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
-                                                       pair<const Int, OutgoingAsyncPtr>(requestId, out));
-        }
+        //
+        // If the exception is closed before we even have a chance
+        // to send our request, we always try to send the request
+        // again.
+        //
+        throw LocalExceptionWrapper(*_exception.get(), true);
     }
-    
-    if(send)
+
+    assert(_state > StateNotValidated);
+    assert(_state < StateClosing);
+
+    Int requestId;
+    if(response)
     {
-        try
+        //
+        // Create a new unique request ID.
+        //
+        requestId = _nextRequestId++;
+        if(requestId <= 0)
         {
-            finishSendMessage();
+            _nextRequestId = 1;
+            requestId = _nextRequestId++;
         }
-        catch(const Ice::LocalException&)
-        {
-            assert(_exception.get());
-            if(!response) // Twoway calls are notified through finished().
-            {
-                throw;
-            }   
-        }
+            
+        //
+        // Fill in the request ID.
+        //
+        const Byte* p = reinterpret_cast<const Byte*>(&requestId);
+#ifdef ICE_BIG_ENDIAN
+        reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#else
+        copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#endif
+    }
+
+    try
+    {
+        OutgoingMessage message(out, os, compress, response);
+        sendMessage(message);
+    }
+    catch(const LocalException& ex)
+    {
+        setState(StateClosed, ex);
+        assert(_exception.get());
+        _exception->ice_throw();
+    }
+
+    if(response)
+    {
+        //
+        // Add to the async requests map.
+        //
+        _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
+                                                   pair<const Int, OutgoingAsyncPtr>(requestId, out));
     }
 }
 
@@ -790,7 +706,6 @@ Ice::ConnectionI::prepareBatchRequest(BasicStream* os)
 void
 Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
 {
-    bool send = false;
     try
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -854,16 +769,7 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
 #endif
 
                 OutgoingMessage message(&_batchStream, _batchRequestCompress);
-                send = sendMessage(message);
-                if(send)
-                {
-                    //
-                    // If the request can't be sent immediately and this is a foreground send,
-                    // we adopt the stream to be able to re-use _batchStream immediately.
-                    //
-                    assert(!_sendStreams.empty());
-                    _sendStreams.back().adopt(0);
-                }
+                sendMessage(message);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -920,16 +826,7 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
     catch(const Ice::LocalException&)
     {
         abortBatchRequest();
-        if(send)
-        {
-            finishSendMessage(); // Let exceptions go through to report auto-flush failures to the caller.
-        }
         throw;
-    }
-
-    if(send)
-    {
-        finishSendMessage(); // Let exceptions go through to report auto-flush failures to the caller.
     }
 }
 
@@ -959,239 +856,189 @@ Ice::ConnectionI::flushBatchRequests()
 bool
 Ice::ConnectionI::flushBatchRequests(BatchOutgoing* out)
 {
-    bool send = false;
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    while(_batchStreamInUse && !_exception.get())
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(_batchStreamInUse && !_exception.get())
-        {
-            wait();
-        }
+        wait();
+    }
         
-        if(_exception.get())
-        {
-            _exception->ice_throw();
-        }
-
-        if(_batchRequestNum == 0)
-        {
-            out->sent(false);
-            return true;
-        }
-
-        //
-        // Fill in the number of requests in the batch.
-        //
-        const Byte* p = reinterpret_cast<const Byte*>(&_batchRequestNum);
-#ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
-#else
-        copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
-#endif
-        _batchStream.swap(*out->os());
-
-        //
-        // Send the batch stream.
-        //
-        try
-        {
-            OutgoingMessage message(out, out->os(), _batchRequestCompress, false);
-            send = sendMessage(message);
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            setState(StateClosed, ex);
-            assert(_exception.get());
-            _exception->ice_throw();
-        }
-
-        //
-        // Reset the batch stream.
-        //
-        BasicStream dummy(_instance.get(), _batchAutoFlush);
-        _batchStream.swap(dummy);
-        _batchRequestNum = 0;
-        _batchRequestCompress = false;
-        _batchMarker = 0;
-
-        if(!send)
-        {
-            return !_sendInProgress && _queuedStreams.empty(); // The request was sent if it's not queued!
-        }
-    }
-
-    if(send)
+    if(_exception.get())
     {
-        finishSendMessage();
+        _exception->ice_throw();
     }
-    return true;
+
+    if(_batchRequestNum == 0)
+    {
+        out->sent(false);
+        return true;
+    }
+
+    //
+    // Fill in the number of requests in the batch.
+    //
+    const Byte* p = reinterpret_cast<const Byte*>(&_batchRequestNum);
+#ifdef ICE_BIG_ENDIAN
+    reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+#else
+    copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+#endif
+    _batchStream.swap(*out->os());
+
+    //
+    // Send the batch stream.
+    //
+    bool sent = false;
+    try
+    {
+        OutgoingMessage message(out, out->os(), _batchRequestCompress, false);
+        sent = sendMessage(message);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        setState(StateClosed, ex);
+        assert(_exception.get());
+        _exception->ice_throw();
+    }
+
+    //
+    // Reset the batch stream.
+    //
+    BasicStream dummy(_instance.get(), _batchAutoFlush);
+    _batchStream.swap(dummy);
+    _batchRequestNum = 0;
+    _batchRequestCompress = false;
+    _batchMarker = 0;
+    return sent;
 }
 
 void
 Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
 {
-    bool send = false;
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    while(_batchStreamInUse && !_exception.get())
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(_batchStreamInUse && !_exception.get())
-        {
-            wait();
-        }
+        wait();
+    }
 
-        if(_exception.get())
-        {
-            _exception->ice_throw();
-        }
+    if(_exception.get())
+    {
+        _exception->ice_throw();
+    }
 
-        if(_batchRequestNum == 0)
-        {
-            outAsync->__sent(this);
-            return;
-        }
+    if(_batchRequestNum == 0)
+    {
+        outAsync->__sent(this);
+        return;
+    }
 
-        //
-        // Fill in the number of requests in the batch.
-        //
-        const Byte* p = reinterpret_cast<const Byte*>(&_batchRequestNum);
+    //
+    // Fill in the number of requests in the batch.
+    //
+    const Byte* p = reinterpret_cast<const Byte*>(&_batchRequestNum);
 #ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+    reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 #else
-        copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+    copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 #endif
-        _batchStream.swap(*outAsync->__getOs());
+    _batchStream.swap(*outAsync->__getOs());
 
-        //
-        // Send the batch stream.
-        //
-        try
-        {
-            OutgoingMessage message(outAsync, outAsync->__getOs(), _batchRequestCompress, false);
-            send = sendMessage(message);
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            setState(StateClosed, ex);
-            assert(_exception.get());
-            _exception->ice_throw();
-        }
-
-        //
-        // Reset the batch stream.
-        //
-        BasicStream dummy(_instance.get(), _batchAutoFlush);
-        _batchStream.swap(dummy);
-        _batchRequestNum = 0;
-        _batchRequestCompress = false;
-        _batchMarker = 0;
-    }
-
-    if(send)
+    //
+    // Send the batch stream.
+    //
+    try
     {
-        finishSendMessage();
+        OutgoingMessage message(outAsync, outAsync->__getOs(), _batchRequestCompress, false);
+        sendMessage(message);
     }
+    catch(const Ice::LocalException& ex)
+    {
+        setState(StateClosed, ex);
+        assert(_exception.get());
+        _exception->ice_throw();
+    }
+
+    //
+    // Reset the batch stream.
+    //
+    BasicStream dummy(_instance.get(), _batchAutoFlush);
+    _batchStream.swap(dummy);
+    _batchRequestNum = 0;
+    _batchRequestCompress = false;
+    _batchMarker = 0;
 }
 
 void
 Ice::ConnectionI::sendResponse(BasicStream* os, Byte compressFlag)
 {
-    bool send = false;
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    assert(_state > StateNotValidated);
+
+    try
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        assert(_state > StateNotValidated);
-
-        try
+        if(--_dispatchCount == 0)
         {
-            if(--_dispatchCount == 0)
-            {
-                notifyAll();
-            }
-
-            if(_state == StateClosed)
-            {
-                assert(_exception.get());
-                _exception->ice_throw();
-            }
-            
-            OutgoingMessage message(os, compressFlag > 0);
-            send = sendMessage(message);
-
-            if(_state == StateClosing && _dispatchCount == 0)
-            {
-                send = initiateShutdown(send);
-            }
-
-            if(_acmTimeout > 0)
-            {
-                _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + 
-                    IceUtil::Time::seconds(_acmTimeout);
-            }
+            notifyAll();
         }
-        catch(const LocalException& ex)
+
+        if(_state == StateClosed)
         {
-            setState(StateClosed, ex);
+            assert(_exception.get());
+            _exception->ice_throw();
+        }
+            
+        OutgoingMessage message(os, compressFlag > 0);
+        sendMessage(message);
+
+        if(_state == StateClosing && _dispatchCount == 0)
+        {
+            initiateShutdown();
+        }
+
+        if(_acmTimeout > 0)
+        {
+            _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + 
+                IceUtil::Time::seconds(_acmTimeout);
         }
     }
-
-    if(send)
+    catch(const LocalException& ex)
     {
-        try
-        {
-            finishSendMessage();
-        }
-        catch(Ice::LocalException&)
-        {
-            // Ignore.
-        }
+        setState(StateClosed, ex);
     }
 }
 
 void
 Ice::ConnectionI::sendNoResponse()
 {
-    bool send = false;
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        assert(_state > StateNotValidated);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    assert(_state > StateNotValidated);
     
-        try
+    try
+    {
+        if(--_dispatchCount == 0)
         {
-            if(--_dispatchCount == 0)
-            {
-                notifyAll();
-            }
-        
-            if(_state == StateClosed)
-            {
-                assert(_exception.get());
-                _exception->ice_throw();
-            }
-
-            if(_state == StateClosing && _dispatchCount == 0)
-            {
-                send = initiateShutdown(false);
-            }
-        
-            if(_acmTimeout > 0)
-            {
-                _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + 
-                    IceUtil::Time::seconds(_acmTimeout);
-            }
+            notifyAll();
         }
-        catch(const LocalException& ex)
+        
+        if(_state == StateClosed)
         {
-            setState(StateClosed, ex);
+            assert(_exception.get());
+            _exception->ice_throw();
+        }
+
+        if(_state == StateClosing && _dispatchCount == 0)
+        {
+            initiateShutdown();
+        }
+        
+        if(_acmTimeout > 0)
+        {
+            _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + 
+                IceUtil::Time::seconds(_acmTimeout);
         }
     }
-
-    if(send)
+    catch(const LocalException& ex)
     {
-        try
-        {
-            finishSendMessage();
-        }
-        catch(Ice::LocalException&)
-        {
-            // Ignore.
-        }
+        setState(StateClosed, ex);
     }
 }
 
@@ -1722,7 +1569,7 @@ Ice::ConnectionI::~ConnectionI()
     assert(_asyncRequests.empty());
 }
 
-bool
+void
 Ice::ConnectionI::setState(State state, const LocalException& ex)
 {
     //
@@ -1733,7 +1580,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
 
     if(_state == state) // Don't switch twice.
     {
-        return false;
+        return;
     }
 
     if(!_exception.get())
@@ -1774,10 +1621,10 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
     // exceptions. Otherwise new requests may retry on a connection
     // that is not yet marked as closed or closing.
     //
-    return setState(state);
+    setState(state);
 }
 
-bool
+void
 Ice::ConnectionI::setState(State state)
 {
     //
@@ -1799,7 +1646,7 @@ Ice::ConnectionI::setState(State state)
 
     if(_state == state) // Don't switch twice.
     {
-        return false;
+        return;
     }
     
     switch(state)
@@ -1815,7 +1662,7 @@ Ice::ConnectionI::setState(State state)
         if(_state != StateNotInitialized)
         {
             assert(_state == StateClosed);
-            return false;
+            return;
         }
         break;
     }
@@ -1828,7 +1675,7 @@ Ice::ConnectionI::setState(State state)
         //
         if(_state != StateHolding && _state != StateNotValidated)
         {
-            return false;
+            return;
         }
         if(!_threadPerConnection)
         {
@@ -1845,7 +1692,7 @@ Ice::ConnectionI::setState(State state)
         //
         if(_state != StateActive && _state != StateNotValidated)
         {
-            return false;
+            return;
         }
         if(!_threadPerConnection)
         {
@@ -1861,7 +1708,7 @@ Ice::ConnectionI::setState(State state)
         //
         if(_state == StateClosed)
         {
-            return false;
+            return;
         }
         if(!_threadPerConnection)
         {
@@ -1938,19 +1785,17 @@ Ice::ConnectionI::setState(State state)
     {
         try
         {
-            return initiateShutdown(false);
+            initiateShutdown();
         }
         catch(const LocalException& ex)
         {
             setState(StateClosed, ex);
         }
     }
-
-    return false;
 }
 
-bool
-Ice::ConnectionI::initiateShutdown(bool queue)
+void
+Ice::ConnectionI::initiateShutdown()
 {
     assert(_state == StateClosing);
     assert(_dispatchCount == 0);
@@ -1974,7 +1819,7 @@ Ice::ConnectionI::initiateShutdown(bool queue)
         os.write(headerSize); // Message size.
 
         OutgoingMessage message(&os, false);
-        return sendMessage(message, queue);
+        sendMessage(message);
 
         //
         // The CloseConnection message should be sufficient. Closing the write
@@ -1986,8 +1831,6 @@ Ice::ConnectionI::initiateShutdown(bool queue)
         //
         //_transceiver->shutdownWrite();
     }
-
-    return false;
 }
 
 SocketStatus
@@ -2304,64 +2147,30 @@ Ice::ConnectionI::send(int timeout)
 }
 
 bool
-Ice::ConnectionI::sendMessage(OutgoingMessage& message, bool queue)
+Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 {
     assert(_state != StateClosed);
-
-    //
-    // TODO: Remove support for foreground send? If set to true, messages are sent
-    // by the calling thread. Foreground send might still be useful for transports
-    // that don't support non-blocking send.
-    //
-    bool foreground = false;
 
     message.stream->i = 0; // Reset the message stream iterator before starting sending the message.
 
     //
-    // If another thread is currently sending messages, we queue the message in _queuedStreams
-    // if we're not required to send the message in the foreground. If we're required to send
-    // the request in the foreground we wait until no more threads send messages.
+    // If another thread is currently sending messages, we queue the
+    // message in _queuedStreams.  It will be picked up eventually by
+    // the selector thread once the messages from _sendStreams are all
+    // sent.
     //
     if(_sendInProgress)
     {    
-        if(!foreground)
-        {
-            _queuedStreams.push_back(message);
-            _queuedStreams.back().adopt(0);
-            return false;
-        }
-        else if(queue)
-        {
-            //
-            // Add the message to _sendStreams if requested, this is useful for sendResponse() to 
-            // send the close connection message after sending the response.
-            //
-            _sendStreams.push_back(message);
-            return true; // The calling thread must send the messages by calling finishSendMessage()
-        }
-        else
-        {
-            ++_waitingForSend;
-            while(_sendInProgress)
-            {
-                wait();
-            }
-            --_waitingForSend;
-            
-            if(_state == StateClosed)
-            {
-                assert(_exception.get());
-                _exception->ice_throw();
-            }
-        }
+        _queuedStreams.push_back(message);
+        _queuedStreams.back().adopt(0);
+        return false;
     }
 
     assert(!_sendInProgress);
 
     //
     // Attempt to send the message without blocking. If the send blocks, we register 
-    // the connection with the selector thread or we request the caller to call 
-    // finishSendMessage() outside the synchronization.
+    // the connection with the selector thread.
     //
 
     message.stream->i = message.stream->b.begin();
@@ -2392,7 +2201,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message, bool queue)
         //
         // Send the message without blocking.
         //
-        if(!foreground && _transceiver->write(stream, 0))
+        if(_transceiver->write(stream, 0))
         {
             message.sent(this, false);
             if(_acmTimeout > 0)
@@ -2400,7 +2209,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message, bool queue)
                 _acmAbsoluteTimeout = 
                     IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
             }
-            return false;
+            return true;
         }
 
         _sendStreams.push_back(message);
@@ -2440,7 +2249,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message, bool queue)
         //
         // Send the message without blocking.
         //
-        if(!foreground && _transceiver->write(*message.stream, 0))
+        if(_transceiver->write(*message.stream, 0))
         {
             message.sent(this, false);
             if(_acmTimeout > 0)
@@ -2448,108 +2257,16 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message, bool queue)
                 _acmAbsoluteTimeout = 
                     IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
             }
-            return false;
+            return true;
         }
 
         _sendStreams.push_back(message);
-        if(!foreground)
-        {
-            _sendStreams.back().adopt(0);
-        }
+        _sendStreams.back().adopt(0); // Adopt the stream.
     }
 
     _sendInProgress = true;
-    if(!foreground)
-    {
-        _selectorThread->_register(_transceiver->fd(), this, NeedWrite, _endpoint->timeout());
-        return false; // The selector thread will send the message.
-    }
-    else
-    {
-        return true; // The calling thread must send the message by calling finishSendMessage()
-    }
-}
-
-void
-Ice::ConnectionI::finishSendMessage()
-{
-    try
-    {
-        //
-        // Send the send messages with a blocking write().
-        //
-        send(_endpoint->timeout());
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        setState(StateClosed, ex);
-
- 	for(deque<OutgoingMessage>::const_iterator p = _sendStreams.begin(); p != _sendStreams.end(); ++p)
-	{
-	    if(p->adopted)
-	    {
-		delete p->stream;
-	    }
-	}
-        _sendStreams.clear();
-        _sendInProgress = false;
-
-        if(_threadPerConnection)
-        {
-            _transceiver->shutdownReadWrite();
-        }
-        else
-        {
-            registerWithPool();
-            unregisterWithPool(); // Let finished() do the close.
-        }
-
-        notifyAll();
-
-        assert(_exception.get());
-        _exception->ice_throw();
-    }
-
-
-    //
-    // Clear the _sendInProgress flag and notify waiting threads that we're not
-    // sending anymore data.
-    // 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    assert(_sendStreams.empty());
-    
-    if(_state == StateClosed)
-    {
-        _sendInProgress = false;
-        if(_threadPerConnection)
-        {
-            _transceiver->shutdownReadWrite();
-        }
-        else
-        {
-            registerWithPool();
-            unregisterWithPool(); // Let finished() do the close.
-        }
-        notifyAll();
-    }
-    else if(_waitingForSend > 0)
-    {
-        _sendInProgress = false;
-        notifyAll();
-    }
-    else if(_queuedStreams.empty())
-    {
-        if(_acmTimeout > 0)
-        {
-            _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
-        }
-        _sendInProgress = false;
-    }
-    else
-    {
-        _selectorThread->_register(_transceiver->fd(), this, NeedWrite, _endpoint->timeout());
-    }
+    _selectorThread->_register(_transceiver->fd(), this, NeedWrite, _endpoint->timeout());
+    return false;
 }
 
 void 

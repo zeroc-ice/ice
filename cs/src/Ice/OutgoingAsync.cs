@@ -479,26 +479,25 @@ namespace IceInternal
         {
             try
             {
-                //      
-                // A CloseConnectionException indicates graceful
-                // server shutdown, and is therefore always repeatable
-                // without violating "at-most-once". That's because by
-                // sending a close connection message, the server
-                // guarantees that all outstanding requests can safely
-                // be repeated.
                 //
-                // An ObjectNotExistException can always be retried as
-                // well without violating "at-most-once".
+                // A CloseConnectionException indicates graceful server shutdown, and is therefore
+                // always repeatable without violating "at-most-once". That's because by sending a
+                // close connection message, the server guarantees that all outstanding requests
+                // can safely be repeated.
                 //
+                // An ObjectNotExistException can always be retried as well without violating 
+                // "at-most-once" (see the implementation of the checkRetryAfterException method of
+                // the ProxyFactory class for the reasons why it can be useful).
+                // 
                 if(!_sent || exc is Ice.CloseConnectionException || exc is Ice.ObjectNotExistException)
                 {
                     throw exc;
                 }
                 
                 //
-                // Throw the exception wrapped in a LocalExceptionWrapper, to
-                // indicate that the request cannot be resent without
-                // potentially violating the "at-most-once" principle.
+                // Throw the exception wrapped in a LocalExceptionWrapper, to indicate that the 
+                // request cannot be resent without potentially violating the "at-most-once" 
+                // principle.
                 //
                 throw new LocalExceptionWrapper(exc, false);
             }

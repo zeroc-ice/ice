@@ -459,7 +459,32 @@ public final class Instance
                 }
                 catch(Ice.ServerNotFoundException ex)
                 {
+                    if(_traceLevels.location >= 1)
+                    {
+                        StringBuffer s = new StringBuffer();
+                        s.append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                        s.append("the server is not known to the locator registry");
+                        _initData.logger.trace(_traceLevels.locationCat, s.toString());
+                    }
+
                     throw new Ice.InitializationException("Locator knows nothing about server '" + serverId + "'");
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if(_traceLevels.location >= 1)
+                    {
+                        StringBuffer s = new StringBuffer();
+                        s.append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                        _initData.logger.trace(_traceLevels.locationCat, s.toString());
+                    }
+                    throw ex;
+                }
+
+                if(_traceLevels.location >= 1)
+                {
+                    StringBuffer s = new StringBuffer();
+                    s.append("registered server `" + serverId + "' with the locator registry");
+                    _initData.logger.trace(_traceLevels.locationCat, s.toString());
                 }
             }
             return adapter.createProxy(_adminIdentity);

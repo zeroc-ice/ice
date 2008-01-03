@@ -1237,11 +1237,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         // remote call will indirectly call isLocal() on this OA with
         // the OA factory locked).
         //
-        // TODO: This might throw if we can't connect to the
-        // locator. Shall we raise a special exception for the
-        // activate operation instead of a non obvious network
-        // exception?
-        //
         LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
         String serverId = "";
         if(registerProcess)
@@ -1281,6 +1276,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             catch(AdapterNotFoundException ex)
             {
+                if(_instance.traceLevels().location >= 1)
+                {
+                    StringBuffer s = new StringBuffer();
+                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.append("the object adapter is not known to the locator registry");
+                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+                }
+                
                 NotRegisteredException ex1 = new NotRegisteredException();
                 ex1.kindOfObject = "object adapter";
                 ex1.id = _id;
@@ -1288,6 +1291,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             catch(InvalidReplicaGroupIdException ex)
             {
+                if(_instance.traceLevels().location >= 1)
+                {
+                    StringBuffer s = new StringBuffer();
+                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
+                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+                }
+
                 NotRegisteredException ex1 = new NotRegisteredException();
                 ex1.kindOfObject = "replica group";
                 ex1.id = _replicaGroupId;
@@ -1295,9 +1306,47 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             catch(AdapterAlreadyActiveException ex)
             {
+                if(_instance.traceLevels().location >= 1)
+                {
+                    StringBuffer s = new StringBuffer();
+                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    s.append("the object adapter endpoints are already set");
+                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+                }
+
                 ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
                 ex1.id = _id;
                 throw ex1;
+            }
+            catch(LocalException e)
+            {
+                if(_instance.traceLevels().location >= 1)
+                {
+                    StringBuffer s = new StringBuffer();
+                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n" + e);
+                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+                }
+                throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+            }
+
+            if(_instance.traceLevels().location >= 1)
+            {
+                StringBuffer s = new StringBuffer();
+                s.append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
+                s.append("endpoints = ");
+                if(proxy != null)
+                {
+                    Ice.Endpoint[] endpoints = proxy.ice_getEndpoints();
+                    for(int i = 0; i < endpoints.length; i++)
+                    {
+                        s.append(endpoints[i].toString());
+                        if(i + 1 < endpoints.length)
+                        {
+                            s.append(":");
+                        }
+                    }
+                }
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
         }
         
@@ -1315,10 +1364,35 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             catch(ServerNotFoundException ex)
             {
+                if(_instance.traceLevels().location >= 1)
+                {
+                    StringBuffer s = new StringBuffer();
+                    s.append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                    s.append("the server is not known to the locator registry");
+                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+                }
+
                 NotRegisteredException ex1 = new NotRegisteredException();
                 ex1.id = serverId;
                 ex1.kindOfObject = "server";
                 throw ex1;
+            }
+            catch(LocalException ex)
+            {
+                if(_instance.traceLevels().location >= 1)
+                {
+                    StringBuffer s = new StringBuffer();
+                    s.append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                    _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
+                }
+                throw ex; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+            }
+            
+            if(_instance.traceLevels().location >= 1)
+            {
+                StringBuffer s = new StringBuffer();
+                s.append("registered server `" + serverId + "' with the locator registry");
+                _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
         }
     }    
