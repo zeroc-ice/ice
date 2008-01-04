@@ -16,15 +16,15 @@ using namespace std;
 using namespace Test;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& comm)
 {
     void allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    allTests(comm);
 
     //
     // Shutdown the IceBox server. 
     //
-    Ice::ProcessPrx::uncheckedCast(communicator->stringToProxy("DemoIceBox/admin -f Process:tcp -p 9996"))->shutdown();
+    Ice::ProcessPrx::uncheckedCast(comm->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
 
     return EXIT_SUCCESS;
 }

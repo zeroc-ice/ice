@@ -21,7 +21,7 @@ public class Client
         // Shutdown the IceBox server. 
         //
         Ice.ProcessPrxHelper.uncheckedCast(
-            communicator.stringToProxy("DemoIceBox/admin -f Process:tcp -p 9996")).shutdown();
+            communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
         return 0;
     }
 
