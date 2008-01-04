@@ -420,6 +420,7 @@ ConnectRequestHandler::flushRequests()
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(dynamic_cast<Ice::LocalException*>(ex.get()->ice_clone()));
         _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithExceptionWrapper(this, ex));
+        notifyAll();
         return;
     }
     catch(const Ice::LocalException& ex)
@@ -428,6 +429,7 @@ ConnectRequestHandler::flushRequests()
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
         _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(this, ex));
+        notifyAll();
         return;
     }
         

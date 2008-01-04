@@ -27,14 +27,18 @@ public:
     Instance(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&);
     ~Instance();
 
-    Ice::CommunicatorPtr communicator() const { return _communicator; }
-    Ice::ObjectAdapterPtr clientObjectAdapter() const { return _clientAdapter; }
-    Ice::ObjectAdapterPtr serverObjectAdapter() const { return _serverAdapter; }
-    Ice::PropertiesPtr properties() const { return _properties; }
-    Ice::LoggerPtr logger() const { return _logger; }
+    //
+    // COMPILERFIX: returning const& is necessary on HP-UX (otherwise, it crashes in the Blobject
+    // constructor).
+    //
+    const Ice::CommunicatorPtr& communicator() const { return _communicator; }
+    const Ice::ObjectAdapterPtr& clientObjectAdapter() const { return _clientAdapter; }
+    const Ice::ObjectAdapterPtr& serverObjectAdapter() const { return _serverAdapter; }
+    const Ice::PropertiesPtr& properties() const { return _properties; }
+    const Ice::LoggerPtr& logger() const { return _logger; }
 
-    RequestQueueThreadPtr clientRequestQueueThread() const { return _clientRequestQueueThread; }
-    RequestQueueThreadPtr serverRequestQueueThread() const { return _serverRequestQueueThread; }
+    const RequestQueueThreadPtr& clientRequestQueueThread() const { return _clientRequestQueueThread; }
+    const RequestQueueThreadPtr& serverRequestQueueThread() const { return _serverRequestQueueThread; }
 
     void destroy();
     

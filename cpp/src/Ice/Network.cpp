@@ -323,7 +323,7 @@ getAddressImpl(const string& host, int port, struct sockaddr_storage& addr, Prot
     {
         if(host.empty())
         {
-            rs = getaddrinfo(0, "0", &hints, &info);
+            rs = getaddrinfo(0, "1", &hints, &info);
         }
         else
         {
@@ -1267,7 +1267,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     {
         if(host.empty())
         {
-            rs = getaddrinfo(0, "0", &hints, &info); // Get the address of the loopback interface
+            rs = getaddrinfo(0, "1", &hints, &info); // Get the address of the loopback interface
         }
         else
         {

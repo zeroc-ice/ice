@@ -443,6 +443,7 @@ public class ConnectRequestHandler
                             flushRequestsWithException(ex);
                         };
                     });
+                notifyAll();
                 return;
             }
         }
@@ -461,6 +462,7 @@ public class ConnectRequestHandler
                             flushRequestsWithException(ex);
                         };
                     });
+                notifyAll();
                 return;
             }
         }

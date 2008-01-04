@@ -401,6 +401,7 @@ namespace IceInternal
                                                                             threadPool.promoteFollower();
                                                                             flushRequestsWithException(ex);
                                                                         });
+                    Monitor.PulseAll(this);
                 }
             }
             catch(Ice.LocalException ex)
@@ -414,6 +415,7 @@ namespace IceInternal
                                                                             threadPool.promoteFollower();
                                                                             flushRequestsWithException(ex);
                                                                         });
+                    Monitor.PulseAll(this);
                 }
             }
 
