@@ -1049,7 +1049,24 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
     {
         try
         {
-            verifier = _communicator->propertyToProxy(verifierProperty);
+            try
+            {
+                verifier = _communicator->propertyToProxy(verifierProperty);
+            }
+            catch(const ProxyParseException&)
+            {
+                //
+                // Check if the property is just the identity of the null permissions verifier
+                // (the identity might contain spaces which would prevent it to be parsed as a
+                // proxy).
+                //
+                if(_communicator->stringToIdentity(verifierPropertyValue) ==
+                   _nullPermissionsVerifier->ice_getIdentity())
+                {
+                    verifier = _communicator->stringToProxy("\"" + verifierPropertyValue + "\"");
+                }
+            }
+
             if(!verifier)
             {
                 Error out(_communicator->getLogger());
@@ -1057,6 +1074,7 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
                 return 0;
             }
             assert(_nullPermissionsVerifier);
+
             if(verifier->ice_getIdentity() == _nullPermissionsVerifier->ice_getIdentity())
             {
                 verifier = _nullPermissionsVerifier;
@@ -1154,7 +1172,24 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
     {
         try
         {
-            verifier = _communicator->propertyToProxy(verifierProperty);
+            try
+            {
+                verifier = _communicator->propertyToProxy(verifierProperty);
+            }
+            catch(const ProxyParseException&)
+            {
+                //
+                // Check if the property is just the identity of the null permissions verifier
+                // (the identity might contain spaces which would prevent it to be parsed as a
+                // proxy).
+                //
+                if(_communicator->stringToIdentity(verifierPropertyValue) ==
+                   _nullSSLPermissionsVerifier->ice_getIdentity())
+                {
+                    verifier = _communicator->stringToProxy("\"" + verifierPropertyValue + "\"");
+                }
+            }
+
             if(!verifier)
             {
                 Error out(_communicator->getLogger());

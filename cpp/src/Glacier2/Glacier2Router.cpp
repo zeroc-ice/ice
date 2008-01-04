@@ -193,7 +193,23 @@ Glacier2::RouterService::start(int argc, char* argv[])
         ObjectPrx obj;
         try
         {
-            obj = communicator()->propertyToProxy(verifierProperty);
+            try
+            {
+                obj = communicator()->propertyToProxy(verifierProperty);
+            }
+            catch(const Ice::ProxyParseException&)
+            {
+                //
+                // Check if the property is just the identity of the null permissions verifier
+                // (the identity might contain spaces which would prevent it to be parsed as a
+                // proxy).
+                //
+                if(communicator()->stringToIdentity(verifierPropertyValue) == nullPermVerifId)
+                {
+                    obj = communicator()->stringToProxy("\"" + verifierPropertyValue + "\"");
+                }
+            }
+
             if(!obj)
             {
                 error("permissions verifier `" + verifierPropertyValue + "' is invalid");
@@ -207,6 +223,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
             error("permissions verifier `" + verifierPropertyValue + "' is invalid:\n" + ostr.str());
             return false;
         }
+
         if(obj->ice_getIdentity() == nullPermVerifId)
         {
             verifier = PermissionsVerifierPrx::uncheckedCast(
@@ -332,7 +349,23 @@ Glacier2::RouterService::start(int argc, char* argv[])
         ObjectPrx obj;
         try
         {
-            obj = communicator()->propertyToProxy(sslVerifierProperty);
+            try
+            {
+                obj = communicator()->propertyToProxy(sslVerifierProperty);
+            }
+            catch(const Ice::ProxyParseException&)
+            {
+                //
+                // Check if the property is just the identity of the null permissions verifier
+                // (the identity might contain spaces which would prevent it to be parsed as a
+                // proxy).
+                //
+                if(communicator()->stringToIdentity(sslVerifierPropertyValue) == nullSSLPermVerifId)
+                {
+                    obj = communicator()->stringToProxy("\"" + sslVerifierPropertyValue + "\"");
+                }
+            }
+
             if(!obj)
             {
                 error("ssl permissions verifier `" + verifierPropertyValue + "' is invalid");
@@ -346,6 +379,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
             error("ssl permissions verifier `" + sslVerifierPropertyValue + "' is invalid:\n" + ostr.str());
             return false;
         }
+
         if(obj->ice_getIdentity() == nullSSLPermVerifId)
         {
 
