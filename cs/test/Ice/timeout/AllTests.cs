@@ -265,9 +265,6 @@ public class AllTests
         Console.Out.Flush();
         {
             //
-            // The resolution of AMI timeouts is limited by the connection monitor
-            // thread. We set Ice.MonitorConnections=1 (one second) in main().
-            //
             // Expect TimeoutException.
             //
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
@@ -290,9 +287,6 @@ public class AllTests
         Console.Out.Write("testing AMI write timeout... ");
         Console.Out.Flush();
         {
-            //
-            // The resolution of AMI timeouts is limited by the connection monitor
-            // thread. We set Ice.MonitorConnections=1 (one second) in main().
             //
             // Expect TimeoutException.
             //

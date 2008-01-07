@@ -1799,7 +1799,6 @@ public class Coordinator
         // For Glacier
         //
         properties.setProperty("Ice.ACM.Client", "0");
-        properties.setProperty("Ice.MonitorConnections", "5");
         
         //
         // Disable retries

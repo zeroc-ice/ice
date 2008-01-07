@@ -325,7 +325,7 @@ generated from the section label.
         <property name="ImplicitContext" />
         <property name="InitPlugins" />
         <property name="MessageSizeMax" />
-        <property name="MonitorConnections" />
+        <property name="MonitorConnections" deprecated="true" />
         <property name="Nohup" />
         <property name="NullHandleAbort" />
         <property name="Override.Compress" />

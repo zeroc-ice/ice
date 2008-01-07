@@ -145,9 +145,6 @@ def allTests(communicator, collocated):
 
     print "testing AMI read timeout... ",
     #
-    # The resolution of AMI timeouts is limited by the connection monitor
-    # thread. We set Ice.MonitorConnections=1 (one second) in main().
-    #
     # Expect TimeoutException.
     #
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
@@ -165,9 +162,6 @@ def allTests(communicator, collocated):
     print "ok"
 
     print "testing AMI write timeout... ",
-    #
-    # The resolution of AMI timeouts is limited by the connection monitor
-    # thread. We set Ice.MonitorConnections=1 (one second) in main().
     #
     # Expect TimeoutException.
     #

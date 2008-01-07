@@ -25,14 +25,6 @@ Chat.Client.Endpoints=
 Ice.ACM.Client=0
 
 #
-# Ice.MonitorConnections defaults to the smaller of Ice.ACM.Client or
-# Ice.ACM.Server, which we set to 0 above. However we still want the
-# connection monitor thread for AMI timeouts (for completeness, even
-# if this demo doesn't use AMI).
-#
-Ice.MonitorConnections=60
-
-#
 # Connection retry is not possible with Glacier2. Connections must
 # remain established.
 #

@@ -280,9 +280,6 @@ public class AllTests
         out.flush();
         {
             //
-            // The resolution of AMI timeouts is limited by the connection monitor
-            // thread. We set Ice.MonitorConnections=1 (one second) in main().
-            //
             // Expect TimeoutException.
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
@@ -305,9 +302,6 @@ public class AllTests
         out.print("testing AMI write timeout... ");
         out.flush();
         {
-            //
-            // The resolution of AMI timeouts is limited by the connection monitor
-            // thread. We set Ice.MonitorConnections=1 (one second) in main().
             //
             // Expect TimeoutException.
             //

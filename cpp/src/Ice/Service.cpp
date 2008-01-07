@@ -1904,7 +1904,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         // properly. We do this before initializing the communicator because we need to
         // ensure that signals are initialized before additional threads are created. The
         // communicator thread pools currently use lazy initialization, but a thread can
-        // be created if Ice.MonitorConnections is defined.
+        // be created to monitor connections.
         //
         _ctrlCHandler = new IceUtil::CtrlCHandler;
 

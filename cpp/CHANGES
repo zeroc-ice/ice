@@ -1,6 +1,12 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- AMI timeouts are no longer triggered by the connection monitor
+  thread at regular time intervals. Instead, timeouts are now
+  triggered on time like for synchronous invocations. As a result, the
+  setting of the Ice.MonitorConnections is no longer useful and this
+  property has been deprecated.
+
 - Network tracing now also includes failures to connect if
   the Ice.Trace.Network property is set to 2.
 
