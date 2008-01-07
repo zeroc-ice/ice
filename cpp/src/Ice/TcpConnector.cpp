@@ -29,19 +29,31 @@ IceInternal::TcpConnector::connect(int timeout)
         out << "trying to establish tcp connection to " << toString();
     }
 
-    SOCKET fd = createSocket(false, _addr.ss_family);
-    setBlock(fd, false);
-    setTcpBufSize(fd, _instance->initializationData().properties, _logger);
-    bool connected = doConnect(fd, _addr, timeout);
-    if(connected)
+    try
     {
-        if(_traceLevels->network >= 1)
+        SOCKET fd = createSocket(false, _addr.ss_family);
+        setBlock(fd, false);
+        setTcpBufSize(fd, _instance->initializationData().properties, _logger);
+        bool connected = doConnect(fd, _addr, timeout);
+        if(connected)
+        {
+            if(_traceLevels->network >= 1)
+            {
+                Trace out(_logger, _traceLevels->networkCat);
+                out << "tcp connection established\n" << fdToString(fd);
+            }
+        }
+        return new TcpTransceiver(_instance, fd, connected);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        if(_traceLevels->network >= 2)
         {
             Trace out(_logger, _traceLevels->networkCat);
-            out << "tcp connection established\n" << fdToString(fd);
+            out << "failed to establish tcp connection to " << toString() << "\n" << ex;
         }
+        throw;
     }
-    return new TcpTransceiver(_instance, fd, connected);
 }
 
 Short

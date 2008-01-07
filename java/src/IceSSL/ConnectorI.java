@@ -30,19 +30,30 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
             _logger.trace(_instance.networkTraceCategory(), s);
         }
 
-        java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
-        IceInternal.Network.setBlock(fd, false);
-        IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
-        boolean connected = IceInternal.Network.doConnect(fd, _addr, timeout);
-
         try
         {
-            javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false);
-            return new TransceiverI(_instance, engine, fd, _host, connected, false, "");
+            java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
+            IceInternal.Network.setBlock(fd, false);
+            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
+            boolean connected = IceInternal.Network.doConnect(fd, _addr, timeout);
+            try
+            {
+                javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false);
+                return new TransceiverI(_instance, engine, fd, _host, connected, false, "");
+            }
+            catch(RuntimeException ex)
+            {
+                IceInternal.Network.closeSocketNoThrow(fd);
+                throw ex;
+            }
         }
-        catch(RuntimeException ex)
+        catch(Ice.LocalException ex)
         {
-            IceInternal.Network.closeSocketNoThrow(fd);
+            if(_instance.networkTraceLevel() >= 2)
+            {
+                String s = "failed to establish ssl connection to " + toString() + "\n" + ex;
+                _logger.trace(_instance.networkTraceCategory(), s);
+            }
             throw ex;
         }
     }

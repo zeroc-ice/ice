@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Network tracing now also includes failures to connect if
+  the Ice.Trace.Network property is set to 2.
+
 - The Ice locator tracing (enabled with the `Ice.Trace.Locator'
   property) now traces calls to locator registry when an object
   adapter updates its endpoints or the server process proxy is

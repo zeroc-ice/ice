@@ -28,36 +28,48 @@ final class TransceiverI implements IceInternal.Transceiver
     public synchronized IceInternal.SocketStatus
     initialize(int timeout)
     {
-        if(_state == StateNeedConnect && timeout == 0)
+        try
         {
-            _state = StateConnectPending;
-            return IceInternal.SocketStatus.NeedConnect;
-        }
-        else if(_state <= StateConnectPending)
-        {
-            IceInternal.Network.doFinishConnect(_fd, timeout);
-            _state = StateConnected;
-            _desc = IceInternal.Network.fdToString(_fd);
-        }
-        assert(_state == StateConnected);
-
-        IceInternal.SocketStatus status;
-        do
-        {
-            status = handshakeNonBlocking();
-            if(timeout == 0)
+            if(_state == StateNeedConnect && timeout == 0)
             {
-                return status;
+                _state = StateConnectPending;
+                return IceInternal.SocketStatus.NeedConnect;
             }
-
-            if(status != IceInternal.SocketStatus.Finished)
+            else if(_state <= StateConnectPending)
             {
-                handleSocketStatus(status, timeout);
+                IceInternal.Network.doFinishConnect(_fd, timeout);
+                _state = StateConnected;
+                _desc = IceInternal.Network.fdToString(_fd);
             }
-        }
-        while(status != IceInternal.SocketStatus.Finished);
+            assert(_state == StateConnected);
 
-        return status;
+            IceInternal.SocketStatus status;
+            do
+            {
+                status = handshakeNonBlocking();
+                if(timeout == 0)
+                {
+                    return status;
+                }
+
+                if(status != IceInternal.SocketStatus.Finished)
+                {
+                    handleSocketStatus(status, timeout);
+                }
+            }
+            while(status != IceInternal.SocketStatus.Finished);
+        }
+        catch(Ice.LocalException ex)
+        {
+            if(_instance.networkTraceLevel() >= 2)
+            {
+                String s = "failed to establish ssl connection\n" + _desc + "\n" + ex;
+                _logger.trace(_instance.networkTraceCategory(), s);
+            }
+            throw ex;
+        }
+
+        return IceInternal.SocketStatus.Finished;
     }
 
     //

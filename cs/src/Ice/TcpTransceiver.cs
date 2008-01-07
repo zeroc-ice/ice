@@ -32,9 +32,22 @@ namespace IceInternal
             }
             else if(_state <= StateConnectPending)
             {
-                Network.doFinishConnect(_fd, timeout);
-                _state = StateConnected;
-                _desc = Network.fdToString(_fd);
+                try
+                {
+                    Network.doFinishConnect(_fd, timeout);
+                    _state = StateConnected;
+                    _desc = Network.fdToString(_fd);
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if(_traceLevels.network >= 2)
+                    {
+                        string s = "failed to establish tcp connection\n" + _desc + "\n" + ex;
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
+                    throw ex;
+                }
+                
                 if(_traceLevels.network >= 1)
                 {
                     string s = "tcp connection established\n" + _desc;

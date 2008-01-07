@@ -24,20 +24,32 @@ namespace IceInternal
                 string s = "trying to establish tcp connection to " + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            
-            Socket fd = Network.createSocket(false, _addr.AddressFamily);
-            Network.setBlock(fd, false);
-            Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
-            bool connected = Network.doConnect(fd, _addr, timeout);
-            if(connected)
+
+            try
             {
-                if(_traceLevels.network >= 1)
+                Socket fd = Network.createSocket(false, _addr.AddressFamily);
+                Network.setBlock(fd, false);
+                Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
+                bool connected = Network.doConnect(fd, _addr, timeout);
+                if(connected)
                 {
-                    string s = "tcp connection established\n" + Network.fdToString(fd);
+                    if(_traceLevels.network >= 1)
+                    {
+                        string s = "tcp connection established\n" + Network.fdToString(fd);
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
+                }
+                return new TcpTransceiver(instance_, fd, connected);
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(_traceLevels.network >= 2)
+                {
+                    string s = "failed to establish tcp connection to " + ToString() + "\n" + ex;
                     _logger.trace(_traceLevels.networkCat, s);
                 }
+                throw ex;
             }
-            return new TcpTransceiver(instance_, fd, connected);
         }
 
         public short type()

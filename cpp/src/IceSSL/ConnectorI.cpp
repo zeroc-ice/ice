@@ -40,36 +40,48 @@ IceSSL::ConnectorI::connect(int timeout)
         out << "trying to establish ssl connection to " << toString();
     }
 
-    SOCKET fd = IceInternal::createSocket(false, _addr.ss_family);
-    IceInternal::setBlock(fd, false);
-    IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
-    bool connected = IceInternal::doConnect(fd, _addr, timeout);
-
-    // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
-    BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
-    if(!bio)
+    try
     {
-        IceInternal::closeSocketNoThrow(fd);
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = "openssl failure";
-        throw ex;
-    }
+        SOCKET fd = IceInternal::createSocket(false, _addr.ss_family);
+        IceInternal::setBlock(fd, false);
+        IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
+        bool connected = IceInternal::doConnect(fd, _addr, timeout);
 
-    SSL* ssl = SSL_new(_instance->context());
-    if(!ssl)
+        // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
+        BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
+        if(!bio)
+        {
+            IceInternal::closeSocketNoThrow(fd);
+            SecurityException ex(__FILE__, __LINE__);
+            ex.reason = "openssl failure";
+            throw ex;
+        }
+
+        SSL* ssl = SSL_new(_instance->context());
+        if(!ssl)
+        {
+            BIO_free(bio); // Also closes the socket.
+            SecurityException ex(__FILE__, __LINE__);
+            ex.reason = "openssl failure";
+            throw ex;
+        }
+        SSL_set_bio(ssl, bio, bio);
+
+        //
+        // SSL handshaking is performed in TransceiverI::initialize, since
+        // connect must not block.
+        //
+        return new TransceiverI(_instance, ssl, fd, connected, false);
+    }
+    catch(const Ice::LocalException& ex)
     {
-        BIO_free(bio); // Also closes the socket.
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = "openssl failure";
-        throw ex;
+        if(_instance->networkTraceLevel() >= 2)
+        {
+            Trace out(_logger, _instance->networkTraceCategory());
+            out << "failed to establish ssl connection to " << toString() << "\n" << ex;
+        }
+        throw;
     }
-    SSL_set_bio(ssl, bio, bio);
-
-    //
-    // SSL handshaking is performed in TransceiverI::initialize, since
-    // connect must not block.
-    //
-    return new TransceiverI(_instance, ssl, fd, connected, false);
 }
 
 Short

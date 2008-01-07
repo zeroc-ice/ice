@@ -20,19 +20,31 @@ final class TcpConnector implements Connector, java.lang.Comparable
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        java.nio.channels.SocketChannel fd = Network.createTcpSocket();
-        Network.setBlock(fd, false);
-        Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
-        boolean connected = Network.doConnect(fd, _addr, timeout);
-        if(connected)
+        try
         {
-            if(_traceLevels.network >= 1)
+            java.nio.channels.SocketChannel fd = Network.createTcpSocket();
+            Network.setBlock(fd, false);
+            Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
+            boolean connected = Network.doConnect(fd, _addr, timeout);
+            if(connected)
             {
-                String s = "tcp connection established\n" + Network.fdToString(fd);
+                if(_traceLevels.network >= 1)
+                {
+                    String s = "tcp connection established\n" + Network.fdToString(fd);
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+            }
+            return new TcpTransceiver(_instance, fd, connected);
+        }
+        catch(Ice.LocalException ex)
+        {
+            if(_traceLevels.network >= 2)
+            {
+                String s = "failed to establish tcp connection to " + toString() + "\n" + ex;
                 _logger.trace(_traceLevels.networkCat, s);
             }
+            throw ex;
         }
-        return new TcpTransceiver(_instance, fd, connected);
     }
 
     public short

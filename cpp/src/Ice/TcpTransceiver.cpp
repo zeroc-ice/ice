@@ -372,9 +372,22 @@ IceInternal::TcpTransceiver::initialize(int timeout)
     }
     else if(_state <= StateConnectPending)
     {
-        doFinishConnect(_fd, timeout);
-        _state = StateConnected;
-        _desc = fdToString(_fd);
+        try
+        {
+            doFinishConnect(_fd, timeout);
+            _state = StateConnected;
+            _desc = fdToString(_fd);
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            if(_traceLevels->network >= 2)
+            {
+                Trace out(_logger, _traceLevels->networkCat);
+                out << "failed to establish tcp connection\n" << _desc << "\n" << ex;
+            }
+            throw;
+        }
+
         if(_traceLevels->network >= 1)
         {
             Trace out(_logger, _traceLevels->networkCat);
