@@ -48,6 +48,7 @@ protected:
 
     RequestHandler(const ReferencePtr&);
     const ReferencePtr _reference;
+    const bool _response;
 };
 
 }

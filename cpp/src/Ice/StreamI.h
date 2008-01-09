@@ -80,6 +80,7 @@ public:
     virtual void skipSlice();
 
     virtual void startEncapsulation();
+    virtual void skipEncapsulation();
     virtual void endEncapsulation();
 
     virtual void readPendingObjects();

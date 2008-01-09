@@ -1,6 +1,14 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added a new skipEncapsulation method to the Ice::InputStream
+  interface. This method can be used to skip an encapsulation when
+  reading from a stream.
+
+- The endEncapsulation method from the Ice::InputStream interface will
+  now throw Ice::EncapsulationException if not all the data from the
+  encapsulation has been read.
+
 - AMI timeouts are no longer triggered by the connection monitor
   thread at regular time intervals. Instead, timeouts are now
   triggered on time like for synchronous invocations. As a result, the

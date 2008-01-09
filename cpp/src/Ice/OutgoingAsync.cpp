@@ -241,7 +241,6 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
             case replyOK:
             case replyUserException:
             {
-                __is->startReadEncaps();
                 break;
             }
             
@@ -521,6 +520,21 @@ IceInternal::OutgoingAsync::__send()
 }
 
 void
+IceInternal::OutgoingAsync::__throwUserException()
+{
+    try
+    {
+        __is->startReadEncaps();
+        __is->throwException();
+    }
+    catch(const Ice::UserException&)
+    {
+        __is->endReadEncaps();
+        throw;
+    }
+}
+
+void
 IceInternal::OutgoingAsync::handleException(const LocalExceptionWrapper& ex)
 {
     if(_mode == Nonmutating || _mode == Idempotent)
@@ -637,8 +651,10 @@ Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exce
     vector<Byte> outParams;
     try
     {
+        __is->startReadEncaps();
         Int sz = __is->getReadEncapsSize();
         __is->readBlob(outParams, sz);
+        __is->endReadEncaps();
     }
     catch(const LocalException& ex)
     {
@@ -673,9 +689,11 @@ Ice::AMI_Array_Object_ice_invoke::__response(bool ok) // ok == true means no use
     pair<const Byte*, const Byte*> outParams;
     try
     {
+        __is->startReadEncaps();
         Int sz = __is->getReadEncapsSize();
         __is->readBlob(outParams.first, sz);
         outParams.second = outParams.first + sz;
+        __is->endReadEncaps();
     }
     catch(const LocalException& ex)
     {

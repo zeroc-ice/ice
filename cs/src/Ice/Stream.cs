@@ -62,6 +62,7 @@ namespace Ice
 
         void startEncapsulation();
         void endEncapsulation();
+        void skipEncapsulation();
 
         int getEncapsulationSize();
         byte[] readBlob(int size);

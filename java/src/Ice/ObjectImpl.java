@@ -58,9 +58,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         IceInternal.BasicStream __is = __inS.is();
-        IceInternal.BasicStream __os = __inS.os();
+        __is.startReadEncaps();
         String __id = __is.readString();
+        __is.endReadEncaps();
         boolean __ret = __obj.ice_isA(__id, __current);
+        IceInternal.BasicStream __os = __inS.os();
         __os.writeBool(__ret);
         return DispatchStatus.DispatchOK;
     }
@@ -80,6 +82,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     public static DispatchStatus
     ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
+        __inS.is().skipEmptyEncaps();
         __obj.ice_ping(__current);
         return DispatchStatus.DispatchOK;
     }
@@ -99,8 +102,9 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     public static DispatchStatus
     ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        IceInternal.BasicStream __os = __inS.os();
+        __inS.is().skipEmptyEncaps();
         String[] __ret = __obj.ice_ids(__current);
+        IceInternal.BasicStream __os = __inS.os();
         __os.writeStringSeq(__ret);
         return DispatchStatus.DispatchOK;
     }
@@ -120,8 +124,9 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     public static DispatchStatus
     ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        IceInternal.BasicStream __os = __inS.os();
+        __inS.is().skipEmptyEncaps();
         String __ret = __obj.ice_id(__current);
+        IceInternal.BasicStream __os = __inS.os();
         __os.writeString(__ret);
         return DispatchStatus.DispatchOK;
     }

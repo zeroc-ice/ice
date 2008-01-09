@@ -71,7 +71,6 @@ private:
     Ice::ObjectPrx _proxy;
     Handle< ::IceDelegate::Ice::Object> _delegate;
 
-    const bool _response;
     const bool _batchAutoFlush;
 
     Ice::ConnectionIPtr _connection;

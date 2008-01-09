@@ -88,6 +88,27 @@ Ice has dependencies on a number of third-party libraries:
   builds, you can also use the binary distribution from the "Software
   Porting And Archive Centre for HP-UX".
 
+- mcpp 2.6.4, which can be downloaded from 
+
+  http://mcpp.sourceforge.net/download.html
+
+  After downloading and unpacking the source distribution it is 
+  necessary to first apply a source patch available on the Ice
+  download page before building. From the mcpp 2.6.4 base directory
+  run
+
+  patch -p0 < mcpp-2.6.4.patch
+
+  Ice requires the library version of mcpp, so configure mcpp similar
+  to the following
+
+  ./configure CC=cc CXX=aCC --enable-mcpplib --enable-shared
+  (and --prefix=<dir> if you like)
+  
+  On HP-UX it is also necessary to apply a second patch post configure.
+  Again from the mcpp 2.6.4 base directory run
+
+  patch -p0 < mcpp-2.6.4.hp.patch
 
 GNU Make 3.80
 -------------

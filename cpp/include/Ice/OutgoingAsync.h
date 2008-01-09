@@ -85,6 +85,7 @@ protected:
     void __send();
 
     virtual void __response(bool) = 0;
+    void __throwUserException();
 
 private:
 

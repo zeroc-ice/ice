@@ -878,6 +878,11 @@ IceInternal::doBind(SOCKET fd, struct sockaddr_storage& addr)
     {
         size = sizeof(sockaddr_in6);
     }
+    else
+    {
+        assert(false);
+        size = 0; // Keep the compiler happy.
+    }
 
     if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), size) == SOCKET_ERROR)
     {
@@ -926,6 +931,11 @@ repeatConnect:
     else if(addr.ss_family == AF_INET6)
     {
         size = sizeof(sockaddr_in6);
+    }
+    else
+    {
+        assert(false);
+        size = 0; // Keep the compiler happy.
     }
 
     if(::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), size) == SOCKET_ERROR)

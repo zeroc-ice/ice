@@ -87,6 +87,8 @@ public:
     BasicStream* is() { return &_is; }
     BasicStream* os() { return &_os; }
 
+    void throwUserException();
+
 private:
 
     //

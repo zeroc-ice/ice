@@ -130,11 +130,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         Dictionary<byte, bool> r = new Dictionary<byte, bool>();
         foreach(KeyValuePair<byte, bool> e in p1)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         foreach(KeyValuePair<byte, bool> e in p2)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         cb.ice_response(r, p3);
     }
@@ -214,11 +214,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         Dictionary<long, float> r = new Dictionary<long, float>();
         foreach(KeyValuePair<long, float> e in p1)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         foreach(KeyValuePair<long, float> e in p2)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         cb.ice_response(r, p3);
     }
@@ -243,11 +243,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         Dictionary<short, int> r = new Dictionary<short, int>();
         foreach(KeyValuePair<short, int> e in p1)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         foreach(KeyValuePair<short, int> e in p2)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         cb.ice_response(r, p3);
     }
@@ -300,11 +300,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         Dictionary<string, Test.MyEnum> r = new Dictionary<string, Test.MyEnum>();
         foreach(KeyValuePair<string, Test.MyEnum> e in p1)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         foreach(KeyValuePair<string, Test.MyEnum> e in p2)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         cb.ice_response(r, p3);
     }
@@ -393,11 +393,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         Dictionary<string, string> r = new Dictionary<string, string>();
         foreach(KeyValuePair<string, string> e in p1)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         foreach(KeyValuePair<string, string> e in p2)
         {
-            r.Add(e.Key, e.Value);
+            r[e.Key] = e.Value;
         }
         cb.ice_response(r, p3);
     }

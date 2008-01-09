@@ -179,6 +179,11 @@ namespace Ice
             _is.endReadEncaps();
         }
 
+        public void skipEncapsulation()
+        {
+            _is.skipEncaps();
+        }
+
         public int getEncapsulationSize()
         {
             return _is.getReadEncapsSize();

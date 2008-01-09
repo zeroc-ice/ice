@@ -79,7 +79,6 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
                     case ReplyStatus.replyOK:
                     case ReplyStatus.replyUserException:
                     {
-                        __is.startReadEncaps();
                         break;
                     }
 
@@ -367,6 +366,22 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
     }
 
     protected abstract void __response(boolean ok);
+
+    protected void 
+    __throwUserException()
+        throws Ice.UserException
+    {
+        try
+        {
+            __is.startReadEncaps();
+            __is.throwException();
+        }
+        catch(Ice.UserException ex)
+        {
+            __is.endReadEncaps();
+            throw ex;
+        }
+    }
 
     private void
     handleException(LocalExceptionWrapper ex)

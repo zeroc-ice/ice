@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/RequestHandler.h>
+#include <Ice/Reference.h>
 
 using namespace std;
 using namespace IceInternal;
@@ -18,6 +19,8 @@ RequestHandler::~RequestHandler()
 {
 }
 
-RequestHandler::RequestHandler(const ReferencePtr& reference) : _reference(reference)
+RequestHandler::RequestHandler(const ReferencePtr& reference) : 
+    _reference(reference),
+    _response(reference->getMode() == Reference::ModeTwoway)
 {
 }

@@ -374,24 +374,12 @@ IceInternal::Outgoing::finished(BasicStream& is)
     {
         case replyOK:
         {
-            //
-            // Input and output parameters are always sent in an
-            // encapsulation, which makes it possible to forward
-            // oneway requests as blobs.
-            //
-            _is.startReadEncaps();
             _state = StateOK; // The state must be set last, in case there is an exception.
             break;
         }
         
         case replyUserException:
         {
-            //
-            // Input and output parameters are always sent in an
-            // encapsulation, which makes it possible to forward
-            // oneway requests as blobs.
-            //
-            _is.startReadEncaps();
             _state = StateUserException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -532,6 +520,21 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     _state = StateFailed;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
     _monitor.notify();
+}
+
+void
+IceInternal::Outgoing::throwUserException()
+{
+    try
+    {
+        _is.startReadEncaps();
+        _is.throwException();
+    }
+    catch(const Ice::UserException&)
+    {
+        _is.endReadEncaps();
+        throw;
+    }
 }
 
 IceInternal::BatchOutgoing::BatchOutgoing(RequestHandler* handler) :

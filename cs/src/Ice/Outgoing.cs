@@ -268,24 +268,12 @@ namespace IceInternal
                 {
                     case ReplyStatus.replyOK:
                     {
-                        //
-                        // Input and output parameters are always sent in an
-                        // encapsulation, which makes it possible to forward
-                        // oneway requests as blobs.
-                        //
-                        _is.startReadEncaps();
                         _state = StateOK; // The state must be set last, in case there is an exception.
                         break;
                     }
 
                     case ReplyStatus.replyUserException:
                     {
-                        //
-                        // Input and output parameters are always sent in an
-                        // encapsulation, which makes it possible to forward
-                        // oneway requests as blobs.
-                        //
-                        _is.startReadEncaps();
                         _state = StateUserException; // The state must be set last, in case there is an exception.
                         break;
                     }
@@ -419,6 +407,20 @@ namespace IceInternal
         public BasicStream ostr()
         {
             return _os;
+        }
+
+        public void throwUserException()
+        {
+            try
+            {
+                _is.startReadEncaps();
+                _is.throwException();
+            }
+            catch(Ice.UserException)
+            {
+                _is.endReadEncaps();
+                throw;
+            }
         }
 
         private void writeHeader(string operation, Ice.OperationMode mode, Dictionary<string, string> context)

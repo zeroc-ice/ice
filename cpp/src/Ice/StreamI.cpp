@@ -309,6 +309,12 @@ Ice::InputStreamI::endEncapsulation()
 }
 
 void
+Ice::InputStreamI::skipEncapsulation()
+{
+    _is->skipEncaps();
+}
+
+void
 Ice::InputStreamI::skipSlice()
 {
     _is->skipSlice();

@@ -680,10 +680,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 for(int i = 0; i < endpoints.length; ++i)
                 {
-                    // _routerEndpoints is sorted.
-                    if(java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0)
+                    java.util.Iterator p;
+                    p = _routerEndpoints.iterator();
+                    while(p.hasNext())
                     {
-                        return true;
+                        if(endpoints[i].equivalent((IceInternal.EndpointI)p.next()))
+                        {
+                            return true;
+                        }
                     }
                 }
             }

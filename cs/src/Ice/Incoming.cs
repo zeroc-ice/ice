@@ -460,8 +460,6 @@ namespace IceInternal
                 current_.ctx[first] = second;
             }
             
-            _is.startReadEncaps();
-            
             if(response_)
             {
                 Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
@@ -553,7 +551,6 @@ namespace IceInternal
             }
             catch(System.Exception ex)
             {
-                _is.endReadEncaps();
                 handleException__(ex);
                 return;
             }
@@ -564,8 +561,6 @@ namespace IceInternal
             // the caller of this operation.
             //
 
-            _is.endReadEncaps();
-            
             //
             // Async dispatch
             //
@@ -660,7 +655,7 @@ namespace IceInternal
                 //
                 // That's the first startOver, so almost nothing to do
                 //
-                _inParamPos = _is.pos() - 6; // 6 bytes for the start of the encaps
+                _inParamPos = _is.pos();
             }
             else
             {
@@ -669,9 +664,7 @@ namespace IceInternal
                 //
                 // Let's rewind _is and clean-up os_
                 //
-                _is.endReadEncaps();
                 _is.pos(_inParamPos);
-                _is.startReadEncaps();
                 
                 if(response_)
                 {

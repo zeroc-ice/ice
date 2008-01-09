@@ -19,8 +19,7 @@ using namespace std;
 using namespace IceInternal;
 
 ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference, const Ice::ObjectPrx& proxy) :
-    RequestHandler(reference),
-    _response(reference->getMode() == Reference::ModeTwoway)
+    RequestHandler(reference)
 {
     _connection = _reference->getConnection(_compress);
     RouterInfoPtr ri = reference->getRouterInfo();
@@ -34,7 +33,6 @@ ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference
                                                    const Ice::ConnectionIPtr& connection, 
                                                    bool compress) :
     RequestHandler(reference),
-    _response(reference->getMode() == Reference::ModeTwoway),
     _connection(connection),
     _compress(compress)
 {

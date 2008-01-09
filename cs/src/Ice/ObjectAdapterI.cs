@@ -676,9 +676,12 @@ namespace Ice
                 {
                     for(int i = 0; i < endpoints.Length; ++i)
                     {
-                        if(_routerEndpoints.BinarySearch(endpoints[i]) >= 0) // _routerEndpoints is sorted.
+                        foreach(IceInternal.EndpointI endpoint in _routerEndpoints)
                         {
-                            return true;
+                            if(endpoints[i].equivalent(endpoint))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }

@@ -95,17 +95,20 @@ DispatchStatus
 Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
 {
     BasicStream* __is = __inS.is();
-    BasicStream* __os = __inS.os();
+    __is->startReadEncaps();
     string __id;
     __is->read(__id, false);
+    __is->endReadEncaps();
     bool __ret = ice_isA(__id, __current);
+    BasicStream* __os = __inS.os();
     __os->write(__ret);
     return DispatchOK;
 }
 
 DispatchStatus
-Ice::Object::___ice_ping(Incoming&, const Current& __current)
+Ice::Object::___ice_ping(Incoming& __inS, const Current& __current)
 {
+    __inS.is()->skipEmptyEncaps();
     ice_ping(__current);
     return DispatchOK;
 }
@@ -113,8 +116,9 @@ Ice::Object::___ice_ping(Incoming&, const Current& __current)
 DispatchStatus
 Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
 {
-    BasicStream* __os = __inS.os();
+    __inS.is()->skipEmptyEncaps();
     vector<string> __ret = ice_ids(__current);
+    BasicStream* __os = __inS.os();
     __os->write(&__ret[0], &__ret[0] + __ret.size(), false);
     return DispatchOK;
 }
@@ -122,8 +126,9 @@ Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
 DispatchStatus
 Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
 {
-    BasicStream* __os = __inS.os();
+    __inS.is()->skipEmptyEncaps();
     string __ret = ice_id(__current);
+    BasicStream* __os = __inS.os();
     __os->write(__ret, false);
     return DispatchOK;
 }
@@ -350,9 +355,12 @@ DispatchStatus
 Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 {
     vector<Byte> inParams;
+    BasicStream* is = in.is();
+    is->startReadEncaps();
+    Int sz = is->getReadEncapsSize();
+    is->readBlob(inParams, sz);
+    is->endReadEncaps();
     vector<Byte> outParams;
-    Int sz = in.is()->getReadEncapsSize();
-    in.is()->readBlob(inParams, sz);
     bool ok = ice_invoke(inParams, outParams, current);
     in.os()->writeBlob(outParams);
     if(ok)
@@ -369,10 +377,13 @@ DispatchStatus
 Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
 {
     pair<const Byte*, const Byte*> inParams;
-    vector<Byte> outParams;
-    Int sz = in.is()->getReadEncapsSize();
-    in.is()->readBlob(inParams.first, sz);
+    BasicStream* is = in.is();
+    is->startReadEncaps();
+    Int sz = is->getReadEncapsSize();
+    is->readBlob(inParams.first, sz);
     inParams.second = inParams.first + sz;
+    is->endReadEncaps();
+    vector<Byte> outParams;
     bool ok = ice_invoke(inParams, outParams, current);
     in.os()->writeBlob(outParams);
     if(ok)
@@ -389,8 +400,11 @@ DispatchStatus
 Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
 {
     vector<Byte> inParams;
-    Int sz = in.is()->getReadEncapsSize();
-    in.is()->readBlob(inParams, sz);
+    BasicStream* is = in.is();
+    is->startReadEncaps();
+    Int sz = is->getReadEncapsSize();
+    is->readBlob(inParams, sz);
+    is->endReadEncaps();
     AMD_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Object_ice_invoke(in);
     try
     {
@@ -411,9 +425,12 @@ DispatchStatus
 Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
 {
     pair<const Byte*, const Byte*> inParams;
-    Int sz = in.is()->getReadEncapsSize();
-    in.is()->readBlob(inParams.first, sz);
+    BasicStream* is = in.is();
+    is->startReadEncaps();
+    Int sz = is->getReadEncapsSize();
+    is->readBlob(inParams.first, sz);
     inParams.second = inParams.first + sz;
+    is->endReadEncaps();
     AMD_Array_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Array_Object_ice_invoke(in);
     try
     {

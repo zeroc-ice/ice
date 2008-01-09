@@ -38,7 +38,6 @@ public:
 
 private:
 
-    const bool _response;
     Ice::ConnectionIPtr _connection;
     bool _compress;
 };

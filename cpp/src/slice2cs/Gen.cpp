@@ -305,50 +305,56 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             _out << nl << "checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
             if(!inParams.empty())
             {
+                //
+                // Unmarshal 'in' parameters.
+                //
                 _out << nl << "IceInternal.BasicStream is__ = inS__.istr();";
-            }
-            if(!outParams.empty() || ret || !throws.empty())
-            {
-                _out << nl << "IceInternal.BasicStream os__ = inS__.ostr();";
-            }
-            
-            //
-            // Unmarshal 'in' parameters.
-            //
-            for(q = inParams.begin(); q != inParams.end(); ++q)
-            {
-                string param = fixId(q->second);
-                string typeS = typeToString(q->first);
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
-                               || ClassDeclPtr::dynamicCast(q->first);
-                if(!isClass)
+                _out << nl << "is__.startReadEncaps();";
+                for(q = inParams.begin(); q != inParams.end(); ++q)
                 {
-                    _out << nl << typeS << ' ' << param << ';';
-                    StructPtr st = StructPtr::dynamicCast(q->first);
-                    if(st)
+                    string param = fixId(q->second);
+                    string typeS = typeToString(q->first);
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+                    bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
+                        || ClassDeclPtr::dynamicCast(q->first);
+                    if(!isClass)
                     {
-                        if(isValueType(q->first))
+                        _out << nl << typeS << ' ' << param << ';';
+                        StructPtr st = StructPtr::dynamicCast(q->first);
+                        if(st)
                         {
-                            _out << nl << param << " = new " << typeS << "();";
-                        }
-                        else
-                        {
-                            _out << nl << param << " = null;";
+                            if(isValueType(q->first))
+                            {
+                                _out << nl << param << " = new " << typeS << "();";
+                            }
+                            else
+                            {
+                                _out << nl << param << " = null;";
+                            }
                         }
                     }
+                    writeMarshalUnmarshalCode(_out, q->first, param, false, false, true);
                 }
-                writeMarshalUnmarshalCode(_out, q->first, param, false, false, true);
+                if(op->sendsClasses())
+                {
+                    _out << nl << "is__.readPendingObjects();";
+                }
+                _out << nl << "is__.endReadEncaps();";
             }
-            if(op->sendsClasses())
+            else
             {
-                _out << nl << "is__.readPendingObjects();";
+                _out << nl << "inS__.istr().skipEmptyEncaps();";
             }
-            
+
             for(q = outParams.begin(); q != outParams.end(); ++q)
             {
                 string typeS = typeToString(q->first);
                 _out << nl << typeS << ' ' << fixId(q->second) << ";";
+            }
+
+            if(!outParams.empty() || ret || !throws.empty())
+            {
+                _out << nl << "IceInternal.BasicStream os__ = inS__.ostr();";
             }
             
             //
@@ -444,42 +450,47 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     
             if(!inParams.empty())
             {
+                //
+                // Unmarshal 'in' parameters.
+                //
                 _out << nl << "IceInternal.BasicStream is__ = inS__.istr();";
-            }
-            
-            //
-            // Unmarshal 'in' parameters.
-            //
-            for(q = inParams.begin(); q != inParams.end(); ++q)
-            {
-                string param = fixId(q->second);
-                string typeS = typeToString(q->first);
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
-                               || ClassDeclPtr::dynamicCast(q->first);
-                if(!isClass)
+                _out << nl << "is__.startReadEncaps();";
+                for(q = inParams.begin(); q != inParams.end(); ++q)
                 {
-                    _out << nl << typeS << ' ' << param << ';';
-                    StructPtr st = StructPtr::dynamicCast(q->first);
-                    if(st)
+                    string param = fixId(q->second);
+                    string typeS = typeToString(q->first);
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+                    bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
+                        || ClassDeclPtr::dynamicCast(q->first);
+                    if(!isClass)
                     {
-                        if(isValueType(q->first))
+                        _out << nl << typeS << ' ' << param << ';';
+                        StructPtr st = StructPtr::dynamicCast(q->first);
+                        if(st)
                         {
-                            _out << nl << param << " = new " << typeS << "();";
-                        }
-                        else
-                        {
-                            _out << nl << param << " = null;";
+                            if(isValueType(q->first))
+                            {
+                                _out << nl << param << " = new " << typeS << "();";
+                            }
+                            else
+                            {
+                                _out << nl << param << " = null;";
+                            }
                         }
                     }
+                    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
                 }
-                writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
+                if(op->sendsClasses())
+                {
+                    _out << nl << "is__.readPendingObjects();";
+                }
+                _out << nl << "is__.endReadEncaps();";
             }
-            if(op->sendsClasses())
+            else
             {
-                _out << nl << "is__.readPendingObjects();";
+                _out << nl << "inS__.istr().skipEmptyEncaps();";
             }
-            
+
             //
             // Call on the servant.
             //
@@ -3856,9 +3867,13 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
         }
         _out << nl << "bool ok__ = og__.invoke();";
+        if(!op->returnsData())
+        {
+            _out << nl << "if(!og__.istr().isEmpty())";
+            _out << sb;
+        }
         _out << nl << "try";
         _out << sb;
-        _out << nl << "IceInternal.BasicStream is__ = og__.istr();";
         _out << nl << "if(!ok__)";
         _out << sb;
         //
@@ -3867,7 +3882,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         _out << nl << "try";
         _out << sb;
-        _out << nl << "is__.throwException();";
+        _out << nl << "og__.throwUserException();";
         _out << eb;
         for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
         {
@@ -3881,76 +3896,87 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "throw new Ice.UnknownUserException(ex.ice_name(), ex);";
         _out << eb;
         _out << eb;
-        for(q = outParams.begin(); q != outParams.end(); ++q)
+        if(op->returnsData())
         {
-            string param = fixId(q->second);
-            StructPtr st = StructPtr::dynamicCast(q->first);
-            if(st)
-            {
-                if(isValueType(q->first))
-                {
-                    _out << nl << param << " = new " << typeToString(q->first) << "();";
-                }
-                else
-                {
-                    _out << nl << param << " = null;";
-                }
-            }
-            writeMarshalUnmarshalCode(_out, q->first, param, false, false, true, "");
-        }
-        if(ret)
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-            {
-                _out << nl << retS << " ret__;";
-                ContainedPtr contained = ContainedPtr::dynamicCast(ret);
-                string sliceId = contained ? contained->scoped() : "::Ice::Object";
-                _out << nl << "IceInternal.ParamPatcher<" << retS << "> ret___PP = new IceInternal.ParamPatcher<"
-                     << retS << ">(\"" << sliceId << "\");";
-                _out << nl << "is__.readObject(ret___PP);";
-            }
-            else
-            {
-                _out << nl << retS << " ret__;";
-                StructPtr st = StructPtr::dynamicCast(ret);
-                if(st)
-                {
-                    if(isValueType(st))
-                    {
-                        _out << nl << "ret__ = new " << retS << "();";
-                    }
-                    else
-                    {
-                        _out << nl << "ret__ = null;";
-                    }
-                }
-                writeMarshalUnmarshalCode(_out, ret, "ret__", false, false, true, "");
-            }
-        }
-        if(op->returnsClasses())
-        {
-            _out << nl << "is__.readPendingObjects();";
+            _out << nl << "IceInternal.BasicStream is__ = og__.istr();";
+            _out << nl << "is__.startReadEncaps();";
             for(q = outParams.begin(); q != outParams.end(); ++q)
             {
                 string param = fixId(q->second);
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
-                {           
-                    string type = typeToString(q->first);
-                    _out << nl << "try";
-                    _out << sb;
-                    _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
-                    _out << eb;
-                    _out << nl << "catch(System.InvalidCastException)";
-                    _out << sb;
-                    _out << nl << param << " = null;";
-                    _out << nl << "IceInternal.Ex.throwUOE(" << param << "_PP.type(), "
-                         << param << "_PP.value.ice_id());";
-                    _out << eb;
+                StructPtr st = StructPtr::dynamicCast(q->first);
+                if(st)
+                {
+                    if(isValueType(q->first))
+                    {
+                        _out << nl << param << " = new " << typeToString(q->first) << "();";
+                    }
+                    else
+                    {
+                        _out << nl << param << " = null;";
+                    }
+                }
+                writeMarshalUnmarshalCode(_out, q->first, param, false, false, true, "");
+            }
+            if(ret)
+            {
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+                {
+                    _out << nl << retS << " ret__;";
+                    ContainedPtr contained = ContainedPtr::dynamicCast(ret);
+                    string sliceId = contained ? contained->scoped() : "::Ice::Object";
+                    _out << nl << "IceInternal.ParamPatcher<" << retS << "> ret___PP = new IceInternal.ParamPatcher<"
+                         << retS << ">(\"" << sliceId << "\");";
+                    _out << nl << "is__.readObject(ret___PP);";
+                }
+                else
+                {
+                    _out << nl << retS << " ret__;";
+                    StructPtr st = StructPtr::dynamicCast(ret);
+                    if(st)
+                    {
+                        if(isValueType(st))
+                        {
+                            _out << nl << "ret__ = new " << retS << "();";
+                        }
+                        else
+                        {
+                            _out << nl << "ret__ = null;";
+                        }
+                    }
+                    writeMarshalUnmarshalCode(_out, ret, "ret__", false, false, true, "");
                 }
             }
+            if(op->returnsClasses())
+            {
+                _out << nl << "is__.readPendingObjects();";
+                for(q = outParams.begin(); q != outParams.end(); ++q)
+                {
+                    string param = fixId(q->second);
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+                    {           
+                        string type = typeToString(q->first);
+                        _out << nl << "try";
+                        _out << sb;
+                        _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
+                        _out << eb;
+                        _out << nl << "catch(System.InvalidCastException)";
+                        _out << sb;
+                        _out << nl << param << " = null;";
+                        _out << nl << "IceInternal.Ex.throwUOE(" << param << "_PP.type(), "
+                             << param << "_PP.value.ice_id());";
+                        _out << eb;
+                    }
+                }
+            }
+            _out << nl << "is__.endReadEncaps();";
         }
+        else
+        {
+            _out << nl << "og__.istr().skipEmptyEncaps();";
+        }
+
         if(ret)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
@@ -3973,6 +3999,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "throw new IceInternal.LocalExceptionWrapper(ex__, false);";
         _out << eb;
+        if(!op->returnsData())
+        {
+            _out << eb;
+        }
         _out << eb;
         _out << nl << "finally";
         _out << sb;
@@ -4450,7 +4480,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << sb;
         _out << nl << "try";
         _out << sb;
-        _out << nl << "is__.throwException();";
+        _out << nl << "throwUserException__();";
         _out << eb;
         for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
         {
@@ -4465,59 +4495,68 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << eb;
         _out << "return;";
         _out << eb;
-        for(q = outParams.begin(); q != outParams.end(); ++q)
+        if(p->returnsData())
         {
-            string param = fixId(q->second);
-            StructPtr st = StructPtr::dynamicCast(q->first);
-            if(st)
-            if(isValueType(st))
+            _out << nl << "is__.startReadEncaps();";
+            for(q = outParams.begin(); q != outParams.end(); ++q)
             {
-                _out << nl << param << " = new " << typeToString(q->first) << "();";
+                string param = fixId(q->second);
+                StructPtr st = StructPtr::dynamicCast(q->first);
+                if(st)
+                    if(isValueType(st))
+                    {
+                        _out << nl << param << " = new " << typeToString(q->first) << "();";
+                    }
+                    else
+                    {
+                        _out << nl << param << " = null;";
+                    }
+                writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
             }
-            else
+            if(ret)
             {
-                _out << nl << param << " = null;";
-            }
-            writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
-        }
-        if(ret)
-        {
-            StructPtr st = StructPtr::dynamicCast(ret);
-            if(st)
-            {
-                if(isValueType(ret))
+                StructPtr st = StructPtr::dynamicCast(ret);
+                if(st)
                 {
-                    _out << nl << "ret__ = new " << retS << "();";
+                    if(isValueType(ret))
+                    {
+                        _out << nl << "ret__ = new " << retS << "();";
+                    }
+                    else
+                    {
+                        _out << nl << "ret__ = null;";
+                    }
                 }
-                else
+                writeMarshalUnmarshalCode(_out, ret, "ret__", false, false, true);
+            }
+            if(p->returnsClasses())
+            {
+                _out << nl << "is__.readPendingObjects();";
+            }
+            _out << nl << "is__.endReadEncaps();";
+            for(q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                string param = fixId(q->second);
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
                 {
-                    _out << nl << "ret__ = null;";
+                    string type = typeToString(q->first);
+                    _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
                 }
             }
-            writeMarshalUnmarshalCode(_out, ret, "ret__", false, false, true);
-        }
-        if(p->returnsClasses())
-        {
-            _out << nl << "is__.readPendingObjects();";
-        }
-        for(q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            string param = fixId(q->second);
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+            if(ret)
             {
-                string type = typeToString(q->first);
-                _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+                {
+                    string type = typeToString(ret);
+                    _out << nl << "ret__ = (" << retS << ")ret___PP.value;";
+                }
             }
         }
-        if(ret)
+        else
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-            {
-                string type = typeToString(ret);
-                _out << nl << "ret__ = (" << retS << ")ret___PP.value;";
-            }
+            _out << nl << "is__.skipEmptyEncaps();";
         }
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";

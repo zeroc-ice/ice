@@ -634,22 +634,30 @@ Glacier2::SessionRouterI::SessionRouterI(const InstancePtr& instance,
     Identity routerId;
     routerId.category = _instance->properties()->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
     routerId.name = "router";
-    _instance->clientObjectAdapter()->add(this, routerId);
 
-    //
-    // All other calls on the client object adapter are dispatched to
-    // a router servant based on connection information.
-    //
-    _instance->clientObjectAdapter()->addServantLocator(new ClientLocator(this), "");
-
-    //
-    // If there is a server object adapter, all calls on this adapter
-    // are dispatched to a router servant based on the category field
-    // of the identity.
-    //
-    if(_instance->serverObjectAdapter())
+    try
     {
-        _instance->serverObjectAdapter()->addServantLocator(new ServerLocator(this), "");
+        _instance->clientObjectAdapter()->add(this, routerId);
+        
+        //
+        // All other calls on the client object adapter are dispatched to
+        // a router servant based on connection information.
+        //
+        _instance->clientObjectAdapter()->addServantLocator(new ClientLocator(this), "");
+        
+        //
+        // If there is a server object adapter, all calls on this adapter
+        // are dispatched to a router servant based on the category field
+        // of the identity.
+        //
+        if(_instance->serverObjectAdapter())
+        {
+            _instance->serverObjectAdapter()->addServantLocator(new ServerLocator(this), "");
+        }
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+        // Ignore.
     }
 
     if(_sessionThread)

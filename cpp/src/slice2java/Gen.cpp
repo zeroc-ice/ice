@@ -634,41 +634,42 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
             if(!inParams.empty())
             {
+                //
+                // Unmarshal 'in' parameters.
+                //
                 out << nl << "IceInternal.BasicStream __is = __inS.is();";
-            }
-            if(!outParams.empty() || ret || !throws.empty())
-            {
-                out << nl << "IceInternal.BasicStream __os = __inS.os();";
-            }
-            
-            //
-            // Unmarshal 'in' parameters.
-            //
-            iter = 0;
-            for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-            {
-                StringList metaData = (*pli)->getMetaData();
-                TypePtr paramType = (*pli)->type();
-                string paramName = fixKwd((*pli)->name());
-                string typeS = typeToString(paramType, TypeModeIn, package, metaData);
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                out << nl << "__is.startReadEncaps();";
+                iter = 0;
+                for(pli = inParams.begin(); pli != inParams.end(); ++pli)
                 {
-                    out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-                    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true,
-                                              metaData, string());
+                    StringList metaData = (*pli)->getMetaData();
+                    TypePtr paramType = (*pli)->type();
+                    string paramName = fixKwd((*pli)->name());
+                    string typeS = typeToString(paramType, TypeModeIn, package, metaData);
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    {
+                        out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
+                        writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true,
+                                                  metaData, string());
+                    }
+                    else
+                    {
+                        out << nl << typeS << ' ' << paramName << ';';
+                        writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
+                    }
                 }
-                else
+                if(op->sendsClasses())
                 {
-                    out << nl << typeS << ' ' << paramName << ';';
-                    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
+                    out << nl << "__is.readPendingObjects();";
                 }
+                out << nl << "__is.endReadEncaps();";
             }
-            if(op->sendsClasses())
+            else
             {
-                out << nl << "__is.readPendingObjects();";
+                out << nl << "__inS.is().skipEmptyEncaps();";
             }
-            
+
             //
             // Create holders for 'out' parameters.
             //
@@ -678,6 +679,11 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 out << nl << typeS << ' ' << fixKwd((*pli)->name()) << " = new " << typeS << "();";
             }
             
+            if(!outParams.empty() || ret || !throws.empty())
+            {
+                out << nl << "IceInternal.BasicStream __os = __inS.os();";
+            }
+
             //
             // Call on the servant.
             //
@@ -764,40 +770,45 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             int iter;
             
             out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
-
+            
             if(!inParams.empty())
             {
+                //
+                // Unmarshal 'in' parameters.
+                //
                 out << nl << "IceInternal.BasicStream __is = __inS.is();";
-            }
-            
-            //
-            // Unmarshal 'in' parameters.
-            //
-            iter = 0;
-            for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-            {
-                StringList metaData = (*pli)->getMetaData();
-                TypePtr paramType = (*pli)->type();
-                string paramName = fixKwd((*pli)->name());
-                string typeS = typeToString(paramType, TypeModeIn, package, metaData);
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                out << nl << "__is.startReadEncaps();";
+                iter = 0;
+                for(pli = inParams.begin(); pli != inParams.end(); ++pli)
                 {
-                    out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-                    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true, metaData,
-                                              string());
+                    StringList metaData = (*pli)->getMetaData();
+                    TypePtr paramType = (*pli)->type();
+                    string paramName = fixKwd((*pli)->name());
+                    string typeS = typeToString(paramType, TypeModeIn, package, metaData);
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    {
+                        out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
+                        writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true, metaData,
+                                                  string());
+                    }
+                    else
+                    {
+                        out << nl << typeS << ' ' << paramName << ';';
+                        writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
+                    }
                 }
-                else
+                if(op->sendsClasses())
                 {
-                    out << nl << typeS << ' ' << paramName << ';';
-                    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
+                    out << nl << "__is.readPendingObjects();";
                 }
+                out << nl << "__is.endReadEncaps();";
             }
-            if(op->sendsClasses())
+            else
             {
-                out << nl << "__is.readPendingObjects();";
+                out << nl << "__inS.is().skipEmptyEncaps();";
             }
-            
+
             //
             // Call on the servant.
             //
@@ -4225,15 +4236,21 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "__og.abort(__ex);";
             out << eb;
         }
+
         out << nl << "boolean __ok = __og.invoke();";
+        if(!op->returnsData())
+        {
+            out << nl << "if(!__og.is().isEmpty())";
+            out << sb;
+        }
+
         out << nl << "try";
         out << sb;
-        out << nl << "IceInternal.BasicStream __is = __og.is();";
         out << nl << "if(!__ok)";
         out << sb;
         out << nl << "try";
         out << sb;
-        out << nl << "__is.throwException();";
+        out << nl << "__og.throwUserException();";
         out << eb;
         for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
         {
@@ -4247,29 +4264,40 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
         out << eb;
         out << eb;
-        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
+        if(op->returnsData())
         {
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), false, iter, true,
-                                      (*pli)->getMetaData());
-        }
-        if(ret)
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+            out << nl << "IceInternal.BasicStream __is = __og.is();";
+            out << nl << "__is.startReadEncaps();";
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                out << nl << retS << "Holder __ret = new " << retS << "Holder();";
-                out << nl << "__is.readObject(__ret.getPatcher());";
+                writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), false, iter, true,
+                                          (*pli)->getMetaData());
             }
-            else
+            if(ret)
             {
-                out << nl << retS << " __ret;";
-                writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter, false, opMetaData);
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+                {
+                    out << nl << retS << "Holder __ret = new " << retS << "Holder();";
+                    out << nl << "__is.readObject(__ret.getPatcher());";
+                }
+                else
+                {
+                    out << nl << retS << " __ret;";
+                    writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter, false, opMetaData);
+                }
             }
+            if(op->returnsClasses())
+            {
+                out << nl << "__is.readPendingObjects();";
+            }
+            out << nl << "__is.endReadEncaps();";
         }
-        if(op->returnsClasses())
+        else
         {
-            out << nl << "__is.readPendingObjects();";
+            out << nl << "__og.is().skipEmptyEncaps();";
         }
+
         if(ret)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
@@ -4287,6 +4315,11 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         out << nl << "throw new IceInternal.LocalExceptionWrapper(__ex, false);";
         out << eb;
+        if(!op->returnsData())
+        {
+            out << eb;
+        }
+
         out << eb;
         out << nl << "finally";
         out << sb;
@@ -5096,7 +5129,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << sb;
         out << nl << "try";
         out << sb;
-        out << nl << "__is.throwException();";
+        out << nl << "__throwUserException();";
         out << eb;
         for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
         {
@@ -5110,38 +5143,48 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
         out << eb;
         out << eb;
-        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
+        if(p->returnsData())
         {
-            TypePtr paramType = (*pli)->type();
-            string paramName = fixKwd((*pli)->name());
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+            out << nl << "__is.startReadEncaps();";
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                out << nl << "__is.readObject(" << paramName << ".getPatcher());";
+                TypePtr paramType = (*pli)->type();
+                string paramName = fixKwd((*pli)->name());
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                {
+                    out << nl << "__is.readObject(" << paramName << ".getPatcher());";
+                }
+                else
+                {
+                    writeMarshalUnmarshalCode(out, classPkg, paramType, paramName, false, iter, false,
+                                              (*pli)->getMetaData());
+                }
             }
-            else
+            if(ret)
             {
-                writeMarshalUnmarshalCode(out, classPkg, paramType, paramName, false, iter, false,
-                                          (*pli)->getMetaData());
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+                {
+                    out << nl << "__is.readObject(__ret.getPatcher());";
+                }
+                else
+                {
+                    writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", false, iter, false, opMetaData);
+                }
             }
+            if(p->returnsClasses())
+            {
+                out << nl << "__is.readPendingObjects();";
+            }
+            out << nl << "__is.endReadEncaps();";
         }
-        if(ret)
+        else
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-            {
-                out << nl << "__is.readObject(__ret.getPatcher());";
-            }
-            else
-            {
-                writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", false, iter, false, opMetaData);
-            }
-        }
-        if(p->returnsClasses())
-        {
-            out << nl << "__is.readPendingObjects();";
+            out << nl << "__is.skipEmptyEncaps();";
         }
         out << eb;
+
         if(!throws.empty())
         {
             out << nl << "catch(Ice.UserException __ex)";

@@ -686,9 +686,13 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     {
         for(p = endpoints.begin(); p != endpoints.end(); ++p)
         {
-            if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
+            vector<EndpointIPtr>::const_iterator r;
+            for(r = _routerEndpoints.begin(); r != _routerEndpoints.end(); ++r)
             {
-                return true;
+                if((*p)->equivalent(*r))
+                {
+                    return true;
+                }
             }
         }
     }

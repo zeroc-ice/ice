@@ -2622,17 +2622,22 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         C << nl << "__og.abort(__ex);";
         C << eb;
     }
+
     C << nl << "bool __ok = __og.invoke();";
+    if(!p->returnsData())
+    {
+        C << nl << "if(!__og.is()->b.empty())";
+        C << sb;
+    }
     C << nl << "try";
     C << sb;
-    C << nl << "::IceInternal::BasicStream* __is = __og.is();";
     C << nl << "if(!__ok)";
     C << sb;
     C << nl << "try";
     C << sb;
-    C << nl << "__is->throwException();";
+    C << nl << "__og.throwUserException();";
     C << eb;
-
+    
     //
     // Generate a catch block for each legal user exception. This is necessary
     // to prevent an "impossible" user exception to be thrown if client and
@@ -2686,11 +2691,23 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
             C << nl << fixKwd((*opi)->name()) << " = new " << fixKwd(st->scoped()) << ";";
         }
     }
-    writeUnmarshalCode(C, outParams, ret, p->getMetaData());
-    if(p->returnsClasses())
+
+    if(p->returnsData())
     {
-        C << nl << "__is->readPendingObjects();";
+        C << nl << "::IceInternal::BasicStream* __is = __og.is();";
+        C << nl << "__is->startReadEncaps();";
+        writeUnmarshalCode(C, outParams, ret, p->getMetaData());
+        if(p->returnsClasses())
+        {
+            C << nl << "__is->readPendingObjects();";
+        }
+        C << nl << "__is->endReadEncaps();";
     }
+    else
+    {
+        C << nl << "__og.is()->skipEmptyEncaps();";
+    }
+
     if(ret)
     {
         C << nl << "return __ret;";
@@ -2700,6 +2717,10 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
     C << eb;
+    if(!p->returnsData())
+    {
+        C << eb;
+    }
     C << eb;
 }
 
@@ -3991,11 +4012,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
         C << sp;
         C << nl << "::Ice::DispatchStatus" << nl << scope.substr(2) << "___" << name
-          << "(::IceInternal::Incoming&";
-        if(!paramList.empty() || !p->throws().empty() || ret || amd)
-        {
-            C << "__inS";
-        }
+          << "(::IceInternal::Incoming& __inS";
         C << ", const ::Ice::Current& __current)" << (isConst ? " const" : "");
         C << sb;
         if(!amd)
@@ -4022,16 +4039,23 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             if(!inParams.empty())
             {
                 C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
+                C << nl << "__is->startReadEncaps();";
+                writeAllocateCode(C, inParams, 0, StringList(), _useWstring, true);
+                writeUnmarshalCode(C, inParams, 0, StringList(), true);
+                if(p->sendsClasses())
+                {
+                    C << nl << "__is->readPendingObjects();";
+                }
+                C << nl << "__is->endReadEncaps();";
             }
+            else
+            {
+                C << nl << "__inS.is()->skipEmptyEncaps();";
+            }
+
             if(ret || !outParams.empty() || !throws.empty())
             {
                 C << nl << "::IceInternal::BasicStream* __os = __inS.os();";
-            }
-            writeAllocateCode(C, inParams, 0, StringList(), _useWstring, true);
-            writeUnmarshalCode(C, inParams, 0, StringList(), true);
-            if(p->sendsClasses())
-            {
-                C << nl << "__is->readPendingObjects();";
             }
             writeAllocateCode(C, outParams, 0, StringList(), _useWstring);
             if(!throws.empty())
@@ -4063,6 +4087,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                     C << eb;
                 }
             }
+
             C << nl << "return ::Ice::DispatchOK;";
         }
         else
@@ -4072,13 +4097,20 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             if(!inParams.empty())
             {
                 C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
+                C << nl << "__is->startReadEncaps();";
+                writeAllocateCode(C, inParams, 0, StringList(), _useWstring, true);
+                writeUnmarshalCode(C, inParams, 0, StringList(), true);
+                if(p->sendsClasses())
+                {
+                    C << nl << "__is->readPendingObjects();";
+                }
+                C << nl << "__is->endReadEncaps();";
             }
-            writeAllocateCode(C, inParams, 0, StringList(), _useWstring, true);
-            writeUnmarshalCode(C, inParams, 0, StringList(), true);
-            if(p->sendsClasses())
+            else
             {
-                C << nl << "__is->readPendingObjects();";
+                C << nl << "__inS.is()->skipEmptyEncaps();";
             }
+
             C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
               << "(__inS);";
             C << nl << "try";
@@ -5247,7 +5279,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl << "try";
         C << sb;
-        C << nl << "__is->throwException();";
+        C << nl << "__throwUserException();";
         C << eb;
         //
         // Generate a catch block for each legal user exception.
@@ -5276,14 +5308,23 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << nl << "return;";
         C << eb;
 
-        writeUnmarshalCode(C, outParams, 0, StringList(), true);
-        if(ret)
+        if(p->returnsData())
         {
-            writeMarshalUnmarshalCode(C, ret, "__ret", false, "", true, p->getMetaData(), true);
+            C << nl << "__is->startReadEncaps();";
+            writeUnmarshalCode(C, outParams, 0, StringList(), true);
+            if(ret)
+            {
+                writeMarshalUnmarshalCode(C, ret, "__ret", false, "", true, p->getMetaData(), true);
+            }
+            if(p->returnsClasses())
+            {
+                C << nl << "__is->readPendingObjects();";
+            }
+            C << nl << "__is->endReadEncaps();";
         }
-        if(p->returnsClasses())
+        else
         {
-            C << nl << "__is->readPendingObjects();";
+            C << nl << "__is->skipEmptyEncaps();";
         }
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
