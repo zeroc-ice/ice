@@ -11,9 +11,11 @@
 #define PREPROCESSOR_H
 
 #include <IceUtil/Config.h>
+#include <vector>
 #ifdef __BCPLUSPLUS__
 #  include <stdio.h>
 #endif
+
 
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
@@ -30,7 +32,7 @@ class SLICE_API Preprocessor
 {
 public:
 
-    Preprocessor(const std::string&, const std::string&, const std::string&);
+    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
     ~Preprocessor();
     
     FILE* preprocess(bool);
@@ -38,7 +40,7 @@ public:
 
     enum Language { CPlusPlus, Java, CSharp, VisualBasic };
 
-    void printMakefileDependencies(Language);
+    void printMakefileDependencies(Language, const std::vector<std::string>&);
     
     std::string getBaseName();
 
@@ -48,11 +50,11 @@ public:
 private:
     
     bool checkInputFile();
-    std::string searchIceCpp();
 
     const std::string _path;
     const std::string _fileName;
-    const std::string _args;
+    const std::vector<std::string> _args;
+    std::string _cppFile;
     FILE* _cppHandle;
 };
 

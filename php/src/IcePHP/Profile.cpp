@@ -362,7 +362,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
         return false;
     }
 
-    string cppArgs;
+    vector<string> cppArgs;
     bool debug = false;
     bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
     bool caseSensitive = false;
@@ -371,7 +371,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
         vector<string> optargs = opts.argVec("D");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -D" + *i;
+            cppArgs.push_back("-D" + *i);
         }
     }
     if(opts.isSet("U"))
@@ -379,7 +379,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
         vector<string> optargs = opts.argVec("U");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -U" + *i;
+            cppArgs.push_back("-U" + *i);
         }
     }
     if(opts.isSet("I"))
@@ -387,7 +387,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
         vector<string> optargs = opts.argVec("I");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -I" + *i;
+            cppArgs.push_back("-I" + *i);
         }
     }
     debug = opts.isSet("d") || opts.isSet("debug");
@@ -410,7 +410,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
             break;
         }
 
-        int parseStatus = unit->parse(cppHandle, debug);
+        int parseStatus = unit->parse(*p, cppHandle, debug);
 
         if(!icecpp.close())
         {

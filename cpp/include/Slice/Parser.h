@@ -975,7 +975,7 @@ public:
 
     StringList includeFiles() const;
     
-    int parse(FILE*, bool, FeatureProfile profile = Ice);
+    int parse(const std::string&, FILE*, bool, FeatureProfile profile = Ice);
 
     virtual void destroy();
     virtual void visit(ParserVisitor*, bool);

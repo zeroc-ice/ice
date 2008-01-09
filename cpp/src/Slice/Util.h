@@ -7,24 +7,18 @@
 //
 // **********************************************************************
 
-#ifndef CALLBACK_ICE
-#define CALLBACK_ICE
+#ifndef _SLICE_UTIL_H
+#define _SLICEP_UTIL_H
 
-#include <Ice/Identity.ice>
+#include <Slice/Parser.h>
 
-module Demo
+namespace Slice
 {
 
-interface CallbackReceiver
-{
-    void callback(int num);
-};
+SLICE_API std::string getCwd();
+SLICE_API bool isAbsolute(const std::string&);
+SLICE_API std::string normalizePath(const std::string&, bool = false);
 
-interface CallbackSender
-{
-    void addClient(Ice::Identity ident);
-};
-
-};
+}
 
 #endif

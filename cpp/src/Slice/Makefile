@@ -26,15 +26,16 @@ OBJS		= Scanner.o \
 		  PythonUtil.o \
 		  DotNetNames.o \
 		  RubyUtil.o \
-                  MD5.o \
-                  MD5I.o
+		  Util.o \
+		  MD5.o \
+		  MD5I.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS 
-LINKWITH	:= -lIceUtil
+LINKWITH	:= -lIceUtil $(MCPP_LIBS)
 BISONFLAGS	:= --name-prefix "slice_" $(BISONFLAGS)
 
 ifeq ($(STATICLIBS),yes)

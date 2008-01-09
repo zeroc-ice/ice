@@ -94,7 +94,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         return 0;
     }
 
-    string cppArgs;
+    vector<string> cppArgs;
     Ice::StringSeq includePaths;
     bool debug = false;
     bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
@@ -106,7 +106,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         vector<string> optargs = opts.argVec("D");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -D" + *i;
+            cppArgs.push_back("-D" + *i);
         }
     }
     if(opts.isSet("U"))
@@ -114,7 +114,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         vector<string> optargs = opts.argVec("U");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -U" + *i;
+            cppArgs.push_back("-U" + *i);
         }
     }
     if(opts.isSet("I"))
@@ -122,7 +122,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         includePaths = opts.argVec("I");
         for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
         {
-            cppArgs += " -I" + *i;
+            cppArgs.push_back("-I" + *i);
         }
     }
     debug = opts.isSet("d") || opts.isSet("debug");
@@ -145,7 +145,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         }
 
         UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
-        int parseStatus = u->parse(cppHandle, debug);
+        int parseStatus = u->parse(file, cppHandle, debug);
 
         if(!icecpp.close() || parseStatus == EXIT_FAILURE)
         {

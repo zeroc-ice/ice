@@ -215,8 +215,8 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
 static int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
-    string oldCppArgs;
-    string newCppArgs;
+    vector<string> oldCppArgs;
+    vector<string> newCppArgs;
     bool debug;
     bool ice = true; // Needs to be true in order to create default definitions.
     string outputFile;
@@ -283,8 +283,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> optargs = opts.argVec("D");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            oldCppArgs += " -D" + *i;
-            newCppArgs += " -D" + *i;
+            oldCppArgs.push_back("-D" + *i);
+            newCppArgs.push_back("-D" + *i);
         }
     }
     if(opts.isSet("U"))
@@ -292,8 +292,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> optargs = opts.argVec("U");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            oldCppArgs += " -U" + *i;
-            newCppArgs += " -U" + *i;
+            oldCppArgs.push_back("-U" + *i);
+            newCppArgs.push_back("-U" + *i);
         }
     }
     debug = opts.isSet("debug");
@@ -315,7 +315,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> optargs = opts.argVec("include-old");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            oldCppArgs += " -I" + *i;
+            oldCppArgs.push_back("-I" + *i);
         }
     }
     if(opts.isSet("include-new"))
@@ -323,7 +323,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> optargs = opts.argVec("include-new");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            newCppArgs += " -I" + *i;
+            newCppArgs.push_back("-I" + *i);
         }
     }
     if(opts.isSet("old"))

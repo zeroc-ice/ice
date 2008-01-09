@@ -9,10 +9,17 @@
 
 #include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/StringUtil.h>
+#include <IceUtil/Unicode.h>
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
+#include <Slice/Util.h>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
+#endif
+
+#ifdef _WIN32
+#   include <io.h>
 #endif
 
 using namespace std;
@@ -4987,6 +4994,88 @@ Slice::Unit::nextLine()
     _currentLine++;
 }
 
+#ifdef _WIN32
+//
+// On Windows mcpp output does not maintain filename capitalization
+// so we have to manually fix it up.
+//
+string
+fixCapitalization(const string& path)
+{
+    if(!isAbsolute(path))
+    {
+        return path;
+    }
+
+    vector<string> result;
+    IceUtilInternal::splitString(path, "/", result);
+    string currentPath = result[0];
+    for(unsigned int i = 1; i < result.size(); ++i)
+    {
+        const wstring fs = IceUtil::stringToWstring(currentPath + "/*");
+
+#ifdef __BCPLUSPLUS__
+        struct _wffblk data;
+        int h = _wfindfirst(fs.c_str(), &data, FA_DIREC);
+        if(h == -1)
+        {
+            return path;
+        }
+
+        while(true)
+        {
+            string name = IceUtil::wstringToString(data.ff_name);
+            assert(!name.empty());
+
+            if(_stricmp(name.c_str(), result[i].c_str()) == 0)
+            {
+                currentPath += "/" + name;
+                _wfindclose(&data);
+                break;
+            }
+
+            if(_wfindnext(&data) == -1)
+            {
+                _wfindclose(&data);
+                return path;
+            }
+       }
+#else
+        struct _wfinddata_t data;
+#    if defined(_MSC_VER) && (_MSC_VER < 1300)
+        long h = _wfindfirst(fs.c_str(), &data);
+#    else
+        intptr_t h = _wfindfirst(fs.c_str(), &data);
+#    endif
+        if(h == -1)
+        {
+            return path;
+        }
+
+        while(true)
+        {
+            string name = IceUtil::wstringToString(data.name);
+            assert(!name.empty());
+
+            if(_stricmp(name.c_str(), result[i].c_str()) == 0)
+            {
+                currentPath += "/" + name;
+                _findclose(h);
+                break;
+            }
+        
+            if(_wfindnext(h, &data) == -1)
+            {
+                _findclose(h);
+                return path;
+            }
+        }
+#endif
+    }
+    return currentPath;
+}
+#endif
+
 void
 Slice::Unit::scanPosition(const char* s)
 {
@@ -5011,32 +5100,6 @@ Slice::Unit::scanPosition(const char* s)
     }
     eraseWhiteSpace(line);
 
-    //
-    // If the string ends in <whitespace>1 or <whitespace>2, it is a push or pop directive.
-    //
-    enum LineType { File, Push, Pop };
-
-    LineType type = File;
-
-    idx = line.find_last_of(" \t\r");
-    if(idx != string::npos)
-    {
-        ++idx;
-        if(line.substr(idx) == "1")
-        {
-            type = Push;
-            line.erase(idx);
-            eraseWhiteSpace(line);
-
-        }
-        else if(line.substr(idx) == "2")
-        {
-            type = Pop;
-            line.erase(idx);
-            eraseWhiteSpace(line);
-        }
-    }
-
     string currentFile;
     if(!line.empty())
     {
@@ -5051,6 +5114,35 @@ Slice::Unit::scanPosition(const char* s)
         else
         {
             currentFile = line;
+        }
+    }
+
+#ifdef _WIN32
+    currentFile = fixCapitalization(currentFile);
+#endif
+    currentFile = normalizePath(currentFile, false);
+
+    enum LineType { File, Push, Pop };
+
+    LineType type = File;
+
+    if(_currentLine == 0)
+    {
+        if(currentFile != _topLevelFile)
+        {
+            type = Push;
+            line.erase(idx);
+            eraseWhiteSpace(line);
+        }
+    }
+    else
+    {
+        DefinitionContextPtr dc = currentDefinitionContext();
+        if(dc != 0 && !dc->filename().empty() && dc->filename() != currentFile)
+        {
+            type = Pop;
+            line.erase(idx);
+            eraseWhiteSpace(line);
         }
     }
 
@@ -5417,7 +5509,7 @@ Slice::Unit::includeFiles() const
 }
 
 int
-Slice::Unit::parse(FILE* file, bool debug, Slice::FeatureProfile profile)
+Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::FeatureProfile profile)
 {
     slice_debug = debug ? 1 : 0;
 
@@ -5428,6 +5520,7 @@ Slice::Unit::parse(FILE* file, bool debug, Slice::FeatureProfile profile)
     _currentLine = 1;
     _currentIncludeLevel = 0;
     _featureProfile = profile;
+    _topLevelFile = normalizePath(filename);
     pushContainer(this);
     pushDefinitionContext();
 
@@ -5502,6 +5595,7 @@ Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensit
     _caseSensitive(caseSensitive),
     _defaultGlobalMetadata(defaultGlobalMetadata),
     _errors(0)
+
 {
     _unit = this;
 }

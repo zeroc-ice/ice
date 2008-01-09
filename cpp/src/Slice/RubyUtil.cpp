@@ -9,6 +9,7 @@
 
 #include <Slice/RubyUtil.h>
 #include <Slice/Checksum.h>
+#include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
 
@@ -1588,23 +1589,11 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
 }
 
 static string
-normalizePath(const string& path)
-{
-    string result = path;
-    replace(result.begin(), result.end(), '\\', '/');
-    string::size_type pos;
-    while((pos = result.find("//")) != string::npos)
-    {
-        result.replace(pos, 2, "/");
-    }
-    return result;
-}
-
-static string
 changeInclude(const string& inc, const vector<string>& includePaths)
 {
     string orig = normalizePath(inc);
     string curr = orig; // The current shortest pathname.
+    string cwd = getCwd();
 
     //
     // Compare the pathname of the included file against each of the include directories.
@@ -1614,10 +1603,15 @@ changeInclude(const string& inc, const vector<string>& includePaths)
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         string includePath = *p;
-
-        if(orig.compare(0, p->size(), *p) == 0)
+        if(isAbsolute(orig) && !isAbsolute(includePath))
         {
-            string s = orig.substr(p->size());
+            includePath = cwd + "/" + includePath;
+        }
+        includePath = normalizePath(includePath);
+
+        if(orig.compare(0, includePath.size(), includePath) == 0)
+        {
+            string s = orig.substr(includePath.size());
             if(s.size() < curr.size())
             {
                 curr = s;

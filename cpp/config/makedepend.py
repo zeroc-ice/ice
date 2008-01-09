@@ -20,6 +20,9 @@ for line in fileinput.input():
     if commentre.search(line, 0):
         continue;
 
+    if len(line) == 0:
+        continue
+
     line = string.replace(line, ".o:", "$(OBJEXT):")
 
     if(previous):

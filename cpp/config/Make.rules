@@ -89,6 +89,12 @@ USE_READLINE		?= no
 #OPENSSL_HOME		?= /opt/openssl
 
 #
+# If Mcpp is not installed in a standard location where the  compiler 
+# can find it, set MCPP_HOME to the Mcpp installation directory.
+#
+#MCPP_HOME		?= /opt/mcpp
+
+#
 # Define if your OpenSSL requires Kerberos, and if Kerberos is not
 # installed in a standard location
 #
@@ -196,6 +202,7 @@ EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
 EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
 EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
+MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)

@@ -27,6 +27,9 @@ previous = ""
 for line in fileinput.input():
     line = line.strip()
 
+    if len(line) == 0:
+        continue
+
     line = string.replace(line, slicedir, "$(slicedir)")
 
     if(previous):

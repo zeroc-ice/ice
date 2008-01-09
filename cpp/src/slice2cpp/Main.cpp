@@ -96,25 +96,25 @@ main(int argc, char* argv[])
     
     vector<string> extraHeaders = opts.argVec("add-header");
 
-    string cppArgs;
+    vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
     vector<string>::const_iterator i;
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        cppArgs += " -D" + Preprocessor::addQuotes(*i);
+        cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        cppArgs += " -U" + Preprocessor::addQuotes(*i);
+        cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths;
     includePaths = opts.argVec("I");
     for(i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-	cppArgs += " -I" + Preprocessor::normalizeIncludePath(*i);
+	cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
 
     bool preprocess = opts.isSet("E");
@@ -153,7 +153,7 @@ main(int argc, char* argv[])
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::CPlusPlus);
+            icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths);
         }
         else
         {
@@ -183,7 +183,7 @@ main(int argc, char* argv[])
             else
             {
                 UnitPtr u = Unit::createUnit(false, false, ice, caseSensitive);
-                int parseStatus = u->parse(cppHandle, debug);
+                int parseStatus = u->parse(*i, cppHandle, debug);
             
                 if(!icecpp.close())
                 {

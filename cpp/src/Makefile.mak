@@ -11,11 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-!if "$(CPP_COMPILER)" != "BCC2006"
-SUBDIRS		= icecpp
-!endif
-
-SUBDIRS		= $(SUBDIRS) IceUtil \
+SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp \
 		  slice2cppe \

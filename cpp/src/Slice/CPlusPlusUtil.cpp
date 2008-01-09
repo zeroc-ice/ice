@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Slice/CPlusPlusUtil.h>
+#include <Slice/Util.h>
 
 using namespace std;
 using namespace Slice;
@@ -30,27 +31,11 @@ Slice::ToIfdef::operator()(char c)
 }
 
 string
-Slice::normalizePath(const string& path)
-{
-    string result = path;
-    replace(result.begin(), result.end(), '\\', '/');
-    string::size_type pos;
-    while((pos = result.find("//")) != string::npos)
-    {
-        result.replace(pos, 2, "/");
-    }
-    if(result.size() > 1 && isalpha(result[0]) && result[1] == ':')
-    {
-        result = result.substr(2);
-    }
-    return result;
-}
-
-string
 Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 {
-    string file = normalizePath(orig);
+    string file = normalizePath(orig, true);
     string::size_type pos;
+    string cwd = getCwd();
 
     //
     // Compare each include path against the included file and select
@@ -59,7 +44,12 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     string result = file;
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
-        string includePath = normalizePath(*p);
+        string includePath = *p;
+        if(isAbsolute(orig) && !isAbsolute(includePath))
+        {
+            includePath = cwd + "/" + includePath;
+        }
+        includePath = normalizePath(includePath, true);
 
         if(file.compare(0, includePath.length(), includePath) == 0)
         {

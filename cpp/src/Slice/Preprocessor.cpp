@@ -7,22 +7,42 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/Util.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/UUID.h>
+#include <IceUtil/Unicode.h>
 #include <algorithm>
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #ifndef _WIN32
-
 #   include <sys/wait.h>
 #endif
 
 using namespace std;
 using namespace Slice;
 
-Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const string& args) :
+//
+// mcpp defines
+//
+namespace Slice
+{
+
+enum Outdest
+{
+    Out=0, Err=1, Dbg=2, Num_Outdest=3
+}; 
+
+};
+
+extern "C" int   mcpp_lib_main(int argc, char** argv);
+extern "C" void  mcpp_use_mem_buffers(int tf);
+extern "C" char* mcpp_get_mem_buffer(Outdest od);
+
+Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args) :
     _path(path),
     _fileName(fileName),
     _args(args),
@@ -86,7 +106,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
 	result.erase(result.size() - 1);
     }
 
-    return "\"" + result + "\"";
+    return result;
 }
 
 FILE*
@@ -97,70 +117,203 @@ Slice::Preprocessor::preprocess(bool keepComments)
         return 0;
     }
 
-    string cmd = searchIceCpp();
-
-    if(cmd.empty())
-    {
-        return 0;
-    }
-
+    //
+    // Build arguments list.
+    //
+    vector<string> args = _args;
     if(keepComments)
     {
-        cmd += " -C";
+        args.push_back("-C");
+    }
+    args.push_back(_fileName);
+
+    char** argv = new char*[args.size() + 1];
+    argv[0] = "mcpp";
+    for(unsigned int i = 0; i < args.size(); ++i)
+    {
+        argv[i + 1] = (char*) args[i].c_str();
     }
     
-    cmd += " " + _args + " \"" + _fileName + "\"";
+    //
+    // Call mcpp using memory buffer.
+    //
+    mcpp_use_mem_buffers(1);
+    mcpp_lib_main(args.size() + 1, argv);
+    delete argv;
 
     //
-    // Open a pipe for reading to redirect icecpp output to _cppHandle.
+    // Write output to temporary file. Print errors to stderr.
     //
+    string result;
+    char* buf = mcpp_get_mem_buffer(Out);
+
+    _cppFile = ".preprocess." + IceUtil::generateUUID();
 #ifdef _WIN32
-    _cppHandle = _popen(cmd.c_str(), "r");
+    _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
 #else
-    _cppHandle = popen(cmd.c_str(), "r");
+    _cppHandle = ::fopen(_cppFile.c_str(), "w+");
 #endif
+    if(buf)
+    {
+        ::fwrite(buf, strlen(buf), 1, _cppHandle);
+    }
+    ::rewind(_cppHandle);
+
+    char* err = mcpp_get_mem_buffer(Err);
+    if(err)
+    {
+        ::fputs(err, stderr);
+    }
+
+    mcpp_use_mem_buffers(0);
+
     return _cppHandle;
 }
 
 void
-Slice::Preprocessor::printMakefileDependencies(Language lang)
+Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths)
 {
     if(!checkInputFile())
     {
         return;
     }
 
-    string cmd = searchIceCpp();
-    
-    if(cmd.empty())
+    //
+    // Build arguments list.
+    //
+    vector<string> args = _args;
+    args.push_back("-M");
+    args.push_back(_fileName);
+
+    char** argv = new char*[args.size() + 1];
+    for(unsigned int i = 0; i < args.size(); ++i)
     {
-        return;
+        argv[i + 1] = (char*) args[i].c_str();
     }
     
-    cmd += " -M " + _args + " \"" + _fileName + "\"";
+    //
+    // Call mcpp using memory buffer.
+    //
+    mcpp_use_mem_buffers(1);
+    mcpp_lib_main(args.size() + 1, argv);
+    delete argv;
 
+    //
+    // Get mcpp output/errors.
+    //
+    string unprocessed;
+    char* buf = mcpp_get_mem_buffer(Out);
+    if(buf)
+    {
+        unprocessed = string(buf);
+    }
+
+    char* err = mcpp_get_mem_buffer(Err);
+    if(err)
+    {
+        ::fputs(err, stderr);
+    }
+    mcpp_use_mem_buffers(0);
+
+    //
+    // We now need to massage then result to get desire output.
+    // First make it a single line.
+    //
+    string::size_type pos;
+    while((pos = unprocessed.find("\\\n")) != string::npos)
+    {
+        unprocessed.replace(pos, 2, "");
+    }
+
+    //
+    // Get the main output file name.
+    //
 #ifdef _WIN32
-    FILE* cppHandle = _popen(cmd.c_str(), "r");
+     string suffix = ".obj:";
 #else
-    FILE* cppHandle = popen(cmd.c_str(), "r");
+     string suffix = ".o:";
 #endif
+    pos = unprocessed.find(suffix) + suffix.size();
+    string result = unprocessed.substr(0, pos);
+
+    //
+    // Process each dependency.
+    //
+    string::size_type end;
+    while((end = unprocessed.find(".ice", pos)) != string::npos)
+    {
+        end += 4;
+        string file = unprocessed.substr(pos, end - pos);
+
+        //
+        // Strip white space from the file name.
+        //
+        int b = file.find_first_not_of(" \t");
+        int e = file.find_last_not_of(" \t");
+        file = file.substr(b, e - b + 1);
+        
+        //
+        // Normalize paths if not relative path.
+        //
+        if(isAbsolute(file))
+        {
+            string newFile = file;
+            string cwd = getCwd();
+            for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+            {
+                string includePath = *p;
+                if(!isAbsolute(includePath))
+                {
+                    includePath = cwd + "/" + includePath;
+                }
+                includePath = normalizePath(includePath, false);
+
+                if(file.compare(0, includePath.length(), includePath) == 0)
+                {
+                    string s = *p + file.substr(includePath.length());
+                    if(isAbsolute(newFile) || s.size() < newFile.size())
+                    {
+                        newFile = s;
+                    }
+                }
+            }
+            file = newFile;
+        }
+
+        //
+        // Escape spaces in the file name.
+        //
+        string::size_type space = 0;
+        while((space = file.find(" ", space)) != string::npos)
+        {
+            file.replace(space, 1, "\\ ");
+            space += 2;
+        }
+
+        //
+        // Add to result
+        //
+        result += " \\\n " + file;
+        pos = end;
+    }
+    result += "\n";
 
     /*
      * icecpp emits dependencies in any of the following formats, depending on the
      * length of the filenames:
      *
-     * x.cpp: /path/x.ice /path/y.ice
+     * x.o[bj]: /path/x.ice /path/y.ice
      *
-     * x.cpp: /path/x.ice \ 
+     * x.o[bj]: /path/x.ice \ 
      *  /path/y.ice
      *
-     * x.cpp: /path/x.ice /path/y.ice \ 
+     * x.o[bj]: /path/x.ice /path/y.ice \ 
      *  /path/z.ice
      *
-     * x.cpp: \ 
+     * x.o[bj]: \ 
      *  /path/x.ice
      *
-     * x.cpp: \ 
+     * x.o[bj]: \ 
      *  /path/x.ice \ 
      *  /path/y.ice
      *
@@ -172,10 +325,13 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
     {
         case CPlusPlus:
         {
-            char buf[1024];
-            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            //
+            // Change .o[bj] suffix to .cpp suffix.
+            //
+            string::size_type pos;
+            while((pos = result.find(suffix)) != string::npos)
             {
-                fputs(buf, stdout);
+                result.replace(pos, suffix.size() - 1, ".cpp");
             }
             break;
         }
@@ -185,37 +341,28 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
             // We want to shift the files left one position, so that
             // "x.cpp: x.ice y.ice" becomes "x.ice: y.ice".
             //
-            // Since the pipe input can be returned a line at a time, we collect
-            // all of the output into one string before manipulating it.
-            //
-            string deps;
-            char buf[1024];
-            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-            {
-                deps.append(buf, strlen(buf));
-            }
 
             //
             // Remove the first file.
             //
-            string::size_type start = deps.find(".cpp:");
+            string::size_type start = result.find(suffix);
             assert(start != string::npos);
-            start = deps.find_first_not_of(" \t\r\n\\", start + 5); // Skip to beginning of next file.
+            start = result.find_first_not_of(" \t\r\n\\", start + suffix.size()); // Skip to beginning of next file.
             assert(start != string::npos);
-            deps.erase(0, start);
+            result.erase(0, start);
 
             //
             // Find end of next file.
             //
             string::size_type pos = 0;
-            while((pos = deps.find_first_of(" :\t\r\n\\", pos + 1)) != string::npos)
+            while((pos = result.find_first_of(" :\t\r\n\\", pos + 1)) != string::npos)
             {
-                if(deps[pos] == ':')
+                if(result[pos] == ':')
                 {
-                    deps.insert(pos, 1, '\\'); // Escape colons.
+                    result.insert(pos, 1, '\\'); // Escape colons.
                     ++pos;
                 }
-                else if(deps[pos] == '\\') // Ignore escaped characters.
+                else if(result[pos] == '\\') // Ignore escaped characters.
                 {
                     ++pos;
                 }
@@ -227,75 +374,23 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
 
             if(pos == string::npos)
             {
-                deps.append(":");
+                result.append(":");
             }
             else
             {
-                deps.insert(pos, 1, ':');
+                result.insert(pos, 1, ':');
             }
-
-            fputs(deps.c_str(), stdout);
             break;
         }
         case CSharp:
         {
             //
-            // Change .cpp suffix to .cs suffix.
+            // Change .o[bj] suffix to .cs suffix.
             //
-            char buf[1024];
-            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            string::size_type pos;
+            while((pos = result.find(suffix)) != string::npos)
             {
-                char* dot;
-                char* colon = strchr(buf, ':');
-                if(colon != NULL)
-                {
-                    *colon = '\0';
-                    dot = strrchr(buf, '.');
-                    *colon = ':';
-                    if(dot != NULL)
-                    {
-                        if(strncmp(dot, ".cpp:", 5) == 0)
-                        {
-                            *dot = '\0';
-                            fputs(buf, stdout);
-                            fputs(".cs", stdout);
-                            fputs(colon, stdout);
-                            continue;
-                        }
-                    }
-                }
-                fputs(buf, stdout);
-            }
-            break;
-        }
-        case VisualBasic:
-        {
-            //
-            // Change .cpp suffix to .vb suffix.
-            //
-            char buf[1024];
-            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-            {
-                char* dot;
-                char* colon = strchr(buf, ':');
-                if(colon != NULL)
-                {
-                    *colon = '\0';
-                    dot = strrchr(buf, '.');
-                    *colon = ':';
-                    if(dot != NULL)
-                    {
-                        if(strncmp(dot, ".cpp:", 5) == 0)
-                        {
-                            *dot = '\0';
-                            fputs(buf, stdout);
-                            fputs(".vb", stdout);
-                            fputs(colon, stdout);
-                            continue;
-                        }
-                    }
-                }
-                fputs(buf, stdout);
+                result.replace(pos, suffix.size() - 1, ".cpp");
             }
             break;
         }
@@ -305,6 +400,11 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
             break;
         }
     }
+
+    //
+    // Output result
+    //
+    fputs(result.c_str(), stdout);
 }
 
 bool
@@ -312,22 +412,18 @@ Slice::Preprocessor::close()
 {
     assert(_cppHandle);
 
-#ifndef _WIN32
-    int status = pclose(_cppHandle);
-    _cppHandle = 0;
-
-    if(WIFEXITED(status) && WEXITSTATUS(status) != 0)
-    {
-        return false;
-    }
-#else
-    int status = _pclose(_cppHandle);
+    int status = fclose(_cppHandle);
     _cppHandle = 0;
 
     if(status != 0)
     {
         return false;
     }
+
+#ifdef _WIN32
+    _unlink(_cppFile.c_str());
+#else
+    unlink(_cppFile.c_str());
 #endif
     
     return true;
@@ -359,36 +455,4 @@ Slice::Preprocessor::checkInputFile()
     test.close();
 
     return true;
-}
-
-string
-Slice::Preprocessor::searchIceCpp()
-{
-#ifndef _WIN32
-    const char* icecpp = "icecpp";
-#else
-    const char* icecpp = "icecpp.exe";
-#endif
-
-    string::size_type pos = _path.find_last_of("/\\");
-    if(pos != string::npos)
-    {
-        string path = _path.substr(0, pos + 1);
-        path += icecpp;
-
-        struct stat st;
-        if(stat(path.c_str(), &st) == 0)
-        {
-#ifndef _WIN32
-            if(st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
-#else
-            if(st.st_mode & (S_IEXEC))
-#endif
-            {
-                return path;
-            }
-        }
-    }
-
-    return icecpp;
 }

@@ -81,24 +81,24 @@ main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    string cppArgs;
+    vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
     vector<string>::const_iterator i;
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        cppArgs += " -D" + Preprocessor::addQuotes(*i);
+        cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        cppArgs += " -U" + Preprocessor::addQuotes(*i);
+        cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for(i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-	cppArgs += " -I" + Preprocessor::normalizeIncludePath(*i);
+        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
 
     bool preprocess = opts.isSet("E");
@@ -140,7 +140,7 @@ main(int argc, char* argv[])
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::Java);
+            icecpp.printMakefileDependencies(Preprocessor::Java, includePaths);
         }
         else
         {
@@ -170,7 +170,7 @@ main(int argc, char* argv[])
             else
             {
                 UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
-                int parseStatus = p->parse(cppHandle, debug, Slice::IceE);
+                int parseStatus = p->parse(*i, cppHandle, debug, Slice::IceE);
 
                 if(!icecpp.close())
                 {

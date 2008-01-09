@@ -217,7 +217,11 @@ public class SliceTask extends org.apache.tools.ant.Task
 
             while((line = in.readLine()) != null)
             {
-                if(line.endsWith("\\"))
+                if(line.length() == 0)
+                {
+                    continue;
+                }
+                else if(line.endsWith("\\"))
                 {
                     depline.append(line.substring(0, line.length() - 1));
                 }

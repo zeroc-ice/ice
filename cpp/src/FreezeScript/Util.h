@@ -55,7 +55,8 @@ std::string typeName(const Slice::TypePtr&);
 std::string typeToString(const Slice::TypePtr&);
 bool ignoreType(const std::string&);
 void createEvictorSliceTypes(const Slice::UnitPtr&);
-bool parseSlice(const std::string&, const Slice::UnitPtr&, const std::vector<std::string>&, const std::string&, bool);
+bool parseSlice(const std::string&, const Slice::UnitPtr&, const std::vector<std::string>&, 
+                const std::vector<std::string>&, bool);
 
 typedef std::map<std::string, Freeze::CatalogData> CatalogDataMap;
 

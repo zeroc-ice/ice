@@ -122,7 +122,7 @@ printCatalogData(const string& dbName, const Freeze::CatalogData& data)
 static int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
-    string cppArgs;
+    vector<string> cppArgs;
     bool debug;
     bool ice = true; // Needs to be true in order to create default definitions.
     string outputFile;
@@ -234,7 +234,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> optargs = opts.argVec("D");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -D" + *i;
+            cppArgs.push_back("-D" + *i);
         }
     }
     if(opts.isSet("U"))
@@ -242,7 +242,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> optargs = opts.argVec("U");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -U" + *i;
+            cppArgs.push_back("-U" + *i);
         }
     }
     if(opts.isSet("I"))
@@ -250,7 +250,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> optargs = opts.argVec("I");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            cppArgs += " -I" + *i;
+            cppArgs.push_back("-I" + *i);
         }
     }
     debug = opts.isSet("debug");

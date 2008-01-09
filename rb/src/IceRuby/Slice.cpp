@@ -81,7 +81,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
         }
 
-        string cppArgs;
+        vector<string> cppArgs;
         vector<string> includePaths;
         bool debug = false;
         bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
@@ -93,7 +93,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             vector<string> optargs = opts.argVec("D");
             for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
             {
-                cppArgs += " -D" + *i;
+                cppArgs.push_back("-D" + *i);
             }
         }
         if(opts.isSet("U"))
@@ -101,7 +101,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             vector<string> optargs = opts.argVec("U");
             for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
             {
-                cppArgs += " -U" + *i;
+                cppArgs.push_back("-U" + *i);
             }
         }
         if(opts.isSet("I"))
@@ -109,7 +109,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             includePaths = opts.argVec("I");
             for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
             {
-                cppArgs += " -I" + *i;
+                cppArgs.push_back("-I" + *i);
             }
         }
         debug = opts.isSet("d") || opts.isSet("debug");
@@ -131,7 +131,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             }
 
             UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
-            int parseStatus = u->parse(cppHandle, debug);
+            int parseStatus = u->parse(file, cppHandle, debug);
 
             if(!icecpp.close() || parseStatus == EXIT_FAILURE)
             {
