@@ -203,6 +203,7 @@ EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexp
 EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
 MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
+MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
