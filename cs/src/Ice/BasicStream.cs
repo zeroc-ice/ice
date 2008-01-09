@@ -437,15 +437,27 @@ namespace IceInternal
         public virtual void endReadEncaps()
         {
             Debug.Assert(_readEncapsStack != null);
-            int start = _readEncapsStack.start;
-            int sz = _readEncapsStack.sz;
-            try
+            if(_buf.b.position() != _readEncapsStack.start + _readEncapsStack.sz)
             {
-                _buf.b.position(start + sz);
-            }
-            catch(ArgumentOutOfRangeException ex)
-            {
-                throw new Ice.UnmarshalOutOfBoundsException(ex);
+                if(_buf.b.position() + 1 != _readEncapsStack.start + _readEncapsStack.sz)
+                {
+                    throw new Ice.EncapsulationException();
+                }
+
+                //
+                // Ice version < 3.3 had a bug where user exceptions with
+                // class members could be encoded with a trailing byte
+                // when dispatched with AMD. So we tolerate an extra byte
+                // in the encapsulation.
+                //
+                try
+                {
+                    _buf.b.get();
+                }
+                catch(InvalidOperationException ex)
+                {
+                    throw new Ice.UnmarshalOutOfBoundsException(ex);
+                }
             }
 
             ReadEncaps curr = _readEncapsStack;
@@ -455,14 +467,26 @@ namespace IceInternal
             _readEncapsCache.reset();
         }
 
-        public virtual void checkReadEncaps()
+        public virtual void skipEmptyEncaps()
         {
-            Debug.Assert(_readEncapsStack != null);
-            int start = _readEncapsStack.start;
-            int sz = _readEncapsStack.sz;
-            if(_buf.b.position() != start + sz)
+            int sz = readInt();
+            if(sz < 0)
+            {
+                throw new Ice.NegativeSizeException();
+            }
+
+            if(sz != 6)
             {
                 throw new Ice.EncapsulationException();
+            }
+
+            try
+            {
+                _buf.b.position(_buf.b.position() + 2);
+            }
+            catch(ArgumentOutOfRangeException ex)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
 
@@ -2515,7 +2539,7 @@ namespace IceInternal
             return _buf.size();
         }
 
-        virtual internal bool isEmpty()
+        public virtual bool isEmpty()
         {
             return _buf.empty();
         }

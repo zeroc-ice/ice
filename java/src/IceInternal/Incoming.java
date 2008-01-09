@@ -103,8 +103,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _current.ctx.put(first, second);
         }
 
-        _is.startReadEncaps();
-
         if(_response)
         {
             assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
@@ -197,7 +195,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
         catch(java.lang.Exception ex)
         {
-            _is.endReadEncaps();
             __handleException(ex);
             return;
         }
@@ -207,8 +204,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
         // in the code below are considered fatal, and must propagate to
         // the caller of this operation.
         //
-
-        _is.endReadEncaps();
 
         //
         // DispatchAsync is "pseudo dispatch status", used internally
@@ -306,7 +301,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             //
             // That's the first startOver, so almost nothing to do
             //
-            _inParamPos = _is.pos() - 6; // 6 bytes for the start of the encaps
+            _inParamPos = _is.pos();
         }
         else
         {
@@ -315,9 +310,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             //
             // Let's rewind _is and clean-up _os
             //
-            _is.endReadEncaps();
             _is.pos(_inParamPos);
-            _is.startReadEncaps();
 
             if(_response)
             {

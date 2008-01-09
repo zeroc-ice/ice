@@ -251,7 +251,21 @@ public:
         assert(_currentReadEncaps);
         Container::size_type start = _currentReadEncaps->start;
         Ice::Int sz = _currentReadEncaps->sz;
-        i = b.begin() + start + sz;
+        if(i != b.begin() + start + sz)
+        {
+            if(i + 1 != b.begin() + start + sz)
+            {
+                throwEncapsulationException(__FILE__, __LINE__);
+            }
+            
+            //
+            // Ice version < 3.3 had a bug where user exceptions with
+            // class members could be encoded with a trailing byte
+            // when dispatched with AMD. So we tolerate an extra byte
+            // in the encapsulation.
+            //
+            ++i;
+        }
 
         ReadEncaps* oldEncaps = _currentReadEncaps;
         _currentReadEncaps = _currentReadEncaps->previous;
@@ -264,7 +278,27 @@ public:
             delete oldEncaps;
         }
     }
-    void checkReadEncaps();
+    void skipEmptyEncaps()
+    {
+        Ice::Int sz;
+        read(sz);
+        if(sz < 0)
+        {
+            throwNegativeSizeException(__FILE__, __LINE__);
+        }
+
+        if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)
+        {
+            throwEncapsulationException(__FILE__, __LINE__);
+        }
+
+        if(i + 2 > b.end())
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        i += 2;
+    }
+
     Ice::Int getReadEncapsSize();
     void skipEncaps();
 
@@ -596,6 +630,7 @@ private:
     void throwMemoryLimitException(const char*, int);
     void throwNegativeSizeException(const char*, int);
     void throwUnsupportedEncodingException(const char*, int, Ice::Byte, Ice::Byte);
+    void throwEncapsulationException(const char*, int);
 
     //
     // Optimization. The instance may not be deleted while a

@@ -296,7 +296,7 @@ IceInternal::Incoming::startOver()
         //
         // That's the first startOver, so almost nothing to do
         //
-        _inParamPos = _is.i - 6; // 6 bytes for the start of the encaps
+        _inParamPos = _is.i;
     }
     else
     {
@@ -305,9 +305,7 @@ IceInternal::Incoming::startOver()
         //
         // Let's rewind _is and clean-up _os
         //
-        _is.endReadEncaps();
         _is.i = _inParamPos;
-        _is.startReadEncaps();
         
         if(_response)
         {
@@ -383,8 +381,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
         _is.read(pr.second);
         _current.ctx.insert(_current.ctx.end(), pr);
     }
-
-    _is.startReadEncaps();
 
     if(_response)
     {
@@ -508,13 +504,11 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     catch(const std::exception& ex)
     {
-        _is.endReadEncaps();
         __handleException(ex);
         return;
     }
     catch(...)
     {
-        _is.endReadEncaps();
         __handleException();
         return;
     }
@@ -524,8 +518,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     // in the code below are considered fatal, and must propagate to
     // the caller of this operation.
     //
-    
-    _is.endReadEncaps();
 
     //
     // DispatchAsync is "pseudo dispatch status", used internally only

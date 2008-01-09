@@ -460,7 +460,7 @@ class Twoways
             di1[10] = true;
             di1[100] = false;
             Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
-            // di2[10] = true; // Disabled since new dictionary mapping.
+            di2[10] = true;
             di2[11] = false;
             di2[101] = true;
             
@@ -480,7 +480,7 @@ class Twoways
             di1[110] = -1;
             di1[1100] = 123123;
             Dictionary<short, int> di2 = new Dictionary<short, int>();
-            //di2[110] = 1; // Disabled since new dictionary mapping.
+            di2[110] = -1;
             di2[111] = -100;
             di2[1101] = 0;
             
@@ -500,7 +500,7 @@ class Twoways
             di1[999999110L] = -1.1f;
             di1[999999111L] = 123123.2f;
             Dictionary<long, float> di2 = new Dictionary<long, float>();
-            //di2[999999110L] = -1.1f; // Disabled since new dictionary mapping.
+            di2[999999110L] = -1.1f;
             di2[999999120L] = -100.4f;
             di2[999999130L] = 0.5f;
             
@@ -520,7 +520,7 @@ class Twoways
             di1["foo"] = "abc -1.1";
             di1["bar"] = "abc 123123.2";
             Dictionary<string, string> di2 = new Dictionary<string, string>();
-            // di2["foo"] = "abc -1.1"; // Disabled since new dictionary mapping.
+            di2["foo"] = "abc -1.1";
             di2["FOO"] = "abc -100.4";
             di2["BAR"] = "abc 0.5";
             
@@ -540,7 +540,7 @@ class Twoways
             di1["abc"] = Test.MyEnum.enum1;
             di1[""] = Test.MyEnum.enum2;
             Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
-            // di2["abc"] = Test.MyEnum.enum1; // Disabled since new dictionary mapping.
+            di2["abc"] = Test.MyEnum.enum1;
             di2["qwerty"] = Test.MyEnum.enum3;
             di2["Hello!!"] = Test.MyEnum.enum2;
             

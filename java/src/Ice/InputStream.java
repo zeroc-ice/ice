@@ -54,6 +54,7 @@ public interface InputStream
     void skipSlice();
 
     void startEncapsulation();
+    void skipEncapsulation();
     void endEncapsulation();
 
     void readPendingObjects();

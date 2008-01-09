@@ -1170,19 +1170,21 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context* context)
     bool __ok = __og.invoke();
     try
     {
-        BasicStream* __is = __og.is();
         if(!__ok)
         {
             try
             {
-                __is->throwException();
+                __og.throwUserException();
             }
             catch(const ::Ice::UserException& __ex)
             {
                 throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
             }
         }
+        BasicStream* __is = __og.is();
+        __is->startReadEncaps();
         __is->read(__ret);
+        __is->endReadEncaps();
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1197,24 +1199,27 @@ IceDelegateM::Ice::Object::ice_ping(const Context* context)
     static const string __operation("ice_ping");
     Outgoing __og(__handler.get(), __operation, ::Ice::Nonmutating, context);
     bool __ok = __og.invoke();
-    try
+    if(!__og.is()->b.empty())
     {
-        BasicStream* __is = __og.is();
-        if(!__ok)
+        try
         {
-            try
+            if(!__ok)
             {
-                __is->throwException();
+                try
+                {
+                    __og.throwUserException();
+                }
+                catch(const ::Ice::UserException& __ex)
+                {
+                    throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                }
             }
-            catch(const ::Ice::UserException& __ex)
-            {
-                throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-            }
+            __og.is()->skipEmptyEncaps();
         }
-    }
-    catch(const ::Ice::LocalException& __ex)
-    {
-        throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+        catch(const ::Ice::LocalException& __ex)
+        {
+            throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+        }
     }
 }
 
@@ -1227,19 +1232,21 @@ IceDelegateM::Ice::Object::ice_ids(const Context* context)
     bool __ok = __og.invoke();
     try
     {
-        BasicStream* __is = __og.is();
         if(!__ok)
         {
             try
             {
-                __is->throwException();
+                __og.throwUserException();
             }
             catch(const ::Ice::UserException& __ex)
             {
                 throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
             }
         }
+        BasicStream* __is = __og.is();
+        __is->startReadEncaps();
         __is->read(__ret, false);
+        __is->endReadEncaps();
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1257,19 +1264,21 @@ IceDelegateM::Ice::Object::ice_id(const Context* context)
     bool __ok = __og.invoke();
     try
     {
-        BasicStream* __is = __og.is();
         if(!__ok)
         {
             try
             {
-                __is->throwException();
+                __og.throwUserException();
             }
             catch(const ::Ice::UserException& __ex)
             {
                 throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
             }
         }
+        BasicStream* __is = __og.is();
+        __is->startReadEncaps();
         __is->read(__ret, false);
+        __is->endReadEncaps();
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1301,8 +1310,10 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
         try
         {
             BasicStream* __is = __og.is();
+            __is->startReadEncaps();
             Int sz = __is->getReadEncapsSize();
             __is->readBlob(outParams, sz);
+            __is->endReadEncaps();
         }
         catch(const ::Ice::LocalException& __ex)
         {

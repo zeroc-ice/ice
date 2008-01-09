@@ -1490,19 +1490,22 @@ namespace Ice
                 bool ok__ = og__.invoke();
                 try
                 {
-                    IceInternal.BasicStream is__ = og__.istr();
                     if(!ok__)
                     {
                         try
                         {
-                            is__.throwException();
+                            og__.throwUserException();
                         }
                         catch(UserException ex)
                         {
                             throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
-                    return is__.readBool();
+                    IceInternal.BasicStream is__ = og__.istr();
+                    is__.startReadEncaps();
+                    bool ret__ = is__.readBool();
+                    is__.endReadEncaps();
+                    return ret__;
                 }
                 catch(LocalException ex__)
                 {
@@ -1521,24 +1524,27 @@ namespace Ice
             try
             {
                 bool ok__ = og__.invoke();
-                try
+                if(!og__.istr().isEmpty())
                 {
-                    IceInternal.BasicStream is__ = og__.istr();
-                    if(!ok__)
+                    try
                     {
-                        try
+                        if(!ok__)
                         {
-                            is__.throwException();
+                            try
+                            {
+                                og__.throwUserException();
+                            }
+                            catch(UserException ex)
+                            {
+                                throw new UnknownUserException(ex.ice_name(), ex);
+                            }
                         }
-                        catch(UserException ex)
-                        {
-                            throw new UnknownUserException(ex.ice_name(), ex);
-                        }
+                        og__.istr().skipEmptyEncaps();
                     }
-                }
-                catch(LocalException ex__)
-                {
-                    throw new IceInternal.LocalExceptionWrapper(ex__, false);
+                    catch(LocalException ex__)
+                    {
+                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
+                    }
                 }
             }
             finally
@@ -1555,19 +1561,22 @@ namespace Ice
                 bool ok__ = og__.invoke();
                 try
                 {
-                    IceInternal.BasicStream is__ = og__.istr();
                     if(!ok__)
                     {
                         try
                         {
-                            is__.throwException();
+                            og__.throwUserException();
                         }
                         catch(UserException ex)
                         {
                             throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
-                    return is__.readStringSeq();
+                    IceInternal.BasicStream is__ = og__.istr();
+                    is__.startReadEncaps();
+                    string[] ret__ = is__.readStringSeq();
+                    is__.endReadEncaps();
+                    return ret__;
                 }
                 catch(LocalException ex__)
                 {
@@ -1588,19 +1597,22 @@ namespace Ice
                 bool ok__ = og__.invoke();
                 try
                 {
-                    IceInternal.BasicStream is__ = og__.istr();
                     if(!ok__)
                     {
                         try
                         {
-                            is__.throwException();
+                            og__.throwUserException();
                         }
                         catch(UserException ex)
                         {
                             throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
-                    return is__.readString();
+                    IceInternal.BasicStream is__ = og__.istr();
+                    is__.startReadEncaps();
+                    string ret__ = is__.readString();
+                    is__.endReadEncaps();
+                    return ret__;
                 }
                 catch(LocalException ex__)
                 {
@@ -1635,8 +1647,10 @@ namespace Ice
                     try
                     {
                         IceInternal.BasicStream is__ = og__.istr();
+                        is__.startReadEncaps();
                         int sz = is__.getReadEncapsSize();
                         outParams = is__.readBlob(sz);
+                        is__.endReadEncaps();
                     }
                     catch(LocalException ex__)
                     {

@@ -85,6 +85,7 @@ public:
 
     virtual void startEncapsulation() = 0;
     virtual void endEncapsulation() = 0;
+    virtual void skipEncapsulation() = 0;
 
     virtual void readPendingObjects() = 0;
 };

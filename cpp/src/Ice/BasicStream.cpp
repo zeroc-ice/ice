@@ -291,18 +291,6 @@ IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
     std::swap(previous, other.previous);
 }
 
-void
-IceInternal::BasicStream::checkReadEncaps()
-{
-    assert(_currentReadEncaps);
-    Container::size_type start = _currentReadEncaps->start;
-    Int sz = _currentReadEncaps->sz;
-    if(i != b.begin() + start + sz)
-    {
-        throw EncapsulationException(__FILE__, __LINE__);
-    }
-}
-
 Int
 IceInternal::BasicStream::getReadEncapsSize()
 {
@@ -2014,6 +2002,12 @@ IceInternal::BasicStream::throwUnsupportedEncodingException(const char* file, in
     ex.major = static_cast<unsigned char>(encodingMajor);
     ex.minor = static_cast<unsigned char>(encodingMinor);
     throw ex;
+}
+
+void
+IceInternal::BasicStream::throwEncapsulationException(const char* file, int line)
+{
+    throw EncapsulationException(file, line);
 }
 
 void

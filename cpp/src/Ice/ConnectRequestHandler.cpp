@@ -79,7 +79,6 @@ ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref,
     RequestHandler(ref),
     _proxy(proxy),
     _delegate(delegate),
-    _response(ref->getMode() == Reference::ModeTwoway),
     _batchAutoFlush(
         ref->getInstance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0),
     _initialized(false),

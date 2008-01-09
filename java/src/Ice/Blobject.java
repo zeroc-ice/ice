@@ -20,8 +20,11 @@ public abstract class Blobject extends Ice.ObjectImpl
     {
         byte[] inParams;
         ByteSeqHolder outParams = new ByteSeqHolder();
-        int sz = in.is().getReadEncapsSize();
-        inParams = in.is().readBlob(sz);
+        IceInternal.BasicStream is = in.is();
+        is.startReadEncaps();
+        int sz = is.getReadEncapsSize();
+        inParams = is.readBlob(sz);
+        is.endReadEncaps();
         boolean ok = ice_invoke(inParams, outParams, current);
         if(outParams.value != null)
         {

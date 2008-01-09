@@ -18,8 +18,11 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
     __dispatch(IceInternal.Incoming in, Current current)
     {
         byte[] inParams;
-        int sz = in.is().getReadEncapsSize();
-        inParams = in.is().readBlob(sz);
+        IceInternal.BasicStream is = in.is();
+        is.startReadEncaps();
+        int sz = is.getReadEncapsSize();
+        inParams = is.readBlob(sz);
+        is.endReadEncaps();
         AMD_Object_ice_invoke cb = new _AMD_Object_ice_invoke(in);
         try
         {

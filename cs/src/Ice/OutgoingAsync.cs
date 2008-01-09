@@ -194,7 +194,6 @@ namespace IceInternal
                         case ReplyStatus.replyOK:
                         case ReplyStatus.replyUserException:
                         {
-                            is__.startReadEncaps();
                             break;
                         }
 
@@ -463,6 +462,20 @@ namespace IceInternal
 
         protected abstract void response__(bool ok);
 
+        protected void throwUserException__()
+        {
+            try
+            {
+                is__.startReadEncaps();
+                is__.throwException();
+            }
+            catch(Ice.UserException)
+            {
+                is__.endReadEncaps();
+                throw;
+            }
+        }
+
         private void handleException(LocalExceptionWrapper ex)
         {
             if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
@@ -593,8 +606,10 @@ namespace Ice
             byte[] outParams;
             try
             {
+                is__.startReadEncaps();
                 int sz = is__.getReadEncapsSize();
                 outParams = is__.readBlob(sz);
+                is__.endReadEncaps();
             }
             catch(LocalException ex)
             {

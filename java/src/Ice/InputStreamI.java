@@ -211,6 +211,12 @@ public class InputStreamI implements InputStream
     }
 
     public void
+    skipEncapsulation()
+    {
+        _is.skipEncaps();
+    }
+
+    public void
     endEncapsulation()
     {
         _is.endReadEncaps();
