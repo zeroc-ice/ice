@@ -59,6 +59,23 @@ available from:
 
 http://www.zeroc.com/download.html 
 
+- mcpp 2.6.4, which can be downloaded from
+
+  http://mcpp.sourceforge.net/download.html
+
+  After downloading and unpacking the source distribution it is
+  necessary to first apply a source patch available on the Ice
+  download page before building. From the mcpp 2.6.4 base directory 
+  run
+
+  patch -p0 < mcpp-2.6.4.patch
+
+  Ice requires the library version of mcpp, so configure mcpp similar 
+  to the following
+
+  ./configure --enable-mcpplib --enable-shared
+  (and --prefix=<dir> if you like)
+
 
 Python
 ------

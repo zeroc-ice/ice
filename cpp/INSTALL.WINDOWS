@@ -102,6 +102,7 @@ Ice has dependencies on a number of third-party libraries:
 - expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
+- mcpp 2.6.4
 
 If you have downloaded an Ice binary installer, you already have all 
 of the required third-party libraries and do not need to download any 
@@ -122,6 +123,7 @@ Berkeley DB     http://www.oracle.com/database/berkeley-db/index.html
 expat           http://sourceforge.net/projects/expat/
 OpenSSL         http://www.openssl.org
 bzip2           http://sources.redhat.com/bzip2
+mcpp            http://mcpp.sourceforge.net/download.html
 
 For STLport installation instructions, please refer to
 
@@ -132,6 +134,16 @@ library are named "libbz2.lib". In order to have both a debug and a
 release version on your system, please rename the debug library to
 "libbz2d.lib". This is also what the Ice project files expect if you
 build a debug version of Ice. 
+
+For mcpp it is necessary to first apply a source patch available on
+the Ice download page before building. From the mcpp 2.6.4 base 
+directory run
+
+  patch -p0 < mcpp-2.6.4.patch
+
+Ice requires the library build of mcpp, so please follow the library
+build instructions found in doc/mcpp-porting.html in the mcpp source
+distribution.
 
 If you compile the third-party libraries from source code, we
 recommend that you use the same Visual C++ version to build all of
