@@ -10,7 +10,7 @@
 #ifndef REAP_THREAD_H
 #define REAP_THREAD_H
 
-#include <IceUtil/Thread.h>
+#include <IceUtil/IceUtil.h>
 #include <SessionI.h>
 #include <list>
 

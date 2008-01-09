@@ -2,8 +2,7 @@
 #define EVICTORBASE_H
 
 #include <Ice/ServantLocator.h>
-#include <IceUtil/Handle.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/IceUtil.h>
 #include <map>
 #include <list>
 

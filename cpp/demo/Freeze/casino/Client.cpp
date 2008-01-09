@@ -9,8 +9,8 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/Random.h>
 #include <Casino.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -38,6 +38,11 @@ CasinoClient::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
+
+    //
+    // Initialize pseudo-random number generator
+    //
+    srand(IceUtil::Time::now().toMicroSeconds());
 
     cout << "Retrieve bank and players... " << flush;
 
@@ -76,7 +81,7 @@ CasinoClient::run(int argc, char* argv[])
     int b;
     for(b = 0; b < 500; ++b)
     {
-        Casino::BetPrx bet = bank->createBet(10, 200 + IceUtilInternal::random(4000));
+        Casino::BetPrx bet = bank->createBet(10, 200 + rand() % 4000);
         for(size_t i = 0; i < players.size(); ++i)
         {
             Casino::PlayerPrx player = players[i];
@@ -105,7 +110,7 @@ CasinoClient::run(int argc, char* argv[])
 
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
        
-    int index = IceUtilInternal::random(players.size());
+    int index = rand() % players.size();
     Casino::PlayerPrx gonner = players[index];
     players[index] = 0;
 
@@ -137,7 +142,7 @@ CasinoClient::run(int argc, char* argv[])
 
     for(b = 0; b < 100; ++b)
     {
-        Casino::BetPrx bet = bank->createBet(10, 200 + IceUtilInternal::random(4000));
+        Casino::BetPrx bet = bank->createBet(10, 200 + rand() % 4000);
         for(size_t i = 0; i < players.size(); ++i)
         {
             Casino::PlayerPrx player = players[i];

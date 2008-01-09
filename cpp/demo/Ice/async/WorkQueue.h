@@ -11,9 +11,7 @@
 #define WORK_QUEUE_H
 
 #include <Hello.h>
-#include <IceUtil/Thread.h>
-#include <IceUtil/Monitor.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/IceUtil.h>
 
 #include <list>
 

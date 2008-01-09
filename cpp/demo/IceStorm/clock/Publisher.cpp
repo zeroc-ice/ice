@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
@@ -40,28 +39,59 @@ usage(const string& n)
 int
 Publisher::run(int argc, char* argv[])
 {
-    IceUtilInternal::Options opts;
-    opts.addOpt("", "datagram");
-    opts.addOpt("", "twoway");
-    opts.addOpt("", "oneway");
+    enum Option { Datagram, Twoway, Oneway };
+    Option option = Oneway;
 
-    IceUtilInternal::Options::StringVector remaining;
-    try
-    {
-        remaining = opts.parse(argc, (const char**)argv);
-    }
-    catch(const IceUtilInternal::BadOptException& e)
-    {
-        cerr << argv[0] << ": " << e.reason << endl;
-        usage(appName());
-        return EXIT_FAILURE;
-    }
-    if(remaining.size() > 1)
+    string topicName = "time";
+
+    if(argc > 3)
     {
         cerr << appName() << ": too many arguments" << endl;
         usage(appName());
         return EXIT_FAILURE;
     }
+
+    if(argc >= 2)
+    {
+        string optionString = argv[1];
+        if(optionString == "--datagram")
+        {
+            option = Datagram;
+        }
+        else if(optionString == "--twoway")
+        {
+            option = Twoway;
+        }
+        else if(optionString == "--oneway")
+        {
+            option = Oneway;
+        }
+        else if(argc == 3)
+        {
+            cerr << appName() << ": too many arguments" << endl;
+            usage(appName());
+            return EXIT_FAILURE;
+        }
+        else
+        {
+            topicName = optionString;
+        }
+
+        if(argc == 3)
+        {
+            topicName = argv[2];
+        }
+
+        if(topicName[0] == '-')
+        {
+            cerr << appName() << ": invalid topic name" << endl;
+            usage(appName());
+            return EXIT_FAILURE;
+        }
+    }
+
+   
+
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
         communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
@@ -69,12 +99,6 @@ Publisher::run(int argc, char* argv[])
     {
         cerr << appName() << ": invalid proxy" << endl;
         return EXIT_FAILURE;
-    }
-
-    string topicName = "time";
-    if(!remaining.empty())
-    {
-        topicName = remaining.front();
     }
 
     //
@@ -103,27 +127,19 @@ Publisher::run(int argc, char* argv[])
     // the mode specified as an argument of this application.
     //
     Ice::ObjectPrx publisher = topic->getPublisher();
-    int optsSet = 0;
-    if(opts.isSet("datagram"))
+    if(option == Datagram)
     {
         publisher = publisher->ice_datagram();
-        ++optsSet;
     }
-    else if(opts.isSet("twoway"))
+    else if(option == Twoway)
     {
         // Do nothing.
-        ++optsSet;
     }
-    else if(opts.isSet("oneway") || optsSet == 0)
+    else if(option == Oneway)
     {
         publisher = publisher->ice_oneway();
-        ++optsSet;
     }
-    if(optsSet != 1)
-    {
-        usage(appName());
-        return EXIT_FAILURE;
-    }
+    
     ClockPrx clock = ClockPrx::uncheckedCast(publisher);
 
     cout << "publishing tick events. Press ^C to terminate the application." << endl;

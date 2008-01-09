@@ -8,9 +8,9 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/Random.h>
 #include <Ice/Ice.h>
 #include <Item.h>
+#include <stdlib.h>
 
 using namespace std;
 using namespace Warehouse;
@@ -55,7 +55,7 @@ public:
         {
             for(int i = 0; i < readCount; ++i)
             {
-                int id = IceUtilInternal::random(objectCount);
+                int id = rand() % objectCount;
                 ostringstream os;
                 os << "P/N " << id;
                 string name = os.str();
@@ -107,8 +107,8 @@ public:
         {
             for(int i = 0; i < writeCount; ++i)
             {
-                int id = IceUtilInternal::random(objectCount);
-
+                int id = rand() % objectCount;
+                
                 ostringstream os;
                 os << "P/N " << id;
                 string name = os.str();
@@ -148,6 +148,12 @@ WarehouseClient::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
+
+    //
+    // Initialize pseudo-random number generator; here, for fair comparisons,
+    // it's useful to get the same sequence for each run.
+    //
+    srand(1);
 
     //
     // Retrieve a proxy to one item (any item will do).

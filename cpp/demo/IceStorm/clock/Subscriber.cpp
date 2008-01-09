@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
@@ -53,29 +52,82 @@ usage(const string& n)
 int
 Subscriber::run(int argc, char* argv[])
 {
-    IceUtilInternal::Options opts;
-    opts.addOpt("", "datagram");
-    opts.addOpt("", "twoway");
-    opts.addOpt("", "ordered");
-    opts.addOpt("", "oneway");
-    opts.addOpt("", "batch");
+    bool batch = false;
 
-    IceUtilInternal::Options::StringVector remaining;
-    try
-    {
-        remaining = opts.parse(argc, (const char**)argv);
-    }
-    catch(const IceUtilInternal::BadOptException& e)
-    {
-        cerr << argv[0] << ": " << e.reason << endl;
-        usage(appName());
-        return EXIT_FAILURE;
-    }
-    if(remaining.size() > 1)
+    enum Option { Datagram, Twoway, Oneway, Ordered};
+    Option option = Oneway;
+
+    string topicName = "time";
+
+    if(argc > 4)
     {
         cerr << appName() << ": too many arguments" << endl;
         usage(appName());
         return EXIT_FAILURE;
+    }
+    
+    if(argc >= 2)
+    {
+        int argIndex = 1;
+        string optionString = argv[argIndex];
+  
+        if(optionString == "--batch")
+        {
+            batch = true;
+            if(argc >= 3)
+            {
+                argIndex++;
+                optionString = argv[argIndex];
+            }
+            else
+            {
+                optionString = "";
+            }
+        }
+
+        if(optionString == "")
+        {
+            // done
+        }
+        else if(optionString == "--datagram")
+        {
+            option = Datagram;
+        }
+        else if(optionString == "--twoway")
+        {
+            option = Twoway;
+        }
+        else if(optionString == "--oneway")
+        {
+            option = Oneway;
+        }
+        else if(optionString == "--ordered")
+        {
+            option = Ordered;
+        }
+        else if(argIndex == argc - 2)
+        {
+            cerr << appName() << ": too many arguments" << endl;
+            usage(appName());
+            return EXIT_FAILURE;
+        }
+        else
+        {
+            topicName = optionString;
+        }
+
+        argIndex++;
+        if(argIndex < argc)
+        {
+            topicName = argv[argIndex];
+        }
+
+        if(topicName[0] == '-')
+        {
+            cerr << appName() << ": invalid topic name" << endl;
+            usage(appName());
+            return EXIT_FAILURE;
+        }
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
@@ -84,12 +136,6 @@ Subscriber::run(int argc, char* argv[])
     {
         cerr << appName() << ": invalid proxy" << endl;
         return EXIT_FAILURE;
-    }
-
-    string topicName = "time";
-    if(!remaining.empty())
-    {
-        topicName = remaining.front();
     }
 
     IceStorm::TopicPrx topic;
@@ -120,43 +166,35 @@ Subscriber::run(int argc, char* argv[])
     //
     // Set up the proxy.
     //
-    int optsSet = 0;
-    if(opts.isSet("datagram"))
+  
+    if(option == Datagram)
     {
         subscriber = subscriber->ice_datagram();
-        ++optsSet;
     }
-    if(opts.isSet("twoway"))
+    else if(option == Twoway)
     {
         // Do nothing to the subscriber proxy. Its already twoway.
-        ++optsSet;
+       
     }
-    if(opts.isSet("ordered"))
+    else if(option == Ordered)
     {
         qos["reliability"] = "ordered";
         // Do nothing to the subscriber proxy. Its already twoway.
-        ++optsSet;
+      
     }
-    if(opts.isSet("oneway") || optsSet == 0)
+    else if(option == Oneway)
     {
         subscriber = subscriber->ice_oneway();
-        ++optsSet;
     }
 
-    if(optsSet != 1)
+    if(batch)
     {
-        usage(appName());
-        return EXIT_FAILURE;
-    }
-
-    if(opts.isSet("batch"))
-    {
-        if(opts.isSet("twoway") || opts.isSet("ordered"))
+        if(option == Twoway || option == Ordered)
         {
             cerr << appName() << ": batch can only be set with oneway or datagram" << endl;
             return EXIT_FAILURE;
         }
-        if(opts.isSet("datagram"))
+        if(option == Datagram)
         {
             subscriber = subscriber->ice_batchDatagram();
         }

@@ -10,8 +10,7 @@
 #ifndef LIBRARY_I_H
 #define LIBRARY_I_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/AbstractMutex.h>
+#include <IceUtil/IceUtil.h>
 #include <Freeze/Evictor.h>
 #include <Library.h>
 #include <LibraryTypes.h>

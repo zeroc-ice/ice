@@ -79,6 +79,11 @@ CasinoServer::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    //
+    // Initialize pseudo-random number generator
+    //
+    srand(IceUtil::Time::now().toMicroSeconds());
+
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     _bankEdge = properties->getPropertyAsInt("Bank.Edge");

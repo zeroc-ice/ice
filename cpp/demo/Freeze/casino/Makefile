@@ -47,7 +47,11 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-clean::
+cleandb::
+	-rm -f db/__catalog db/__catalogIndexLIst db/bet db/bank db/player
+	-rm -f db/log.*	
+
+clean:: cleandb
 	-rm -f db/__catalog db/bet db/bank db/player
 	-rm -f db/log.*
 
