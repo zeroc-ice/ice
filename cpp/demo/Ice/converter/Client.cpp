@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
 #include <Echo.h>
 #include <StringConverterI.h>
@@ -26,6 +25,24 @@ menu()
         "s: shutdown server\n"
         "x: exit\n"
         "?: help\n";
+}
+
+string decodeString(const string& str)
+{
+    ostringstream result;
+    for(string::const_iterator p = str.begin(); p != str.end(); ++p)
+    {
+        if(isprint(*p))
+        {
+            result << *p;
+        }
+        else
+        {
+            result << "\\"
+                   << oct << (unsigned int)(unsigned char)(*p);
+        }
+    }
+    return result.str();
 }
 
 int
@@ -66,12 +83,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
             if(c == 't')
             {
                 string ret = echo1->echoString(greeting);
-                cout << "Received (LATIN-1): \"" << IceUtilInternal::escapeString(ret, "") << '\"' << endl;
+                cout << "Received: \"" << decodeString(ret) << '\"' << endl;
             }
             else if(c == 'u')
             {
                 string ret = echo2->echoString(greeting);
-                cout << "Received (LATIN-1): \"" << IceUtilInternal::escapeString(ret, "") << '\"' << endl;
+                cout << "Received: \"" << decodeString(ret) << '\"' << endl;
             }
             else if(c == 's')
             {

@@ -33,14 +33,14 @@ client.expect('.*==>')
 print "testing with conversion... ",
 sys.stdout.flush()
 client.sendline('u')
-server.expect('Received \\(UTF-8\\): "Bonne journ\\\\351e"')
-client.expect('Received \\(LATIN-1\\): "Bonne journ\\\\303\\\\251e"')
+server.expect('Received \\(UTF-8\\): "Bonne journ(351)e"')
+client.expect('Received: "Bonne journ\\\\303\\\\251e"')
 print "ok"
 
 print "testing without conversion... ",
 client.sendline('t')
 server.expect('Received \\(UTF-8\\): "Bonne journ\\\\303\\\\251e"')
-client.expect('Received \\(LATIN-1\\): "Bonne journ\\\\351e"')
+client.expect('Received: "Bonne journ\\\\351e"')
 print "ok"
 
 client.sendline('s')
