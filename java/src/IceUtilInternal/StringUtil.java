@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-package IceUtil;
+package IceUtilInternal;
 
 public final class StringUtil
 {

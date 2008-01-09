@@ -527,10 +527,10 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_state == StateClosed);
-        IceUtil.Assert.FinalizerAssert(_acceptor == null);
-        IceUtil.Assert.FinalizerAssert(_connections == null);
-        IceUtil.Assert.FinalizerAssert(_threadPerIncomingConnectionFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_state == StateClosed);
+        IceUtilInternal.Assert.FinalizerAssert(_acceptor == null);
+        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
+        IceUtilInternal.Assert.FinalizerAssert(_threadPerIncomingConnectionFactory == null);
 
         super.finalize();
     }

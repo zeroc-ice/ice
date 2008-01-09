@@ -146,8 +146,8 @@ public class IndirectReference extends RoutableReference
         // the reference parser uses as separators, then we enclose
         // the adapter id string in quotes.
         //
-        String a = IceUtil.StringUtil.escapeString(_adapterId, null);
-        if(IceUtil.StringUtil.findFirstOf(a, " \t\n\r") != -1)
+        String a = IceUtilInternal.StringUtil.escapeString(_adapterId, null);
+        if(IceUtilInternal.StringUtil.findFirstOf(a, " \t\n\r") != -1)
         {
             s.append('"');
             s.append(a);

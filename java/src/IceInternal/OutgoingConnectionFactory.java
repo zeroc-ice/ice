@@ -435,11 +435,11 @@ public final class OutgoingConnectionFactory
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_destroyed);
-        IceUtil.Assert.FinalizerAssert(_connections == null);
-        IceUtil.Assert.FinalizerAssert(_connectionsByEndpoint == null);
-        IceUtil.Assert.FinalizerAssert(_pendingConnectCount == 0);
-        IceUtil.Assert.FinalizerAssert(_pending.isEmpty());
+        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
+        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
+        IceUtilInternal.Assert.FinalizerAssert(_connectionsByEndpoint == null);
+        IceUtilInternal.Assert.FinalizerAssert(_pendingConnectCount == 0);
+        IceUtilInternal.Assert.FinalizerAssert(_pending.isEmpty());
 
         super.finalize();
     }

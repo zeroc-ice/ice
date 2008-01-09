@@ -997,12 +997,12 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
         else
         {
-            IceUtil.Assert.FinalizerAssert(_threadPool == null);
-            //IceUtil.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
-            IceUtil.Assert.FinalizerAssert(_communicator == null);
-            IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
-            IceUtil.Assert.FinalizerAssert(_directCount == 0);
-            IceUtil.Assert.FinalizerAssert(!_waitForActivate);
+            IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
+            //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
+            IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
+            IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories == null);
+            IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
+            IceUtilInternal.Assert.FinalizerAssert(!_waitForActivate);
         }
 
         super.finalize();
@@ -1117,7 +1117,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         java.util.ArrayList endpoints = new java.util.ArrayList();
         while(end < endpts.length())
         {
-            beg = IceUtil.StringUtil.findFirstNotOf(endpts, delim, end);
+            beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
             if(beg == -1)
             {
                 break;

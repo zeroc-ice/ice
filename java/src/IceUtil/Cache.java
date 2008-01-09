@@ -118,7 +118,7 @@ public class Cache
         }
 
         Object obj = null;
-        CountDownLatch latch = null;
+        java.util.concurrent.CountDownLatch latch = null;
     }
 
     private Object
@@ -127,7 +127,7 @@ public class Cache
         for(;;)
         {
             CacheValue val = null;
-            CountDownLatch latch = null;
+            java.util.concurrent.CountDownLatch latch = null;
             
             synchronized(_map)
             {
@@ -148,7 +148,7 @@ public class Cache
                         // 
                         // The first queued thread creates the latch 
                         // 
-                        val.latch = new CountDownLatch(1); 
+                        val.latch = new java.util.concurrent.CountDownLatch(1); 
                     } 
                     latch = val.latch; 
                 } 

@@ -76,12 +76,12 @@ final class UnknownEndpointI extends EndpointI
                     }
                     for(int j = 0; j < argument.length(); ++j)
                     {
-                        if(!IceUtil.Base64.isBase64(argument.charAt(j)))
+                        if(!IceUtilInternal.Base64.isBase64(argument.charAt(j)))
                         {
                             throw new Ice.EndpointParseException("opaque " + str);
                         }
                     }
-                    _rawBytes = IceUtil.Base64.decode(argument);
+                    _rawBytes = IceUtilInternal.Base64.decode(argument);
                     ++vopt;
                     break;
                 }
@@ -129,7 +129,7 @@ final class UnknownEndpointI extends EndpointI
     public String
     _toString()
     {
-        String val = IceUtil.Base64.encode(_rawBytes);
+        String val = IceUtilInternal.Base64.encode(_rawBytes);
         return "opaque -t " + _type + " -v " + val;
     }
 

@@ -1651,7 +1651,7 @@ public class BasicStream
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+                    IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
                     out.setUseTab(false);
                     out.print("exception raised by ice_postUnmarshal:\n");
                     ex.printStackTrace(pw);
@@ -1680,7 +1680,7 @@ public class BasicStream
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+            IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
             out.setUseTab(false);
             out.print("exception raised by ice_preMarshal:\n");
             ex.printStackTrace(pw);

@@ -36,7 +36,7 @@ public final class ServantManager
                 ex.kindOfObject = "servant";
                 if(facet.length() > 0)
                 {
-                    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
                 }
                 throw ex;
             }
@@ -64,7 +64,7 @@ public final class ServantManager
             ex.kindOfObject = "servant";
             if(facet.length() > 0)
             {
-                ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+                ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
             }
             throw ex;
         }
@@ -167,7 +167,7 @@ public final class ServantManager
         if(l != null)
         {
             Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-            ex.id = IceUtil.StringUtil.escapeString(category, "");
+            ex.id = IceUtilInternal.StringUtil.escapeString(category, "");
             ex.kindOfObject = "servant locator";
             throw ex;
         }
@@ -208,7 +208,7 @@ public final class ServantManager
         // not been called if the associated object adapter was not
         // properly deactivated.
         //
-        //IceUtil.Assert.FinalizerAssert(_instance == null);
+        //IceUtilInternal.Assert.FinalizerAssert(_instance == null);
         
         super.finalize();
     }

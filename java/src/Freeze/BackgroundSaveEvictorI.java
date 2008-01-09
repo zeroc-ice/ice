@@ -301,7 +301,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 ex.id = _communicator.identityToString(ident);
                 if(facet.length() > 0)
                 {
-                    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
                 }
                 throw ex;
             }
@@ -443,7 +443,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 ex.id = _communicator.identityToString(ident);
                 if(facet.length() > 0)
                 {
-                    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
                 }
                 throw ex;
             }
@@ -561,7 +561,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 ex.id = _communicator.identityToString(ident);
                 if(facet.length() > 0)
                 {
-                    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
                 }
                 throw ex;
             }
@@ -634,7 +634,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             ex.id = _communicator.identityToString(ident);
             if(facet.length() > 0)
             {
-                ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+                ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
             }
         
             throw ex;

@@ -64,7 +64,7 @@ public class SelectorThread
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_destroyed);
+        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
     }
 
     public synchronized void

@@ -132,7 +132,7 @@ public final class ThreadPool
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_destroyed);
+        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
     }
 
     public synchronized void

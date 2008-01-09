@@ -405,7 +405,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         //
         String className;
         String[] args;
-        int pos = IceUtil.StringUtil.findFirstOf(value, " \t\n");
+        int pos = IceUtilInternal.StringUtil.findFirstOf(value, " \t\n");
         if(pos == -1)
         {
             className = value;
@@ -416,9 +416,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
             className = value.substring(0, pos);
             try
             {
-                args = IceUtil.Options.split(value.substring(pos));
+                args = IceUtilInternal.Options.split(value.substring(pos));
             }
-            catch(IceUtil.Options.BadQuote ex)
+            catch(IceUtilInternal.Options.BadQuote ex)
             {
                 FailureException e = new FailureException();
                 e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.toString();

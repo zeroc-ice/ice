@@ -252,7 +252,7 @@ final class AcceptorI implements IceInternal.Acceptor
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_fd == null);
+        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
 
         super.finalize();
     }

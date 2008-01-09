@@ -157,7 +157,7 @@ public final class TraceUtil
             out.write("\nfacet = ");
             if(facet.length > 0)
             {
-                out.write(IceUtil.StringUtil.escapeString(facet[0], ""));
+                out.write(IceUtilInternal.StringUtil.escapeString(facet[0], ""));
             }
 
             String operation = stream.readString();

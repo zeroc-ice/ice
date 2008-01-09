@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-package IceUtil;
+package IceUtilInternal;
 
 public class XMLOutput extends OutputBase
 {

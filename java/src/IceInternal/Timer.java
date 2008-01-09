@@ -129,7 +129,7 @@ public final class Timer extends Thread
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_instance == null);
+        IceUtilInternal.Assert.FinalizerAssert(_instance == null);
         
         super.finalize();
     }

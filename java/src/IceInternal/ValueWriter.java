@@ -12,13 +12,13 @@ package IceInternal;
 public final class ValueWriter
 {
     public static void
-    write(java.lang.Object obj, IceUtil.OutputBase out)
+    write(java.lang.Object obj, IceUtilInternal.OutputBase out)
     {
         writeValue(null, obj, null, out);
     }
 
     private static void
-    writeValue(String name, java.lang.Object value, java.util.Map objectTable, IceUtil.OutputBase out)
+    writeValue(String name, java.lang.Object value, java.util.Map objectTable, IceUtilInternal.OutputBase out)
     {
         if(value == null)
         {
@@ -178,7 +178,7 @@ public final class ValueWriter
     }
 
     private static void
-    writeFields(String name, java.lang.Object obj, Class c, java.util.Map objectTable, IceUtil.OutputBase out)
+    writeFields(String name, java.lang.Object obj, Class c, java.util.Map objectTable, IceUtilInternal.OutputBase out)
     {
         if(!c.equals(java.lang.Object.class))
         {
@@ -216,7 +216,7 @@ public final class ValueWriter
     }
 
     private static void
-    writeName(String name, IceUtil.OutputBase out)
+    writeName(String name, IceUtilInternal.OutputBase out)
     {
         if(name != null)
         {

@@ -52,8 +52,8 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_instance == null);
-        IceUtil.Assert.FinalizerAssert(_connections == null);
+        IceUtilInternal.Assert.FinalizerAssert(_instance == null);
+        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
         
         super.finalize();
     }

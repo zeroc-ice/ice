@@ -218,7 +218,7 @@ public final class Util
         if(slash == -1)
         {
             StringHolder token = new StringHolder();
-            if(!IceUtil.StringUtil.unescapeString(s, 0, s.length(), token))
+            if(!IceUtilInternal.StringUtil.unescapeString(s, 0, s.length(), token))
             {
                 IdentityParseException ex = new IdentityParseException();
                 ex.str = s;
@@ -230,7 +230,7 @@ public final class Util
         else
         {
             StringHolder token = new StringHolder();
-            if(!IceUtil.StringUtil.unescapeString(s, 0, slash, token))
+            if(!IceUtilInternal.StringUtil.unescapeString(s, 0, slash, token))
             {
                 IdentityParseException ex = new IdentityParseException();
                 ex.str = s;
@@ -239,7 +239,7 @@ public final class Util
             ident.category = token.value;
             if(slash + 1 < s.length())
             {
-                if(!IceUtil.StringUtil.unescapeString(s, slash + 1, s.length(), token))
+                if(!IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.length(), token))
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = s;
@@ -261,12 +261,12 @@ public final class Util
     {
         if(ident.category.length() == 0)
         {
-            return IceUtil.StringUtil.escapeString(ident.name, "/");
+            return IceUtilInternal.StringUtil.escapeString(ident.name, "/");
         }
         else
         {
-            return IceUtil.StringUtil.escapeString(ident.category, "/") + '/' +
-                IceUtil.StringUtil.escapeString(ident.name, "/");
+            return IceUtilInternal.StringUtil.escapeString(ident.category, "/") + '/' +
+                IceUtilInternal.StringUtil.escapeString(ident.name, "/");
         }
     }
 

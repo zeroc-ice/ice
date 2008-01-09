@@ -740,22 +740,22 @@ public final class Instance
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_state == StateDestroyed);
-        IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
-        IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
-        IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-        IceUtil.Assert.FinalizerAssert(_connectionMonitor == null);
-        IceUtil.Assert.FinalizerAssert(_servantFactoryManager == null);
-        IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
-        IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
-        IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
-        IceUtil.Assert.FinalizerAssert(_selectorThread == null);
-        IceUtil.Assert.FinalizerAssert(_endpointHostResolver == null);
-        IceUtil.Assert.FinalizerAssert(_timer == null);
-        IceUtil.Assert.FinalizerAssert(_routerManager == null);
-        IceUtil.Assert.FinalizerAssert(_locatorManager == null);
-        IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
-        IceUtil.Assert.FinalizerAssert(_pluginManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_state == StateDestroyed);
+        IceUtilInternal.Assert.FinalizerAssert(_referenceFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_proxyFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_connectionMonitor == null);
+        IceUtilInternal.Assert.FinalizerAssert(_servantFactoryManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
+        IceUtilInternal.Assert.FinalizerAssert(_serverThreadPool == null);
+        IceUtilInternal.Assert.FinalizerAssert(_selectorThread == null);
+        IceUtilInternal.Assert.FinalizerAssert(_endpointHostResolver == null);
+        IceUtilInternal.Assert.FinalizerAssert(_timer == null);
+        IceUtilInternal.Assert.FinalizerAssert(_routerManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_locatorManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_endpointFactoryManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_pluginManager == null);
 
         super.finalize();
     }

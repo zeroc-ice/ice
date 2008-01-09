@@ -461,7 +461,7 @@ final class TransceiverI implements IceInternal.Transceiver
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_fd == null);
+        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
 
         super.finalize();
     }

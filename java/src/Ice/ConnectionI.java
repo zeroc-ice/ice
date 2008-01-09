@@ -1485,14 +1485,14 @@ public final class ConnectionI extends IceInternal.EventHandler
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_startCallback == null);
-        IceUtil.Assert.FinalizerAssert(_state == StateClosed);
-        IceUtil.Assert.FinalizerAssert(_transceiver == null);
-        IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
-        IceUtil.Assert.FinalizerAssert(_thread == null);
-        IceUtil.Assert.FinalizerAssert(_queuedStreams.isEmpty());
-        IceUtil.Assert.FinalizerAssert(_requests.isEmpty());
-        IceUtil.Assert.FinalizerAssert(_asyncRequests.isEmpty());
+        IceUtilInternal.Assert.FinalizerAssert(_startCallback == null);
+        IceUtilInternal.Assert.FinalizerAssert(_state == StateClosed);
+        IceUtilInternal.Assert.FinalizerAssert(_transceiver == null);
+        IceUtilInternal.Assert.FinalizerAssert(_dispatchCount == 0);
+        IceUtilInternal.Assert.FinalizerAssert(_thread == null);
+        IceUtilInternal.Assert.FinalizerAssert(_queuedStreams.isEmpty());
+        IceUtilInternal.Assert.FinalizerAssert(_requests.isEmpty());
+        IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
 
         super.finalize();
     }

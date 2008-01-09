@@ -134,7 +134,7 @@ public final class ReferenceFactory
         int beg;
         int end = 0;
 
-        beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
+        beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
         if(beg == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -147,7 +147,7 @@ public final class ReferenceFactory
         // or double quotation marks.
         //
         String idstr = null;
-        end = IceUtil.StringUtil.checkQuote(s, beg);
+        end = IceUtilInternal.StringUtil.checkQuote(s, beg);
         if(end == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -156,7 +156,7 @@ public final class ReferenceFactory
         }
         else if(end == 0)
         {
-            end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
+            end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
             if(end == -1)
             {
                 end = s.length();
@@ -200,7 +200,7 @@ public final class ReferenceFactory
             // a null proxy, but only if nothing follows the
             // quotes.
             //
-            else if(IceUtil.StringUtil.findFirstNotOf(s, delim, end) != -1)
+            else if(IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
                 e.str = s;
@@ -219,7 +219,7 @@ public final class ReferenceFactory
 
         while(true)
         {
-            beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
+            beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
             if(beg == -1)
             {
                 break;
@@ -230,7 +230,7 @@ public final class ReferenceFactory
                 break;
             }
 
-            end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
+            end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
             if(end == -1)
             {
                 end = s.length();
@@ -255,14 +255,14 @@ public final class ReferenceFactory
             // quotation marks.
             //
             String argument = null;
-            int argumentBeg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
+            int argumentBeg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end);
             if(argumentBeg != -1)
             {
                 final char ch = s.charAt(argumentBeg);
                 if(ch != '@' && ch != ':' && ch != '-')
                 {
                     beg = argumentBeg;
-                    end = IceUtil.StringUtil.checkQuote(s, beg);
+                    end = IceUtilInternal.StringUtil.checkQuote(s, beg);
                     if(end == -1)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -271,7 +271,7 @@ public final class ReferenceFactory
                     }
                     else if(end == 0)
                     {
-                        end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
+                        end = IceUtilInternal.StringUtil.findFirstOf(s, delim + ":@", beg);
                         if(end == -1)
                         {
                             end = s.length();
@@ -303,7 +303,7 @@ public final class ReferenceFactory
                     }
 
                     Ice.StringHolder facetH = new Ice.StringHolder();
-                    if(!IceUtil.StringUtil.unescapeString(argument, 0, argument.length(), facetH))
+                    if(!IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.length(), facetH))
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
                         e.str = s;
@@ -499,7 +499,7 @@ public final class ReferenceFactory
         }
         else if(s.charAt(beg) == '@')
         {
-            beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
+            beg = IceUtilInternal.StringUtil.findFirstNotOf(s, delim, beg + 1);
             if(beg == -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -508,7 +508,7 @@ public final class ReferenceFactory
             }
 
             String adapterstr = null;
-            end = IceUtil.StringUtil.checkQuote(s, beg);
+            end = IceUtilInternal.StringUtil.checkQuote(s, beg);
             if(end == -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -517,7 +517,7 @@ public final class ReferenceFactory
             }
             else if(end == 0)
             {
-                end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
+                end = IceUtilInternal.StringUtil.findFirstOf(s, delim, beg);
                 if(end == -1)
                 {
                     end = s.length();
@@ -531,7 +531,7 @@ public final class ReferenceFactory
                 end++; // Skip trailing quote
             }
 
-            if(end != s.length() && IceUtil.StringUtil.findFirstNotOf(s, delim, end) != -1)
+            if(end != s.length() && IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
                 e.str = s;
@@ -539,7 +539,7 @@ public final class ReferenceFactory
             }
             
             Ice.StringHolder token = new Ice.StringHolder();
-            if(!IceUtil.StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), token) ||
+            if(!IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), token) ||
                token.value.length() == 0)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();

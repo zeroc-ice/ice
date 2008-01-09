@@ -140,11 +140,11 @@ public class IncomingBase
 
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+        IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch exception:");
         out.print("\nidentity: " + _os.instance().identityToString(_current.id));
-        out.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
+        out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
         out.print("\noperation: " + _current.operation);
         out.print("\n");
         ex.printStackTrace(pw);
