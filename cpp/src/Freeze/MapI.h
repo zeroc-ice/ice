@@ -151,6 +151,9 @@ public:
     virtual void
     closeDb();
  
+    virtual ConnectionPtr
+    getConnection() const;
+
     void
     close();
 

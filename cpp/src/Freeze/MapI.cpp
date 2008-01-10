@@ -1533,6 +1533,12 @@ Freeze::MapHelperI::closeDb()
     _connection->dbEnv()->removeSharedMapDb(_dbName);
 }
 
+Freeze::ConnectionPtr
+Freeze::MapHelperI::getConnection() const
+{
+    return _connection;
+}
+
 void
 Freeze::MapHelperI::close()
 {

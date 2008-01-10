@@ -131,7 +131,25 @@ Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator, const string& envN
 
 Freeze::SharedDbEnv::~SharedDbEnv()
 {
-    cleanup();
+    try
+    {
+        cleanup();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(_communicator->getLogger());
+        out << "Freeze DbEnv close error:" << ex;
+    }
+    catch(const std::exception& ex)
+    {
+        Error out(_communicator->getLogger());
+        out << "Freeze DbEnv close error:" << ex.what();
+    }
+    catch(...)
+    {
+        Error out(_communicator->getLogger());
+        out << "Freeze DbEnv close error: unknown exception"; 
+    }
 }
 
 

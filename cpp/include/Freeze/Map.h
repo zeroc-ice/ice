@@ -90,7 +90,7 @@ class FREEZE_API MapHelper
 public:
     
     static MapHelper*
-    create(const Freeze::ConnectionPtr& connection, 
+    create(const ConnectionPtr& connection, 
            const std::string& dbName,
            const std::string& key,
            const std::string& value,
@@ -99,7 +99,7 @@ public:
            bool createDb);
 
     static void 
-    recreate(const Freeze::ConnectionPtr& connection, 
+    recreate(const ConnectionPtr& connection, 
              const std::string& dbName,
              const std::string& key,
              const std::string& value,
@@ -143,6 +143,9 @@ public:
 
     virtual void
     closeDb() = 0;
+
+    virtual ConnectionPtr
+    getConnection() const = 0;
 };
 
 
@@ -1099,7 +1102,6 @@ public:
         _helper->destroy();
     }
 
-
     //
     // closeDb closes the underlying Berkeley DB database
     //
@@ -1107,7 +1109,7 @@ public:
     {
         _helper->closeDb();
     }
-    
+
     iterator find(const key_type& key)
     {
         Key k;
@@ -1130,7 +1132,6 @@ public:
         KeyCodec::write(key, k, _communicator);
         
         return _helper->count(k);
-
     }
 
     iterator lower_bound(const key_type& key)
@@ -1180,6 +1181,14 @@ public:
     communicator() const
     {
         return _communicator;
+    }
+
+    //
+    // getConnection returns the associated connection
+    //
+    ConnectionPtr getConnection() const
+    {
+        return _helper->getConnection();
     }
 
 protected:

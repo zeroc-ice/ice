@@ -280,7 +280,6 @@ public abstract class Map extends java.util.AbstractMap
         }
     }
 
-
     public void
     close()
     {
@@ -292,6 +291,12 @@ public abstract class Map extends java.util.AbstractMap
     {
         close(false);
         _connection.dbEnv().removeSharedMapDb(_dbName);
+    }
+
+    public Connection
+    getConnection()
+    {
+        return _connection;
     }
 
     //
