@@ -13,7 +13,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
 #include <IcePatch2/FileServer.h>
-#include <fstream>
+
 #include <stdio.h>
 
 namespace IcePatch2

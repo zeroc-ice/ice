@@ -85,10 +85,6 @@ ifeq ($(CXX),c++)
 
    CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT -I/usr/include/nptl
 
-   ifneq ($(LP64),yes)
-      CXXFLAGS          += -D_FILE_OFFSET_BITS=64
-   endif
-
    ifeq ($(STATICLIBS),)
       CXXFLAGS		+= -fPIC
    endif
@@ -139,10 +135,6 @@ ifeq ($(CXX),icpc)
    $(warning support.)
    $(warning ===================================================================) 
    CXXFLAGS		= -D_REENTRANT    
-
-   ifneq ($(LP64),yes)
-      CXXFLAGS          += -D_FILE_OFFSET_BITS=64
-   endif
 
    ifeq ($(STATICLIBS),)
       CXXFLAGS		+= -fPIC

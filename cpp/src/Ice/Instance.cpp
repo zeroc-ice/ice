@@ -761,7 +761,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             
             if(stdOutFilename != "")
             {
-                FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
+#ifdef _LARGEFILE64_SOURCE
+                FILE* file = freopen64(stdOutFilename.c_str(), "a", stdout);
+#else
+		FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
+#endif
                 if(file == 0)
                 {
                     FileException ex(__FILE__, __LINE__);
@@ -773,7 +777,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             
             if(stdErrFilename != "")
             {
+#ifdef _LARGEFILE64_SOURCE
+                FILE* file = freopen64(stdErrFilename.c_str(), "a", stderr);
+#else
                 FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
+#endif
                 if(file == 0)
                 {
                     FileException ex(__FILE__, __LINE__);

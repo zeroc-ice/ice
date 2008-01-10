@@ -30,10 +30,6 @@ DISABLEDWARNINGS        = +W849
 
 CXXFLAGS		= -AA -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
 
-ifneq ($(LP64),yes)
-    CXXFLAGS            += -D_FILE_OFFSET_BITS=64
-endif
-
 ifeq ($(STATICLIBS),)
     CXXFLAGS		+= +Z
 endif
