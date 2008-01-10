@@ -14,12 +14,12 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Echo.obj \
+OBJS		= Greet.obj \
 		  StringConverterI.obj
 
 COBJS		= Client.obj
 
-SOBJS		= EchoI.obj \
+SOBJS		= GreetI.obj \
 		  Server.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
@@ -46,6 +46,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
-	del /q Echo.cpp Echo.h
+	del /q Greet.cpp Greet.h
 
 !include .depend

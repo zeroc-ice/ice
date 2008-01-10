@@ -1,8 +1,8 @@
 #
 # The client reads this property to create the reference to the
-# "echo" object in the server.
+# "greet" object in the server.
 #
-Echo.Proxy=echo:tcp -p 10000
+Greet.Proxy=greet:tcp -p 10000
 
 #
 # Warn about connection exceptions

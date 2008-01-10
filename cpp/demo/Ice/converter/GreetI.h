@@ -7,18 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef ECHO_ICE
-#define ECHO_ICE
+#ifndef ECHO_I_H
+#define ECHO_I_H
 
-module Demo
+#include <Greet.h>
+
+class GreetI : public Demo::Greet
 {
+public:
 
-interface Echo
-{
-    ["cpp:const"] idempotent string echoString(string s);
-    void shutdown();
-};
-
+    virtual std::string exchangeGreeting(const std::string&, const Ice::Current&) const;
+    virtual void shutdown(const Ice::Current&);
 };
 
 #endif

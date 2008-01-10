@@ -14,19 +14,19 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Echo.o
+OBJS		= Greet.o
 
 COBJS		= Client.o \
 		  StringConverterI.o
 
-SOBJS		= EchoI.o \
+SOBJS		= GreetI.o \
 		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Echo.ice
+SLICE_SRCS	= Greet.ice
 
 include $(top_srcdir)/config/Make.rules
 

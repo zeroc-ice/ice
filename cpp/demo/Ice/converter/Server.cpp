@@ -8,11 +8,11 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <EchoI.h>
+#include <GreetI.h>
 
 using namespace std;
 
-class EchoServer : public Ice::Application
+class ConverterServer : public Ice::Application
 {
 public:
 
@@ -22,12 +22,12 @@ public:
 int
 main(int argc, char* argv[])
 {
-    EchoServer app;
+    ConverterServer app;
     return app.main(argc, argv, "config.server");
 }
 
 int
-EchoServer::run(int argc, char* argv[])
+ConverterServer::run(int argc, char* argv[])
 {
     if(argc > 1)
     {
@@ -35,8 +35,8 @@ EchoServer::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Echo");
-    adapter->add(new EchoI, communicator()->stringToIdentity("echo"));
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Greet");
+    adapter->add(new GreetI, communicator()->stringToIdentity("greet"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

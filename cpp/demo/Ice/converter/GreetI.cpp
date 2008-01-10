@@ -9,7 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <EchoI.h>
+#include <GreetI.h>
 
 using namespace std;
 
@@ -33,14 +33,14 @@ string decodeString(const string& str)
 
 
 string
-EchoI::echoString(const std::string& msg, const Ice::Current&) const
+GreetI::exchangeGreeting(const std::string& msg, const Ice::Current&) const
 {
     cout << "Received (UTF-8): \"" << decodeString(msg) << '\"' << endl;
     return "Bonne journ\303\251e";
 }
 
 void
-EchoI::shutdown(const Ice::Current& c)
+GreetI::shutdown(const Ice::Current& c)
 {
     cout << "Shutting down..." << endl;
     c.adapter->getCommunicator()->shutdown();

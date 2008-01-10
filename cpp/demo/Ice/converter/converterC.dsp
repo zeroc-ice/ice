@@ -95,7 +95,7 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Echo.cpp
+SOURCE=.\Greet.cpp
 # End Source File
 # Begin Source File
 
@@ -107,7 +107,7 @@ SOURCE=.\StringConverterI.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Echo.h
+SOURCE=.\Greet.h
 # End Source File
 # Begin Source File
 
@@ -119,21 +119,21 @@ SOURCE=.\StringConverterI.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Echo.ice
+SOURCE=.\Greet.ice
 
 !IF  "$(CFG)" == "converterC - Win32 Release"
 
 USERDEP__ECHO_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Echo.ice
+InputPath=.\Greet.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Echo.ice
+	..\..\..\bin\slice2cpp.exe Greet.ice
 
-"Echo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Greet.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Echo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Greet.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -141,15 +141,15 @@ BuildCmds= \
 
 USERDEP__ECHO_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Echo.ice
+InputPath=.\Greet.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Echo.ice
+	..\..\..\bin\slice2cpp.exe Greet.ice
 
-"Echo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Greet.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Echo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Greet.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

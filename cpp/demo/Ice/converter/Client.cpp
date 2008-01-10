@@ -9,7 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <Echo.h>
+#include <Greet.h>
 #include <StringConverterI.h>
 
 using namespace std;
@@ -54,16 +54,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
         return EXIT_FAILURE;
     }
 
-    const string proxyProperty = "Echo.Proxy";
-    EchoPrx echo1 = EchoPrx::checkedCast(communicator1->propertyToProxy(proxyProperty));
-    if(!echo1)
+    const string proxyProperty = "Greet.Proxy";
+    GreetPrx greet1 = GreetPrx::checkedCast(communicator1->propertyToProxy(proxyProperty));
+    if(!greet1)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
 
-    EchoPrx echo2 = EchoPrx::checkedCast(communicator2->propertyToProxy(proxyProperty));
-    if(!echo2)
+    GreetPrx greet2 = GreetPrx::checkedCast(communicator2->propertyToProxy(proxyProperty));
+    if(!greet2)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
         return EXIT_FAILURE;
@@ -82,17 +82,17 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
             cin >> c;
             if(c == 't')
             {
-                string ret = echo1->echoString(greeting);
+                string ret = greet1->exchangeGreeting(greeting);
                 cout << "Received: \"" << decodeString(ret) << '\"' << endl;
             }
             else if(c == 'u')
             {
-                string ret = echo2->echoString(greeting);
+                string ret = greet2->exchangeGreeting(greeting);
                 cout << "Received: \"" << decodeString(ret) << '\"' << endl;
             }
             else if(c == 's')
             {
-                echo1->shutdown();
+                greet1->shutdown();
             }
             else if(c == 'x')
             {
