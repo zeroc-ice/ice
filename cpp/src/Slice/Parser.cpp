@@ -4994,88 +4994,6 @@ Slice::Unit::nextLine()
     _currentLine++;
 }
 
-#ifdef _WIN32
-//
-// On Windows mcpp output does not maintain filename capitalization
-// so we have to manually fix it up.
-//
-string
-fixCapitalization(const string& path)
-{
-    if(!isAbsolute(path))
-    {
-        return path;
-    }
-
-    vector<string> result;
-    IceUtilInternal::splitString(path, "/", result);
-    string currentPath = result[0];
-    for(unsigned int i = 1; i < result.size(); ++i)
-    {
-        const wstring fs = IceUtil::stringToWstring(currentPath + "/*");
-
-#ifdef __BCPLUSPLUS__
-        struct _wffblk data;
-        int h = _wfindfirst(fs.c_str(), &data, FA_DIREC);
-        if(h == -1)
-        {
-            return path;
-        }
-
-        while(true)
-        {
-            string name = IceUtil::wstringToString(data.ff_name);
-            assert(!name.empty());
-
-            if(_stricmp(name.c_str(), result[i].c_str()) == 0)
-            {
-                currentPath += "/" + name;
-                _wfindclose(&data);
-                break;
-            }
-
-            if(_wfindnext(&data) == -1)
-            {
-                _wfindclose(&data);
-                return path;
-            }
-       }
-#else
-        struct _wfinddata_t data;
-#    if defined(_MSC_VER) && (_MSC_VER < 1300)
-        long h = _wfindfirst(fs.c_str(), &data);
-#    else
-        intptr_t h = _wfindfirst(fs.c_str(), &data);
-#    endif
-        if(h == -1)
-        {
-            return path;
-        }
-
-        while(true)
-        {
-            string name = IceUtil::wstringToString(data.name);
-            assert(!name.empty());
-
-            if(_stricmp(name.c_str(), result[i].c_str()) == 0)
-            {
-                currentPath += "/" + name;
-                _findclose(h);
-                break;
-            }
-        
-            if(_wfindnext(h, &data) == -1)
-            {
-                _findclose(h);
-                return path;
-            }
-        }
-#endif
-    }
-    return currentPath;
-}
-#endif
-
 void
 Slice::Unit::scanPosition(const char* s)
 {
@@ -5117,9 +5035,6 @@ Slice::Unit::scanPosition(const char* s)
         }
     }
 
-#ifdef _WIN32
-    currentFile = fixCapitalization(currentFile);
-#endif
     currentFile = normalizePath(currentFile, false);
 
     enum LineType { File, Push, Pop };
