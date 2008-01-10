@@ -81,12 +81,12 @@ namespace IceInternal
                         }
                         for(int j = 0; j < argument.Length; ++j)
                         {
-                            if(!IceUtil.Base64.isBase64(argument[j]))
+                            if(!IceUtilInternal.Base64.isBase64(argument[j]))
                             {
                                 throw new Ice.EndpointParseException("opaque " + str);
                             }
                         }
-                        _rawBytes = IceUtil.Base64.decode(argument);
+                        _rawBytes = IceUtilInternal.Base64.decode(argument);
                         ++vopt;
                         break;
                     }
@@ -132,7 +132,7 @@ namespace IceInternal
         //
         public override string ice_toString_()
         {
-            string val = IceUtil.Base64.encode(_rawBytes);
+            string val = IceUtilInternal.Base64.encode(_rawBytes);
             return "opaque -t " + _type + " -v " + val;
         }
         

@@ -210,12 +210,12 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
 
     _out << sp << nl << "public override bool ice_isA(string s)";
     _out << sb;
-    _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtil.StringUtil.OrdinalStringComparer) >= 0;";
+    _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
     _out << sp << nl << "public override bool ice_isA(string s, Ice.Current current__)";
     _out << sb;
-    _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtil.StringUtil.OrdinalStringComparer) >= 0;";
+    _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
     _out << sp << nl << "public override string[] ice_ids()";
@@ -580,7 +580,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
              << "dispatch__(IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
         _out << nl << "int pos = _System.Array.BinarySearch(all__, current__.operation, "
-             << "IceUtil.StringUtil.OrdinalStringComparer);";
+             << "IceUtilInternal.StringUtil.OrdinalStringComparer);";
         _out << nl << "if(pos < 0)";
         _out << sb;
         _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";

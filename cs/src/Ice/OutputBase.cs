@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 using System.Collections;

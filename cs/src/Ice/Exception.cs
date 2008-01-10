@@ -45,7 +45,7 @@ namespace Ice
             // doesn't appear to be possible to reformat it.
             //
             System.IO.StringWriter sw = new System.IO.StringWriter();
-            IceUtil.OutputBase op = new IceUtil.OutputBase(sw);
+            IceUtilInternal.OutputBase op = new IceUtilInternal.OutputBase(sw);
             op.setUseTab(false);
             op.print(GetType().FullName);
             op.inc();

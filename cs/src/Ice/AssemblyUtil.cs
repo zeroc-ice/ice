@@ -76,7 +76,7 @@ namespace IceInternal
 
         public static Type[] findTypesWithPrefix(string prefix)
         {
-            IceUtil.LinkedList l = new IceUtil.LinkedList();
+            IceUtilInternal.LinkedList l = new IceUtilInternal.LinkedList();
 
             loadAssemblies(); // Lazy initialization
 

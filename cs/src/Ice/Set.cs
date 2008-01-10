@@ -11,7 +11,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 
-namespace IceUtil
+namespace IceUtilInternal
 {
     public class Set : ICollection, ICloneable
     {

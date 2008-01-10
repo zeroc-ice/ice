@@ -1045,7 +1045,7 @@ namespace IceInternal
         private Dictionary<string, string> _defaultContext;
         private Ice.ObjectAdapter _adminAdapter;
         private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
-        private IceUtil.Set _adminFacetFilter = new IceUtil.Set();
+        private IceUtilInternal.Set _adminFacetFilter = new IceUtilInternal.Set();
         private Ice.Identity _adminIdentity;
 
         private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();

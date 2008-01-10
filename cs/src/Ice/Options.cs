@@ -10,7 +10,7 @@
 using System.Collections;
 using System.Diagnostics;
 
-namespace IceUtil
+namespace IceUtilInternal
 {
     public sealed class Options
     {

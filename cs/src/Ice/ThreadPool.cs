@@ -28,7 +28,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Net.Sockets;
     using System.Threading;
-    using IceUtil;
+    using IceUtilInternal;
     
     public delegate void ThreadPoolExecuteDelegate(ThreadPool threadPool);
 
@@ -940,7 +940,7 @@ namespace IceInternal
         private Socket _fdIntrRead;
         private Socket _fdIntrWrite;
 
-        private IceUtil.LinkedList _changes = new IceUtil.LinkedList();
+        private IceUtilInternal.LinkedList _changes = new IceUtilInternal.LinkedList();
         private LinkedList<ThreadPoolExecuteDelegate> _workItems = new LinkedList<ThreadPoolExecuteDelegate>();
 
         private Hashtable _handlerMap = new Hashtable();

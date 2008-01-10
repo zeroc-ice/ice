@@ -9,7 +9,7 @@
 
 using System.Collections;
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
     public sealed class Arrays

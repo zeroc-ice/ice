@@ -153,7 +153,7 @@ public class AllTests
             // Ensure that when a connection is opened it's reused for new
             // proxies and that all endpoints are eventually tried.
             //
-            IceUtil.Set names = new IceUtil.Set();
+            IceUtilInternal.Set names = new IceUtilInternal.Set();
             names.Add("Adapter11");
             names.Add("Adapter12");
             names.Add("Adapter13");
@@ -245,7 +245,7 @@ public class AllTests
             // Ensure that when a connection is opened it's reused for new
             // proxies and that all endpoints are eventually tried.
             //
-            IceUtil.Set names = new IceUtil.Set();
+            IceUtilInternal.Set names = new IceUtilInternal.Set();
             names.Add("AdapterAMI11");
             names.Add("AdapterAMI12");
             names.Add("AdapterAMI13");
@@ -336,7 +336,7 @@ public class AllTests
             TestIntfPrx obj = createTestIntfPrx(adapters);
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
 
-            IceUtil.Set names = new IceUtil.Set();
+            IceUtilInternal.Set names = new IceUtilInternal.Set();
             names.Add("Adapter21");
             names.Add("Adapter22");
             names.Add("Adapter23");
@@ -460,7 +460,7 @@ public class AllTests
             TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!obj.ice_isConnectionCached());
 
-            IceUtil.Set names = new IceUtil.Set();
+            IceUtilInternal.Set names = new IceUtilInternal.Set();
             names.Add("Adapter51");
             names.Add("Adapter52");
             names.Add("Adapter53");
@@ -498,7 +498,7 @@ public class AllTests
             TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!obj.ice_isConnectionCached());
 
-            IceUtil.Set names = new IceUtil.Set();
+            IceUtilInternal.Set names = new IceUtilInternal.Set();
             names.Add("AdapterAMI51");
             names.Add("AdapterAMI52");
             names.Add("AdapterAMI53");

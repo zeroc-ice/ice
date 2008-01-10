@@ -1978,7 +1978,7 @@ namespace IceInternal
             if(index < 0 && patcher != null)
             {
                 int i = -index;
-                IceUtil.LinkedList patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[i];
+                IceUtilInternal.LinkedList patchlist = (IceUtilInternal.LinkedList)_readEncapsStack.patchMap[i];
                 if(patchlist == null)
                 {
                     //
@@ -1986,7 +1986,7 @@ namespace IceInternal
                     // for this index, so make a new entry in the
                     // patch map.
                     //
-                    patchlist = new IceUtil.LinkedList();
+                    patchlist = new IceUtilInternal.LinkedList();
                     _readEncapsStack.patchMap[i] = patchlist;
                 }
                 //
@@ -2282,7 +2282,7 @@ namespace IceInternal
             Debug.Assert(   ((object)instanceIndex != null && (object)patchIndex == null)
                          || ((object)instanceIndex == null && (object)patchIndex != null));
 
-            IceUtil.LinkedList patchlist;
+            IceUtilInternal.LinkedList patchlist;
             Ice.Object v;
             if((object)instanceIndex != null)
             {
@@ -2290,7 +2290,7 @@ namespace IceInternal
                 // We have just unmarshaled an instance -- check if
                 // something needs patching for that instance.
                 //
-                patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[instanceIndex];
+                patchlist = (IceUtilInternal.LinkedList)_readEncapsStack.patchMap[instanceIndex];
                 if(patchlist == null)
                 {
                     return; // We don't have anything to patch for the instance just unmarshaled.
@@ -2309,7 +2309,7 @@ namespace IceInternal
                 {
                     return; // We haven't unmarshaled the instance for this index yet.
                 }
-                patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[patchIndex];
+                patchlist = (IceUtilInternal.LinkedList)_readEncapsStack.patchMap[patchIndex];
             }
             Debug.Assert(patchlist != null && patchlist.Count > 0);
             Debug.Assert(v != null);

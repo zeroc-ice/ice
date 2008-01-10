@@ -13,7 +13,7 @@ namespace IceInternal
     using System.Collections;
     using System.Diagnostics;
     using System.Reflection;
-    using IceUtil;
+    using IceUtilInternal;
 
     public sealed class ValueWriter
     {

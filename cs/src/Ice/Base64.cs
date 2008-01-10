@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
 public class Base64

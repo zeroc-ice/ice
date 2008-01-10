@@ -15,7 +15,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Net.Sockets;
     using System.Threading;
-    using IceUtil;
+    using IceUtilInternal;
 
     public sealed class OutgoingConnectionFactory
     {

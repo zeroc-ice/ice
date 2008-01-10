@@ -30,59 +30,59 @@ public class Client
 
         try
         {
-            test(IceUtil.Options.split("").Length == 0);
+            test(IceUtilInternal.Options.split("").Length == 0);
             
-            args = IceUtil.Options.split("\"\"");
+            args = IceUtilInternal.Options.split("\"\"");
             test(args.Length == 1 && args[0].Equals(""));
-            args = IceUtil.Options.split("''");
+            args = IceUtilInternal.Options.split("''");
             test(args.Length == 1 && args[0].Equals(""));
-            args = IceUtil.Options.split("$''");
+            args = IceUtilInternal.Options.split("$''");
             test(args.Length == 1 && args[0].Equals(""));
 
-            args = IceUtil.Options.split("-a -b -c");
+            args = IceUtilInternal.Options.split("-a -b -c");
             test(args.Length == 3 && args[0].Equals("-a") && args[1].Equals("-b") && args[2].Equals("-c"));
-            args = IceUtil.Options.split("\"-a\" '-b' $'-c'");
+            args = IceUtilInternal.Options.split("\"-a\" '-b' $'-c'");
             test(args.Length == 3 && args[0].Equals("-a") && args[1].Equals("-b") && args[2].Equals("-c"));
-            args = IceUtil.Options.split("  '-b' \"-a\" $'-c' ");
+            args = IceUtilInternal.Options.split("  '-b' \"-a\" $'-c' ");
             test(args.Length == 3 && args[0].Equals("-b") && args[1].Equals("-a") && args[2].Equals("-c"));
-            args = IceUtil.Options.split(" $'-c' '-b' \"-a\"  ");
+            args = IceUtilInternal.Options.split(" $'-c' '-b' \"-a\"  ");
             test(args.Length == 3 && args[0].Equals("-c") && args[1].Equals("-b") && args[2].Equals("-a"));
 
             // Testing single quote
-            args = IceUtil.Options.split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
+            args = IceUtilInternal.Options.split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\\\test\\\\file")); // -Dir=C:\\test\\file
-            args = IceUtil.Options.split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
+            args = IceUtilInternal.Options.split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtil.Options.split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
+            args = IceUtilInternal.Options.split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
             // Testing double quote
-            args = IceUtil.Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
+            args = IceUtilInternal.Options.split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-                 args = IceUtil.Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
+                 args = IceUtilInternal.Options.split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
                  test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtil.Options.split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
+            args = IceUtilInternal.Options.split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
             // Testing ANSI quote
-            args = IceUtil.Options.split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
+            args = IceUtilInternal.Options.split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtil.Options.split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
+            args = IceUtilInternal.Options.split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\oest\\oile")); // -Dir=C:\oest\oile
-            args = IceUtil.Options.split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
+            args = IceUtilInternal.Options.split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
-            args = IceUtil.Options.split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
+            args = IceUtilInternal.Options.split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtil.Options.split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
+            args = IceUtilInternal.Options.split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
-            args = IceUtil.Options.split("-Dir=$'\\cM\\c_'"); // Control characters
+            args = IceUtilInternal.Options.split("-Dir=$'\\cM\\c_'"); // Control characters
             test(args.Length == 1 && args[0].Equals("-Dir=\x0D\x1F"));
-            args = IceUtil.Options.split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
+            args = IceUtilInternal.Options.split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\ff\x0Di"));
-            args = IceUtil.Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
+            args = IceUtilInternal.Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
             test(args.Length == 1 && args[0].Equals("-Dir=C:\\\x000Dffi"));
         }
-        catch(IceUtil.Options.BadQuote)
+        catch(IceUtilInternal.Options.BadQuote)
         {
             test(false);
         }
@@ -98,10 +98,10 @@ public class Client
         {
             try
             {
-                IceUtil.Options.split(badQuoteCommands[i]);
+                IceUtilInternal.Options.split(badQuoteCommands[i]);
                 test(false);
             }
-            catch(IceUtil.Options.BadQuote)
+            catch(IceUtilInternal.Options.BadQuote)
             {
             }
         }

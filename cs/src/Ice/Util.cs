@@ -170,7 +170,7 @@ namespace Ice
             
             if(slash == -1)
             {
-                if(!IceUtil.StringUtil.unescapeString(s, 0, s.Length, out ident.name))
+                if(!IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, out ident.name))
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = s;
@@ -180,7 +180,7 @@ namespace Ice
             }
             else
             {
-                if(!IceUtil.StringUtil.unescapeString(s, 0, slash, out ident.category))
+                if(!IceUtilInternal.StringUtil.unescapeString(s, 0, slash, out ident.category))
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = s;
@@ -188,7 +188,7 @@ namespace Ice
                 }
                 if(slash + 1 < s.Length)
                 {
-                    if(!IceUtil.StringUtil.unescapeString(s, slash + 1, s.Length, out ident.name))
+                    if(!IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, out ident.name))
                     {
                         IdentityParseException ex = new IdentityParseException();
                         ex.str = s;
@@ -208,11 +208,11 @@ namespace Ice
         {
             if(ident.category.Length == 0)
             {
-                return IceUtil.StringUtil.escapeString(ident.name, "/");
+                return IceUtilInternal.StringUtil.escapeString(ident.name, "/");
             }
             else
             {
-                return IceUtil.StringUtil.escapeString(ident.category, "/") + '/' + IceUtil.StringUtil.escapeString(ident.name, "/");
+                return IceUtilInternal.StringUtil.escapeString(ident.category, "/") + '/' + IceUtilInternal.StringUtil.escapeString(ident.name, "/");
             }
         }
         

@@ -533,7 +533,7 @@ namespace Ice
                 for(int i = 0; i < sz; ++i)
                 {
                     IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories[i];
-                    IceUtil.LinkedList l = factory.connections();
+                    IceUtilInternal.LinkedList l = factory.connections();
                     foreach(ConnectionI conn in l)
                     {
                         connections.Add(conn);
@@ -1126,7 +1126,7 @@ namespace Ice
             List<IceInternal.EndpointI> endpoints = new List<IceInternal.EndpointI>();
             while(end < endpts.Length)
             {
-                beg = IceUtil.StringUtil.findFirstNotOf(endpts, delim, end);
+                beg = IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
                 if(beg == -1)
                 {
                     break;

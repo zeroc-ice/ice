@@ -250,7 +250,7 @@ namespace IceInternal
             // the identity string in quotes.
             //
             string id = instance_.identityToString(identity_);
-            if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+            if(IceUtilInternal.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
             {
                 s.Append('"');
                 s.Append(id);
@@ -269,8 +269,8 @@ namespace IceInternal
                 // the facet string in quotes.
                 //
                 s.Append(" -f ");
-                string fs = IceUtil.StringUtil.escapeString(facet_, "");
-                if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+                string fs = IceUtilInternal.StringUtil.escapeString(facet_, "");
+                if(IceUtilInternal.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
                 {
                     s.Append('"');
                     s.Append(fs);
@@ -593,7 +593,7 @@ namespace IceInternal
             {
                 return false;
             }
-            return IceUtil.Arrays.Equals(_fixedConnections, rhs._fixedConnections);
+            return IceUtilInternal.Arrays.Equals(_fixedConnections, rhs._fixedConnections);
         }
 
         //
@@ -686,11 +686,11 @@ namespace IceInternal
             }
             else if(getPreferSecure())
             {
-                IceUtil.Arrays.Sort(ref connections, _preferSecureConnectionComparator);
+                IceUtilInternal.Arrays.Sort(ref connections, _preferSecureConnectionComparator);
             }
             else
             {
-                IceUtil.Arrays.Sort(ref connections, _preferNonSecureConnectionComparator);
+                IceUtilInternal.Arrays.Sort(ref connections, _preferNonSecureConnectionComparator);
             }
             
             Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.Count];
@@ -1124,11 +1124,11 @@ namespace IceInternal
             }
             else if(getPreferSecure())
             {
-                IceUtil.Arrays.Sort(ref endpoints, _preferSecureEndpointComparator);
+                IceUtilInternal.Arrays.Sort(ref endpoints, _preferSecureEndpointComparator);
             }
             else
             {
-                IceUtil.Arrays.Sort(ref endpoints, _preferNonSecureEndpointComparator);
+                IceUtilInternal.Arrays.Sort(ref endpoints, _preferNonSecureEndpointComparator);
             }
 
             EndpointI[] arr = new EndpointI[endpoints.Count];
@@ -1595,7 +1595,7 @@ namespace IceInternal
             {
                 return false;
             }
-            return IceUtil.Arrays.Equals(_endpoints, rhs._endpoints);
+            return IceUtilInternal.Arrays.Equals(_endpoints, rhs._endpoints);
         }
 
         //
@@ -1734,8 +1734,8 @@ namespace IceInternal
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            string a = IceUtil.StringUtil.escapeString(adapterId_, null);
-            if(IceUtil.StringUtil.findFirstOf(a, " \t\n\r") != -1)
+            string a = IceUtilInternal.StringUtil.escapeString(adapterId_, null);
+            if(IceUtilInternal.StringUtil.findFirstOf(a, " \t\n\r") != -1)
             {
                 s.Append('"');
                 s.Append(a);

@@ -88,6 +88,6 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
     }
 
     private Ice.ObjectAdapter _adapter;
-    private IceUtil.Set _pausedCalls = new IceUtil.Set();
+    private IceUtilInternal.Set _pausedCalls = new IceUtilInternal.Set();
     private Configuration _configuration;
 }

@@ -458,9 +458,9 @@ class ServiceManagerI : ServiceManagerDisp_
                 entryPoint = value.Substring(0, pos);
                 try
                 {
-                    args = IceUtil.Options.split(value.Substring(pos));
+                    args = IceUtilInternal.Options.split(value.Substring(pos));
                 }
-                catch(IceUtil.Options.BadQuote ex)
+                catch(IceUtilInternal.Options.BadQuote ex)
                 {
                     FailureException e = new FailureException();
                     e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.ToString();

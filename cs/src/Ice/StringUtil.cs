@@ -10,7 +10,7 @@
 using System.Text;
 using System.Diagnostics;
 
-namespace IceUtil
+namespace IceUtilInternal
 {
 
     public sealed class StringUtil

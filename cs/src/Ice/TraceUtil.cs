@@ -12,7 +12,7 @@ namespace IceInternal
 
     using System.Collections;
     using System.Diagnostics;
-    using IceUtil;
+    using IceUtilInternal;
 
     sealed class TraceUtil
     {
@@ -164,7 +164,7 @@ namespace IceInternal
                 s.Write("\nfacet = ");
                 if(facet.Length > 0)
                 {
-                    s.Write(IceUtil.StringUtil.escapeString(facet[0], ""));
+                    s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], ""));
                 }
 
                 string operation = str.readString();

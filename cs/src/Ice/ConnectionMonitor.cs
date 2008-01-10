@@ -11,7 +11,7 @@ namespace IceInternal
 {
 
     using System.Diagnostics;
-    using IceUtil;
+    using IceUtilInternal;
 
     public sealed class ConnectionMonitor : TimerTask
     {

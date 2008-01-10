@@ -12,7 +12,7 @@ namespace IceInternal
 
     using System.Collections;
     using System.Diagnostics;
-    using IceUtil;
+    using IceUtilInternal;
 
     public sealed class ObjectAdapterFactory
     {
