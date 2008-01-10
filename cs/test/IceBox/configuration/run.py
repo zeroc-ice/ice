@@ -25,8 +25,6 @@ name = os.path.join("IceBox", "configuration")
 testdir = os.path.dirname(os.path.abspath(__file__))
 icebox = TestUtil.getIceBox(testdir);
 
-TestUtil.addLdPath(testdir)
-
 cwd = os.getcwd()
 os.chdir(testdir)
 

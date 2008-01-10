@@ -25,10 +25,10 @@ name = os.path.join("IceBox", "configuration")
 testdir = os.path.dirname(os.path.abspath(__file__))
 icebox = TestUtil.getIceBox(testdir);
 
-TestUtil.addLdPath(testdir)
-
 cwd = os.getcwd()
 os.chdir(testdir)
+    
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
 TestUtil.clientServerTestWithOptionsAndNames(name, "--Ice.Config=config.icebox", "", icebox, "Client")
 TestUtil.clientServerTestWithOptionsAndNames(name, "--Ice.Config=config.icebox2", "", icebox, "Client")
