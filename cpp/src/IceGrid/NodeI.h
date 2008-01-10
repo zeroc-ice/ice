@@ -98,8 +98,8 @@ public:
     void observerUpdateServer(const ServerDynamicInfo&);
     void observerUpdateAdapter(const AdapterDynamicInfo&);
 
-    void addServer(const ServerIPtr&, const std::string&, bool);
-    void removeServer(const ServerIPtr&, const std::string&, bool);
+    void addServer(const ServerIPtr&, const std::string&);
+    void removeServer(const ServerIPtr&, const std::string&);
 
     Ice::Identity createServerIdentity(const std::string&) const;
     std::string getServerAdminCategory() const;

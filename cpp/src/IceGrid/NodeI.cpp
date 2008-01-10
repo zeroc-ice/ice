@@ -10,6 +10,7 @@
 #include <IceUtil/Timer.h>
 #include <Ice/Ice.h>
 #include <IcePatch2/Util.h>
+#include <IcePatch2/OS.h>
 #include <IcePatch2/ClientUtil.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Activator.h>
@@ -444,52 +445,69 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
         }
         _patchInProgress.insert(application);
     }
- 
+
+
     set<ServerIPtr> servers;
-    if(!appDistrib->icepatch.empty())
+    bool patchApplication = !appDistrib->icepatch.empty();
+    if(server.empty())
     {
         //
-        // Get all the application servers (even the ones which
-        // don't have a distribution since they depend on the
-        // application distribution).
+        // Patch all the servers from the application.
         //
         servers = getApplicationServers(application);
-    }
-    else if(server.empty())
-    {
-        //
-        // Get all the application servers which have a distribution.
-        //
-        servers = getApplicationServers(application);
-        set<ServerIPtr>::iterator s = servers.begin();
-        while(s != servers.end())
-        {
-            if((*s)->getDistribution())
-            {
-                ++s;
-            }
-            else
-            {
-                servers.erase(s++);
-            }
-        }
     }
     else
     {
-        //
-        // Get the given server.
-        //
-        Ice::Identity id = createServerIdentity(server);
+        ServerIPtr svr;
         try
         {
-            ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
-            if(svr)
-            {
-                servers.insert(svr);
-            }
+            svr = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(server)));
         }
         catch(const Ice::ObjectAdapterDeactivatedException&)
         {
+        }
+
+        if(svr)
+        {
+            if(appDistrib->icepatch.empty() || !svr->dependsOnApplicationDistrib())
+            {
+                //
+                // Don't patch the application if the server doesn't
+                // depend on it.
+                //
+                patchApplication = false;
+                servers.insert(svr);
+            }
+            else
+            {
+                //
+                // If the server to patch depends on the application, 
+                // we need to shutdown all the application servers 
+                // that depend on the application.
+                //
+                servers = getApplicationServers(application);
+            }
+        }
+    }
+
+    set<ServerIPtr>::iterator s = servers.begin();
+    while(s != servers.end())
+    {
+        if(!appDistrib->icepatch.empty() && (*s)->dependsOnApplicationDistrib())
+        {
+            ++s;
+        }
+        else if((*s)->getDistribution() && (server.empty() || server == (*s)->getId()))
+        {
+            ++s;
+        }
+        else
+        {
+            //
+            // Exclude servers which don't depend on the application distribution
+            // or don't have a distribution.
+            //
+            servers.erase(s++);
         }
     }
 
@@ -520,7 +538,7 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
                 }
             }
             
-            if((servers.empty() || !appDistrib->icepatch.empty()) && !running.empty())
+            if(!running.empty())
             {
                 if(running.size() == 1)
                 {
@@ -541,8 +559,9 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
             // Patch the application.
             //
             FileServerPrx icepatch;
-            if(!appDistrib->icepatch.empty())
+            if(patchApplication)
             {
+                assert(!appDistrib->icepatch.empty());
                 icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib->icepatch));
                 if(!icepatch)
                 {
@@ -550,28 +569,26 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
                 }
                 patch(icepatch, "distrib/" + application, appDistrib->directories);
             }
-        
+
             //
             // Patch the server(s).
             //
             for(s = servers.begin(); s != servers.end(); ++s)
             {
                 InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
-                if(!dist || (!server.empty() && (*s)->getId() != server))
+                if(dist && (server.empty() || (*s)->getId() == server))
                 {
-                    continue;
-                }
-            
-                icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
-                if(!icepatch)
-                {
-                    throw "proxy `" + dist->icepatch + "' is not a file server.";
-                }
-                patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
-            
-                if(!server.empty())
-                {
-                    break;
+                    icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
+                    if(!icepatch)
+                    {
+                        throw "proxy `" + dist->icepatch + "' is not a file server.";
+                    }
+                    patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
+
+                    if(!server.empty())
+                    {
+                        break; // No need to continue.
+                    }
                 }
             }
         }
@@ -934,36 +951,43 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
 }
 
 void
-NodeI::addServer(const ServerIPtr& server, const string& application, bool dependsOnApplicationDistrib)
+NodeI::addServer(const ServerIPtr& server, const string& application)
 {
     IceUtil::Mutex::Lock sync(_serversLock);
-
-    if(dependsOnApplicationDistrib)
+    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+    if(p == _serversByApplication.end())
     {
-        map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
-        if(p == _serversByApplication.end())
-        {
-            map<string, set<ServerIPtr> >::value_type v(application, set<ServerIPtr>());
-            p = _serversByApplication.insert(p, v);
-        }
-        p->second.insert(server);
+        map<string, set<ServerIPtr> >::value_type v(application, set<ServerIPtr>());
+        p = _serversByApplication.insert(p, v);
     }
+    p->second.insert(server);
 }
 
 void
-NodeI::removeServer(const ServerIPtr& server, const std::string& application, bool dependsOnApplicationDistrib)
+NodeI::removeServer(const ServerIPtr& server, const std::string& application)
 {
     IceUtil::Mutex::Lock sync(_serversLock);
-    
-    if(dependsOnApplicationDistrib)
+    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+    if(p != _serversByApplication.end())
     {
-        map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
-        if(p != _serversByApplication.end())
+        p->second.erase(server);
+        if(p->second.empty())
         {
-            p->second.erase(server);
-            if(p->second.empty())
+            _serversByApplication.erase(p);
+            
+            string appDir = _dataDir + "/distrib/" + application;
+            OS::structstat buf;
+            if(OS::osstat(appDir, &buf) != -1 && S_ISDIR(buf.st_mode))
             {
-                _serversByApplication.erase(p);
+                try
+                {
+                    IcePatch2::removeRecursive(appDir);
+                }
+                catch(const string& msg)
+                {
+                    Ice::Warning out(_traceLevels->logger);
+                    out << "removing application directory `" << appDir << "' failed:\n" << msg;
+                }
             }
         }
     }

@@ -623,10 +623,10 @@ NodeService::start(int argc, char* argv[])
                  << "registry database is locked by `" << ex.lockUserId << "'";
             warning(ostr.str());
         }
-        catch(const LocalException& ex)
+        catch(const std::exception& ex)
         {
             ostringstream ostr;
-            ostr << "failed to deploy application `" << desc << "':\n" << ex;
+            ostr << "failed to deploy application `" << desc << "':\n" << ex.what();
             warning(ostr.str());
         }
         catch(const string& reason)

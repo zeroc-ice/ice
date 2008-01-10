@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Fixed IceGrid bug where patching servers deployed with the attribute
+  `application-distrib' set to false wouldn't work.
+
 - Added a new skipEncapsulation method to the Ice::InputStream
   interface. This method can be used to skip an encapsulation when
   reading from a stream.

@@ -222,7 +222,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
 
             //
             // If start is called with a callback, the callback is notified either by the
-            // thread per conncetion or the thread pool.
+            // thread per connection or the thread pool.
             //
             if(callback)
             {

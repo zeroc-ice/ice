@@ -90,6 +90,7 @@ public:
     bool isAdapterActivatable(const std::string&) const;
     const std::string& getId() const;
     InternalDistributionDescriptorPtr getDistribution() const;
+    bool dependsOnApplicationDistrib() const;
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
     ServerCommandPtr load(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&);

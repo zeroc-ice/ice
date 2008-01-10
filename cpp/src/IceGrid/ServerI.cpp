@@ -910,6 +910,13 @@ ServerI::getDistribution() const
     return _desc ? _desc->distrib : InternalDistributionDescriptorPtr();
 }
 
+bool
+ServerI::dependsOnApplicationDistrib() const
+{
+    Lock sync(*this);
+    return _desc ? _desc->applicationDistrib : false;
+}
+
 void
 ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 {
@@ -1521,7 +1528,7 @@ ServerI::destroy()
         adpts = _adapters;
     }
 
-    _node->removeServer(this, _desc->application, _desc->applicationDistrib);
+    _node->removeServer(this, _desc->application);
     
     try
     {
@@ -1695,13 +1702,20 @@ ServerI::update()
             {
                 throw DeploymentException(msg);
             }
-        
+
             if(oldDescriptor)
             {
-                _node->removeServer(this, oldDescriptor->application, oldDescriptor->applicationDistrib);
+                if(oldDescriptor->application != _desc->application)
+                {
+                    _node->removeServer(this, oldDescriptor->application);
+                    _node->addServer(this, _desc->application);
+                }
             }
-            _node->addServer(this, _desc->application, _desc->applicationDistrib);
-        
+            else
+            {
+                _node->addServer(this, _desc->application);
+            }
+
             AdapterPrxDict adapters;
             for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
             {
