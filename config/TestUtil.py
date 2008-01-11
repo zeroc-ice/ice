@@ -735,7 +735,10 @@ def getCommandLine(exe, config, env = getTestEnv()):
     elif config.lang == "rb" and config.type == "client":
         print >>output, "ruby", exe,
     elif config.lang == "java":
-        print >>output, "%s -ea" % javaCmd, exe,
+        print >>output, "%s -ea" % javaCmd,
+        if config.ipv6 != 1:
+            print >>output, "-Djava.net.preferIPv4Stack=true",
+        print >>output,  exe,
     elif config.lang == "py":
         print >>output, "python", exe,
     elif config.lang == "php" and config.type == "client":
@@ -991,7 +994,9 @@ def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
 	os.remove(filename)
 
-def startClient(exe, args, config=DriverConfig("client"), env=getTestEnv()):
+def startClient(exe, args, config=None, env=getTestEnv()):
+    if config == None:
+        config = DriverConfig("client")
     if debug:
         print getCommandLine(exe, config, env) + args
 
@@ -1008,12 +1013,16 @@ def startClient(exe, args, config=DriverConfig("client"), env=getTestEnv()):
 
     return os.popen(getCommandLine(exe, config, env) + args)
 
-def startServer(exe, args, config=DriverConfig("server"), env=getTestEnv()):
+def startServer(exe, args, config=None, env=getTestEnv()):
+    if config == None:
+        config = DriverConfig("server")
     if debug:
         print getCommandLine(exe, config, env) + args
     return os.popen(getCommandLine(exe, config, env) + args)
 
-def startColloc(exe, args, config=DriverConfig("colloc"), env=getTestEnv()):
+def startColloc(exe, args, config=None, env=getTestEnv()):
+    if config == None:
+        config = DriverConfig("colloc")
     if debug:
         print getCommandLine(exe, config, env) + args
     return os.popen(getCommandLine(exe, config, env) + args)
