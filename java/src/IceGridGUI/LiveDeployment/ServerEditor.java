@@ -84,12 +84,7 @@ class ServerEditor extends CommunicatorEditor
             {
                 public void actionPerformed(ActionEvent e) 
                 {
-                    ApplicationPane app = _coordinator.openLiveApplication(_application.getText());
-                    if(app != null)
-                    {
-                        app.getRoot().
-                            selectServer(((Node)_target.getParent()).getId(), _target.getId());
-                    }
+                    _target.openDefinition();
                 }
             };
         gotoApplication.putValue(Action.SHORT_DESCRIPTION, 

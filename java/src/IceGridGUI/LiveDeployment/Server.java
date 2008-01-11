@@ -63,6 +63,8 @@ class Server extends ListArrayTreeNode
             }
         }
 
+        actions[OPEN_DEFINITION] = true;
+
         return actions;
     }
 
@@ -474,6 +476,14 @@ class Server extends ListArrayTreeNode
         }
     }
 
+    public void openDefinition()
+    {
+        ApplicationPane app = getCoordinator().openLiveApplication(_application.name);
+        if(app != null)
+        {
+            app.getRoot().selectServer(((Node)_parent).getId(), _id);
+        }
+    }
 
     public JPopupMenu getPopupMenu()
     {
@@ -507,6 +517,8 @@ class Server extends ListArrayTreeNode
             _signalMenu.add(la.get(SIGUSR1));
             _signalMenu.add(la.get(SIGUSR2));
             _signalMenu.add(la.get(SIGTERM));
+            _popup.addSeparator();
+            _popup.add(la.get(OPEN_DEFINITION));
         }
         
         la.setTarget(this);

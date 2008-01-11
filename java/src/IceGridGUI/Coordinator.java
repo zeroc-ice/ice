@@ -417,15 +417,17 @@ public class Coordinator
             _appMenu.add(_removeApplicationFromRegistry);
             _appMenu.setEnabled(false);
          
-
             //
             // Node sub-menu
             //
             _nodeMenu = new JMenu("Node");
             _nodeMenu.setEnabled(false);
             toolsMenu.add(_nodeMenu);
+            _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
+            _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
+            _nodeMenu.addSeparator();
             _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE));
-
+          
             //
             // Registry sub-menu
             //
@@ -472,6 +474,9 @@ public class Coordinator
             _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGUSR1));
             _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGUSR2));
             _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGTERM));
+            _serverMenu.addSeparator();
+            _serverMenu.add(_liveActionsForMenu.get(
+                                IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION));
         
             //
             // Service sub-menu
@@ -2472,6 +2477,9 @@ public class Coordinator
         }
 
         storeWindowPrefs();
+
+        _sessionKeeper.logout(true);
+
         destroyIceGridAdmin();
         destroyCommunicator();
         Runtime.getRuntime().removeShutdownHook(_shutdownHook);
@@ -2595,23 +2603,13 @@ public class Coordinator
             availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE]);
 
         _registryMenu.setEnabled(
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT] ||
             availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY]);
 
         _signalMenu.setEnabled(
             availableActions[IceGridGUI.LiveDeployment.TreeNode.SIGHUP]);
 
         _serverMenu.setEnabled(
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.ENABLE] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.DISABLE] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG] ||
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.SIGHUP]);
+            availableActions[IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION]);
         
         _serviceMenu.setEnabled(
             availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG]);
@@ -2710,7 +2708,7 @@ public class Coordinator
     private boolean _substitute = false;
     
     private JFrame _mainFrame;
-    private SessionKeeper _sessionKeeper;
+    private final SessionKeeper _sessionKeeper;
 
     private Object _clipboard;
     

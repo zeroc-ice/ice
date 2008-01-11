@@ -58,7 +58,9 @@ public abstract class TreeNode extends TreeNodeBase
 
     public static final int ADD_OBJECT = 18;
 
-    static public final int ACTION_COUNT = 19;
+    public static final int OPEN_DEFINITION = 19;
+
+    static public final int ACTION_COUNT = 20;
     
     public boolean[] getAvailableActions()
     {
@@ -97,7 +99,6 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
-
     public void shutdownNode()
     {
         assert false;
@@ -111,6 +112,10 @@ public abstract class TreeNode extends TreeNodeBase
         assert false;
     }
     public void addObject()
+    {
+        assert false;
+    }
+    public void openDefinition()
     {
         assert false;
     }

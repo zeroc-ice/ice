@@ -1133,8 +1133,15 @@ class SessionKeeper
     {
         Pinger(AdminSessionPrx session, long period)
         {
+            super("Pinger");
+
             _session = session;
             _period = period;
+            
+            if(_period <= 0)
+            {
+                _period = 5000;
+            }
         }
 
         public synchronized void run()

@@ -195,6 +195,16 @@ public class LiveActions
                     _target.addObject();
                 }
             };
+
+        _array[TreeNode.OPEN_DEFINITION] =
+            new AbstractAction("Open Definition")
+            {
+                public void actionPerformed(ActionEvent e) 
+                {
+                    _target.openDefinition();
+                }
+            };
+            
     }
 
     private TreeNode _target;
