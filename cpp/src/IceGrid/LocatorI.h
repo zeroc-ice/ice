@@ -38,8 +38,8 @@ public:
     {
     public:
 
-        Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool,
-                const LocatorAdapterInfoSeq&, int, const TraceLevelsPtr&);
+        Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool, bool,
+                const LocatorAdapterInfoSeq&, int);
 
         void execute();
         void response(const std::string&, const Ice::ObjectPrx&);
@@ -61,6 +61,7 @@ public:
         const LocatorIPtr _locator;
         const std::string _id;
         const bool _replicaGroup;
+        const bool _roundRobin;
         LocatorAdapterInfoSeq _adapters;
         const TraceLevelsPtr _traceLevels;
         unsigned int _count;
@@ -78,19 +79,23 @@ public:
                                       const Ice::Current&) const;
 
     virtual void findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr&, const ::std::string&, 
-                                       const Ice::Current&) const;
+                                       const Ice::Current& = Ice::Current()) const;
 
     virtual Ice::LocatorRegistryPrx getRegistry(const Ice::Current&) const;
     virtual RegistryPrx getLocalRegistry(const Ice::Current&) const;
     virtual QueryPrx getLocalQuery(const Ice::Current&) const;
     
     const Ice::CommunicatorPtr& getCommunicator() const;
+    const TraceLevelsPtr& getTraceLevels() const;
 
     void activate(const LocatorAdapterInfo&, const RequestPtr&);
     void cancelActivate(const std::string&, const RequestPtr&);
 
     void activateFinished(const std::string&, const Ice::ObjectPrx&);
     void activateException(const std::string&, const Ice::Exception&);
+
+    bool addPendingResolve(const std::string&, const Ice::AMD_Locator_findAdapterByIdPtr&);
+    void removePendingResolve(const std::string&, int);
 
 protected:
 
@@ -104,6 +109,8 @@ protected:
     typedef std::map<std::string, PendingRequests> PendingRequestsMap;
 
     PendingRequestsMap _pendingRequests;
+
+    std::map<std::string, std::deque<Ice::AMD_Locator_findAdapterByIdPtr> > _resolves;
 };
 
 }
