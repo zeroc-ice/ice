@@ -43,7 +43,7 @@ namespace
 
 #ifdef _WIN32
 static string
-getLocalizedPerfName(int idx)
+getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
 {
     vector<char> localized;
     unsigned long size = 256;
@@ -54,9 +54,46 @@ getLocalizedPerfName(int idx)
         size += 256;
         localized.resize(size);
     }
+
     if(err != ERROR_SUCCESS)
     {
-        throw Ice::SyscallException(__FILE__, __LINE__, err);
+        LPVOID lpMsgBuf = 0;
+	
+	DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				 FORMAT_MESSAGE_FROM_HMODULE |
+				 FORMAT_MESSAGE_IGNORE_INSERTS,
+				 GetModuleHandle(TEXT("PDH.DLL")), 
+				 err,
+				 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				 (LPTSTR)&lpMsgBuf, 
+				 0,
+				 NULL);
+
+	string message;
+	if(ok)
+	{
+            LPCTSTR msg = (LPCTSTR)lpMsgBuf;
+	    assert(msg && strlen(static_cast<const char*>(msg)) > 0);
+	    message = static_cast<const char*>(msg);
+	    if(message[message.length() - 1] == '\n')
+	    {
+		message = message.substr(0, message.length() - 2);
+	    }
+	    LocalFree(lpMsgBuf);
+	}
+	else
+	{
+	    ostringstream os;
+	    os << "unknown error: " << err;
+	    message = os.str();
+	}
+         
+	Ice::Warning out(logger);
+	out << "Unable to lookup the performance counter name:\n";
+	out << "syscall exception: " << message;
+	out << "\nThis usually occurs when you do not have sufficient privileges";
+         
+	throw Ice::SyscallException(__FILE__, __LINE__, err);
     }
     return string(&localized[0]);
 }
@@ -459,14 +496,12 @@ PlatformInfo::runUpdateLoadInfo()
     string percentProcessorTime;
     try
     {
-        processor = getLocalizedPerfName(238);
-        percentProcessorTime = getLocalizedPerfName(6);
+        processor = getLocalizedPerfName(238, _traceLevels->logger);
+        percentProcessorTime = getLocalizedPerfName(6, _traceLevels->logger);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        Ice::Warning out(_traceLevels->logger);
-        out << "Unable to lookup the performance counter name:\n" << ex;
-        out << "\nThis usually occurs when you do not have sufficient privileges";
+	// No need to print a warning, it's taken care of by getLocalizedPerfName
         PdhCloseQuery(query);
         return;
     }
