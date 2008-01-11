@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Fixed IceGrid round-robin load balancing policy to better deal with
+  unreachable servers. It no longer successively returns multiple
+  times the same servers.
+
 - Fixed IceGrid bug where patching servers deployed with the attribute
   `application-distrib' set to false wouldn't work.
 

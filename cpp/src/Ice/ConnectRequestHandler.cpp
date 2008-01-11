@@ -432,14 +432,6 @@ ConnectRequestHandler::flushRequests()
         return;
     }
         
-    {
-        Lock sync(*this);
-        assert(!_initialized);
-        _initialized = true;
-        _flushing = false;
-        notifyAll();
-    }
-
     //
     // We've finished sending the queued requests and the request handler now send
     // the requests over the connection directly. It's time to substitute the 
@@ -451,8 +443,16 @@ ConnectRequestHandler::flushRequests()
     {
         _proxy->__setRequestHandler(_delegate, new ConnectionRequestHandler(_reference, _connection, _compress));
     }
-    _proxy = 0; // Break cyclic reference count.
-    _delegate = 0; // Break cyclic reference count.
+
+    {
+        Lock sync(*this);
+        assert(!_initialized);
+        _initialized = true;
+        _flushing = false;
+        _proxy = 0; // Break cyclic reference count.
+        _delegate = 0; // Break cyclic reference count.
+        notifyAll();
+    }
 }
 
 void

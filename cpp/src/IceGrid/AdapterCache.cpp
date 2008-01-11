@@ -230,14 +230,21 @@ ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 }
 
 void
-ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup)
+ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup, 
+                                          bool& roundRobin)
 {
     nReplicas = 1;
     replicaGroup = false;
+    roundRobin = false;
     LocatorAdapterInfo info;
     info.id = _id;
     info.proxy = _server->getAdapter(info.activationTimeout, info.deactivationTimeout, _id, true);
     adapters.push_back(info);
+}
+
+void
+ServerAdapterEntry::increaseRoundRobinCount(int roundRobinCount)
+{
 }
 
 float
@@ -375,7 +382,8 @@ ReplicaGroupEntry::update(const LoadBalancingPolicyPtr& policy)
 }
 
 void
-ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup)
+ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup,
+                                         bool& roundRobin)
 {
     vector<ServerAdapterEntryPtr> replicas;
     bool adaptive = false;
@@ -383,6 +391,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
     {
         Lock sync(*this);
         replicaGroup = true;
+        roundRobin = false;
         nReplicas = _loadBalancingNReplicas > 0 ? _loadBalancingNReplicas : static_cast<int>(_replicas.size());
 
         if(_replicas.empty())
@@ -398,6 +407,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
                 replicas.push_back(_replicas[(_lastReplica + i) % _replicas.size()]);
             }
             _lastReplica = (_lastReplica + 1) % static_cast<int>(_replicas.size());
+            roundRobin = true;
         }
         else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
         {
@@ -447,7 +457,8 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         {
             int dummy;
             bool dummy2;
-            (*p)->getLocatorAdapterInfo(adapters, dummy, dummy2);
+            bool dummy3;
+            (*p)->getLocatorAdapterInfo(adapters, dummy, dummy2, dummy3);
         }
         catch(const AdapterNotExistException&)
         {
@@ -459,6 +470,13 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         {
         }
     }
+}
+
+void
+ReplicaGroupEntry::increaseRoundRobinCount(int count)
+{
+    Lock sync(*this);
+    _lastReplica = (_lastReplica + count) % static_cast<int>(_replicas.size());
 }
 
 float
