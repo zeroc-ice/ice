@@ -39,13 +39,16 @@ CPP_COMPILER            = VC60
 #
 # Set RUBY_HOME to your Ruby installation directory.
 #
-
+!if "$(RUBY_HOME)" == ""
 RUBY_HOME		= C:\ruby
+!endif
 
 #
 # Set STLPORT_HOME to your STLPort installation directory.
 #
+!if "$(STLPORT_HOME)" == ""
 STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
+!endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

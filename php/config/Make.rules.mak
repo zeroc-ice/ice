@@ -31,20 +31,23 @@ OPTIMIZE		= yes
 #
 # Set PHP_HOME to your PHP source directory.
 #
-
+!if "$(PHP_HOME)" == ""
 PHP_HOME		= C:\php-5.2.1
+!endif
 
 #
 # Set PHP_BIN_HOME to your PHP binary installation directory.
 #
-
+!if "$(PHP_BIN_HOME)" == ""
 PHP_BIN_HOME		= C:\php-5.2.1-Win32
+!endif
 
 #
 # Set STLPORT_HOME to your STLPort installation directory.
 #
-
+!if "$(STLPORT_HOME)" == ""
 STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
+!endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
