@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- It is now possible to use Ice builtin sequences in Slice data
+  structures that are compiled with streaming support. Previously
+  this would not work since the Ice sequences were themselves not
+  compiled with streaming support.
+
 - Exceptions thrown from collocation-optimized invocations are now
   fully transparent. If an operation throws an exception that is
   not in the operation's exception specification, or throws a

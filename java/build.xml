@@ -23,13 +23,21 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
+        <slice2java ice="on" stream="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
 	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="${slice.dir}/Ice">
                 <include name="BuiltinSequences.ice" />
+            </fileset>
+        </slice2java>
+        <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
+	    <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice">
                 <include name="Communicator.ice" />
                 <include name="Current.ice" />
                 <include name="Endpoint.ice" />

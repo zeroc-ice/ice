@@ -175,6 +175,11 @@ install:: all
 clean::
 	-rm -f EventLoggerMsg.h
 
+$(HDIR)/BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) --stream $(SDIR)/BuiltinSequences.ice
+	mv BuiltinSequences.h $(HDIR)
+
 # The dummy EventLoggerMsg.h is necessary to get correct dependencies
 # for windows
 EventLoggerI.cpp: EventLoggerMsg.h
