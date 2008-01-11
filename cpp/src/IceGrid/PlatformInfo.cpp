@@ -42,6 +42,43 @@ namespace
 {
 
 #ifdef _WIN32
+
+string
+pdhErrorToString(PDH_STATUS err)
+{
+    LPVOID lpMsgBuf = 0;
+	
+    DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                             FORMAT_MESSAGE_FROM_HMODULE |
+                             FORMAT_MESSAGE_IGNORE_INSERTS,
+                             GetModuleHandle(TEXT("PDH.DLL")), 
+                             err,
+                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                             (LPTSTR)&lpMsgBuf, 
+                             0,
+                             NULL);
+
+    string message;
+    if(ok)
+    {
+        LPCTSTR msg = (LPCTSTR)lpMsgBuf;
+        assert(msg && strlen(static_cast<const char*>(msg)) > 0);
+        message = static_cast<const char*>(msg);
+        if(message[message.length() - 1] == '\n')
+        {
+            message = message.substr(0, message.length() - 2);
+        }
+        LocalFree(lpMsgBuf);
+    }
+    else
+    {
+        ostringstream os;
+        os << "unknown error: " << err;
+        message = os.str();
+    }
+    return message;
+}
+
 static string
 getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
 {
@@ -57,40 +94,9 @@ getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
 
     if(err != ERROR_SUCCESS)
     {
-        LPVOID lpMsgBuf = 0;
-	
-	DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-				 FORMAT_MESSAGE_FROM_HMODULE |
-				 FORMAT_MESSAGE_IGNORE_INSERTS,
-				 GetModuleHandle(TEXT("PDH.DLL")), 
-				 err,
-				 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				 (LPTSTR)&lpMsgBuf, 
-				 0,
-				 NULL);
-
-	string message;
-	if(ok)
-	{
-            LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-	    assert(msg && strlen(static_cast<const char*>(msg)) > 0);
-	    message = static_cast<const char*>(msg);
-	    if(message[message.length() - 1] == '\n')
-	    {
-		message = message.substr(0, message.length() - 2);
-	    }
-	    LocalFree(lpMsgBuf);
-	}
-	else
-	{
-	    ostringstream os;
-	    os << "unknown error: " << err;
-	    message = os.str();
-	}
-         
 	Ice::Warning out(logger);
 	out << "Unable to lookup the performance counter name:\n";
-	out << "syscall exception: " << message;
+	out << pdhErrorToString(err);
 	out << "\nThis usually occurs when you do not have sufficient privileges";
          
 	throw Ice::SyscallException(__FILE__, __LINE__, err);
@@ -476,10 +482,8 @@ PlatformInfo::runUpdateLoadInfo()
     PDH_STATUS err = PdhOpenQuery(0, 0, &query);
     if(err != ERROR_SUCCESS)
     {
-        Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
         Ice::Warning out(_traceLevels->logger);
-        out << "Cannot open performance data query:\n" << ex;
+        out << "Cannot open performance data query:\n" << pdhErrorToString(err);
         return;
     }
 
@@ -511,12 +515,10 @@ PlatformInfo::runUpdateLoadInfo()
     err = PdhAddCounter(query, name.c_str(), 0, &_counter);
     if(err != ERROR_SUCCESS)
     {
-        Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
         Ice::Warning out(_traceLevels->logger);
         out << "Cannot add performance counter `" + name + "' (expected ";
         out << "if you have insufficient privileges to monitor performance counters):\n";
-        out << ex;
+        out << pdhErrorToString(err);
         PdhCloseQuery(query);
         return;
     }
@@ -541,10 +543,8 @@ PlatformInfo::runUpdateLoadInfo()
         }
         else
         {
-            Ice::SyscallException ex(__FILE__, __LINE__);
-            ex.error = err;
             Ice::Warning out(_traceLevels->logger);
-            out << "Could not collect performance counter data:\n" << ex;
+            out << "Could not collect performance counter data:\n" << pdhErrorToString(err);
         }
 	
 	_last1Total += usage - _usages1.back();
