@@ -383,13 +383,14 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
 {
     _name = argv[0];
 
-#ifdef _WIN32
-
     //
-    // On Windows, we parse the properties here to extract Ice.EventLog.Source
+    // We parse the properties here to extract Ice.ProgramName and
+    // Ice.EventLog.Source on Windows.
     //
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+
+#ifdef _WIN32
 
     //
     // First check for the --service option.
@@ -410,14 +411,13 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
             name = argv[idx + 1];
 
             //
-            // If the process logger the default logger then we use
+            // If the process logger is the default logger then we use
             // our own logger.
             //
             _logger = getProcessLogger();
             if(LoggerIPtr::dynamicCast(_logger))
             {
-                string eventLogSource = initData.properties->
-                    getPropertyWithDefault("Ice.EventLog.Source", name);
+                string eventLogSource = initData.properties->getPropertyWithDefault("Ice.EventLog.Source", name);
                 _logger = new SMEventLoggerI(eventLogSource);
                 setProcessLogger(_logger);
             }
@@ -595,8 +595,6 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     // Check for --daemon, --noclose, --nochdir and --pidfile.
     //
 
-    const InitializationData& initData = initializationData;
-
     bool daemonize = false;
     bool closeFiles = true;
     bool changeDirectory = true;
@@ -675,6 +673,21 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
         configureDaemon(changeDirectory, closeFiles, pidFile);
     }
 #endif
+
+    //
+    // If no logger has been set yet, we set it to the process logger. If the 
+    // process logger is the default logger, we change it to a logger which is
+    // using the program name for the prefix.
+    //
+    if(!_logger)
+    {
+        _logger = getProcessLogger();
+        if(LoggerIPtr::dynamicCast(_logger))
+        {
+            _logger = new LoggerI(initData.properties->getProperty("Ice.ProgramName"));
+            setProcessLogger(_logger);
+        }
+    }
 
     return run(argc, argv, initData);
 }

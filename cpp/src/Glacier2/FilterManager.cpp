@@ -172,7 +172,7 @@ Glacier2::FilterManager::FilterManager(const InstancePtr& instance, const Glacie
     }
 }
 
-Glacier2::FilterManager*
+Glacier2::FilterManagerPtr
 Glacier2::FilterManager::create(const InstancePtr& instance, const string& userId, const bool allowAddUser)
 {
     PropertiesPtr props = instance->properties();

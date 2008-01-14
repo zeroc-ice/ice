@@ -96,7 +96,7 @@ public abstract class Application
     }
 
     public final int
-    main(String appName, String[] args, InitializationData initData)
+    main(String appName, String[] args, InitializationData initializationData)
     {
         if(_communicator != null)
         {
@@ -106,11 +106,34 @@ public abstract class Application
 
         _appName = appName;
 
+        //
+        // We parse the properties here to extract Ice.ProgramName.
+        // 
+        InitializationData initData;
+        if(initializationData != null)
+        {
+            initData = (InitializationData)initializationData.clone();
+        }
+        else
+        {
+            initData = new InitializationData();
+        }
+        StringSeqHolder argHolder = new StringSeqHolder(args);
+        initData.properties = Util.createProperties(argHolder, initData.properties);
+
+        //
+        // If the process logger is the default logger, we replace it with a
+        // a logger which is using the program name for the prefix.
+        //
+        if(Util.getProcessLogger() instanceof LoggerI)
+        {
+            Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName")));
+        }
+
         int status = 0;
 
         try
         {
-            StringSeqHolder argHolder = new StringSeqHolder(args);
             _communicator = Util.initialize(argHolder, initData);
 
             //

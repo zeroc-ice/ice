@@ -37,7 +37,7 @@
         
       <parameter name="instance-name" default="${application}.Glacier2"/>
       <parameter name="client-endpoints"/>   
-      <parameter name="server-endpoints"/>
+      <parameter name="server-endpoints" default=""/>
       <parameter name="session-timeout" default="0"/>
     
       <server id="${instance-name}" exe="glacier2router">
