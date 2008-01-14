@@ -179,8 +179,7 @@ extension=IcePHP.so
 You can modify this file to include additional configuration 
 directives, such as those used by the Ice extension.
 
-At run time, the PHP interpreter requires the Ice shared libraries as 
-well as the Slice preprocessor (icecpp).
+At run time, the PHP interpreter requires the Ice shared libraries.
 
 You can verify that the Ice extension is installed properly by 
 examining the output of the "php -m" command, or by calling the

@@ -49,7 +49,7 @@ Ice has dependencies on a number of third-party libraries:
   Ice requires the library version of mcpp, so configure mcpp similar
   to the following
 
-  ./configure --enable-mcpplib --enable-shared
+  ./configure --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
 ======================================================================

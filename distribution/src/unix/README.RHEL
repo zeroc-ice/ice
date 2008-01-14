@@ -278,10 +278,9 @@ extension = IcePHP.so
 (With the x86_64 distribution, use <ICE_HOME>/lib64 instead of 
 <ICE_HOME>/lib)
 
-At run time, the PHP interpreter requires the Ice shared libraries
-as well as the Slice preprocessor ($ICE_HOME/bin/icecpp), therefore
-these components must be in a standard location or accessible via the
-PATH and LD_LIBRARY_PATH environment variables.
+At run time, the PHP interpreter requires the Ice shared libraries,
+therefore they must be in a standard location or accessible via the 
+LD_LIBRARY_PATH environment variable.
 
 You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
