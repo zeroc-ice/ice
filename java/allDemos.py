@@ -77,6 +77,7 @@ demos = [
     "Freeze/bench",
     "Freeze/phonebook",
     "Freeze/library",
+    "Freeze/transform",
     "book/freeze_filesystem",
     "book/simple_filesystem",
     "book/printer",
