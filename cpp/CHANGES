@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- There is no longer a limit on the allowable length of a property 
+  line in an Ice config file. Previously the limit was 1024.
+
 - It's now possible to change the compression setting for a fixed
   proxy. In previous releases, calling ice_compress on a fixed proxy
   would raise Ice::FixedProxyException. 
