@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <Ice/LoggerI.h>
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Cond.h>
@@ -565,7 +566,7 @@ Ice::Application::interrupted()
 }
 
 int
-Ice::Application::mainInternal(int argc, char* argv[], const InitializationData& initData)
+Ice::Application::mainInternal(int argc, char* argv[], const InitializationData& initializationData)
 {
     int status;
 
@@ -578,7 +579,22 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
 
         _interrupted = false;
         _appName = argv[0];
-            
+
+        //
+        // We parse the properties here to extract Ice.ProgramName.
+        // 
+        InitializationData initData = initializationData;
+        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+
+        //
+        // If the process logger is the default logger, we replace it with a
+        // a logger which is using the program name for the prefix.
+        //
+        if(LoggerIPtr::dynamicCast(getProcessLogger()))
+        {
+            setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName")));
+        }
+
         _application = this;
         _communicator = initialize(argc, argv, initData);
         _destroyed = false;

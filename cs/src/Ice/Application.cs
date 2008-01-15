@@ -116,7 +116,7 @@ namespace Ice
             return main(args, initData);
         }
         
-        public int main(string[] args, InitializationData initData)
+        public int main(string[] args, InitializationData initializationData)
         {
             if(_communicator != null)
             {
@@ -124,6 +124,29 @@ namespace Ice
                 return 1;
             }   
             int status = 0;
+            
+            //
+            // We parse the properties here to extract Ice.ProgramName.
+            // 
+            InitializationData initData;
+            if(initializationData != null)
+            {
+                initData = (InitializationData)initializationData.Clone();
+            }
+            else
+            {
+                initData = new InitializationData();
+            }
+            initData.properties = Util.createProperties(ref args, initData.properties);
+
+            //
+            // If the process logger is the default logger, we replace it with a
+            // a logger which is using the program name for the prefix.
+            //
+            if(Util.getProcessLogger() is LoggerI)
+            {
+                Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName")));
+            }
             
             try
             {

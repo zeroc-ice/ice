@@ -67,7 +67,7 @@ public:
         return _identitiesPrx;
     }
 
-    static FilterManager* 
+    static FilterManagerPtr 
     create(const InstancePtr&, const std::string&, const bool);
 
 private:

@@ -92,12 +92,12 @@ public:
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
+    virtual ReferencePtr changeCompress(bool) const;
 
     virtual ReferencePtr changeSecure(bool) const = 0;
     virtual ReferencePtr changePreferSecure(bool) const = 0;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
-    virtual ReferencePtr changeCompress(bool) const = 0;
     virtual ReferencePtr changeTimeout(int) const = 0;
     virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
     virtual ReferencePtr changeCollocationOptimization(bool) const = 0;
@@ -142,6 +142,9 @@ protected:
     mutable Ice::Int _hashValue;
     mutable bool _hashInitialized;
 
+    bool _overrideCompress;
+    bool _compress; // Only used if _overrideCompress == true
+
 private:
 
     const InstancePtr _instance;
@@ -176,7 +179,6 @@ public:
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeCollocationOptimization(bool) const;
-    virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const;
@@ -226,7 +228,6 @@ public:
     virtual ReferencePtr changePreferSecure(bool) const;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeCollocationOptimization(bool) const;
-    virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
@@ -264,8 +265,6 @@ private:
     Ice::EndpointSelectionType _endpointSelection;
 
     std::string _connectionId;
-    bool _overrideCompress;
-    bool _compress; // Only used if _overrideCompress == true
     bool _overrideTimeout;
     int _timeout; // Only used if _overrideTimeout == true
     bool _threadPerConnection;

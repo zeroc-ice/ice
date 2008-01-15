@@ -145,15 +145,6 @@ public class FixedReference extends Reference
     }
 
     public Reference
-    changeCompress(boolean newCompress)
-    {
-        // TODO: FixedReferences should probably have a _compress flag,
-        // that gets its default from the fixed connection this reference
-        // refers to. This should be changable with changeCompress().
-        throw new Ice.FixedProxyException();
-    }
-
-    public Reference
     changeTimeout(int newTimeout)
     {
         throw new Ice.FixedProxyException();
@@ -193,8 +184,20 @@ public class FixedReference extends Reference
         Ice.ConnectionI connection = filteredConns[0];
         assert(connection != null);
         connection.throwException(); // Throw in case our connection is already destroyed.
-        compress.value = connection.endpoint().compress();
 
+        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+        if(defaultsAndOverrides.overrideCompress)
+        {
+            compress.value = defaultsAndOverrides.overrideCompressValue;
+        }
+        else if(_overrideCompress)
+        {
+            compress.value = _compress;
+        }
+        else
+        {
+            compress.value = connection.endpoint().compress();
+        }
         return connection;
     }
 

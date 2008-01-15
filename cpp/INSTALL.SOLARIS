@@ -79,7 +79,7 @@ This kit is required to run the IceSSL tests successfully.
   Ice requires the library version of mcpp, so configure mcpp similar
   to the following
 
-  ./configure CC=cc CXX=CC --enable-mcpplib --enable-shared
+  ./configure CC=cc CXX=CC CFLAGS=-KPIC --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
 

@@ -291,8 +291,8 @@ Ice::PropertiesI::load(const std::string& file)
         throw ex;
     }
 
-    char line[1024];
-    while(in.getline(line, 1024))
+    string line;
+    while(getline(in, line))
     {
         parseLine(line, _converter);
     }
