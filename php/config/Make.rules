@@ -8,7 +8,7 @@
 # **********************************************************************
 
 #
-# Set value to 1 if you are building Ice for Ruby against an RPM installation
+# Set value to 1 if you are building Ice for PHP against an RPM installation
 # of Ice.
 #
 USE_ICE_RPM ?= 0
@@ -22,14 +22,14 @@ $(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
 
     ICE_DIR = $(ICE_HOME)
 
-    ifneq ($(shell test -f $(ICE_DIR)/bin/icecpp && echo 0),0)
+    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cpp && echo 0),0)
 $(error Unable to locate Ice files in $(ICE_DIR). Please verify ICE_HOME is properly configured and Ice is correctly installed.)
     endif
 else
     ifeq ($(USE_ICE_RPM),1)
         ICE_DIR=/usr
 
-        ifneq ($(shell test -f $(ICE_DIR)/bin/icecpp && echo 0),0)
+        ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cpp && echo 0),0)
 $(error Unable to locate Ice files in $(ICE_DIR). Please verify that the required Ice RPMs are properly installed.) 
         endif
     else
