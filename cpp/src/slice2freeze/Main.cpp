@@ -995,6 +995,7 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                 }
                 IndexType iType;
                 iType.type = dataMemberType;
+                iType.metaData = dataMember->getMetaData();
                 indexTypes.push_back(iType);
             }
         }
