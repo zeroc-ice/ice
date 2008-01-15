@@ -145,11 +145,23 @@ namespace IceInternal
             return r;
         }
 
+        public virtual Reference changeCompress(bool newCompress)
+        {
+            if(overrideCompress_ && compress_ == newCompress)
+            {
+                return this;
+            }
+
+            Reference r = instance_.referenceFactory().copy(this);
+            r.compress_ = newCompress;
+            r.overrideCompress_ = true;
+            return r;
+        }
+
         public abstract Reference changeSecure(bool newSecure);
         public abstract Reference changePreferSecure(bool newPreferSecure);
         public abstract Reference changeRouter(Ice.RouterPrx newRouter);
         public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-        public abstract Reference changeCompress(bool newCompress);
         public abstract Reference changeTimeout(int newTimeout);
         public abstract Reference changeConnectionId(string connectionId);
         public abstract Reference changeCollocationOptimization(bool newCollocationOptimization);
@@ -356,6 +368,15 @@ namespace IceInternal
                 return false;
             }
 
+            if(overrideCompress_ != r.overrideCompress_)
+            {
+                return false;
+            }
+            if(overrideCompress_ && compress_ != r.compress_)
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -377,6 +398,8 @@ namespace IceInternal
 
         protected int hashValue_;
         protected bool hashInitialized_;
+        protected bool overrideCompress_;
+        protected bool compress_; // Only used if _overrideCompress == true
 
         protected Reference(Instance inst,
                             Ice.Communicator com,
@@ -399,6 +422,8 @@ namespace IceInternal
             context_ = ctx == null ? _emptyContext : ctx;
             facet_ = fac;
             hashInitialized_ = false;
+            overrideCompress_ = false;
+            compress_ = false;
         }
 
         protected static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
@@ -483,14 +508,6 @@ namespace IceInternal
             throw new Ice.FixedProxyException();
         }
 
-        public override Reference changeCompress(bool newCompress)
-        {
-            // TODO: FixedReferences should probably have a _compress flag,
-            // that gets its default from the fixed connection this reference
-            // refers to. This should be changable with changeCompress().
-            throw new Ice.FixedProxyException();
-        }
-
         public override Reference changeTimeout(int newTimeout)
         {
             throw new Ice.FixedProxyException();
@@ -559,8 +576,20 @@ namespace IceInternal
             Ice.ConnectionI connection = filteredConns[0];
             Debug.Assert(connection != null);
             connection.throwException(); // Throw in case our connection is already destroyed.
-            compress = connection.endpoint().compress();
-
+            
+            DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideCompress)
+            {
+                compress = defaultsAndOverrides.overrideCompressValue;
+            }
+            else if(overrideCompress_)
+            {
+                compress = compress_;
+            }
+            else
+            {
+                compress = connection.endpoint().compress();
+            }
             return connection;
         }
 
@@ -832,19 +861,6 @@ namespace IceInternal
             return r;
         }
 
-        public override Reference changeCompress(bool newCompress)
-        {
-            if(overrideCompress_ && compress_ == newCompress)
-            {
-                return this;
-            }
-
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r.compress_ = newCompress;
-            r.overrideCompress_ = true;
-            return r;
-        }
-
         public override Reference changeTimeout(int newTimeout)
         {
             if(overrideTimeout_ && timeout_ == newTimeout)
@@ -933,14 +949,6 @@ namespace IceInternal
             {
                 return false;
             }
-            if(overrideCompress_ != rhs.overrideCompress_)
-            {
-                return false;
-            }
-            if(overrideCompress_ && compress_ != rhs.compress_)
-            {
-                return false;
-            }
             if(overrideTimeout_ != rhs.overrideTimeout_)
             {
                 return false;
@@ -989,8 +997,6 @@ namespace IceInternal
             _collocationOptimization = collocationOpt;
             _cacheConnection = cacheConnection;
             _endpointSelection = endpointSelection;
-            overrideCompress_ = false;
-            compress_ = false;
             overrideTimeout_ = false;
             timeout_ = -1;
             _threadPerConnection = threadPerConnection;
@@ -1350,8 +1356,6 @@ namespace IceInternal
         private bool _cacheConnection;
         private Ice.EndpointSelectionType _endpointSelection;
         private string connectionId_ = "";
-        private bool overrideCompress_;
-        private bool compress_;
         private bool overrideTimeout_;
         private int timeout_;
         private bool _threadPerConnection;

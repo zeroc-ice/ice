@@ -150,11 +150,23 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
+    public Reference
+    changeCompress(boolean newCompress)
+    {
+        if(_overrideCompress && _compress == newCompress)
+        {
+            return this;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        r._compress = newCompress;
+        r._overrideCompress = true;
+        return r;       
+    }
+
     public abstract Reference changeSecure(boolean newSecure);
     public abstract Reference changePreferSecure(boolean newPreferSecure);
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-    public abstract Reference changeCompress(boolean newCompress);
     public abstract Reference changeTimeout(int newTimeout);
     public abstract Reference changeConnectionId(String connectionId);
     public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
@@ -362,6 +374,15 @@ public abstract class Reference implements Cloneable
             return false;
         }
 
+        if(_overrideCompress != r._overrideCompress)
+        {
+           return false;
+        }
+        if(_overrideCompress && _compress != r._compress)
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -392,6 +413,8 @@ public abstract class Reference implements Cloneable
 
     protected int _hashValue;
     protected boolean _hashInitialized;
+    protected boolean _overrideCompress;
+    protected boolean _compress; // Only used if _overrideCompress == true
 
     protected
     Reference(Instance inst,
@@ -415,5 +438,7 @@ public abstract class Reference implements Cloneable
         _context = ctx == null ? _emptyContext : ctx;
         _facet = fac;
         _hashInitialized = false;
+        _overrideCompress = false;
+        _compress = false;
     }
 }

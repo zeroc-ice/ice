@@ -103,19 +103,6 @@ public abstract class RoutableReference extends Reference
     }
 
     public Reference
-    changeCompress(boolean newCompress)
-    {
-        if(_overrideCompress && _compress == newCompress)
-        {
-            return this;
-        }
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._compress = newCompress;
-        r._overrideCompress = true;
-        return r;       
-    }
-
-    public Reference
     changeTimeout(int newTimeout)
     {
         if(_overrideTimeout && _timeout == newTimeout)
@@ -218,14 +205,6 @@ public abstract class RoutableReference extends Reference
         {
            return false;
         }
-        if(_overrideCompress != rhs._overrideCompress)
-        {
-           return false;
-        }
-        if(_overrideCompress && _compress != rhs._compress)
-        {
-            return false;
-        }
         if(_overrideTimeout != rhs._overrideTimeout)
         {
            return false;
@@ -265,7 +244,6 @@ public abstract class RoutableReference extends Reference
         _cacheConnection = cacheConnection;
         _endpointSelection = endpointSelection;
         _overrideCompress = false;
-        _compress = false;
         _overrideTimeout = false;
         _timeout = -1;
         _threadPerConnection = threadPerConnection;
@@ -628,8 +606,6 @@ public abstract class RoutableReference extends Reference
     private boolean _cacheConnection;
     private Ice.EndpointSelectionType _endpointSelection;
     private String _connectionId = "";
-    private boolean _overrideCompress;
-    private boolean _compress; // Only used if _overrideCompress == true
     private boolean _overrideTimeout;
     private int _timeout; // Only used if _overrideTimeout == true
     private boolean _threadPerConnection;
