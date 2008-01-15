@@ -139,14 +139,10 @@ UNAME			:= $(shell uname)
 #
 # Platform specific definitions
 #
-ifeq ($(shell test -f $(ICE_DIR)/../py/config/Make.rules.$(UNAME) && echo 0),0)
-    configdir		= $(ICE_DIR)/../py/config
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+    configdir		= $(top_srcdir)/config
 else
-    ifeq ($(shell test -f $(ICE_DIR)/cpp/config/Make.rules.$(UNAME) && echo 0),0)
-        configdir		= $(ICE_DIR)/cpp/config
-    else
-        configdir		= $(ICE_DIR)/config
-    endif
+    configdir		= $(top_srcdir)/../cpp/config
 endif 
 
 include	 $(configdir)/Make.rules.$(UNAME)
@@ -180,11 +176,7 @@ endif
 ifneq ($(USE_ICE_RPM),0)
     slicedir		= /usr/share/Ice-$(VERSION)/slice
 else
-    ifeq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
-        slicedir		= $(ICE_DIR)/slice
-    else
-        slicedir		= $(ICE_DIR)/../slice
-    endif
+    slicedir		= $(top_srcdir)/../slice
 endif
 
 install_libdir	        = $(prefix)/python

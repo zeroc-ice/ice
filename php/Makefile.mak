@@ -13,7 +13,7 @@ top_srcdir	= .
 
 SUBDIRS		= src
 
-INSTALL_SUBDIRS = $(install_bindir) $(install_slicedir)
+INSTALL_SUBDIRS = $(install_bindir)
 
 install::
 	@if not exist $(prefix) \
@@ -29,11 +29,6 @@ $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-
-install::
-	@if exist slice \
-	    @echo "making $@ in slice" && \
-	    cmd /c "cd slice && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
 install::
 	copy ICE_LICENSE $(prefix)

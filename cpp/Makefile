@@ -40,6 +40,13 @@ endif
 	    fi ; \
 	done
 
+	cd ../slice ; \
+	for subdir in * ; \
+	do \
+	    echo "Copying slice/$$subdir to $(install_slicedir)..." ; \
+	    cp -fpr $$subdir $(install_slicedir) ; \
+	done ;
+
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \

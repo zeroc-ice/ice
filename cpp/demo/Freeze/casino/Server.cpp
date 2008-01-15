@@ -82,7 +82,7 @@ CasinoServer::run(int argc, char* argv[])
     //
     // Initialize pseudo-random number generator
     //
-    srand(IceUtil::Time::now().toMicroSeconds());
+    srand((unsigned int)IceUtil::Time::now().toMicroSeconds());
 
     Ice::PropertiesPtr properties = communicator()->getProperties();
 

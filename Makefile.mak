@@ -7,18 +7,21 @@
 #
 # **********************************************************************
 
-root_dir	= .
+top_srcdir = cpp
+!include cpp/config/Make.rules.mak
 
-!include $(root_dir)/config/Make.rules.mak
-
-SUBDIRS		= slice cpp java
+SUBDIRS			= cpp java py
+DEPEND_SUBDIRS		= cpp py
+INSTALL_SUBDIRS		= cpp py
 
 !if "$(CPP_COMPILER)" == "VC60"
-SUBDIRS		= $(SUBDIRS) php rb
-!endif
-
-!if "$(CPP_COMPILER)" == "VC80"
-SUBDIRS		= $(SUBDIRS) cs py vb
+SUBDIRS			= $(SUBDIRS) php rb
+DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) php rb
+INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) php rb
+!else
+SUBDIRS			= $(SUBDIRS) cs vb
+DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) cs vb
+INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) cs
 !endif
 
 $(EVERYTHING)::
@@ -26,4 +29,45 @@ $(EVERYTHING)::
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) $@" || exit 1
 
+all clean::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) $@" || exit 1
 
+depend::
+	@for %i in ( $(DEPEND_SUBDIRS) ) do \
+	    @echo "making depend in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) depend" || exit 1
+
+install::
+	@for %i in ( $(INSTALL_SUBDIRS) ) do \
+	    @echo "making install in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) install" || exit 1
+
+cpp::
+	@echo "making all in cpp" && \
+	cmd /c "cd cpp && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+
+java::
+	@echo "making all in java" && \
+	cmd /c "cd java && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+
+cs::
+	@echo "making all in cs" && \
+	cmd /c "cd cs && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+
+vb::
+	@echo "making all in vb" && \
+	cmd /c "cd vb && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+
+py::
+	@echo "making all in py" && \
+	cmd /c "cd py && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+
+rb::
+	@echo "making all in rb" && \
+	cmd /c "cd rb && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+
+php::
+	@echo "making all in php" && \
+	cmd /c "cd php && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1

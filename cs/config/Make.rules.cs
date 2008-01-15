@@ -114,11 +114,7 @@ libdir			= $(top_srcdir)/lib
 ifneq ($(USE_ICE_RPM),0)
     slicedir		= /usr/share/Ice-$(VERSION)/slice
 else
-    ifeq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
-        slicedir		= $(ICE_DIR)/slice
-    else
-        slicedir		= $(ICE_DIR)/../slice
-    endif
+    slicedir		= $(top_srcdir)/../slice
 endif
 
 

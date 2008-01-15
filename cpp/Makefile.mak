@@ -31,6 +31,9 @@ $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+install::
+	@echo "Copying slice files..." && \
+	cmd /c "xcopy /s /y ..\slice $(install_slicedir)" || exit 1
 
 install::
 	copy ICE_LICENSE $(prefix)

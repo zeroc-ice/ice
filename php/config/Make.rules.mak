@@ -59,11 +59,7 @@ SOVERSION		= 33
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 
-!if exist ("$(ICE_DIR)\slice")
-slicedir 		= $(ICE_DIR)\slice
-!else
-slicedir                = $(ICE_DIR)\..\slice
-!endif
+slicedir                = $(top_srcdir)\..\slice
 
 install_libdir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib
@@ -72,11 +68,7 @@ install_slicedir        = $(prefix)\slice
 THIRDPARTY_HOME         = $(STLPORT_HOME)
 CPP_COMPILER		= VC60
 
-!if exist ($(ICE_DIR)\config\Make.rules.msvc)
-!include $(ICE_DIR)\config\Make.rules.msvc
-!else
-!include $(ICE_DIR)\cpp\config\Make.rules.msvc
-!endif
+!include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d

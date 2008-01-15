@@ -85,11 +85,7 @@ THIRDPARTY_HOME		= $(STLPORT_HOME)
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
-!if exist ($(ICE_DIR)\config\Make.rules.msvc)
-!include $(ICE_DIR)\config\Make.rules.msvc
-!else
-!include $(ICE_DIR)\cpp\config\Make.rules.msvc
-!endif
+!include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
@@ -106,11 +102,7 @@ ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
 ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
 !endif
 
-!if exist ("$(ICE_DIR)\slice")
-slicedir 		= $(ICE_DIR)\slice
-!else
-slicedir                = $(ICE_DIR)\..\slice
-!endif
+slicedir                = $(top_srcdir)\..\slice
 
 PYTHON_CPPFLAGS		= -I"$(PYTHON_HOME)\include"
 PYTHON_LDFLAGS		= /LIBPATH:"$(PYTHON_HOME)\libs"
