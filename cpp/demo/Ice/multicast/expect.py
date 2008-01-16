@@ -26,13 +26,4 @@ import demoscript.Util
 import demoscript.Ice.multicast
 demoscript.Util.defaultLanguage = "C++"
 
-server1 = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
-server1.expect('.* ready')
-server2 = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
-server2.expect('.* ready')
-server3 = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
-server3.expect('.* ready')
-client = demoscript.Util.spawn('./client')
-client.expect('.*==>')
-
-demoscript.Ice.multicast.run(client, server1, server2, server3)
+demoscript.Ice.multicast.run("./client", "./server")

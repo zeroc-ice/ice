@@ -8,29 +8,29 @@
 #
 # **********************************************************************
 
-import sys
+import sys, demoscript, signal
 import demoscript.pexpect as pexpect
 
-def run(client, server1, server2, server3):
-    print "testing multicast...",
+def run(clientCmd, serverCmd):
+    print "testing multicast discovery...",
     sys.stdout.flush()
 
-    client.sendline('t')
-    server1.expect('Hello World!')
-    server2.expect('Hello World!')
-    server3.expect('Hello World!')
+    server = demoscript.Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
+    server.expect('.* ready')
+    server.expect('.* ready')
 
-    client.sendline('t')
-    server1.expect('Hello World!')
-    server2.expect('Hello World!')
-    server3.expect('Hello World!')
-
-    client.sendline('s')
-    server1.waitTestSuccess()
-    server2.waitTestSuccess()
-    server3.waitTestSuccess()
-
-    client.sendline('x')
+    client = demoscript.Util.spawn(clientCmd)
+    server.expect('Hello World!')
     client.waitTestSuccess()
 
+    client = demoscript.Util.spawn(clientCmd)
+    server.expect('Hello World!')
+    client.waitTestSuccess()
+
+    client = demoscript.Util.spawn(clientCmd)
+    server.expect('Hello World!')
+    client.waitTestSuccess()
+
+    server.kill(signal.SIGQUIT)
+    
     print "ok"
