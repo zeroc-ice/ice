@@ -71,7 +71,7 @@ the installation of the RHEL4 python RPM.
 C#
 --
 
-Ice for C# requires Mono 1.2.2 or later. You can download an RPM at:
+Ice for .NET requires Mono 1.2.2 or later. You can download an RPM at:
 
   http://www.go-mono.com/download/x86/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.i586.rpm
   http://www.go-mono.com/download/x86_64/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.x86_64.rpm
@@ -226,7 +226,7 @@ $ export PYTHONPATH=$ICE_HOME/python:$PYTHONPATH
 C#/Mono
 -------
 
-You can update MONO_PATH with the directory containing the Ice for C#
+You can update MONO_PATH with the directory containing the Ice for .NET
 runtime libraries, as the following bash command shows:
 
 $ export MONO_PATH=$ICE_HOME/bin:$MONO_PATH

@@ -104,7 +104,7 @@ version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 pcfg = open(os.path.join("lib", "pkgconfig", "icecs.pc"), "r")
 dotnetversion = re.search("version[= \t]*([0-9\.]+)", pcfg.read()).group(1)
 
-icever = "IceCS-" + version
+icever = "IceNET-" + version
 
 os.mkdir(os.path.join(distdir, icever))
 
@@ -169,7 +169,7 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 #
 # Copy files (README, etc.).
 #
-shutil.copyfile(os.path.join(icever, "CHANGES"), "IceCS-" + version + "-CHANGES")
+shutil.copyfile(os.path.join(icever, "CHANGES"), "IceNET-" + version + "-CHANGES")
 
 #
 # Done.

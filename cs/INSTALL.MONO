@@ -1,11 +1,11 @@
 Build instructions
 ------------------
 
-This version of Ice for C# requires Mono version 1.2.5.1 or later.
+This version of Ice for .NET requires Mono version 1.2.5.1 or later.
 Note that Mono currently does not contain full SSL support and 
 therefore IceSSL is not supported.
 
-Unpack the archive. The sources will be contained in the IceCS-@ver@
+Unpack the archive. The sources will be contained in the IceNET-@ver@
 subdirectory.
 
 You will need the Slice to C# translator and supporting executables
@@ -16,7 +16,7 @@ Binary distributions for the supported platforms are available at
 
   http://www.zeroc.com/download.html
 
-To build Ice for C#, run
+To build Ice for .NET, run
 
 $ make
 
@@ -87,14 +87,14 @@ the kernel or Mono.
 Running the tests
 -----------------
 
-Some of the Ice for C# tests employ applications that are part of the
+Some of the Ice for .NET tests employ applications that are part of the
 Ice for C++ distribution. You need to set the ICE_HOME environment
 variable to the path where these applications are installed for these
 tests to run properly:
 
 $ export ICE_HOME=/opt/Ice-@ver@
 
-You must add IceCS-@ver@/bin to your MONO_PATH. (Don't forget to export
+You must add IceNET-@ver@/bin to your MONO_PATH. (Don't forget to export
 MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
 directory) in the Global Assembly Cache (GAC), using gacutil -i
 <name>. For example:
@@ -122,7 +122,7 @@ case of a failure, the tests abort with "failed".
 Running the demos
 -----------------
 
-To run the demos, you need to have IceCS-@ver@/bin in your MONO_PATH
+To run the demos, you need to have IceNET-@ver@/bin in your MONO_PATH
 (or install the Ice DLLs in the GAC, as for running the tests). See
 the README file in each demo directory for a description of each demo.
 
@@ -137,7 +137,7 @@ created automatically if necessary. Also review the comments for the
 
 $ make install
 
-On other platforms, copy the libraries from IceCS-@ver@/bin to the
+On other platforms, copy the libraries from IceNET-@ver@/bin to the
 desired location.
 
 After installation, add the directory containing the libraries to
@@ -164,7 +164,7 @@ Patch releases of Ice are binary compatible. For example, version
 compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
 recompile.
 
-A patch release includes policy assemblies in IceCS-@ver@/bin that
+A patch release includes policy assemblies in IceNET-@ver@/bin that
 supply the Mono run time with the required compatibility information.
 To upgrade an existing application to a new patch release, the policy
 assemblies must be present in your MONO_PATH, or they must be

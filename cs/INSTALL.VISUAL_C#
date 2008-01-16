@@ -1,7 +1,7 @@
 Build instructions
 ------------------
 
-Ice for C# has been built and tested with:
+Ice for .NET has been built and tested with:
 
 - Visual C# Express Version 8.0.50727.42 and .NET Framework Version
   2.0.50727.
@@ -9,7 +9,7 @@ Ice for C# has been built and tested with:
 - Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
   Version 2.0.50727.
 
-Unpack the archive. The sources will be contained in the IceCS-@ver@
+Unpack the archive. The sources will be contained in the IceNET-@ver@
 subdirectory.
 
 You will need the Slice to C# translator and supporting executables
@@ -32,7 +32,7 @@ Follow these steps to build the source:
 
    > set ICE_HOME=C:\Ice-@ver@
 
-2) Change to the top-level directory of the Ice for C# source
+2) Change to the top-level directory of the Ice for .NET source
    distribution.
 
 3) Open config\Make.rules.mak.cs and review the comments that describe
@@ -84,7 +84,7 @@ Ice applications.
 Running the tests
 -----------------
 
-Some of the Ice for C# tests employ applications that are part of the
+Some of the Ice for .NET tests employ applications that are part of the
 Ice for C++ distribution. You need to set the ICE_HOME environment
 variable to the path where these applications are installed for these
 tests to run properly:
@@ -121,7 +121,7 @@ Installation
 ------------
 
 Simply run "nmake /f Makefile.mak install". This will install Ice for
-C# in the directory specified by the "prefix" variable in
+.NET in the directory specified by the "prefix" variable in
 config/Make.rules.mak.cs. After installation, make sure that the
 <prefix>/bin directory is in your PATH.
 
@@ -132,7 +132,7 @@ GAC Installation
 You can add the assemblies to the Global Assembly Cache (GAC). To do
 this, open Windows Explorer and navigate to the directory
 C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-assemblies from IceCS-@ver@\bin into the right-hand pane to install
+assemblies from IceNET-@ver@\bin into the right-hand pane to install
 them in the cache.
 
 Or you can use gacutil from the command line to achieve the same
@@ -233,7 +233,7 @@ steps under (1) or (2) below:
 
    - Copy all the files beginning with "policy", and all files ending
      in ".dll" from the bin directory of the machine on which you
-     compiled Ice for C# into a single directory on the target
+     compiled Ice for .NET into a single directory on the target
      machine.
 
    - Start a command shell.

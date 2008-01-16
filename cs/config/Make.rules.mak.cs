@@ -19,11 +19,11 @@ ICE_DIR 	= $(ICE_HOME)
 # if it does not exist.
 #
 
-prefix			= C:\IceCS-$(VERSION)
+prefix			= C:\IceNET-$(VERSION)
 
 #
 # The default behavior of 'nmake /f Makefile.mak install' attempts to add
-# the Ice for C# libraries to the Global Assembly Cache (GAC). If you would
+# the Ice for .NET libraries to the Global Assembly Cache (GAC). If you would
 # prefer not to install these libraries to the GAC, or if you do not have
 # sufficient privileges to do so, then enable no_gac and the libraries will
 # be copied to $(prefix)/bin instead.

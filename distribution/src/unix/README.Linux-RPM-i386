@@ -27,8 +27,8 @@ ice-c++-devel-3.1.1-1.i386.rpm
 
 ice-dotnet-3.1.1-1.i386.rpm
 
-    Ice for C# (Mono) runtime, including the assemblies required to
-    execute Ice for C# applications. This RPM has the following
+    Ice for .NET (Mono) runtime, including the assemblies required to
+    execute Ice for .NET applications. This RPM has the following
     dependencies:
 
     * ice
@@ -36,7 +36,7 @@ ice-dotnet-3.1.1-1.i386.rpm
 
 ice-csharp-devel-3.1.1-1.i386.rpm
 
-    Ice for C# (Mono) development kit, including the Slice translator
+    Ice for .NET (Mono) development kit, including the Slice translator
     and sample programs. This RPM has the following dependencies:
 
     * ice

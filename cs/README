@@ -1,4 +1,4 @@
-Ice for C# currently does not support the following features of Ice
+Ice for .NET currently does not support the following features of Ice
 for C++:
 
 - Freeze

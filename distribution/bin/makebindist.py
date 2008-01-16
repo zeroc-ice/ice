@@ -554,7 +554,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     if distro.startswith('Ice-'):
         editMakeRules(os.path.join(basepath, 'Make.rules'), version)
         editMakeRulesMak(os.path.join(basepath, 'Make.rules.mak'), version)
-    elif distro.startswith('IceCS-'):
+    elif distro.startswith('IceNET-'):
         editMakeRulesCS(os.path.join(basepath, 'Make.rules.cs'), version)
         editMakeRulesMakCS(os.path.join(basepath, 'Make.rules.mak.cs'), version)
 
@@ -707,7 +707,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
 
     runprog('rm -rf /opt/Ice-%s' % (mmVersion), False)
 
-    if distro.startswith('IceCS'):
+    if distro.startswith('IceNET'):
         assemblies = ["glacier2cs", "iceboxcs", "icecs", "icegridcs", "icepatch2cs", "icestormcs"]
 
         # 
@@ -1080,7 +1080,7 @@ def main():
             sourceTarBalls.append(('py','IcePy-' + version, 'py'))
 
         if getPlatform() == 'linux':
-            sourceTarBalls.append(('cs','IceCS-' + version, 'cs'))
+            sourceTarBalls.append(('cs','IceNET-' + version, 'cs'))
             if os.system('which ruby > /dev/null 2>&1') == 0:
                 sourceTarBalls.append(('rb', 'IceRuby-%s' % version, 'rb'))
         

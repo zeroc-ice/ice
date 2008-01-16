@@ -16,7 +16,7 @@ URL: http://www.zeroc.com/
 Source0: Ice-%{version}.tar.gz
 Source1: IceJ-%{version}-java2.tar.gz
 Source2: IcePy-%{version}.tar.gz
-Source3: IceCS-%{version}.tar.gz
+Source3: IceNET-%{version}.tar.gz
 Source4: IceJ-%{version}-java5.tar.gz
 Source5: IcePHP-%{version}.tar.gz
 Source6: Ice-rpmbuild-%{version}.tar.gz
@@ -92,7 +92,7 @@ firewall solution, and much more.
 #
 %setup -n Ice-%{version} -q -T -D -b 0
 %setup -q -n IceJ-%{version}-java2 -T -D -b 1
-%setup -q -n IceCS-%{version} -T -D -b 3
+%setup -q -n IceNET-%{version} -T -D -b 3
 
 %ifarch noarch
 #
@@ -146,7 +146,7 @@ make OPTIMIZE=yes embedded_runpath_prefix=""
 #
 # We only build C# for noarch
 #
-cd $RPM_BUILD_DIR/IceCS-%{version}/src
+cd $RPM_BUILD_DIR/IceNET-%{version}/src
 export PATH=$ICE_HOME/bin:$PATH
 make OPTIMIZE=yes
 %endif
@@ -186,7 +186,7 @@ fi
 
 for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
 do 
-    cp $RPM_BUILD_DIR/IceCS-%{version}/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig 
+    cp $RPM_BUILD_DIR/IceNET-%{version}/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig 
 done
 
 #
@@ -220,15 +220,15 @@ cp -p $RPM_BUILD_DIR/IceJ-%{version}-java5/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.j
 mkdir -p $RPM_BUILD_ROOT/lib/java2
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/Ice.jar $RPM_BUILD_ROOT/lib/java2/Ice.jar
 
-cd $RPM_BUILD_DIR/IceCS-%{version}
+cd $RPM_BUILD_DIR/IceNET-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 make NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
 
 for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
 do 
-    cp $RPM_BUILD_DIR/IceCS-%{version}/bin/$f.dll $RPM_BUILD_ROOT/bin
-    cp $RPM_BUILD_DIR/IceCS-%{version}/bin/policy.%{dotnetmainversion}.$f $RPM_BUILD_DIR/IceCS-%{version}/bin/policy.%{dotnetmainversion}.$f.dll  $RPM_BUILD_ROOT/bin
+    cp $RPM_BUILD_DIR/IceNET-%{version}/bin/$f.dll $RPM_BUILD_ROOT/bin
+    cp $RPM_BUILD_DIR/IceNET-%{version}/bin/policy.%{dotnetmainversion}.$f $RPM_BUILD_DIR/IceNET-%{version}/bin/policy.%{dotnetmainversion}.$f.dll  $RPM_BUILD_ROOT/bin
 done
 %endif
 

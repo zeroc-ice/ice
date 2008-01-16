@@ -3,7 +3,7 @@ Note for Mono:
     For this demo to work properly using Mono on Linux, you must
     configure Linux to recognize Mono binaries. Configuration
     instructions are provided in INSTALL.MONO at the top level of the
-    Ice for C# source distribution or, in README at the top level of
+    Ice for .NET source distribution or, in README at the top level of
     the Ice binary distribution (in /usr/share/doc/Ice-@ver@ if you
     have installed Ice from RPMs).
 

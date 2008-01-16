@@ -4,7 +4,7 @@ echo "">$1
 
 cat >$1 <<\_CMTFILE
 # To create an explicit listing for the demos run the following command
-# in the demo directory of the IceCS distribution:
+# in the demo directory of the IceNET distribution:
 # find . -name "*" -type f | sed -e '/generated\|obj\|.exe$\|.dll$\|.depend\|\
 #      Makefile\|.pdb$\|\.bat$\|\.dummy/d' # | \
 #      sed -e 's/^\.\///' \

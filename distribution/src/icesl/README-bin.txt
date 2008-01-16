@@ -10,7 +10,7 @@ including the following components:
 
 - The Slice-to-Silverlight translator.
 
-- The Ice for C# runtime assembly.
+- The Ice for .NET runtime assembly.
 
 
 ======================================================================
@@ -80,12 +80,12 @@ The source distribution for the translator can also be downloaded at
   http://www.zeroc.com/labs/download.html
 
 
-Ice for C#
+Ice for .NET
 ----------
 
 In order to use Ice for Silverlight it is necessary to also install 
-Ice for C#. Specifically it is necessary to install a patched version
-of the Ice for C# 3.2.1 icecs.dll which is provided in the bin
+Ice for .NET. Specifically it is necessary to install a patched version
+of the Ice for .NET 3.2.1 icecs.dll which is provided in the bin
 directory. The assembly is required by the bridge and must be
 installed in the GAC.
 

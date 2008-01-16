@@ -8,7 +8,7 @@
 # **********************************************************************
 
 #
-# Set value to 1 if you are building Ice for C# against an RPM installation
+# Set value to 1 if you are building Ice for .NET against an RPM installation
 # of Ice.
 #
 USE_ICE_RPM ?= 0
@@ -53,10 +53,10 @@ MONO = yes
 # if it does not exist.
 #
 
-prefix			?= /opt/IceCS-$(VERSION)
+prefix			?= /opt/IceNET-$(VERSION)
 
 #
-# The default behavior of 'make install' attempts to add the Ice for C#
+# The default behavior of 'make install' attempts to add the Ice for .NET
 # libraries to the Global Assembly Cache (GAC). If you would prefer not
 # to install these libraries to the GAC, or if you do not have sufficient
 # privileges to do so, then enable no_gac and the libraries will be
