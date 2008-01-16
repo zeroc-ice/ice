@@ -1370,13 +1370,17 @@ namespace Ice
         
             if(registerProcess && serverId.Length > 0)
             {
-                try
+                lock(this)
                 {
                     if(_processId == null)
                     {
                         Process servant = new IceInternal.ProcessI(_communicator);
                         _processId = addWithUUID(servant).ice_getIdentity();
                     }
+                }
+
+                try
+                {
                     locatorRegistry.setServerProcessProxy(serverId,
                         ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
                 }

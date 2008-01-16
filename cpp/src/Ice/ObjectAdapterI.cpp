@@ -1325,13 +1325,18 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 
     if(registerProcess && !serverId.empty())
     {
-        try
         {
+            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
             if(_processId.name == "")
             {
                 ProcessPtr servant = new ProcessI(_communicator);
                 _processId = addWithUUID(servant)->ice_getIdentity();
             }
+        }
+
+        try
+        {
             locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(createDirectProxy(_processId)));
         }
         catch(const ServerNotFoundException&)

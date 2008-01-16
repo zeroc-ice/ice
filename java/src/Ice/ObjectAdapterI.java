@@ -1356,13 +1356,17 @@ public final class ObjectAdapterI implements ObjectAdapter
         
         if(registerProcess && serverId.length() > 0)
         {
-            try
+            synchronized(this)
             {
                 if(_processId == null)
                 {
                     Process servant = new IceInternal.ProcessI(_communicator);
                     _processId = addWithUUID(servant).ice_getIdentity();
                 }
+            }
+
+            try
+            {
                 locatorRegistry.setServerProcessProxy(serverId, 
                                         ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
             }
