@@ -8,11 +8,44 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <HelloI.h>
+
+#include <Discovery.h>
+#include <Hello.h>
 
 using namespace std;
+using namespace Demo;
 
-class MulticastServer : public Ice::Application
+class HelloI : public Hello
+{
+public:
+
+    virtual void
+    sayHello(const Ice::Current&) const
+    {
+        cout << "Hello World!" << endl;
+    }
+};
+
+class DiscoverI : public Discover
+{
+public:
+
+    DiscoverI(const Ice::ObjectPrx& obj) : _obj(obj)
+    {
+    }
+
+    virtual void
+    lookup(const DiscoverReplyPrx& reply, const Ice::Current&)
+    {
+        reply->reply(_obj);
+    }
+
+private:
+
+    const Ice::ObjectPrx _obj;
+};
+
+class HelloServer : public Ice::Application
 {
 public:
 
@@ -22,22 +55,22 @@ public:
 int
 main(int argc, char* argv[])
 {
-    MulticastServer app;
+    HelloServer app;
     return app.main(argc, argv, "config.server");
 }
 
 int
-MulticastServer::run(int argc, char* argv[])
+HelloServer::run(int argc, char* argv[])
 {
-    if(argc > 1)
-    {
-        cerr << appName() << ": too many arguments" << endl;
-        return EXIT_FAILURE;
-    }
-
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
-    adapter->add(new HelloI, communicator()->stringToIdentity("hello"));
+    Ice::ObjectAdapterPtr discoverAdapter = communicator()->createObjectAdapter("Discover");
+
+    Ice::ObjectPrx hello = adapter->addWithUUID(new HelloI);
+    discoverAdapter->add(new DiscoverI(hello), communicator()->stringToIdentity("discover"));
+
+    discoverAdapter->activate();
     adapter->activate();
+
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;
 }

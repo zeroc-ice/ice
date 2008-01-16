@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using Demo;
+
 public class Server : Ice.Application
 {
     public override int run(string[] args)
@@ -18,8 +20,14 @@ public class Server : Ice.Application
         }
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
-        adapter.add(new HelloI(), communicator().stringToIdentity("hello"));
+        Ice.ObjectAdapter discoverAdapter = communicator().createObjectAdapter("Discover");
+
+        Ice.ObjectPrx hello = adapter.addWithUUID(new HelloI());
+        discoverAdapter.add(new DiscoverI(hello), communicator().stringToIdentity("discover"));
+
+        discoverAdapter.activate();        
         adapter.activate();
+        
         communicator().waitForShutdown();
         return 0;
     }

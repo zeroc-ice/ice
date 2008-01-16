@@ -11,10 +11,11 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.cs
-S_SRCS		= HelloI.cs Server.cs
+C_SRCS		= DiscoverReplyI.cs Client.cs
+S_SRCS		= DiscoverI.cs HelloI.cs Server.cs
 
-GEN_SRCS	= $(GDIR)\Hello.cs
+GEN_SRCS	= $(GDIR)\Discovery.cs \
+		  $(GDIR)\Hello.cs
 
 SDIR		= .
 

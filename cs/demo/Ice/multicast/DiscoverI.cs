@@ -7,17 +7,21 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_ICE
-#define HELLO_ICE
+using Demo;
 
-module Demo
+public class DiscoverI : DiscoverDisp_
 {
+    public
+    DiscoverI(Ice.ObjectPrx obj)
+    {
+        _obj = obj;
+    }
 
-interface Hello
-{
-    ["cpp:const"] idempotent void sayHello();
-};
+    public override void
+    lookup(DiscoverReplyPrx reply, Ice.Current current)
+    {
+        reply.reply(_obj);
+    }
 
-};
-
-#endif
+    private Ice.ObjectPrx _obj;
+}

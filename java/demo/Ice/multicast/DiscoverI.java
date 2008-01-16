@@ -7,17 +7,20 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_I_H
-#define HELLO_I_H
+import Demo.*;
 
-#include <Hello.h>
-
-class HelloI : public Demo::Hello
+public class DiscoverI extends _DiscoverDisp
 {
-public:
+    DiscoverI(Ice.ObjectPrx obj)
+    {
+        _obj = obj;
+    }
 
-    virtual void sayHello(const Ice::Current&) const;
-    virtual void shutdown(const Ice::Current&);
-};
+    public void
+    lookup(DiscoverReplyPrx reply, Ice.Current current)
+    {
+        reply.reply(_obj);
+    }
 
-#endif
+    private Ice.ObjectPrx _obj;
+}

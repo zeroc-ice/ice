@@ -84,7 +84,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="generated\Discovery.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="generated\Hello.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DiscoverI.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HelloI.cs">

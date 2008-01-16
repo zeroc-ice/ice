@@ -7,21 +7,22 @@
 //
 // **********************************************************************
 
-#include <IceUtil/IceUtil.h>
-#include <Ice/Ice.h>
-#include <HelloI.h>
+#ifndef DISCOVERY_ICE
+#define DISCOVERY_ICE
 
-using namespace std;
-
-void
-HelloI::sayHello(const Ice::Current&) const
+module Demo
 {
-    cout << "Hello World!" << endl;
-}
 
-void
-HelloI::shutdown(const Ice::Current& c)
+interface DiscoverReply
 {
-    cout << "Shutting down..." << endl;
-    c.adapter->getCommunicator()->shutdown();
-}
+    void reply(Object* obj);
+};
+
+interface Discover
+{
+    void lookup(DiscoverReply* replyHere);
+};
+
+};
+
+#endif

@@ -8,17 +8,60 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/Time.h>
+
 #include <Hello.h>
+#include <Discovery.h>
 
 using namespace std;
 using namespace Demo;
 
-class MulticastClient : public Ice::Application
+class DiscoverReplyI : public DiscoverReply, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    virtual void
+    reply(const Ice::ObjectPrx& obj, const Ice::Current&)
+    {
+        Lock sync(*this);
+        if(!_obj)
+        {
+            _obj = obj;
+        }
+        notify();
+    }
+
+    Ice::ObjectPrx
+    waitReply(const IceUtil::Time& timeout)
+    {
+        Lock sync(*this);
+        IceUtil::Time end = IceUtil::Time::now() + timeout;
+        while(!_obj)
+        {
+            IceUtil::Time delay = end - IceUtil::Time::now();
+            if(delay > IceUtil::Time::seconds(0))
+            {
+                timedWait(delay);
+            }
+            else
+            {
+                break;
+            }
+        }
+        return _obj;
+    }
+
+private:
+
+    Ice::ObjectPrx _obj;
+};
+typedef IceUtil::Handle<DiscoverReplyI> DiscoverReplyIPtr;
+
+class HelloClient : public Ice::Application
 {
 public:
 
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 
 private:
 
@@ -28,93 +71,35 @@ private:
 int
 main(int argc, char* argv[])
 {
-    MulticastClient app;
+    HelloClient app;
     return app.main(argc, argv, "config.client");
 }
 
 int
-MulticastClient::run(int argc, char* argv[])
+HelloClient::run(int argc, char* argv[])
 {
-    if(argc > 1)
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("DiscoverReply");
+    DiscoverReplyIPtr replyI = new DiscoverReplyI;
+    DiscoverReplyPrx reply = DiscoverReplyPrx::uncheckedCast(adapter->addWithUUID(replyI));
+    adapter->activate();
+
+    DiscoverPrx discover = DiscoverPrx::uncheckedCast(
+        communicator()->propertyToProxy("Discover.Proxy")->ice_datagram());
+    discover->lookup(reply);
+    Ice::ObjectPrx base = replyI->waitReply(IceUtil::Time::seconds(2));
+    if(!base)
     {
-        cerr << appName() << ": too many arguments" << endl;
+        cerr << argv[0] << ": no replies" << endl;
+        return EXIT_FAILURE;
+    }
+    HelloPrx hello = HelloPrx::checkedCast(base);
+    if(!hello)
+    {
+        cerr << argv[0] << ": invalid reply" << endl;
         return EXIT_FAILURE;
     }
 
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
-
-    HelloPrx proxy = HelloPrx::uncheckedCast(communicator()->propertyToProxy("Hello.Proxy")->ice_datagram());
-
-    menu();
-
-    char c;
-    do
-    {
-        try
-        {
-            cout << "==> ";
-            cin >> c;
-            if(c == 't')
-            {
-                proxy->sayHello();
-            }
-            else if(c == 's')
-            {
-                proxy->shutdown();
-            }
-            else if(c == 'x')
-            {
-                // Nothing to do
-            }
-            else if(c == '?')
-            {
-                menu();
-            }
-            else
-            {
-                cout << "unknown command `" << c << "'" << endl;
-                menu();
-            }
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-        }
-    }
-    while(cin.good() && c != 'x');
+    hello->sayHello();
 
     return EXIT_SUCCESS;
-}
-
-void
-MulticastClient::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
-}
-
-void
-MulticastClient::menu()
-{
-    cout <<
-        "usage:\n"
-        "t: send multicast message\n"
-        "s: shutdown server\n"
-        "x: exit\n"
-        "?: help\n";
 }

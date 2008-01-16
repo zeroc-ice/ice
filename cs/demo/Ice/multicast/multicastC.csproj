@@ -87,6 +87,12 @@
     <Compile Include="Client.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DiscoverReplyI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Discovery.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="generated\Hello.cs">
       <SubType>Code</SubType>
     </Compile>

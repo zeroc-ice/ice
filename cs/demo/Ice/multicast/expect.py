@@ -24,15 +24,15 @@ except ImportError:
 
 import demoscript.Util
 import demoscript.Ice.multicast
-demoscript.Util.defaultLanguage = "C#"
+demoscript.Util.defaultLanguage = "Java"
 
-server1 = demoscript.Util.spawn('server.exe --Ice.PrintAdapterReady')
+server1 = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
 server1.expect('.* ready')
-server2 = demoscript.Util.spawn('server.exe --Ice.PrintAdapterReady')
+server2 = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
 server2.expect('.* ready')
-server3 = demoscript.Util.spawn('server.exe --Ice.PrintAdapterReady')
+server3 = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
 server3.expect('.* ready')
-client = demoscript.Util.spawn('client.exe')
+client = demoscript.Util.spawn('java Client')
 client.expect('.*==>')
 
 demoscript.Ice.multicast.run(client, server1, server2, server3)

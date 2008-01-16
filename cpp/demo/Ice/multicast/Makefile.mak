@@ -14,12 +14,12 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Hello.obj
+OBJS		= Hello.obj \
+		  Discovery.obj
 
 COBJS		= Client.obj
 
-SOBJS		= HelloI.obj \
-		  Server.obj
+SOBJS		= Server.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
@@ -46,5 +46,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 clean::
 	del /q Hello.cpp Hello.h
+	del /q Discovery.cpp Discovery.h
 
 !include .depend

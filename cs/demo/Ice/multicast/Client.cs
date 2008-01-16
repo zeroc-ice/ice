@@ -7,74 +7,42 @@
 //
 // **********************************************************************
 
-using System;
 using Demo;
 
 public class Client : Ice.Application
 {
-    private static void menu()
-    {
-        Console.Write(
-            "usage:\n" +
-            "t: send multicast message\n" +
-            "s: shutdown server\n" +
-            "x: exit\n" +
-            "?: help\n");
-    }
-
     public override int run(string[] args)
     {
         if(args.Length > 0)
         {
-            Console.Error.WriteLine(appName() + ": too many arguments");
+            System.Console.Error.WriteLine(appName() + ": too many arguments");
             return 1;
         }
 
-        HelloPrx proxy = HelloPrxHelper.uncheckedCast(communicator().propertyToProxy("Hello.Proxy").ice_datagram());
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("DiscoverReply");
+        DiscoverReplyI replyI = new DiscoverReplyI();
+        DiscoverReplyPrx reply = DiscoverReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
+        adapter.activate();
 
-        menu();
+        DiscoverPrx discover = DiscoverPrxHelper.uncheckedCast(
+            communicator().propertyToProxy("Discover.Proxy").ice_datagram());
+        discover.lookup(reply);
+        Ice.ObjectPrx obj = replyI.waitReply(2000);
 
-        string line = null;
-        do 
+
+        if(obj == null)
         {
-            try
-            {
-                Console.Out.Write("==> ");
-                Console.Out.Flush();
-                line = Console.In.ReadLine();
-                if(line == null)
-                {
-                    break;
-                }
-                if(line.Equals("t"))
-                {
-                    proxy.sayHello();
-                }
-                else if(line.Equals("s"))
-                {
-                    proxy.shutdown();
-                }
-                else if(line.Equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.Equals("?"))
-                {
-                    menu();
-                }
-                else
-                {
-                    Console.WriteLine("unknown command `" + line + "'");
-                    menu();
-                }
-            }
-            catch(System.Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-            }
+            System.Console.Error.WriteLine(appName() + ": no replies");
+            return 1;
         }
-        while (!line.Equals("x"));
-        
+        HelloPrx hello = HelloPrxHelper.checkedCast(obj);
+        if(hello == null)
+        {
+            System.Console.Error.WriteLine(appName() + ": invalid reply");
+            return 1;
+        }
+
+        hello.sayHello();
         return 0;
     }
 
@@ -88,3 +56,4 @@ public class Client : Ice.Application
         }
     }
 }
+

@@ -14,18 +14,19 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Hello.o
+OBJS		= Hello.o \
+		  Discovery.o
 
 COBJS		= Client.o
 
-SOBJS		= HelloI.o \
-		  Server.o
+SOBJS		= Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Hello.ice
+SLICE_SRCS	= Discovery.ice \
+		  Hello.ice
 
 include $(top_srcdir)/config/Make.rules
 

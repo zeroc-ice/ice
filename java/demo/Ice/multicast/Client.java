@@ -11,33 +11,6 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
-    class ShutdownHook extends Thread
-    {
-        public void
-        run()
-        {
-            try
-            {
-                communicator().destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
-        }
-    }
-
-    private static void
-    menu()
-    {
-        System.out.println(
-            "usage:\n" +
-            "t: send multicast message\n" +
-            "s: shutdown server\n" +
-            "x: exit\n" +
-            "?: help\n");
-    }
-
     public int
     run(String[] args)
     {
@@ -47,64 +20,30 @@ public class Client extends Ice.Application
             return 1;
         }
 
-        //
-        // Since this is an interactive demo we want to clear the
-        // Application installed interrupt callback and install our
-        // own shutdown hook.
-        //
-        setInterruptHook(new ShutdownHook());
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("DiscoverReply");
+        DiscoverReplyI replyI = new DiscoverReplyI();
+        DiscoverReplyPrx reply = DiscoverReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
+        adapter.activate();
 
-        HelloPrx proxy = HelloPrxHelper.uncheckedCast(communicator().propertyToProxy("Hello.Proxy").ice_datagram());
+        DiscoverPrx discover = DiscoverPrxHelper.uncheckedCast(
+            communicator().propertyToProxy("Discover.Proxy").ice_datagram());
+        discover.lookup(reply);
+        Ice.ObjectPrx base = replyI.waitReply(2000);
 
-        menu();
 
-        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
-
-        String line = null;
-        do
+        if(base == null)
         {
-            try
-            {
-                System.out.print("==> ");
-                System.out.flush();
-                line = in.readLine();
-                if(line == null)
-                {
-                    break;
-                }
-                if(line.equals("t"))
-                {
-                    proxy.sayHello();
-                }
-                else if(line.equals("s"))
-                {
-                    proxy.shutdown();
-                }
-                else if(line.equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.equals("?"))
-                {
-                    menu();
-                }
-                else
-                {
-                    System.out.println("unknown command `" + line + "'");
-                    menu();
-                }
-            }
-            catch(java.io.IOException ex)
-            {
-                ex.printStackTrace();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
+            System.err.println(appName() + ": no replies");
+            return 1;
         }
-        while(!line.equals("x"));
+        HelloPrx hello = HelloPrxHelper.checkedCast(base);
+        if(hello == null)
+        {
+            System.err.println(appName() + ": invalid reply");
+            return 1;
+        }
 
+        hello.sayHello();
         return 0;
     }
 

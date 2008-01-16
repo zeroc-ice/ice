@@ -7,15 +7,20 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_ICE
-#define HELLO_ICE
+#ifndef DISCOVERY_ICE
+#define DISCOVERY_ICE
 
 module Demo
 {
 
-interface Hello
+interface DiscoverReply
 {
-    ["cpp:const"] idempotent void sayHello();
+    void reply(Object* obj);
+};
+
+interface Discover
+{
+    void lookup(DiscoverReply* replyHere);
 };
 
 };

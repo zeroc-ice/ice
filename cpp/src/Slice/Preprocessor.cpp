@@ -390,7 +390,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             string::size_type pos;
             while((pos = result.find(suffix)) != string::npos)
             {
-                result.replace(pos, suffix.size() - 1, ".cpp");
+                result.replace(pos, suffix.size() - 1, ".cs");
             }
             break;
         }

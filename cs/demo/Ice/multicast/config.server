@@ -1,9 +1,14 @@
 #
-# The server creates one single object adapter with the name
-# "Hello". The following line sets the endpoints for this
-# adapter.
+# The server creates a multi-cast object adapter with the name
+# "Discover". The following line sets the endpoints for this adapter.
 #
-Hello.Endpoints=udp -h 224.0.0.5 -p 10000
+Discover.Endpoints=udp -h 224.0.0.5 -p 10000
+
+#
+# The server creates an object adapter with the name "Hello". The
+# following line sets the endpoints for this adapter.
+#
+Hello.Endpoints=tcp
 
 #
 # Warn about connection exceptions
