@@ -9,8 +9,12 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <Slice/SignalHandler.h>
-#include <signal.h>
 #include <vector>
+
+#ifndef _WIN32
+#    include <signal.h>
+#endif
+
 
 using namespace std;
 
@@ -20,29 +24,41 @@ using namespace std;
 //
 static vector<string> _fileList;
 
-static void
-signalHandler(int signal)
+#ifdef _WIN32
+static BOOL WINAPI signalHandler(DWORD dwCtrlType)
+#else
+static void signalHandler(int signal)
+#endif
 {
     for(unsigned int i = 0; i < _fileList.size(); ++i)
     {
-        unlink(_fileList[i].c_str());
+        remove(_fileList[i].c_str());
     }
 
     exit(1);
 }
 
+
 Slice::SignalHandler::SignalHandler()
 {
-    //sigset(SIGHUP, signalHandler);
-    //sigset(SIGINT, signalHandler);
-    //sigset(SIGQUIT, signalHandler);
+#ifdef _WIN32
+    SetConsoleCtrlHandler(signalHandler, TRUE);
+#else
+    sigset(SIGHUP, signalHandler);
+    sigset(SIGINT, signalHandler);
+    sigset(SIGQUIT, signalHandler);
+#endif
 }
 
 Slice::SignalHandler::~SignalHandler()
 {
-    //sigset(SIGHUP, SIG_DFL);
-    //sigset(SIGINT, SIG_DFL);
-    //sigset(SIGQUIT, SIG_DFL);
+#ifdef _WIN32
+    SetConsoleCtrlHandler(signalHandler, FALSE);
+#else
+    sigset(SIGHUP, SIG_DFL);
+    sigset(SIGINT, SIG_DFL);
+    sigset(SIGQUIT, SIG_DFL);
+#endif
 
     _fileList.clear();
 }
