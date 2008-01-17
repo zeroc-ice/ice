@@ -12,6 +12,7 @@
 #include <Slice/Preprocessor.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/OutputUtil.h>
+#include <Slice/SignalHandler.h>
 
 using namespace std;
 using namespace IceUtil;
@@ -1685,6 +1686,8 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
+    SignalHandler sigHandler;
+
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
         Preprocessor icecpp(argv[0], args[idx], cppArgs);
@@ -1729,6 +1732,9 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
+        SignalHandler::addFile(fileH);
+        SignalHandler::addFile(fileC);
+
         u->mergeModules();
         u->sort();
 
@@ -1874,6 +1880,7 @@ main(int argc, char* argv[])
 
         H << "\n\n#endif\n";
         C << '\n';
+
     }
     
     u->destroy();

@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
+#include <Slice/SignalHandler.h>
 #include <Gen.h>
 
 #include <sys/types.h>
@@ -1192,6 +1193,8 @@ Slice::GeneratorBase::getLogoURL()
 void
 Slice::GeneratorBase::openStream(const string& path)
 {
+    SignalHandler::addFile(path);
+
     _out.open(path.c_str());
     if(!_out.isOpen())
     {

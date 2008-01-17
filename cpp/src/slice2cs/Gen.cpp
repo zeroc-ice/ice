@@ -21,6 +21,7 @@
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/DotNetNames.h>
+#include <Slice/SignalHandler.h>
 
 using namespace std;
 using namespace Slice;
@@ -1072,6 +1073,8 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
         file = dir + '/' + file;
         fileImpl = dir + '/' + fileImpl;
     }
+    SignalHandler::addFile(file);
+    SignalHandler::addFile(fileImpl);
 
     _out.open(file.c_str());
     if(!_out)

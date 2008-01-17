@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/SignalHandler.h>
 #include <Gen.h>
 
 using namespace std;
@@ -145,6 +146,8 @@ main(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
+        SignalHandler sigHandler;
+
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);

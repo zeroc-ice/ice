@@ -12,6 +12,7 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <Slice/Checksum.h>
+#include <Slice/SignalHandler.h>
 
 #include <limits>
 #include <sys/stat.h>
@@ -72,6 +73,8 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
             fileImplH = dir + '/' + fileImplH;
             fileImplC = dir + '/' + fileImplC;
         }
+        SignalHandler::addFile(fileImplH);
+        SignalHandler::addFile(fileImplC);
 
         struct stat st;
         if(stat(fileImplH.c_str(), &st) == 0)
@@ -117,6 +120,8 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
         fileH = dir + '/' + fileH;
         fileC = dir + '/' + fileC;
     }
+    SignalHandler::addFile(fileH);
+    SignalHandler::addFile(fileC);
 
     H.open(fileH.c_str());
     if(!H)

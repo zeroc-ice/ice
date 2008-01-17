@@ -10,6 +10,7 @@
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/JavaUtil.h>
+#include <Slice/SignalHandler.h>
 
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
@@ -57,6 +58,7 @@ class FreezeGenerator : public JavaGenerator
 {
 public:
     FreezeGenerator(const string&, const string&);
+    virtual ~FreezeGenerator();
 
     bool generate(UnitPtr&, const Dict&);
 
@@ -72,6 +74,10 @@ private:
 FreezeGenerator::FreezeGenerator(const string& prog, const string& dir)
     : JavaGenerator(dir),
       _prog(prog)
+{
+}
+
+FreezeGenerator::~FreezeGenerator()
 {
 }
 
@@ -1406,6 +1412,8 @@ main(int argc, char* argv[])
     UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive, globalMetadata);
 
     int status = EXIT_SUCCESS;
+
+    SignalHandler sigHandler;
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {

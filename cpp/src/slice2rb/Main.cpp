@@ -11,6 +11,7 @@
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/RubyUtil.h>
+#include <Slice/SignalHandler.h>
 
 #include <fstream>
 
@@ -137,6 +138,8 @@ main(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
+        SignalHandler sigHandler;
+
         Preprocessor icecpp(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
 
@@ -189,6 +192,7 @@ main(int argc, char* argv[])
                 {
                     file = output + '/' + file;
                 }
+                SignalHandler::addFile(file);
 
                 IceUtilInternal::Output out;
                 out.open(file.c_str());
@@ -206,6 +210,7 @@ main(int argc, char* argv[])
                 // Generate the Ruby mapping.
                 //
                 generate(u, all, checksum, includePaths, out);
+
             }
 
             u->destroy();

@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/SignalHandler.h>
 #include <Gen.h>
 
 #ifdef __BCPLUSPLUS__
@@ -157,6 +158,8 @@ main(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
+        SignalHandler sigHandler;
+
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);

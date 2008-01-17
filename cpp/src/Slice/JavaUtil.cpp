@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Slice/JavaUtil.h>
+#include <Slice/SignalHandler.h>
 #include <IceUtil/Functional.h>
 
 #include <sys/types.h>
@@ -109,6 +110,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
         path += "/";
     }
     path += file;
+    SignalHandler::addFile(path);
 
     open(path.c_str());
     if(isOpen())

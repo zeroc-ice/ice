@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/SignalHandler.h>
 #include <Gen.h>
 #include <stdlib.h>
 
@@ -171,6 +172,8 @@ main(int argc, char* argv[])
     UnitPtr p = Unit::createUnit(true, false, ice, false);
 
     int status = EXIT_SUCCESS;
+
+    SignalHandler sigHandler;
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {

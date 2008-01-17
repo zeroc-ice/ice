@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/Util.h>
+#include <Slice/SignalHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
@@ -148,6 +149,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     char* buf = mcpp_get_mem_buffer(Out);
 
     _cppFile = ".preprocess." + IceUtil::generateUUID();
+    SignalHandler::addFile(_cppFile);
 #ifdef _WIN32
     _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
 #else

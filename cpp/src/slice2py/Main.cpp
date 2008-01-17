@@ -13,6 +13,7 @@
 #include <IceUtil/StringUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>
+#include <Slice/SignalHandler.h>
 
 #include <fstream>
 
@@ -475,6 +476,8 @@ main(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
+        SignalHandler sigHandler;
+
         Preprocessor icecpp(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
 
@@ -533,6 +536,7 @@ main(int argc, char* argv[])
                 {
                     file = output + '/' + file;
                 }
+                SignalHandler::addFile(file);
 
                 IceUtilInternal::Output out;
                 out.open(file.c_str());
@@ -559,6 +563,7 @@ main(int argc, char* argv[])
                     PackageVisitor visitor(argv[0], prefix + base + "_ice", output);
                     u->visit(&visitor, false);
                 }
+
             }
 
             u->destroy();

@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/SignalHandler.h>
 #include <Gen.h>
 
 using namespace std;
@@ -149,6 +150,8 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
+    SignalHandler sigHandler;
+
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
         Preprocessor icecpp(argv[0], args[idx], cppArgs);
@@ -185,6 +188,8 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
+        SignalHandler::addFile(docbook);
+
         Gen gen(argv[0], docbook, standAlone, chapter, noIndex, sortFields);
         if(!gen)
         {
@@ -193,7 +198,7 @@ main(int argc, char* argv[])
         }
         gen.generate(p);
     }
-    
+
     p->destroy();
 
     return status;
