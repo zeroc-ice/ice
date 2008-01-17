@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Slice/SignalHandler.h>
 #include <signal.h>
 #include <vector>
@@ -32,16 +33,16 @@ signalHandler(int signal)
 
 Slice::SignalHandler::SignalHandler()
 {
-    sigset(SIGHUP, signalHandler);
-    sigset(SIGINT, signalHandler);
-    sigset(SIGQUIT, signalHandler);
+    //sigset(SIGHUP, signalHandler);
+    //sigset(SIGINT, signalHandler);
+    //sigset(SIGQUIT, signalHandler);
 }
 
 Slice::SignalHandler::~SignalHandler()
 {
-    sigset(SIGHUP, SIG_DFL);
-    sigset(SIGINT, SIG_DFL);
-    sigset(SIGQUIT, SIG_DFL);
+    //sigset(SIGHUP, SIG_DFL);
+    //sigset(SIGINT, SIG_DFL);
+    //sigset(SIGQUIT, SIG_DFL);
 
     _fileList.clear();
 }
