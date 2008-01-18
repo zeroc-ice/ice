@@ -82,7 +82,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         if(argumentBeg != string::npos && str[argumentBeg] != '-')
         {
             beg = argumentBeg;
-            end = str.find_first_of(delim + ":", beg);
+            end = str.find_first_of(delim, beg);
             if(end == string::npos)
             {
                 end = str.length();
