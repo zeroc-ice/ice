@@ -1306,19 +1306,11 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
         {
             struct sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
             addrin->sin_port = htons(port);
-            if(addrin->sin_addr.s_addr == 0)
-            {
-                continue;
-            }
         }
         else if(p->ai_family == PF_INET6)
         {
             struct sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
             addrin6->sin6_port = htons(port);
-            if(IN6_IS_ADDR_UNSPECIFIED(&addrin6->sin6_addr))
-            {
-                continue;
-            }
         }
 
         bool found = false;
@@ -1337,6 +1329,14 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     }
 
     freeaddrinfo(info);
+
+    if(result.size() == 0)
+    {
+        DNSException ex(__FILE__, __LINE__);
+        ex.host = host;
+        throw ex;
+    }
+
     return result;
 }
 
