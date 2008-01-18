@@ -21,6 +21,19 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+//
+// Callback for Crtl-C signal handling
+//
+static Gen* _gen = 0;
+
+static void closeCallback()
+{
+    if(_gen != 0)
+    {
+        _gen->closeOutput();
+    }
+}
+
 static void
 getIds(const ClassDefPtr& p, StringList& ids)
 {
@@ -69,6 +82,9 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     _impl(imp),
     _ice(ice)
 {
+    _gen = this;
+    SignalHandler::setCallback(closeCallback);
+
     Slice::featureProfile = Slice::IceE;
 
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
@@ -184,6 +200,8 @@ Slice::Gen::~Gen()
         implH << "\n\n#endif\n";
         implC << '\n';
     }
+
+    SignalHandler::setCallback(0);
 }
 
 bool
@@ -340,6 +358,15 @@ Slice::Gen::generate(const UnitPtr& p)
         ImplVisitor implVisitor(implH, implC, _dllExport);
         p->visit(&implVisitor, false);
     }
+}
+
+void
+Slice::Gen::closeOutput()
+{
+    H.close();
+    C.close();
+    implH.close();
+    implC.close();
 }
 
 void

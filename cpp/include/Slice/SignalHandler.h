@@ -24,12 +24,16 @@
 namespace Slice
 {
 
+typedef void (*SignalHandlerCallback)();
+
 class SLICE_API SignalHandler
 {
 public:
 
     SignalHandler();
     ~SignalHandler();
+
+    static void setCallback(SignalHandlerCallback);
 
     static void addFile(const std::string&);
 };

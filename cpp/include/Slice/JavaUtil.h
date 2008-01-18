@@ -52,6 +52,8 @@ public:
     //
     static void validateMetaData(const UnitPtr&);
 
+    void close();
+
 protected:
 
     JavaGenerator(const std::string&);
@@ -63,7 +65,6 @@ protected:
     // package directories and open the class file
     //
     bool open(const std::string&);
-    void close();
 
     ::IceUtilInternal::Output& output() const;
 

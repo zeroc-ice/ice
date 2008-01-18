@@ -30,15 +30,30 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+//
+// Callback for Crtl-C signal handling
+//
+static GeneratorBase* _genBase = 0;
+
+static void closeCallback()
+{
+    if(_genBase != 0)
+    {
+        _genBase->closeStream();
+    }
+}
+
+
 namespace Slice
 {
 
 void
-generate(const UnitPtr& unit, const string& dir,
-         const string& header, const string& footer,
-         const string& indexHeader, const string& indexFooter,
-         const string& imageDir, const string& logoURL, const string& searchAction, unsigned indexCount, unsigned warnSummary)
+generate(const UnitPtr& unit, const string& dir, const string& header, const string& footer,
+         const string& indexHeader, const string& indexFooter, const string& imageDir, const string& logoURL,
+         const string& searchAction, unsigned indexCount, unsigned warnSummary)
 {
+    SignalHandler::setCallback(closeCallback);
+
     unit->mergeModules();
 
     //
@@ -197,10 +212,12 @@ Slice::GeneratorBase::setSymbols(const ContainedList& symbols)
 Slice::GeneratorBase::GeneratorBase(XMLOutput& o, const Files& files)
     : _out(o), _files(files)
 {
+    _genBase = this;
 }
 
 Slice::GeneratorBase::~GeneratorBase()
 {
+    _genBase = 0;
 }
 
 //
@@ -1201,6 +1218,12 @@ Slice::GeneratorBase::openStream(const string& path)
         string err = "cannot open `" + path + "' for writing";
         throw err;
     }
+}
+
+void
+Slice::GeneratorBase::closeStream()
+{
+    _out.close();
 }
 
 string

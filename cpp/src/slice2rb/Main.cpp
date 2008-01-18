@@ -30,6 +30,16 @@ using namespace std;
 using namespace Slice;
 using namespace Slice::Ruby;
 
+//
+// Callback for Crtl-C signal handling
+//
+static IceUtilInternal::Output _out;
+
+static void closeCallback()
+{
+    _out.close();
+}
+
 void
 usage(const char* n)
 {
@@ -194,23 +204,26 @@ main(int argc, char* argv[])
                 }
                 SignalHandler::addFile(file);
 
-                IceUtilInternal::Output out;
-                out.open(file.c_str());
-                if(!out)
+                SignalHandler::setCallback(closeCallback);
+
+                _out.open(file.c_str());
+                if(!_out)
                 {
                     cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
                     u->destroy();
                     return EXIT_FAILURE;
                 }
 
-                printHeader(out);
-                out << "\n# Generated from file `" << base << ".ice'\n";
+                printHeader(_out);
+                _out << "\n# Generated from file `" << base << ".ice'\n";
 
                 //
                 // Generate the Ruby mapping.
                 //
-                generate(u, all, checksum, includePaths, out);
+                generate(u, all, checksum, includePaths, _out);
 
+                _out.close();
+                SignalHandler::setCallback(0);
             }
 
             u->destroy();

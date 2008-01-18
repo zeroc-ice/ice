@@ -36,6 +36,8 @@ public:
     static void warnSummary(int);
     static void setSymbols(const ContainedList&);
 
+    void closeStream();
+
 protected:
 
     GeneratorBase(::IceUtilInternal::XMLOutput&, const Files&);

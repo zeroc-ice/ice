@@ -27,6 +27,20 @@ using namespace std;
 using namespace Slice;
 
 //
+// Callback for Crtl-C signal handling
+//
+static Preprocessor* _preprocess = 0;
+
+static void closeCallback()
+{
+    if(_preprocess != 0)
+    {
+        _preprocess->close();
+    }
+}
+
+
+//
 // mcpp defines
 //
 namespace Slice
@@ -49,14 +63,16 @@ Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, co
     _args(args),
     _cppHandle(0)
 {
+    _preprocess = this;
+    SignalHandler::setCallback(closeCallback);
 }
 
 Slice::Preprocessor::~Preprocessor()
 {
-    if(_cppHandle)
-    {
-        close();
-    }
+    _preprocess = 0;
+    SignalHandler::setCallback(0);
+
+    close();
 }
 
 string
@@ -412,21 +428,22 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
 bool
 Slice::Preprocessor::close()
 {
-    assert(_cppHandle);
-
-    int status = fclose(_cppHandle);
-    _cppHandle = 0;
-
-    if(status != 0)
+    if(_cppHandle != 0)
     {
-        return false;
-    }
+        int status = fclose(_cppHandle);
+        _cppHandle = 0;
+
+        if(status != 0)
+        {
+            return false;
+        }
 
 #ifdef _WIN32
-    _unlink(_cppFile.c_str());
+        _unlink(_cppFile.c_str());
 #else
-    unlink(_cppFile.c_str());
+        unlink(_cppFile.c_str());
 #endif
+    }
     
     return true;
 }

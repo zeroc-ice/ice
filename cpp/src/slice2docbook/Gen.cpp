@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
+#include <Slice/SignalHandler.h>
 #include <Gen.h>
 
 #ifdef __BCPLUSPLUS__
@@ -20,12 +21,28 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+//
+// Callback for Crtl-C signal handling
+//
+static Gen* _gen = 0;
+
+static void closeCallback()
+{
+    if(_gen != 0)
+    {
+        _gen->closeOutput();
+    }
+}
+
 Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool chapter,
                 bool noIndex, bool sortFields) :
     _standAlone(standAlone),
     _noIndex(noIndex),
     _sortFields(sortFields)
 {
+    _gen = this;
+    SignalHandler::setCallback(closeCallback);
+
     if(chapter)
     {
         _chapter = "chapter";
@@ -45,6 +62,7 @@ Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool ch
 
 Slice::Gen::~Gen()
 {
+    SignalHandler::setCallback(0);
 }
 
 bool
@@ -65,6 +83,12 @@ Slice::Gen::generate(const UnitPtr& p)
     p->sortContents(_sortFields);
 
     p->visit(this, false);
+}
+
+void
+Slice::Gen::closeOutput()
+{
+    O.close();
 }
 
 bool

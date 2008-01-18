@@ -44,6 +44,7 @@ public:
     void setUseTab(bool); // Should we output tabs?
 
     void open(const char*); // Open output stream.
+    void close(); // Close output stream.
     bool isOpen(); // Is a file stream open?
 
     virtual void print(const char*); // Print a string.

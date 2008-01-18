@@ -55,6 +55,7 @@ public:
     void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
+    void closeOutput();
 
 private:
 

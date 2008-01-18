@@ -27,6 +27,7 @@ public:
     bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
+    void closeOutput();
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual void visitUnitEnd(const UnitPtr&);

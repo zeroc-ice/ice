@@ -33,6 +33,16 @@ using namespace Slice;
 using namespace Slice::Python;
 
 //
+// Callback for Crtl-C signal handling
+//
+static IceUtilInternal::Output _out;
+
+static void closeCallback()
+{
+    _out.close();
+}
+
+//
 // For each Slice file Foo.ice we generate Foo_ice.py containing the Python
 // mappings. Furthermore, for each Slice module M in Foo.ice, we create a
 // Python package of the same name. This package is simply a subdirectory
@@ -538,22 +548,26 @@ main(int argc, char* argv[])
                 }
                 SignalHandler::addFile(file);
 
-                IceUtilInternal::Output out;
-                out.open(file.c_str());
-                if(!out)
+                SignalHandler::setCallback(closeCallback);
+
+                _out.open(file.c_str());
+                if(!_out)
                 {
                     cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
                     u->destroy();
                     return EXIT_FAILURE;
                 }
 
-                printHeader(out);
-                out << "\n# Generated from file `" << base << ".ice'\n";
+                printHeader(_out);
+                _out << "\n# Generated from file `" << base << ".ice'\n";
 
                 //
                 // Generate the Python mapping.
                 //
-                generate(u, all, checksum, includePaths, out);
+                generate(u, all, checksum, includePaths, _out);
+
+                _out.close();
+                SignalHandler::setCallback(0);
 
                 //
                 // Create or update the Python package hierarchy.

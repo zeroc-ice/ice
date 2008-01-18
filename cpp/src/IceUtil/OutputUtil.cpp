@@ -92,6 +92,15 @@ IceUtilInternal::OutputBase::open(const char* s)
     _fout.open(s);
 }
 
+void
+IceUtilInternal::OutputBase::close()
+{
+    if(_fout.is_open())
+    {
+        _fout.close();
+    }
+}
+
 bool
 IceUtilInternal::OutputBase::isOpen()
 {

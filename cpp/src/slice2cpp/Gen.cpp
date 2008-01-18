@@ -22,6 +22,19 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+//
+// Callback for Crtl-C signal handling
+//
+static Gen* _gen = 0;
+
+static void closeCallback()
+{
+    if(_gen != 0)
+    {
+        _gen->closeOutput();
+    }
+}
+
 static string
 getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
 {
@@ -50,6 +63,9 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     _stream(stream),
     _ice(ice)
 {
+    _gen = this;
+    SignalHandler::setCallback(closeCallback);
+
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
         if(p->length() && (*p)[p->length() - 1] != '/')
@@ -163,6 +179,8 @@ Slice::Gen::~Gen()
         implH << "\n\n#endif\n";
         implC << '\n';
     }
+
+    SignalHandler::setCallback(0);
 }
 
 bool
@@ -378,6 +396,15 @@ Slice::Gen::generate(const UnitPtr& p)
             C << nl << "static IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
         }
     }
+}
+
+void
+Slice::Gen::closeOutput()
+{
+    H.close();
+    C.close();
+    implH.close();
+    implC.close();
 }
 
 void

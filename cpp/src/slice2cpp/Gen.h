@@ -38,6 +38,7 @@ public:
     bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
+    void closeOutput();
     
     static bool setUseWstring(ContainedPtr, std::list<bool>&, bool);
     static bool resetUseWstring(std::list<bool>&);

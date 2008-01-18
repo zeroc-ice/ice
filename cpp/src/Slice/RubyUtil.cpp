@@ -110,7 +110,7 @@ lookupKwd(const string& name)
     {       
         "BEGIN", "END", "alias", "and", "begin", "break", "case", "class", "clone", "def", "display", "do", "dup",
         "else", "elsif", "end", "ensure", "extend", "false", "for", "freeze", "hash", "if", "in", "inspect", "method",
-        "methods", "module", "next", "new", "nil", "not", "or", "redo", "rescue", "retry", "return", "self", "send",
+        "methods", "module", "new", "next", "nil", "not", "or", "redo", "rescue", "retry", "return", "self", "send",
         "super", "taint", "then", "true", "undef", "unless", "untaint", "until", "when", "while", "yield"
     };
     bool found =  binary_search(&keywordList[0],
