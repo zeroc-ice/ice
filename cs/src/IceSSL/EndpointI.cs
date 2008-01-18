@@ -60,6 +60,10 @@ namespace IceSSL
                 if(i < arr.Length && arr[i][0] != '-')
                 {
                     argument = arr[i++];
+                    if(argument[0] == '\"' && argument[argument.Length - 1] == '\"')
+                    {
+                        argument = argument.Substring(1, argument.Length - 2);
+                    }
                 }
 
                 switch(option[1])
