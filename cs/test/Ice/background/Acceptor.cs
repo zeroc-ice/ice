@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Net.Sockets;
 
 internal class Acceptor : IceInternal.Acceptor
@@ -29,6 +30,16 @@ internal class Acceptor : IceInternal.Acceptor
     public IceInternal.Transceiver accept(int timeout)
     {
         return new Transceiver(_acceptor.accept(timeout));
+    }
+
+    public IAsyncResult beginAccept(AsyncCallback callback, object state)
+    {
+        return _acceptor.beginAccept(callback, state);
+    }
+
+    public IceInternal.Transceiver endAccept(IAsyncResult result)
+    {
+        return new Transceiver(_acceptor.endAccept(result));
     }
 
     public void connectToSelf()

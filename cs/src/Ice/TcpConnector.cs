@@ -9,13 +9,44 @@
 
 namespace IceInternal
 {
+    using System;
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
 
-    sealed class TcpConnector : Connector, System.IComparable
+    sealed class TcpConnector : Connector, IComparable
     {
         internal const short TYPE = 1;
+
+        public Transceiver connect()
+        {
+            if(_traceLevels.network >= 2)
+            {
+                string s = "trying to establish tcp connection to " + ToString();
+                _logger.trace(_traceLevels.networkCat, s);
+            }
+
+            try
+            {
+                Socket fd = Network.createSocket(false, _addr.AddressFamily);
+                Network.setBlock(fd, false);
+                Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
+
+                //
+                // Nonblocking connect is handled by the transceiver.
+                //
+                return new TcpTransceiver(_instance, fd, _addr, false);
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(_traceLevels.network >= 2)
+                {
+                    string s = "failed to establish tcp connection to " + ToString() + "\n" + ex;
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+                throw;
+            }
+        }
 
         public Transceiver connect(int timeout)
         {
@@ -29,17 +60,21 @@ namespace IceInternal
             {
                 Socket fd = Network.createSocket(false, _addr.AddressFamily);
                 Network.setBlock(fd, false);
-                Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
-                bool connected = Network.doConnect(fd, _addr, timeout);
-                if(connected)
+                Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
+
+                //
+                // doConnect either completes the connection within the given timeout, or
+                // raises ConnectTimeoutException.
+                //
+                Network.doConnect(fd, _addr, timeout);
+
+                if(_traceLevels.network >= 1)
                 {
-                    if(_traceLevels.network >= 1)
-                    {
-                        string s = "tcp connection established\n" + Network.fdToString(fd);
-                        _logger.trace(_traceLevels.networkCat, s);
-                    }
+                    string s = "tcp connection established\n" + Network.fdToString(fd);
+                    _logger.trace(_traceLevels.networkCat, s);
                 }
-                return new TcpTransceiver(instance_, fd, connected);
+
+                return new TcpTransceiver(_instance, fd, _addr, true);
             }
             catch(Ice.LocalException ex)
             {
@@ -48,7 +83,7 @@ namespace IceInternal
                     string s = "failed to establish tcp connection to " + ToString() + "\n" + ex;
                     _logger.trace(_traceLevels.networkCat, s);
                 }
-                throw ex;
+                throw;
             }
         }
 
@@ -65,14 +100,14 @@ namespace IceInternal
             {
                 p = (TcpConnector)obj;
             }
-            catch(System.InvalidCastException)
+            catch(InvalidCastException)
             {
                 try
                 {
                     Connector e = (Connector)obj;
                     return type() < e.type() ? -1 : 1;
                 }
-                catch(System.InvalidCastException)
+                catch(InvalidCastException)
                 {
                     Debug.Assert(false);
                 }
@@ -105,7 +140,7 @@ namespace IceInternal
         //
         internal TcpConnector(Instance instance, IPEndPoint addr, int timeout, string connectionId)
         {
-            instance_ = instance;
+            _instance = instance;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _addr = addr;
@@ -132,7 +167,7 @@ namespace IceInternal
             return _hashCode;
         }
 
-        private Instance instance_;
+        private Instance _instance;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private IPEndPoint _addr;

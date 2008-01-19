@@ -467,14 +467,6 @@ public class ConnectRequestHandler
             }
         }
 
-        synchronized(this)
-        {
-            assert(!_initialized);
-            _initialized = true;
-            _flushing = false;
-            notifyAll();
-        }
-
         //
         // We've finished sending the queued requests and the request handler now send
         // the requests over the connection directly. It's time to substitute the 
@@ -486,8 +478,16 @@ public class ConnectRequestHandler
         {
             _proxy.__setRequestHandler(_delegate, new ConnectionRequestHandler(_reference, _connection, _compress));
         }
-        _proxy = null; // Break cyclic reference count.
-        _delegate = null; // Break cyclic reference count.
+
+        synchronized(this)
+        {
+            assert(!_initialized);
+            _initialized = true;
+            _flushing = false;
+            _proxy = null; // Break cyclic reference count.
+            _delegate = null; // Break cyclic reference count.
+            notifyAll();
+        }
     }
 
     void

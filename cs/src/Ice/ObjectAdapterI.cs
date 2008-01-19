@@ -941,13 +941,6 @@ namespace Ice
                     }
                     foreach(IceInternal.EndpointI endp in endpoints)
                     {
-                        if(!_threadPerConnection && endp.requiresThreadPerConnection())
-                        {
-                            Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
-                            ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endp.ToString();
-                            throw ex;
-                        }
-
                         IceInternal.IncomingConnectionFactory factory =
                             new IceInternal.IncomingConnectionFactory(instance, endp, this, _name);
                         _incomingConnectionFactories.Add(factory);
@@ -985,38 +978,35 @@ namespace Ice
             }
         }
         
-#if DEBUG
+        /*
         ~ObjectAdapterI()
-        {   
-            lock(this)
+        {
+            if(!_deactivated)
             {
-                if(!_deactivated)
+                string msg = "object adapter `" + getName() + "' has not been deactivated";
+                if(!Environment.HasShutdownStarted)
                 {
-                    string msg = "object adapter `" + getName() + "' has not been deactivated";
-                    if(!Environment.HasShutdownStarted)
-                    {
-                        instance_.initializationData().logger.warning(msg);
-                    }
-                    else
-                    {
-                        Console.Error.WriteLine(msg);
-                    }
+                    instance_.initializationData().logger.warning(msg);
                 }
-                else if(instance_ != null)
+                else
                 {
-                    string msg = "object adapter `" + getName() + "' deactivation had not been waited for";
-                    if(!Environment.HasShutdownStarted)
-                    {
-                        instance_.initializationData().logger.warning(msg);
-                    }
-                    else
-                    {
-                        Console.Error.WriteLine(msg);
-                    }
+                    Console.Error.WriteLine(msg);
                 }
-            }   
+            }
+            else if(!_destroyed)
+            {
+                string msg = "object adapter `" + getName() + "' has not been destroyed";
+                if(!Environment.HasShutdownStarted)
+                {
+                    instance_.initializationData().logger.warning(msg);
+                }
+                else
+                {
+                    Console.Error.WriteLine(msg);
+                }
+            }
         }
-#endif          
+        */
 
         private ObjectPrx newProxy(Identity ident, string facet)
         {

@@ -68,16 +68,15 @@ namespace IceInternal
             
             //
             // This is called by the invoking thread to release the callback following a direct 
-            // failure to marhsall/send the request. We call the ice_exception() callback with
+            // failure to marshal/send the request. We call the ice_exception() callback with
             // the thread pool to avoid potential deadlocks in case the invoking thread locked 
             // some mutexes/resources (which couldn't be re-acquired by the callback).
             //
             
             try
             {
-                os__.instance().clientThreadPool().execute(delegate(ThreadPool threadPool) 
+                os__.instance().clientThreadPool().execute(delegate(bool unused)
                                                            {
-                                                               threadPool.promoteFollower();
                                                                exception__(ex);
                                                            });
             }

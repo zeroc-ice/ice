@@ -30,7 +30,7 @@ namespace IceInternal
                 }
 
                 _instance = null;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             
                 _tokens.Clear();
                 _tasks.Clear();
@@ -62,7 +62,7 @@ namespace IceInternal
             
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    System.Threading.Monitor.Pulse(this);
+                    Monitor.Pulse(this);
                 }
             }
         }
@@ -90,7 +90,7 @@ namespace IceInternal
 
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    System.Threading.Monitor.Pulse(this);
+                    Monitor.Pulse(this);
                 }
             }
         } 
@@ -145,7 +145,7 @@ namespace IceInternal
                     {
                         //
                         // If the task we just ran is a repeated task, schedule it
-                        // again for executation if it wasn't canceled.
+                        // again for execution if it wasn't canceled.
                         //
                         if(token != null && token.delay > 0)
                         {
@@ -166,7 +166,7 @@ namespace IceInternal
                     if(_tokens.Count == 0)
                     {
                         _wakeUpTime = System.Int64.MaxValue;
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                     }
             
                     if(_instance == null)
@@ -198,7 +198,7 @@ namespace IceInternal
                         }
                     
                         _wakeUpTime = first.scheduledTime;
-                        System.Threading.Monitor.Wait(this, (int)(first.scheduledTime - now));
+                        Monitor.Wait(this, (int)(first.scheduledTime - now));
                     }
                 
                     if(_instance == null)

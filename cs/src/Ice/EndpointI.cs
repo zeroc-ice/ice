@@ -123,11 +123,6 @@ namespace IceInternal
         //
         public abstract bool equivalent(EndpointI endpoint);
 
-        //
-        // Returns true if the endpoint's transport requires thread-per-connection.
-        //
-        public abstract bool requiresThreadPerConnection();
-
         public virtual List<Connector> connectors(List<IPEndPoint> addresses)
         {
             Debug.Assert(false);

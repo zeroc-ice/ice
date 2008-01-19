@@ -285,7 +285,7 @@ public class AllTests
         hello.sayHello();
         Console.Out.WriteLine("ok");
 
-        Console.Out.Write("testing object migration...");
+        Console.Out.Write("testing object migration... ");
         Console.Out.Flush();
         hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         obj.migrateHello();

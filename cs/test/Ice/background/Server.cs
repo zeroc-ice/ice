@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Diagnostics;
 using System.IO;
 
 public class Server
@@ -111,6 +112,8 @@ public class Server
     {
         int status = 0;
         Ice.Communicator communicator = null;
+
+        Debug.Listeners.Add(new ConsoleTraceListener());
 
         try
         {

@@ -10,17 +10,16 @@
 namespace IceInternal
 {
     using System.Diagnostics;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Net;
 
     sealed class TcpEndpointI : EndpointI
     {
         internal const short TYPE = 1;
-        
+
         public TcpEndpointI(Instance instance, string ho, int po, int ti, string conId, bool co)
         {
-            instance_ = instance;
+            _instance = instance;
             _host = ho;
             _port = po;
             _timeout = ti;
@@ -28,18 +27,18 @@ namespace IceInternal
             _compress = co;
             calcHashValue();
         }
-        
+
         public TcpEndpointI(Instance instance, string str, bool oaEndpoint)
         {
-            instance_ = instance;
+            _instance = instance;
             _host = null;
             _port = 0;
             _timeout = -1;
             _compress = false;
-            
+
             char[] separators = { ' ', '\t', '\n', '\r' };
             string[] arr = str.Split(separators);
-            
+
             int i = 0;
             while(i < arr.Length)
             {
@@ -48,7 +47,7 @@ namespace IceInternal
                     i++;
                     continue;
                 }
-                
+
                 string option = arr[i++];
                 if(option.Length != 2 || option[0] != '-')
                 {
@@ -56,7 +55,7 @@ namespace IceInternal
                     e.str = "tcp " + str;
                     throw e;
                 }
-                
+
                 string argument = null;
                 if(i < arr.Length && arr[i].Length > 0 && arr[i][0] != '-')
                 {
@@ -66,10 +65,10 @@ namespace IceInternal
                         argument = argument.Substring(1, argument.Length - 2);
                     }
                 }
-                
+
                 switch(option[1])
                 {
-                    case 'h': 
+                    case 'h':
                     {
                         if(argument == null)
                         {
@@ -77,12 +76,12 @@ namespace IceInternal
                             e.str = "tcp " + str;
                             throw e;
                         }
-                        
+
                         _host = argument;
                         break;
                     }
-                    
-                    case 'p': 
+
+                    case 'p':
                     {
                         if(argument == null)
                         {
@@ -90,7 +89,7 @@ namespace IceInternal
                             e.str = "tcp " + str;
                             throw e;
                         }
-                        
+
                         try
                         {
                             _port = System.Int32.Parse(argument);
@@ -108,11 +107,11 @@ namespace IceInternal
                             e.str = "tcp " + str;
                             throw e;
                         }
-                        
+
                         break;
                     }
-                    
-                    case 't': 
+
+                    case 't':
                     {
                         if(argument == null)
                         {
@@ -120,7 +119,7 @@ namespace IceInternal
                             e.str = "tcp " + str;
                             throw e;
                         }
-                        
+
                         try
                         {
                             _timeout = System.Int32.Parse(argument);
@@ -131,11 +130,11 @@ namespace IceInternal
                             e.str = "tcp " + str;
                             throw e;
                         }
-                        
+
                         break;
                     }
-                    
-                    case 'z': 
+
+                    case 'z':
                     {
                         if(argument != null)
                         {
@@ -143,12 +142,12 @@ namespace IceInternal
                             e.str = "tcp " + str;
                             throw e;
                         }
-                        
+
                         _compress = true;
                         break;
                     }
-                    
-                    default: 
+
+                    default:
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
                         e.str = "tcp " + str;
@@ -159,7 +158,7 @@ namespace IceInternal
 
             if(_host == null)
             {
-                _host = instance_.defaultsAndOverrides().defaultHost;
+                _host = _instance.defaultsAndOverrides().defaultHost;
             }
             else if(_host.Equals("*"))
             {
@@ -170,20 +169,20 @@ namespace IceInternal
                 else
                 {
                     throw new Ice.EndpointParseException("tcp " + str);
-                }        
+                }
             }
 
             if(_host == null)
             {
                 _host = "";
             }
-            
+
             calcHashValue();
         }
-        
+
         public TcpEndpointI(BasicStream s)
         {
-            instance_ = s.instance();
+            _instance = s.instance();
             s.startReadEncaps();
             _host = s.readString();
             _port = s.readInt();
@@ -192,7 +191,7 @@ namespace IceInternal
             s.endReadEncaps();
             calcHashValue();
         }
-        
+
         //
         // Marshal the endpoint
         //
@@ -206,7 +205,7 @@ namespace IceInternal
             s.writeBool(_compress);
             s.endWriteEncaps();
         }
-        
+
         //
         // Convert the endpoint to its string form
         //
@@ -247,7 +246,7 @@ namespace IceInternal
             }
             return s;
         }
-        
+
         //
         // Return the endpoint type
         //
@@ -255,7 +254,7 @@ namespace IceInternal
         {
             return TYPE;
         }
-        
+
         //
         // Return the timeout for the endpoint in milliseconds. 0 means
         // non-blocking, -1 means no timeout.
@@ -264,7 +263,7 @@ namespace IceInternal
         {
             return _timeout;
         }
-        
+
         //
         // Return a new endpoint with a different timeout value, provided
         // that timeouts are supported by the endpoint. Otherwise the same
@@ -278,7 +277,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, _host, _port, timeout, _connectionId, _compress);
+                return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
             }
         }
 
@@ -293,10 +292,10 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, _host, _port, _timeout, connectionId, _compress);
+                return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
             }
         }
-        
+
         //
         // Return true if the endpoints support bzip2 compress, or false
         // otherwise.
@@ -305,7 +304,7 @@ namespace IceInternal
         {
             return _compress;
         }
-        
+
         //
         // Return a new endpoint with a different compression value,
         // provided that compression is supported by the
@@ -319,10 +318,10 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, _host, _port, _timeout, _connectionId, compress);
+                return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
             }
         }
-        
+
         //
         // Return true if the endpoint is datagram-based.
         //
@@ -330,7 +329,7 @@ namespace IceInternal
         {
             return false;
         }
-        
+
         //
         // Return true if the endpoint is secure.
         //
@@ -338,7 +337,7 @@ namespace IceInternal
         {
             return false;
         }
-        
+
         //
         // Return true if the endpoint type is unknown.
         //
@@ -346,7 +345,7 @@ namespace IceInternal
         {
             return false;
         }
-        
+
         //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor. In case a
@@ -366,12 +365,12 @@ namespace IceInternal
         //
         public override List<Connector> connectors()
         {
-            return connectors(Network.getAddresses(_host, _port, instance_.protocolSupport()));
+            return connectors(Network.getAddresses(_host, _port, _instance.protocolSupport()));
         }
 
         public override void connectors_async(EndpointI_connectors callback)
         {
-            instance_.endpointHostResolver().resolve(_host, _port, this, callback);
+            _instance.endpointHostResolver().resolve(_host, _port, this, callback);
         }
 
         //
@@ -383,8 +382,8 @@ namespace IceInternal
         //
         public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
         {
-            TcpAcceptor p = new TcpAcceptor(instance_, _host, _port);
-            endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _connectionId, _compress);
+            TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
+            endpoint = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
             return p;
         }
 
@@ -392,11 +391,10 @@ namespace IceInternal
         // Expand endpoint out in to separate endpoints for each local
         // host if listening on INADDR_ANY.
         //
-        public override List<EndpointI>
-        expand()
+        public override List<EndpointI> expand()
         {
             List<EndpointI> endps = new List<EndpointI>();
-            List<string> hosts = IceInternal.Network.getHostsForEndpointExpand(_host, instance_.protocolSupport());
+            List<string> hosts = IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
             if(hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);
@@ -405,12 +403,12 @@ namespace IceInternal
             {
                 foreach(string h in hosts)
                 {
-                    endps.Add(new TcpEndpointI(instance_, h, _port, _timeout, _connectionId, _compress));
+                    endps.Add(new TcpEndpointI(_instance, h, _port, _timeout, _connectionId, _compress));
                 }
             }
             return endps;
         }
-        
+
         //
         // Check whether the endpoint is equivalent to another one.
         //
@@ -428,17 +426,12 @@ namespace IceInternal
             return tcpEndpointI._host.Equals(_host) && tcpEndpointI._port == _port;
         }
 
-        public override bool requiresThreadPerConnection()
-        {
-            return false;
-        }
-
         public override List<Connector> connectors(List<IPEndPoint> addresses)
         {
             List<Connector> connectors = new List<Connector>();
             foreach(IPEndPoint addr in addresses)
             {
-                connectors.Add(new TcpConnector(instance_, addr, _timeout, _connectionId));
+                connectors.Add(new TcpConnector(_instance, addr, _timeout, _connectionId));
             }
             return connectors;
         }
@@ -447,7 +440,7 @@ namespace IceInternal
         {
             return _hashCode;
         }
-        
+
         //
         // Compare endpoints for sorting purposes
         //
@@ -455,11 +448,11 @@ namespace IceInternal
         {
             return CompareTo(obj) == 0;
         }
-        
+
         public override int CompareTo(object obj)
         {
             TcpEndpointI p = null;
-            
+
             try
             {
                 p = (TcpEndpointI)obj;
@@ -476,12 +469,12 @@ namespace IceInternal
                     Debug.Assert(false);
                 }
             }
-            
+
             if(this == p)
             {
                 return 0;
             }
-            
+
             if(_port < p._port)
             {
                 return -1;
@@ -490,7 +483,7 @@ namespace IceInternal
             {
                 return 1;
             }
-            
+
             if(_timeout < p._timeout)
             {
                 return -1;
@@ -504,7 +497,7 @@ namespace IceInternal
             {
                 return _connectionId.CompareTo(p._connectionId);
             }
-            
+
             if(!_compress && p._compress)
             {
                 return -1;
@@ -513,10 +506,10 @@ namespace IceInternal
             {
                 return 1;
             }
-            
+
             return _host.CompareTo(p._host);
         }
-        
+
         private void calcHashValue()
         {
             _hashCode = _host.GetHashCode();
@@ -525,8 +518,8 @@ namespace IceInternal
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
             _hashCode = 5 * _hashCode + (_compress? 1 : 0);
         }
-        
-        private Instance instance_;
+
+        private Instance _instance;
         private string _host;
         private int _port;
         private int _timeout;
@@ -539,35 +532,35 @@ namespace IceInternal
     {
         internal TcpEndpointFactory(Instance instance)
         {
-            instance_ = instance;
+            _instance = instance;
         }
-        
+
         public short type()
         {
             return TcpEndpointI.TYPE;
         }
-        
+
         public string protocol()
         {
             return "tcp";
         }
-        
+
         public EndpointI create(string str, bool oaEndpoint)
         {
-            return new TcpEndpointI(instance_, str, oaEndpoint);
+            return new TcpEndpointI(_instance, str, oaEndpoint);
         }
-        
+
         public EndpointI read(BasicStream s)
         {
             return new TcpEndpointI(s);
         }
-        
+
         public void destroy()
         {
-            instance_ = null;
+            _instance = null;
         }
-        
-        private Instance instance_;
+
+        private Instance _instance;
     }
 
 }

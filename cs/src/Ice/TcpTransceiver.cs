@@ -10,9 +10,10 @@
 namespace IceInternal
 {
 
-    using System.Collections;
+    using System;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Net;
     using System.Net.Sockets;
 
     sealed class TcpTransceiver : Transceiver
@@ -23,18 +24,19 @@ namespace IceInternal
             return _fd;
         }
 
-        public SocketStatus initialize(int timeout)
+        public bool restartable()
         {
-            if(_state == StateNeedConnect && timeout == 0)
-            {
-                _state = StateConnectPending;
-                return SocketStatus.NeedConnect;
-            }
-            else if(_state <= StateConnectPending)
+            return true;
+        }
+
+        public void initialize(int timeout)
+        {
+            if(_state != StateConnected)
             {
                 try
                 {
-                    Network.doFinishConnect(_fd, timeout);
+                    Debug.Assert(_state == StateNeedBeginConnect);
+                    Network.doConnect(_fd, _addr, timeout);
                     _state = StateConnected;
                     _desc = Network.fdToString(_fd);
                 }
@@ -42,52 +44,87 @@ namespace IceInternal
                 {
                     if(_traceLevels.network >= 2)
                     {
-                        string s = "failed to establish tcp connection\n" + _desc + "\n" + ex;
+                        string s = "failed to establish tcp connection\n" + Network.fdToString(_fd) + "\n" + ex;
                         _logger.trace(_traceLevels.networkCat, s);
                     }
-                    throw ex;
-                }
-                
-                if(_traceLevels.network >= 1)
-                {
-                    string s = "tcp connection established\n" + _desc;
-                    _logger.trace(_traceLevels.networkCat, s);
+                    throw;
                 }
             }
-            Debug.Assert(_state == StateConnected);
-            return SocketStatus.Finished;
+        }
+
+        public bool initialize(AsyncCallback callback)
+        {
+            try
+            {
+                if(_state == StateNeedBeginConnect)
+                {
+                    Debug.Assert(callback != null);
+                    Debug.Assert(_addr != null);
+
+                    _state = StateNeedEndConnect;
+                    _result = Network.doBeginConnectAsync(_fd, _addr, callback);
+
+                    if(_result.CompletedSynchronously)
+                    {
+                        endConnect();
+                    }
+                    else
+                    {
+                        //
+                        // Return now if the I/O request needs an asynchronous callback.
+                        //
+                        return false;
+                    }
+                }
+                else if(_state == StateNeedEndConnect)
+                {
+                    endConnect();
+                }
+                Debug.Assert(_state == StateConnected);
+                return true;
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(_traceLevels.network >= 2)
+                {
+                    string s = "failed to establish tcp connection\n" + Network.fdToString(_fd) + "\n" + ex;
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+                throw;
+            }
         }
 
         public void close()
         {
-            if(_traceLevels.network >= 1)
+            //
+            // If the transceiver is not connected, its description is simply "not connected",
+            // which isn't very helpful.
+            //
+            if(_state == StateConnected && _traceLevels.network >= 1)
             {
                 string s = "closing tcp connection\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
 
-            lock(this)
+            Debug.Assert(_fd != null);
+            try
             {
-                Debug.Assert(_fd != null);
-                try
-                {
-                    _fd.Close();
-                }
-                catch(System.IO.IOException ex)
-                {
-                    throw new Ice.SocketException(ex);
-                }
-                finally
-                {
-                    _fd = null;
-                }
+                _fd.Close();
+            }
+            catch(SocketException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
+            finally
+            {
+                _fd = null;
             }
         }
 
         public void shutdownWrite()
         {
             if(_state < StateConnected)
-            {           
+            {
                 return;
             }
 
@@ -115,7 +152,7 @@ namespace IceInternal
         public void shutdownReadWrite()
         {
             if(_state < StateConnected)
-            {           
+            {
                 return;
             }
 
@@ -212,7 +249,7 @@ namespace IceInternal
                     {
                         string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
                         _logger.trace(_traceLevels.networkCat, s);
-                    }    
+                    }
 
                     if(_stats != null)
                     {
@@ -224,6 +261,16 @@ namespace IceInternal
                 }
                 catch(Win32Exception ex)
                 {
+                    //
+                    // On Mono, calling shutdownReadWrite() followed by read() causes Socket.Receive() to
+                    // raise a socket exception with the "interrupted" error code. We need to check the
+                    // socket's Connected status before checking for the interrupted case.
+                    //
+                    if(!_fd.Connected)
+                    {
+                        throw new Ice.ConnectionLostException(ex);
+                    }
+
                     if(Network.interrupted(ex))
                     {
                         continue;
@@ -241,14 +288,142 @@ namespace IceInternal
             return true;
         }
 
+        public IAsyncResult beginRead(Buffer buf, AsyncCallback callback, object state)
+        {
+            Debug.Assert(_fd != null);
+
+            try
+            {
+                return _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), SocketFlags.None,
+                                        callback, state);
+            }
+            catch(Win32Exception ex)
+            {
+                if(Network.connectionLost(ex))
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+
+                throw new Ice.SocketException(ex);
+            }
+        }
+
+        public void endRead(Buffer buf, IAsyncResult result)
+        {
+            Debug.Assert(_fd != null);
+
+            try
+            {
+                int ret = _fd.EndReceive(result);
+                if(ret == 0)
+                {
+                    throw new Ice.ConnectionLostException();
+                }
+
+                Debug.Assert(ret > 0);
+
+                if(_traceLevels.network >= 3)
+                {
+                    string s = "received " + ret + " of " + buf.b.remaining() + " bytes via tcp\n" + ToString();
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+
+                if(_stats != null)
+                {
+                    _stats.bytesReceived(type(), ret);
+                }
+
+                buf.b.position(buf.b.position() + ret);
+            }
+            catch(Win32Exception ex)
+            {
+                if(Network.connectionLost(ex))
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+
+                if(Network.operationAborted(ex))
+                {
+                    throw new ReadAbortedException(ex);
+                }
+
+                throw new Ice.SocketException(ex);
+            }
+            catch(ObjectDisposedException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
+            }
+        }
+
+        public IAsyncResult beginWrite(Buffer buf, AsyncCallback callback, object state)
+        {
+            Debug.Assert(_fd != null);
+
+            try
+            {
+                return _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), SocketFlags.None, callback,
+                                     state);
+            }
+            catch(Win32Exception ex)
+            {
+                if(Network.connectionLost(ex))
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+
+                throw new Ice.SocketException(ex);
+            }
+            catch(ObjectDisposedException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
+            }
+        }
+
+        public void endWrite(Buffer buf, IAsyncResult result)
+        {
+            Debug.Assert(_fd != null);
+
+            try
+            {
+                int ret = _fd.EndSend(result);
+                if(ret == 0)
+                {
+                    throw new Ice.ConnectionLostException();
+                }
+
+                Debug.Assert(ret > 0);
+
+                if(_traceLevels.network >= 3)
+                {
+                    string s = "sent " + ret + " of " + buf.b.remaining() + " bytes via tcp\n" + ToString();
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+
+                if(_stats != null)
+                {
+                    _stats.bytesSent(type(), ret);
+                }
+
+                buf.b.position(buf.b.position() + ret);
+            }
+            catch(Win32Exception ex)
+            {
+                if(Network.connectionLost(ex))
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+
+                throw new Ice.SocketException(ex);
+            }
+            catch(ObjectDisposedException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
+            }
+        }
+
         public string type()
         {
             return "tcp";
-        }
-
-        public override string ToString()
-        {
-            return _desc;
         }
 
         public void checkSendSize(Buffer buf, int messageSizeMax)
@@ -259,17 +434,23 @@ namespace IceInternal
             }
         }
 
+        public override string ToString()
+        {
+            return _desc;
+        }
+
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(Instance instance, Socket fd, bool connected)
+        internal TcpTransceiver(Instance instance, Socket fd, IPEndPoint addr, bool connected)
         {
             _fd = fd;
+            _addr = addr;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
-            _state = connected ? StateConnected : StateNeedConnect;
-            _desc = Network.fdToString(_fd);
+            _state = connected ? StateConnected : StateNeedBeginConnect;
+            _desc = connected ? Network.fdToString(_fd) : "<not connected>";
 
             _maxPacketSize = 0;
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
@@ -306,22 +487,18 @@ namespace IceInternal
                     int ret;
                     try
                     {
-                        //
-                        // Try to send first. Most of the time, this will work and
-                        // avoids the cost of calling Poll().
-                        //
                         ret = _fd.Send(buf.rawBytes(), buf.position(), buf.remaining(), SocketFlags.None);
                     }
                     catch(Win32Exception e)
                     {
                         if(Network.wouldBlock(e))
                         {
-                            // 
+                            //
                             // Writing would block, so we reset the limit (if necessary) and return true to indicate
                             // that more data must be sent.
                             //
                             if(packetSize == _maxPacketSize)
-                            {   
+                            {
                                 buf.limit(size);
                             }
                             return true;
@@ -369,16 +546,31 @@ namespace IceInternal
             return false; // No more data to send.
         }
 
+        private void endConnect()
+        {
+            Debug.Assert(_result != null);
+            Network.doEndConnectAsync(_result);
+            _state = StateConnected;
+            _desc = Network.fdToString(_fd);
+            if(_traceLevels.network >= 1)
+            {
+                string s = "tcp connection established\n" + _desc;
+                _logger.trace(_traceLevels.networkCat, s);
+            }
+        }
+
         private Socket _fd;
+        private IPEndPoint _addr;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
         private string _desc;
         private int _state;
         private int _maxPacketSize;
+        private IAsyncResult _result;
 
-        private const int StateNeedConnect = 0;
-        private const int StateConnectPending = 1;
+        private const int StateNeedBeginConnect = 0;
+        private const int StateNeedEndConnect = 1;
         private const int StateConnected = 2;
     }
 

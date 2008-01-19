@@ -33,13 +33,13 @@ namespace IceSSL
     {
         //
         // Obtain the password necessary to access the private key associated with
-	// the certificate in the given file. Return null if no password is necessary.
+        // the certificate in the given file. Return null if no password is necessary.
         //
         SecureString getPassword(string file);
 
-	//
-	// Obtain a password for a certificate being imported via an IceSSL.ImportCert
-	// property. Return null if no password is necessary.
+        //
+        // Obtain a password for a certificate being imported via an IceSSL.ImportCert
+        // property. Return null if no password is necessary.
         //
         SecureString getImportPassword(string file);
     }

@@ -51,11 +51,6 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
         _adapter.activate();
     }
 
-    public override void initializeSocketStatus(int status, Ice.Current current)
-    {
-        _configuration.initializeSocketStatus((IceInternal.SocketStatus)status);
-    }
-
     public override void initializeException(bool enable, Ice.Current current)
     {
         _configuration.initializeException(enable ? new Ice.SocketException() : null);

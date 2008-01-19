@@ -17,10 +17,6 @@ namespace Ice
         public void destroy()
         {
             instance_.destroy();
-            lock(this)
-            {
-                destroyed_ = true;
-            }
         }
 
         public void shutdown()
@@ -172,26 +168,23 @@ namespace Ice
             instance_ = new IceInternal.Instance(this, initData);
         }
         
-#if DEBUG
+        /*
         ~CommunicatorI()
         {
-            lock(this)
+            if(!destroyed_)
             {
-                if(!destroyed_)
+                if(!System.Environment.HasShutdownStarted)
                 {
-                    if(!System.Environment.HasShutdownStarted)
-                    {
-                        instance_.initializationData().logger.warning(
-                                "Ice::Communicator::destroy() has not been called");
-                    }
-                    else
-                    {
-                        System.Console.Error.WriteLine("Ice::Communicator::destroy() has not been called");
-                    }
+                    instance_.initializationData().logger.warning(
+                            "Ice::Communicator::destroy() has not been called");
+                }
+                else
+                {
+                    System.Console.Error.WriteLine("Ice::Communicator::destroy() has not been called");
                 }
             }
         }
-#endif
+        */
 
         //
         // Certain initialization tasks need to be completed after the
@@ -206,7 +199,6 @@ namespace Ice
             catch(System.Exception)
             {
                 instance_.destroy();
-                destroyed_ = true;
                 throw;
             }
         }
@@ -220,7 +212,6 @@ namespace Ice
         }
         
         private IceInternal.Instance instance_;
-        private bool destroyed_ = false;
     }
 
 }

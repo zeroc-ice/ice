@@ -20,7 +20,12 @@ public class Client
             return 1;
         }
 
-        AllTests.allTests(communicator, args[0]);
+        Console.Out.WriteLine("testing with thread-per-connection.");
+        AllTests.allTests(communicator, args[0], false);
+        Console.Out.WriteLine("testing with thread pool.");
+        Test.ServerFactoryPrx factory = AllTests.allTests(communicator, args[0], true);
+
+        factory.shutdown();
         
         return 0;
     }

@@ -205,15 +205,20 @@ namespace IceInternal
         public static bool notConnected(Win32Exception ex)
         {
             // BUGFIX: WSAEINVAL because shutdown() under MacOS returns EINVAL if the server side is gone.
-	    // BUGFIX: shutdown() under Vista might return WSAECONNRESET
+            // BUGFIX: shutdown() under Vista might return WSAECONNRESET
             return ex.NativeErrorCode == WSAENOTCONN ||
-		   ex.NativeErrorCode == WSAEINVAL ||
-		   ex.NativeErrorCode == WSAECONNRESET;
+                   ex.NativeErrorCode == WSAEINVAL ||
+                   ex.NativeErrorCode == WSAECONNRESET;
         }
 
         public static bool recvTruncated(Win32Exception ex)
         {
             return ex.NativeErrorCode == WSAEMSGSIZE;
+        }
+
+        public static bool operationAborted(Win32Exception ex)
+        {
+            return ex.NativeErrorCode == 995;
         }
 
         public static bool timeout(System.IO.IOException ex)
@@ -478,7 +483,7 @@ namespace IceInternal
             }
         }
 
-        public static bool doConnect(Socket fd, EndPoint addr, int timeout)
+        public static void doConnect(Socket fd, EndPoint addr, int timeout)
         {
         repeatConnect:
             try
@@ -489,9 +494,17 @@ namespace IceInternal
                 // connected non-blocking, the LocalEndPoint and RemoteEndPoint
                 // properties are null. The call to Bind() fixes this.
                 //
-		IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
+                IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
                 fd.Bind(new IPEndPoint(any, 0));
-                fd.Connect(addr);
+                IAsyncResult result = fd.BeginConnect(addr, null, null);
+                if(!result.CompletedSynchronously)
+                {
+                    if(!result.AsyncWaitHandle.WaitOne(timeout, false))
+                    {
+                        throw new Ice.ConnectTimeoutException();
+                    }
+                }
+                fd.EndConnect(result);
             }
             catch(SocketException ex)
             {
@@ -500,132 +513,118 @@ namespace IceInternal
                     goto repeatConnect;
                 }
 
-                if(!connectInProgress(ex))
-                {
-                    closeSocketNoThrow(fd);
+                closeSocketNoThrow(fd);
 
-                    if(connectionRefused(ex))
-                    {
-                        throw new Ice.ConnectionRefusedException(ex);
-                    }
-                    else
-                    {
-                        throw new Ice.ConnectFailedException(ex);
-                    }
+                if(connectionRefused(ex))
+                {
+                    throw new Ice.ConnectionRefusedException(ex);
+                }
+                else
+                {
+                    throw new Ice.ConnectFailedException(ex);
                 }
             }
 
-            if(!fd.Connected)
-            {
-                if(timeout == 0)
-                {
-                    return false;
-                }
-
-                try
-                {
-                    doFinishConnect(fd, timeout);
-                }
-                catch(Ice.LocalException)
-                {
-                    closeSocketNoThrow(fd);
-                    throw;
-                }
-            }
+            //
+            // On Windows, we need to set the socket's blocking status again
+            // after the asynchronous connect. Seems like a bug in .NET.
+            //
+            setBlock(fd, fd.Blocking);
 
             if(addr.Equals(fd.LocalEndPoint))
             {
                 closeSocketNoThrow(fd);
                 throw new Ice.ConnectionRefusedException();
             }
-            return true;
         }
 
-        public static void doFinishConnect(Socket fd, int timeout)
+        public static IAsyncResult doBeginConnectAsync(Socket fd, EndPoint addr, AsyncCallback callback)
+        {
+        repeatConnect:
+            try
+            {
+                //
+                // Even though we are on the client side, the call to Bind()
+                // is necessary to work around a .NET bug: if a socket is
+                // connected non-blocking, the LocalEndPoint and RemoteEndPoint
+                // properties are null. The call to Bind() fixes this.
+                //
+                IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
+                fd.Bind(new IPEndPoint(any, 0));
+                return fd.BeginConnect(addr, callback, fd);
+            }
+            catch(SocketException ex)
+            {
+                if(interrupted(ex))
+                {
+                    goto repeatConnect;
+                }
+
+                closeSocketNoThrow(fd);
+
+                if(connectionRefused(ex))
+                {
+                    throw new Ice.ConnectionRefusedException(ex);
+                }
+                else
+                {
+                    throw new Ice.ConnectFailedException(ex);
+                }
+            }
+        }
+
+        public static Socket doEndConnectAsync(IAsyncResult result)
         {
             //
             // Note: we don't close the socket if there's an exception. It's the responsibility
             // of the caller to do so.
             //
 
-            if(timeout != 0)
-            {
-                Selector selector = new Selector();
-                selector.add(fd, SocketStatus.NeedConnect);
-                selector.select(timeout);
-
-                bool ready = selector.selWrite.Count != 0;
-                bool error = selector.selError.Count != 0;
-
-                try
-                {
-                    //
-                    // As with C++, we need to get the SO_ERROR error
-                    // to determine whether the connect has actually
-                    // failed.
-                    //
-                    int val = (int)fd.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error);
-                    if(val > 0)
-                    {
-                        //
-                        // Create a Win32Exception out of this error value.
-                        //
-                        Win32Exception sockEx = new Win32Exception(val);
-                        if(connectionRefused(sockEx))
-                        {
-                            throw new Ice.ConnectionRefusedException(sockEx);
-                        }
-                        else if(connectFailed(sockEx))
-                        {
-                            throw new Ice.ConnectFailedException(sockEx);
-                        }
-                        else
-                        {
-                            throw new Ice.SocketException(sockEx);
-                        }                       
-                    }
-                }
-                catch(SocketException e)
-                {
-                    throw new Ice.SocketException(e);
-                }
-
-                Debug.Assert(!(ready && error));
-
-                if(error || !ready)
-                {
-                    //
-                    // If GetSocketOption didn't return an error and we've failed then we cannot
-                    // distinguish between connect failed and connection refused.
-                    //
-                    if(error)
-                    {
-                        throw new Ice.ConnectFailedException();
-                    }
-                    else
-                    {
-                        throw new Ice.ConnectTimeoutException();
-                    }
-                }
-            }
-
-            //
-            // Prevent self connect (self connect happens on Linux when a client tries to connect to
-            // a server which was just deactivated if the client socket re-uses the same ephemeral
-            // port as the server).
-            //
+            Socket fd = (Socket)result.AsyncState;
             try
             {
-                EndPoint addr = fd.RemoteEndPoint;
-                if(addr != null && addr.Equals(fd.LocalEndPoint))
+                fd.EndConnect(result);
+            }
+            catch(SocketException ex)
+            {
+                if(connectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException();
+                    throw new Ice.ConnectionRefusedException(ex);
+                }
+                else
+                {
+                    throw new Ice.ConnectFailedException(ex);
                 }
             }
-            catch(SocketException)
+
+            //
+            // On Windows, we need to set the socket's blocking status again
+            // after the asynchronous connect. Seems like a bug in .NET.
+            //
+            setBlock(fd, fd.Blocking);
+
+            //
+            // The RemoteEndPoint property can raise a SocketException. On Windows, this
+            // property always succeeds after a successful call to EndConnect. On Mono,
+            // EndConnect appears to complete successfully yet RemoteEndPoint can still
+            // raise a SocketException with WSAENOTCONN.
+            //
+            EndPoint addr = null;
+            try
             {
-                // Ignore - the socket may not be connected.
+                addr = fd.RemoteEndPoint;
             }
+            catch(SocketException ex)
+            {
+                throw new Ice.ConnectFailedException(ex);
+            }
+
+            if(addr != null && addr.Equals(fd.LocalEndPoint))
+            {
+                throw new Ice.ConnectionRefusedException();
+            }
+
+            return fd;
         }
 
         public static Socket doAccept(Socket socket, int timeout)
@@ -1060,15 +1059,15 @@ namespace IceInternal
         public static void
         setTcpBufSize(Socket socket, Ice.Properties properties, Ice.Logger logger)
         {
-	    //
-	    // By default, on Windows we use a 128KB buffer size. On Unix
-	    // platforms, we use the system defaults.
-	    //
-	    int dfltBufSize = 0;
+            //
+            // By default, on Windows we use a 128KB buffer size. On Unix
+            // platforms, we use the system defaults.
+            //
+            int dfltBufSize = 0;
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
             {
-		dfltBufSize = 128 * 1024;
-	    }
+                dfltBufSize = 128 * 1024;
+            }
 
             int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
             if(sizeRequested > 0)
@@ -1176,7 +1175,7 @@ namespace IceInternal
                 s.Append("\nremote address = " + remoteEndpoint.Address);
                 s.Append(":" + remoteEndpoint.Port);
             }
-            
+
             return s.ToString();
         }
         
@@ -1215,157 +1214,5 @@ namespace IceInternal
             }
             return remoteEndpoint;
         }
-    }
-
-    public enum SocketStatus { Finished, NeedConnect, NeedRead, NeedWrite };
-
-    public sealed class Selector
-    {
-        public void add(Socket fd, SocketStatus status)
-        {
-            switch(status)
-            {
-            case SocketStatus.Finished:
-                Debug.Assert(false);
-                break;
-            case SocketStatus.NeedConnect:
-                _writeList.Add(fd, null);
-                if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
-                {
-                    _errorList.Add(fd, null);
-                }
-                break;
-            case SocketStatus.NeedRead:
-                _readList.Add(fd, null);
-                break;
-            case SocketStatus.NeedWrite:
-                _writeList.Add(fd, null);
-                break;
-            }
-        }
-
-        public void remove(Socket fd, SocketStatus status)
-        {
-            switch(status)
-            {
-            case SocketStatus.Finished:
-                Debug.Assert(false);
-                break;
-            case SocketStatus.NeedConnect:
-                _writeList.Remove(fd);
-                if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
-                {
-                    _errorList.Remove(fd);
-                }
-                break;
-            case SocketStatus.NeedRead:
-                _readList.Remove(fd);
-                break;
-            case SocketStatus.NeedWrite:
-                _writeList.Remove(fd);
-                break;
-            }
-        }
-
-        public int select(int timeout)
-        {
-            List<Socket> cr = null;
-            List<Socket> cw = null;
-            List<Socket> ce = null;
-
-            if(timeout < 0)
-            {
-                //
-                // Socket.Select() returns immediately if the timeout is < 0 (instead
-                // of blocking indefinitely), so we have to emulate a blocking select here.
-                // (Using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
-                //
-                // According to the .NET 2.0 API docs, Select() should block when given a timeout
-                // value of -1, but that doesn't appear to be the case, at least not on Windows.
-                //
-                do {
-                    cr = new List<Socket>(_readList.Keys);
-                    cw = new List<Socket>(_writeList.Keys);
-                    ce = new List<Socket>(_errorList.Keys);
-                    try
-                    {
-                        Socket.Select(cr, cw, ce, System.Int32.MaxValue);
-                    }
-                    catch(SocketException e)
-                    {
-                        if(Network.interrupted(e))
-                        {
-                            continue;
-                        }
-                        throw new Ice.SocketException(e);
-                    }
-                }
-                while((cr == null || cr.Count == 0) &&
-                      (cw == null || cw.Count == 0) &&
-                      (ce == null || ce.Count == 0));
-            }
-            else
-            {
-                //
-                // Select() wants microseconds, so we need to deal with overflow.
-                //
-                while((timeout > System.Int32.MaxValue / 1000) &&
-                      (cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
-                {
-                    cr = new List<Socket>(_readList.Keys);
-                    cw = new List<Socket>(_writeList.Keys);
-                    ce = new List<Socket>(_errorList.Keys);
-                    try
-                    {
-                        Socket.Select(cr, cw, ce, (System.Int32.MaxValue / 1000) * 1000);
-                    }
-                    catch(SocketException e)
-                    {
-                        if(Network.interrupted(e))
-                        {
-                            continue;
-                        }
-                        throw new Ice.SocketException(e);
-                    }
-                    timeout -= System.Int32.MaxValue / 1000;
-                }
-                if((cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
-                {
-                    while(true)
-                    {
-                        cr = new List<Socket>(_readList.Keys);
-                        cw = new List<Socket>(_writeList.Keys);
-                        ce = new List<Socket>(_errorList.Keys);
-                        try
-                        {
-                            Socket.Select(cr, cw, ce, timeout * 1000);
-                            break;
-                        }
-                        catch(SocketException e)
-                        {
-                            if(Network.interrupted(e))
-                            {
-                                continue;
-                            }
-                            throw new Ice.SocketException(e);
-                        }
-                    }
-                }
-            }
-
-            selRead = cr;
-            selWrite = cw;
-            selError = ce;
-
-            return selRead.Count + selWrite.Count + selError.Count;
-        }
-
-        public List<Socket> selRead;  // Sockets selected for read
-        public List<Socket> selWrite; // Sockets selected for write
-        public List<Socket> selError; // Sockets selected for error
-
-        private Dictionary<Socket, object> _readList = new Dictionary<Socket, object>();
-        private Dictionary<Socket, object> _writeList = new Dictionary<Socket, object>();
-        private Dictionary<Socket, object> _errorList = new Dictionary<Socket, object>();
     }
 }

@@ -617,11 +617,6 @@ namespace IceInternal
             return udpEndpointI._host.Equals(_host) && udpEndpointI._port == _port;
         }
 
-        public override bool requiresThreadPerConnection()
-        {
-            return false;
-        }
-
         public override List<Connector> connectors(List<IPEndPoint> addresses)
         {
             List<Connector> connectors = new List<Connector>();

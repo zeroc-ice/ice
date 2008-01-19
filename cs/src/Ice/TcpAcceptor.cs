@@ -21,7 +21,7 @@ namespace IceInternal
         {
             return _fd;
         }
-        
+
         public virtual void close()
         {
             Socket fd;
@@ -37,7 +37,7 @@ namespace IceInternal
                     string s = "stopping to accept tcp connections at " + ToString();
                     _logger.trace(_traceLevels.networkCat, s);
                 }
-            
+
                 try
                 {
                     fd.Close();
@@ -48,18 +48,18 @@ namespace IceInternal
                 }
             }
         }
-        
+
         public virtual void listen()
         {
             Network.doListen(_fd, _backlog);
-            
+
             if(_traceLevels.network >= 1)
             {
                 string s = "accepting tcp connections at " + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
-        
+
         public virtual Transceiver accept(int timeout)
         {
             Socket fd = Network.doAccept(_fd, timeout);
@@ -71,8 +71,44 @@ namespace IceInternal
                 string s = "accepted tcp connection\n" + Network.fdToString(fd);
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            
-            return new TcpTransceiver(instance_, fd, true);
+
+            return new TcpTransceiver(instance_, fd, null, true);
+        }
+
+        public virtual IAsyncResult beginAccept(AsyncCallback callback, object state)
+        {
+            try
+            {
+                return _fd.BeginAccept(callback, state);
+            }
+            catch(SocketException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
+        }
+
+        public virtual Transceiver endAccept(IAsyncResult result)
+        {
+            Socket fd = null;
+            try
+            {
+                fd = _fd.EndAccept(result);
+            }
+            catch(SocketException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
+
+            Network.setBlock(fd, false);
+            Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
+
+            if(_traceLevels.network >= 1)
+            {
+                string s = "accepted tcp connection\n" + Network.fdToString(fd);
+                _logger.trace(_traceLevels.networkCat, s);
+            }
+
+            return new TcpTransceiver(instance_, fd, null, true);
         }
 
         public virtual void connectToSelf()
@@ -101,25 +137,24 @@ namespace IceInternal
         {
             return Network.addrToString(_addr);
         }
-        
-        internal virtual int effectivePort()
+
+        internal int effectivePort()
         {
             return _addr.Port;
         }
-        
-        internal
-        TcpAcceptor(Instance instance, string host, int port)
+
+        internal TcpAcceptor(Instance instance, string host, int port)
         {
             instance_ = instance;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _backlog = 0;
-            
+
             if(_backlog <= 0)
             {
                 _backlog = 5;
             }
-            
+
             try
             {
                 _addr = Network.getAddressForServer(host, port, instance_.protocolSupport());
@@ -156,7 +191,7 @@ namespace IceInternal
                 throw;
             }
         }
-        
+
         private Instance instance_;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;

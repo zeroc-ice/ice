@@ -13,6 +13,7 @@ namespace IceSSL
     using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
+    using System.Net;
     using System.Net.Security;
     using System.Net.Sockets;
     using System.Security.Authentication;
@@ -23,59 +24,171 @@ namespace IceSSL
     {
         public Socket fd()
         {
-            Debug.Assert(fd_ != null);
-            return fd_;
+            Debug.Assert(_fd != null);
+            return _fd;
+        }
+
+        public bool restartable()
+        {
+            return false;
+        }
+
+        public void initialize(int timeout)
+        {
+            try
+            {
+                if(_state == StateNeedBeginConnect)
+                {
+                    Debug.Assert(_state == StateNeedBeginConnect);
+                    IceInternal.Network.doConnect(_fd, _addr, timeout);
+                    _state = StateNeedBeginAuthenticate;
+                }
+
+                //
+                // At this point the underlying TCP connection is established; now we need to
+                // complete the SSL authentication process.
+                //
+
+                Debug.Assert(_state == StateNeedBeginAuthenticate);
+                _state = StateNeedEndAuthenticate;
+
+                //
+                // Begin authentication asynchronously. If authentication does
+                // not complete synchronously, we wait for the given timeout.
+                //
+                if(!beginAuthenticate(null))
+                {
+                    if(!_initializeResult.AsyncWaitHandle.WaitOne(timeout, false))
+                    {
+                        throw new Ice.ConnectTimeoutException();
+                    }
+                }
+
+                endAuthenticate();
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(_instance.networkTraceLevel() >= 2)
+                {
+                    string s = "failed to establish ssl connection\n" + IceInternal.Network.fdToString(_fd) + "\n" + ex;
+                    _logger.trace(_instance.networkTraceCategory(), s);
+                }
+                throw;
+            }
+        }
+
+        public bool initialize(AsyncCallback callback)
+        {
+            try
+            {
+                if(_state == StateNeedBeginConnect)
+                {
+                    Debug.Assert(callback != null);
+                    Debug.Assert(_addr != null);
+
+                    _state = StateNeedEndConnect;
+                    _initializeResult = IceInternal.Network.doBeginConnectAsync(_fd, _addr, callback);
+
+                    if(_initializeResult.CompletedSynchronously)
+                    {
+                        endConnect();
+                    }
+                    else
+                    {
+                        //
+                        // Return now if the I/O request needs an asynchronous callback.
+                        //
+                        return false;
+                    }
+                }
+                else if(_state == StateNeedEndConnect)
+                {
+                    endConnect();
+                }
+
+                //
+                // At this point the underlying TCP connection is established; now we need to
+                // begin or end the SSL authentication process.
+                //
+                Debug.Assert(_state == StateNeedBeginAuthenticate || _state == StateNeedEndAuthenticate);
+                if(_state == StateNeedBeginAuthenticate)
+                {
+                    _state = StateNeedEndAuthenticate;
+
+                    //
+                    // Return now if authentication needs an asynchronous callback.
+                    //
+                    if(!beginAuthenticate(callback))
+                    {
+                        return false;
+                    }
+
+                    endAuthenticate();
+                }
+                else
+                {
+                    endAuthenticate();
+                }
+
+                return true;
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(_instance.networkTraceLevel() >= 2)
+                {
+                    string s = "failed to establish ssl connection\n" + IceInternal.Network.fdToString(_fd) + "\n" + ex;
+                    _logger.trace(_instance.networkTraceCategory(), s);
+                }
+                throw;
+            }
         }
 
         public void close()
         {
-            if(instance_.networkTraceLevel() >= 1)
+            if(_instance.networkTraceLevel() >= 1)
             {
                 string s = "closing ssl connection\n" + ToString();
-                logger_.trace(instance_.networkTraceCategory(), s);
+                _logger.trace(_instance.networkTraceCategory(), s);
             }
 
-            lock(this)
+            Debug.Assert(_fd != null);
+            try
             {
-                Debug.Assert(fd_ != null);
-                try
+                if(_stream != null)
                 {
-                    if(stream_ != null)
-                    {
-                        //
-                        // Closing the stream also closes the socket.
-                        //
-                        stream_.Close();
-                    }
-                    else
-                    {
-                        fd_.Close();
-                    }
+                    //
+                    // Closing the stream also closes the socket.
+                    //
+                    _stream.Close();
                 }
-                catch(IOException ex)
+                else
                 {
-                    throw new Ice.SocketException(ex);
+                    _fd.Close();
                 }
-                finally
-                {
-                    fd_ = null;
-                    stream_ = null;
-                }
+            }
+            catch(IOException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
+            finally
+            {
+                _fd = null;
+                _stream = null;
             }
         }
 
         public void shutdownWrite()
         {
-            if(instance_.networkTraceLevel() >= 2)
+            if(_instance.networkTraceLevel() >= 2)
             {
                 string s = "shutting down ssl connection for writing\n" + ToString();
-                logger_.trace(instance_.networkTraceCategory(), s);
+                _logger.trace(_instance.networkTraceCategory(), s);
             }
 
-            Debug.Assert(fd_ != null);
+            Debug.Assert(_fd != null);
             try
             {
-                fd_.Shutdown(SocketShutdown.Send);
+                _fd.Shutdown(SocketShutdown.Send);
             }
             catch(SocketException ex)
             {
@@ -84,21 +197,28 @@ namespace IceSSL
                     return;
                 }
                 throw new Ice.SocketException(ex);
+            }
+            catch(ObjectDisposedException)
+            {
+                //
+                // MSDN says this exception occurs when the socket is already closed. It appears
+                // this can occur even if we don't explicitly close it.
+                //
             }
         }
 
         public void shutdownReadWrite()
         {
-            if(instance_.networkTraceLevel() >= 2)
+            if(_instance.networkTraceLevel() >= 2)
             {
                 string s = "shutting down ssl connection for reading and writing\n" + ToString();
-                logger_.trace(instance_.networkTraceCategory(), s);
+                _logger.trace(_instance.networkTraceCategory(), s);
             }
 
-            Debug.Assert(fd_ != null);
+            Debug.Assert(_fd != null);
             try
             {
-                fd_.Shutdown(SocketShutdown.Both);
+                _fd.Shutdown(SocketShutdown.Both);
             }
             catch(SocketException ex)
             {
@@ -108,55 +228,86 @@ namespace IceSSL
                 }
                 throw new Ice.SocketException(ex);
             }
+            catch(ObjectDisposedException)
+            {
+                //
+                // MSDN says this exception occurs when the socket is already closed. It appears
+                // this can occur even if we don't explicitly close it.
+                //
+            }
         }
 
-        public void write(IceInternal.BasicStream stream, int timeout)
+        public bool write(IceInternal.Buffer buf, int timeout)
         {
-            Debug.Assert(fd_ != null);
+            Debug.Assert(_fd != null);
 
-            IceInternal.ByteBuffer buf = stream.prepareWrite();
-            int remaining = buf.remaining();
-            int packetSize = remaining;
-            if(maxPacketSize_ > 0 && packetSize > maxPacketSize_)
+            if(timeout == 0)
             {
-                packetSize = maxPacketSize_;
+                //
+                // We are using a blocking socket, therefore the caller must use an async write.
+                //
+                return false;
             }
 
             try
             {
-                while(remaining > 0)
+                if(timeout == -1)
                 {
-                    if(timeout == -1)
+                    int remaining = buf.b.remaining();
+                    int packetSize = remaining;
+                    if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
                     {
-                        stream_.Write(buf.rawBytes(), buf.position(), packetSize);
+                        packetSize = _maxPacketSize;
                     }
-                    else
+
+                    while(remaining > 0)
                     {
-                        //
-                        // We have to use an asynchronous write to support a timeout.
-                        //
-                        IAsyncResult ar = stream_.BeginWrite(buf.rawBytes(), buf.position(), packetSize, null, null);
-                        if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
+                        _stream.Write(buf.b.rawBytes(), buf.b.position(), packetSize);
+
+                        if(_instance.networkTraceLevel() >= 3)
                         {
-                            throw new Ice.TimeoutException();
+                            string s = "sent " + packetSize + " of " + remaining + " bytes via ssl\n" + ToString();
+                            _logger.trace(_instance.networkTraceCategory(), s);
                         }
-                        stream_.EndWrite(ar);
+
+                        if(_stats != null)
+                        {
+                            _stats.bytesSent(type(), packetSize);
+                        }
+
+                        remaining -= packetSize;
+                        buf.b.position(buf.b.position() + packetSize);
+                        if(remaining < packetSize)
+                        {
+                            packetSize = remaining;
+                        }
                     }
-                    if(instance_.networkTraceLevel() >= 3)
+                }
+                else
+                {
+                    //
+                    // We have to use an asynchronous write to support a timeout.
+                    //
+                    int rem = buf.b.remaining();
+                    IAsyncResult ar = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), rem, null, null);
+                    if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
                     {
-                        string s = "sent " + packetSize + " of " + packetSize + " bytes via ssl\n" + ToString();
-                        logger_.trace(instance_.networkTraceCategory(), s);
+                        throw new Ice.TimeoutException();
                     }
-                    if(stats_ != null)
+                    _stream.EndWrite(ar);
+
+                    if(_instance.networkTraceLevel() >= 3)
                     {
-                        stats_.bytesSent(type(), packetSize);
+                        string s = "sent " + rem + " of " + rem + " bytes via ssl\n" + ToString();
+                        _logger.trace(_instance.networkTraceCategory(), s);
                     }
-                    remaining -= packetSize;
-                    buf.position(buf.position() + packetSize);
-                    if(remaining < packetSize)
+
+                    if(_stats != null)
                     {
-                        packetSize = remaining;
+                        _stats.bytesSent(type(), rem);
                     }
+
+                    buf.b.position(buf.b.position() + rem);
                 }
             }
             catch(IOException ex)
@@ -166,18 +317,6 @@ namespace IceSSL
                     throw new Ice.ConnectionLostException(ex);
                 }
                 if(IceInternal.Network.timeout(ex))
-                {
-                    throw new Ice.TimeoutException();
-                }
-                throw new Ice.SocketException(ex);
-            }
-            catch(SocketException ex) // TODO: Necessary?
-            {
-                if(IceInternal.Network.connectionLost(ex))
-                {
-                    throw new Ice.ConnectionLostException(ex);
-                }
-                if(IceInternal.Network.wouldBlock(ex))
                 {
                     throw new Ice.TimeoutException();
                 }
@@ -191,59 +330,90 @@ namespace IceSSL
             {
                 throw new Ice.SyscallException(ex);
             }
+
+            return true;
         }
 
-        public void read(IceInternal.BasicStream stream, int timeout)
+        public bool read(IceInternal.Buffer buf, int timeout)
         {
-            Debug.Assert(fd_ != null);
+            Debug.Assert(_fd != null);
 
-            IceInternal.ByteBuffer buf = stream.prepareRead();    
-            int remaining = buf.remaining();
-            int position = buf.position();
+            if(timeout == 0)
+            {
+                //
+                // We are using a blocking socket, therefore the caller must use an async read.
+                //
+                return false;
+            }
 
             try
             {
-                int ret = 0;
-                while(remaining > 0)
+                if(timeout == -1)
                 {
-                    if(timeout == -1)
+                    int rem = buf.b.remaining();
+                    int pos = buf.b.position();
+
+                    while(rem > 0)
                     {
-                        ret = stream_.Read(buf.rawBytes(), position, remaining);
+                        int ret = _stream.Read(buf.b.rawBytes(), pos, rem);
                         if(ret == 0)
                         {
                             //
                             // Try to read again; if zero is returned, the connection is lost.
                             //
-                            ret = stream_.Read(buf.rawBytes(), position, remaining);
+                            ret = _stream.Read(buf.b.rawBytes(), pos, rem);
                             if(ret == 0)
                             {
                                 throw new Ice.ConnectionLostException();
                             }
                         }
-                    }
-                    else
-                    {
-                        //
-                        // We have to use an asynchronous read to support a timeout.
-                        //
-                        IAsyncResult ar = stream_.BeginRead(buf.rawBytes(), position, remaining, null, null);
-                        if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
+
+                        if(_instance.networkTraceLevel() >= 3)
                         {
-                            throw new Ice.TimeoutException();
+                            string s = "received " + ret + " of " + rem + " bytes via ssl\n" + ToString();
+                            _logger.trace(_instance.networkTraceCategory(), s);
                         }
-                        ret = stream_.EndRead(ar);
+
+                        if(_stats != null)
+                        {
+                            _stats.bytesReceived(type(), ret);
+                        }
+
+                        rem -= ret;
+                        buf.b.position(pos += ret);
                     }
-                    if(instance_.networkTraceLevel() >= 3)
+                }
+                else
+                {
+                    //
+                    // We have to use an asynchronous read to support a timeout.
+                    //
+                    int rem = buf.b.remaining();
+                    int pos = buf.b.position();
+                    IAsyncResult ar = _stream.BeginRead(buf.b.rawBytes(), pos, rem, null, null);
+                    if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
                     {
-                        string s = "received " + ret + " of " + remaining + " bytes via ssl\n" + ToString();
-                        logger_.trace(instance_.networkTraceCategory(), s);
-                    }    
-                    if(stats_ != null)
-                    {
-                        stats_.bytesReceived(type(), ret);
+                        throw new Ice.TimeoutException();
                     }
-                    remaining -= ret;
-                    buf.position(position += ret);
+                    int ret = _stream.EndRead(ar);
+                    if(ret == 0)
+                    {
+                        throw new Ice.ConnectionLostException();
+                    }
+                    Debug.Assert(ret == rem);
+
+                    if(_instance.networkTraceLevel() >= 3)
+                    {
+                        string s = "received " + ret + " of " + rem + " bytes via ssl\n" + ToString();
+                        _logger.trace(_instance.networkTraceCategory(), s);
+                    }
+
+                    if(_stats != null)
+                    {
+                        _stats.bytesReceived(type(), ret);
+                    }
+
+                    buf.b.position(pos + rem);
                 }
             }
             catch(IOException ex)
@@ -258,13 +428,32 @@ namespace IceSSL
                 }
                 throw new Ice.SocketException(ex);
             }
-            catch(SocketException ex) // TODO: Necessary?
+            catch(Ice.LocalException)
+            {
+                throw;
+            }
+            catch(Exception ex)
+            {
+                throw new Ice.SyscallException(ex);
+            }
+
+            return true;
+        }
+
+        public IAsyncResult beginRead(IceInternal.Buffer buf, AsyncCallback callback, object state)
+        {
+            Debug.Assert(_fd != null);
+            try
+            {
+                return _stream.BeginRead(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), callback, state);
+            }
+            catch(IOException ex)
             {
                 if(IceInternal.Network.connectionLost(ex))
                 {
                     throw new Ice.ConnectionLostException(ex);
                 }
-                if(IceInternal.Network.wouldBlock(ex))
+                if(IceInternal.Network.timeout(ex))
                 {
                     throw new Ice.TimeoutException();
                 }
@@ -273,6 +462,153 @@ namespace IceSSL
             catch(Ice.LocalException)
             {
                 throw;
+            }
+            catch(ObjectDisposedException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
+            }
+            catch(Exception ex)
+            {
+                throw new Ice.SyscallException(ex);
+            }
+        }
+
+        public void endRead(IceInternal.Buffer buf, IAsyncResult result)
+        {
+            Debug.Assert(_fd != null);
+
+            try
+            {
+                int ret = _stream.EndRead(result);
+                if(ret == 0)
+                {
+                    throw new Ice.ConnectionLostException();
+                }
+
+                Debug.Assert(ret > 0);
+
+                if(_instance.networkTraceLevel() >= 3)
+                {
+                    string s = "received " + ret + " of " + buf.b.remaining() + " bytes via ssl\n" + ToString();
+                    _logger.trace(_instance.networkTraceCategory(), s);
+                }
+
+                if(_stats != null)
+                {
+                    _stats.bytesReceived(type(), ret);
+                }
+
+                buf.b.position(buf.b.position() + ret);
+            }
+            catch(IOException ex)
+            {
+                if(IceInternal.Network.connectionLost(ex))
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+                if(IceInternal.Network.timeout(ex))
+                {
+                    throw new Ice.TimeoutException();
+                }
+
+                Exception e = ex.InnerException;
+                if(e != null && e is SocketException && IceInternal.Network.operationAborted((SocketException)e))
+                {
+                    throw new IceInternal.ReadAbortedException(ex);
+                }
+
+                throw new Ice.SocketException(ex);
+            }
+            catch(Ice.LocalException)
+            {
+                throw;
+            }
+            catch(ObjectDisposedException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
+            }
+            catch(Exception ex)
+            {
+                throw new Ice.SyscallException(ex);
+            }
+        }
+
+        public IAsyncResult beginWrite(IceInternal.Buffer buf, AsyncCallback callback, object state)
+        {
+            Debug.Assert(_fd != null);
+
+            try
+            {
+                return _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), callback, state);
+            }
+            catch(IOException ex)
+            {
+                if(IceInternal.Network.connectionLost(ex))
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+                if(IceInternal.Network.timeout(ex))
+                {
+                    throw new Ice.TimeoutException();
+                }
+                throw new Ice.SocketException(ex);
+            }
+            catch(Ice.LocalException)
+            {
+                throw;
+            }
+            catch(ObjectDisposedException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
+            }
+            catch(Exception ex)
+            {
+                throw new Ice.SyscallException(ex);
+            }
+        }
+
+        public void endWrite(IceInternal.Buffer buf, IAsyncResult result)
+        {
+            Debug.Assert(_fd != null);
+
+            try
+            {
+                _stream.EndWrite(result);
+
+                int rem = buf.b.remaining();
+
+                if(_instance.networkTraceLevel() >= 3)
+                {
+                    string s = "sent " + rem + " of " + rem + " bytes via ssl\n" + ToString();
+                    _logger.trace(_instance.networkTraceCategory(), s);
+                }
+
+                if(_stats != null)
+                {
+                    _stats.bytesSent(type(), rem);
+                }
+
+                buf.b.position(buf.b.position() + rem);
+            }
+            catch(IOException ex)
+            {
+                if(IceInternal.Network.connectionLost(ex))
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+                if(IceInternal.Network.timeout(ex))
+                {
+                    throw new Ice.TimeoutException();
+                }
+                throw new Ice.SocketException(ex);
+            }
+            catch(Ice.LocalException)
+            {
+                throw;
+            }
+            catch(ObjectDisposedException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
             }
             catch(Exception ex)
             {
@@ -285,94 +621,9 @@ namespace IceSSL
             return "ssl";
         }
 
-        public void initialize(int timeout)
+        public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
         {
-            if(stream_ == null)
-            {
-                try
-                {
-                    //
-                    // Create an SslStream.
-                    //
-                    NetworkStream ns = new NetworkStream(fd_, true);
-                    TransceiverValidationCallback cb = new TransceiverValidationCallback(this);
-                    stream_ = new SslStream(ns, false, new RemoteCertificateValidationCallback(cb.validate), null);
-
-                    //
-                    // Get the certificate collection and select the first one.
-                    //
-                    X509Certificate2Collection certs = instance_.certs();
-                    X509Certificate2 cert = null;
-                    if(certs.Count > 0)
-                    {
-                        cert = certs[0];
-                    }
-
-                    //
-                    // Start the validation process and wait for it to complete.
-                    //
-                    AuthInfo info = new AuthInfo();
-                    info.stream = stream_;
-                    info.done = false;
-                    stream_.BeginAuthenticateAsServer(cert, verifyPeer_ > 1, instance_.protocols(),
-                                                      instance_.checkCRL(), new AsyncCallback(authCallback), info);
-                    lock(info)
-                    {
-                        if(!info.done)
-                        {
-                            if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
-                            {
-                                throw new Ice.TimeoutException();
-                            }
-                        }
-                        if(info.ex != null)
-                        {
-                            throw info.ex;
-                        }
-                    }
-
-                    info_ = Util.populateConnectionInfo(stream_, fd_, cb.certs, adapterName_, true);
-                    instance_.verifyPeer(info_, fd_, true);
-                }
-                catch(IOException ex)
-                {
-                    if(IceInternal.Network.connectionLost(ex))
-                    {
-                        //
-                        // This situation occurs when connectToSelf is called; the "remote" end
-                        // closes the socket immediately.
-                        //
-                        throw new Ice.ConnectionLostException();
-                    }
-                    throw new Ice.SocketException(ex);
-                }
-                catch(AuthenticationException ex)
-                {
-                    Ice.SecurityException e = new Ice.SecurityException(ex);
-                    e.reason = ex.Message;
-                    throw e;
-                }
-                catch(Exception ex)
-                {
-                    throw new Ice.SyscallException(ex);
-                }
-
-                if(instance_.networkTraceLevel() >= 1)
-                {
-                    string s = "accepted ssl connection\n" + IceInternal.Network.fdToString(fd_);
-                    logger_.trace(instance_.networkTraceCategory(), s);
-                }
-
-                if(instance_.securityTraceLevel() >= 1)
-                {
-                    instance_.traceStream(stream_, IceInternal.Network.fdToString(fd_));
-                }
-            }
-        }
-
-        public void checkSendSize(IceInternal.BasicStream stream, int messageSizeMax)
-        {
-            if(stream.size() > messageSizeMax)
+            if(buf.size() > messageSizeMax)
             {
                 throw new Ice.MemoryLimitException();
             }
@@ -380,181 +631,202 @@ namespace IceSSL
 
         public override string ToString()
         {
-            return desc_;
+            return _desc;
         }
 
         public ConnectionInfo getConnectionInfo()
         {
-            return info_;
+            return _info;
         }
 
         //
-        // Only for use by ConnectorI.
+        // Only for use by ConnectorI, AcceptorI.
         //
-        internal TransceiverI(Instance instance, Socket fd, SslStream stream, ConnectionInfo info)
+        internal TransceiverI(Instance instance, Socket fd, IPEndPoint addr, bool connected, string host,
+                              string adapterName)
         {
-            instance_ = instance;
-            fd_ = fd;
-            stream_ = stream;
-            info_ = info;
-            logger_ = instance.communicator().getLogger();
-            stats_ = instance.communicator().getStats();
-            desc_ = IceInternal.Network.fdToString(fd_);
-            verifyPeer_ = 0;
+            _instance = instance;
+            _fd = fd;
+            _addr = addr;
+            _host = host;
+            _adapterName = adapterName;
+            _stream = null;
+            _info = null;
+            _logger = instance.communicator().getLogger();
+            _stats = instance.communicator().getStats();
+            _desc = connected ? IceInternal.Network.fdToString(_fd) : "<not connected>";
+            _state = connected ? StateNeedBeginAuthenticate : StateNeedBeginConnect;
 
-            maxPacketSize_ = 0;
+            _maxPacketSize = 0;
             if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
             {
-		//
-		// On Windows, limiting the buffer size is important to prevent
-		// poor throughput performances when transfering large amount of
-		// data. See Microsoft KB article KB823764.
-		//
-                maxPacketSize_ = IceInternal.Network.getSendBufferSize(fd) / 2;
-                if(maxPacketSize_ < 512)
+                //
+                // On Windows, limiting the buffer size is important to prevent
+                // poor throughput performance when transferring large amounts of
+                // data. See Microsoft KB article KB823764.
+                //
+                _maxPacketSize = IceInternal.Network.getSendBufferSize(fd) / 2;
+                if(_maxPacketSize < 512)
                 {
-                    maxPacketSize_ = 0;
+                    _maxPacketSize = 0;
                 }
             }
+
+            if(_adapterName != null)
+            {
+                //
+                // Determine whether a certificate is required from the peer.
+                //
+                _verifyPeer =
+                    _instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+            }
+            else
+            {
+                _verifyPeer = 0;
+            }
         }
 
-        //
-        // Only for use by AcceptorI.
-        //
-        internal TransceiverI(Instance instance, Socket fd, string adapterName)
+        private void endConnect()
         {
-            instance_ = instance;
-            fd_ = fd;
-            stream_ = null;
-            info_ = null;
-            adapterName_ = adapterName;
-            logger_ = instance.communicator().getLogger();
-            stats_ = instance.communicator().getStats();
-            desc_ = IceInternal.Network.fdToString(fd_);
-            
-            maxPacketSize_ = 0;
-            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            Debug.Assert(_initializeResult != null);
+            IceInternal.Network.doEndConnectAsync(_initializeResult);
+            _state = StateNeedBeginAuthenticate;
+            _desc = IceInternal.Network.fdToString(_fd);
+            _initializeResult = null;
+        }
+
+        private bool beginAuthenticate(AsyncCallback callback)
+        {
+            NetworkStream ns = new NetworkStream(_fd, true);
+            _stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback), null);
+
+            try
             {
-		//
-		// On Windows, limiting the buffer size is important to prevent
-		// poor throughput performances when transfering large amount of
-		// data. See Microsoft KB article KB823764.
-		//
-                maxPacketSize_ = IceInternal.Network.getSendBufferSize(fd) / 2;
-                if(maxPacketSize_ < 512)
+                if(_adapterName == null)
                 {
-                    maxPacketSize_ = 0;
+                    //
+                    // Client authentication.
+                    //
+                    _initializeResult = _stream.BeginAuthenticateAsClient(_host, _instance.certs(),
+                                                                          _instance.protocols(),
+                                                                          _instance.checkCRL() > 0,
+                                                                          callback, null);
                 }
-            }
-            
-            //
-            // Determine whether a certificate is required from the peer.
-            //
-            verifyPeer_ = instance_.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
-        }
-
-#if DEBUG
-        ~TransceiverI()
-        {
-            /*
-            lock(this)
-            {
-                IceUtil.Assert.FinalizerAssert(fd_ == null);
-            }
-            */
-        }
-#endif
-
-        internal bool validate(object sender, X509Certificate certificate, X509Chain chain,
-                               SslPolicyErrors sslPolicyErrors)
-        {
-            string message = "";
-            int errors = (int)sslPolicyErrors;
-            if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
-            {
-                if(verifyPeer_ > 1)
+                else
                 {
-                    if(instance_.securityTraceLevel() >= 1)
+                    //
+                    // Server authentication.
+                    //
+                    // Get the certificate collection and select the first one.
+                    //
+                    X509Certificate2Collection certs = _instance.certs();
+                    X509Certificate2 cert = null;
+                    if(certs.Count > 0)
                     {
-                        logger_.trace(instance_.securityTraceCategory(),
-                                      "SSL certificate validation failed - client certificate not provided");
+                        cert = certs[0];
                     }
-                    return false;
-                }
-                errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                message = message + "\nremote certificate not provided (ignored)";
-            }
 
-            if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
+                    _initializeResult = _stream.BeginAuthenticateAsServer(cert, _verifyPeer > 1, _instance.protocols(),
+                                                                          _instance.checkCRL() > 0, callback, null);
+                }
+            }
+            catch(IOException ex)
             {
-                //
-                // This condition is not expected in a server.
-                //
-                Debug.Assert(false);
+                if(IceInternal.Network.connectionLost(ex))
+                {
+                    //
+                    // This situation occurs when connectToSelf is called; the "remote" end
+                    // closes the socket immediately.
+                    //
+                    throw new Ice.ConnectionLostException();
+                }
+                throw new Ice.SocketException(ex);
             }
-
-            if(errors > 0)
+            catch(AuthenticationException ex)
             {
-                if(instance_.securityTraceLevel() >= 1)
-                {
-                    logger_.trace(instance_.securityTraceCategory(), "SSL certificate validation failed");
-                }
-                return false;
+                Ice.SecurityException e = new Ice.SecurityException(ex);
+                e.reason = ex.Message;
+                throw e;
             }
-
-            return true;
-        }
-
-        private class AuthInfo
-        {
-            internal SslStream stream;
-            volatile internal Exception ex;
-            volatile internal bool done;
-        }
-
-        private static void authCallback(IAsyncResult ar)
-        {
-            AuthInfo info = (AuthInfo)ar.AsyncState;
-            lock(info)
+            catch(Exception ex)
             {
-                try
+                throw new Ice.SyscallException(ex);
+            }
+
+            Debug.Assert(_initializeResult != null);
+            return _initializeResult.CompletedSynchronously;
+        }
+
+        private void endAuthenticate()
+        {
+            Debug.Assert(_initializeResult != null);
+
+            try
+            {
+                if(_adapterName == null)
                 {
-                    info.stream.EndAuthenticateAsServer(ar);
+                    _stream.EndAuthenticateAsClient(_initializeResult);
                 }
-                catch(Exception ex)
+                else
                 {
-                    info.ex = ex;
+                    _stream.EndAuthenticateAsServer(_initializeResult);
                 }
-                finally
+
+                _state = StateAuthenticated;
+                _initializeResult = null;
+
+                _info = Util.populateConnectionInfo(_stream, _fd, _chain, _adapterName, _adapterName != null);
+                _instance.verifyPeer(_info, _fd, _adapterName != null);
+
+                if(_instance.networkTraceLevel() >= 1)
                 {
-                    info.done = true;
-                    Monitor.Pulse(info);
+                    string s;
+                    if(_adapterName == null)
+                    {
+                        s = "ssl connection established\n" + _desc;
+                    }
+                    else
+                    {
+                        s = "accepted ssl connection\n" + _desc;
+                    }
+                    _logger.trace(_instance.networkTraceCategory(), s);
                 }
+
+                if(_instance.securityTraceLevel() >= 1)
+                {
+                    _instance.traceStream(_stream, _desc);
+                }
+            }
+            catch(IOException ex)
+            {
+                if(IceInternal.Network.connectionLost(ex))
+                {
+                    //
+                    // This situation occurs when connectToSelf is called; the "remote" end
+                    // closes the socket immediately.
+                    //
+                    throw new Ice.ConnectionLostException();
+                }
+                throw new Ice.SocketException(ex);
+            }
+            catch(AuthenticationException ex)
+            {
+                Ice.SecurityException e = new Ice.SecurityException(ex);
+                e.reason = ex.Message;
+                throw e;
+            }
+            catch(Ice.LocalException)
+            {
+                throw;
+            }
+            catch(Exception ex)
+            {
+                throw new Ice.SyscallException(ex);
             }
         }
 
-        private Instance instance_;
-        private Socket fd_;
-        private SslStream stream_;
-        private ConnectionInfo info_;
-        private string adapterName_;
-        private Ice.Logger logger_;
-        private Ice.Stats stats_;
-        private string desc_;
-        private int verifyPeer_;
-        private int maxPacketSize_;
-    }
-
-    internal class TransceiverValidationCallback
-    {
-        internal TransceiverValidationCallback(TransceiverI transceiver)
-        {
-            transceiver_ = transceiver;
-            certs = null;
-        }
-
-        internal bool validate(object sender, X509Certificate certificate, X509Chain chain,
-                               SslPolicyErrors sslPolicyErrors)
+        private bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
+                                        SslPolicyErrors sslPolicyErrors)
         {
             //
             // The certificate chain is not available via SslStream, and it is destroyed
@@ -563,17 +835,180 @@ namespace IceSSL
             //
             if(chain != null)
             {
-                certs = new X509Certificate2[chain.ChainElements.Count];
+                _chain = new X509Certificate2[chain.ChainElements.Count];
                 int i = 0;
                 foreach(X509ChainElement e in chain.ChainElements)
                 {
-                    certs[i++] = e.Certificate;
+                    _chain[i++] = e.Certificate;
                 }
             }
-            return transceiver_.validate(sender, certificate, chain, sslPolicyErrors);
+
+            string message = "";
+            int errors = (int)sslPolicyErrors;
+            if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
+            {
+                //
+                // The RemoteCertificateNotAvailable case does not appear to be possible
+                // for an outgoing connection. Since .NET requires an authenticated
+                // connection, the remote peer closes the socket if it does not have a
+                // certificate to provide.
+                //
+
+                if(_adapterName != null)
+                {
+                    if(_verifyPeer > 1)
+                    {
+                        if(_instance.securityTraceLevel() >= 1)
+                        {
+                            _logger.trace(_instance.securityTraceCategory(),
+                                          "SSL certificate validation failed - client certificate not provided");
+                        }
+                        return false;
+                    }
+                    errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
+                    message = message + "\nremote certificate not provided (ignored)";
+                }
+            }
+
+            if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
+            {
+                if(_adapterName == null)
+                {
+                    if(!_instance.checkCertName())
+                    {
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                        message = message + "\nremote certificate name mismatch (ignored)";
+                    }
+                    else
+                    {
+                        if(_instance.securityTraceLevel() >= 1)
+                        {
+                            _logger.trace(_instance.securityTraceCategory(),
+                                          "SSL certificate validation failed - remote certificate name mismatch");
+                        }
+                        return false;
+                    }
+                }
+                else
+                {
+                    //
+                    // This condition is not expected in a server.
+                    //
+                    Debug.Assert(false);
+                }
+            }
+
+            if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0)
+            {
+                if(chain == null && IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
+                {
+                    //
+                    // Mono doesn't supply the certificate chain.
+                    //
+                    errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                }
+                else if(chain != null && chain.ChainStatus != null)
+                {
+                    int errorCount = chain.ChainStatus.Length;
+                    foreach(X509ChainStatus status in chain.ChainStatus)
+                    {
+                        if((certificate.Subject == certificate.Issuer) &&
+                           (status.Status == X509ChainStatusFlags.UntrustedRoot))
+                        {
+                            //
+                            // Untrusted root for self-signed certificate is OK.
+                            //
+                            --errorCount;
+                        }
+                        else if(status.Status == X509ChainStatusFlags.Revoked)
+                        {
+                            if(_instance.checkCRL() > 0)
+                            {
+                                message = message + "\ncertificate revoked";
+                            }
+                            else
+                            {
+                                message = message + "\ncertificate revoked (ignored)";
+                                --errorCount;
+                            }
+                        }
+                        else if(status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
+                        {
+                            //
+                            // If a certificate's revocation status cannot be determined, the strictest
+                            // policy is to reject the connection.
+                            //
+                            if(_instance.checkCRL() > 1)
+                            {
+                                message = message + "\ncertificate revocation status unknown";
+                            }
+                            else
+                            {
+                                message = message + "\ncertificate revocation status unknown (ignored)";
+                                --errorCount;
+                            }
+                        }
+                        else if(status.Status == X509ChainStatusFlags.NoError)
+                        {
+                            --errorCount;
+                        }
+                        else
+                        {
+                            message = message + "\ncertificate chain error: " + status.Status.ToString();
+                        }
+                    }
+
+                    if(errorCount == 0)
+                    {
+                        errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                    }
+                }
+            }
+
+            if(errors > 0)
+            {
+                if(_instance.securityTraceLevel() >= 1)
+                {
+                    if(message.Length > 0)
+                    {
+                        _logger.trace(_instance.securityTraceCategory(), "SSL certificate validation failed:" +
+                                      message);
+                    }
+                    else
+                    {
+                        _logger.trace(_instance.securityTraceCategory(), "SSL certificate validation failed");
+                    }
+                }
+                return false;
+            }
+            else if(message.Length > 0 && _instance.securityTraceLevel() >= 1)
+            {
+                _logger.trace(_instance.securityTraceCategory(), "SSL certificate validation status:" + message);
+            }
+
+            return true;
         }
 
-        private TransceiverI transceiver_;
-        internal X509Certificate2[] certs;
+        private Instance _instance;
+        private Socket _fd;
+        private IPEndPoint _addr;
+        private string _host;
+        private string _adapterName;
+        private SslStream _stream;
+        private ConnectionInfo _info;
+        private Ice.Logger _logger;
+        private Ice.Stats _stats;
+        private string _desc;
+        private int _verifyPeer;
+        private int _maxPacketSize;
+        private int _state;
+        private IAsyncResult _initializeResult;
+        private X509Certificate2[] _chain;
+
+        private const int StateNeedBeginConnect = 0;
+        private const int StateNeedEndConnect = 1;
+        private const int StateNeedBeginAuthenticate = 2;
+        private const int StateNeedEndAuthenticate = 3;
+        private const int StateAuthenticated = 4;
     }
 }

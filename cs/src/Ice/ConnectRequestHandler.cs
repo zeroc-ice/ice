@@ -274,9 +274,8 @@ namespace IceInternal
                 //
                 if(_requests.Count > 0)
                 {
-                    _reference.getInstance().clientThreadPool().execute(delegate(ThreadPool threadPool)
+                    _reference.getInstance().clientThreadPool().execute(delegate(bool unused)
                                                                         {
-                                                                            threadPool.promoteFollower();
                                                                             flushRequestsWithException(ex);
                                                                         });
                 }
@@ -396,9 +395,8 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
-                    _reference.getInstance().clientThreadPool().execute(delegate(ThreadPool threadPool)
+                    _reference.getInstance().clientThreadPool().execute(delegate(bool unused)
                                                                         {
-                                                                            threadPool.promoteFollower();
                                                                             flushRequestsWithException(ex);
                                                                         });
                     Monitor.PulseAll(this);
@@ -410,21 +408,12 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
-                    _reference.getInstance().clientThreadPool().execute(delegate(ThreadPool threadPool)
+                    _reference.getInstance().clientThreadPool().execute(delegate(bool unused)
                                                                         {
-                                                                            threadPool.promoteFollower();
                                                                             flushRequestsWithException(ex);
                                                                         });
                     Monitor.PulseAll(this);
                 }
-            }
-
-            lock(this)
-            {
-                Debug.Assert(!_initialized);
-                _initialized = true;
-                _flushing = false;
-                Monitor.PulseAll(this);
             }
 
             //
@@ -438,8 +427,16 @@ namespace IceInternal
             {
                 _proxy.setRequestHandler__(_delegate, new ConnectionRequestHandler(_reference, _connection, _compress));
             }
-            _proxy = null; // Break cyclic reference count.
-            _delegate = null; // Break cyclic reference count.
+
+            lock(this)
+            {
+                Debug.Assert(!_initialized);
+                _initialized = true;
+                _flushing = false;
+                _proxy = null; // Break cyclic reference count.
+                _delegate = null; // Break cyclic reference count.
+                Monitor.PulseAll(this);
+            }
         }
 
         private void

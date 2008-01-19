@@ -10,13 +10,20 @@
 namespace IceInternal
 {
 
+    using System;
     using System.Net.Sockets;
 
     public interface Connector
     {
         //
-        // Blocking connect. The caller must initialize the new
-        // transceiver.
+        // Create a transceiver without blocking. The transceiver may not be fully connected
+        // until its initialize method is called.
+        //
+        Transceiver connect();
+
+        //
+        // Attempt to connect for the given timeout period. The returned transceiver may not
+        // be fully connected until its initialize method is called.
         //
         Transceiver connect(int timeout);
 

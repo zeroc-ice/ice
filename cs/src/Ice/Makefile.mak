@@ -75,7 +75,6 @@ SRCS		= Acceptor.cs \
                   ReplyStatus.cs \
                   RequestHandler.cs \
 		  RouterInfo.cs \
-		  SelectorThread.cs \
 		  ServantManager.cs \
 		  Set.cs \
 		  SliceChecksums.cs \

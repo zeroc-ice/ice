@@ -34,10 +34,7 @@ num = 12
 base = 12340
 
 for i in range(0, num):
-    msg = "starting "
-    msg = "server"
-    msg += " #%d..." % (i + 1)
-    print msg,
+    print "starting server #%d..." % (i + 1),
     serverPipe = TestUtil.startServer(server, " %d" % (base + i))
     TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)

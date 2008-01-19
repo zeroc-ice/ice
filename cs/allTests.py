@@ -55,8 +55,8 @@ tests = [ \
     "IceGrid/simple" \
     ]
 
-#if not TestUtil.mono:
-#    tests += ["IceSSL/configuration"]
+if not TestUtil.mono:
+    tests += ["IceSSL/configuration"]
 
 if __name__ == "__main__":
     TestUtil.run(tests)

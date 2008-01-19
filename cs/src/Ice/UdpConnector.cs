@@ -9,15 +9,21 @@
 
 namespace IceInternal
 {
+    using System;
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
 
-    sealed class UdpConnector : Connector, System.IComparable
+    sealed class UdpConnector : Connector, IComparable
     {
-        public Transceiver connect(int timeout)
+        public Transceiver connect()
         {
             return new UdpTransceiver(instance_, _addr, _mcastInterface, _mcastTtl);
+        }
+
+        public Transceiver connect(int timeout)
+        {
+            return connect();
         }
 
         public short type()
@@ -33,14 +39,14 @@ namespace IceInternal
             {
                 p = (UdpConnector)obj;
             }
-            catch(System.InvalidCastException)
+            catch(InvalidCastException)
             {
                 try
                 {
                     Connector e = (Connector)obj;
                     return type() < e.type() ? -1 : 1;
                 }
-                catch(System.InvalidCastException)
+                catch(InvalidCastException)
                 {
                     Debug.Assert(false);
                 }

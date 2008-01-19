@@ -534,7 +534,7 @@ public final class OutgoingConnectionFactory
                 Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
                 if(connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
-                    if(connection.endpoint().equals(ci.endpoint))
+                    if(!connection.endpoint().equals(ci.endpoint))
                     {
                         java.util.List conList = (java.util.LinkedList)_connectionsByEndpoint.get(ci.endpoint);
                         if(conList == null)
@@ -792,6 +792,13 @@ public final class OutgoingConnectionFactory
                 _connections.put(ci, connectionList);
             }
             connectionList.add(connection);
+            connectionList = (java.util.LinkedList)_connectionsByEndpoint.get(ci.endpoint);
+            if(connectionList == null)
+            {
+                connectionList = new java.util.LinkedList();
+                _connectionsByEndpoint.put(ci.endpoint, connectionList);
+            }
+            connectionList.add(connection);
             return connection;
 	}
 	catch(Ice.LocalException ex)
@@ -901,6 +908,16 @@ public final class OutgoingConnectionFactory
                         _connections.remove(ci);
                     }
                 }
+
+                connectionList = (java.util.LinkedList)_connectionsByEndpoint.get(ci.endpoint);
+                if(connectionList != null) // It might have already been reaped!
+                {
+                    connectionList.remove(connection);
+                    if(connectionList.isEmpty())
+                    {
+                        _connectionsByEndpoint.remove(ci.endpoint);
+                    }
+                }
             }
         }
     }
@@ -981,7 +998,7 @@ public final class OutgoingConnectionFactory
         //
         // Methods from ConnectionI.StartCallback
         //
-        public synchronized void 
+        public void
         connectionStartCompleted(Ice.ConnectionI connection)
         {
             boolean compress;
@@ -1000,7 +1017,7 @@ public final class OutgoingConnectionFactory
             _factory.decPendingConnectCount(); // Must be called last.
         }
 
-        public synchronized void
+        public void
         connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
         {
             assert(_current != null);

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Net.Sockets;
 
 internal class Transceiver : IceInternal.Transceiver
@@ -16,44 +17,36 @@ internal class Transceiver : IceInternal.Transceiver
         return _transceiver.fd();
     }
 
-    public IceInternal.SocketStatus initialize(int timeout)
+    public bool restartable()
     {
-        if(timeout == 0)
-        {
-            IceInternal.SocketStatus status = _configuration.initializeSocketStatus();
-            if(status == IceInternal.SocketStatus.NeedConnect)
-            {
-                return status;
-            }
-            else if(status == IceInternal.SocketStatus.NeedWrite)
-            {
-                if(!_initialized)
-                {
-                    status = _transceiver.initialize(timeout);
-                    if(status != IceInternal.SocketStatus.Finished)
-                    {
-                        return status;
-                    }
-                    _initialized = true;
-                }
-                return IceInternal.SocketStatus.NeedWrite;
-            }
-            else if(status == IceInternal.SocketStatus.NeedRead)
-            {
-                return status;
-            }
-        }
+        return _transceiver.restartable();
+    }
+
+    public void initialize(int timeout)
+    {
         _configuration.checkInitializeException();
-        if(!_initialized)
+        _transceiver.initialize(timeout);
+        if(_initialized)
         {
-            IceInternal.SocketStatus status = _transceiver.initialize(timeout);
-            if(status != IceInternal.SocketStatus.Finished)
+            throw new Ice.SocketException();
+        }
+        _initialized = true;
+    }
+
+    public bool initialize(AsyncCallback callback)
+    {
+        _configuration.checkInitializeException();
+        bool done = _transceiver.initialize(callback);
+        if(done)
+        {
+            if(_initialized)
             {
-                return status;
+                throw new Ice.SocketException();
             }
+
             _initialized = true;
         }
-        return IceInternal.SocketStatus.Finished;
+        return done;
     }
 
     public void close()
@@ -105,6 +98,50 @@ internal class Transceiver : IceInternal.Transceiver
         }
         _configuration.checkReadException();
         return _transceiver.read(buf, timeout);
+    }
+
+    public IAsyncResult beginRead(IceInternal.Buffer buf, AsyncCallback callback, object state)
+    {
+        if(!_initialized)
+        {
+            throw new Ice.SocketException();
+        }
+
+        _configuration.checkReadException();
+        return _transceiver.beginRead(buf, callback, state);
+    }
+
+    public void endRead(IceInternal.Buffer buf, IAsyncResult result)
+    {
+        if(!_initialized)
+        {
+            throw new Ice.SocketException();
+        }
+
+        _configuration.checkReadException();
+        _transceiver.endRead(buf, result);
+    }
+
+    public IAsyncResult beginWrite(IceInternal.Buffer buf, AsyncCallback callback, object state)
+    {
+        if(!_initialized)
+        {
+            throw new Ice.SocketException();
+        }
+
+        _configuration.checkWriteException();
+        return _transceiver.beginWrite(buf, callback, state);
+    }
+
+    public void endWrite(IceInternal.Buffer buf, IAsyncResult result)
+    {
+        if(!_initialized)
+        {
+            throw new Ice.SocketException();
+        }
+
+        _configuration.checkWriteException();
+        _transceiver.endWrite(buf, result);
     }
 
     public string type()

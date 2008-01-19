@@ -47,38 +47,11 @@ internal class Configuration
         }
     }
 
-    public void initializeSocketStatus(IceInternal.SocketStatus status)
-    {
-        lock(this)
-        {
-            if(status == IceInternal.SocketStatus.Finished)
-            {
-                _initializeResetCount = 0;
-                return;
-            }
-            _initializeResetCount = 10;
-            _initializeSocketStatus = status;
-        }
-    }
-
     public void initializeException(Ice.LocalException ex)
     {
         lock(this)
         {
             _initializeException = ex;
-        }
-    }
-    
-    public IceInternal.SocketStatus initializeSocketStatus()
-    {
-        lock(this)
-        {
-            if(_initializeResetCount == 0)
-            {
-                return IceInternal.SocketStatus.Finished;
-            }
-            --_initializeResetCount;
-            return _initializeSocketStatus;
         }
     }
 
@@ -180,8 +153,6 @@ internal class Configuration
 
     private Ice.LocalException _connectorsException;
     private Ice.LocalException _connectException;
-    private IceInternal.SocketStatus _initializeSocketStatus;
-    private int _initializeResetCount;
     private Ice.LocalException _initializeException;
     private int _readReadyCount;
     private Ice.LocalException _readException;

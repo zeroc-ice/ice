@@ -22,24 +22,24 @@ namespace IceSSL
     {
         internal Instance(Ice.Communicator communicator)
         {
-            logger_ = communicator.getLogger();
-            facade_ = Ice.Util.getProtocolPluginFacade(communicator);
-            securityTraceLevel_ = communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
-            securityTraceCategory_ = "Security";
-            initialized_ = false;
-            trustManager_ = new TrustManager(communicator);
+            _logger = communicator.getLogger();
+            _facade = Ice.Util.getProtocolPluginFacade(communicator);
+            _securityTraceLevel = communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
+            _securityTraceCategory = "Security";
+            _initialized = false;
+            _trustManager = new TrustManager(communicator);
 
             //
             // Register the endpoint factory. We have to do this now, rather than
             // in initialize, because the communicator may need to interpret
             // proxies before the plugin is fully initialized.
             //
-            facade_.addEndpointFactory(new EndpointFactoryI(this));
+            _facade.addEndpointFactory(new EndpointFactoryI(this));
         }
 
         internal void initialize()
         {
-            if(initialized_)
+            if(_initialized)
             {
                 return;
             }
@@ -51,7 +51,7 @@ namespace IceSSL
             // Check for a default directory. We look in this directory for
             // files mentioned in the configuration.
             //
-            defaultDir_ = properties.getProperty(prefix + "DefaultDir");
+            _defaultDir = properties.getProperty(prefix + "DefaultDir");
 
             //
             // Process IceSSL.ImportCert.* properties.
@@ -70,25 +70,25 @@ namespace IceSSL
             //
             // Select protocols.
             //
-            protocols_ = parseProtocols(prefix + "Protocols");
+            _protocols = parseProtocols(prefix + "Protocols");
 
             //
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
             //
-            checkCertName_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
+            _checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 
             //
             // VerifyDepthMax establishes the maximum length of a peer's certificate
             // chain, including the peer's certificate. A value of 0 means there is
             // no maximum.
             //
-            verifyDepthMax_ = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
+            _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
 
             //
-            // CheckCRL determines whether the certificate revocation list is checked.
+            // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
             //
-            checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
+            _checkCRL = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0);
 
             //
             // Check for a certificate verifier.
@@ -96,7 +96,7 @@ namespace IceSSL
             string certVerifierClass = properties.getProperty(prefix + "CertVerifier");
             if(certVerifierClass.Length > 0)
             {
-                if(verifier_ != null)
+                if(_verifier != null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: certificate verifier already installed";
@@ -113,7 +113,7 @@ namespace IceSSL
 
                 try
                 {
-                    verifier_ = (CertificateVerifier)IceInternal.AssemblyUtil.createInstance(cls);
+                    _verifier = (CertificateVerifier)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch(Exception ex)
                 {
@@ -122,7 +122,7 @@ namespace IceSSL
                     throw e;
                 }
 
-                if(verifier_ == null)
+                if(_verifier == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
@@ -136,7 +136,7 @@ namespace IceSSL
             string passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
             if(passwordCallbackClass.Length > 0)
             {
-                if(passwordCallback_ != null)
+                if(_passwordCallback != null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: password callback already installed";
@@ -153,7 +153,7 @@ namespace IceSSL
 
                 try
                 {
-                    passwordCallback_ = (PasswordCallback)IceInternal.AssemblyUtil.createInstance(cls);
+                    _passwordCallback = (PasswordCallback)IceInternal.AssemblyUtil.createInstance(cls);
                 }
                 catch(Exception ex)
                 {
@@ -162,7 +162,7 @@ namespace IceSSL
                     throw e;
                 }
 
-                if(passwordCallback_ == null)
+                if(_passwordCallback == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                     e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
@@ -174,14 +174,14 @@ namespace IceSSL
             // If the user hasn't supplied a certificate collection, we need to examine
             // the property settings.
             //
-            if(certs_ == null)
+            if(_certs == null)
             {
                 //
                 // If IceSSL.CertFile is defined, load a certificate from a file and
                 // add it to the collection.
                 //
                 // TODO: tracing?
-                certs_ = new X509Certificate2Collection();
+                _certs = new X509Certificate2Collection();
                 string certFile = properties.getProperty(prefix + "CertFile");
                 string passwordStr = properties.getProperty(prefix + "Password");
                 if(certFile.Length > 0)
@@ -198,9 +198,9 @@ namespace IceSSL
                     {
                         password = createSecureString(passwordStr);
                     }
-                    else if(passwordCallback_ != null)
+                    else if(_passwordCallback != null)
                     {
-                        password = passwordCallback_.getPassword(certFile);
+                        password = _passwordCallback.getPassword(certFile);
                     }
 
                     try
@@ -214,7 +214,7 @@ namespace IceSSL
                         {
                             cert = new X509Certificate2(certFile);
                         }
-                        certs_.Add(cert);
+                        _certs.Add(cert);
                     }
                     catch(CryptographicException ex)
                     {
@@ -241,10 +241,10 @@ namespace IceSSL
                         {
                             string storeSpec = name.Substring(findPrefix.Length);
                             X509Certificate2Collection coll = findCertificates(name, storeSpec, val);
-                            certs_.AddRange(coll);
+                            _certs.AddRange(coll);
                         }
                     }
-                    if(certs_.Count == 0)
+                    if(_certs.Count == 0)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: no certificates found";
@@ -253,99 +253,104 @@ namespace IceSSL
                 }
             }
 
-            initialized_ = true;
+            _initialized = true;
         }
 
         internal void setCertificates(X509Certificate2Collection certs)
         {
-            if(initialized_)
+            if(_initialized)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                 e.reason = "IceSSL: plugin is already initialized";
                 throw e;
             }
 
-            certs_ = certs;
+            _certs = certs;
         }
 
         internal void setCertificateVerifier(CertificateVerifier verifier)
         {
-            verifier_ = verifier;
+            _verifier = verifier;
         }
 
         internal CertificateVerifier getCertificateVerifier()
         {
-            return verifier_;
+            return _verifier;
         }
 
         internal void setPasswordCallback(PasswordCallback callback)
         {
-            passwordCallback_ = callback;
+            _passwordCallback = callback;
         }
 
         internal PasswordCallback getPasswordCallback()
         {
-            return passwordCallback_;
+            return _passwordCallback;
         }
 
         internal Ice.Communicator communicator()
         {
-            return facade_.getCommunicator();
+            return _facade.getCommunicator();
+        }
+
+        internal IceInternal.EndpointHostResolver endpointHostResolver()
+        {
+            return _facade.getEndpointHostResolver();
         }
 
         internal int protocolSupport()
         {
-            return facade_.getProtocolSupport();
+            return _facade.getProtocolSupport();
         }
 
         internal string defaultHost()
         {
-            return facade_.getDefaultHost();
+            return _facade.getDefaultHost();
         }
 
         internal int networkTraceLevel()
         {
-            return facade_.getNetworkTraceLevel();
+            return _facade.getNetworkTraceLevel();
         }
 
         internal string networkTraceCategory()
         {
-            return facade_.getNetworkTraceCategory();
+            return _facade.getNetworkTraceCategory();
         }
 
         internal int securityTraceLevel()
         {
-            return securityTraceLevel_;
+            return _securityTraceLevel;
         }
 
         internal string securityTraceCategory()
         {
-            return securityTraceCategory_;
+            return _securityTraceCategory;
         }
 
         internal bool initialized()
         {
-            return initialized_;
+            return _initialized;
         }
 
         internal X509Certificate2Collection certs()
         {
-            return certs_;
+            return _certs;
         }
 
         internal SslProtocols protocols()
         {
-            return protocols_;
+            return _protocols;
         }
 
-        internal bool checkCRL()
+        internal int checkCRL()
         {
-            return checkCRL_;
+            return _checkCRL;
         }
 
         internal bool checkCertName()
         {
-            return checkCertName_;
+            return _checkCertName;
         }
 
         internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
@@ -365,33 +370,33 @@ namespace IceSSL
             s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
             s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
             s.Append("\nprotocol = " + stream.SslProtocol);
-            communicator().getLogger().trace(securityTraceCategory_, s.ToString());
+            communicator().getLogger().trace(_securityTraceCategory, s.ToString());
         }
 
         internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, bool incoming)
         {
-            if(verifyDepthMax_ > 0 && info.certs != null && info.certs.Length > verifyDepthMax_)
+            if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
                 string msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
                     "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
-                    verifyDepthMax_ + "\n" +
+                    _verifyDepthMax + "\n" +
                     IceInternal.Network.fdToString(fd);
-                if(securityTraceLevel_ >= 1)
+                if(_securityTraceLevel >= 1)
                 {
-                    logger_.trace(securityTraceCategory_, msg);
+                    _logger.trace(_securityTraceCategory, msg);
                 }
                 Ice.SecurityException ex = new Ice.SecurityException();
                 ex.reason = msg;
                 throw ex;
             }
 
-            if(!trustManager_.verify(info))
+            if(!_trustManager.verify(info))
             {
                 string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     IceInternal.Network.fdToString(fd);
-                if(securityTraceLevel_ >= 1)
+                if(_securityTraceLevel >= 1)
                 {
-                    logger_.trace(securityTraceCategory_, msg);
+                    _logger.trace(_securityTraceCategory, msg);
                 }
 
                 Ice.SecurityException ex = new Ice.SecurityException();
@@ -399,13 +404,13 @@ namespace IceSSL
                 throw ex;
             }
 
-            if(verifier_ != null && !verifier_.verify(info))
+            if(_verifier != null && !_verifier.verify(info))
             {
                 string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
                     IceInternal.Network.fdToString(fd);
-                if(securityTraceLevel_ >= 1)
+                if(_securityTraceLevel >= 1)
                 {
-                    logger_.trace(securityTraceCategory_, msg);
+                    _logger.trace(_securityTraceCategory, msg);
                 }
 
                 Ice.SecurityException ex = new Ice.SecurityException();
@@ -472,9 +477,9 @@ namespace IceSSL
                 return true;
             }
 
-            if(defaultDir_.Length > 0)
+            if(_defaultDir.Length > 0)
             {
-                string s = defaultDir_ + Path.DirectorySeparatorChar + path;
+                string s = _defaultDir + Path.DirectorySeparatorChar + path;
                 if(File.Exists(s))
                 {
                     path = s;
@@ -554,9 +559,9 @@ namespace IceSSL
             {
                 password = createSecureString(passwordStr);
             }
-            else if(passwordCallback_ != null)
+            else if(_passwordCallback != null)
             {
-                password = passwordCallback_.getImportPassword(file);
+                password = _passwordCallback.getImportPassword(file);
             }
 
             //
@@ -866,19 +871,19 @@ namespace IceSSL
             return result;
         }
 
-        private Ice.Logger logger_;
-        private IceInternal.ProtocolPluginFacade facade_;
-        private int securityTraceLevel_;
-        private string securityTraceCategory_;
-        private bool initialized_;
-        private string defaultDir_;
-        private SslProtocols protocols_;
-        private bool checkCertName_;
-        private int verifyDepthMax_;
-        private bool checkCRL_;
-        private X509Certificate2Collection certs_;
-        private CertificateVerifier verifier_;
-        private PasswordCallback passwordCallback_;
-        private TrustManager trustManager_;
+        private Ice.Logger _logger;
+        private IceInternal.ProtocolPluginFacade _facade;
+        private int _securityTraceLevel;
+        private string _securityTraceCategory;
+        private bool _initialized;
+        private string _defaultDir;
+        private SslProtocols _protocols;
+        private bool _checkCertName;
+        private int _verifyDepthMax;
+        private int _checkCRL;
+        private X509Certificate2Collection _certs;
+        private CertificateVerifier _verifier;
+        private PasswordCallback _passwordCallback;
+        private TrustManager _trustManager;
     }
 }

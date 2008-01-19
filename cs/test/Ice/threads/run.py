@@ -20,10 +20,6 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-if TestUtil.protocol == "ssl":
-    print "Skipping test for SSL"
-    sys.exit(0)
-
 name = os.path.join("Ice", "threads")
 
 TestUtil.clientServerTest(name)

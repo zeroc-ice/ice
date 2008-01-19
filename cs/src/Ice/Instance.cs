@@ -198,24 +198,6 @@ namespace IceInternal
             }
         }
 
-        public SelectorThread selectorThread()
-        {
-            lock(this)
-            {
-                if(_state == StateDestroyed)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                if(_selectorThread == null) // Lazy initialization.
-                {
-                    _selectorThread = new SelectorThread(this);
-                }
-
-                return _selectorThread;
-            }
-        }
-
         public EndpointHostResolver endpointHostResolver()
         {
             lock(this)
@@ -881,7 +863,6 @@ namespace IceInternal
             
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;
-            SelectorThread selectorThread = null;
             EndpointHostResolver endpointHostResolver = null;
 
             lock(this)
@@ -908,13 +889,6 @@ namespace IceInternal
                     _clientThreadPool.destroy();
                     clientThreadPool = _clientThreadPool;
                     _clientThreadPool = null;
-                }
-
-                if(_selectorThread != null)
-                {
-                    _selectorThread.destroy();
-                    selectorThread = _selectorThread;
-                    _selectorThread = null;
                 }
 
                 if(_endpointHostResolver != null)
@@ -987,10 +961,6 @@ namespace IceInternal
             {
                 serverThreadPool.joinWithAllThreads();
             }
-            if(selectorThread != null)
-            {
-                selectorThread.joinWithThread();
-            }
             if(endpointHostResolver != null)
             {
                 endpointHostResolver.joinWithThread();
@@ -1035,7 +1005,6 @@ namespace IceInternal
         private int _protocolSupport;
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
-        private SelectorThread _selectorThread;
         private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
         private bool _threadPerConnection;

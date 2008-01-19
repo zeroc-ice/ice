@@ -12,6 +12,12 @@ using System.Net.Sockets;
 
 internal class Connector : IceInternal.Connector
 {
+    public IceInternal.Transceiver connect()
+    {
+        _configuration.checkConnectException();
+        return new Transceiver(_connector.connect());
+    }
+
     public IceInternal.Transceiver connect(int timeout)
     {
         _configuration.checkConnectException();

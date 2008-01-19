@@ -294,11 +294,6 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.CompareTo(p._endpoint);
     }
 
-    public override bool requiresThreadPerConnection()
-    {
-        return _endpoint.requiresThreadPerConnection();
-    }
-
     private IceInternal.EndpointI _endpoint;
     private Configuration _configuration;
 }

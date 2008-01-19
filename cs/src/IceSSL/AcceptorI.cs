@@ -19,27 +19,27 @@ namespace IceSSL
 
     class AcceptorI : IceInternal.Acceptor
     {
-        public virtual Socket fd()
+        public Socket fd()
         {
-            return fd_;
+            return _fd;
         }
-        
-        public virtual void close()
+
+        public void close()
         {
             Socket fd;
             lock(this)
             {
-                fd = fd_;
-                fd_ = null;
+                fd = _fd;
+                _fd = null;
             }
             if(fd != null)
             {
-                if(instance_.networkTraceLevel() >= 1)
+                if(_instance.networkTraceLevel() >= 1)
                 {
                     string s = "stopping to accept ssl connections at " + ToString();
-                    logger_.trace(instance_.networkTraceCategory(), s);
+                    _logger.trace(_instance.networkTraceCategory(), s);
                 }
-            
+
                 try
                 {
                     fd.Close();
@@ -50,84 +50,127 @@ namespace IceSSL
                 }
             }
         }
-        
-        public virtual void listen()
+
+        public void listen()
         {
-            IceInternal.Network.doListen(fd_, backlog_);
-            
-            if(instance_.networkTraceLevel() >= 1)
+            IceInternal.Network.doListen(_fd, _backlog);
+
+            if(_instance.networkTraceLevel() >= 1)
             {
                 string s = "accepting ssl connections at " + ToString();
-                logger_.trace(instance_.networkTraceCategory(), s);
+                _logger.trace(_instance.networkTraceCategory(), s);
             }
         }
-        
-        public virtual IceInternal.Transceiver accept(int timeout)
-        {
-            Debug.Assert(timeout == -1); // Always called with -1 for thread-per-connection.
 
+        public IceInternal.Transceiver accept(int timeout)
+        {
             //
             // The plugin may not be fully initialized.
             //
-            if(!instance_.initialized())
+            if(!_instance.initialized())
             {
                 Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
                 ex.reason = "IceSSL: plugin is not initialized";
                 throw ex;
             }
 
-            Socket fd = IceInternal.Network.doAccept(fd_, timeout);
+            Socket fd = IceInternal.Network.doAccept(_fd, timeout);
             IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
-            IceInternal.Network.setTcpBufSize(fd, instance_.communicator().getProperties(), logger_);
+            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
 
-            if(instance_.networkTraceLevel() >= 1)
+            if(_instance.networkTraceLevel() >= 1)
             {
                 string s = "attempting to accept ssl connection\n" + IceInternal.Network.fdToString(fd);
-                logger_.trace(instance_.networkTraceCategory(), s);
+                _logger.trace(_instance.networkTraceCategory(), s);
             }
 
-            return new TransceiverI(instance_, fd, adapterName_);
+            return new TransceiverI(_instance, fd, null, true, null, _adapterName);
         }
 
-        public virtual void connectToSelf()
+        public IAsyncResult beginAccept(AsyncCallback callback, object state)
         {
-            Socket fd = IceInternal.Network.createSocket(false, addr_.AddressFamily);
+            //
+            // The plugin may not be fully initialized.
+            //
+            if(!_instance.initialized())
+            {
+                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+                ex.reason = "IceSSL: plugin is not initialized";
+                throw ex;
+            }
+
+            try
+            {
+                return _fd.BeginAccept(callback, state);
+            }
+            catch(SocketException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
+        }
+
+        public IceInternal.Transceiver endAccept(IAsyncResult result)
+        {
+            Socket fd = null;
+            try
+            {
+                fd = _fd.EndAccept(result);
+            }
+            catch(SocketException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
+
+            IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
+            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
+
+            if(_instance.networkTraceLevel() >= 1)
+            {
+                string s = "attempting to accept ssl connection\n" + IceInternal.Network.fdToString(fd);
+                _logger.trace(_instance.networkTraceCategory(), s);
+            }
+
+            return new TransceiverI(_instance, fd, null, true, null, _adapterName);
+        }
+
+        public void connectToSelf()
+        {
+            Socket fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
             IceInternal.Network.setBlock(fd, false);
             //
             // .Net does not allow connecting to 0.0.0.0
             //
             if(_addr.Address.Equals(IPAddress.Any))
             {
-                Network.doConnect(fd, new IPEndPoint(IPAddress.Loopback, _addr.Port), -1);
+                IceInternal.Network.doConnect(fd, new IPEndPoint(IPAddress.Loopback, _addr.Port), -1);
             }
             else if(_addr.Address.Equals(IPAddress.IPv6Any))
             {
-                Network.doConnect(fd, new IPEndPoint(IPAddress.IPv6Loopback, _addr.Port), -1);
+                IceInternal.Network.doConnect(fd, new IPEndPoint(IPAddress.IPv6Loopback, _addr.Port), -1);
             }
             else
             {
-                Network.doConnect(fd, _addr, -1);
+                IceInternal.Network.doConnect(fd, _addr, -1);
             }
             IceInternal.Network.closeSocket(fd);
         }
 
         public override string ToString()
         {
-            return IceInternal.Network.addrToString(addr_);
-        }
-        
-        internal virtual int effectivePort()
-        {
-            return addr_.Port;
+            return IceInternal.Network.addrToString(_addr);
         }
 
-        internal
-        AcceptorI(Instance instance, string adapterName, string host, int port, int protocol)
+        internal int effectivePort()
         {
-            instance_ = instance;
-            adapterName_ = adapterName;
-            logger_ = instance.communicator().getLogger();
-            backlog_ = 0;
+            return _addr.Port;
+        }
+
+        internal AcceptorI(Instance instance, string adapterName, string host, int port)
+        {
+            _instance = instance;
+            _adapterName = adapterName;
+            _logger = instance.communicator().getLogger();
+            _backlog = 0;
 
             //
             // .NET requires that a certificate be supplied.
@@ -140,17 +183,17 @@ namespace IceSSL
                 throw ex;
             }
 
-            if(backlog_ <= 0)
+            if(_backlog <= 0)
             {
-                backlog_ = 5;
+                _backlog = 5;
             }
-            
+
             try
             {
-                addr_ = IceInternal.Network.getAddressForServer(host, port, protocol);
-                fd_ = IceInternal.Network.createSocket(false, addr_.AddressFamily);
-                IceInternal.Network.setBlock(fd_, false);
-                IceInternal.Network.setTcpBufSize(fd_, instance_.communicator().getProperties(), logger_);
+                _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport());
+                _fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
+                IceInternal.Network.setBlock(_fd, false);
+                IceInternal.Network.setTcpBufSize(_fd, _instance.communicator().getProperties(), _logger);
                 if(IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
                 {
                     //
@@ -166,39 +209,27 @@ namespace IceSSL
                     // probably be better but it's only supported by recent
                     // Windows versions (XP SP2, Windows Server 2003).
                     //
-                    IceInternal.Network.setReuseAddress(fd_, true);
+                    IceInternal.Network.setReuseAddress(_fd, true);
                 }
-                if(instance_.networkTraceLevel() >= 2)
+                if(_instance.networkTraceLevel() >= 2)
                 {
                     string s = "attempting to bind to ssl socket " + ToString();
-                    logger_.trace(instance_.networkTraceCategory(), s);
+                    _logger.trace(_instance.networkTraceCategory(), s);
                 }
-                addr_ = IceInternal.Network.doBind(fd_, addr_);
+                _addr = IceInternal.Network.doBind(_fd, _addr);
             }
             catch(System.Exception)
             {
-                fd_ = null;
+                _fd = null;
                 throw;
             }
         }
-        
-#if DEBUG
-        ~AcceptorI()
-        {
-            /*
-            lock(this)
-            {
-                IceUtil.Assert.FinalizerAssert(fd_ == null);
-            }
-            */
-        }
-#endif
 
-        private Instance instance_;
-        private string adapterName_;
-        private Ice.Logger logger_;
-        private Socket fd_;
-        private int backlog_;
-        private IPEndPoint addr_;
+        private Instance _instance;
+        private string _adapterName;
+        private Ice.Logger _logger;
+        private Socket _fd;
+        private int _backlog;
+        private IPEndPoint _addr;
     }
 }

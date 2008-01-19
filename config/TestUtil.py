@@ -696,16 +696,12 @@ def getCommandLine(exe, config, env = getTestEnv()):
         components.append("--Ice.Override.Compress=1")
 
     if config.threadPerConnection:
-        components.append("--Ice.ThreadPerConnection=1")
+        components.append("--Ice.ThreadPerConnection")
+    elif config.type == "server" or config.type == "colloc" and config.lang == "py":
+        components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
 
     if config.type == "server":
         components.append("--Ice.PrintProcessId=1 --Ice.PrintAdapterReady=1 --Ice.ServerIdleTime=30")
-
-    if config.type == "server" or config.type == "colloc" and config.lang == "py":
-        components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
-
-    if config.protocol == "ssl" and config.lang == "cs":
-        components.append("--Ice.ThreadPerConnection=1")
 
     if config.ipv6 == 1:
         components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1 --Ice.IPv6=1")

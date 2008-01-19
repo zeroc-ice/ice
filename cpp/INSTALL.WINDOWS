@@ -62,7 +62,7 @@ Platform SDK:
 
 Once installed, follow the instructions at the link below:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+  http://msdn2.microsoft.com/en-us/express/aa700755.aspx
 
 You also need to add the Platform SDK directories to the INCLUDE, LIB
 and PATH environment variables. For example:
