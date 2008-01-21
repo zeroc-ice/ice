@@ -1498,4 +1498,22 @@
 !     cfatal( "Excessive file argument \"%s\"", argv[ mcpp_optind], 0L , NULL);
       return  NULL;
   }
-  
+*** src/eval.c  2007-03-23 11:19:51.000000000 -0230
+--- src/eval.c  2008-01-21 14:18:06.000000000 -0330
+***************
+*** 196,202 ****
+  #define S_PDOUBLE   (sizeof (double *))
+  #define S_PFPTR     (sizeof (int (*)()))
+  #if HAVE_LONG_LONG
+! #if HOST_COMPILER == BORLANDC
+  #define S_LLINT     (sizeof (__int64))
+  #define S_PLLINT    (sizeof (__int64 *))
+  #else
+--- 196,202 ----
+  #define S_PDOUBLE   (sizeof (double *))
+  #define S_PFPTR     (sizeof (int (*)()))
+  #if HAVE_LONG_LONG
+! #if (HOST_COMPILER == BORLANDC) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+  #define S_LLINT     (sizeof (__int64))
+  #define S_PLLINT    (sizeof (__int64 *))
+  #else
