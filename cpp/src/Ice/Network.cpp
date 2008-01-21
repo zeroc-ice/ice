@@ -815,12 +815,26 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 }
 
 void
-IceInternal::setMcastGroup(SOCKET fd, const struct in_addr& group, const struct in_addr& interface)
+IceInternal::setMcastGroup(SOCKET fd, const struct sockaddr_storage& group, const string& interface)
 {
-    struct ip_mreq mreq;
-    mreq.imr_multiaddr = group;
-    mreq.imr_interface = interface;
-    if(setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq))) == SOCKET_ERROR)
+    int rc;
+    if(group.ss_family == AF_INET)
+    {
+        struct ip_mreq mreq;
+        mreq.imr_multiaddr = reinterpret_cast<const struct sockaddr_in*>(&group)->sin_addr;
+        struct sockaddr_storage addr;
+        getAddress(interface, 0, addr, EnableIPv4);
+        mreq.imr_interface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+        rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq)));
+    }
+    else
+    {
+        struct ipv6_mreq mreq;
+        mreq.ipv6mr_multiaddr = reinterpret_cast<const struct sockaddr_in6*>(&group)->sin6_addr;
+        mreq.ipv6mr_interface = atoi(interface.c_str()); 
+        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, int(sizeof(mreq)));
+    }
+    if(rc == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -830,9 +844,22 @@ IceInternal::setMcastGroup(SOCKET fd, const struct in_addr& group, const struct 
 }
 
 void
-IceInternal::setMcastInterface(SOCKET fd, const struct in_addr& interface)
+IceInternal::setMcastInterface(SOCKET fd, const string& interface, bool IPv4)
 {
-    if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&interface, int(sizeof(interface))) == SOCKET_ERROR)
+    int rc;
+    if(IPv4)
+    {
+        struct sockaddr_storage addr;
+        getAddress(interface, 0, addr, EnableIPv4);
+        struct in_addr iface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+        rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&iface, int(sizeof(iface)));
+    }
+    else
+    {
+        int interfaceNum = atoi(interface.c_str());
+        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&interfaceNum, int(sizeof(int)));
+    }
+    if(rc == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -842,9 +869,18 @@ IceInternal::setMcastInterface(SOCKET fd, const struct in_addr& interface)
 }
 
 void
-IceInternal::setMcastTtl(SOCKET fd, int ttl)
+IceInternal::setMcastTtl(SOCKET fd, int ttl, bool IPv4)
 {
-    if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, int(sizeof(int))) == SOCKET_ERROR)
+    int rc;
+    if(IPv4)
+    {
+        rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, int(sizeof(int)));
+    }
+    else
+    {
+        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char*)&ttl, int(sizeof(int)));
+    }
+    if(rc == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);

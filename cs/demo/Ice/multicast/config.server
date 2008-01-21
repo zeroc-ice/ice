@@ -5,6 +5,12 @@
 Discover.Endpoints=udp -h 224.0.0.5 -p 10000
 
 #
+# Alternative IPv6 configuration
+#
+#Ice.IPv6=1
+#Discover.Endpoints=udp -h "ff01::1:1" -p 10000
+
+#
 # The server creates an object adapter with the name "Hello". The
 # following line sets the endpoints for this adapter.
 #

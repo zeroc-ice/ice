@@ -91,9 +91,9 @@ ICE_API void setSendBufferSize(SOCKET, int);
 ICE_API int getSendBufferSize(SOCKET);
 ICE_API void setRecvBufferSize(SOCKET, int);
 ICE_API int getRecvBufferSize(SOCKET);
-ICE_API void setMcastGroup(SOCKET, const struct in_addr&, const struct in_addr&);
-ICE_API void setMcastInterface(SOCKET, const struct in_addr&);
-ICE_API void setMcastTtl(SOCKET, int);
+ICE_API void setMcastGroup(SOCKET, const struct sockaddr_storage&, const std::string&);
+ICE_API void setMcastInterface(SOCKET, const std::string&, bool);
+ICE_API void setMcastTtl(SOCKET, int, bool);
 ICE_API void setReuseAddress(SOCKET, bool);
 
 ICE_API void doBind(SOCKET, struct sockaddr_storage&);

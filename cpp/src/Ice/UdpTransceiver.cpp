@@ -437,25 +437,21 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             multicast = IN_MULTICAST(ntohl(addrin->sin_addr.s_addr));
             port = ntohs(addrin->sin_port);
         }
-        /*
         else
         {
             struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&_addr);
             multicast = IN6_IS_ADDR_MULTICAST(&addrin->sin6_addr);
             port = ntohs(addrin->sin6_port);
         }
-        */
         if(multicast)
         {
             if(mcastInterface.length() > 0)
             {
-                struct sockaddr_storage addr;
-                getAddress(mcastInterface, port, addr, instance->protocolSupport());
-                setMcastInterface(_fd, reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr);
+                setMcastInterface(_fd, mcastInterface, _addr.ss_family == AF_INET);
             }
             if(mcastTtl != -1)
             {
-                setMcastTtl(_fd, mcastTtl);
+                setMcastTtl(_fd, mcastTtl, _addr.ss_family == AF_INET);
             }
         }
         
@@ -506,14 +502,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             multicast = IN_MULTICAST(ntohl(addrin->sin_addr.s_addr));
             port = ntohs(addrin->sin_port);
         }
-        /*
         else
         {
             struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&_addr);
             multicast = IN6_IS_ADDR_MULTICAST(&addrin->sin6_addr);
             port = ntohs(addrin->sin6_port);
         }
-        */
         if(multicast)
         {
             setReuseAddress(_fd, true);
@@ -529,16 +523,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 #else
             doBind(_fd, _addr);
 #endif
-            struct sockaddr_in* maddr = reinterpret_cast<sockaddr_in*>(&addr);
-            if(mcastInterface.length() > 0)
-            {
-                getAddress(mcastInterface, port, addr, instance->protocolSupport());
-            }
-            else
-            {
-                maddr->sin_addr.s_addr = INADDR_ANY;
-            }
-            setMcastGroup(_fd, reinterpret_cast<struct sockaddr_in*>(&_addr)->sin_addr, maddr->sin_addr);
+            setMcastGroup(_fd, _addr, mcastInterface);
             _mcastServer = true;
         }
         else

@@ -5,6 +5,12 @@
 Discover.Proxy=discover:udp -h 224.0.0.5 -p 10000
 
 #
+# Alternative IPv6 configuration
+#
+#Ice.IPv6=1
+#Discover.Proxy=discover:udp -h "ff01::1:1" -p 10000
+
+#
 # The client creates an object adapter with the name
 # "DiscoverReply". The following line sets the endpoints for this
 # adapter.

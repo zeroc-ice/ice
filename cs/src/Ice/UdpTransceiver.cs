@@ -659,16 +659,11 @@ namespace IceInternal
                 Network.doConnect(_fd, _addr, -1); // We're assuming this doesn't block.
                 if(Network.isMulticast(_addr))
                 {
-                    IPAddress ip = IPAddress.Any;
-                    if(mcastInterface.Length != 0)
-                    {
-                        ip = Network.getAddress(mcastInterface, _addr.Port, Network.EnableBoth).Address;
-                    }
-                    Network.setMcastGroup(_fd, _addr.Address, ip);
+                    Network.setMcastGroup(_fd, _addr.Address, mcastInterface);
 
                     if(mcastTtl != -1)
                     {
-                        Network.setMcastTtl(_fd, mcastTtl);
+                        Network.setMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
                     }
                 }
 
@@ -711,17 +706,15 @@ namespace IceInternal
                 if(Network.isMulticast(_addr))
                 {
                     Network.setReuseAddress(_fd, true);
-                    Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
-                    IPAddress addr;
-                    if(mcastInterface.Length != 0)
+                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        addr = Network.getAddress(mcastInterface, port, Network.EnableIPv4).Address;
+                        Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
                     }
                     else
                     {
-                        addr = IPAddress.Any;
+                        Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, port));
                     }
-                    Network.setMcastGroup(_fd, _addr.Address, addr);
+                    Network.setMcastGroup(_fd, _addr.Address, mcastInterface);
                     _mcastServer = true;
                 }
                 else

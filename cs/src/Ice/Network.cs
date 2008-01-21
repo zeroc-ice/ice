@@ -228,22 +228,32 @@ namespace IceInternal
 
         public static bool isMulticast(IPEndPoint addr)
         {
-            string ip = addr.Address.ToString();
-            char[] splitChars = { '.' };
-            string[] arr = ip.Split(splitChars);
-            try
+            string ip = addr.Address.ToString().ToLower();
+            if(addr.AddressFamily == AddressFamily.InterNetwork)
             {
-                int i = System.Int32.Parse(arr[0]);
-                if(i < 223 || i > 239)
+                char[] splitChars = { '.' };
+                string[] arr = ip.Split(splitChars);
+                try
+                {
+                    int i = System.Int32.Parse(arr[0]);
+                    if(i >= 223 && i <= 239)
+                    {
+                        return true;
+                    }
+                }
+                catch(System.FormatException)
                 {
                     return false;
                 }
             }
-            catch(System.FormatException)
+            else // AddressFamily.InterNetworkV6
             {
-                return false;
+                if(ip.StartsWith("ff"))
+                {
+                    return true;
+                }
             }
-            return true;
+            return false;
         }
 
         public static Socket createSocket(bool udp, AddressFamily family)
@@ -422,12 +432,36 @@ namespace IceInternal
             }
         }
 
-        public static void setMcastGroup(Socket socket, IPAddress group, IPAddress iface)
+        public static void setMcastGroup(Socket socket, IPAddress group, string iface)
         {
             try
             {
-                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, 
-                                       new MulticastOption(group, iface));
+                if(group.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    IPAddress ifaceAddr = IPAddress.Any;
+                    if(iface.Length != 0)
+                    {
+                        ifaceAddr = Network.getAddress(iface, 0, Network.EnableIPv4).Address;
+                    }
+                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, 
+                                           new MulticastOption(group, ifaceAddr));
+                }
+                else
+                {
+                    int ifaceIndex = 0;
+                    if(iface.Length != 0)
+                    {
+                        try
+                        {
+                            ifaceIndex = System.Int32.Parse(iface);
+                        }
+                        catch(System.FormatException)
+                        {
+                        }
+                    }
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, 
+                                           new IPv6MulticastOption(group, ifaceIndex));
+                }
             }
             catch(SocketException ex)
             {
@@ -436,11 +470,18 @@ namespace IceInternal
             }
         }
 
-        public static void setMcastTtl(Socket socket, int ttl)
+        public static void setMcastTtl(Socket socket, int ttl, AddressFamily family)
         {
             try
             {
-                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
+                if(family == AddressFamily.InterNetwork)
+                {
+                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
+                }
+                else
+                {
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastTimeToLive, ttl);
+                }
             }
             catch(SocketException ex)
             {
