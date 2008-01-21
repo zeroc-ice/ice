@@ -349,6 +349,7 @@ namespace Ice
                 _routerInfo = null;
                 _publishedEndpoints = null;
                 _locatorInfo = null;
+                _reference = null;
 
                 objectAdapterFactory = _objectAdapterFactory;
                 _objectAdapterFactory = null;
@@ -518,39 +519,6 @@ namespace Ice
             }
         }
         
-        public ObjectPrx createReverseProxy(Identity ident)
-        {
-            lock(this)
-            {
-                checkForDeactivation();
-                checkIdentity(ident);
-                
-                //
-                // Get all incoming connections for this object adapter.
-                //
-                List<ConnectionI> connections = new List<ConnectionI>();
-                int sz = _incomingConnectionFactories.Count;
-                for(int i = 0; i < sz; ++i)
-                {
-                    IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories[i];
-                    IceUtilInternal.LinkedList l = factory.connections();
-                    foreach(ConnectionI conn in l)
-                    {
-                        connections.Add(conn);
-                    }
-                }
-
-                //
-                // Create a reference and return a reverse proxy for this
-                // reference.
-                //
-                ConnectionI[] arr = connections.ToArray();
-                IceInternal.Reference @ref = instance_.referenceFactory().create(
-                    ident, instance_.getDefaultContext(), "", IceInternal.Reference.Mode.ModeTwoway, arr);
-                return instance_.proxyFactory().referenceToProxy(@ref);
-            }
-        }
-        
         public void setLocator(LocatorPrx locator)
         {
             lock(this)
@@ -603,90 +571,80 @@ namespace Ice
 
         public bool isLocal(ObjectPrx proxy)
         {
-            IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).reference__();
-            IceInternal.EndpointI[] endpoints;
-            
-            try
-            {
-                IceInternal.IndirectReference ir = (IceInternal.IndirectReference)r;
-                if(ir.getAdapterId().Length != 0)
-                {
-                    //
-                    // Proxy is local if the reference adapter id matches this
-                    // adapter id or replica group id.
-                    //
-                    return ir.getAdapterId().Equals(_id) || ir.getAdapterId().Equals(_replicaGroupId);
-                }
-                IceInternal.LocatorInfo info = ir.getLocatorInfo();
-                if(info != null)
-                {
-                    bool isCached;
-                    try
-                    {
-                        endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), out isCached);
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch(InvalidCastException)
-            {
-                endpoints = r.getEndpoints();
-            }
-            
-            lock(this)
-            {
-                checkForDeactivation();
+            //
+            // NOTE: it's important that isLocal() doesn't perform any blocking operations as 
+            // it can be called for AMI invocations if the proxy has no delegate set yet.
+            //
 
+            IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).reference__();
+            if(r.isWellKnown())
+            {
                 //
-                // Proxies which have at least one endpoint in common with the
-                // endpoints used by this object adapter's incoming connection
-                // factories are considered local.
+                // Check the active servant map to see if the well-known
+                // proxy is for a local object.
                 //
-                for(int i = 0; i < endpoints.Length; ++i)
+                return _servantManager.hasServant(r.getIdentity());
+            }
+            else if(r.isIndirect())
+            {
+                //
+                // Proxy is local if the reference adapter id matches this
+                // adapter id or replica group id.
+                //
+                return r.getAdapterId().Equals(_id) || r.getAdapterId().Equals(_replicaGroupId);
+            }
+            else
+            {
+                IceInternal.EndpointI[] endpoints = r.getEndpoints();
+            
+                lock(this)
                 {
-                    foreach(IceInternal.EndpointI endpoint in _publishedEndpoints)
-                    {
-                        if(endpoints[i].equivalent(endpoint))
-                        {
-                            return true;
-                        }
-                    }
-                    foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
-                    {
-                        if(endpoints[i].equivalent(factory.endpoint()))
-                        {
-                            return true;
-                        }
-                    }
-                }
-                
-                //
-                // Proxies which have at least one endpoint in common with the
-                // router's server proxy endpoints (if any), are also considered
-                // local.
-                //
-                if(_routerInfo != null && _routerInfo.getRouter().Equals(proxy.ice_getRouter()))
-                {
+                    checkForDeactivation();
+
+                    //
+                    // Proxies which have at least one endpoint in common with the
+                    // endpoints used by this object adapter's incoming connection
+                    // factories are considered local.
+                    //
                     for(int i = 0; i < endpoints.Length; ++i)
                     {
-                        foreach(IceInternal.EndpointI endpoint in _routerEndpoints)
+                        foreach(IceInternal.EndpointI endpoint in _publishedEndpoints)
                         {
                             if(endpoints[i].equivalent(endpoint))
                             {
                                 return true;
                             }
                         }
+                        foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                        {
+                            if(endpoints[i].equivalent(factory.endpoint()))
+                            {
+                                return true;
+                            }
+                        }
                     }
+                    
+                    //
+                    // Proxies which have at least one endpoint in common with the
+                    // router's server proxy endpoints (if any), are also considered
+                    // local.
+                    //
+                    if(_routerInfo != null && _routerInfo.getRouter().Equals(proxy.ice_getRouter()))
+                    {
+                        for(int i = 0; i < endpoints.Length; ++i)
+                        {
+                            foreach(IceInternal.EndpointI endpoint in _routerEndpoints)
+                            {
+                                if(endpoints[i].equivalent(endpoint))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    return false;
                 }
-                
-                return false;
             }
         }
         
@@ -795,6 +753,7 @@ namespace Ice
             {
                 _id = "";
                 _replicaGroupId = "";
+                _reference = instance_.referenceFactory().create("dummy -t", "");
                 return;
             }
 
@@ -807,7 +766,7 @@ namespace Ice
             //
             if(unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
             {
-                string message = "found unknown properties for object adapter '" + _name + "':";
+                string message = "found unknown properties for object adapter `" + _name + "':";
                 foreach(string s in unknownProps)
                 {
                     message += "\n    " + s;
@@ -829,12 +788,28 @@ namespace Ice
                 _incomingConnectionFactories = null;
 
                 InitializationException ex = new InitializationException();
-                ex.reason = "object adapter \"" + _name + "\" requires configuration.";
+                ex.reason = "object adapter `" + _name + "' requires configuration";
                 throw ex;
             }
 
             _id = properties.getProperty(_name + ".AdapterId");
             _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
+
+            //
+            // Setup a reference to be used to get the default proxy options
+            // when creating new proxies. By default, create twoway proxies.
+            //
+            string proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
+            try
+            {
+                _reference = instance_.referenceFactory().create("dummy " + proxyOptions, "");
+            }
+            catch(ProxyParseException)
+            {
+                InitializationException ex = new InitializationException();
+                ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
+                throw ex;
+            }
 
             try
             {
@@ -845,7 +820,7 @@ namespace Ice
                 if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
                 {
                     InitializationException ex = new InitializationException();
-                    ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n" +
+                    ex.reason = "object adapter `" + _name + "' cannot be configured for both\n" +
                         "thread pool and thread per connection";
                     throw ex;
                 }
@@ -1052,14 +1027,7 @@ namespace Ice
             //
             // Create a reference and return a proxy for this reference.
             //
-            IceInternal.Reference reference =
-                instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
-                                                    IceInternal.Reference.Mode.ModeTwoway, false, 
-                                                    instance_.defaultsAndOverrides().defaultPreferSecure, endpoints,
-                                                    null, 
-                                                    instance_.defaultsAndOverrides().defaultCollocationOptimization,
-                                                    true, instance_.defaultsAndOverrides().defaultEndpointSelection,
-                                                    instance_.threadPerConnection());
+            IceInternal.Reference reference = instance_.referenceFactory().create(ident, facet, _reference, endpoints);
             return instance_.proxyFactory().referenceToProxy(reference);
         }
         
@@ -1069,15 +1037,7 @@ namespace Ice
             // Create a reference with the adapter id and return a
             // proxy for the reference.
             //
-            IceInternal.Reference reference =
-                instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
-                                                    IceInternal.Reference.Mode.ModeTwoway, 
-                                                    false, instance_.defaultsAndOverrides().defaultPreferSecure, id,
-                                                    null, _locatorInfo, 
-                                                    instance_.defaultsAndOverrides().defaultCollocationOptimization,
-                                                    true, instance_.defaultsAndOverrides().defaultEndpointSelection,
-                                                    instance_.threadPerConnection(),
-                                                    instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
+            IceInternal.Reference reference = instance_.referenceFactory().create(ident, facet, _reference, id);
             return instance_.proxyFactory().referenceToProxy(reference);
         }
 
@@ -1237,11 +1197,8 @@ namespace Ice
             }
 
             //
-            // We must get and call on the locator registry outside the
-            // thread synchronization to avoid deadlocks. (we can't make
-            // remote calls within the OA synchronization because the
-            // remote call will indirectly call isLocal() on this OA with
-            // the OA factory locked).
+            // Call on the locator registry outside the synchronization to 
+            // blocking other threads that need to lock this OA.
             //
             LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
             string serverId = "";
@@ -1418,6 +1375,7 @@ namespace Ice
             "RegisterProcess",
             "ReplicaGroupId",
             "Router",
+            "ProxyOptions",
             "ThreadPerConnection",
             "ThreadPerConnection.StackSize",
             "ThreadPool.Size",
@@ -1477,6 +1435,7 @@ namespace Ice
         private readonly string _name;
         private readonly string _id;
         private readonly string _replicaGroupId;
+        private IceInternal.Reference _reference;
         private List<IceInternal.IncomingConnectionFactory> _incomingConnectionFactories;
         private List<IceInternal.EndpointI> _routerEndpoints;
         private IceInternal.RouterInfo _routerInfo;

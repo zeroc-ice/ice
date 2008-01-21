@@ -631,7 +631,7 @@ namespace Ice
 
         public bool ice_isCollocationOptimized()
         {
-            return _reference.getCollocationOptimization();
+            return _reference.getCollocationOptimized();
         }
 
         public ObjectPrx ice_collocationOptimization(bool b)
@@ -641,13 +641,13 @@ namespace Ice
 
         public ObjectPrx ice_collocationOptimized(bool b)
         {
-            if(b == _reference.getCollocationOptimization())
+            if(b == _reference.getCollocationOptimized())
             {
                 return this;
             }
             else
             {
-                return newInstance(_reference.changeCollocationOptimization(b));
+                return newInstance(_reference.changeCollocationOptimized(b));
             }
         }
 
@@ -1032,7 +1032,7 @@ namespace Ice
                 }
 
                 ObjectDel_ @delegate = null;
-                if(_reference.getCollocationOptimization())
+                if(_reference.getCollocationOptimized())
                 {
                     ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
                     if(adapter != null)

@@ -95,6 +95,9 @@ public:
         return _implicitContext;
     }
 
+    void setDefaultLocator(const Ice::LocatorPrx&);
+    void setDefaultRouter(const Ice::RouterPrx&);
+
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);

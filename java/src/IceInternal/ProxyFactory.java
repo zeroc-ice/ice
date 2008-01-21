@@ -14,7 +14,7 @@ public final class ProxyFactory
     public Ice.ObjectPrx
     stringToProxy(String str)
     {
-        Reference ref = _instance.referenceFactory().create(str);
+        Reference ref = _instance.referenceFactory().create(str, null);
         return referenceToProxy(ref);
     }
 
@@ -35,7 +35,8 @@ public final class ProxyFactory
     public Ice.ObjectPrx
     propertyToProxy(String prefix)
     {
-        Reference ref = _instance.referenceFactory().createFromProperties(prefix);
+        String proxy = _instance.initializationData().properties.getProperty(prefix);
+        Reference ref = _instance.referenceFactory().create(proxy, prefix);
         return referenceToProxy(ref);
     }
 
@@ -105,13 +106,13 @@ public final class ProxyFactory
             Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;
 
             LocatorInfo li = ref.getLocatorInfo();
-            if(li != null)
+            if(li != null && ref.isIndirect())
             {
                 //
                 // We retry ObjectNotExistException if the reference is
                 // indirect.
                 //
-                li.clearObjectCache((IceInternal.IndirectReference)ref);
+                li.clearObjectCache(ref);
             }
             else if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
             {

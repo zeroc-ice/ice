@@ -9,8 +9,26 @@
 
 package IceInternal;
 
-public abstract class RoutableReference extends Reference
+public class RoutableReference extends Reference
 {
+    public final EndpointI[]
+    getEndpoints()
+    {
+        return _endpoints;
+    }
+
+    public final String
+    getAdapterId()
+    {
+        return _adapterId;
+    }
+
+    public final LocatorInfo
+    getLocatorInfo()
+    {
+        return _locatorInfo;
+    }
+
     public final RouterInfo
     getRouterInfo()
     {
@@ -18,27 +36,21 @@ public abstract class RoutableReference extends Reference
     }
 
     public final boolean
-    getSecure()
+    getCollocationOptimized()
     {
-        return _secure;
-    }
-
-    public final boolean
-    getPreferSecure()
-    {
-        return _preferSecure;
-    }
-
-    public final boolean
-    getCollocationOptimization()
-    {
-        return _collocationOptimization;
+        return _collocationOptimized;
     }
 
     public final boolean
     getCacheConnection()
     {
         return _cacheConnection;
+    }
+
+    public final boolean
+    getPreferSecure()
+    {
+        return _preferSecure;
     }
 
     public final Ice.EndpointSelectionType
@@ -53,27 +65,65 @@ public abstract class RoutableReference extends Reference
         return _threadPerConnection;
     }
 
-    public Reference
-    changeSecure(boolean newSecure)
+    public final int
+    getLocatorCacheTimeout()
     {
-        if(newSecure == _secure)
+        return _locatorCacheTimeout;
+    }
+
+    public Reference
+    changeCompress(boolean newCompress)
+    {
+        RoutableReference r = (RoutableReference)super.changeCompress(newCompress);
+        if(r != this && _endpoints.length > 0) // Also override the compress flag on the endpoints if it was updated.
         {
-            return this;
+            EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+            for(int i = 0; i < _endpoints.length; i++)
+            {
+                newEndpoints[i] = _endpoints[i].compress(newCompress);
+            }
+            r._endpoints = newEndpoints;
         }
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._secure = newSecure;
         return r;
     }
 
     public Reference
-    changePreferSecure(boolean newPreferSecure)
+    changeEndpoints(EndpointI[] newEndpoints)
     {
-        if(newPreferSecure == _preferSecure)
+        if(java.util.Arrays.equals(newEndpoints, _endpoints))
         {
             return this;
         }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._preferSecure = newPreferSecure;
+        r._endpoints = newEndpoints;
+        r._adapterId = "";
+        r.applyOverrides(r._endpoints);
+        return r;
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+        if(_adapterId.equals(newAdapterId))
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._adapterId = newAdapterId;
+        r._endpoints = _emptyEndpoints;
+        return r;       
+    }
+
+    public Reference
+    changeLocator(Ice.LocatorPrx newLocator)
+    {
+        LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
+        if(newLocatorInfo != null && _locatorInfo != null && newLocatorInfo.equals(_locatorInfo))
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._locatorInfo = newLocatorInfo;
         return r;
     }
 
@@ -91,40 +141,15 @@ public abstract class RoutableReference extends Reference
     }
 
     public Reference
-    changeCollocationOptimization(boolean newCollocationOptimization)
+    changeCollocationOptimized(boolean newCollocationOptimized)
     {
-        if(newCollocationOptimization == _collocationOptimization)
+        if(newCollocationOptimized == _collocationOptimized)
         {
             return this;
         }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._collocationOptimization = newCollocationOptimization;
+        r._collocationOptimized = newCollocationOptimized;
         return r;
-    }
-
-    public Reference
-    changeTimeout(int newTimeout)
-    {
-        if(_overrideTimeout && _timeout == newTimeout)
-        {
-            return this;
-        }
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._timeout = newTimeout;
-        r._overrideTimeout = true;
-        return r;       
-    }
-
-    public Reference
-    changeConnectionId(String id)
-    {
-        if(_connectionId.equals(id))
-        {
-            return this;
-        }
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._connectionId = id;
-        return r;       
     }
 
     public final Reference
@@ -136,6 +161,18 @@ public abstract class RoutableReference extends Reference
         }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._cacheConnection = newCache;
+        return r;
+    }
+
+    public Reference
+    changePreferSecure(boolean newPreferSecure)
+    {
+        if(newPreferSecure == _preferSecure)
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._preferSecure = newPreferSecure;
         return r;
     }
 
@@ -163,33 +200,184 @@ public abstract class RoutableReference extends Reference
         return r;       
     }
 
+    public Reference
+    changeLocatorCacheTimeout(int newTimeout)
+    {
+        if(_locatorCacheTimeout == newTimeout)
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._locatorCacheTimeout = newTimeout;
+        return r;       
+    }
+
+    public Reference
+    changeTimeout(int newTimeout)
+    {
+        if(_overrideTimeout && _timeout == newTimeout)
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._timeout = newTimeout;
+        r._overrideTimeout = true;
+        if(_endpoints.length > 0)
+        {
+            EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+            for(int i = 0; i < _endpoints.length; i++)
+            {
+                newEndpoints[i] = _endpoints[i].timeout(newTimeout);
+            }
+            r._endpoints = newEndpoints;
+        }
+        return r;       
+    }
+
+    public Reference
+    changeConnectionId(String id)
+    {
+        if(_connectionId.equals(id))
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._connectionId = id;
+        if(_endpoints.length > 0)
+        {
+            EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+            for(int i = 0; i < _endpoints.length; i++)
+            {
+                newEndpoints[i] = _endpoints[i].connectionId(id);
+            }
+            r._endpoints = newEndpoints;
+        }
+        return r;       
+    }
+
+    public boolean
+    isIndirect()
+    {
+        return _endpoints.length == 0;
+    }
+
+    public boolean
+    isWellKnown()
+    {
+        return _endpoints.length == 0 && _adapterId.length() == 0;
+    }
+
+    public void
+    streamWrite(BasicStream s)
+        throws Ice.MarshalException
+    {
+        super.streamWrite(s);
+
+        s.writeSize(_endpoints.length);
+        if(_endpoints.length > 0)
+        {
+            assert(_adapterId.length() == 0);
+            for(int i = 0; i < _endpoints.length; i++)
+            {
+                _endpoints[i].streamWrite(s);
+            }
+        }
+        else
+        {
+            s.writeString(_adapterId); // Adapter id.
+        }
+    }
+
+    public String
+    toString()
+    {
+        //
+        // WARNING: Certain features, such as proxy validation in Glacier2,
+        // depend on the format of proxy strings. Changes to toString() and
+        // methods called to generate parts of the reference string could break
+        // these features. Please review for all features that depend on the
+        // format of proxyToString() before changing this and related code.
+        //
+        StringBuffer s = new StringBuffer();
+        s.append(super.toString());
+        if(_endpoints.length > 0)
+        {
+            for(int i = 0; i < _endpoints.length; i++)
+            {
+                String endp = _endpoints[i].toString();
+                if(endp != null && endp.length() > 0)
+                {
+                    s.append(':');
+                    s.append(endp);
+                }
+            }
+        }
+        else if(_adapterId.length() > 0)
+        {
+            s.append(" @ ");
+            
+            //
+            // If the encoded adapter id string contains characters which
+            // the reference parser uses as separators, then we enclose
+            // the adapter id string in quotes.
+            //
+            String a = IceUtilInternal.StringUtil.escapeString(_adapterId, null);
+            if(IceUtilInternal.StringUtil.findFirstOf(a, " \t\n\r") != -1)
+            {
+                s.append('"');
+                s.append(a);
+                s.append('"');
+            }
+            else
+            {
+                s.append(a);
+            }
+        }
+        return s.toString();
+    }
+
     public synchronized int
     hashCode()
     {
-        return super.hashCode();
+        if(_hashInitialized)
+        {
+            return _hashValue;
+        }
+        super.hashCode();
+        int sz = _adapterId.length(); // Add hash of adapter ID to base hash.
+        for(int i = 0; i < sz; i++)
+        {   
+            _hashValue = 5 * _hashValue + (int)_adapterId.charAt(i);
+        }
+        return _hashValue;
     }
 
     public boolean
     equals(java.lang.Object obj)
     {
-        //
-        // Note: if(this == obj) and type test are performed by each non-abstract derived class.
-        //
+        if(this == obj)
+        {
+            return true;
+        }
+        if(!(obj instanceof RoutableReference))
+        {
+            return false;
+        }
 
         if(!super.equals(obj))
         {
             return false;
         }
         RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
-        if(_secure != rhs._secure)
+        if(_locatorInfo == null ? rhs._locatorInfo != null : !_locatorInfo.equals(rhs._locatorInfo))
         {
             return false;
         }
-        if(_preferSecure != rhs._preferSecure)
+        if(_routerInfo == null ? rhs._routerInfo != null : !_routerInfo.equals(rhs._routerInfo))
         {
             return false;
         }
-        if(_collocationOptimization != rhs._collocationOptimization)
+        if(_collocationOptimized != rhs._collocationOptimized)
         {
             return false;
         }
@@ -197,7 +385,19 @@ public abstract class RoutableReference extends Reference
         {
             return false;
         }
+        if(_preferSecure != rhs._preferSecure)
+        {
+            return false;
+        }
         if(_endpointSelection != rhs._endpointSelection)
+        {
+            return false;
+        }
+        if(_threadPerConnection != rhs._threadPerConnection)
+        {
+            return false;
+        }
+        if(_locatorCacheTimeout != rhs._locatorCacheTimeout)
         {
             return false;
         }
@@ -213,40 +413,240 @@ public abstract class RoutableReference extends Reference
         {
             return false;
         }
-        if(_threadPerConnection != rhs._threadPerConnection)
+        if(!java.util.Arrays.equals(_endpoints, rhs._endpoints))
         {
             return false;
         }
-        
-        return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
+        if(!_adapterId.equals(rhs._adapterId))
+        {
+           return false;
+        }
+        return true;
+    }
+
+    public Ice.ConnectionI
+    getConnection(Ice.BooleanHolder comp)
+    {
+        if(_routerInfo != null)
+        {
+            //
+            // If we route, we send everything to the router's client
+            // proxy endpoints.
+            //
+            EndpointI[] endpts = _routerInfo.getClientEndpoints();
+            if(endpts.length > 0)
+            {
+                applyOverrides(endpts);
+                return createConnection(endpts, comp);
+            }
+        }
+
+        if(_endpoints.length > 0)
+        {
+            return createConnection(_endpoints, comp);
+        }
+
+        while(true)
+        {
+            Ice.BooleanHolder cached = new Ice.BooleanHolder(false);
+            EndpointI[] endpts = null;
+            if(_locatorInfo != null)
+            {
+                endpts = _locatorInfo.getEndpoints(this, _locatorCacheTimeout, cached);
+                applyOverrides(endpts);
+            }
+
+            if(endpts == null || endpts.length == 0)
+            {
+                throw new Ice.NoEndpointException(toString());
+            }
+
+            try
+            {
+                return createConnection(endpts, comp);
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+                throw ex; // No need to retry if there's no endpoints.
+            }
+            catch(Ice.LocalException ex)
+            {
+                assert(_locatorInfo != null);
+                _locatorInfo.clearCache(this);
+                if(cached.value) 
+                {
+                    TraceLevels traceLevels = getInstance().traceLevels();
+                    if(traceLevels.retry >= 2)
+                    {
+                        String s = "connection to cached endpoints failed\n" +
+                            "removing endpoints from cache and trying one more time\n" + ex;
+                        getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
+                    }
+                    continue; // Try again if the endpoints were cached.
+                }
+                throw ex;
+            }
+        }
+    }
+
+    public void
+    getConnection(final GetConnectionCallback callback)
+    {
+        if(_routerInfo != null)
+        {
+            //
+            // If we route, we send everything to the router's client
+            // proxy endpoints.
+            //
+            _routerInfo.getClientEndpoints(new RouterInfo.GetClientEndpointsCallback()
+                {
+                    public void
+                    setEndpoints(EndpointI[] endpts)
+                    {
+                        if(endpts.length > 0)
+                        {
+                            applyOverrides(endpts);
+                            createConnection(endpts, callback);
+                        }
+                        else
+                        {
+                            getConnectionNoRouterInfo(callback);
+                        }
+                    }
+
+                    public void
+                    setException(Ice.LocalException ex)
+                    {
+                        callback.setException(ex);
+                    }
+                });
+        }
+        else
+        {
+            getConnectionNoRouterInfo(callback);
+        }
+    }
+
+    public void
+    getConnectionNoRouterInfo(final GetConnectionCallback callback)
+    {
+        if(_endpoints.length > 0)
+        {
+            createConnection(_endpoints, callback);
+            return;
+        }
+
+        final RoutableReference self = this;
+        if(_locatorInfo != null)
+        {
+            _locatorInfo.getEndpoints(this, _locatorCacheTimeout, new LocatorInfo.GetEndpointsCallback()
+            {
+                public void
+                setEndpoints(EndpointI[] endpoints, final boolean cached)
+                {
+                    if(endpoints.length == 0)
+                    {
+                        callback.setException(new Ice.NoEndpointException(self.toString()));
+                        return;
+                    }
+                        
+                    applyOverrides(endpoints);
+                    createConnection(endpoints, new GetConnectionCallback()
+                    {
+                        public void
+                        setConnection(Ice.ConnectionI connection, boolean compress)
+                        {
+                            callback.setConnection(connection, compress);
+                        }
+                        
+                        public void
+                        setException(Ice.LocalException exc)
+                        {
+                            try
+                            {
+                                throw exc;
+                            }
+                            catch(Ice.NoEndpointException ex)
+                            {
+                                callback.setException(ex); // No need to retry if there's no endpoints.
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                assert(_locatorInfo != null);
+                                _locatorInfo.clearCache(self);
+                                if(cached)
+                                {
+                                    TraceLevels traceLvls = getInstance().traceLevels();
+                                    if(traceLvls.retry >= 2)
+                                    {
+                                        String s = "connection to cached endpoints failed\n" +
+                                            "removing endpoints from cache and trying one more time\n" + ex;
+                                        getInstance().initializationData().logger.trace(traceLvls.retryCat, s);
+                                    }
+                                    getConnectionNoRouterInfo(callback); // Retry.
+                                    return;
+                                }
+                                callback.setException(ex);
+                            }
+                        }
+                        });
+                }
+                
+                public void
+                setException(Ice.LocalException ex)
+                {
+                    callback.setException(ex);
+                }
+            });
+        }
+        else
+        {
+            callback.setException(new Ice.NoEndpointException(toString()));
+        }
     }
 
     protected
-    RoutableReference(Instance inst,
-                      Ice.Communicator com,
-                      Ice.Identity ident,
-                      java.util.Map ctx,
-                      String fac,
-                      int md,
-                      boolean sec,
-                      boolean prefSec,
-                      RouterInfo rtrInfo,
-                      boolean collocationOpt,
+    RoutableReference(Instance instance,
+                      Ice.Communicator communicator,
+                      Ice.Identity identity,
+                      java.util.Map context,
+                      String facet,
+                      int mode,
+                      boolean secure,
+                      EndpointI[] endpoints,
+                      String adapterId,
+                      LocatorInfo locatorInfo,
+                      RouterInfo routerInfo,
+                      boolean collocationOptimized,
                       boolean cacheConnection,
+                      boolean prefereSecure,
                       Ice.EndpointSelectionType endpointSelection,
-                      boolean threadPerConnection)
+                      boolean threadPerConnection,
+                      int locatorCacheTimeout)
     {
-        super(inst, com, ident, ctx, fac, md);
-        _secure = sec;
-        _preferSecure = prefSec;
-        _routerInfo = rtrInfo;
-        _collocationOptimization = collocationOpt;
+        super(instance, communicator, identity, context, facet, mode, secure);
+        _endpoints = endpoints;
+        _adapterId = adapterId;
+        _locatorInfo = locatorInfo;
+        _routerInfo = routerInfo;
+        _collocationOptimized = collocationOptimized;
         _cacheConnection = cacheConnection;
+        _preferSecure = prefereSecure;
         _endpointSelection = endpointSelection;
-        _overrideCompress = false;
+        _threadPerConnection = threadPerConnection;
+        _locatorCacheTimeout = locatorCacheTimeout;
         _overrideTimeout = false;
         _timeout = -1;
-        _threadPerConnection = threadPerConnection;
+
+        if(_endpoints == null)
+        {
+            _endpoints = _emptyEndpoints;
+        }
+        if(_adapterId == null)
+        {
+            _adapterId = "";
+        }
+        assert(_adapterId.length() == 0 || _endpoints.length == 0);
     }
 
     protected void
@@ -598,15 +998,20 @@ public abstract class RoutableReference extends Reference
     
     private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
     private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
+    private static EndpointI[] _emptyEndpoints = new EndpointI[0];
 
-    private boolean _secure;
-    private boolean _preferSecure;
+    private EndpointI[] _endpoints;
+    private String _adapterId;
+    private LocatorInfo _locatorInfo; // Null if no router is used.
     private RouterInfo _routerInfo; // Null if no router is used.
-    private boolean _collocationOptimization;
+    private boolean _collocationOptimized;
     private boolean _cacheConnection;
+    private boolean _preferSecure;
     private Ice.EndpointSelectionType _endpointSelection;
-    private String _connectionId = "";
+    private boolean _threadPerConnection;
+    private int _locatorCacheTimeout;
+
     private boolean _overrideTimeout;
     private int _timeout; // Only used if _overrideTimeout == true
-    private boolean _threadPerConnection;
+    private String _connectionId = "";
 }

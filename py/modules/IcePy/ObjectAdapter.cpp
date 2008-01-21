@@ -1256,40 +1256,6 @@ adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-adapterCreateReverseProxy(ObjectAdapterObject* self, PyObject* args)
-{
-    PyObject* identityType = lookupType("Ice.Identity");
-    PyObject* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
-    {
-        return 0;
-    }
-
-    Ice::Identity ident;
-    if(!getIdentity(id, ident))
-    {
-        return 0;
-    }
-
-    assert(self->adapter);
-    Ice::ObjectPrx proxy;
-    try
-    {
-        proxy = (*self->adapter)->createReverseProxy(ident);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* proxyType = lookupType("Ice.LocatorPrx");
@@ -1391,8 +1357,6 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("createDirectProxy(identity) -> Ice.ObjectPrx")) },
     { STRCAST("createIndirectProxy"), reinterpret_cast<PyCFunction>(adapterCreateIndirectProxy), METH_VARARGS,
         PyDoc_STR(STRCAST("createIndirectProxy(identity) -> Ice.ObjectPrx")) },
-    { STRCAST("createReverseProxy"), reinterpret_cast<PyCFunction>(adapterCreateReverseProxy), METH_VARARGS,
-        PyDoc_STR(STRCAST("createReverseProxy(identity) -> Ice.ObjectPrx")) },
     { STRCAST("setLocator"), reinterpret_cast<PyCFunction>(adapterSetLocator), METH_VARARGS,
         PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
     { STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,

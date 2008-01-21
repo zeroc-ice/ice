@@ -370,6 +370,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             _routerInfo = null;
             _publishedEndpoints = null;
             _locatorInfo = null;
+            _reference = null;
 
             objectAdapterFactory = _objectAdapterFactory;
             _objectAdapterFactory = null;
@@ -522,36 +523,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newIndirectProxy(ident, "", _id);
     }
 
-    public synchronized ObjectPrx
-    createReverseProxy(Identity ident)
-    {
-        checkForDeactivation();
-        checkIdentity(ident);
-
-        //
-        // Get all incoming connections for this object adapter.
-        //
-        java.util.LinkedList connections = new java.util.LinkedList();
-        final int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
-        {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            connections.addAll(factory.connections());
-        }
-
-        //
-        // Create a reference and return a reverse proxy for this
-        // reference.
-        //
-        ConnectionI[] arr = new ConnectionI[connections.size()];
-        connections.toArray(arr);
-        IceInternal.Reference ref =
-            _instance.referenceFactory().create(ident, _instance.getDefaultContext(), "", 
-                                                IceInternal.Reference.ModeTwoway, arr);
-        return _instance.proxyFactory().referenceToProxy(ref);
-    }
-
     public synchronized void
     setLocator(LocatorPrx locator)
     {
@@ -604,84 +575,45 @@ public final class ObjectAdapterI implements ObjectAdapter
     public boolean
     isLocal(ObjectPrx proxy)
     {
+        //
+        // NOTE: it's important that isLocal() doesn't perform any blocking operations as 
+        // it can be called for AMI invocations if the proxy has no delegate set yet.
+        //
+        
         IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
-        IceInternal.EndpointI[] endpoints;
-
-        try
+        if(ref.isWellKnown())
         {
-            IceInternal.IndirectReference ir = (IceInternal.IndirectReference)ref;
-            if(ir.getAdapterId().length() != 0)
-            {
-                //
-                // Proxy is local if the reference adapter id matches this
-                // adapter id or replica group id.
-                //
-                return ir.getAdapterId().equals(_id) || ir.getAdapterId().equals(_replicaGroupId);
-            }
-            IceInternal.LocatorInfo info = ir.getLocatorInfo();
-            if(info != null)
-            {
-                try
-                {
-                    endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), new Ice.BooleanHolder());
-                }
-                catch(Ice.LocalException ex)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
+            //
+            // Check the active servant map to see if the well-known
+            // proxy is for a local object.
+            //
+            return _servantManager.hasServant(ref.getIdentity());
         }
-        catch(ClassCastException e)
+        else if(ref.isIndirect())
         {
-            endpoints = ref.getEndpoints();
+            //
+            // Proxy is local if the reference adapter id matches this
+            // adapter id or replica group id.
+            //
+            return ref.getAdapterId().equals(_id) || ref.getAdapterId().equals(_replicaGroupId);
         }
-
-        synchronized(this)
+        else
         {
-            checkForDeactivation();
+            IceInternal.EndpointI[] endpoints = ref.getEndpoints();
 
-            //
-            // Proxies which have at least one endpoint in common with the
-            // endpoints used by this object adapter's incoming connection
-            // factories are considered local.
-            //
-            for(int i = 0; i < endpoints.length; ++i)
+            synchronized(this)
             {
-                java.util.Iterator p;
-                p = _publishedEndpoints.iterator();
-                while(p.hasNext())
-                {
-                    if(endpoints[i].equivalent((IceInternal.EndpointI)p.next()))
-                    {
-                        return true;
-                    }
-                }
-                p = _incomingConnectionFactories.iterator();
-                while(p.hasNext())
-                {
-                    if(endpoints[i].equivalent(((IceInternal.IncomingConnectionFactory)p.next()).endpoint()))
-                    {
-                        return true;
-                    }
-                }
-
-            }
-            
-            //
-            // Proxies which have at least one endpoint in common with the
-            // router's server proxy endpoints (if any), are also considered
-            // local.
-            //
-            if(_routerInfo != null && _routerInfo.getRouter().equals(proxy.ice_getRouter()))
-            {
+                checkForDeactivation();
+                
+                //
+                // Proxies which have at least one endpoint in common with the
+                // endpoints used by this object adapter's incoming connection
+                // factories are considered local.
+                //
                 for(int i = 0; i < endpoints.length; ++i)
                 {
                     java.util.Iterator p;
-                    p = _routerEndpoints.iterator();
+                    p = _publishedEndpoints.iterator();
                     while(p.hasNext())
                     {
                         if(endpoints[i].equivalent((IceInternal.EndpointI)p.next()))
@@ -689,11 +621,41 @@ public final class ObjectAdapterI implements ObjectAdapter
                             return true;
                         }
                     }
+                    p = _incomingConnectionFactories.iterator();
+                    while(p.hasNext())
+                    {
+                        if(endpoints[i].equivalent(((IceInternal.IncomingConnectionFactory)p.next()).endpoint()))
+                        {
+                            return true;
+                        }
+                    }
+                    
+                }
+                
+                //
+                // Proxies which have at least one endpoint in common with the
+                // router's server proxy endpoints (if any), are also considered
+                // local.
+                //
+                if(_routerInfo != null && _routerInfo.getRouter().equals(proxy.ice_getRouter()))
+                {
+                    for(int i = 0; i < endpoints.length; ++i)
+                    {
+                        java.util.Iterator p;
+                        p = _routerEndpoints.iterator();
+                        while(p.hasNext())
+                        {
+                            if(endpoints[i].equivalent((IceInternal.EndpointI)p.next()))
+                            {
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
-            
-            return false;
         }
+
+        return false;
     }
 
     public void
@@ -798,6 +760,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             _id = "";
             _replicaGroupId = "";
+            _reference = _instance.referenceFactory().create("dummy -t", "");
             return;
         }
 
@@ -810,7 +773,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
-            String message = "found unknown properties for object adapter '" + _name + "':";
+            String message = "found unknown properties for object adapter `" + _name + "':";
             java.util.Iterator p = unknownProps.iterator();
             while(p.hasNext())
             {
@@ -834,12 +797,28 @@ public final class ObjectAdapterI implements ObjectAdapter
             _incomingConnectionFactories = null;
 
             InitializationException ex = new InitializationException();
-            ex.reason = "object adapter \"" + _name + "\" requires configuration.";
+            ex.reason = "object adapter `" + _name + "' requires configuration";
             throw ex;
         }
 
         _id = properties.getProperty(_name + ".AdapterId");
         _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
+
+        //
+        // Setup a reference to be used to get the default proxy options
+        // when creating new proxies. By default, create twoway proxies.
+        //
+        String proxyOptions = properties.getPropertyWithDefault(_name + ".ProxyOptions", "-t");
+        try
+        {
+            _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
+        }
+        catch(ProxyParseException e)
+        {
+            InitializationException ex = new InitializationException();
+            ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
+            throw ex;
+        }
 
         try
         {
@@ -850,7 +829,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
             {
                 InitializationException ex = new InitializationException();
-                ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n" +
+                ex.reason = "object adapter `" + _name + "' cannot be configured for both\n" +
                     "thread pool and thread per connection";
                 throw ex;
             }
@@ -1047,15 +1026,8 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         // Create a reference and return a proxy for this reference.
         //
-        ConnectionI[] connections = new ConnectionI[0];
-        IceInternal.Reference reference =
-            _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, 
-                                                IceInternal.Reference.ModeTwoway, false, 
-                                                _instance.defaultsAndOverrides().defaultPreferSecure, endpoints, null,
-                                                _instance.defaultsAndOverrides().defaultCollocationOptimization, true,
-                                                _instance.defaultsAndOverrides().defaultEndpointSelection,
-                                                _instance.threadPerConnection());
-        return _instance.proxyFactory().referenceToProxy(reference);
+        IceInternal.Reference ref = _instance.referenceFactory().create(ident, facet, _reference, endpoints);
+        return _instance.proxyFactory().referenceToProxy(ref);
     }
 
     private ObjectPrx
@@ -1065,18 +1037,8 @@ public final class ObjectAdapterI implements ObjectAdapter
         // Create a reference with the adapter id and return a proxy
         // for the reference.
         //
-        IceInternal.EndpointI[] endpoints = new IceInternal.EndpointI[0];
-        ConnectionI[] connections = new ConnectionI[0];
-        IceInternal.Reference reference =
-            _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, 
-                                                IceInternal.Reference.ModeTwoway, false, 
-                                                _instance.defaultsAndOverrides().defaultPreferSecure, id, null,
-                                                _locatorInfo, 
-                                                _instance.defaultsAndOverrides().defaultCollocationOptimization, true,
-                                                _instance.defaultsAndOverrides().defaultEndpointSelection,
-                                                _instance.threadPerConnection(),
-                                                _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
-        return _instance.proxyFactory().referenceToProxy(reference);
+        IceInternal.Reference ref = _instance.referenceFactory().create(ident, facet, _reference, id);
+        return _instance.proxyFactory().referenceToProxy(ref);
     }
 
     private void
@@ -1235,11 +1197,8 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
 
         //
-        // We must get and call on the locator registry outside the
-        // thread synchronization to avoid deadlocks. (we can't make
-        // remote calls within the OA synchronization because the
-        // remote call will indirectly call isLocal() on this OA with
-        // the OA factory locked).
+        // Call on the locator registry outside the synchronization to 
+        // blocking other threads that need to lock this OA.
         //
         LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
         String serverId = "";
@@ -1414,6 +1373,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         "RegisterProcess",
         "ReplicaGroupId",
         "Router",
+        "ProxyOptions",
         "ThreadPerConnection",
         "ThreadPerConnection.StackSize",
         "ThreadPool.Size",
@@ -1477,6 +1437,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     final private String _name;
     final private String _id;
     final private String _replicaGroupId;
+    private IceInternal.Reference _reference;
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private IceInternal.RouterInfo _routerInfo = null;

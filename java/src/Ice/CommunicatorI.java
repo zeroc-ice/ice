@@ -122,7 +122,7 @@ public final class CommunicatorI implements Communicator
     public void
     setDefaultRouter(RouterPrx router)
     {
-        _instance.referenceFactory().setDefaultRouter(router);
+        _instance.setDefaultRouter(router);
     }
 
     public LocatorPrx
@@ -134,7 +134,7 @@ public final class CommunicatorI implements Communicator
     public void
     setDefaultLocator(LocatorPrx locator)
     {
-        _instance.referenceFactory().setDefaultLocator(locator);
+        _instance.setDefaultLocator(locator);
     }
 
     /**

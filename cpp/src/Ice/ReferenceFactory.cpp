@@ -34,13 +34,6 @@ IceUtil::Shared* IceInternal::upCast(::IceInternal::ReferenceFactory* p) { retur
 ReferencePtr
 IceInternal::ReferenceFactory::copy(const Reference* r) const
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_instance)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
     const Ice::Identity& ident = r->getIdentity();
     if(ident.name.empty() && ident.category.empty())
     {
@@ -52,61 +45,35 @@ IceInternal::ReferenceFactory::copy(const Reference* r) const
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-                                      const SharedContextPtr& context,
                                       const string& facet,
-                                      Reference::Mode mode,
-                                      bool secure,
-                                      bool preferSecure,
-                                      const vector<EndpointIPtr>& endpoints,
-                                      const RouterInfoPtr& routerInfo,
-                                      bool collocationOptimization,
-                                      bool cacheConnection,
-                                      EndpointSelectionType endpointSelection,
-                                      bool threadPerConnection)
+                                      const ReferencePtr& tmpl,
+                                      const vector<EndpointIPtr>& endpoints)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_instance)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
     if(ident.name.empty() && ident.category.empty())
     {
         return 0;
     }
 
-    //
-    // Create new reference
-    //
-    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, preferSecure,
-                               endpoints, routerInfo, collocationOptimization, cacheConnection, endpointSelection,
-                               threadPerConnection);
+    return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), endpoints, "", "");
 }
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-                                      const SharedContextPtr& context,
                                       const string& facet,
-                                      Reference::Mode mode,
-                                      bool secure,
-                                      bool preferSecure,
-                                      const string& adapterId,
-                                      const RouterInfoPtr& routerInfo,
-                                      const LocatorInfoPtr& locatorInfo,
-                                      bool collocationOptimization,
-                                      bool cacheConnection,
-                                      EndpointSelectionType endpointSelection,
-                                      bool threadPerConnection,
-                                      int locatorCacheTimeout)
+                                      const ReferencePtr& tmpl,
+                                      const string& adapterId)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_instance)
+    if(ident.name.empty() && ident.category.empty())
     {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        return 0;
     }
 
+    return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), vector<EndpointIPtr>(), adapterId, "");
+}
+
+ReferencePtr
+IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::ConnectionIPtr& connection)
+{
     if(ident.name.empty() && ident.category.empty())
     {
         return 0;
@@ -115,38 +82,18 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, preferSecure,
-                                 adapterId, routerInfo, locatorInfo, collocationOptimization, cacheConnection,
-                                 endpointSelection, threadPerConnection, locatorCacheTimeout);
+    return new FixedReference(_instance, 
+                              _communicator, 
+                              ident, 
+                              _instance->getDefaultContext(), 
+                              "",  // Facet
+                              Reference::ModeTwoway,
+                              false,
+                              connection);
 }
 
 ReferencePtr
-IceInternal::ReferenceFactory::create(const Identity& ident,
-                                      const SharedContextPtr& context,
-                                      const string& facet,
-                                      Reference::Mode mode,
-                                      const vector<Ice::ConnectionIPtr>& fixedConnections)
-{
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_instance)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
-
-    //
-    // Create new reference
-    //
-    return new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
-}
-
-ReferencePtr
-IceInternal::ReferenceFactory::create(const string& str)
+IceInternal::ReferenceFactory::create(const string& str, const string& propertyPrefix)
 {
     if(str.empty())
     {
@@ -425,16 +372,10 @@ IceInternal::ReferenceFactory::create(const string& str)
         }
     }
 
-    RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
-    LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 
     if(beg == string::npos)
     {
-        return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
-                      _instance->defaultsAndOverrides()->defaultPreferSecure, "", routerInfo,
-                      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization, 
-                      true, _instance->defaultsAndOverrides()->defaultEndpointSelection,
-                      _instance->threadPerConnection(), _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
+        return create(ident, facet, mode, secure, vector<EndpointIPtr>(), "", propertyPrefix);
     }
 
     vector<EndpointIPtr> endpoints;
@@ -522,11 +463,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                 }
             }
 
-            return create(ident, _instance->getDefaultContext(), facet, mode, secure,
-                          _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, routerInfo,
-                          _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
-                          _instance->defaultsAndOverrides()->defaultEndpointSelection,
-                          _instance->threadPerConnection());
+            return create(ident, facet, mode, secure, endpoints, "", propertyPrefix);
             break;
         }
         case '@':
@@ -587,11 +524,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                 adapter = tmpAdapter;
             }
             
-            return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
-                          _instance->defaultsAndOverrides()->defaultPreferSecure, adapter, routerInfo, locatorInfo,
-                          _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
-                          _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection(),
-                          _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
+            return create(ident, facet, mode, secure, vector<EndpointIPtr>(), adapter, propertyPrefix);
             break;
         }
         default:
@@ -603,112 +536,6 @@ IceInternal::ReferenceFactory::create(const string& str)
     }
 
     return 0; // Unreachable, prevents compiler warning.
-}
-
-ReferencePtr
-IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix)
-{
-    PropertiesPtr properties = _instance->initializationData().properties;
-
-    ReferencePtr ref = create(properties->getProperty(propertyPrefix));
-    if(!ref)
-    {
-        return 0;
-    }
-
-    //
-    // Warn about unknown properties.
-    //
-    if(properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
-    {
-        checkForUnknownProperties(propertyPrefix);
-    }
-
-    string property = propertyPrefix + ".Locator";
-    if(!properties->getProperty(property).empty())
-    {
-        ref = ref->changeLocator(
-            LocatorPrx::uncheckedCast(_communicator->propertyToProxy(property)));
-        if(ref->getType() == Reference::TypeDirect)
-        {
-            Warning out(_instance->initializationData().logger);
-            out << "`" << property << "=" << properties->getProperty(property)
-                << "': cannot set a locator on a direct reference; setting ignored";
-        }
-    }
-
-    property = propertyPrefix + ".LocatorCacheTimeout";
-    if(!properties->getProperty(property).empty())
-    {
-        ref = ref->changeLocatorCacheTimeout(properties->getPropertyAsInt(property));
-        if(ref->getType() == Reference::TypeDirect)
-        {
-            Warning out(_instance->initializationData().logger);
-            out << "`" << property << "=" << properties->getProperty(property)
-                << "': cannot set a locator cache timeout on a direct reference; setting ignored";
-        }
-    }
-
-    property = propertyPrefix + ".Router";
-    if(!properties->getProperty(property).empty())
-    {
-        if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")
-        {
-            Warning out(_instance->initializationData().logger);
-            out << "`" << property << "=" << properties->getProperty(property)
-                << "': cannot set a router on a router; setting ignored";
-        }
-        else
-        {
-            ref = ref->changeRouter(RouterPrx::uncheckedCast(_communicator->propertyToProxy(property)));
-        }
-    }
-
-    property = propertyPrefix + ".PreferSecure";
-    if(!properties->getProperty(property).empty())
-    {
-        ref = ref->changePreferSecure(properties->getPropertyAsInt(property) > 0);
-    }
-
-    property = propertyPrefix + ".ConnectionCached";
-    if(!properties->getProperty(property).empty())
-    {
-        ref = ref->changeCacheConnection(properties->getPropertyAsInt(property) > 0);
-    }
-
-    property = propertyPrefix + ".EndpointSelection";
-    if(!properties->getProperty(property).empty())
-    {
-        string type = properties->getProperty(property);
-        if(type == "Random")
-        {
-            ref = ref->changeEndpointSelection(Random);
-        } 
-        else if(type == "Ordered")
-        {
-            ref = ref->changeEndpointSelection(Ordered);
-        }
-        else
-        {
-            EndpointSelectionTypeParseException ex(__FILE__, __LINE__);
-            ex.str = type;
-            throw ex;
-        }
-    }
-
-    property = propertyPrefix + ".CollocationOptimized";
-    if(!properties->getProperty(property).empty())
-    {
-        ref = ref->changeCollocationOptimization(properties->getPropertyAsInt(property) > 0);
-    }
-
-    property = propertyPrefix + ".ThreadPerConnection";
-    if(!properties->getProperty(property).empty())
-    {
-        ref = ref->changeThreadPerConnection(properties->getPropertyAsInt(property) > 0);
-    }
-
-    return ref;
 }
 
 ReferencePtr
@@ -753,9 +580,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     vector<EndpointIPtr> endpoints;
     string adapterId;
 
-    RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
-    LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-
     Ice::Int sz;
     s->readSize(sz);
     
@@ -767,47 +591,52 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
             EndpointIPtr endpoint = _instance->endpointFactoryManager()->read(s);
             endpoints.push_back(endpoint);
         }
-        return create(ident, _instance->getDefaultContext(), facet, mode, secure,
-                      _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, routerInfo,
-                      _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
-                      _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection());
     }
     else
     {
         s->read(adapterId);
-        return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
-                      _instance->defaultsAndOverrides()->defaultPreferSecure, adapterId, routerInfo, locatorInfo,
-                      _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
-                      _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection(),
-                      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
+
+    return create(ident, facet, mode, secure, endpoints, adapterId, "");
 }
 
-void
+ReferenceFactoryPtr
 IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrx& defaultRouter)
 {
-    IceUtil::Mutex::Lock sync(*this);
-    _defaultRouter = defaultRouter;
+    if(defaultRouter == _defaultRouter)
+    {
+        return this;
+    }
+
+    ReferenceFactoryPtr factory = new ReferenceFactory(_instance, _communicator);
+    factory->_defaultLocator = _defaultLocator;
+    factory->_defaultRouter = defaultRouter;
+    return factory;
 }
 
 RouterPrx
 IceInternal::ReferenceFactory::getDefaultRouter() const
 {
-    IceUtil::Mutex::Lock sync(*this);
     return _defaultRouter;
 }
 
-void
+ReferenceFactoryPtr
 IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocator)
 {
-    IceUtil::Mutex::Lock sync(*this);
-    _defaultLocator = defaultLocator;
+    if(defaultLocator == _defaultLocator)
+    {
+        return this;
+    }
+
+    ReferenceFactoryPtr factory = new ReferenceFactory(_instance, _communicator);
+    factory->_defaultRouter = _defaultRouter;
+    factory->_defaultLocator = defaultLocator;
+    return factory;
 }
 
 LocatorPrx
 IceInternal::ReferenceFactory::getDefaultLocator() const
 {
-    IceUtil::Mutex::Lock sync(*this);
     return _defaultLocator;
 }
 
@@ -815,22 +644,6 @@ IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance, con
     _instance(instance),
     _communicator(communicator)
 {
-}
-
-void
-IceInternal::ReferenceFactory::destroy()
-{
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_instance)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    _instance = 0;
-    _communicator = 0;
-    _defaultRouter = 0;
-    _defaultLocator = 0;
 }
 
 void
@@ -891,3 +704,121 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         }
     }
 }
+
+RoutableReferencePtr
+IceInternal::ReferenceFactory::create(const Identity& ident,
+                                      const string& facet,
+                                      Reference::Mode mode,
+                                      bool secure,
+                                      const vector<EndpointIPtr>& endpoints,
+                                      const string& adapterId,
+                                      const string& propertyPrefix)
+{
+    DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+
+    //
+    // Default local proxy options.
+    //
+    LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(_defaultLocator);
+    RouterInfoPtr routerInfo = _instance->routerManager()->get(_defaultRouter);
+    bool collocationOptimized = defaultsAndOverrides->defaultCollocationOptimization;
+    bool cacheConnection = true;
+    bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
+    Ice::EndpointSelectionType endpointSelection = defaultsAndOverrides->defaultEndpointSelection;
+    bool threadPerConnection = _instance->threadPerConnection();
+    int locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
+
+    //
+    // Override the defaults with the proxy properties if a property prefix is defined.
+    //
+    if(!propertyPrefix.empty())
+    {
+        PropertiesPtr properties = _instance->initializationData().properties;
+        if(properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        {
+            checkForUnknownProperties(propertyPrefix);
+        }
+
+        string property;
+
+        property = propertyPrefix + ".Locator";
+        LocatorPrx locator = LocatorPrx::uncheckedCast(_communicator->propertyToProxy(property));
+        if(locator)
+        {
+            locatorInfo = _instance->locatorManager()->get(locator);
+        }
+
+        property = propertyPrefix + ".Router";
+        RouterPrx router = RouterPrx::uncheckedCast(_communicator->propertyToProxy(property));
+        if(router)
+        {
+            if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")
+            {
+                Warning out(_instance->initializationData().logger);
+                out << "`" << property << "=" << properties->getProperty(property)
+                    << "': cannot set a router on a router; setting ignored";
+            }
+            else
+            {
+                routerInfo = _instance->routerManager()->get(router);
+            }
+        }
+    
+        property = propertyPrefix + ".CollocationOptimized";
+        collocationOptimized = properties->getPropertyAsIntWithDefault(property, collocationOptimized) > 0;
+
+        property = propertyPrefix + ".ConnectionCached";
+        cacheConnection = properties->getPropertyAsIntWithDefault(property, cacheConnection) > 0;
+
+        property = propertyPrefix + ".PreferSecure";
+        preferSecure = properties->getPropertyAsIntWithDefault(property, preferSecure) > 0;
+
+        property = propertyPrefix + ".EndpointSelection";
+        if(!properties->getProperty(property).empty())
+        {
+            string type = properties->getProperty(property);
+            if(type == "Random")
+            {
+                endpointSelection = Random;
+            } 
+            else if(type == "Ordered")
+            {
+                endpointSelection = Ordered;
+            }
+            else
+            {
+                EndpointSelectionTypeParseException ex(__FILE__, __LINE__);
+                ex.str = type;
+                throw ex;
+            }
+        }
+        
+        property = propertyPrefix + ".ThreadPerConnection";
+        threadPerConnection = properties->getPropertyAsIntWithDefault(property, threadPerConnection) > 0;
+        
+        property = propertyPrefix + ".LocatorCacheTimeout";
+        locatorCacheTimeout = properties->getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+    }
+
+    //
+    // Create new reference
+    //
+    return new RoutableReference(_instance, 
+                                 _communicator,
+                                 ident,
+                                 _instance->getDefaultContext(), 
+                                 facet,
+                                 mode,
+                                 secure,
+                                 endpoints,
+                                 adapterId,
+                                 locatorInfo,
+                                 routerInfo,
+                                 collocationOptimized,
+                                 cacheConnection,
+                                 preferSecure,
+                                 endpointSelection,
+                                 threadPerConnection,
+                                 locatorCacheTimeout);
+}
+

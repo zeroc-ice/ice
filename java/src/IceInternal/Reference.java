@@ -30,6 +30,12 @@ public abstract class Reference implements Cloneable
         return _mode;
     }
 
+    public final boolean
+    getSecure()
+    {
+        return _secure;
+    }
+
     public final Ice.Identity
     getIdentity()
     {
@@ -63,32 +69,22 @@ public abstract class Reference implements Cloneable
 
     }
 
-    public final Ice.Communicator getCommunicator()
+    public final Ice.Communicator 
+    getCommunicator()
     {
         return _communicator;
     }
 
-    public RouterInfo
-    getRouterInfo()
-    {
-        return null;
-    }
-
-    public LocatorInfo
-    getLocatorInfo()
-    {
-        return null;
-    }
-
-    public abstract boolean getSecure();
-    public abstract boolean getPreferSecure();
-    public abstract String getAdapterId();
     public abstract EndpointI[] getEndpoints();
-    public abstract boolean getCollocationOptimization();
-    public abstract int getLocatorCacheTimeout();
+    public abstract String getAdapterId();
+    public abstract RouterInfo getRouterInfo();
+    public abstract LocatorInfo getLocatorInfo();
+    public abstract boolean getCollocationOptimized();
     public abstract boolean getCacheConnection();
+    public abstract boolean getPreferSecure();
     public abstract Ice.EndpointSelectionType getEndpointSelection();
     public abstract boolean getThreadPerConnection();
+    public abstract int getLocatorCacheTimeout();
 
     //
     // The change* methods (here and in derived classes) create
@@ -123,6 +119,18 @@ public abstract class Reference implements Cloneable
         }
         Reference r = _instance.referenceFactory().copy(this);
         r._mode = newMode;
+        return r;
+    }
+
+    public Reference
+    changeSecure(boolean newSecure)
+    {
+        if(newSecure == _secure)
+        {
+            return this;
+        }
+        Reference r = (Reference)_instance.referenceFactory().copy(this);
+        r._secure = newSecure;
         return r;
     }
 
@@ -163,19 +171,19 @@ public abstract class Reference implements Cloneable
         return r;       
     }
 
-    public abstract Reference changeSecure(boolean newSecure);
-    public abstract Reference changePreferSecure(boolean newPreferSecure);
-    public abstract Reference changeRouter(Ice.RouterPrx newRouter);
-    public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-    public abstract Reference changeTimeout(int newTimeout);
-    public abstract Reference changeConnectionId(String connectionId);
-    public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
     public abstract Reference changeAdapterId(String newAdapterId);
     public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
-    public abstract Reference changeLocatorCacheTimeout(int newTimeout);
+    public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
+    public abstract Reference changeRouter(Ice.RouterPrx newRouter);
+    public abstract Reference changeCollocationOptimized(boolean newCollocationOptimized);
     public abstract Reference changeCacheConnection(boolean newCache);
+    public abstract Reference changePreferSecure(boolean newPreferSecure);
     public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
     public abstract Reference changeThreadPerConnection(boolean newTpc);
+    public abstract Reference changeLocatorCacheTimeout(int newTimeout);
+
+    public abstract Reference changeTimeout(int newTimeout);
+    public abstract Reference changeConnectionId(String connectionId);
 
     public synchronized int
     hashCode()
@@ -207,13 +215,19 @@ public abstract class Reference implements Cloneable
             h = 5 * h + (int)_facet.charAt(i);
         }
 
-        h = 5 * h + (getSecure() ? 1 : 0);
+        h = 5 * h + (_secure ? 1 : 0);
 
         _hashValue = h;
         _hashInitialized = true;
 
         return h;
     }
+
+    //
+    // Utility methods
+    //
+    public abstract boolean isIndirect();
+    public abstract boolean isWellKnown();
 
     //
     // Marshal the reference.
@@ -241,7 +255,7 @@ public abstract class Reference implements Cloneable
 
         s.writeByte((byte)_mode);
 
-        s.writeBool(getSecure());
+        s.writeBool(_secure);
 
         // Derived class writes the remainder of the reference.
     }
@@ -332,7 +346,7 @@ public abstract class Reference implements Cloneable
             }
         }
 
-        if(getSecure())
+        if(_secure)
         {
             s.append(" -s");
         }
@@ -355,6 +369,11 @@ public abstract class Reference implements Cloneable
         Reference r = (Reference)obj; // Guaranteed to succeed.
 
         if(_mode != r._mode)
+        {
+            return false;
+        }
+
+        if(_secure != r._secure)
         {
             return false;
         }
@@ -402,41 +421,44 @@ public abstract class Reference implements Cloneable
         return o;
     }
 
-    private Instance _instance;
-    private Ice.Communicator _communicator;
-
-    private int _mode;
-    private Ice.Identity _identity;
-    private java.util.Map _context;
-    private static java.util.HashMap _emptyContext = new java.util.HashMap();
-    private String _facet;
-
     protected int _hashValue;
     protected boolean _hashInitialized;
+    private static java.util.HashMap _emptyContext = new java.util.HashMap();
+
+    final private Instance _instance;
+    final private Ice.Communicator _communicator;
+
+    private int _mode;
+    private boolean _secure;
+    private Ice.Identity _identity;
+    private java.util.Map _context;
+    private String _facet;
     protected boolean _overrideCompress;
     protected boolean _compress; // Only used if _overrideCompress == true
 
     protected
-    Reference(Instance inst,
+    Reference(Instance instance,
               Ice.Communicator communicator,
-              Ice.Identity ident,
-              java.util.Map ctx,
-              String fac,
-              int md)
+              Ice.Identity identity,
+              java.util.Map context,
+              String facet,
+              int mode,
+              boolean secure)
     {
         //
         // Validate string arguments.
         //
-        assert(ident.name != null);
-        assert(ident.category != null);
-        assert(fac != null);
+        assert(identity.name != null);
+        assert(identity.category != null);
+        assert(facet != null);
 
-        _instance = inst;
+        _instance = instance;
         _communicator = communicator;
-        _mode = md;
-        _identity = ident;
-        _context = ctx == null ? _emptyContext : ctx;
-        _facet = fac;
+        _mode = mode;
+        _secure = secure;
+        _identity = identity;
+        _context = context == null ? _emptyContext : context;
+        _facet = facet;
         _hashInitialized = false;
         _overrideCompress = false;
         _compress = false;

@@ -1009,11 +1009,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         // Create a reference and return a reverse proxy for this
         // reference.
         //
-        ConnectionI[] connections = new ConnectionI[1];
-        connections[0] = this;
-        IceInternal.Reference ref = _instance.referenceFactory().create(ident, _instance.getDefaultContext(), "",
-                                                                        IceInternal.Reference.ModeTwoway, connections);
-        return _instance.proxyFactory().referenceToProxy(ref);
+        return _instance.proxyFactory().referenceToProxy(_instance.referenceFactory().create(ident, this));
     }
 
     //

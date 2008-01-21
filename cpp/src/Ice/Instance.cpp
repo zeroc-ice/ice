@@ -727,6 +727,32 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
     return result;
 } 
 
+void
+IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrx& defaultLocator)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    _referenceFactory = _referenceFactory->setDefaultLocator(defaultLocator);
+}
+
+void 
+IceInternal::Instance::setDefaultRouter(const Ice::RouterPrx& defaultRouter)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    _referenceFactory = _referenceFactory->setDefaultRouter(defaultRouter);
+}
+
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
@@ -1066,11 +1092,17 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // initialization before the plug-in initialization!!! The proxies
     // might depend on endpoint factories to be installed by plug-ins.
     //
-    _referenceFactory->setDefaultRouter(
-        RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router")));
+    RouterPrx router = RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router"));
+    if(router)
+    {
+        _referenceFactory = _referenceFactory->setDefaultRouter(router);
+    }
 
-    _referenceFactory->setDefaultLocator(
-        LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator")));
+    LocatorPrx locator = LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
+    if(locator)
+    {
+        _referenceFactory = _referenceFactory->setDefaultLocator(locator);
+    }
    
     //
     // Show process id if requested (but only once).
@@ -1229,14 +1261,10 @@ IceInternal::Instance::destroy()
             _servantFactoryManager = 0;
         }
         
-        if(_referenceFactory)
-        {
-            _referenceFactory->destroy();
-            _referenceFactory = 0;
-        }
+        //_referenceFactory->destroy(); // No destroy function defined.
+        _referenceFactory = 0;
         
-        // No destroy function defined.
-        // _proxyFactory->destroy();
+        // _proxyFactory->destroy(); // No destroy function defined.
         _proxyFactory = 0;
         
         if(_routerManager)

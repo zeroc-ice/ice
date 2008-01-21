@@ -270,6 +270,7 @@ generated from the section label.
         <suffix name="RegisterProcess" deprecated="true" />
         <suffix name="ReplicaGroupId" />
         <suffix name="Router" />
+        <suffix name="ProxyOptions" />
         <suffix name="ThreadPerConnection" />
         <suffix name="ThreadPerConnection.StackSize" />
         <suffix name="ThreadPool" class="threadpool" />

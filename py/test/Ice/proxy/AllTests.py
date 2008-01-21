@@ -194,25 +194,19 @@ def allTests(communicator, collocated):
     test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
          len(b1.ice_getAdapterId()) == 0 and len(b1.ice_getFacet()) == 0)
 
-    # These two properties don't do anything to direct proxies so
-    # first we test that.
-    #
-    # Commented out because setting a locator or locator cache
-    # timeout on a direct proxy causes warning.
-    #
-    # property = propertyPrefix + ".Locator"
-    # test(not b1.ice_getLocator())
-    # prop.setProperty(property, "locator:default -p 10000")
-    # b1 = communicator.propertyToProxy(propertyPrefix)
-    # test(not b1.ice_getLocator())
-    # prop.setProperty(property, "")
+    property = propertyPrefix + ".Locator"
+    test(not b1.ice_getLocator())
+    prop.setProperty(property, "locator:default -p 10000")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getLocator() and b1.ice_getLocator().ice_getIdentity().name == "locator")
+    prop.setProperty(property, "")
 
-    # property = propertyPrefix + ".LocatorCacheTimeout"
-    # test(b1.ice_getLocatorCacheTimeout() == 0)
-    # prop.setProperty(property, "1")
-    # b1 = communicator.propertyToProxy(propertyPrefix)
-    # test(b1.ice_getLocatorCacheTimeout() == 0)
-    # prop.setProperty(property, "")
+    property = propertyPrefix + ".LocatorCacheTimeout"
+    test(b1.ice_getLocatorCacheTimeout() == -1)
+    prop.setProperty(property, "1")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getLocatorCacheTimeout() == 1)
+    prop.setProperty(property, "")
 
     # Now retest with an indirect proxy.
     prop.setProperty(propertyPrefix, "test")
@@ -310,88 +304,138 @@ def allTests(communicator, collocated):
     test(not base.ice_secure(False).ice_isSecure())
     #test(base.ice_collocationOptimized(true)->ice_isCollocationOptimized());
     #test(!base.ice_collocationOptimized(false)->ice_isCollocationOptimized());
+    test(base.ice_preferSecure(True).ice_isPreferSecure())
+    test(not base.ice_preferSecure(False).ice_isPreferSecure())
+    test(base.ice_threadPerConnection(True).ice_isThreadPerConnection())
+    test(not base.ice_threadPerConnection(False).ice_isThreadPerConnection())
     print "ok"
 
     print "testing proxy comparison... ",
 
-    test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"));
-    test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"));
-    test(communicator.stringToProxy("foo") < communicator.stringToProxy("foo2"));
-    test(not (communicator.stringToProxy("foo2") < communicator.stringToProxy("foo")));
+    test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"))
+    test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"))
+    test(communicator.stringToProxy("foo") < communicator.stringToProxy("foo2"))
+    test(not (communicator.stringToProxy("foo2") < communicator.stringToProxy("foo")))
 
-    compObj = communicator.stringToProxy("foo");
+    compObj = communicator.stringToProxy("foo")
 
-    test(compObj.ice_facet("facet") == compObj.ice_facet("facet"));
-    test(compObj.ice_facet("facet") != compObj.ice_facet("facet1"));
-    test(compObj.ice_facet("facet") < compObj.ice_facet("facet1"));
-    test(not (compObj.ice_facet("facet") < compObj.ice_facet("facet")));
+    test(compObj.ice_facet("facet") == compObj.ice_facet("facet"))
+    test(compObj.ice_facet("facet") != compObj.ice_facet("facet1"))
+    test(compObj.ice_facet("facet") < compObj.ice_facet("facet1"))
+    test(not (compObj.ice_facet("facet") < compObj.ice_facet("facet")))
 
-    test(compObj.ice_oneway() == compObj.ice_oneway());
-    test(compObj.ice_oneway() != compObj.ice_twoway());
-    test(compObj.ice_twoway() < compObj.ice_oneway());
-    test(not (compObj.ice_oneway() < compObj.ice_twoway()));
+    test(compObj.ice_oneway() == compObj.ice_oneway())
+    test(compObj.ice_oneway() != compObj.ice_twoway())
+    test(compObj.ice_twoway() < compObj.ice_oneway())
+    test(not (compObj.ice_oneway() < compObj.ice_twoway()))
 
-    test(compObj.ice_secure(True) == compObj.ice_secure(True));
-    test(compObj.ice_secure(False) != compObj.ice_secure(True));
-    test(compObj.ice_secure(False) < compObj.ice_secure(True));
-    test(not (compObj.ice_secure(True) < compObj.ice_secure(False)));
+    test(compObj.ice_secure(True) == compObj.ice_secure(True))
+    test(compObj.ice_secure(False) != compObj.ice_secure(True))
+    test(compObj.ice_secure(False) < compObj.ice_secure(True))
+    test(not (compObj.ice_secure(True) < compObj.ice_secure(False)))
 
-    #test(compObj.ice_collocationOptimized(True) == compObj.ice_collocationOptimized(True));
-    #test(compObj.ice_collocationOptimized(False) != compObj.ice_collocationOptimized(True));
-    #test(compObj.ice_collocationOptimized(False) < compObj.ice_collocationOptimized(True));
-    #test(!(compObj.ice_collocationOptimized(True) < compObj.ice_collocationOptimized(False)));
+    #test(compObj.ice_collocationOptimized(True) == compObj.ice_collocationOptimized(True))
+    #test(compObj.ice_collocationOptimized(False) != compObj.ice_collocationOptimized(True))
+    #test(compObj.ice_collocationOptimized(False) < compObj.ice_collocationOptimized(True))
+    #test(!(compObj.ice_collocationOptimized(True) < compObj.ice_collocationOptimized(False)))
 
-    test(compObj.ice_connectionCached(True) == compObj.ice_connectionCached(True));
-    test(compObj.ice_connectionCached(False) != compObj.ice_connectionCached(True));
-    test(compObj.ice_connectionCached(False) < compObj.ice_connectionCached(True));
-    test(not (compObj.ice_connectionCached(True) < compObj.ice_connectionCached(False)));
+    test(compObj.ice_connectionCached(True) == compObj.ice_connectionCached(True))
+    test(compObj.ice_connectionCached(False) != compObj.ice_connectionCached(True))
+    test(compObj.ice_connectionCached(False) < compObj.ice_connectionCached(True))
+    test(not (compObj.ice_connectionCached(True) < compObj.ice_connectionCached(False)))
 
     test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) == \
-         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random));
+         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random))
     test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) != \
-         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
+         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
     test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) < \
-         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
+         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
     test(not (compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered) < \
-         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random)));
+         compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random)))
 
-    test(compObj.ice_connectionId("id2") == compObj.ice_connectionId("id2"));
-    test(compObj.ice_connectionId("id1") != compObj.ice_connectionId("id2"));
-    test(compObj.ice_connectionId("id1") < compObj.ice_connectionId("id2"));
-    test(not (compObj.ice_connectionId("id2") < compObj.ice_connectionId("id1")));
+    test(compObj.ice_connectionId("id2") == compObj.ice_connectionId("id2"))
+    test(compObj.ice_connectionId("id1") != compObj.ice_connectionId("id2"))
+    test(compObj.ice_connectionId("id1") < compObj.ice_connectionId("id2"))
+    test(not (compObj.ice_connectionId("id2") < compObj.ice_connectionId("id1")))
 
-    test(compObj.ice_compress(True) == compObj.ice_compress(True));
-    test(compObj.ice_compress(False) != compObj.ice_compress(True));
-    test(compObj.ice_compress(False) < compObj.ice_compress(True));
-    test(not (compObj.ice_compress(True) < compObj.ice_compress(False)));
+    test(compObj.ice_compress(True) == compObj.ice_compress(True))
+    test(compObj.ice_compress(False) != compObj.ice_compress(True))
+    test(compObj.ice_compress(False) < compObj.ice_compress(True))
+    test(not (compObj.ice_compress(True) < compObj.ice_compress(False)))
 
-    test(compObj.ice_timeout(20) == compObj.ice_timeout(20));
-    test(compObj.ice_timeout(10) != compObj.ice_timeout(20));
-    test(compObj.ice_timeout(10) < compObj.ice_timeout(20));
-    test(not (compObj.ice_timeout(20) < compObj.ice_timeout(10)));
+    test(compObj.ice_timeout(20) == compObj.ice_timeout(20))
+    test(compObj.ice_timeout(10) != compObj.ice_timeout(20))
+    test(compObj.ice_timeout(10) < compObj.ice_timeout(20))
+    test(not (compObj.ice_timeout(20) < compObj.ice_timeout(10)))
 
-    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
-    compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
-    test(compObj1 != compObj2);
-    test(compObj1 < compObj2);
-    test(not (compObj2 < compObj1));
+    loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"))
+    loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"))
+    test(compObj.ice_locator(None) == compObj.ice_locator(None))
+    test(compObj.ice_locator(loc1) == compObj.ice_locator(loc1))
+    test(compObj.ice_locator(loc1) != compObj.ice_locator(None))
+    test(compObj.ice_locator(None) != compObj.ice_locator(loc2))
+    test(compObj.ice_locator(loc1) != compObj.ice_locator(loc2))
+    test(compObj.ice_locator(None) < compObj.ice_locator(loc1))
+    test(not (compObj.ice_locator(loc1) < compObj.ice_locator(None)))
+    test(compObj.ice_locator(loc1) < compObj.ice_locator(loc2))
+    test(not (compObj.ice_locator(loc2) < compObj.ice_locator(loc1)))
+    
+    rtr1 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("rtr1:default -p 10000"))
+    rtr2 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("rtr2:default -p 10000"))
+    test(compObj.ice_router(None) == compObj.ice_router(None))
+    test(compObj.ice_router(rtr1) == compObj.ice_router(rtr1))
+    test(compObj.ice_router(rtr1) != compObj.ice_router(None))
+    test(compObj.ice_router(None) != compObj.ice_router(rtr2))
+    test(compObj.ice_router(rtr1) != compObj.ice_router(rtr2))
+    test(compObj.ice_router(None) < compObj.ice_router(rtr1))
+    test(not (compObj.ice_router(rtr1) < compObj.ice_router(None)))
+    test(compObj.ice_router(rtr1) < compObj.ice_router(rtr2))
+    test(not (compObj.ice_router(rtr2) < compObj.ice_router(rtr1)))
 
-    compObj1 = communicator.stringToProxy("foo@MyAdapter1");
-    compObj2 = communicator.stringToProxy("foo@MyAdapter2");
-    test(compObj1 != compObj2);
-    test(compObj1 < compObj2);
-    test(not (compObj2 < compObj1));
+    ctx1 = { }
+    ctx1["ctx1"] = "v1";
+    ctx2 = { }
+    ctx2["ctx2"] = "v2";
+    test(compObj.ice_context({ }) == compObj.ice_context({ }))
+    test(compObj.ice_context(ctx1) == compObj.ice_context(ctx1))
+    test(compObj.ice_context(ctx1) != compObj.ice_context({ }))
+    test(compObj.ice_context({ }) != compObj.ice_context(ctx2))
+    test(compObj.ice_context(ctx1) != compObj.ice_context(ctx2))
+    test(compObj.ice_context(ctx1) < compObj.ice_context(ctx2))
+    test(not (compObj.ice_context(ctx2) < compObj.ice_context(ctx1)))
+    
+    test(compObj.ice_preferSecure(True) == compObj.ice_preferSecure(True))
+    test(compObj.ice_preferSecure(True) != compObj.ice_preferSecure(False))
+    test(compObj.ice_preferSecure(False) < compObj.ice_preferSecure(True))
+    test(not (compObj.ice_preferSecure(True) < compObj.ice_preferSecure(False)))
+    
+    test(compObj.ice_threadPerConnection(True) == compObj.ice_threadPerConnection(True))
+    test(compObj.ice_threadPerConnection(True) != compObj.ice_threadPerConnection(False))
+    test(compObj.ice_threadPerConnection(False) < compObj.ice_threadPerConnection(True))
+    test(not (compObj.ice_threadPerConnection(True) < compObj.ice_threadPerConnection(False)))
+    
+    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
+    compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")
+    test(compObj1 != compObj2)
+    test(compObj1 < compObj2)
+    test(not (compObj2 < compObj1))
 
-    test(compObj1.ice_locatorCacheTimeout(20) == compObj1.ice_locatorCacheTimeout(20));
-    test(compObj1.ice_locatorCacheTimeout(10) != compObj1.ice_locatorCacheTimeout(20));
-    test(compObj1.ice_locatorCacheTimeout(10) < compObj1.ice_locatorCacheTimeout(20));
-    test(not (compObj1.ice_locatorCacheTimeout(20) < compObj1.ice_locatorCacheTimeout(10)));
+    compObj1 = communicator.stringToProxy("foo@MyAdapter1")
+    compObj2 = communicator.stringToProxy("foo@MyAdapter2")
+    test(compObj1 != compObj2)
+    test(compObj1 < compObj2)
+    test(not (compObj2 < compObj1))
 
-    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
-    compObj2 = communicator.stringToProxy("foo@MyAdapter1");
-    test(compObj1 != compObj2);
-    test(compObj1 < compObj2);
-    test(not (compObj2 < compObj1));
+    test(compObj1.ice_locatorCacheTimeout(20) == compObj1.ice_locatorCacheTimeout(20))
+    test(compObj1.ice_locatorCacheTimeout(10) != compObj1.ice_locatorCacheTimeout(20))
+    test(compObj1.ice_locatorCacheTimeout(10) < compObj1.ice_locatorCacheTimeout(20))
+    test(not (compObj1.ice_locatorCacheTimeout(20) < compObj1.ice_locatorCacheTimeout(10)))
+
+    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000")
+    compObj2 = communicator.stringToProxy("foo@MyAdapter1")
+    test(compObj1 != compObj2)
+    test(compObj1 < compObj2)
+    test(not (compObj2 < compObj1))
 
     #
     # TODO: Ideally we should also test comparison of fixed proxies.
@@ -442,77 +486,77 @@ def allTests(communicator, collocated):
     try:
         # Invalid -x option
         p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing -t and -v
         p = communicator.stringToProxy("id:opaque");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Repeated -t
         p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Repeated -v
         p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing -t
         p = communicator.stringToProxy("id:opaque -v abc");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing -v
         p = communicator.stringToProxy("id:opaque -t 1");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing arg for -t
         p = communicator.stringToProxy("id:opaque -t -v abc");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing arg for -v
         p = communicator.stringToProxy("id:opaque -t 1 -v");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Not a number for -t
         p = communicator.stringToProxy("id:opaque -t x -v abc");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # < 0 for -t
         p = communicator.stringToProxy("id:opaque -t -1 -v abc");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
     try:
         # Invalid char for -v
         p = communicator.stringToProxy("id:opaque -t 99 -v x?c");
-        test(false);
+        test(False);
     except Ice.EndpointParseException:
         pass
 
@@ -549,7 +593,7 @@ def allTests(communicator, collocated):
     #
     try:
         p1.ice_ping();
-        test(false);
+        test(False);
     except Ice.NoEndpointException:
         test(not ssl);
     except Ice.ConnectionRefusedException:

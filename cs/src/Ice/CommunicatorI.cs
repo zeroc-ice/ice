@@ -106,7 +106,7 @@ namespace Ice
 
         public void setDefaultRouter(RouterPrx router)
         {
-            instance_.referenceFactory().setDefaultRouter(router);
+            instance_.setDefaultRouter(router);
         }
 
         public LocatorPrx getDefaultLocator()
@@ -116,7 +116,7 @@ namespace Ice
 
         public void setDefaultLocator(LocatorPrx locator)
         {
-            instance_.referenceFactory().setDefaultLocator(locator);
+            instance_.setDefaultLocator(locator);
         }
         
         public Dictionary<string, string> getDefaultContext()

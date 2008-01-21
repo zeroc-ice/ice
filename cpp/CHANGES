@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added a new object adapter property, <adapter>.ProxyOptions, which
+  specifies proxy options for proxies created by the object adapter.
+
 - There is no longer a limit on the allowable length of a property 
   line in an Ice config file. Previously the limit was 1024.
 

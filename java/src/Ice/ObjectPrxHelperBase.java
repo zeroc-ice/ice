@@ -589,7 +589,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isCollocationOptimized()
     {
-        return _reference.getCollocationOptimization();
+        return _reference.getCollocationOptimized();
     }
 
     /**
@@ -604,13 +604,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_collocationOptimized(boolean b)
     {
-        if(b == _reference.getCollocationOptimization())
+        if(b == _reference.getCollocationOptimized())
         {
             return this;
         }
         else
         {
-            return newInstance(_reference.changeCollocationOptimization(b));
+            return newInstance(_reference.changeCollocationOptimized(b));
         }
     }
 
@@ -1030,7 +1030,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
 
         _ObjectDel delegate = null;
-        if(_reference.getCollocationOptimization())
+        if(_reference.getCollocationOptimized())
         {
             ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
             if(adapter != null)

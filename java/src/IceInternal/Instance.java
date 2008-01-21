@@ -313,7 +313,6 @@ public final class Instance
         return _implicitContext;
     }
 
-
     public void
     flushBatchRequests()
     {
@@ -538,6 +537,28 @@ public final class Instance
         return result;
     }
 
+    public void
+    setDefaultLocator(Ice.LocatorPrx locator)
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+        
+        _referenceFactory = _referenceFactory.setDefaultLocator(locator);
+    }
+
+    public void
+    setDefaultRouter(Ice.RouterPrx router)
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+        
+        _referenceFactory = _referenceFactory.setDefaultRouter(router);
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -657,9 +678,7 @@ public final class Instance
             _clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
             _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
-            _implicitContext = Ice.ImplicitContextI.create(
-                _initData.properties.getProperty("Ice.ImplicitContext"));
-            
+            _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
             _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
@@ -779,11 +798,17 @@ public final class Instance
         // initialization before the plug-in initialization!!! The proxies
         // might depend on endpoint factories to be installed by plug-ins.
         //
-        _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
-                                               _proxyFactory.propertyToProxy("Ice.Default.Router")));
+        Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(_proxyFactory.propertyToProxy("Ice.Default.Router"));
+        if(router != null)
+        {
+            _referenceFactory = _referenceFactory.setDefaultRouter(router);
+        }
 
-        _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
-                                                _proxyFactory.propertyToProxy("Ice.Default.Locator")));
+        Ice.LocatorPrx loc = Ice.LocatorPrxHelper.uncheckedCast(_proxyFactory.propertyToProxy("Ice.Default.Locator"));
+        if(loc != null)
+        {
+            _referenceFactory = _referenceFactory.setDefaultLocator(loc);
+        }
         
         if(_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
         {
@@ -934,8 +959,7 @@ public final class Instance
                 _referenceFactory = null;
             }
             
-            // No destroy function defined.
-            // _proxyFactory.destroy();
+            // _proxyFactory.destroy(); // No destroy function defined.
             _proxyFactory = null;
 
             if(_routerManager != null)

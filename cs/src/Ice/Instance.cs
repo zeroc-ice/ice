@@ -558,7 +558,33 @@ namespace IceInternal
             }
         }
 
+        public void
+        setDefaultLocator(Ice.LocatorPrx locator)
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
 
+                _referenceFactory = _referenceFactory.setDefaultLocator(locator);
+            }
+        }
+
+        public void
+        setDefaultRouter(Ice.RouterPrx router)
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+
+                _referenceFactory = _referenceFactory.setDefaultRouter(router);
+            }
+        }
 
         //
         // Only for use by Ice.CommunicatorI
@@ -753,13 +779,17 @@ namespace IceInternal
             // initialization before the plug-in initialization!!! The proxies
             // might depend on endpoint factories to be installed by plug-ins.
             //
-            _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
-                _proxyFactory.propertyToProxy("Ice.Default.Router")));
-            
-            Ice.LocatorPrx defaultLocator = Ice.LocatorPrxHelper.uncheckedCast(
-                _proxyFactory.propertyToProxy("Ice.Default.Locator"));
+            Ice.RouterPrx r = Ice.RouterPrxHelper.uncheckedCast(_proxyFactory.propertyToProxy("Ice.Default.Router"));
+            if(r != null)
+            {
+                _referenceFactory = _referenceFactory.setDefaultRouter(r);
+            }
 
-            _referenceFactory.setDefaultLocator(defaultLocator);
+            Ice.LocatorPrx l = Ice.LocatorPrxHelper.uncheckedCast(_proxyFactory.propertyToProxy("Ice.Default.Locator"));
+            if(l != null)
+            {
+                _referenceFactory = _referenceFactory.setDefaultLocator(l);
+            }
             
             //
             // Show process id if requested (but only once).

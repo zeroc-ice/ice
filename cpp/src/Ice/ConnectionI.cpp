@@ -567,8 +567,7 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
 
     //
     // Send the message. If it can't be sent without blocking the message is added
-    // to _sendStreams and it will be sent by the selector thread or by this thread
-    // if flush is true.
+    // to _sendStreams and it will be sent by the selector thread.
     // 
     bool sent = false;
     try
@@ -1104,11 +1103,8 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
     // Create a reference and return a reverse proxy for this
     // reference.
     //
-    vector<ConnectionIPtr> connections;
-    connections.push_back(const_cast<ConnectionI*>(this));
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(),
-                                                             "", Reference::ModeTwoway, connections);
-    return _instance->proxyFactory()->referenceToProxy(ref);
+    ConnectionIPtr self = const_cast<ConnectionI*>(this);
+    return _instance->proxyFactory()->referenceToProxy(_instance->referenceFactory()->create(ident, self));
 }
 
 bool

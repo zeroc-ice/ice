@@ -11,7 +11,6 @@
 #define ICE_REFERENCE_FACTORY_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/Reference.h> // For Reference::Mode
 #include <Ice/ConnectionIF.h>
@@ -20,7 +19,7 @@
 namespace IceInternal
 {
 
-class ReferenceFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class ReferenceFactory : public ::IceUtil::Shared
 {
 public:
 
@@ -32,51 +31,46 @@ public:
     //
     // Create a direct reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
-                        Reference::Mode, bool, bool, const ::std::vector<EndpointIPtr>&,
-                        const RouterInfoPtr&, bool, bool, Ice::EndpointSelectionType, bool);
+    ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&, 
+                        const ::std::vector<EndpointIPtr>&);
+    
     //
     // Create an indirect reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
-                        Reference::Mode, bool, bool, const ::std::string&,
-                        const RouterInfoPtr&, const LocatorInfoPtr&, bool, bool, Ice::EndpointSelectionType, bool, int);
+    ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&, const std::string&);
+    
     //
     // Create a fixed reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
-                        Reference::Mode, const ::std::vector< ::Ice::ConnectionIPtr>&);
+    ReferencePtr create(const ::Ice::Identity&, const Ice::ConnectionIPtr&);
 
     //
     // Create a reference from a string.
     //
-    ReferencePtr create(const ::std::string&);
-
-    //
-    // Create a reference from a property set.
-    //
-    ReferencePtr createFromProperties(const ::std::string&);
+    ReferencePtr create(const ::std::string&, const std::string&);
 
     //
     // Create a reference by unmarshaling it from a stream.
     //
     ReferencePtr create(const ::Ice::Identity&, BasicStream*);
 
-    void setDefaultRouter(const ::Ice::RouterPrx&);
+    ReferenceFactoryPtr setDefaultRouter(const ::Ice::RouterPrx&);
     ::Ice::RouterPrx getDefaultRouter() const;
 
-    void setDefaultLocator(const ::Ice::LocatorPrx&);
+    ReferenceFactoryPtr setDefaultLocator(const ::Ice::LocatorPrx&);
     ::Ice::LocatorPrx getDefaultLocator() const;
 
 private:
 
     ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
-    void destroy();
-    void checkForUnknownProperties(const std::string&);
     friend class Instance;
 
-    InstancePtr _instance;
-    ::Ice::CommunicatorPtr _communicator;
+    void checkForUnknownProperties(const std::string&);
+    RoutableReferencePtr create(const ::Ice::Identity&, const ::std::string&, Reference::Mode, bool, 
+                                const std::vector<EndpointIPtr>&, const std::string&, const std::string&);
+
+    const InstancePtr _instance;
+    const ::Ice::CommunicatorPtr _communicator;
     ::Ice::RouterPrx _defaultRouter;
     ::Ice::LocatorPrx _defaultLocator;
 };

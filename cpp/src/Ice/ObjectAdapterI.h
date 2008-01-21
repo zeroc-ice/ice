@@ -70,7 +70,6 @@ public:
     virtual ObjectPrx createProxy(const Identity&) const;
     virtual ObjectPrx createDirectProxy(const Identity&) const;
     virtual ObjectPrx createIndirectProxy(const Identity&) const;
-    virtual ObjectPrx createReverseProxy(const Identity&) const;
 
     virtual void setLocator(const LocatorPrx&);
     virtual void refreshPublishedEndpoints();
@@ -115,6 +114,7 @@ private:
     const std::string _name;
     const std::string _id;
     const std::string _replicaGroupId;
+    IceInternal::ReferencePtr _reference;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
     std::vector<IceInternal::ConnectorPtr> _connectors;
     std::vector<IceInternal::EndpointIPtr> _routerEndpoints;

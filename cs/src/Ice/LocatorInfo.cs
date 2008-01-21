@@ -78,8 +78,10 @@ namespace IceInternal
             }
         }
 
-        public EndpointI[] getEndpoints(IndirectReference @ref, int ttl, out bool cached)
+        public EndpointI[] getEndpoints(Reference @ref, int ttl, out bool cached)
         {
+            Debug.Assert(@ref.isIndirect());
+
             EndpointI[] endpoints = null;
             Ice.ObjectPrx obj = null;
             cached = true;
@@ -88,7 +90,7 @@ namespace IceInternal
             
             try
             {
-                if(adapterId.Length > 0)
+                if(!@ref.isWellKnown())
                 {
                     endpoints = _table.getAdapterEndpoints(adapterId, ttl);
                     if(endpoints == null)
@@ -144,19 +146,14 @@ namespace IceInternal
                     if(obj != null)
                     {
                         Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
-                        if(r is DirectReference)
+                        if(!r.isIndirect())
                         {
                             endpointsCached = false;
-                            DirectReference odr = (DirectReference)r;
-                            endpoints = odr.getEndpoints();
+                            endpoints = r.getEndpoints();
                         }
-                        else
+                        else if(!r.isWellKnown())
                         {
-                            IndirectReference oir = (IndirectReference)r;
-                            if(oir.getAdapterId().Length > 0)
-                            {
-                                endpoints = getEndpoints(oir, ttl, out endpointsCached);
-                            }
+                            endpoints = getEndpoints(r, ttl, out endpointsCached);
                         }
                     }
                     
@@ -183,7 +180,7 @@ namespace IceInternal
 
         private class AdapterCallback : Ice.AMI_Locator_findAdapterById
         {
-            internal AdapterCallback(LocatorInfo info, IndirectReference @ref, GetEndpointsCallback callback)
+            internal AdapterCallback(LocatorInfo info, Reference @ref, GetEndpointsCallback callback)
             {
                 _info = info;
                 _ref = @ref;
@@ -223,13 +220,13 @@ namespace IceInternal
             }
 
             private LocatorInfo _info;
-            private IndirectReference _ref;
+            private Reference _ref;
             private GetEndpointsCallback _callback;
         }
 
         private class ObjectCallback : Ice.AMI_Locator_findObjectById
         {
-            internal ObjectCallback(LocatorInfo info, IndirectReference @ref, int ttl, GetEndpointsCallback callback)
+            internal ObjectCallback(LocatorInfo info, Reference @ref, int ttl, GetEndpointsCallback callback)
             {
                 _info = info;
                 _ref = @ref;
@@ -248,17 +245,19 @@ namespace IceInternal
             }
 
             private LocatorInfo _info;
-            private IndirectReference _ref;
+            private Reference _ref;
             private int _ttl;
             private GetEndpointsCallback _callback;
         }
 
-        public void getEndpoints(IndirectReference @ref, int ttl, GetEndpointsCallback callback)
+        public void getEndpoints(Reference @ref, int ttl, GetEndpointsCallback callback)
         {
+            Debug.Assert(@ref.isIndirect());
+
             string adapterId = @ref.getAdapterId();
             Ice.Identity identity = @ref.getIdentity();
             Instance instance = @ref.getInstance();
-            if(adapterId.Length > 0)
+            if(!@ref.isWellKnown())
             {
                 EndpointI[] endpoints = _table.getAdapterEndpoints(adapterId, ttl);
                 if(endpoints == null)
@@ -312,36 +311,34 @@ namespace IceInternal
             }
         }
 
-        public void clearObjectCache(IndirectReference rf)
+        public void clearObjectCache(Reference rf)
         {
+            Debug.Assert(rf.isIndirect());
             if(rf.getAdapterId().Length == 0)
             {
                 Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
                 if(obj != null)
                 {
-                    if(((Ice.ObjectPrxHelperBase)obj).reference__() is IndirectReference)
-                    {
-                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).reference__();
-                        if(oir.getAdapterId().Length > 0)
-                        {
-                            clearCache(oir);
-                        }
-                    }
-                    else
+                    Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
+                    if(!r.isIndirect())
                     {
                         if(rf.getInstance().traceLevels().location >= 2)
                         {
-                            trace("removed endpoints from locator table",
-                                  rf, ((Ice.ObjectPrxHelperBase)obj).reference__().getEndpoints());
+                            trace("removed endpoints from locator table", rf, r.getEndpoints());
                         }
+                    }
+                    else if(!r.isWellKnown())
+                    {
+                        clearCache(r);
                     }
                 }
             }
         }
         
-        public void clearCache(IndirectReference rf)
+        public void clearCache(Reference rf)
         {
-            if(rf.getAdapterId().Length > 0)
+            Debug.Assert(rf.isIndirect());
+            if(!rf.isWellKnown())
             {
                 EndpointI[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
                 
@@ -355,27 +352,23 @@ namespace IceInternal
                 Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
                 if(obj != null)
                 {
-                    if(((Ice.ObjectPrxHelperBase)obj).reference__() is IndirectReference)
-                    {
-                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).reference__();
-                        if(oir.getAdapterId().Length > 0)
-                        {
-                            clearCache(oir);
-                        }
-                    }
-                    else
+                    Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
+                    if(!r.isIndirect())
                     {
                         if(rf.getInstance().traceLevels().location >= 2)
                         {
-                            trace("removed endpoints from locator table",
-                                  rf, ((Ice.ObjectPrxHelperBase)obj).reference__().getEndpoints());
+                            trace("removed endpoints from locator table", rf, r.getEndpoints());
                         }
+                    }
+                    else if(!r.isWellKnown())
+                    {
+                        clearCache(r);
                     }
                 }
             }
         }
         
-        private void trace(string msg, IndirectReference r, EndpointI[] endpoints)
+        private void trace(string msg, Reference r, EndpointI[] endpoints)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
             s.Append(msg + "\n");
@@ -402,7 +395,7 @@ namespace IceInternal
             r.getInstance().initializationData().logger.trace(r.getInstance().traceLevels().locationCat, s.ToString());
         }
 
-        private void getEndpointsException(IndirectReference @ref, System.Exception exc)
+        private void getEndpointsException(Reference @ref, System.Exception exc)
         {
             try
             {
@@ -470,7 +463,7 @@ namespace IceInternal
             }
         }
 
-        private void getEndpointsException(IndirectReference @ref, System.Exception exc, GetEndpointsCallback callback)
+        private void getEndpointsException(Reference @ref, System.Exception exc, GetEndpointsCallback callback)
         {
             try
             {
@@ -488,7 +481,7 @@ namespace IceInternal
 
         private class GetWellKnownObjectEndpointsCallback : GetEndpointsCallback
         {
-            internal GetWellKnownObjectEndpointsCallback(LocatorInfo info, IndirectReference @ref, Ice.ObjectPrx obj,
+            internal GetWellKnownObjectEndpointsCallback(LocatorInfo info, Reference @ref, Ice.ObjectPrx obj,
                                                          bool objectCached, GetEndpointsCallback callback)
             {
                 _info = info;
@@ -519,33 +512,28 @@ namespace IceInternal
             }
 
             private LocatorInfo _info;
-            private IndirectReference _ref;
+            private Reference _ref;
             private Ice.ObjectPrx _obj;
             private bool _objectCached;
             private GetEndpointsCallback _callback;
         }
 
-        private void getWellKnownObjectEndpoints(IndirectReference @ref, Ice.ObjectPrx obj, int ttl,
+        private void getWellKnownObjectEndpoints(Reference @ref, Ice.ObjectPrx obj, int ttl,
                                                  bool objectCached, GetEndpointsCallback callback)
         {
             EndpointI[] endpoints = null;
             if(obj != null)
             {
                 Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
-                if(r is DirectReference)
+                if(!r.isIndirect())
                 {
-                    DirectReference odr = (DirectReference)r;
-                    endpoints = odr.getEndpoints();
+                    endpoints = r.getEndpoints();
                 }
-                else
+                else if(!r.isWellKnown())
                 {
-                    IndirectReference oir = (IndirectReference)r;
-                    if(oir.getAdapterId().Length > 0)
-                    {
-                        getEndpoints(oir, ttl,
-                                     new GetWellKnownObjectEndpointsCallback(this, @ref, obj, objectCached, callback));
-                        return;
-                    }
+                    getEndpoints(r, ttl,
+                                 new GetWellKnownObjectEndpointsCallback(this, @ref, obj, objectCached, callback));
+                    return;
                 }
             }
             
@@ -569,7 +557,7 @@ namespace IceInternal
             }
         }
 
-        private void getEndpointsTrace(IndirectReference @ref, EndpointI[] endpoints, bool cached)
+        private void getEndpointsTrace(Reference @ref, EndpointI[] endpoints, bool cached)
         {
             if(endpoints != null && endpoints.Length > 0)
             {

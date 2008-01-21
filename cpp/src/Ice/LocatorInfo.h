@@ -91,23 +91,23 @@ public:
     Ice::LocatorPrx getLocator() const;
     Ice::LocatorRegistryPrx getLocatorRegistry();
 
-    std::vector<EndpointIPtr> getEndpoints(const IndirectReferencePtr&, int, bool&);
-    void getEndpoints(const IndirectReferencePtr&, int, const GetEndpointsCallbackPtr&);
-    void clearCache(const IndirectReferencePtr&);
-    void clearObjectCache(const IndirectReferencePtr&);
+    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, int, bool&);
+    void getEndpoints(const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+    void clearCache(const ReferencePtr&);
+    void clearObjectCache(const ReferencePtr&);
 
     //
     // The following methods need to be public for access by AMI callbacks.
     //
-    void getEndpointsException(const IndirectReferencePtr&, const Ice::Exception&);
-    void getWellKnownObjectEndpoints(const IndirectReferencePtr&, const Ice::ObjectPrx&, int, bool, 
+    void getEndpointsException(const ReferencePtr&, const Ice::Exception&);
+    void getWellKnownObjectEndpoints(const ReferencePtr&, const Ice::ObjectPrx&, int, bool, 
                                      const GetEndpointsCallbackPtr&);
-    void getEndpointsException(const IndirectReferencePtr&, const Ice::Exception&, const GetEndpointsCallbackPtr&);
-    void getEndpointsTrace(const IndirectReferencePtr&, const std::vector<EndpointIPtr>&, bool);
+    void getEndpointsException(const ReferencePtr&, const Ice::Exception&, const GetEndpointsCallbackPtr&);
+    void getEndpointsTrace(const ReferencePtr&, const std::vector<EndpointIPtr>&, bool);
 
 private:
 
-    void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointIPtr>&);
+    void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointIPtr>&);
 
     const Ice::LocatorPrx _locator;
     Ice::LocatorRegistryPrx _locatorRegistry;

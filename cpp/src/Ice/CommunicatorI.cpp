@@ -212,7 +212,7 @@ Ice::CommunicatorI::getDefaultRouter() const
 void
 Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 {
-    _instance->referenceFactory()->setDefaultRouter(router);
+    _instance->setDefaultRouter(router);
 }
 
 LocatorPrx
@@ -224,7 +224,7 @@ Ice::CommunicatorI::getDefaultLocator() const
 void
 Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
 {
-    _instance->referenceFactory()->setDefaultLocator(locator);
+    _instance->setDefaultLocator(locator);
 }
 
 Ice::Context

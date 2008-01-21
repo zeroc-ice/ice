@@ -72,8 +72,10 @@ public final class LocatorInfo
     }
 
     public EndpointI[]
-    getEndpoints(IndirectReference ref, int ttl, Ice.BooleanHolder cached)
+    getEndpoints(Reference ref, int ttl, Ice.BooleanHolder cached)
     {
+        assert(ref.isIndirect());
+
         EndpointI[] endpoints = null;
         Ice.ObjectPrx object = null;
         cached.value = true;
@@ -138,21 +140,16 @@ public final class LocatorInfo
                 if(object != null)
                 {
                     Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
-                    if(r instanceof DirectReference)
+                    if(!r.isIndirect())
                     {
                         endpointsCached = false;
-                        DirectReference odr = (DirectReference)r;
-                        endpoints = odr.getEndpoints();
+                        endpoints = r.getEndpoints();
                     }
-                    else
+                    else if(!r.isWellKnown())
                     {
-                        IndirectReference oir = (IndirectReference)r;
-                        if(oir.getAdapterId().length() > 0)
-                        {
-                            Ice.BooleanHolder c = new Ice.BooleanHolder();
-                            endpoints = getEndpoints(oir, ttl, c);
-                            endpointsCached = c.value;
-                        }
+                        Ice.BooleanHolder c = new Ice.BooleanHolder();
+                        endpoints = getEndpoints(r, ttl, c);
+                        endpointsCached = c.value;
                     }
                 }
                 
@@ -178,7 +175,7 @@ public final class LocatorInfo
     }
 
     public void
-    getEndpoints(final IndirectReference ref, final int ttl, final GetEndpointsCallback callback)
+    getEndpoints(final Reference ref, final int ttl, final GetEndpointsCallback callback)
     {
         final String adapterId = ref.getAdapterId();
         final Ice.Identity identity = ref.getIdentity();
@@ -298,37 +295,36 @@ public final class LocatorInfo
     }
 
     public void
-    clearObjectCache(IndirectReference ref)
+    clearObjectCache(Reference ref)
     {
-        if(ref.getAdapterId().length() == 0)
+        assert(ref.isIndirect());
+        if(ref.isWellKnown())
         {
             Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
             if(object != null)
             {
-                if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
-                {
-                    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
-                    if(oir.getAdapterId().length() > 0)
-                    {
-                        clearCache(oir);
-                    }
-                }
-                else
+                Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
+                if(!r.isIndirect())
                 {
                     if(ref.getInstance().traceLevels().location >= 2)
                     {
-                        trace("removed endpoints from locator table",
-                              ref, ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints());
+                        trace("removed endpoints from locator table", ref, r.getEndpoints());
                     }
+                }
+                else if(!r.isWellKnown())
+                {
+                    clearCache(r);
                 }
             }
         }
     }
     
     public void
-    clearCache(IndirectReference ref)
+    clearCache(Reference ref)
     {
-        if(ref.getAdapterId().length() > 0)
+        assert(ref.isIndirect());
+
+        if(!ref.isWellKnown())
         {
             EndpointI[] endpoints = _table.removeAdapterEndpoints(ref.getAdapterId());
 
@@ -342,32 +338,30 @@ public final class LocatorInfo
             Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
             if(object != null)
             {
-                if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
-                {
-                    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
-                    if(oir.getAdapterId().length() > 0)
-                    {
-                        clearCache(oir);
-                    }
-                }
-                else
+                Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
+                if(!r.isIndirect())
                 {
                     if(ref.getInstance().traceLevels().location >= 2)
                     {
-                        trace("removed endpoints from locator table",
-                              ref, ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints());
+                        trace("removed endpoints from locator table", ref, r.getEndpoints());
                     }
+                }
+                else if(!r.isWellKnown())
+                {
+                    clearCache(r);
                 }
             }
         }
     }
 
     private void
-    trace(String msg, IndirectReference ref, EndpointI[] endpoints)
+    trace(String msg, Reference ref, EndpointI[] endpoints)
     {
+        assert(ref.isIndirect());
+
         StringBuffer s = new StringBuffer();
         s.append(msg + "\n");
-        if(ref.getAdapterId().length() > 0)
+        if(!ref.isWellKnown())
         {
             s.append("adapter = " + ref.getAdapterId() + "\n");
         }
@@ -391,8 +385,10 @@ public final class LocatorInfo
     }
 
     private void
-    getEndpointsException(IndirectReference ref, Exception exc)
+    getEndpointsException(Reference ref, Exception exc)
     {
+        assert(ref.isIndirect());
+
         try
         {
             throw exc;
@@ -460,7 +456,7 @@ public final class LocatorInfo
     }
 
     private void
-    getEndpointsException(IndirectReference ref, Exception exc, GetEndpointsCallback callback)
+    getEndpointsException(Reference ref, Exception exc, GetEndpointsCallback callback)
     {
         try
         {
@@ -477,7 +473,7 @@ public final class LocatorInfo
     }
 
     private void
-    getWellKnownObjectEndpoints(final IndirectReference ref, 
+    getWellKnownObjectEndpoints(final Reference ref, 
                                 final Ice.ObjectPrx object, 
                                 final int ttl, 
                                 final boolean objectCached, 
@@ -487,42 +483,37 @@ public final class LocatorInfo
         if(object != null)
         {
             Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
-            if(r instanceof DirectReference)
+            if(!r.isIndirect())
             {
-                DirectReference odr = (DirectReference)r;
-                endpoints = odr.getEndpoints();
+                endpoints = r.getEndpoints();
             }
-            else
+            else if(!r.isWellKnown())
             {
-                IndirectReference oir = (IndirectReference)r;
-                if(oir.getAdapterId().length() > 0)
+                getEndpoints(r, ttl, new GetEndpointsCallback()
                 {
-                    getEndpoints(oir, ttl, new GetEndpointsCallback()
+                    public void
+                    setEndpoints(EndpointI[] endpoints, boolean endpointsCached)
+                    {
+                        if(!objectCached && endpoints != null && endpoints.length > 0)
                         {
-                            public void
-                            setEndpoints(EndpointI[] endpoints, boolean endpointsCached)
-                            {
-                                if(!objectCached && endpoints != null && endpoints.length > 0)
-                                {
-                                    _table.addProxy(ref.getIdentity(), object);
-                                }
-
+                            _table.addProxy(ref.getIdentity(), object);
+                        }
+                        
                                 if(ref.getInstance().traceLevels().location >= 1)
                                 {
                                     getEndpointsTrace(ref, endpoints, objectCached || endpointsCached);
                                 }
-
+                                
                                 callback.setEndpoints(endpoints, objectCached || endpointsCached);
-                            }
-
-                            public void
-                            setException(Ice.LocalException ex)
-                            {
-                                callback.setException(ex);
-                            }
-                        });
-                    return;
-                }
+                    }
+                    
+                    public void
+                    setException(Ice.LocalException ex)
+                    {
+                        callback.setException(ex);
+                    }
+                    });
+                return;
             }
         }
         
@@ -547,7 +538,7 @@ public final class LocatorInfo
     }
  
     private void
-    getEndpointsTrace(IndirectReference ref, EndpointI[] endpoints, boolean cached)
+    getEndpointsTrace(Reference ref, EndpointI[] endpoints, boolean cached)
     {
         if(endpoints != null && endpoints.length > 0)
         {

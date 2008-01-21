@@ -236,26 +236,19 @@ public class AllTests
 
         String property;
 
-        // These two properties don't do anything to direct proxies so
-        // first we test that.
-        /*
-         * Commented out because setting a locator or locator cache
-         * timeout on a direct proxy causes warning.
-         *
         property = propertyPrefix + ".Locator";
         test(b1.ice_getLocator() == null);
         prop.setProperty(property, "locator:default -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocator() == null);
+        test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name.Equals("locator"));
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
-        test(b1.ice_getLocatorCacheTimeout() == 0);
+        test(b1.ice_getLocatorCacheTimeout() == -1);
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocatorCacheTimeout() == 0);
+        test(b1.ice_getLocatorCacheTimeout() == 1);
         prop.setProperty(property, "");
-        */
 
         // Now retest with an indirect proxy.
         prop.setProperty(propertyPrefix, "test");
@@ -350,6 +343,10 @@ public class AllTests
         test(!baseProxy.ice_secure(false).ice_isSecure());
         test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized());
         test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
+        test(baseProxy.ice_preferSecure(true).ice_isPreferSecure());
+        test(!baseProxy.ice_preferSecure(false).ice_isPreferSecure());
+        test(baseProxy.ice_threadPerConnection(true).ice_isThreadPerConnection());
+        test(!baseProxy.ice_threadPerConnection(false).ice_isThreadPerConnection());
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing proxy comparison... ");
@@ -388,6 +385,38 @@ public class AllTests
 
         test(compObj.ice_timeout(20).Equals(compObj.ice_timeout(20)));
         test(!compObj.ice_timeout(10).Equals(compObj.ice_timeout(20)));
+
+        Ice.LocatorPrx loc1 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
+        Ice.LocatorPrx loc2 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
+        test(compObj.ice_locator(null).Equals(compObj.ice_locator(null)));
+        test(compObj.ice_locator(loc1).Equals(compObj.ice_locator(loc1)));
+        test(!compObj.ice_locator(loc1).Equals(compObj.ice_locator(null)));
+        test(!compObj.ice_locator(null).Equals(compObj.ice_locator(loc2)));
+        test(!compObj.ice_locator(loc1).Equals(compObj.ice_locator(loc2)));
+
+        Ice.RouterPrx rtr1 = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("rtr1:default -p 10000"));
+        Ice.RouterPrx rtr2 = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("rtr2:default -p 10000"));
+        test(compObj.ice_router(null).Equals(compObj.ice_router(null)));
+        test(compObj.ice_router(rtr1).Equals(compObj.ice_router(rtr1)));
+        test(!compObj.ice_router(rtr1).Equals(compObj.ice_router(null)));
+        test(!compObj.ice_router(null).Equals(compObj.ice_router(rtr2)));
+        test(!compObj.ice_router(rtr1).Equals(compObj.ice_router(rtr2)));
+
+        Dictionary<string, string> ctx1 = new Dictionary<string, string>();
+        ctx1["ctx1"] = "v1";
+        Dictionary<string, string> ctx2 = new Dictionary<string, string>();
+        ctx2["ctx2"] = "v2";
+        test(compObj.ice_context(null).Equals(compObj.ice_context(null)));
+        test(compObj.ice_context(ctx1).Equals(compObj.ice_context(ctx1)));
+        test(!compObj.ice_context(ctx1).Equals(compObj.ice_context(null)));
+        test(!compObj.ice_context(null).Equals(compObj.ice_context(ctx2)));
+        test(!compObj.ice_context(ctx1).Equals(compObj.ice_context(ctx2)));
+
+        test(compObj.ice_preferSecure(true).Equals(compObj.ice_preferSecure(true)));
+        test(!compObj.ice_preferSecure(true).Equals(compObj.ice_preferSecure(false)));
+
+        test(compObj.ice_threadPerConnection(true).Equals(compObj.ice_threadPerConnection(true)));
+        test(!compObj.ice_threadPerConnection(true).Equals(compObj.ice_threadPerConnection(false)));
 
         Ice.ObjectPrx compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
         Ice.ObjectPrx compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");

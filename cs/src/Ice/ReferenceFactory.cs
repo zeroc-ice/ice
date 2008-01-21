@@ -17,127 +17,62 @@ namespace IceInternal
     public class ReferenceFactory
     {
         public Reference
-        create(Ice.Identity ident,
-               Dictionary<string, string> context,
-               string facet,
-               Reference.Mode mode,
-               bool secure,
-               bool preferSecure,
-               EndpointI[] endpoints,
-               RouterInfo routerInfo,
-               bool collocationOptimization,
-               bool cacheConnection,
-               Ice.EndpointSelectionType endpointSelection,
-               bool threadPerConnection)
+        create(Ice.Identity ident, string facet, Reference tmpl, EndpointI[] endpoints)
         {
-            lock(this)
+            if(ident.name.Length == 0 && ident.category.Length == 0)
             {
-                if(instance_ == null)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                if(ident.name.Length == 0 && ident.category.Length == 0)
-                {
-                    return null;
-                }
-
-                //
-                // Create new reference
-                //
-                DirectReference @ref = new DirectReference(instance_, _communicator, ident, context, facet, mode,
-                                                           secure, preferSecure, endpoints, routerInfo, 
-                                                           collocationOptimization, cacheConnection, endpointSelection,
-                                                           threadPerConnection);
-                return updateCache(@ref);
+                return null;
             }
+
+            return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), endpoints, null, null);
         }
 
-        public Reference create(Ice.Identity ident,
-                                Dictionary<string, string> context,
-                                string facet,
-                                Reference.Mode mode,
-                                bool secure,
-                                bool preferSecure,
-                                string adapterId,
-                                RouterInfo routerInfo,
-                                LocatorInfo locatorInfo,
-                                bool collocationOptimization,
-                                bool cacheConnection,
-                                Ice.EndpointSelectionType endpointSelection,
-                                bool threadPerConnection,
-                                int locatorCacheTimeout)
+        public Reference
+        create(Ice.Identity ident, string facet, Reference tmpl, string adapterId)
         {
-            lock(this)
+            if(ident.name.Length == 0 && ident.category.Length == 0)
             {
-                if(instance_ == null)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                if(ident.name.Length == 0 && ident.category.Length == 0)
-                {
-                    return null;
-                }
-
-                //
-                // Create new reference
-                //
-                IndirectReference @ref = new IndirectReference(instance_,  _communicator, ident, context, facet, mode,
-                                                               secure, preferSecure, adapterId, routerInfo,
-                                                               locatorInfo, collocationOptimization, cacheConnection,
-                                                               endpointSelection, threadPerConnection,
-                                                               locatorCacheTimeout);
-                return updateCache(@ref);
+                return null;
             }
+            
+            //
+            // Create new reference
+            //
+            return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), null, adapterId, null);
         }
 
-        public Reference create(Ice.Identity ident,
-                                Dictionary<string, string> context,
-                                string facet,
-                                Reference.Mode mode,
-                                Ice.ConnectionI[] fixedConnections)
+        public Reference create(Ice.Identity ident, Ice.ConnectionI connection)
         {
-            lock(this)
+            if(ident.name.Length == 0 && ident.category.Length == 0)
             {
-                if(instance_ == null)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                if(ident.name.Length == 0 && ident.category.Length == 0)
-                {
-                    return null;
-                }
-
-                //
-                // Create new reference
-                //
-                FixedReference @ref =
-                    new FixedReference(instance_, _communicator, ident, context, facet, mode, fixedConnections);
-                return updateCache(@ref);
+                return null;
             }
+            
+            //
+            // Create new reference
+            //
+            FixedReference r = new FixedReference(instance_, 
+                                                  _communicator, 
+                                                  ident,
+                                                  instance_.getDefaultContext(),
+                                                  "", // Facet
+                                                  Reference.Mode.ModeTwoway,
+                                                  false,
+                                                  connection);
+            return updateCache(r);
         }
 
         public Reference copy(Reference r)
         {
-            lock(this)
+            Ice.Identity ident = r.getIdentity();
+            if(ident.name.Length == 0 && ident.category.Length == 0)
             {
-                if(instance_ == null)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                Ice.Identity ident = r.getIdentity();
-                if(ident.name.Length == 0 && ident.category.Length == 0)
-                {
-                    return null;
-                }
-                return (Reference)r.Clone();
+                return null;
             }
+            return (Reference)r.Clone();
         }
 
-        public Reference create(string s)
+        public Reference create(string s, string propertyPrefix)
         {
             if(s.Length == 0)
             {
@@ -409,17 +344,9 @@ namespace IceInternal
                 }
             }
 
-            RouterInfo routerInfo = instance_.routerManager().get(getDefaultRouter());
-            LocatorInfo locatorInfo = instance_.locatorManager().get(getDefaultLocator());
-
             if(beg == -1)
             {
-                return create(ident, instance_.getDefaultContext(), facet, mode, secure, 
-                              instance_.defaultsAndOverrides().defaultPreferSecure, "",
-                              routerInfo, locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
-                              true, instance_.defaultsAndOverrides().defaultEndpointSelection,
-                              instance_.threadPerConnection(),
-                              instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
+                return create(ident, facet, mode, secure, null, null, propertyPrefix);
             }
 
             ArrayList endpoints = new ArrayList();
@@ -507,11 +434,7 @@ namespace IceInternal
                 }
 
                 EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
-                return create(ident, instance_.getDefaultContext(), facet, mode, secure, 
-                              instance_.defaultsAndOverrides().defaultPreferSecure, ep, routerInfo,
-                              instance_.defaultsAndOverrides().defaultCollocationOptimization, true,
-                              instance_.defaultsAndOverrides().defaultEndpointSelection,
-                              instance_.threadPerConnection());
+                return create(ident, facet, mode, secure, ep, null, propertyPrefix);
             }
             else if(s[beg] == '@')
             {
@@ -561,122 +484,12 @@ namespace IceInternal
                     e.str = s;
                     throw e;
                 }
-                return create(ident, instance_.getDefaultContext(), facet, mode, secure,
-                              instance_.defaultsAndOverrides().defaultPreferSecure, adapter,
-                              routerInfo, locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
-                              true, instance_.defaultsAndOverrides().defaultEndpointSelection,
-                              instance_.threadPerConnection(),
-                              instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
+                return create(ident, facet, mode, secure, null, adapter, propertyPrefix);
             }
 
             Ice.ProxyParseException ex = new Ice.ProxyParseException();
             ex.str = s;
             throw ex;
-        }
-
-        public Reference createFromProperties(string propertyPrefix)
-        {
-            Ice.Properties properties = instance_.initializationData().properties;
-
-            Reference @ref = create(properties.getProperty(propertyPrefix));
-            if(@ref == null) 
-            {
-                return null;
-            }
-
-            //
-            // Warn about unknown properties.
-            //
-            if(properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
-            {
-                checkForUnknownProperties(propertyPrefix);
-            }
-
-            string property = propertyPrefix + ".Locator";
-            if(properties.getProperty(property).Length != 0)
-            {
-                @ref = @ref.changeLocator(Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
-                if(@ref is DirectReference)
-                {
-                    string s = "`" + property + "=" + properties.getProperty(property) +
-                               "': cannot set a locator on a direct reference; setting ignored";
-                    instance_.initializationData().logger.warning(s);
-                }
-            }
-
-            property = propertyPrefix + ".LocatorCacheTimeout";
-            if(properties.getProperty(property).Length != 0)
-            {
-                @ref = @ref.changeLocatorCacheTimeout(properties.getPropertyAsInt(property));
-                if(@ref is DirectReference)
-                {
-                    string s = "`" + property + "=" + properties.getProperty(property) +
-                               "': cannot set a locator cache timeout on a direct reference; setting ignored";
-                    instance_.initializationData().logger.warning(s);
-                }
-            }
-
-            property = propertyPrefix + ".Router";
-            if(properties.getProperty(property).Length != 0)
-            {
-                if(propertyPrefix.EndsWith(".Router"))
-                {
-                    string s = "`" + property + "=" + properties.getProperty(property) +
-                               "': cannot set a router on a router; setting ignored";
-                    instance_.initializationData().logger.warning(s);
-                }
-                else
-                {
-                    @ref = @ref.changeRouter(
-                        Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
-                }
-            }
-
-            property = propertyPrefix + ".PreferSecure";
-            if(properties.getProperty(property).Length != 0)
-            {
-                @ref = @ref.changePreferSecure(properties.getPropertyAsInt(property) > 0);
-            }
-
-            property = propertyPrefix + ".ConnectionCached";
-            if(properties.getProperty(property).Length != 0)
-            {
-                @ref = @ref.changeCacheConnection(properties.getPropertyAsInt(property) > 0);
-            }
-
-            property = propertyPrefix + ".EndpointSelection";
-            if(properties.getProperty(property).Length != 0)
-            {
-                string type = properties.getProperty(property);
-                if(type.Equals("Random"))
-                {
-                    @ref = @ref.changeEndpointSelection(Ice.EndpointSelectionType.Random);
-                }
-                else if(type.Equals("Ordered"))
-                {
-                    @ref = @ref.changeEndpointSelection(Ice.EndpointSelectionType.Ordered);
-                }
-                else
-                {
-                    Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
-                    ex.str = type;
-                    throw ex;
-                }
-            }
-
-            property = propertyPrefix + ".CollocationOptimized";
-            if(properties.getProperty(property).Length != 0)
-            {
-                @ref = @ref.changeCollocationOptimization(properties.getPropertyAsInt(property) > 0);
-            }
-
-            property = propertyPrefix + ".ThreadPerConnection";
-            if(properties.getProperty(property).Length != 0)
-            {
-                @ref = @ref.changeThreadPerConnection(properties.getPropertyAsInt(property) > 0);
-            }
-
-            return @ref;
         }
 
         public Reference create(Ice.Identity ident, BasicStream s)
@@ -717,11 +530,8 @@ namespace IceInternal
 
             bool secure = s.readBool();
 
-            EndpointI[] endpoints;
+            EndpointI[] endpoints = null;
             string adapterId = "";
-
-            RouterInfo routerInfo = instance_.routerManager().get(getDefaultRouter());
-            LocatorInfo locatorInfo = instance_.locatorManager().get(getDefaultLocator());
 
             int sz = s.readSize();
             if(sz > 0)
@@ -731,56 +541,49 @@ namespace IceInternal
                 {
                     endpoints[i] = instance_.endpointFactoryManager().read(s);
                 }
-                return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode,
-                              secure, instance_.defaultsAndOverrides().defaultPreferSecure, endpoints, routerInfo,
-                              instance_.defaultsAndOverrides().defaultCollocationOptimization, true,
-                              instance_.defaultsAndOverrides().defaultEndpointSelection,
-                              instance_.threadPerConnection());
             }
             else
             {
-                endpoints = new EndpointI[0];
                 adapterId = s.readString();
-                return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode,
-                              secure, instance_.defaultsAndOverrides().defaultPreferSecure, adapterId, 
-                              routerInfo, locatorInfo,
-                              instance_.defaultsAndOverrides().defaultCollocationOptimization, true,
-                              instance_.defaultsAndOverrides().defaultEndpointSelection,
-                              instance_.threadPerConnection(),
-                              instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
             }
+            
+            return create(ident, facet, (Reference.Mode)mode, secure, endpoints, adapterId, null);
         }
 
-        public void setDefaultRouter(Ice.RouterPrx defaultRouter)
+        public ReferenceFactory setDefaultRouter(Ice.RouterPrx defaultRouter)
         {
-            lock(this)
+            if(_defaultRouter == null ? defaultRouter == null : _defaultRouter.Equals(defaultRouter))
             {
-                _defaultRouter = defaultRouter;
+                return this;
             }
+            
+            ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
+            factory._defaultLocator = _defaultLocator;
+            factory._defaultRouter = defaultRouter;
+            return factory;
         }
 
         public Ice.RouterPrx getDefaultRouter()
         {
-            lock(this)
-            {
-                return _defaultRouter;
-            }
+            return _defaultRouter;
         }
 
-        public void setDefaultLocator(Ice.LocatorPrx defaultLocator)
+        public ReferenceFactory setDefaultLocator(Ice.LocatorPrx defaultLocator)
         {
-            lock(this)
+            if(_defaultLocator == null ? defaultLocator == null : _defaultLocator.Equals(defaultLocator))
             {
-                _defaultLocator = defaultLocator;
+                return this;
             }
+            
+            ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
+            factory._defaultLocator = defaultLocator;
+            factory._defaultRouter = _defaultRouter;
+            return factory;
         }
 
         public Ice.LocatorPrx getDefaultLocator()
         {
-            lock(this)
-            {
-                return _defaultLocator;
-            }
+            return _defaultLocator;
         }
 
         //
@@ -796,38 +599,32 @@ namespace IceInternal
         {
             lock(this)
             {
-                if(instance_ == null)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                instance_ = null;
-                _defaultRouter = null;
-                _defaultLocator = null;
                 _references.Clear();
             }
         }
 
         private Reference updateCache(Reference @ref)
         {
-            //
-            // If we already have an equivalent reference, use such equivalent
-            // reference. Otherwise add the new reference to the reference
-            // set.
-            //
-            WeakReference w = new WeakReference(@ref);
-            WeakReference val = (WeakReference)_references[w];
-            if(val != null)
+            lock(this)
             {
-                Reference r = (Reference)val.Target;
-                if(r != null && r.Equals(@ref))
+                //
+                // If we already have an equivalent reference, use such equivalent
+                // reference. Otherwise add the new reference to the reference
+                // set.
+                //
+                WeakReference w = new WeakReference(@ref);
+                WeakReference val = (WeakReference)_references[w];
+                if(val != null)
                 {
-                    return r;
+                    Reference r = (Reference)val.Target;
+                    if(r != null && r.Equals(@ref))
+                    {
+                        return r;
+                    }
                 }
+                _references[w] = w;
+                return @ref;
             }
-            _references[w] = w;
-
-            return @ref;
         }
 
         static private readonly string[] _suffixes =
@@ -886,6 +683,124 @@ namespace IceInternal
                 }
                 instance_.initializationData().logger.warning(message);
             }
+        }
+
+        private Reference create(Ice.Identity ident,
+                                 string facet,
+                                 Reference.Mode mode,
+                                 bool secure,
+                                 EndpointI[] endpoints,
+                                 string adapterId,
+                                 string propertyPrefix)
+        {
+            DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
+
+            //
+            // Default local proxy options.
+            //
+            LocatorInfo locatorInfo = instance_.locatorManager().get(_defaultLocator);
+            RouterInfo routerInfo = instance_.routerManager().get(_defaultRouter);
+            bool collocOptimized = defaultsAndOverrides.defaultCollocationOptimization;
+            bool cacheConnection = true;
+            bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
+            Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
+            bool threadPerConnection = instance_.threadPerConnection();
+            int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
+        
+            //
+            // Override the defaults with the proxy properties if a property prefix is defined.
+            //
+            if(propertyPrefix != null && propertyPrefix.Length > 0)
+            {
+                Ice.Properties properties = instance_.initializationData().properties;
+
+                //
+                // Warn about unknown properties.
+                //
+                if(properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+                {
+                    checkForUnknownProperties(propertyPrefix);
+                }
+            
+                string property;
+            
+                property = propertyPrefix + ".Locator";
+                Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
+                if(locator != null)
+                {
+                    locatorInfo = instance_.locatorManager().get(locator);
+                }
+
+                property = propertyPrefix + ".Router";
+                Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
+                if(router != null)
+                {
+                    if(propertyPrefix.EndsWith(".Router"))
+                    {
+                        string s = "`" + property + "=" + properties.getProperty(property) +
+                            "': cannot set a router on a router; setting ignored";
+                        instance_.initializationData().logger.warning(s);
+                    }
+                    else
+                    {
+                        routerInfo = instance_.routerManager().get(router);
+                    }
+                }
+    
+                property = propertyPrefix + ".CollocationOptimized";
+                collocOptimized = properties.getPropertyAsIntWithDefault(property, collocOptimized ? 1 : 0) > 0;
+
+                property = propertyPrefix + ".ConnectionCached";
+                cacheConnection = properties.getPropertyAsIntWithDefault(property, cacheConnection ? 1 : 0) > 0;
+
+                property = propertyPrefix + ".PreferSecure";
+                preferSecure = properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
+
+                property = propertyPrefix + ".EndpointSelection";
+                if(properties.getProperty(property).Length > 0)
+                {
+                    string type = properties.getProperty(property);
+                    if(type.Equals("Random"))
+                    {
+                        endpointSelection = Ice.EndpointSelectionType.Random;
+                    } 
+                    else if(type.Equals("Ordered"))
+                    {
+                        endpointSelection = Ice.EndpointSelectionType.Ordered;
+                    }
+                    else
+                    {
+                        throw new Ice.EndpointSelectionTypeParseException(type);
+                    }
+                }
+        
+                property = propertyPrefix + ".ThreadPerConnection";
+                threadPerConnection = properties.getPropertyAsIntWithDefault(property, threadPerConnection ? 1 : 0) > 0;
+        
+                property = propertyPrefix + ".LocatorCacheTimeout";
+                locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+            }
+        
+            //
+            // Create new reference
+            //
+            return updateCache(new RoutableReference(instance_, 
+                                                     _communicator,
+                                                     ident,
+                                                     instance_.getDefaultContext(), 
+                                                     facet,
+                                                     mode,
+                                                     secure,
+                                                     endpoints,
+                                                     adapterId,
+                                                     locatorInfo,
+                                                     routerInfo,
+                                                     collocOptimized,
+                                                     cacheConnection,
+                                                     preferSecure,
+                                                     endpointSelection,
+                                                     threadPerConnection,
+                                                     locatorCacheTimeout));
         }
 
         private Instance instance_;

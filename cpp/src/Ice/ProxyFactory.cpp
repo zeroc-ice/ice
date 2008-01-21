@@ -29,7 +29,7 @@ IceUtil::Shared* IceInternal::upCast(ProxyFactory* p) { return p; }
 ObjectPrx
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
-    ReferencePtr ref = _instance->referenceFactory()->create(str);
+    ReferencePtr ref = _instance->referenceFactory()->create(str, "");
     return referenceToProxy(ref);
 }
 
@@ -49,7 +49,8 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 ObjectPrx
 IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
 {
-    ReferencePtr ref = _instance->referenceFactory()->createFromProperties(prefix);
+    string proxy = _instance->initializationData().properties->getProperty(prefix);
+    ReferencePtr ref = _instance->referenceFactory()->create(proxy, prefix);
     return referenceToProxy(ref);
 }
 
@@ -114,13 +115,13 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     if(one)
     {
         LocatorInfoPtr li = ref->getLocatorInfo();
-        if(li)
+        if(li && ref->isIndirect())
         {
             //
             // We retry ObjectNotExistException if the reference is
             // indirect.
             //
-            li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
+            li->clearObjectCache(ref);
         }
         else if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
         {

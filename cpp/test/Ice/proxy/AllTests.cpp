@@ -229,26 +229,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     string property;
 
-    // These two properties don't do anything to direct proxies so
-    // first we test that.
-    /*
-     * Commented out because setting a locator or locator cache
-     * timeout on a direct proxy causes warning.
-     *
     property = propertyPrefix + ".Locator";
     test(!b1->ice_getLocator());
     prop->setProperty(property, "locator:default -p 10000");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(!b1->ice_getLocator());
+    test(b1->ice_getLocator() && b1->ice_getLocator()->ice_getIdentity().name == "locator");
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".LocatorCacheTimeout";
-    test(b1->ice_getLocatorCacheTimeout() == 0);
+    test(b1->ice_getLocatorCacheTimeout() == -1);
     prop->setProperty(property, "1");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getLocatorCacheTimeout() == 0);
+    test(b1->ice_getLocatorCacheTimeout() == 1);
     prop->setProperty(property, "");
-    */
 
     // Now retest with an indirect proxy.
     prop->setProperty(propertyPrefix, "test");
@@ -342,6 +335,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!base->ice_secure(false)->ice_isSecure());
     test(base->ice_collocationOptimized(true)->ice_isCollocationOptimized());
     test(!base->ice_collocationOptimized(false)->ice_isCollocationOptimized());
+    test(base->ice_preferSecure(true)->ice_isPreferSecure());
+    test(!base->ice_preferSecure(false)->ice_isPreferSecure());
+    test(base->ice_threadPerConnection(true)->ice_isThreadPerConnection());
+    test(!base->ice_threadPerConnection(false)->ice_isThreadPerConnection());
     cout << "ok" << endl;
 
     cout << "testing proxy comparison... " << flush;
@@ -398,6 +395,52 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_timeout(10) < compObj->ice_timeout(20));
     test(!(compObj->ice_timeout(20) < compObj->ice_timeout(10)));
 
+    Ice::LocatorPrx loc1 = Ice::LocatorPrx::uncheckedCast(communicator->stringToProxy("loc1:default -p 10000"));
+    Ice::LocatorPrx loc2 = Ice::LocatorPrx::uncheckedCast(communicator->stringToProxy("loc2:default -p 10000"));
+    test(compObj->ice_locator(0) == compObj->ice_locator(0));
+    test(compObj->ice_locator(loc1) == compObj->ice_locator(loc1));
+    test(compObj->ice_locator(loc1) != compObj->ice_locator(0));
+    test(compObj->ice_locator(0) != compObj->ice_locator(loc2));
+    test(compObj->ice_locator(loc1) != compObj->ice_locator(loc2));
+    test(compObj->ice_locator(0) < compObj->ice_locator(loc1));
+    test(!(compObj->ice_locator(loc1) < compObj->ice_locator(0)));
+    test(compObj->ice_locator(loc1) < compObj->ice_locator(loc2));
+    test(!(compObj->ice_locator(loc2) < compObj->ice_locator(loc1)));
+    
+    Ice::RouterPrx rtr1 = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("rtr1:default -p 10000"));
+    Ice::RouterPrx rtr2 = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("rtr2:default -p 10000"));
+    test(compObj->ice_router(0) == compObj->ice_router(0));
+    test(compObj->ice_router(rtr1) == compObj->ice_router(rtr1));
+    test(compObj->ice_router(rtr1) != compObj->ice_router(0));
+    test(compObj->ice_router(0) != compObj->ice_router(rtr2));
+    test(compObj->ice_router(rtr1) != compObj->ice_router(rtr2));
+    test(compObj->ice_router(0) < compObj->ice_router(rtr1));
+    test(!(compObj->ice_router(rtr1) < compObj->ice_router(0)));
+    test(compObj->ice_router(rtr1) < compObj->ice_router(rtr2));
+    test(!(compObj->ice_router(rtr2) < compObj->ice_router(rtr1)));
+    
+    Ice::Context ctx1;
+    ctx1["ctx1"] = "v1";
+    Ice::Context ctx2;
+    ctx2["ctx2"] = "v2";
+    test(compObj->ice_context(Ice::Context()) == compObj->ice_context(Ice::Context()));
+    test(compObj->ice_context(ctx1) == compObj->ice_context(ctx1));
+    test(compObj->ice_context(ctx1) != compObj->ice_context(Ice::Context()));
+    test(compObj->ice_context(Ice::Context()) != compObj->ice_context(ctx2));
+    test(compObj->ice_context(ctx1) != compObj->ice_context(ctx2));
+    test(compObj->ice_context(ctx1) < compObj->ice_context(ctx2));
+    test(!(compObj->ice_context(ctx2) < compObj->ice_context(ctx1)));
+    
+    test(compObj->ice_preferSecure(true) == compObj->ice_preferSecure(true));
+    test(compObj->ice_preferSecure(true) != compObj->ice_preferSecure(false));
+    test(compObj->ice_preferSecure(false) < compObj->ice_preferSecure(true));
+    test(!(compObj->ice_preferSecure(true) < compObj->ice_preferSecure(false)));
+    
+    test(compObj->ice_threadPerConnection(true) == compObj->ice_threadPerConnection(true));
+    test(compObj->ice_threadPerConnection(true) != compObj->ice_threadPerConnection(false));
+    test(compObj->ice_threadPerConnection(false) < compObj->ice_threadPerConnection(true));
+    test(!(compObj->ice_threadPerConnection(true) < compObj->ice_threadPerConnection(false)));
+    
     Ice::ObjectPrx compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
     Ice::ObjectPrx compObj2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
     test(compObj1 != compObj2);

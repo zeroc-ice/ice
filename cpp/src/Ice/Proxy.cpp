@@ -612,7 +612,7 @@ IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
 bool
 IceProxy::Ice::Object::ice_isCollocationOptimized() const
 {
-    return _reference->getCollocationOptimization();
+    return _reference->getCollocationOptimized();
 }
 
 ObjectPrx
@@ -624,14 +624,14 @@ IceProxy::Ice::Object::ice_collocationOptimization(bool b) const
 ObjectPrx
 IceProxy::Ice::Object::ice_collocationOptimized(bool b) const
 {
-    if(b == _reference->getCollocationOptimization())
+    if(b == _reference->getCollocationOptimized())
     {
         return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
         ObjectPrx proxy = __newInstance();
-        proxy->setup(_reference->changeCollocationOptimization(b));
+        proxy->setup(_reference->changeCollocationOptimized(b));
         return proxy;
     }
 }
@@ -1065,7 +1065,7 @@ IceProxy::Ice::Object::__getDelegate(bool async)
     }
 
     Handle< ::IceDelegate::Ice::Object> delegate;
-    if(_reference->getCollocationOptimization())
+    if(_reference->getCollocationOptimized())
     {
         ObjectAdapterPtr adapter = _reference->getInstance()->objectAdapterFactory()->findObjectAdapter(this);
         if(adapter)

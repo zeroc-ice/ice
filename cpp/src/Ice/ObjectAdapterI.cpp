@@ -362,6 +362,7 @@ Ice::ObjectAdapterI::destroy()
         _routerInfo = 0;
         _publishedEndpoints.clear();
         _locatorInfo = 0;
+        _reference = 0;
 
         objectAdapterFactory = _objectAdapterFactory;
         _objectAdapterFactory = 0;
@@ -526,34 +527,6 @@ Ice::ObjectAdapterI::createIndirectProxy(const Identity& ident) const
     return newIndirectProxy(ident, "", _id);
 }
 
-ObjectPrx
-Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-    
-    checkForDeactivation();
-    checkIdentity(ident);
-
-    //
-    // Get all incoming connections for this object adapter.
-    //
-    vector<ConnectionIPtr> connections;
-    vector<IncomingConnectionFactoryPtr>::const_iterator p;
-    for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
-    {
-        list<ConnectionIPtr> cons = (*p)->connections();
-        copy(cons.begin(), cons.end(), back_inserter(connections));
-    }
-
-    //
-    // Create a reference and return a reverse proxy for this
-    // reference.
-    //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), 
-                                                             "", Reference::ModeTwoway, connections);
-    return _instance->proxyFactory()->referenceToProxy(ref);
-}
-
 void
 Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 {
@@ -608,90 +581,76 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 {
+    //
+    // NOTE: it's important that isLocal() doesn't perform any blocking operations as 
+    // it can be called for AMI invocations if the proxy has no delegate set yet.
+    //
+
     ReferencePtr ref = proxy->__reference();
-    vector<EndpointIPtr>::const_iterator p;
-    vector<EndpointIPtr> endpoints;
-
-    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
-    if(ir)
+    if(ref->isWellKnown())
     {
-        if(!ir->getAdapterId().empty())
-        {
-            //
-            // Proxy is local if the reference adapter id matches this
-            // adapter id or replica group id.
-            //
-            return ir->getAdapterId() == _id || ir->getAdapterId() == _replicaGroupId;
-        }
-
         //
-        // Get Locator endpoint information for indirect references.
+        // Check the active servant map to see if the well-known
+        // proxy is for a local object.
         //
-        LocatorInfoPtr info = ir->getLocatorInfo();
-        if(info)
-        {
-            bool isCached;
-            try
-            {
-                endpoints = info->getEndpoints(ir, ir->getLocatorCacheTimeout(), isCached);
-            }
-            catch(const Ice::LocalException&)
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
+        return _servantManager->hasServant(ref->getIdentity());
+    }
+    else if(ref->isIndirect())
+    {
+        //
+        // Proxy is local if the reference adapter id matches this
+        // adapter id or replica group id.
+        //
+        return ref->getAdapterId() == _id || ref->getAdapterId() == _replicaGroupId;
     }
     else
     {
-        endpoints = ref->getEndpoints();
-    }
+        vector<EndpointIPtr> endpoints = ref->getEndpoints();
 
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-    checkForDeactivation();
-
-    //
-    // Proxies which have at least one endpoint in common with the
-    // endpoints used by this object adapter are considered local.
-    //
-    for(p = endpoints.begin(); p != endpoints.end(); ++p)
-    {
-        vector<IncomingConnectionFactoryPtr>::const_iterator q;
-        for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
-        {
-            if((*p)->equivalent((*q)->endpoint()))
-            {
-                return true;
-            }
-        }
-        vector<EndpointIPtr>::const_iterator r;
-        for(r = _publishedEndpoints.begin(); r != _publishedEndpoints.end(); ++r)
-        {
-            if((*p)->equivalent(*r))
-            {
-                return true;
-            }
-        }
-    }
-
-    //
-    // Proxies which have at least one endpoint in common with the
-    // router's server proxy endpoints (if any), are also considered
-    // local.
-    //
-    if(_routerInfo && _routerInfo->getRouter() == proxy->ice_getRouter())
-    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        checkForDeactivation();
+        
+        //
+        // Proxies which have at least one endpoint in common with the
+        // endpoints used by this object adapter are considered local.
+        //
+        vector<EndpointIPtr>::const_iterator p;
         for(p = endpoints.begin(); p != endpoints.end(); ++p)
         {
+            vector<IncomingConnectionFactoryPtr>::const_iterator q;
+            for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
+            {
+                if((*p)->equivalent((*q)->endpoint()))
+                {
+                    return true;
+                }
+            }
             vector<EndpointIPtr>::const_iterator r;
-            for(r = _routerEndpoints.begin(); r != _routerEndpoints.end(); ++r)
+            for(r = _publishedEndpoints.begin(); r != _publishedEndpoints.end(); ++r)
             {
                 if((*p)->equivalent(*r))
                 {
                     return true;
+                }
+            }
+        }
+
+        //
+        // Proxies which have at least one endpoint in common with the
+        // router's server proxy endpoints (if any), are also considered
+        // local.
+        //
+        if(_routerInfo && _routerInfo->getRouter() == proxy->ice_getRouter())
+        {
+            for(p = endpoints.begin(); p != endpoints.end(); ++p)
+            {
+                vector<EndpointIPtr>::const_iterator r;
+                for(r = _routerEndpoints.begin(); r != _routerEndpoints.end(); ++r)
+                {
+                    if((*p)->equivalent(*r))
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -806,6 +765,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 {
     if(_noConfig)
     {
+        _reference = _instance->referenceFactory()->create("dummy -t", "");
         return;
     }
 
@@ -819,7 +779,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     if(unknownProps.size() != 0 && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
     {
         Warning out(_instance->initializationData().logger);
-        out << "found unknown properties for object adapter '" << _name << "':";
+        out << "found unknown properties for object adapter `" << _name << "':";
         for(unsigned int i = 0; i < unknownProps.size(); ++i)
         {
             out << "\n    " << unknownProps[i];
@@ -832,12 +792,28 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     if(endpointInfo.empty() && router == 0 && noProps)
     {
         InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "object adapter \"" + _name + "\" requires configuration.";
+        ex.reason = "object adapter `" + _name + "' requires configuration";
         throw ex;
     }
 
     const_cast<string&>(_id) = properties->getProperty(_name + ".AdapterId");
     const_cast<string&>(_replicaGroupId) = properties->getProperty(_name + ".ReplicaGroupId");
+
+    //
+    // Setup a reference to be used to get the default proxy options
+    // when creating new proxies. By default, create twoway proxies.
+    //
+    string proxyOptions = properties->getPropertyWithDefault(_name + ".ProxyOptions", "-t");
+    try
+    {
+        _reference = _instance->referenceFactory()->create("dummy " + proxyOptions, "");
+    }
+    catch(const ProxyParseException&)
+    {
+        InitializationException ex(__FILE__, __LINE__);
+        ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
+        throw ex;
+    }
 
     __setNoDelete(true);
     try
@@ -849,7 +825,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
         {
             InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n"
+            ex.reason = "object adapter `" + _name + "' cannot be configured for both\n"
                 "thread pool and thread per connection";
             throw ex;
         }
@@ -1036,13 +1012,8 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(
-        ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false,
-        _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, 0,
-        _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
-        _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection());
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, endpoints);
     return _instance->proxyFactory()->referenceToProxy(ref);
-
 }
 
 ObjectPrx
@@ -1051,12 +1022,7 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
     //
     // Create an indirect reference with the given adapter id.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(
-        ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, 
-        _instance->defaultsAndOverrides()->defaultPreferSecure, id, 0, 
-        _locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
-        _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection(),
-        _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, id);
     
     //
     // Return a proxy for the reference. 
@@ -1213,11 +1179,8 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
     }
 
     //
-    // We must get and call on the locator registry outside the thread
-    // synchronization to avoid deadlocks. (we can't make remote calls
-    // within the OA synchronization because the remote call will
-    // indirectly call isLocal() on this OA with the OA factory
-    // locked).
+    // Call on the locator registry outside the synchronization to 
+    // blocking other threads that need to lock this OA.
     //
     LocatorRegistryPrx locatorRegistry = locatorInfo ? locatorInfo->getLocatorRegistry() : LocatorRegistryPrx();
     string serverId;
@@ -1383,6 +1346,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "RegisterProcess",
         "ReplicaGroupId",
         "Router",
+        "ProxyOptions",
         "ThreadPerConnection",
         "ThreadPerConnection.StackSize",
         "ThreadPool.Size",

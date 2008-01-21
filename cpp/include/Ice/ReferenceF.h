@@ -29,15 +29,6 @@ class RoutableReference;
 ICE_API IceUtil::Shared* upCast(RoutableReference*);
 typedef IceInternal::Handle<RoutableReference> RoutableReferencePtr;
 
-class DirectReference;
-ICE_API IceUtil::Shared* upCast(DirectReference*);
-typedef IceInternal::Handle<DirectReference> DirectReferencePtr;
-
-class IndirectReference;
-ICE_API IceUtil::Shared* upCast(IndirectReference*);
-typedef IceInternal::Handle<IndirectReference> IndirectReferencePtr;
-
-
 }
 
 #endif

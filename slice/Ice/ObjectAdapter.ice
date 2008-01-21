@@ -520,26 +520,6 @@ local interface ObjectAdapter
     ["cpp:const"] Object* createIndirectProxy(Identity id);
 
     /**
-     *
-     * Create a "reverse proxy" for the object with the given identity.
-     * A reverse proxy uses the incoming connections that have been
-     * established from a client to this object adapter.
-     *
-     * <p class="Note"> This operation is intended to be used by special
-     * services, such as [Router] implementations. Regular user code
-     * should not attempt to use this operation.
-     *
-     * @param id The identity for which a proxy is to be created.
-     *
-     * @return A "reverse proxy" that matches the given identity and
-     * uses the incoming connections of this object adapter.
-     *
-     * @see Identity
-     *
-     **/
-    ["cpp:const"] Object* createReverseProxy(Identity id);
-
-    /**
      * Set an Ice locator for this object adapter. By doing so, the
      * object adapter will register itself with the locator registry
      * when it is activated for the first time. Furthermore, the proxies
