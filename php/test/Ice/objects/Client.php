@@ -341,7 +341,7 @@ function allTests()
     $ref = "uoet:default -p 12010 -t 2000";
     $base = $ICE->stringToProxy($ref);
     test($base != null);
-    $uoet = $base->ice_checkedCast("::Test::UnexpectedObjectExceptionTest");
+    $uoet = $base->ice_uncheckedCast("::Test::UnexpectedObjectExceptionTest");
     test($uoet != null);
     try
     {
