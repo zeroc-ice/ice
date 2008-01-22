@@ -55,6 +55,71 @@
       puts( buf);
       return 0;
   }
+*** noconfig/visualc.mak	2007-05-12 12:43:22.000000000 -0230
+--- noconfig/visualc.mak	2008-01-22 09:03:44.000000000 -0330
+***************
+*** 85,94 ****
+  LIBDIR = "$(VCINSTALLDIR)"\lib
+  CFLAGS = $(CFLAGS) -DMCPP_LIB
+  
+  mcpplib: mcpplib_lib mcpplib_dll
+  
+  mcpplib_lib:	$(OBJS)
+! 	lib -out:mcpp.lib $(OBJS)
+  
+  # DLL
+  DLL_VER = 0
+--- 85,101 ----
+  LIBDIR = "$(VCINSTALLDIR)"\lib
+  CFLAGS = $(CFLAGS) -DMCPP_LIB
+  
++ !ifdef DEBUG
++ CFLAGS = $(CFLAGS) -MDd -D_DEBUG
++ LIBSUFFIX = d
++ !else
++ CFLAGS = $(CFLAGS) -O2 -MD -DNDEBUG
++ !endif
++ 
+  mcpplib: mcpplib_lib mcpplib_dll
+  
+  mcpplib_lib:	$(OBJS)
+! 	lib -out:mcpp$(LIBSUFFIX).lib $(OBJS)
+  
+  # DLL
+  DLL_VER = 0
+***************
+*** 97,111 ****
+  .c.so	:
+  	$(CC) $(CFLAGS) $(CPPFLAGS) $(MEM_MACRO) -DDLL_EXPORT -TC -Fo$*.so $<
+  mcpplib_dll:	$(SOBJS)
+! 	$(CC) -LD -Femcpp$(DLL_VER) $(SOBJS) $(MEMLIB)
+  mcpplib_install:
+! 	copy mcpp.lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER).lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER).dll $(BINDIR)
+  
+  mcpplib_uninstall:
+! 	del $(LIBDIR)\mcpp.lib $(LIBDIR)\mcpp$(DLL_VER).lib \
+! 			$(BINDIR)\mcpp$(DLL_VER).dll
+  
+  # use mcpp as a subroutine from testmain.c
+  NAME = testmain
+--- 104,118 ----
+  .c.so	:
+  	$(CC) $(CFLAGS) $(CPPFLAGS) $(MEM_MACRO) -DDLL_EXPORT -TC -Fo$*.so $<
+  mcpplib_dll:	$(SOBJS)
+! 	$(CC) -LD -Femcpp$(DLL_VER)$(LIBSUFFIX) $(SOBJS) $(MEMLIB)
+  mcpplib_install:
+! 	copy mcpp$(LIBSUFFIX).lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER)$(LIBSUFFIX).lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER)$(LIBSUFFIX).dll $(BINDIR)
+  
+  mcpplib_uninstall:
+! 	del $(LIBDIR)\mcpp$(LIBSUFFIX).lib $(LIBDIR)\mcpp$(DLL_VER)$(LIBSUFFIX).lib \
+! 			$(BINDIR)\mcpp$(DLL_VER)$(LIBSUFFIX).dll
+  
+  # use mcpp as a subroutine from testmain.c
+  NAME = testmain
 *** src/cc1.c	2006-08-06 02:58:17.000000000 -0230
 --- src/cc1.c	2008-01-22 08:27:02.000000000 -0330
 ***************
