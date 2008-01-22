@@ -1315,12 +1315,6 @@ public final class ConnectionI extends IceInternal.EventHandler
                 notifyAll();
                 return IceInternal.SocketStatus.Finished;
             }
-            else if(_waitingForSend > 0)
-            {
-                _sendInProgress = false;
-                notifyAll();
-                return IceInternal.SocketStatus.Finished;
-            }
             else if(_queuedStreams.isEmpty())
             {
                 _sendInProgress = false;
@@ -1395,7 +1389,6 @@ public final class ConnectionI extends IceInternal.EventHandler
         _batchRequestCompress = false;
         _batchMarker = 0;
         _sendInProgress = false;
-        _waitingForSend = 0;
         _dispatchCount = 0;
         _state = StateNotInitialized;
         _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
@@ -2990,7 +2983,6 @@ public final class ConnectionI extends IceInternal.EventHandler
     private java.util.LinkedList _queuedStreams = new java.util.LinkedList();
     private java.util.LinkedList _sendStreams = new java.util.LinkedList();
     private boolean _sendInProgress;
-    private int _waitingForSend;
 
     private int _dispatchCount;
 

@@ -269,7 +269,6 @@ private:
     std::deque<OutgoingMessage> _queuedStreams;
     std::deque<OutgoingMessage> _sendStreams;
     bool _sendInProgress;
-    int _waitingForSend;
     
     int _dispatchCount;
 

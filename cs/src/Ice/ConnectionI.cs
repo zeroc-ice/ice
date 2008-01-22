@@ -1088,7 +1088,6 @@ namespace Ice
             _batchRequestCompress = false;
             _batchMarker = 0;
             _sendInProgress = false;
-            _waitingForSend = 0;
             _dispatchCount = 0;
             _state = StateNotInitialized;
             _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
@@ -2089,11 +2088,6 @@ namespace Ice
                         finished();
                     }
 
-                    Monitor.PulseAll(this);
-                }
-                else if(_waitingForSend > 0)
-                {
-                    _sendInProgress = false;
                     Monitor.PulseAll(this);
                 }
                 else if(_queuedStreams.Count == 0)
@@ -3382,7 +3376,6 @@ namespace Ice
         private LinkedList<OutgoingMessage> _queuedStreams = new LinkedList<OutgoingMessage>();
         private LinkedList<OutgoingMessage> _sendStreams = new LinkedList<OutgoingMessage>();
         private bool _sendInProgress;
-        private int _waitingForSend;
 
         private int _dispatchCount;
 

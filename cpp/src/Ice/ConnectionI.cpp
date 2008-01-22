@@ -1397,12 +1397,6 @@ Ice::ConnectionI::socketReady(bool finished)
         notifyAll();
         return Finished;
     }
-    else if(_waitingForSend > 0) // If there's synchronous calls waiting to be sent, unregister.
-    {
-        _sendInProgress = false;
-        notifyAll();
-        return Finished;
-    }
     else if(_queuedStreams.empty())
     {
         _sendInProgress = false;
@@ -1477,7 +1471,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _batchRequestCompress(false),
     _batchMarker(0),
     _sendInProgress(false),
-    _waitingForSend(0),
     _dispatchCount(0),
     _state(StateNotInitialized),
     _stateTime(IceUtil::Time::now(IceUtil::Time::Monotonic))
