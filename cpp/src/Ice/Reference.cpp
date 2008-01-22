@@ -410,7 +410,7 @@ public:
 
 IceInternal::Reference::Reference(const InstancePtr& instance, 
                                   const CommunicatorPtr& communicator, 
-                                  const Identity& identity,
+                                  const Identity& id,
 				  const SharedContextPtr& context, 
                                   const string& facet, 
                                   Mode mode,
@@ -420,7 +420,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
     _communicator(communicator),
     _mode(mode),
     _secure(secure),
-    _identity(identity),
+    _identity(id),
     _context(context),
     _facet(facet),
     _overrideCompress(false),
@@ -487,13 +487,13 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p;
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& instance, 
                                             const CommunicatorPtr& communicator, 
-                                            const Identity& identity,
+                                            const Identity& id,
 					    const SharedContextPtr& context,
                                             const string& facet, 
                                             Mode mode,
                                             bool secure,
 					    const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, identity, context, facet, mode, secure),
+    Reference(instance, communicator, id, context, facet, mode, secure),
     _fixedConnection(fixedConnection)
 {
 }
@@ -797,7 +797,7 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::RoutableReference* p) { return
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance, 
                                                   const CommunicatorPtr& communicator,
-						  const Identity& identity, 
+						  const Identity& id, 
                                                   const SharedContextPtr& context, 
                                                   const string& facet,
 						  Mode mode, 
@@ -812,7 +812,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
 						  EndpointSelectionType endpointSelection,
                                                   bool threadPerConnection,
                                                   int locatorCacheTimeout) :
-    Reference(instance, communicator, identity, context, facet, mode, secure),
+    Reference(instance, communicator, id, context, facet, mode, secure),
     _endpoints(endpoints),
     _adapterId(adapterId),
     _locatorInfo(locatorInfo),
@@ -893,7 +893,7 @@ ReferencePtr
 IceInternal::RoutableReference::changeCompress(bool newCompress) const
 {
     ReferencePtr r = Reference::changeCompress(newCompress);
-    if(r.get() != this && !_endpoints.empty()) // Also override the compress flag on the endpoints if it was updated.
+    if(r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty()) // Also override the compress flag on the endpoints if it was updated.
     {
 	vector<EndpointIPtr> newEndpoints;
 	for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)

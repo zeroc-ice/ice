@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>JGoodiesRuntime.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>{FAAEE0DC-43BC-4E5A-808B-5B569C3AF355}</td><td>INSTALLDIR.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>JGoodiesRuntime.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>{FAAEE0DC-43BC-4E5A-808B-5B569C3AF355}</td><td>INSTALLDIR.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">

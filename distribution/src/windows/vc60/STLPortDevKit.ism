@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>STLPortDevKit.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>{2899509B-A571-4CA2-B71E-3E0C94CDAB69}</td><td>INSTALLDIR.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>STLPortDevKit.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>{2899509B-A571-4CA2-B71E-3E0C94CDAB69}</td><td>INSTALLDIR.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">

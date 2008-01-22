@@ -58,7 +58,7 @@
 		<comments>Contact:  Your local administrator</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{9A29B37C-E08D-40A0-9A91-9397A74956AF}</revnumber>
+		<revnumber>{3312F090-97AD-455D-AD2F-6A5AB43CF2CA}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>PCREDevKit.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>{678E3E71-5ABE-4AD9-A45B-4F3F40C8B0A2}</td><td>INSTALLDIR.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>{3D01F691-AD1F-407C-8137-051D4AF73926}</td><td>LIB.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -281,7 +281,8 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>LIB.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>INSTALLDIR.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>lib</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
@@ -357,6 +358,8 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
+		<row><td>mcpp.lib.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>mcpp.lib</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev\lib\mcpp.lib</td><td>1</td><td/></row>
+		<row><td>mcppd.lib.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>mcppd.lib</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev\lib\mcppd.lib</td><td>1</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -407,7 +410,7 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>PCREDevKit.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td/><td/><td>_BBB26CCE_A69C_47F9_82FF_0A6BB122A56D_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td/><td/><td>_53959715_35A8_46D6_8BEF_0F90B8D3FE48_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -435,7 +438,6 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>PCREDevKit.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>&lt;ISProjectFolder&gt;\install\pcre\dev</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
@@ -625,7 +627,8 @@
 		<col def="S255">CDBrowser</col>
 		<col def="S255">DotNetBuildConfiguration</col>
 		<col def="S255">MsiCommandLine</col>
-		<row><td>PCRE_DEV_KIT</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>44</td><td/><td/><td/></row>
+		<row><td>BZIP2_DEV_KIT</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>0</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>44</td><td/><td/><td/></row>
+		<row><td>MCPP_DEV_KIT</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>44</td><td/><td/><td/></row>
 	</table>
 
 	<table name="ISReleaseExtended">
@@ -656,7 +659,8 @@
 		<col def="S50">JSharpCmdLine</col>
 		<col def="I4">Attributes</col>
 		<col def="I4">JSharpRedistLocation</col>
-		<row><td>PCRE_DEV_KIT</td><td>ZEROC</td><td/><td/><td/><td/><td/><td/><td>1</td><td/><td/><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>BZIP2_DEV_KIT</td><td>ZEROC</td><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>MCPP_DEV_KIT</td><td>ZEROC</td><td/><td/><td/><td/><td/><td/><td>1</td><td/><td/><td>1</td><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISScriptFile">
@@ -668,6 +672,12 @@
 		<col def="I2">Cost</col>
 		<col def="I2">Order</col>
 		<col def="S50">CmdLine</col>
+	</table>
+
+	<table name="ISSetupFile">
+		<col key="yes" def="S72">ISSetupFile</col>
+		<col def="S255">FileName</col>
+		<col def="V0">Stream</col>
 	</table>
 
 	<table name="ISStorages">
@@ -682,8 +692,8 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>ID_STRING1</td><td>1033</td><td>PCRE Dev Kit for Visual Studio 6.0</td><td>0</td><td/><td>-1046860592</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1046856496</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>MCPP Dev Kit for Visual Studio 6.0</td><td>0</td><td/><td>-1331931056</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-2129038292</td></row>
 	</table>
 
 	<table name="Icon">
@@ -726,6 +736,9 @@
 		<col def="S0">Value</col>
 		<row><td>ActiveLanguage</td><td>1033</td></row>
 		<row><td>Comments</td><td/></row>
+		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="8615f4f42e664b575ccb3aeed3c2391f">
+QgBaAEkAUAAyAF8ARABFAFYAXwBLAEkAVAABAFoARQBSAE8AQwA=
+			</td></row>
 		<row><td>ISCompilerOption_CompileBeforeBuild</td><td>1</td></row>
 		<row><td>ISCompilerOption_Debug</td><td>0</td></row>
 		<row><td>ISCompilerOption_IncludePath</td><td/></row>
@@ -829,7 +842,7 @@
 		<col key="yes" def="s72">Component</col>
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
-		<row><td>PCREDevKit.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>PCREDevKit.VC60.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>0</td></row>
+		<row><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>MCPPDevKit.VC60.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>0</td></row>
 	</table>
 
 	<table name="ModuleConfiguration">
@@ -892,7 +905,7 @@
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
 		<col def="s32">Version</col>
-		<row><td>PCREDevKit.VC60.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>0</td><td>1.0.0.0</td></row>
+		<row><td>MCPPDevKit.VC60.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>0</td><td>1.0.0.0</td></row>
 	</table>
 
 	<table name="ModuleSubstitution">
@@ -997,6 +1010,7 @@
 		<col key="yes" def="s72">Property</col>
 		<col def="L0">Value</col>
 		<col def="S255">ISComments</col>
+		<row><td>ProductCode</td><td>{69E2EFA0-4E38-42FE-B5CB-B5F292F81CC1}</td><td/></row>
 	</table>
 
 	<table name="PublishComponent">
