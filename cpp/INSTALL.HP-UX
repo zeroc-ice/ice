@@ -104,6 +104,9 @@ Ice has dependencies on a number of third-party libraries:
 
   ./configure CC=cc CXX=aCC CFLAGS=+Z --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
+
+  For 64 bit builds, after installation it is necessary to move libraries
+  from $(prefix)/lib to $(prefix)/lib/pa20_64.
   
 
 GNU Make 3.80

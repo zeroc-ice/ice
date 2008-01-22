@@ -82,6 +82,9 @@ This kit is required to run the IceSSL tests successfully.
   ./configure CC=cc CXX=CC CFLAGS=-KPIC --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
+  For 64 bit builds, after installation it is necessary to move libraries
+  from $(prefix)/lib to $(prefix)/lib/sparcv9.
+
 
 GNU Make 3.80
 -------------
