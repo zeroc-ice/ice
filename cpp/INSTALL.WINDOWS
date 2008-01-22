@@ -135,15 +135,32 @@ release version on your system, please rename the debug library to
 "libbz2d.lib". This is also what the Ice project files expect if you
 build a debug version of Ice. 
 
-For mcpp it is necessary to first apply a source patch available on
-the Ice download page before building. From the mcpp 2.6.4 base 
-directory run
+Since Ice requires the library version of mcpp you cannot use the
+mcpp Windows installer but must build it yourself. Once you downloaded
+and unpacked the mcpp source package use the following steps to build
+mcpp:
 
-  patch -p0 < mcpp-2.6.4.patch
+1. From the mcpp base direcory apply the mcpp source patch available 
+   on the Ice download page:
 
-Ice requires the library build of mcpp, so please follow the library
-build instructions found in doc/mcpp-porting.html in the mcpp source
-distribution.
+   patch -p0 < mcpp-2.6.4.patch
+
+2. CD to the mcpp src directory:
+
+   cd src
+
+3. Apply the appropriate patch for noconfig.H from the noconfig
+   directory. For example for VS2005 you would run:
+
+   patch -p0 < ../noconfig/vc2005.def
+
+4. Build the mcpp library:
+
+   nmake MCPP_LIB=1 /f ../nonconfig/visualc.mak mcpplib
+
+   Or for the debug version of the library:
+
+   nmake MCPP_LIB=1 DEBUG=1 /f ../nonconfig/visualc.mak mcpplib
 
 If you compile the third-party libraries from source code, we
 recommend that you use the same Visual C++ version to build all of

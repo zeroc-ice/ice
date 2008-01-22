@@ -73,8 +73,11 @@ http://www.zeroc.com/download.html
   Ice requires the library version of mcpp, so configure mcpp similar 
   to the following
 
-  ./configure --enable-mcpplib --disable-shared
+  ./configure CFLAGS=-fPIC --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
+
+  For 64bit machines, after installation it is necessary to rename the
+  library installation directory from $(prefix)/lib to $(prefix>/lib64.
 
 
 Python
