@@ -39,7 +39,6 @@ SRCS		= Acceptor.cs \
 		  EndpointFactory.cs \
 		  EndpointFactoryManager.cs \
 		  EndpointHostResolver.cs \
-		  EventHandler.cs \
 		  Exception.cs \
 		  ImplicitContextI.cs \
 		  IncomingAsync.cs \
