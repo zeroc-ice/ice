@@ -1,5 +1,5 @@
 *** configure	2007-05-02 11:40:35.000000000 -0230
---- configure	2008-01-10 09:37:27.000000000 -0330
+--- configure	2008-01-22 08:27:02.000000000 -0330
 ***************
 *** 19276,19282 ****
   #include <stdint.h>
@@ -56,7 +56,7 @@
       return 0;
   }
 *** src/cc1.c	2006-08-06 02:58:17.000000000 -0230
---- src/cc1.c	2008-01-10 09:24:09.000000000 -0330
+--- src/cc1.c	2008-01-22 08:27:02.000000000 -0330
 ***************
 *** 25,31 ****
   
@@ -75,7 +75,7 @@
       int     plus = 0;
       int     n = 1;
 *** src/configed.H	2007-05-12 10:32:22.000000000 -0230
---- src/configed.H	2008-01-10 09:26:26.000000000 -0330
+--- src/configed.H	2008-01-22 08:27:02.000000000 -0330
 ***************
 *** 336,344 ****
   /* stdin, stdout, stderr, FILE, NULL, fgets(), fputs() and other functions. */
@@ -105,39 +105,27 @@
   
 + /* For Ice we never want to fold file names */
 + #undef FNAME_FOLD
-*** src/noconfig.H	2007-05-12 10:31:49.000000000 -0230
---- src/noconfig.H	2008-01-10 09:26:41.000000000 -0330
+*** src/eval.c	2007-03-23 11:19:51.000000000 -0230
+--- src/eval.c	2008-01-21 14:18:06.000000000 -0330
 ***************
-*** 556,564 ****
-  /* stdin, stdout, stderr, FILE, NULL, fgets(), fputs() and other functions. */
-  #include    "stdio.h"
-  
-! /* FILENAMEMAX should be defined to FILENAME_MAX of host system.    */
-! #ifdef  FILENAME_MAX
-! #define FILENAMEMAX     FILENAME_MAX
+*** 196,202 ****
+  #define S_PDOUBLE   (sizeof (double *))
+  #define S_PFPTR     (sizeof (int (*)()))
+  #if HAVE_LONG_LONG
+! #if HOST_COMPILER == BORLANDC
+  #define S_LLINT     (sizeof (__int64))
+  #define S_PLLINT    (sizeof (__int64 *))
   #else
-  #define FILENAMEMAX     BUFSIZ
-  #endif
---- 556,564 ----
-  /* stdin, stdout, stderr, FILE, NULL, fgets(), fputs() and other functions. */
-  #include    "stdio.h"
-  
-! /* FILENAMEMAX should be defined to PATH_MAX of host system.    */
-! #ifdef  PATH_MAX
-! #define FILENAMEMAX     PATH_MAX
+--- 196,202 ----
+  #define S_PDOUBLE   (sizeof (double *))
+  #define S_PFPTR     (sizeof (int (*)()))
+  #if HAVE_LONG_LONG
+! #if (HOST_COMPILER == BORLANDC) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+  #define S_LLINT     (sizeof (__int64))
+  #define S_PLLINT    (sizeof (__int64 *))
   #else
-  #define FILENAMEMAX     BUFSIZ
-  #endif
-***************
-*** 587,589 ****
---- 587,591 ----
-  #include        "xalloc.h"
-  #endif
-  
-+ /* For Ice we never want to fold file names */
-+ #undef FNAME_FOLD
 *** src/lib.c	2007-01-08 05:23:31.000000000 -0330
---- src/lib.c	2008-01-09 10:12:15.000000000 -0330
+--- src/lib.c	2008-01-22 08:27:02.000000000 -0330
 ***************
 *** 18,25 ****
   #include    "noconfig.H"
@@ -302,7 +290,7 @@
   
   char *  stpcpy(
 *** src/main.c	2007-05-18 09:58:51.000000000 -0230
---- src/main.c	2008-01-09 10:06:19.000000000 -0330
+--- src/main.c	2008-01-22 08:27:02.000000000 -0330
 ***************
 *** 340,349 ****
       init_eval();
@@ -316,8 +304,39 @@
       fp_in = stdin;
       fp_out = stdout;
 --- 340,347 ----
+*** src/noconfig.H	2007-05-12 10:31:49.000000000 -0230
+--- src/noconfig.H	2008-01-22 08:27:02.000000000 -0330
+***************
+*** 556,564 ****
+  /* stdin, stdout, stderr, FILE, NULL, fgets(), fputs() and other functions. */
+  #include    "stdio.h"
+  
+! /* FILENAMEMAX should be defined to FILENAME_MAX of host system.    */
+! #ifdef  FILENAME_MAX
+! #define FILENAMEMAX     FILENAME_MAX
+  #else
+  #define FILENAMEMAX     BUFSIZ
+  #endif
+--- 556,564 ----
+  /* stdin, stdout, stderr, FILE, NULL, fgets(), fputs() and other functions. */
+  #include    "stdio.h"
+  
+! /* FILENAMEMAX should be defined to PATH_MAX of host system.    */
+! #ifdef  PATH_MAX
+! #define FILENAMEMAX     PATH_MAX
+  #else
+  #define FILENAMEMAX     BUFSIZ
+  #endif
+***************
+*** 587,589 ****
+--- 587,591 ----
+  #include        "xalloc.h"
+  #endif
+  
++ /* For Ice we never want to fold file names */
++ #undef FNAME_FOLD
 *** src/system.c	2007-05-12 10:34:13.000000000 -0230
---- src/system.c	2008-01-09 10:04:09.000000000 -0330
+--- src/system.c	2008-01-22 08:27:02.000000000 -0330
 ***************
 *** 53,63 ****
   #endif
@@ -1498,22 +1517,4 @@
 !     cfatal( "Excessive file argument \"%s\"", argv[ mcpp_optind], 0L , NULL);
       return  NULL;
   }
-*** src/eval.c  2007-03-23 11:19:51.000000000 -0230
---- src/eval.c  2008-01-21 14:18:06.000000000 -0330
-***************
-*** 196,202 ****
-  #define S_PDOUBLE   (sizeof (double *))
-  #define S_PFPTR     (sizeof (int (*)()))
-  #if HAVE_LONG_LONG
-! #if HOST_COMPILER == BORLANDC
-  #define S_LLINT     (sizeof (__int64))
-  #define S_PLLINT    (sizeof (__int64 *))
-  #else
---- 196,202 ----
-  #define S_PDOUBLE   (sizeof (double *))
-  #define S_PFPTR     (sizeof (int (*)()))
-  #if HAVE_LONG_LONG
-! #if (HOST_COMPILER == BORLANDC) || (defined(_MSC_VER) && (_MSC_VER < 1300))
-  #define S_LLINT     (sizeof (__int64))
-  #define S_PLLINT    (sizeof (__int64 *))
-  #else
+  
