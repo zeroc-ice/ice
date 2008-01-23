@@ -40,7 +40,8 @@ The following C++ compilers are supported:
 
 - Microsoft Visual C++ .NET 2003 SP1 (aka VC++ 7.1)
 
-- Microsoft Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)
+- Microsoft Visual C++ 6.0 SP5 with the Windows Server 2003 PSDK
+  (February 2003) and STLport 4.6.2 (or later)
 
   The Standard Template Library included with Visual C++ 6.0 is not 
   supported. STLPort is included in the Ice third-party package
@@ -79,6 +80,26 @@ trailing backslash (\).
 You may also need to execute the vsvars32.bat script, located in
 C:\Program Files\Microsoft Visual Studio 8\Common7\Tools, to properly
 configure your build environment.
+
+
+Visual C++ 6.0 Setup
+--------------------
+
+Users of Visual C++ 6.0 need to install the February 2003 Microsoft
+Platform SDK:
+
+  http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm
+
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE, LIB and PATH environment variables. This can be done by
+executing the following script:
+
+  C:\Program Files\Microsoft SDK\SetEnv.Bat
+
+Note that you must execute this script after setting up your VC60
+build environment to ensure that the Platform SDK include directory
+appears before the VC60 include directories in the INCLUDE environment
+variable.
 
 
 NMAKE and Message Compiler (MC.EXE)
