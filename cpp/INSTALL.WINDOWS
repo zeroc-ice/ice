@@ -145,6 +145,11 @@ mcpp:
 
    patch -p0 < mcpp-2.6.4.patch
 
+   You can download the patch utility from the following location if
+   you do not already have it available.
+
+   http://gnuwin32.sourceforge.net/packages/patch.htm
+
 2. CD to the mcpp src directory:
 
    cd src

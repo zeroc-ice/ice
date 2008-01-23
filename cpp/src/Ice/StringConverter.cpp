@@ -9,49 +9,13 @@
 
 #include <Ice/StringConverter.h>
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/ScopedArray.h>
 #include <Ice/LocalException.h>
 
 using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace std;
-
-
-#ifdef _WIN32
-namespace
-{
-//
-// Helper function
-//
-
-string getMessageForLastError()
-{
-    LPVOID lpMsgBuf = 0;
-    DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                             FORMAT_MESSAGE_FROM_SYSTEM |
-                             FORMAT_MESSAGE_IGNORE_INSERTS,
-                             NULL,
-                             GetLastError(),
-                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                             (LPTSTR)&lpMsgBuf,
-                             0,
-                             NULL);
-
-    string msg;
-    if(ok)
-    {
-        msg = (LPCTSTR)lpMsgBuf;
-        LocalFree(lpMsgBuf);
-    }
-    else
-    {
-        msg = "Unknown Windows error";
-    }
-    return msg;
-}
-}
-#endif
-
 
 namespace Ice
 {
@@ -162,7 +126,7 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
 
     if(writtenWchar == 0)
     {
-        throw StringConversionException(__FILE__, __LINE__, getMessageForLastError());
+        throw StringConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
 
     //
@@ -203,7 +167,7 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 
     if(writtenChar == 0)
     {
-        throw StringConversionException(__FILE__, __LINE__, getMessageForLastError());
+        throw StringConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
 
     target.assign(buffer.get(), writtenChar);

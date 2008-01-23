@@ -17,7 +17,7 @@
 #include <netinet/in.h>
 #endif
 
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h> // For setTcpBufSize
@@ -1538,217 +1538,12 @@ IceInternal::createPipe(SOCKET fds[2])
 #ifdef _WIN32
 
 string
-IceInternal::errorToString(int error)
-{
-    if(error < WSABASEERR)
-    {
-        LPVOID lpMsgBuf = 0;
-        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                 FORMAT_MESSAGE_FROM_SYSTEM |
-                                 FORMAT_MESSAGE_IGNORE_INSERTS,
-                                 NULL,
-                                 error,
-                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                                 (LPTSTR)&lpMsgBuf,
-                                 0,
-                                 NULL);
-        if(ok)
-        {
-            LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-            assert(msg && strlen((const char*)msg) > 0);
-            string result = (const char*)msg;
-            if(result[result.length() - 1] == '\n')
-            {
-                result = result.substr(0, result.length() - 2);
-            }
-            LocalFree(lpMsgBuf);
-            return result;
-        }
-        else
-        {
-            ostringstream os;
-            os << "unknown error: " << error;
-            return os.str();
-        }
-    }
-
-    switch(error)
-    {
-    case WSAEINTR:
-        return "WSAEINTR";
-        
-    case WSAEBADF:
-        return "WSAEBADF";
-        
-    case WSAEACCES:
-        return "WSAEACCES";
-        
-    case WSAEFAULT:
-        return "WSAEFAULT";
-        
-    case WSAEINVAL:
-        return "WSAEINVAL";
-        
-    case WSAEMFILE:
-        return "WSAEMFILE";
-        
-    case WSAEWOULDBLOCK:
-        return "WSAEWOULDBLOCK";
-        
-    case WSAEINPROGRESS:
-        return "WSAEINPROGRESS";
-        
-    case WSAEALREADY:
-        return "WSAEALREADY";
-        
-    case WSAENOTSOCK:
-        return "WSAENOTSOCK";
-        
-    case WSAEDESTADDRREQ:
-        return "WSAEDESTADDRREQ";
-        
-    case WSAEMSGSIZE:
-        return "WSAEMSGSIZE";
-        
-    case WSAEPROTOTYPE:
-        return "WSAEPROTOTYPE";
-        
-    case WSAENOPROTOOPT:
-        return "WSAENOPROTOOPT";
-        
-    case WSAEPROTONOSUPPORT:
-        return "WSAEPROTONOSUPPORT";
-        
-    case WSAESOCKTNOSUPPORT:
-        return "WSAESOCKTNOSUPPORT";
-        
-    case WSAEOPNOTSUPP:
-        return "WSAEOPNOTSUPP";
-        
-    case WSAEPFNOSUPPORT:
-        return "WSAEPFNOSUPPORT";
-        
-    case WSAEAFNOSUPPORT:
-        return "WSAEAFNOSUPPORT";
-        
-    case WSAEADDRINUSE:
-        return "WSAEADDRINUSE";
-        
-    case WSAEADDRNOTAVAIL:
-        return "WSAEADDRNOTAVAIL";
-        
-    case WSAENETDOWN:
-        return "WSAENETDOWN";
-        
-    case WSAENETUNREACH:
-        return "WSAENETUNREACH";
-        
-    case WSAENETRESET:
-        return "WSAENETRESET";
-        
-    case WSAECONNABORTED:
-        return "WSAECONNABORTED";
-        
-    case WSAECONNRESET:
-        return "WSAECONNRESET";
-        
-    case WSAENOBUFS:
-        return "WSAENOBUFS";
-        
-    case WSAEISCONN:
-        return "WSAEISCONN";
-        
-    case WSAENOTCONN:
-        return "WSAENOTCONN";
-        
-    case WSAESHUTDOWN:
-        return "WSAESHUTDOWN";
-        
-    case WSAETOOMANYREFS:
-        return "WSAETOOMANYREFS";
-        
-    case WSAETIMEDOUT:
-        return "WSAETIMEDOUT";
-        
-    case WSAECONNREFUSED:
-        return "WSAECONNREFUSED";
-        
-    case WSAELOOP:
-        return "WSAELOOP";
-        
-    case WSAENAMETOOLONG:
-        return "WSAENAMETOOLONG";
-        
-    case WSAEHOSTDOWN:
-        return "WSAEHOSTDOWN";
-        
-    case WSAEHOSTUNREACH:
-        return "WSAEHOSTUNREACH";
-        
-    case WSAENOTEMPTY:
-        return "WSAENOTEMPTY";
-        
-    case WSAEPROCLIM:
-        return "WSAEPROCLIM";
-        
-    case WSAEUSERS:
-        return "WSAEUSERS";
-        
-    case WSAEDQUOT:
-        return "WSAEDQUOT";
-        
-    case WSAESTALE:
-        return "WSAESTALE";
-        
-    case WSAEREMOTE:
-        return "WSAEREMOTE";
-        
-    case WSAEDISCON:
-        return "WSAEDISCON";
-        
-    case WSASYSNOTREADY:
-        return "WSASYSNOTREADY";
-        
-    case WSAVERNOTSUPPORTED:
-        return "WSAVERNOTSUPPORTED";
-        
-    case WSANOTINITIALISED:
-        return "WSANOTINITIALISED";
-        
-    case WSAHOST_NOT_FOUND:
-        return "WSAHOST_NOT_FOUND";
-        
-    case WSATRY_AGAIN:
-        return "WSATRY_AGAIN";
-        
-    case WSANO_RECOVERY:
-        return "WSANO_RECOVERY";
-        
-    case WSANO_DATA:
-        return "WSANO_DATA";
-
-    default:
-    {
-        ostringstream os;
-        os << "unknown socket error: " << error;
-        return os.str();
-    }
-    }
-}
-
-string
 IceInternal::errorToStringDNS(int error)
 {
-    return errorToString(error);
+    return IceUtilInternal::errorToString(error);
 }
 
 #else
-
-string
-IceInternal::errorToString(int error)
-{
-    return strerror(error);
-}
 
 string
 IceInternal::errorToStringDNS(int error)
@@ -1757,16 +1552,6 @@ IceInternal::errorToStringDNS(int error)
 }
 
 #endif
-
-string
-IceInternal::lastErrorToString()
-{
-#ifdef _WIN32
-    return errorToString(WSAGetLastError());
-#else
-    return errorToString(errno);
-#endif
-}
 
 std::string
 IceInternal::fdToString(SOCKET fd)

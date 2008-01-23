@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Unicode.h>
+#include <IceUtil/StringUtil.h>
 #include <IcePatch2/ClientUtil.h>
 #include <IcePatch2/Util.h>
 #include <IcePatch2/FileServerI.h>
@@ -79,7 +80,7 @@ public:
         {
             if(fputc('+', fp) == EOF || !writeFileInfo(fp, *p))
             {
-                throw "error writing log file:\n" + lastError();
+                throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
             }
         }
 
@@ -454,7 +455,7 @@ IcePatch2::Patcher::prepare()
     _log = OS::fopen(pathLog, "w");
     if(!_log)
     {
-        throw "cannot open `" + pathLog + "' for writing:\n" + lastError();
+        throw "cannot open `" + pathLog + "' for writing:\n" + IceUtilInternal::lastErrorToString();
     }
 
     return true;
@@ -614,7 +615,7 @@ IcePatch2::Patcher::init(const FileServerPrx& server)
         string cwd;
         if(OS::getcwd(cwd) != 0)
         {
-            throw "cannot get the current directory:\n" + lastError();
+            throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
         }
         const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
     }
@@ -638,7 +639,7 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
             remove(_dataDir + '/' + p->path);
             if(fputc('-', _log) == EOF || ! writeFileInfo(_log, *p))
             {
-                throw "error writing log file:\n" + lastError();
+                throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
             }
         }
         catch(...)
@@ -797,7 +798,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
             createDirectoryRecursive(_dataDir + '/' + p->path);
             if(fputc('+', _log) == EOF || !writeFileInfo(_log, *p))
             {
-                throw "error writing log file:\n" + lastError();
+                throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
             }
         }
         else // Regular file.
@@ -813,7 +814,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
                 FILE* fp = OS::fopen(path, "wb");
                 if(fp == 0)
                 {
-                    throw "cannot open `" + path +"' for writing:\n" + lastError();
+                    throw "cannot open `" + path +"' for writing:\n" + IceUtilInternal::lastErrorToString();
                 }
                 fclose(fp);
             }
@@ -838,7 +839,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
                 FILE* fileBZ2 = OS::fopen(pathBZ2, "wb");
                 if(fileBZ2 == 0)
                 {
-                    throw "cannot open `" + pathBZ2 + "' for writing:\n" + lastError();
+                    throw "cannot open `" + pathBZ2 + "' for writing:\n" + IceUtilInternal::lastErrorToString();
                 }
 
                 try
@@ -897,7 +898,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                         if(fwrite(reinterpret_cast<char*>(&bytes[0]), bytes.size(), 1, fileBZ2) != 1)
                         {
-                            throw ": cannot write `" + pathBZ2 + "':\n" + lastError();
+                            throw ": cannot write `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                         }
 
                         pos += static_cast<int>(bytes.size());

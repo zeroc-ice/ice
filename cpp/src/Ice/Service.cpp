@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
@@ -1193,33 +1194,7 @@ Ice::Service::initializeCommunicator(int& argc, char* argv[], const Initializati
 void
 Ice::Service::syserror(const string& msg)
 {
-    string errmsg;
-#ifdef _WIN32
-    int err = GetLastError();
-    if(err < WSABASEERR)
-    {
-        LPVOID lpMsgBuf = 0;
-        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                 FORMAT_MESSAGE_FROM_SYSTEM |
-                                 FORMAT_MESSAGE_IGNORE_INSERTS,
-                                 0,
-                                 err,
-                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                                 (LPTSTR)&lpMsgBuf,
-                                 0,
-                                 0);
-        if(ok)
-        {
-            LPCTSTR str = (LPCTSTR)lpMsgBuf;
-            assert(str && strlen((const char*)str) > 0);
-            errmsg = (const char*)str;
-            LocalFree(lpMsgBuf);
-        }
-    }
-#else
-    int err = errno;
-    errmsg = strerror(err);
-#endif
+    string errmsg = IceUtilInternal::lastErrorToString();
     if(_logger)
     {
         ostringstream ostr;

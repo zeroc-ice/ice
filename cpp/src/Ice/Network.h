@@ -111,9 +111,7 @@ ICE_API int compareAddress(const struct sockaddr_storage&, const struct sockaddr
 
 ICE_API void createPipe(SOCKET fds[2]);
 
-ICE_API std::string errorToString(int);
 ICE_API std::string errorToStringDNS(int);
-ICE_API std::string lastErrorToString();
 
 ICE_API std::string fdToString(SOCKET);
 ICE_API std::string addressesToString(const struct sockaddr_storage&, const struct sockaddr_storage&, bool);

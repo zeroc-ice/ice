@@ -51,6 +51,15 @@ ICE_UTIL_API std::string::size_type checkQuote(const std::string&, std::string::
 //
 ICE_UTIL_API bool match(const std::string&, const std::string&, bool = false);
 
+//
+// Get the error message for the last error code or given error code.
+//
+ICE_UTIL_API std::string lastErrorToString();
+#ifdef _WIN32
+ICE_UTIL_API std::string errorToString(int, LPCVOID = NULL);
+#else
+ICE_UTIL_API std::string errorToString(int);
+#endif
 }
 
 #endif

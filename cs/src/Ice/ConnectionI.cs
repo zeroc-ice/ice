@@ -2119,9 +2119,6 @@ namespace Ice
             {
                 if(_state != StateClosed)
                 {
-                    _stream.resize(IceInternal.Protocol.headerSize, true); // Make room for the header.
-                    _stream.pos(0);
-
                     //
                     // We need to start a new read operation before dispatching the incoming message.
                     // However, it may not be safe to start the read from this thread because the thread
@@ -2202,7 +2199,10 @@ namespace Ice
                 message.outAsync.finished__(message.stream);
             }
 
-            invokeAll(message);
+            if(message.invokeNum > 0)
+            {
+                invokeAll(message);
+            }
         }
 
         private void readAsync(object state)
@@ -2361,6 +2361,8 @@ namespace Ice
                     //
                     stream = new IceInternal.BasicStream(_instance);
                     stream.swap(_stream);
+                    _stream.resize(IceInternal.Protocol.headerSize, true); // Make room for the next header.
+                    _stream.pos(0);
 
                     //
                     // Parse the message. Note that this may involve decompressing the message.
@@ -2376,8 +2378,13 @@ namespace Ice
                     }
 
                     //
-                    // At this point we have received and parsed a complete message. If we are configured with a
-                    // thread pool, schedule a work item otherwise, execute this message directly from this thread.
+                    // At this point we have received and parsed a complete message. We have two responsibilities:
+                    //
+                    // 1. Dispatch the message, if necessary (parseMessage may have already handled the message).
+                    // 2. Start another read.
+                    //
+                    // If we are using the thread pool, we request a callback and handle these tasks in
+                    // threadPoolCallback. Otherwise, we handle them directly from this thread.
                     //
                     if(message.stream != null && _threadPool != null)
                     {
@@ -2395,8 +2402,6 @@ namespace Ice
                         // will be called when the operation completes. Otherwise, we need to schedule a
                         // work item to continue the read process.
                         //
-                        _stream.resize(IceInternal.Protocol.headerSize, true); // Make room for the header.
-                        _stream.pos(0);
                         result = _transceiver.beginRead(_stream.getBuffer(), _readAsyncCallback, null);
                         if(result.CompletedSynchronously)
                         {
@@ -2424,7 +2429,10 @@ namespace Ice
                     // must be done outside the thread synchronization, so that nested
                     // calls are possible.
                     //
-                    invokeAll(message);
+                    if(message.invokeNum > 0)
+                    {
+                        invokeAll(message);
+                    }
                 }
             }
             catch(DatagramLimitException)

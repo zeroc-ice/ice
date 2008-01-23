@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
 #include <IcePatch2/Util.h>
@@ -122,7 +123,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
             string cwd;
             if(OS::getcwd(cwd) != 0)
             {
-                throw "cannot get the current directory:\n" + lastError();
+                throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
             }
             
             dataDir = cwd + '/' + dataDir;

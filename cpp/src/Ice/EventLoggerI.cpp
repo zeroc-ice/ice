@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
+#include <IceUtil/StringUtil.h>
 #include <Ice/EventLoggerI.h>
 #include <Ice/EventLoggerMsg.h>
 #include <Ice/LocalException.h>
-#include <Ice/Network.h> // For errorToString
 #include <IceUtil/StaticMutex.h>
 
 using namespace std;
@@ -122,7 +122,7 @@ Ice::EventLoggerI::print(const string& message)
     if(!ReportEvent(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0))
     {
         IceUtil::StaticMutex::Lock sync(outputMutex);
-        cerr << "ReportEvent failed `" << IceInternal::errorToString(GetLastError()) << "':\n" << message << endl;
+        cerr << "ReportEvent failed `" << IceUtilInternal::errorToString(GetLastError()) << "':\n" << message << endl;
     }
 }
 
@@ -142,7 +142,7 @@ Ice::EventLoggerI::trace(const string& category, const string& message)
     if(!ReportEvent(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0))
     {
         IceUtil::StaticMutex::Lock sync(outputMutex);
-        cerr << "ReportEvent failed `" << IceInternal::errorToString(GetLastError()) << "':\n" << message << endl;
+        cerr << "ReportEvent failed `" << IceUtilInternal::errorToString(GetLastError()) << "':\n" << message << endl;
     }
 }
 
@@ -154,7 +154,7 @@ Ice::EventLoggerI::warning(const string& message)
     if(!ReportEvent(_source, EVENTLOG_WARNING_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0))
     {
         IceUtil::StaticMutex::Lock sync(outputMutex);
-        cerr << "ReportEvent failed `" << IceInternal::errorToString(GetLastError()) << "':\n" << message << endl;
+        cerr << "ReportEvent failed `" << IceUtilInternal::errorToString(GetLastError()) << "':\n" << message << endl;
     }
 }
 
@@ -166,7 +166,7 @@ Ice::EventLoggerI::error(const string& message)
     if(!ReportEvent(_source, EVENTLOG_ERROR_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0))
     {
         IceUtil::StaticMutex::Lock sync(outputMutex);
-        cerr << "ReportEvent failed `" << IceInternal::errorToString(GetLastError()) << "':\n" << message << endl;
+        cerr << "ReportEvent failed `" << IceUtilInternal::errorToString(GetLastError()) << "':\n" << message << endl;
     }
 }
 

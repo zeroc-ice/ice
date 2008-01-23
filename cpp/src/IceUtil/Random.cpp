@@ -20,14 +20,6 @@
 using namespace std;
 using namespace IceUtil;
 
-IceUtilInternal::RandomGeneratorException::RandomGeneratorException(const char* file, int line, int error) :
-    Exception(file, line),
-    _error(error)
-{
-}
-
-const char* IceUtilInternal::RandomGeneratorException::_name = "IceUtilInternal::RandomGeneratorException";
-
 //
 // The static mutex is required to lazy initialize the file
 // descriptor for /dev/urandom (Unix) or the cryptographic 
@@ -78,60 +70,6 @@ public:
 static RandomCleanup uuidCleanup;
 }
 
-string
-IceUtilInternal::RandomGeneratorException::ice_name() const
-{
-    return _name;
-}
-
-void
-IceUtilInternal::RandomGeneratorException::ice_print(ostream& os) const
-{
-    Exception::ice_print(os);
-    if(_error != 0)
-    {
-        os << ":\nrandom generator exception: ";
-#ifdef _WIN32
-        LPVOID lpMsgBuf = 0;
-        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                 FORMAT_MESSAGE_FROM_SYSTEM |
-                                 FORMAT_MESSAGE_IGNORE_INSERTS,
-                                 NULL,
-                                 _error,
-                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                                 (LPTSTR)&lpMsgBuf,
-                                 0,
-                                 NULL);
-        
-        if(ok)
-        {
-            LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-            assert(msg && strlen((char*)msg) > 0);
-            os << msg;
-            LocalFree(lpMsgBuf);
-        }
-        else
-        {
-            os << "unknown random generator error";
-        }
-#else
-        os << strerror(_error);
-#endif
-    }
-}
-
-Exception*
-IceUtilInternal::RandomGeneratorException::ice_clone() const
-{
-    return new RandomGeneratorException(*this);
-}
-
-void
-IceUtilInternal::RandomGeneratorException::ice_throw() const
-{
-    throw *this;
-}
-
 void
 IceUtilInternal::generateRandom(char* buffer, int size)
 {
@@ -148,13 +86,13 @@ IceUtilInternal::generateRandom(char* buffer, int size)
     {
         if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
         {
-            throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
+            throw SyscallException(__FILE__, __LINE__, GetLastError());
         }
     }
 
     if(!CryptGenRandom(context, size, reinterpret_cast<unsigned char*>(buffer)))
     {
-        throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
+        throw SyscallException(__FILE__, __LINE__, GetLastError());
     }
 #else
 
@@ -168,7 +106,7 @@ IceUtilInternal::generateRandom(char* buffer, int size)
         if(fd == -1)
         {
             assert(0);
-            throw RandomGeneratorException(__FILE__, __LINE__);
+            throw SyscallException(__FILE__, __LINE__, errno);
         }
     }
     
@@ -184,10 +122,10 @@ IceUtilInternal::generateRandom(char* buffer, int size)
         
         if(bytesRead == -1 && errno != EINTR)
         {
-            int err = errno;
-            cerr << "Reading /dev/urandom returned " << strerror(err) << endl;
+            SyscallException ex(__FILE__, __LINE__, errno);
+            cerr << "Reading /dev/urandom failed:\n" << ex << endl;
             assert(0);
-            throw RandomGeneratorException(__FILE__, __LINE__, errno);
+            throw ex;
         }
         else
         {
@@ -199,7 +137,7 @@ IceUtilInternal::generateRandom(char* buffer, int size)
     if(index != static_cast<size_t>(size))
     {
         assert(0);
-        throw RandomGeneratorException(__FILE__, __LINE__);
+        throw SyscallException(__FILE__, __LINE__, 0);
     }
 #endif
 }

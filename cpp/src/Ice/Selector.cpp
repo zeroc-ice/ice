@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Selector.h>
 #include <Ice/Network.h>
 #include <Ice/Instance.h>
@@ -146,7 +147,7 @@ IceInternal::Selector::add(SOCKET fd, SocketStatus status)
     {
         Error out(_instance->initializationData().logger);
         out << "error while adding filedescriptor to epoll set:\n";
-        out << errorToString(getSocketErrno());
+        out << IceInternalUtil::errorToString(getSocketErrno());
     }
     _events.resize(_events.size() + 1);
 #elif defined(__APPLE__)
@@ -167,7 +168,7 @@ IceInternal::Selector::add(SOCKET fd, SocketStatus status)
     {
         Error out(_instance->initializationData().logger);
         out << "error while adding filedescriptor to kqueue:\n";
-        out << errorToString(getSocketErrno());
+        out << IceUtilInternal::errorToString(getSocketErrno());
     }
     _events.resize(_events.size() + 1);
 #else
@@ -219,7 +220,7 @@ Selector::remove(SOCKET fd, SocketStatus status)
         //
 //         Error out(_instance->initializationData().logger);
 //         out << "error while removing filedescriptor from epoll set:\n";
-//         out << errorToString(getSocketErrno());
+//         out << IceUtilInternal::errorToString(getSocketErrno());
     }
     _events.resize(_events.size() - 1);
 #elif defined(__APPLE__)
@@ -244,7 +245,7 @@ Selector::remove(SOCKET fd, SocketStatus status)
         //
 //         Error out(_instance->initializationData().logger);
 //         out << "error while removing filedescriptor from kqueue:\n";
-//         out << errorToString(getSocketErrno());
+//         out << IceUtilInternal::errorToString(getSocketErrno());
     }
     _events.resize(_events.size() - 1);
 #else

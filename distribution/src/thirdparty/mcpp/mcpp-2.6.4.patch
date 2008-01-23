@@ -1,5 +1,5 @@
 *** configure	2007-05-02 11:40:35.000000000 -0230
---- configure	2008-01-22 08:27:02.000000000 -0330
+--- configure	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 19276,19282 ****
   #include <stdint.h>
@@ -56,7 +56,7 @@
       return 0;
   }
 *** noconfig/visualc.mak	2007-05-12 12:43:22.000000000 -0230
---- noconfig/visualc.mak	2008-01-22 09:03:44.000000000 -0330
+--- noconfig/visualc.mak	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 85,94 ****
   LIBDIR = "$(VCINSTALLDIR)"\lib
@@ -121,7 +121,7 @@
   # use mcpp as a subroutine from testmain.c
   NAME = testmain
 *** src/cc1.c	2006-08-06 02:58:17.000000000 -0230
---- src/cc1.c	2008-01-22 08:27:02.000000000 -0330
+--- src/cc1.c	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 25,31 ****
   
@@ -140,7 +140,7 @@
       int     plus = 0;
       int     n = 1;
 *** src/configed.H	2007-05-12 10:32:22.000000000 -0230
---- src/configed.H	2008-01-22 08:27:02.000000000 -0330
+--- src/configed.H	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 336,344 ****
   /* stdin, stdout, stderr, FILE, NULL, fgets(), fputs() and other functions. */
@@ -171,7 +171,7 @@
 + /* For Ice we never want to fold file names */
 + #undef FNAME_FOLD
 *** src/eval.c	2007-03-23 11:19:51.000000000 -0230
---- src/eval.c	2008-01-21 14:18:06.000000000 -0330
+--- src/eval.c	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 196,202 ****
   #define S_PDOUBLE   (sizeof (double *))
@@ -190,7 +190,7 @@
   #define S_PLLINT    (sizeof (__int64 *))
   #else
 *** src/lib.c	2007-01-08 05:23:31.000000000 -0330
---- src/lib.c	2008-01-22 08:27:02.000000000 -0330
+--- src/lib.c	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 18,25 ****
   #include    "noconfig.H"
@@ -355,7 +355,7 @@
   
   char *  stpcpy(
 *** src/main.c	2007-05-18 09:58:51.000000000 -0230
---- src/main.c	2008-01-22 08:27:02.000000000 -0330
+--- src/main.c	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 340,349 ****
       init_eval();
@@ -370,7 +370,7 @@
       fp_out = stdout;
 --- 340,347 ----
 *** src/noconfig.H	2007-05-12 10:31:49.000000000 -0230
---- src/noconfig.H	2008-01-22 08:27:02.000000000 -0330
+--- src/noconfig.H	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 556,564 ****
   /* stdin, stdout, stderr, FILE, NULL, fgets(), fputs() and other functions. */
@@ -401,7 +401,7 @@
 + /* For Ice we never want to fold file names */
 + #undef FNAME_FOLD
 *** src/system.c	2007-05-12 10:34:13.000000000 -0230
---- src/system.c	2008-01-22 08:27:02.000000000 -0330
+--- src/system.c	2008-01-22 12:59:58.000000000 -0330
 ***************
 *** 53,63 ****
   #endif
@@ -1583,3 +1583,151 @@
       return  NULL;
   }
   
+*** noconfig/vc2008.dif	1969-12-31 20:30:00.000000000 -0330
+--- noconfig/vc2008.dif	2008-01-22 13:00:28.000000000 -0330
+***************
+*** 0 ****
+--- 1,69 ----
++ *** noconfig.H	2007-01-30 00:29:12.000000000 +0900
++ --- noconfig.H.vc6	2007-01-30 01:43:38.000000000 +0900
++ ***************
++ *** 15,21 ****
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_FREEBSD
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ --- 15,21 ----
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_WIN32
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ ***************
++ *** 26,36 ****
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       GNUC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "GCC 3.4"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ --- 26,36 ----
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       MSC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "Visual C 2008"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ ***************
++ *** 242,252 ****
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1400"
++                   /* VC 4.0: "1000", VC 5.0: "1100", VC 6.0: "1200"
++                   , VC 2002: "1300", VC 2003: "1310", VC 2005: "1400" */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "140050320"
++   /* VC 6.0:12008804, VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320"*/
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
++   #define COMPILER_SP1_VAL    "1"
++ --- 242,252 ----
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1500"
++                   /* VC 4.0: "1000", VC 5.0: "1100", VC 6.0: "1200"
++                   , VC 2002: "1300", VC 2003: "1310", VC 2005: "1400" */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "150021022"
++   /* VC 6.0:12008804, VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320"*/
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
++   #define COMPILER_SP1_VAL    "1"
+*** noconfig/vc6.dif	1969-12-31 20:30:00.000000000 -0330
+--- noconfig/vc6.dif	2008-01-22 13:00:24.000000000 -0330
+***************
+*** 0 ****
+--- 1,69 ----
++ *** noconfig.H	2007-01-30 00:29:12.000000000 +0900
++ --- noconfig.H.vc2008	2007-01-30 01:43:38.000000000 +0900
++ ***************
++ *** 15,21 ****
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_FREEBSD
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ --- 15,21 ----
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_WIN32
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ ***************
++ *** 26,36 ****
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       GNUC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "GCC 3.4"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ --- 26,36 ----
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       MSC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "Visual C 6"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ ***************
++ *** 242,252 ****
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1400"
++                   /* VC 4.0: "1000", VC 5.0: "1100", VC 6.0: "1200"
++                   , VC 2002: "1300", VC 2003: "1310", VC 2005: "1400" */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "140050320"
++   /* VC 6.0:12008804, VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320"*/
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
++   #define COMPILER_SP1_VAL    "1"
++ --- 242,252 ----
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1200"
++                   /* VC 4.0: "1000", VC 5.0: "1100", VC 6.0: "1200"
++                   , VC 2002: "1300", VC 2003: "1310", VC 2005: "1400" */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "12008804"
++   /* VC 6.0:12008804, VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320"*/
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
++   #define COMPILER_SP1_VAL    "1"
