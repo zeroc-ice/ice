@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
+#include <IceUtil/StringUtil.h>
 #include <Ice/Communicator.h>
 #include <Ice/Properties.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/TraceLevels.h>
@@ -46,37 +46,7 @@ namespace
 string
 pdhErrorToString(PDH_STATUS err)
 {
-    LPVOID lpMsgBuf = 0;
-	
-    DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                             FORMAT_MESSAGE_FROM_HMODULE |
-                             FORMAT_MESSAGE_IGNORE_INSERTS,
-                             GetModuleHandle(TEXT("PDH.DLL")), 
-                             err,
-                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                             (LPTSTR)&lpMsgBuf, 
-                             0,
-                             NULL);
-
-    string message;
-    if(ok)
-    {
-        LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-        assert(msg && strlen(static_cast<const char*>(msg)) > 0);
-        message = static_cast<const char*>(msg);
-        if(message[message.length() - 1] == '\n')
-        {
-            message = message.substr(0, message.length() - 2);
-        }
-        LocalFree(lpMsgBuf);
-    }
-    else
-    {
-        ostringstream os;
-        os << "unknown error: " << err;
-        message = os.str();
-    }
-    return message;
+    return IceUtilInternal::errorToString(err, GetModuleHandle(TEXT("PDH.DLL")));
 }
 
 static string
@@ -302,7 +272,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
     {
-        throw "cannot get the current directory:\n" + IcePatch2::lastError();
+        throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
     }
     _cwd = string(cwd);
 

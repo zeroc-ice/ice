@@ -161,43 +161,6 @@ IcePatch2::readFileInfo(FILE* fp, FileInfo& info)
 }
 
 string
-IcePatch2::lastError()
-{
-#ifdef _WIN32
-    LPVOID lpMsgBuf = 0;
-    DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                             FORMAT_MESSAGE_FROM_SYSTEM |
-                             FORMAT_MESSAGE_IGNORE_INSERTS,
-                             NULL,
-                             GetLastError(),
-                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                             (LPTSTR)&lpMsgBuf,
-                             0,
-                             NULL);
-    if(ok)
-    {
-        LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-        assert(msg && strlen((const char*)msg) > 0);
-        string result = (const char*)msg;
-        LocalFree(lpMsgBuf);
-
-        while(result.size() >= 1 && (result[result.size() - 1] == '\n' || result[result.size() - 1] == '\r'))
-        {
-            result.erase(result.size() - 1);
-        }
-
-        return result;
-    }
-    else
-    {
-        return "unknown error";
-    }
-#else
-    return strerror(errno);
-#endif
-}
-
-string
 IcePatch2::bytesToString(const ByteSeq& bytes)
 {
 /*
@@ -454,7 +417,7 @@ IcePatch2::rename(const string& fromPa, const string& toPa)
 
     if(OS::rename(fromPath ,toPath) == -1)
     {
-        throw "cannot rename `" + fromPath + "' to  `" + toPath + "': " + lastError();
+        throw "cannot rename `" + fromPath + "' to  `" + toPath + "': " + IceUtilInternal::lastErrorToString();
     }
 }
 
@@ -466,7 +429,7 @@ IcePatch2::remove(const string& pa)
     OS::structstat buf;
     if(OS::osstat(path, &buf) == -1)
     {
-        throw "cannot stat `" + path + "':\n" + lastError();
+        throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
     if(S_ISDIR(buf.st_mode))
@@ -477,14 +440,14 @@ IcePatch2::remove(const string& pa)
             {
                 assert(false);
             }
-            throw "cannot remove directory `" + path + "':\n" + lastError();
+            throw "cannot remove directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
     }
     else
     {
         if(OS::remove(path) == -1)
         {
-            throw "cannot remove file `" + path + "':\n" + lastError();
+            throw "cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
     }
 }
@@ -497,7 +460,7 @@ IcePatch2::removeRecursive(const string& pa)
     OS::structstat buf;
     if(OS::osstat(path, &buf) == -1)
     {
-        throw "cannot stat `" + path + "':\n" + lastError();
+        throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
     if(S_ISDIR(buf.st_mode))
@@ -512,7 +475,7 @@ IcePatch2::removeRecursive(const string& pa)
         {
             if(OS::rmdir(path) == -1)
             {
-                throw "cannot remove directory `" + path + "':\n" + lastError();
+                throw "cannot remove directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
             }
         }
     }
@@ -520,7 +483,7 @@ IcePatch2::removeRecursive(const string& pa)
     {
         if(OS::remove(path) == -1)
         {
-            throw "cannot remove file `" + path + "':\n" + lastError();
+            throw "cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
     }
 }
@@ -544,7 +507,7 @@ IcePatch2::readDirectory(const string& pa)
         {
             return result;
         }
-        throw "cannot read directory `" + path + "':\n" + lastError();
+        throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
 
@@ -565,7 +528,7 @@ IcePatch2::readDirectory(const string& pa)
                 break;
             }
 
-            string ex = "cannot read directory `" + path + "':\n" + lastError();
+            string ex = "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
             _wfindclose(&data);
             throw ex;
         }
@@ -582,7 +545,7 @@ IcePatch2::readDirectory(const string& pa)
 #    endif
     if(h == -1)
     {
-        throw "cannot read directory `" + path + "':\n" + lastError();
+        throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
     while(true)
@@ -602,7 +565,7 @@ IcePatch2::readDirectory(const string& pa)
                 break;
             }
 
-            string ex = "cannot read directory `" + path + "':\n" + lastError();
+            string ex = "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
             _findclose(h);
             throw ex;
         }
@@ -624,7 +587,7 @@ IcePatch2::readDirectory(const string& pa)
 #endif
     if(n < 0)
     {
-        throw "cannot read directory `" + path + "':\n" + lastError();
+        throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
     StringSeq result;
@@ -658,7 +621,7 @@ IcePatch2::createDirectory(const string& pa)
     {
         if(errno != EEXIST)
         {
-            throw "cannot create directory `" + path + "':\n" + lastError();
+            throw "cannot create directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
     }
 }
@@ -689,7 +652,7 @@ IcePatch2::createDirectoryRecursive(const string& pa)
         {
             if(errno != EEXIST)
             {
-                throw "cannot create directory `" + path + "':\n" + lastError();
+                throw "cannot create directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
             }
         }
     }
@@ -703,7 +666,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
     FILE* stdioFile = OS::fopen(path, "wb");
     if(!stdioFile)
     {
-        throw "cannot open `" + path + "' for writing:\n" + lastError();
+        throw "cannot open `" + path + "' for writing:\n" + IceUtilInternal::lastErrorToString();
     }
 
     int bzError;
@@ -713,7 +676,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
         string ex = "BZ2_bzWriteOpen failed";
         if(bzError == BZ_IO_ERROR)
         {
-            ex += string(": ") + lastError();
+            ex += string(": ") + IceUtilInternal::lastErrorToString();
         }
         fclose(stdioFile);
         throw ex;
@@ -725,7 +688,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
         string ex = "BZ2_bzWrite failed";
         if(bzError == BZ_IO_ERROR)
         {
-            ex += string(": ") + lastError();
+            ex += string(": ") + IceUtilInternal::lastErrorToString();
         }
         BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
         fclose(stdioFile);
@@ -738,7 +701,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
         string ex = "BZ2_bzWriteClose failed";
         if(bzError == BZ_IO_ERROR)
         {
-            ex += string(": ") + lastError();
+            ex += string(": ") + IceUtilInternal::lastErrorToString();
         }
         fclose(stdioFile);
         throw ex;
@@ -763,13 +726,13 @@ IcePatch2::decompressFile(const string& pa)
         fp = OS::fopen(path, "wb");
         if(!fp)
         {
-            throw "cannot open `" + path + "' for writing:\n" + lastError();
+            throw "cannot open `" + path + "' for writing:\n" + IceUtilInternal::lastErrorToString();
         }
         
         stdioFileBZ2 = OS::fopen(pathBZ2, "rb");
         if(!stdioFileBZ2)
         {
-            throw "cannot open `" + pathBZ2 + "' for reading:\n" + lastError();
+            throw "cannot open `" + pathBZ2 + "' for reading:\n" + IceUtilInternal::lastErrorToString();
         }
 
 #ifdef __BCPLUSPLUS__
@@ -779,13 +742,13 @@ IcePatch2::decompressFile(const string& pa)
         OS::structstat buf;
         if(OS::osstat(pathBZ2, &buf) == -1)
         {
-            throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
+            throw "cannot stat `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
         }
 
         ByteSeq compressedBytes(buf.st_size);
         if(fread(&compressedBytes[0], buf.st_size, 1, stdioFileBZ2) == -1)
         {
-             throw "cannot read from `" + pathBZ2 + "':\n" + lastError();
+             throw "cannot read from `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
         }
 
         ByteSeq uncompressedBytes;
@@ -809,7 +772,7 @@ IcePatch2::decompressFile(const string& pa)
                 string ex = "BZ2_bzBuffToBuffDecompress failed";
                 if(bzError == BZ_IO_ERROR)
                 {
-                    ex += string(": ") + lastError();
+                    ex += string(": ") + IceUtilInternal::lastErrorToString();
                 }
                 throw ex;
             }
@@ -817,7 +780,7 @@ IcePatch2::decompressFile(const string& pa)
 
         if(fwrite(&uncompressedBytes[0], uncompressedLen, 1, fp) != 1)
         {
-            throw "cannot write to `" + path + "':\n" + lastError();
+            throw "cannot write to `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
 #else
         bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
@@ -826,7 +789,7 @@ IcePatch2::decompressFile(const string& pa)
             string ex = "BZ2_bzReadOpen failed";
             if(bzError == BZ_IO_ERROR)
             {
-                ex += string(": ") + lastError();
+                ex += string(": ") + IceUtilInternal::lastErrorToString();
             }
             throw ex;
         }
@@ -842,7 +805,7 @@ IcePatch2::decompressFile(const string& pa)
                 string ex = "BZ2_bzRead failed";
                 if(bzError == BZ_IO_ERROR)
                 {
-                    ex += string(": ") + lastError();
+                    ex += string(": ") + IceUtilInternal::lastErrorToString();
                 }
                 throw ex;
             }
@@ -852,12 +815,12 @@ IcePatch2::decompressFile(const string& pa)
                 long pos = ftell(stdioFileBZ2);
                 if(pos == -1)
                 {
-                    throw "cannot get read position for `" + pathBZ2 + "':\n" + lastError();
+                    throw "cannot get read position for `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                 }
                 
                 if(fwrite(bytesBZ2, sz, 1, fp) != 1)
                 {
-                    throw "cannot write to `" + path + "':\n" + lastError();
+                    throw "cannot write to `" + path + "':\n" + IceUtilInternal::lastErrorToString();
                 }
             }
         }
@@ -869,7 +832,7 @@ IcePatch2::decompressFile(const string& pa)
             string ex = "BZ2_bzReadClose failed";
             if(bzError == BZ_IO_ERROR)
             {
-                ex += string(": ") + lastError();
+                ex += string(": ") + IceUtilInternal::lastErrorToString();
             }
             throw ex;
         }
@@ -904,7 +867,7 @@ IcePatch2::setFileFlags(const string& pa, const FileInfo& info)
     OS::structstat buf;
     if(OS::osstat(path, &buf) == -1)
     {
-        throw "cannot stat `" + path + "':\n" + lastError();
+        throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
     chmod(path.c_str(), info.executable ? buf.st_mode | S_IXUSR : buf.st_mode & ~S_IXUSR);
 #endif
@@ -950,7 +913,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                 }
                 else
                 {
-                    throw "cannot stat `" + path + "':\n" + lastError();
+                    throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
                 }
             }
             else if(buf.st_size == 0)
@@ -970,7 +933,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
         OS::structstat buf;
         if(OS::osstat(path, &buf) == -1)
         {
-            throw "cannot stat `" + path + "':\n" + lastError();
+            throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
 
         if(S_ISDIR(buf.st_mode))
@@ -1073,7 +1036,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         int fd = OS::open(path.c_str(), O_BINARY|O_RDONLY);
                         if(fd == -1)
                         {
-                            throw "cannot open `" + path + "' for reading:\n" + lastError();
+                            throw "cannot open `" + path + "' for reading:\n" + IceUtilInternal::lastErrorToString();
                         }
 
                         ByteSeq uncompressedBytes(buf.st_size);
@@ -1081,7 +1044,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         if(read(fd, &uncompressedBytes[0], buf.st_size) == -1)
                         {
                             close(fd);
-                            throw "cannot read from `" + path + "':\n" + lastError();
+                            throw "cannot read from `" + path + "':\n" + IceUtilInternal::lastErrorToString();
                         }
 
                         unsigned int compressedLen = buf.st_size * 1.01 + 600;
@@ -1094,7 +1057,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                             string ex = "BZ2_bzBuffToBuffCompress failed";
                             if(bzError == BZ_IO_ERROR)
                             {
-                                ex += string(": ") + lastError();
+                                ex += string(": ") + IceUtilInternal::lastErrorToString();
                             }
                             close(fd);
                             throw ex;
@@ -1106,7 +1069,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         if(fwrite(&compressedBytes[0], compressedLen, 1, stdioFile) != 1)
                         {
                             fclose(stdioFile);
-                            throw "cannot write to `" + pathBZ2Temp + "':\n" + lastError();
+                            throw "cannot write to `" + pathBZ2Temp + "':\n" + IceUtilInternal::lastErrorToString();
                         }
                         fclose(stdioFile);
 
@@ -1119,7 +1082,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                     int fd = OS::open(path.c_str(), O_BINARY|O_RDONLY);
                     if(fd == -1)
                     {
-                        throw "cannot open `" + path + "' for reading:\n" + lastError();
+                        throw "cannot open `" + path + "' for reading:\n" + IceUtilInternal::lastErrorToString();
                     }
 
 #ifndef __BCPLUSPLUS__
@@ -1133,7 +1096,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         if(!stdioFile)
                         {
                             close(fd);
-                            throw "cannot open `" + pathBZ2Temp + "' for writing:\n" + lastError();
+                            throw "cannot open `" + pathBZ2Temp + "' for writing:\n" + IceUtilInternal::lastErrorToString();
                         }
 
                         bzFile = BZ2_bzWriteOpen(&bzError, stdioFile, 5, 0, 0);
@@ -1142,7 +1105,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                             string ex = "BZ2_bzWriteOpen failed";
                             if(bzError == BZ_IO_ERROR)
                             {
-                            ex += string(": ") + lastError();
+                            ex += string(": ") + IceUtilInternal::lastErrorToString();
                             }
                             fclose(stdioFile);
                             close(fd);
@@ -1164,7 +1127,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                             }
 #endif
                             close(fd);
-                            throw "cannot read from `" + path + "':\n" + lastError();
+                            throw "cannot read from `" + path + "':\n" + IceUtilInternal::lastErrorToString();
                         }
                         bytesLeft -= static_cast<unsigned int>(bytes.size());
 
@@ -1177,7 +1140,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                                 string ex = "BZ2_bzWrite failed";
                                 if(bzError == BZ_IO_ERROR)
                                 {
-                                    ex += string(": ") + lastError();
+                                    ex += string(": ") + IceUtilInternal::lastErrorToString();
                                 }
                                 BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
                                 fclose(stdioFile);
@@ -1201,7 +1164,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                             string ex = "BZ2_bzWriteClose failed";
                             if(bzError == BZ_IO_ERROR)
                             {
-                                ex += string(": ") + lastError();
+                                ex += string(": ") + IceUtilInternal::lastErrorToString();
                             }
                             fclose(stdioFile);
                             throw ex;
@@ -1213,7 +1176,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
                         if(OS::osstat(pathBZ2, &bufBZ2) == -1)
                         {
-                            throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
+                            throw "cannot stat `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                         }
 
                         info.size = static_cast<Int>(bufBZ2.st_size);
@@ -1267,7 +1230,7 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
         FILE* fp = OS::fopen(path, "w");
         if(!fp)
         {
-            throw "cannot open `" + path + "' for writing:\n" + lastError();
+            throw "cannot open `" + path + "' for writing:\n" + IceUtilInternal::lastErrorToString();
         }
         try
         {
@@ -1275,7 +1238,7 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
             {
                 if(!writeFileInfo(fp, *p))
                 {
-                    throw "error writing `" + path + "':\n" + lastError();
+                    throw "error writing `" + path + "':\n" + IceUtilInternal::lastErrorToString();
                 }
             }
         }
@@ -1309,7 +1272,7 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
         FILE* fp = OS::fopen(path, "r");
         if(!fp)
         {
-            throw "cannot open `" + path + "' for reading:\n" + lastError();
+            throw "cannot open `" + path + "' for reading:\n" + IceUtilInternal::lastErrorToString();
         }
 
         while(true)

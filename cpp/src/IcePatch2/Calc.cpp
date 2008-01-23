@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/Unicode.h>
+#include <IceUtil/StringUtil.h>
 #include <IcePatch2/Util.h>
 #include <OS.h>
 
@@ -191,7 +192,7 @@ main(int argc, char* argv[])
         string cwd;
         if(OS::getcwd(cwd) != 0)
         {
-            throw "cannot get the current directory:\n" + lastError();
+            throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
         }
 
         if(!isAbsolute(absDataDir))

@@ -9,6 +9,7 @@
 
 #include <IceUtil/Exception.h>
 #include <IceUtil/StaticMutex.h>
+#include <IceUtil/StringUtil.h>
 #include <ostream>
 #include <cstdlib>
 
@@ -148,7 +149,7 @@ IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, in
 
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, const string& r) :
     Exception(file, line),
-    reason(r)
+    _reason(r)
 {
 }
 
@@ -164,6 +165,13 @@ IceUtil::IllegalArgumentException::ice_name() const
     return _name;
 }
 
+void
+IceUtil::IllegalArgumentException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ": " << _reason;
+}
+
 IceUtil::Exception*
 IceUtil::IllegalArgumentException::ice_clone() const
 {
@@ -176,10 +184,51 @@ IceUtil::IllegalArgumentException::ice_throw() const
     throw *this;
 }
 
-ostream&
-IceUtil::operator<<(ostream& out, const IceUtil::IllegalArgumentException& ex)
+string
+IceUtil::IllegalArgumentException::reason() const
 {
-    ex.ice_print(out);
-    out << ": " << ex.reason;
-    return out;
+    return _reason;
 }
+
+IceUtil::SyscallException::SyscallException(const char* file, int line, int err ): 
+    Exception(file, line),
+    _error(err)
+{
+}
+    
+const char* IceUtil::SyscallException::_name = "IceUtil::SyscallException";
+
+string
+IceUtil::SyscallException::ice_name() const
+{
+    return _name;
+}
+
+void
+IceUtil::SyscallException::ice_print(ostream& os) const
+{
+    Exception::ice_print(os);
+    if(_error != 0)
+    {
+        os << ":\nsyscall exception: " << IceUtilInternal::errorToString(_error);
+    }
+}
+
+IceUtil::Exception*
+IceUtil::SyscallException::ice_clone() const
+{
+    return new SyscallException(*this);
+}
+
+void
+IceUtil::SyscallException::ice_throw() const
+{
+    throw *this;
+}
+
+int
+IceUtil::SyscallException::error() const
+{
+    return _error;
+}
+

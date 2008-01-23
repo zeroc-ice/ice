@@ -57,7 +57,6 @@ private:
     void grantPermissions(const std::string& path, SE_OBJECT_TYPE type = SE_FILE_OBJECT,
                      bool inherit = false, bool fullControl = false) const;
     bool mkdir(const std::string&) const;
-    std::string formatMessage(DWORD) const;
 
     void addLog(const std::string&) const;
     void removeLog(const std::string&) const;

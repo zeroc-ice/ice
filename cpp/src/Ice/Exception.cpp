@@ -262,7 +262,7 @@ Ice::SyscallException::ice_print(ostream& out) const
     Exception::ice_print(out);
     if(error != 0)
     {
-        out << ":\nsyscall exception: " << errorToString(error);
+        out << ":\nsyscall exception: " << IceUtilInternal::errorToString(error);
     }
 }
 
@@ -277,7 +277,7 @@ Ice::SocketException::ice_print(ostream& out) const
     }
     else
     {
-        out << errorToString(error);
+        out << IceUtilInternal::errorToString(error);
     }
 }
 
@@ -292,7 +292,7 @@ Ice::FileException::ice_print(ostream& out) const
     }
     else
     {
-        out << errorToString(error);
+        out << IceUtilInternal::errorToString(error);
     }
     if(!path.empty())
     {
@@ -304,14 +304,14 @@ void
 Ice::ConnectFailedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nconnect failed: " << errorToString(error);
+    out << ":\nconnect failed: " << IceUtilInternal::errorToString(error);
 }
 
 void
 Ice::ConnectionRefusedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nconnection refused: " << errorToString(error);
+    out << ":\nconnection refused: " << IceUtilInternal::errorToString(error);
 }
 
 void
@@ -325,7 +325,7 @@ Ice::ConnectionLostException::ice_print(ostream& out) const
     }
     else
     {
-        out << errorToString(error);
+        out << IceUtilInternal::errorToString(error);
     }
 }
 

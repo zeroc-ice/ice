@@ -14,6 +14,7 @@
 #endif
 
 #include <ServiceInstaller.h>
+#include <IceUtil/StringUtil.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -130,7 +131,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         DWORD size = GetModuleFileName(0, buffer, MAX_PATH);
         if(size == 0)
         {
-            throw "Can't get full path to self: " + formatMessage(GetLastError());
+            throw "Can't get full path to self: " + IceUtilInternal::errorToString(GetLastError());
         }
         imagePath = string(buffer, size);
         imagePath.replace(imagePath.rfind('\\'), string::npos, "\\"
@@ -214,7 +215,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     if(scm == 0)
     {
         DWORD res = GetLastError();
-        throw "Cannot open SCM: " + formatMessage(res);
+        throw "Cannot open SCM: " + IceUtilInternal::errorToString(res);
     }
 
     string deps = dependency;
@@ -272,7 +273,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw "Cannot create service" + _serviceName + ": " + formatMessage(res);
+        throw "Cannot create service" + _serviceName + ": " + IceUtilInternal::errorToString(res);
     }
 
     //
@@ -286,8 +287,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
-        throw "Cannot set description for service" + _serviceName + ": "
-            + formatMessage(res);
+        throw "Cannot set description for service" + _serviceName + ": " + IceUtilInternal::errorToString(res);
     }
 
     CloseServiceHandle(scm);
@@ -301,7 +301,7 @@ IceServiceInstaller::uninstall()
     if(scm == 0)
     {
         DWORD res = GetLastError();
-        throw "Cannot open SCM: " + formatMessage(res);
+        throw "Cannot open SCM: " + IceUtilInternal::errorToString(res);
     }
 
     SC_HANDLE service = OpenService(scm, _serviceName.c_str(), SERVICE_ALL_ACCESS);
@@ -309,7 +309,7 @@ IceServiceInstaller::uninstall()
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw "Cannot open service '" + _serviceName + "': " + formatMessage(res);
+        throw "Cannot open service '" + _serviceName + "': " + IceUtilInternal::errorToString(res);
     }
 
     //
@@ -323,7 +323,7 @@ IceServiceInstaller::uninstall()
         {
             CloseServiceHandle(scm);
             CloseServiceHandle(service);
-            throw "Cannot stop service '" + _serviceName + "': " + formatMessage(res);
+            throw "Cannot stop service '" + _serviceName + "': " + IceUtilInternal::errorToString(res);
         }
     }
 
@@ -332,7 +332,7 @@ IceServiceInstaller::uninstall()
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
-        throw "Cannot delete service '" + _serviceName + "': " + formatMessage(res);
+        throw "Cannot delete service '" + _serviceName + "': " + IceUtilInternal::errorToString(res);
     }
 
     CloseServiceHandle(scm);
@@ -418,8 +418,7 @@ IceServiceInstaller::initializeSid(const string& name)
                 _sid = 0;
                 free(domainName);
 
-                throw "Could not retrieve Security ID for " + name + ": "
-                    + formatMessage(res);
+                throw "Could not retrieve Security ID for " + name + ": " + IceUtilInternal::errorToString(res);
             }
         }
         free(domainName);
@@ -452,8 +451,7 @@ IceServiceInstaller::initializeSid(const string& name)
                             &domainLen, &nameUse) == false)
         {
             DWORD res = GetLastError();
-            throw "Could not retrieve full account name for " + name + ": "
-                + formatMessage(res);
+            throw "Could not retrieve full account name for " + name + ": " + IceUtilInternal::errorToString(res);
         }
 
         _sidName = string(domainName) + "\\" + accountName;
@@ -515,8 +513,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
                                      0, 0, &acl, 0, &sd);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not retrieve securify info for " + path + ": "
-            + formatMessage(res);
+        throw "Could not retrieve securify info for " + path + ": " + IceUtilInternal::errorToString(res);
     }
 
     try
@@ -532,8 +529,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 
         if(res != ERROR_SUCCESS)
         {
-            throw "Could not retrieve effective rights for " + _sidName
-                + " on " + path + ": " + formatMessage(res);
+            throw "Could not retrieve effective rights for " + _sidName + " on " + path + ": " + IceUtilInternal::errorToString(res);
         }
 
         bool done = false;
@@ -593,7 +589,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             res = SetEntriesInAcl(1, &ea, acl, &newAcl);
             if(res != ERROR_SUCCESS)
             {
-                throw "Could not modify ACL for " + path + ": " + formatMessage(res);
+                throw "Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res);
             }
 
             res = SetNamedSecurityInfo(const_cast<char*>(path.c_str()), type,
@@ -601,8 +597,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
                                        0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
             {
-                throw "Could not grant access to " + _sidName
-                    + " on " + path + ": " + formatMessage(res);
+                throw "Could not grant access to " + _sidName + " on " + path + ": " + IceUtilInternal::errorToString(res);
             }
 
             if(_debug)
@@ -642,7 +637,7 @@ IceServiceInstaller::mkdir(const string& path) const
         }
         else
         {
-            throw "Could not create directory " + path + ": " + formatMessage(res);
+            throw "Could not create directory " + path + ": " + IceUtilInternal::errorToString(res);
         }
     }
     else
@@ -650,34 +645,6 @@ IceServiceInstaller::mkdir(const string& path) const
         grantPermissions(path, SE_FILE_OBJECT, true, true);
         return true;
     }
-}
-
-string
-IceServiceInstaller::formatMessage(DWORD err) const
-{
-    ostringstream os;
-    char* msgBuf = 0;
-    DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                             FORMAT_MESSAGE_FROM_SYSTEM |
-                             FORMAT_MESSAGE_IGNORE_INSERTS,
-                             0,
-                             err,
-                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                             reinterpret_cast<char*>(&msgBuf),
-                             0,
-                             0);
-
-    if(ok)
-    {
-        os << msgBuf;
-        LocalFree(msgBuf);
-    }
-    else
-    {
-        os << "unknown error";
-    }
-
-    return os.str();
 }
 
 void
@@ -695,13 +662,13 @@ IceServiceInstaller::addLog(const string& log) const
 
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not create new Event Log '" + log + "': " + formatMessage(res);
+        throw "Could not create new Event Log '" + log + "': " + IceUtilInternal::errorToString(res);
     }
 
     res = RegCloseKey(key);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not close registry key handle: " + formatMessage(res);
+        throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
     }
 }
 
@@ -715,7 +682,7 @@ IceServiceInstaller::removeLog(const string& log) const
     //
     if(res != ERROR_SUCCESS && res != ERROR_ACCESS_DENIED)
     {
-        throw "Could not remove registry key '" + createLog(log) + "': " + formatMessage(res);
+        throw "Could not remove registry key '" + createLog(log) + "': " + IceUtilInternal::errorToString(res);
     }
 }
 
@@ -729,7 +696,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
                               &key, &disposition);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not create Event Log source in registry: " + formatMessage(res);
+        throw "Could not create Event Log source in registry: " + IceUtilInternal::errorToString(res);
     }
 
     //
@@ -756,13 +723,13 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     if(res != ERROR_SUCCESS)
     {
         RegCloseKey(key);
-        throw "Could not set registry key: " + formatMessage(res);
+        throw "Could not set registry key: " + IceUtilInternal::errorToString(res);
     }
 
     res = RegCloseKey(key);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not close registry key handle: " + formatMessage(res);
+        throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
     }
 }
 
@@ -780,7 +747,7 @@ IceServiceInstaller::removeSource(const string& source) const
 
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not open EventLog key: " + formatMessage(res);
+        throw "Could not open EventLog key: " + IceUtilInternal::errorToString(res);
     }
 
     DWORD index = 0;
@@ -802,7 +769,7 @@ IceServiceInstaller::removeSource(const string& source) const
                 res = RegCloseKey(key);
                 if(res != ERROR_SUCCESS)
                 {
-                    throw "Could not close registry key handle: " + formatMessage(res);
+                    throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
                 }
                 return subkey;
             }
@@ -820,13 +787,13 @@ IceServiceInstaller::removeSource(const string& source) const
     else
     {
         RegCloseKey(key);
-        throw "Error while searching EventLog with source '" + source + "': " + formatMessage(res);
+        throw "Error while searching EventLog with source '" + source + "': " + IceUtilInternal::errorToString(res);
     }
 
     res = RegCloseKey(key);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not close registry key handle: " + formatMessage(res);
+        throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
     }
 }
 

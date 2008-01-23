@@ -16,24 +16,6 @@
 namespace IceUtilInternal
 {
 
-class ICE_UTIL_API RandomGeneratorException : public IceUtil::Exception
-{
-public:
-    
-    RandomGeneratorException(const char*, int, int = 0);
-    virtual std::string ice_name() const;
-    virtual void ice_print(std::ostream&) const;
-    virtual IceUtil::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-    int error() const;
-
-private:
-
-    const int _error;
-    static const char* _name;
-};
-
 ICE_UTIL_API void generateRandom(char*, int);
 ICE_UTIL_API int random(int = 0);
 

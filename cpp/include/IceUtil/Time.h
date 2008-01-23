@@ -195,9 +195,6 @@ private:
     Time(Int64);
 
     Int64 _usec;
-#ifdef _WIN32
-    static Int64 _frequency;
-#endif
 };
 
 ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Time&);

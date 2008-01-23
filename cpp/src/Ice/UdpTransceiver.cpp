@@ -511,13 +511,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         if(multicast)
         {
             setReuseAddress(_fd, true);
-            struct sockaddr_storage addr;
 
             //
             // Windows does not allow binding to the mcast address itself
             // so we bind to INADDR_ANY (0.0.0.0) instead.
             //
 #ifdef _WIN32
+            struct sockaddr_storage addr;
             getAddressForServer("", port, addr, instance->protocolSupport());
             doBind(_fd, addr);
 #else

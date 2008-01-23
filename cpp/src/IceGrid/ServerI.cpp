@@ -49,7 +49,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
     DIR* d;
     if((d = opendir(path.c_str())) == 0)
     {
-        throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+        throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
     struct dirent* entry;
@@ -60,7 +60,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         if(namelist == 0)
         {
             closedir(d);
-            throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+            throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
 
         size_t entrysize = sizeof(struct dirent) - sizeof(entry->d_name) + strlen(entry->d_name) + 1;
@@ -68,7 +68,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         if(namelist[n] == 0)
         {
             closedir(d);
-            throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+            throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
         memcpy(namelist[n], entry, entrysize);
         ++n;
@@ -76,7 +76,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
 
     if(closedir(d))
     {
-        throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+        throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
     for(int i = 0; i < n; ++i)
@@ -90,13 +90,13 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
             name = path + "/" + name;
             if(chown(name.c_str(), uid, gid) != 0)
             {
-                throw "can't change permissions on `" + name + "':\n" + IcePatch2::lastError();
+                throw "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString();
             }
 
             OS::structstat buf;
             if(OS::osstat(name, &buf) == -1)
             {
-                throw "cannot stat `" + name + "':\n" + IcePatch2::lastError();
+                throw "cannot stat `" + name + "':\n" + IceUtilInternal::lastErrorToString();
             }
             
             if(S_ISDIR(buf.st_mode))

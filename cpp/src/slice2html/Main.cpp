@@ -125,7 +125,7 @@ main(int argc, char* argv[])
     string indexFooter = opts.optArg("indexftr");
 
     string ind = opts.optArg("index");
-    unsigned indexCount;
+    unsigned indexCount = 0;
     if(!ind.empty())
     {
         istringstream s(ind);
@@ -145,7 +145,7 @@ main(int argc, char* argv[])
     string searchAction = opts.optArg("search");
 
     string warnSummary = opts.optArg("summary");
-    unsigned summaryCount;
+    unsigned summaryCount = 0;
     if(!warnSummary.empty())
     {
         istringstream s(warnSummary);
