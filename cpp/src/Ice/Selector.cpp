@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -147,7 +147,7 @@ IceInternal::Selector::add(SOCKET fd, SocketStatus status)
     {
         Error out(_instance->initializationData().logger);
         out << "error while adding filedescriptor to epoll set:\n";
-        out << IceInternalUtil::errorToString(getSocketErrno());
+        out << IceUtilInternal::errorToString(getSocketErrno());
     }
     _events.resize(_events.size() + 1);
 #elif defined(__APPLE__)

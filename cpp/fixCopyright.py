@@ -13,6 +13,19 @@ def usage():
     print "-h    Show this message."
     print
 
+def findSourceTree(tree, file):
+    for path in [".", "..", "../..", "../../..", "../../../.."]:
+        path = os.path.normpath(path)
+        if os.path.exists(os.path.join(path, file)):
+            break
+        path = os.path.join(path, tree)
+        if os.path.exists(os.path.join(path, file)):
+            break
+        path = None
+    if not path:
+        print "warning: can't find " + tree + " directory!"
+    return path
+
 #
 # Returns the new copyright
 #
@@ -20,7 +33,7 @@ def copyright(commentMark, patchIceE):
     result = [ ]
     result.append(commentMark + " **********************************************************************\n")
     result.append(commentMark + "\n")
-    result.append(commentMark + " Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.\n")
+    result.append(commentMark + " Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n")
     result.append(commentMark + "\n")
     if patchIceE == True:
         result.append(commentMark + " This copy of Ice-E is licensed to you under the terms described in the\n")
@@ -190,7 +203,7 @@ def replaceAllCopyrights(path, patchIceE):
             elif fnmatch.fnmatch(x, "Make*") or fnmatch.fnmatch(x, "*.properties"):
                 commentMark = "#"
                 copyrightLines = makefileCopyright
-            elif x == "build.xml":
+            elif fnmatch.fnmatch(x, "*.xml")
                 commentBegin = "<!--"
                 commentEnd = "-->"
                 copyrightLines = xmlCopyright
@@ -207,7 +220,6 @@ def replaceAllCopyrights(path, patchIceE):
 #
 
 patchIceE = False
-path = "."
 
 for x in sys.argv[1:]:
     if x == "-h":
@@ -215,7 +227,6 @@ for x in sys.argv[1:]:
         sys.exit(0)
     elif x == "-e":
         patchIceE = True
-        path = "../cppe"
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -223,5 +234,52 @@ for x in sys.argv[1:]:
         sys.exit(1)
     else:
         path = x
- 
-replaceAllCopyrights(path, patchIceE)
+
+if patchIceE:
+    icee_home = findSourceTree("cppe", os.path.join("include", "IceE", "Config.h"))
+    if icee_home:
+        replaceAllCopyrights(icee_home, True)
+
+    iceje_home = findSourceTree("javae", os.path.join("src", "IceUtil", "Version.java"))
+    if iceje_home:
+        replaceAllCopyrights(iceje_home, True)
+else:
+    ice_home = findSourceTree("cpp", os.path.join("include", "IceUtil", "Config.h"))
+    if ice_home:
+        replaceAllCopyrights(ice_home, False)
+
+    icej_home = findSourceTree("java", os.path.join("src", "IceUtil", "Version.java"))
+    if icej_home:
+        replaceAllCopyrights(icej_home, False)
+
+    icecs_home = findSourceTree("cs", os.path.join("src", "Ice", "AssemblyInfo.cs"))
+    if icecs_home:
+        replaceAllCopyrights(icecs_home, False)
+
+    icevb_home = findSourceTree("vb", os.path.join("config", "Make.rules.mak.vb"))
+    if icevb_home:
+        replaceAllCopyrights(icevb_home, False)
+
+    icephp_home = findSourceTree("php", os.path.join("src", "IcePHP", "Profile.h"))
+    if icephp_home:
+        replaceAllCopyrights(icephp_home, False)
+
+    icepy_home = findSourceTree("py", os.path.join("modules", "IcePy", "Config.h"))
+    if icepy_home:
+        replaceAllCopyrights(icepy_home, False)
+
+    icerb_home = findSourceTree("rb", os.path.join("src", "IceRuby", "Config.h"))
+    if icerb_home:
+        replaceAllCopyrights(icerb_home, False)
+
+    icedemo_home = findSourceTree("demoscript", os.path.join("pexpect.py"))
+    if icedemo_home:
+        replaceAllCopyrights(icedemo_home, False)
+
+    icedist_home = findSourceTree("distribution", os.path.join("lib", "DistUtils.py"))
+    if icedist_home:
+        replaceAllCopyrights(icedist_home, False)
+        
+    config_home = findSourceTree("config", os.path.join("TestUtil.py"))
+    if config_home:
+        replaceAllCopyrights(config_home, False)

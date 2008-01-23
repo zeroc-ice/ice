@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (c) 2007-2008 ZeroC, Inc. All rights reserved.
+#
 # icegridnode   This shell script takes care of starting and 
 #               stopping the icegridnode daemon.
 #
