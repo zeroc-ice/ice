@@ -38,12 +38,10 @@ ReapThread::run()
             //
             if(_wakeInterval == IceUtil::Time())
             {
-                assert(_sessions.empty());
                 wait();
             }
             else
             {
-                assert(!_sessions.empty());
                 timedWait(_wakeInterval);
             }
             
