@@ -86,7 +86,7 @@ Visual C++ 6.0 Setup
 --------------------
 
 Users of Visual C++ 6.0 need to install the February 2003 Microsoft
-Platform SDK:
+Platform SDK to compile Ice:
 
   http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm
 
@@ -100,6 +100,9 @@ Note that you must execute this script after setting up your VC60
 build environment to ensure that the Platform SDK include directory
 appears before the VC60 include directories in the INCLUDE environment
 variable.
+
+This Platform SDK is only required to compile Ice and is not necessary
+to build applications using Ice.
 
 
 NMAKE and Message Compiler (MC.EXE)
