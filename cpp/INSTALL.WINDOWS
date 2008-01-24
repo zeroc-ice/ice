@@ -38,8 +38,6 @@ The following C++ compilers are supported:
 
   http://msdn.microsoft.com/vstudio/express/visualc/
 
-- Microsoft Visual C++ .NET 2003 SP1 (aka VC++ 7.1)
-
 - Microsoft Visual C++ 6.0 SP5 with the Windows Server 2003 PSDK
   (February 2003) and STLport 4.6.2 (or later)
 
