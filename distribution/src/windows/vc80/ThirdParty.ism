@@ -1710,7 +1710,7 @@
 		<row><td>ExpatDevKit.VC80.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC80.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>JGoodies.VC80.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td><td>JGoodies Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>MCPPDevKit.VC80.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>0</td><td>MCPP Dev Kit for Visual Studio 2005</td><td/><td/></row>
+		<row><td>MCPPDevKit.VC80.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>0</td><td>MCPP Dev Kit for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLDevKit.VC80.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC80.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 	</table>

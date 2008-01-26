@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>ExpatRuntime.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>&lt;ISProjectFolder&gt;\install\expat\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>ExpatRuntime.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>&lt;ISProjectFolder&gt;\install\expat\runtimex64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">

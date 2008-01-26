@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>ExpatDevKit.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>&lt;ISProjectFolder&gt;\install\expat\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>ExpatDevKit.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>&lt;ISProjectFolder&gt;\install\expat\devx64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">

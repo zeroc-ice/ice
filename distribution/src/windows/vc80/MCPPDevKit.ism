@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>{3D01F691-AD1F-407C-8137-051D4AF73926}</td><td>LIB.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>{3D01F691-AD1F-407C-8137-051D4AF73926}</td><td>INSTALLDIR.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -358,8 +358,6 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
-		<row><td>mcpp.lib.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>mcpp.lib</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev\lib\mcpp.lib</td><td>1</td><td/></row>
-		<row><td>mcppd.lib.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>mcppd.lib</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev\lib\mcppd.lib</td><td>1</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -438,6 +436,8 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>&lt;ISProjectFolder&gt;\install\mcpp\devx64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
