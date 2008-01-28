@@ -106,107 +106,167 @@ IceBox::ServiceManagerI::getSliceChecksums(const Current&) const
 void
 IceBox::ServiceManagerI::startService(const string& name, const Current&)
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    //
-    // Search would be more efficient if services were contained in
-    // a map, but order is required for shutdown.
-    //
-    vector<ServiceInfo>::iterator p;
-    for(p = _services.begin(); p != _services.end(); ++p)
+    ServiceInfo info;
     {
-        ServiceInfo& info = *p;
-        if(info.name == name)
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+        //
+        // Search would be more efficient if services were contained in
+        // a map, but order is required for shutdown.
+        //
+        vector<ServiceInfo>::iterator p;
+        for(p = _services.begin(); p != _services.end(); ++p)
         {
-            if(info.active)
+            if((*p).name == name)
             {
-                throw AlreadyStartedException();
+                if((*p).status != Stopped)
+                {
+                    throw AlreadyStartedException();
+                }
+                (*p).status = Starting;
+                info = *p;
+                break;
             }
-
-            try
-            {
-                info.service->start(name, info.communicator == 0 ? _communicator : info.communicator, info.args);
-                info.active = true;
-            }
-            catch(const Ice::Exception& ex)
-            {
-                Warning out(_logger);
-                out << "ServiceManager: exception in start for service " << info.name << ":\n";
-                out << ex;
-            }
-            catch(...)
-            {
-                Warning out(_logger);
-                out << "ServiceManager: unknown exception in start for service " << info.name;
-            }
-
-            if(info.active)
-            {
-                vector<string> services;
-                services.push_back(name);
-                set<ServiceObserverPrx> observers = _observers;
-                lock.release();
-                servicesStarted(services, observers);
-            }
-
-            return;
         }
+        if(p == _services.end())
+        {
+            throw NoSuchServiceException();
+        }
+        _pendingStatusChanges = true;
     }
 
-    throw NoSuchServiceException();
+    bool started = false;
+    try
+    {
+        info.service->start(name, info.communicator == 0 ? _communicator : info.communicator, info.args);
+        started = true;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Warning out(_logger);
+        out << "ServiceManager: exception in start for service " << info.name << ":\n";
+        out << ex;
+    }
+    catch(...)
+    {
+        Warning out(_logger);
+        out << "ServiceManager: unknown exception in start for service " << info.name;
+    }
+    
+    set<ServiceObserverPrx> observers;
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+        vector<ServiceInfo>::iterator p;
+        for(p = _services.begin(); p != _services.end(); ++p)
+        {
+            if((*p).name == name)
+            {
+                if(started)
+                {
+                    (*p).status = Started;
+                    observers = _observers;
+                }
+                else
+                {
+                    (*p).status = Stopped;
+                }
+                break;
+            }
+        }
+        _pendingStatusChanges = false;
+        notifyAll();
+    }
+
+    if(observers.size() != 0)
+    {
+        vector<string> services;
+        services.push_back(name);
+        servicesStarted(services, observers);
+    }
 }
 
 void
 IceBox::ServiceManagerI::stopService(const string& name, const Current&)
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    //
-    // Search would be more efficient if services were contained in
-    // a map, but order is required for shutdown.
-    //
-    vector<ServiceInfo>::iterator p;
-    for(p = _services.begin(); p != _services.end(); ++p)
+    ServiceInfo info;
     {
-        ServiceInfo& info = *p;
-        if(info.name == name)
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+        //
+        // Search would be more efficient if services were contained in
+        // a map, but order is required for shutdown.
+        //
+        vector<ServiceInfo>::iterator p;
+        for(p = _services.begin(); p != _services.end(); ++p)
         {
-            if(!info.active)
+            if((*p).name == name)
             {
-                throw AlreadyStoppedException();
+                if(!(*p).status != Started)
+                {
+                    throw AlreadyStoppedException();
+                }
+                (*p).status = Stopping;
+                info = *p;
+                break;
             }
-
-            try
-            {
-                info.service->stop();
-                info.active = false;
-            }
-            catch(const Ice::Exception& ex)
-            {
-                Warning out(_logger);
-                out << "ServiceManager: exception in stop for service " << info.name << ":\n";
-                out << ex;
-            }
-            catch(...)
-            {
-                Warning out(_logger);
-                out << "ServiceManager: unknown exception in stop for service " << info.name;
-            }
-
-            if(!info.active)
-            {
-                vector<string> services;
-                services.push_back(name);
-                set<ServiceObserverPrx> observers = _observers;
-                lock.release();
-                servicesStopped(services, observers);
-            }
-
-            return;
         }
+        if(p == _services.end())
+        {
+            throw NoSuchServiceException();
+        }
+        _pendingStatusChanges = true;
     }
 
-    throw NoSuchServiceException();
+    bool stopped = false;
+    try
+    {
+        info.service->stop();
+        stopped = true;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Warning out(_logger);
+        out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+        out << ex;
+    }
+    catch(...)
+    {
+        Warning out(_logger);
+        out << "ServiceManager: unknown exception in stop for service " << info.name;
+    }
+
+    set<ServiceObserverPrx> observers;
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+        vector<ServiceInfo>::iterator p;
+        for(p = _services.begin(); p != _services.end(); ++p)
+        {
+            if((*p).name == name)
+            {
+                if(stopped)
+                {
+                    (*p).status = Stopped;
+                    observers = _observers;
+                }
+                else
+                {
+                    (*p).status = Started;
+                }
+                break;
+            }
+        }
+        _pendingStatusChanges = false;
+        notifyAll();
+    }
+
+    if(observers.size() != 0)
+    {
+        vector<string> services;
+        services.push_back(name);
+        servicesStopped(services, observers);
+    }
 }
 
 
@@ -217,7 +277,7 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
     // Null observers and duplicate registrations are ignored
     //
 
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     if(observer != 0 && _observers.insert(observer).second)
     {
         if(_traceServiceObserver >= 1)
@@ -230,7 +290,7 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
         for(vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
         {
             const ServiceInfo& info = *p;
-            if(info.active)
+            if(info.status == Started)
             {
                 activeServices.push_back(info.name);
             }
@@ -249,7 +309,7 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
 void
 IceBox::ServiceManagerI::removeObserver(const ServiceObserverPrx& observer, const Ice::Exception& ex)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
     //
     // It's possible to remove several times the same observer, e.g. multiple concurrent
@@ -468,7 +528,7 @@ IceBox::ServiceManagerI::load(const string& name, const string& value)
 void
 IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, const StringSeq& args)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
     //
     // Create the service property set from the service arguments and
@@ -479,6 +539,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     ServiceInfo info;
     info.name = service;
+    info.status = Stopped;
     StringSeq::size_type j;
     for(j = 0; j < args.size(); j++)
     {
@@ -597,7 +658,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         try
         {
             info.service->start(service, communicator, info.args);
-            info.active = true;
+            info.status = Started;
 
             //
             // There is no need to notify the observers since the 'start all'
@@ -666,7 +727,15 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 void
 IceBox::ServiceManagerI::stopAll()
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+    //
+    // First wait for any active startService/stopService calls to complete.
+    //
+    while(_pendingStatusChanges)
+    {
+        wait();
+    }
 
     //
     // Services are stopped in the reverse order from which they are started.
@@ -683,12 +752,12 @@ IceBox::ServiceManagerI::stopAll()
     {
         ServiceInfo& info = *p;
 
-        if(info.active)
+        if(info.status == Started)
         {
             try
             {
                 info.service->stop();
-                info.active = false;
+                info.status = Stopped;
                 stoppedServices.push_back(info.name);
             }
             catch(const Ice::Exception& ex)

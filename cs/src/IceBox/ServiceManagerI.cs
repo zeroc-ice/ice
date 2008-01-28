@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace IceBox
 {
@@ -91,52 +92,72 @@ class ServiceManagerI : ServiceManagerDisp_
     public override void
     startService(string name, Ice.Current current)
     {
-        bool found = false;
-        Dictionary<ServiceObserverPrx, bool> observers = null;
-
+        ServiceInfo info = new ServiceInfo();
         lock(this)
         {
             //
             // Search would be more efficient if services were contained in
             // a map, but order is required for shutdown.
             //
-
-            int i = 0;
-
-            while(!found &&  i < _services.Count)
+            int i;
+            for(i = 0; i < _services.Count; ++i)
             {
-                ServiceInfo info = _services[i];
+                info = _services[i];
                 if(info.name.Equals(name))
                 {
-                    found = true;
-
-                    if(info.active)
+                    if(_services[i].status != ServiceStatus.Stopped)
                     {
                         throw new AlreadyStartedException();
                     }
+                    info.status = ServiceStatus.Starting;
+                    _services[i] = info;
+                    break;
+                }
+            }
+            if(i == _services.Count)
+            {
+                throw new NoSuchServiceException();
+            }
+            _pendingStatusChanges = true;
+        }
 
-                    try
+        bool started = false;
+        try
+        {
+            info.service.start(info.name, info.communicator == null ? Ice.Application.communicator() 
+                                                                    : info.communicator, info.args);
+            started = true;
+        }
+        catch(Exception e)
+        {
+            _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" + 
+                            e.ToString());
+        }
+
+        Dictionary<ServiceObserverPrx, bool> observers = null;
+        lock(this)
+        {
+            int i;
+            for(i = 0; i < _services.Count; ++i)
+            {
+                info = _services[i];
+                if(info.name.Equals(name))
+                {
+                    if(started)
                     {
-                        info.service.start(info.name, info.communicator == null ? Ice.Application.communicator() 
-                                                                                : info.communicator, info.args);
-                        info.active = true;
-                        _services[i] = info;
+                        info.status = ServiceStatus.Started;
                         observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
                     }
-                    catch(Exception e)
+                    else
                     {
-                        _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" + 
-                                        e.ToString());
+                        info.status = ServiceStatus.Stopped;
                     }
+                    _services[i] = info;
+                    break;
                 }
-                ++i;
             }
-        }
-        
-        
-        if(!found)
-        {
-            throw new NoSuchServiceException();
+            _pendingStatusChanges = false;
+            Monitor.PulseAll(this);
         }
 
         if(observers != null)
@@ -150,50 +171,71 @@ class ServiceManagerI : ServiceManagerDisp_
     public override void
     stopService(string name, Ice.Current current)
     {
-        bool found = false;
-        Dictionary<ServiceObserverPrx, bool> observers = null;
-
+        ServiceInfo info = new ServiceInfo();
         lock(this)
         {
             //
             // Search would be more efficient if services were contained in
             // a map, but order is required for shutdown.
             //
-            int i = 0;
-
-            while(!found &&  i < _services.Count)
+            int i;
+            for(i = 0; i < _services.Count; ++i)
             {
-                ServiceInfo info = _services[i];
-          
+                info = _services[i];
                 if(info.name.Equals(name))
                 {
-                    found = true;
-
-                    if(!info.active)
+                    if(info.status != ServiceStatus.Started)
                     {
                         throw new AlreadyStoppedException();
                     }
-
-                    try
-                    {
-                        info.service.stop();
-                        info.active = false;
-                        _services[i] = info;
-                        observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
-                    }
-                    catch(Exception e)
-                    {
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                        e.ToString());
-                    }
+                    info.status = ServiceStatus.Stopping;
+                    _services[i] = info;
+                    break;
                 }
-                ++i;
             }
+            if(i == _services.Count)
+            {
+                throw new NoSuchServiceException();
+            }
+            _pendingStatusChanges = true;
         }
 
-        if(!found)
+        bool stopped = false;
+        try
         {
-            throw new NoSuchServiceException();
+            info.service.stop();
+            stopped = true;
+        }
+        catch(Exception e)
+        {
+            _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                            e.ToString());
+        }
+
+        Dictionary<ServiceObserverPrx, bool> observers = null;
+        lock(this)
+        {
+            int i;
+            for(i = 0; i < _services.Count; ++i)
+            {
+                info = _services[i];
+                if(info.name.Equals(name))
+                {
+                    if(stopped)
+                    {
+                        info.status = ServiceStatus.Stopped;
+                        observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
+                    }
+                    else
+                    {
+                        info.status = ServiceStatus.Started;
+                    }
+                    _services[i] = info;
+                    break;
+                }
+            }
+            _pendingStatusChanges = false;
+            Monitor.PulseAll(this);
         }
 
         if(observers != null)
@@ -234,7 +276,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
                 foreach(ServiceInfo info in _services)
                 {
-                    if(info.active)
+                    if(info.status == ServiceStatus.Started)
                     {
                         activeServices.Add(info.name);
                     }
@@ -502,6 +544,7 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             ServiceInfo info = new ServiceInfo();
             info.name = service;
+            info.status = ServiceStatus.Stopped;
             info.args = (string[])l.ToArray(typeof(string));
 
             //
@@ -638,7 +681,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 try
                 {
                     info.service.start(service, communicator, info.args);
-                    info.active = true;
+                    info.status = ServiceStatus.Started;
                 }
                 catch(Exception)
                 {
@@ -699,13 +742,21 @@ class ServiceManagerI : ServiceManagerDisp_
         lock(this)
         {
             //
+            // First wait for any active startService/stopService calls to complete.
+            //
+            while(_pendingStatusChanges)
+            {
+                Monitor.Wait(this);
+            }
+
+            //
             // First, for each service, we call stop on the service and flush its database environment to 
             // the disk. Services are stopped in the reverse order of which they were started.
             //
             _services.Reverse();
             foreach(ServiceInfo info in _services)
             {
-                if(info.active)
+                if(info.status == ServiceStatus.Started)
                 {
                     try
                     {
@@ -782,7 +833,7 @@ class ServiceManagerI : ServiceManagerDisp_
     }
 
     private void
-        servicesStarted(List<String> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
+    servicesStarted(List<String> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
         //
         // Must be called with 'this' unlocked
@@ -842,12 +893,20 @@ class ServiceManagerI : ServiceManagerDisp_
         } 
     } 
     
+    private enum ServiceStatus
+    {
+        Stopping,
+        Stopped,
+        Starting,
+        Started
+    }
+
     struct ServiceInfo
     {
         public string name;
         public Service service;
         public Ice.Communicator communicator;
-        public bool active;
+        public ServiceStatus status;
         public string[] args;
     }
 
@@ -953,6 +1012,7 @@ class ServiceManagerI : ServiceManagerDisp_
     private Ice.Logger _logger;
     private string[] _argv; // Filtered server argument vector
     private List<ServiceInfo> _services = new List<ServiceInfo>();
+    private bool _pendingStatusChanges = false;
     private Dictionary<ServiceObserverPrx, bool> _observers = new  Dictionary<ServiceObserverPrx, bool>();
     private int _traceServiceObserver = 0;
 }

@@ -34,10 +34,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
     startService(String name, Ice.Current current)
         throws AlreadyStartedException, NoSuchServiceException
     {
-
-        boolean found = false;
-        java.util.Set<ServiceObserverPrx> observers = null;
-
+        ServiceInfo info = null;
         synchronized(this)
         {
             //
@@ -45,41 +42,67 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // a map, but order is required for shutdown.
             //
             java.util.Iterator<ServiceInfo> p = _services.iterator();
-            while(p.hasNext() && !found)
+            while(p.hasNext())
             {
-                ServiceInfo info = p.next();
-                if(info.name.equals(name))
+                ServiceInfo in = p.next();
+                if(in.name.equals(name))
                 {
-                    found = true;
-
-                    if(info.active)
+                    if(in.status == StatusStarted)
                     {
                         throw new AlreadyStartedException();
                     }
-
-                    try
-                    {
-                        info.service.start(name, info.communicator == null ? _server.communicator() : info.communicator,
-                                           info.args);
-                        info.active = true;
-                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
-                    }
-                    catch(java.lang.Exception e)
-                    {
-                        java.io.StringWriter sw = new java.io.StringWriter();
-                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                        e.printStackTrace(pw);
-                        pw.flush();
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                        sw.toString());
-                    }
+                    in.status = StatusStarting;
+                    info = (ServiceInfo)in.clone();
+                    break;
                 }
             }
+            if(info == null)
+            {
+                throw new NoSuchServiceException();
+            }
+            _pendingStatusChanges = true;
+        }
+
+        boolean started = false;
+        try
+        {
+            info.service.start(name, info.communicator == null ? _server.communicator() : info.communicator,
+                               info.args);
+            started = true;
+        }
+        catch(java.lang.Exception e)
+        {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            e.printStackTrace(pw);
+            pw.flush();
+            _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" + 
+                            sw.toString());
         }
         
-        if(!found)
+        java.util.Set<ServiceObserverPrx> observers = null;
+        synchronized(this)
         {
-            throw new NoSuchServiceException();
+            java.util.Iterator<ServiceInfo> p = _services.iterator();
+            while(p.hasNext())
+            {
+                ServiceInfo in = p.next();
+                if(in.name.equals(name))
+                {
+                    if(started)
+                    {
+                        in.status = StatusStarted;
+                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
+                    }
+                    else
+                    {
+                        in.status = StatusStopped;
+                    }
+                    break;
+                }
+            }
+            _pendingStatusChanges = false;
+            notifyAll();
         }
 
         if(observers != null)
@@ -90,13 +113,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
     }
 
-    synchronized public void
+    public void
     stopService(String name, Ice.Current current)
         throws AlreadyStoppedException, NoSuchServiceException
     {
-        boolean found = false;
-        java.util.Set<ServiceObserverPrx> observers = null;
-
+        ServiceInfo info = null;
         synchronized(this)
         {
             //
@@ -104,40 +125,66 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // a map, but order is required for shutdown.
             //
             java.util.Iterator<ServiceInfo> p = _services.iterator();
-            while(p.hasNext() && !found)
+            while(p.hasNext())
             {
-                ServiceInfo info = p.next();
-                if(info.name.equals(name))
+                ServiceInfo in = p.next();
+                if(in.name.equals(name))
                 {
-                    found = true;
-                    
-                    if(!info.active)
+                    if(in.status == StatusStopped)
                     {
                         throw new AlreadyStoppedException();
                     }
-                    
-                    try
-                    {
-                        info.service.stop();
-                        info.active = false;
-                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
-                    }
-                    catch(java.lang.Exception e)
-                    {
-                        java.io.StringWriter sw = new java.io.StringWriter();
-                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                        e.printStackTrace(pw);
-                        pw.flush();
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
-                                        sw.toString());
-                    }
+                    in.status = StatusStopping;
+                    info = (ServiceInfo)in.clone();
+                    break;
                 }
             }
+            if(info == null)
+            {
+                throw new NoSuchServiceException();
+            }
+            _pendingStatusChanges = true;
         }
 
-        if(!found)
+        boolean stopped = false;
+        try
         {
-            throw new NoSuchServiceException();
+            info.service.stop();
+            stopped = true;
+        }
+        catch(java.lang.Exception e)
+        {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            e.printStackTrace(pw);
+            pw.flush();
+            _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                            sw.toString());
+        }
+        
+        java.util.Set<ServiceObserverPrx> observers = null;
+        synchronized(this)
+        {
+            java.util.Iterator<ServiceInfo> p = _services.iterator();
+            while(p.hasNext())
+            {
+                ServiceInfo in = p.next();
+                if(in.name.equals(name))
+                {
+                    if(stopped)
+                    {
+                        in.status = StatusStopped;
+                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
+                    }
+                    else
+                    {
+                        in.status = StatusStarted;
+                    }
+                    break;
+                }
+            }
+            _pendingStatusChanges = false;
+            notifyAll();
         }
 
         if(observers != null)
@@ -170,7 +217,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 
                 for(ServiceInfo info: _services)
                 {
-                    if(info.active)
+                    if(info.status == StatusStarted)
                     {
                         activeServices.add(info.name);
                     }
@@ -461,6 +508,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         //
         ServiceInfo info = new ServiceInfo();
         info.name = service;
+        info.status = StatusStopped;
         try
         {
             Class c = Class.forName(className);
@@ -562,7 +610,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             {
                 info.args = serviceArgs.value;
                 info.service.start(service, communicator, info.args);
-                info.active = true;
+                info.status = StatusStarted;
 
                 //
                 // There is no need to notify the observers since the 'start all'
@@ -634,24 +682,37 @@ public class ServiceManagerI extends _ServiceManagerDisp
     {
         java.util.List<String> stoppedServices = new java.util.Vector<String>();
         java.util.Set<ServiceObserverPrx> observers = null;
-
         
         synchronized(this)
         {
             //
-            // First, for each service, we call stop on the service and flush its database environment to 
+            // First wait for any active startService/stopService calls to complete.
+            //
+            while(_pendingStatusChanges)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
+            
+            //
+            // For each service, we call stop on the service and flush its database environment to 
             // the disk. Services are stopped in the reverse order of the order they were started.
             //
             java.util.ListIterator p = _services.listIterator(_services.size());
             while(p.hasPrevious())
             {
                 ServiceInfo info = (ServiceInfo)p.previous();
-                if(info.active)
+                if(info.status == StatusStarted)
                 {
                     try
                     {
                         info.service.stop();
-                        info.active = false;
+                        info.status = StatusStopped;
                         stoppedServices.add(info.name);
                     }
                     catch(java.lang.Exception e)
@@ -824,13 +885,31 @@ public class ServiceManagerI extends _ServiceManagerDisp
                           + "\nafter catching " + ex.toString());
         } 
     } 
+
+    public final static int StatusStopping = 0;
+    public final static int StatusStopped = 1;
+    public final static int StatusStarting = 2;
+    public final static int StatusStarted = 3;
     
-    static class ServiceInfo
+    static class ServiceInfo implements Cloneable
     {
+        public Object clone()
+        {
+            Object o = null;
+            try
+            {
+                o = super.clone();
+            }
+            catch(CloneNotSupportedException ex)
+            {
+            }
+            return o;
+        }
+
         public String name;
         public Service service;
         public Ice.Communicator communicator = null;
-        public boolean active;
+        public int status;
         public String[] args;
     }
 
@@ -944,6 +1023,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
     private java.util.List<ServiceInfo> _services = new java.util.LinkedList<ServiceInfo>();
+    private boolean _pendingStatusChanges = false;
 
     java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
     int _traceServiceObserver = 0;
