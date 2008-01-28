@@ -1,6 +1,12 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- It is now possible for IceBox services to recursively start/stop
+  other IceBox services from within service start/stop method. The
+  Ice.Admin.ThreadPool.Size property much be set to a high enough
+  value to have enough threads to handle all the number of recursive 
+  calls to startService/stopService.
+
 - Improved marshaling performance for Ice for .NET.
   This particularly affects programs running under Mono
   on big-endian machines, where marshaling performance of
