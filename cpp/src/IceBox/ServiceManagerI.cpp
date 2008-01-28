@@ -202,7 +202,7 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
         {
             if((*p).name == name)
             {
-                if(!(*p).status != Started)
+                if((*p).status != Started)
                 {
                     throw AlreadyStoppedException();
                 }
