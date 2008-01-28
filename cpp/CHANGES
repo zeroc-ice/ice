@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Fixed a bug in slice2freeze in which it was not properly handling
+  the "cpp:type:wstring" metadata, which would result in narrow 
+  strings being used in generated code when wstring should have been
+  used instead.
+
 - It is now possible for IceBox services to recursively start/stop
   other IceBox services from within service start/stop method. The
   Ice.Admin.ThreadPool.Size property much be set to a high enough

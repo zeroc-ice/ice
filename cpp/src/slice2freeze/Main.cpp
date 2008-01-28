@@ -33,6 +33,89 @@ static void closeCallback()
 
 static string ICE_ENCODING_COMPARE = "Freeze::IceEncodingCompare";
 
+class MetaDataVisitor : public ParserVisitor
+{
+public:
+
+    MetaDataVisitor() :
+        _useWstring(false)
+    {
+    }
+
+    virtual bool visitModuleStart(const ModulePtr& p)
+    {
+        setUseWstring(p);
+        return true;
+    }
+
+    virtual void visitModuleEnd(const ModulePtr& p)
+    {
+        resetUseWstring();
+    }
+
+    virtual bool visitClassDefStart(const ClassDefPtr& p)
+    {
+        setUseWstring(p);
+        checkMetaData(p->dataMembers());
+        resetUseWstring();
+        return true;
+    }
+
+    virtual bool visitStructStart(const StructPtr& p)
+    {
+        setUseWstring(p);
+        checkMetaData(p->dataMembers());
+        resetUseWstring();
+        return true;
+    }
+
+private:
+
+    void checkMetaData(const DataMemberList& dataMembers)
+    {
+        for(DataMemberList::const_iterator p = dataMembers.begin(); p != dataMembers.end(); ++p)
+        {
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
+            if(builtin && builtin->kind() == Builtin::KindString)
+            {
+                StringList metaData = (*p)->getMetaData();
+                for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+                {
+                    if(*q == "cpp:type:string" || *q == "cpp:type:wstring")
+                    {
+                        continue;
+                    }
+                }
+                metaData.push_back(_useWstring ? "cpp:type:wstring" : "cpp:type:string");
+                (*p)->setMetaData(metaData);
+            }
+        }
+    }
+
+    void setUseWstring(ContainedPtr p)
+    {
+        _useWstringHist.push_back(_useWstring);
+        StringList metaData = p->getMetaData();
+        if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
+        {
+            _useWstring = true;
+        }
+        else if(find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
+        {
+            _useWstring = false;
+        }
+    }
+
+    void resetUseWstring()
+    {
+        _useWstring = _useWstringHist.back();
+        _useWstringHist.pop_back();
+    }
+    
+    bool _useWstring;
+    std::list<bool> _useWstringHist;
+};
+
 struct DictIndex
 {
     string member;
@@ -1733,6 +1816,9 @@ main(int argc, char* argv[])
         else
         {
             status = u->parse(args[idx], cppHandle, debug);
+
+            MetaDataVisitor visitor;
+            u->visit(&visitor, false);
         }
 
         if(!icecpp.close())
