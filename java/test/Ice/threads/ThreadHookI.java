@@ -19,7 +19,7 @@ class ThreadHookI implements Ice.ThreadNotification
     {
         test(getThreadNumInternal() == -1);
         Thread t = Thread.currentThread();
-        _threads.put(t, new Integer(_nextThreadId));
+        _threads.put(t, _nextThreadId);
         _nextThreadId++;
     }
 
@@ -47,7 +47,7 @@ class ThreadHookI implements Ice.ThreadNotification
     getThreadNumInternal()
     {
         Thread t = Thread.currentThread();
-        Integer i = (Integer)_threads.get(t);
+        Integer i = _threads.get(t);
         if(i == null)
         {
             return -1;
@@ -67,6 +67,6 @@ class ThreadHookI implements Ice.ThreadNotification
         }
     }
 
-    private java.util.Map _threads = new java.util.HashMap();
+    private java.util.Map<Thread, Integer> _threads = new java.util.HashMap<Thread, Integer>();
     private int _nextThreadId;
 }

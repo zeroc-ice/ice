@@ -634,7 +634,7 @@ class Node extends TreeNode implements PropertySetParent
                 PropertySet ps = (PropertySet)p.next();
                 if(ps.getEditable().isNew() || ps.getEditable().isModified())
                 {
-                    update.propertySets.put(ps.getId(), ps.getDescriptor());
+                    update.propertySets.put(ps.getId(), (PropertySetDescriptor)ps.getDescriptor());
                 }
             }
         }
@@ -663,11 +663,11 @@ class Node extends TreeNode implements PropertySetParent
             {
                 if(server instanceof PlainServer)
                 {
-                    update.servers.add(server.getDescriptor());
+                    update.servers.add((ServerDescriptor)server.getDescriptor());
                 }
                 else
                 {
-                    update.serverInstances.add(server.getDescriptor());
+                    update.serverInstances.add((ServerInstanceDescriptor)server.getDescriptor());
                 }
             }
         }

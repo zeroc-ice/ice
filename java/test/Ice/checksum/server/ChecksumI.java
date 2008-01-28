@@ -15,7 +15,7 @@ public final class ChecksumI extends Test._ChecksumDisp
         _adapter = adapter;
     }
 
-    public java.util.Map
+    public java.util.Map<String, String>
     getSliceChecksums(Ice.Current __current)
     {
         return SliceChecksums.checksums;

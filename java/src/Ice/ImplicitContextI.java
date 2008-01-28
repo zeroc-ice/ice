@@ -31,21 +31,20 @@ public abstract class ImplicitContextI implements ImplicitContext
         else
         {
             throw new Ice.InitializationException(
-                "'" + kind + "' is not a valid value for Ice.ImplicitContext"); 
+                "'" + kind + "' is not a valid value for Ice.ImplicitContext");
         }
     }
 
-    abstract public void write(java.util.Map prxContext, IceInternal.BasicStream os);
-    abstract java.util.Map combine(java.util.Map prxContext);
-
+    abstract public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os);
+    abstract java.util.Map<String, String> combine(java.util.Map<String, String> prxContext);
 
     static class Shared extends ImplicitContextI
     {
         public synchronized java.util.Map getContext()
         {
-            return (java.util.Map)_context.clone();
+            return new java.util.HashMap<String, String>(_context);
         }
-        
+
         public synchronized void setContext(java.util.Map context)
         {
             _context.clear();
@@ -54,7 +53,7 @@ public abstract class ImplicitContextI implements ImplicitContext
                 _context.putAll(context);
             }
         }
-        
+
         public synchronized boolean containsKey(String key)
         {
             if(key == null)
@@ -72,12 +71,12 @@ public abstract class ImplicitContextI implements ImplicitContext
                 key = "";
             }
 
-            String val = (String)_context.get(key);
+            String val = _context.get(key);
             if(val == null)
             {
                 val = "";
             }
-           
+
             return val;
         }
 
@@ -92,7 +91,7 @@ public abstract class ImplicitContextI implements ImplicitContext
                 value = "";
             }
 
-            String oldVal = (String)_context.put(key, value);
+            String oldVal = _context.put(key, value);
             if(oldVal == null)
             {
                 oldVal = "";
@@ -107,7 +106,7 @@ public abstract class ImplicitContextI implements ImplicitContext
                 key = "";
             }
 
-            String val = (String)_context.remove(key);
+            String val = _context.remove(key);
 
             if(val == null)
             {
@@ -116,7 +115,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return val;
         }
 
-        public void write(java.util.Map prxContext, IceInternal.BasicStream os)
+        public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os)
         {
             if(prxContext.isEmpty())
             {
@@ -125,40 +124,40 @@ public abstract class ImplicitContextI implements ImplicitContext
                     ContextHelper.write(os, _context);
                 }
             }
-            else 
+            else
             {
-                java.util.Map ctx = null;
+                java.util.Map<String, String> ctx = null;
                 synchronized(this)
                 {
-                    ctx = _context.isEmpty() ? prxContext : combine(prxContext); 
+                    ctx = _context.isEmpty() ? prxContext : combine(prxContext);
                 }
                 ContextHelper.write(os, ctx);
             }
         }
 
-        synchronized java.util.Map combine(java.util.Map prxContext)
+        synchronized java.util.Map<String, String> combine(java.util.Map<String, String> prxContext)
         {
-            java.util.Map combined = (java.util.Map)_context.clone();
+            java.util.Map<String, String> combined = new java.util.HashMap<String, String>(_context);
             combined.putAll(prxContext);
             return combined;
         }
 
-        private java.util.HashMap _context = new java.util.HashMap();
+        private java.util.Map<String, String> _context = new java.util.HashMap<String, String>();
     }
 
     static class PerThread extends ImplicitContextI
     {
-        
+
         public java.util.Map getContext()
         {
             //
             // Note that _map is a *synchronized* map
             //
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
-            
+            java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
+
             if(threadContext == null)
             {
-                threadContext = new java.util.HashMap();
+                threadContext = new java.util.HashMap<String, String>();
             }
             return threadContext;
         }
@@ -171,7 +170,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             }
             else
             {
-                java.util.HashMap threadContext = new java.util.HashMap(context);
+                java.util.Map<String, String> threadContext = new java.util.HashMap<String, String>(context);
                 _map.put(Thread.currentThread(), threadContext);
             }
         }
@@ -183,7 +182,7 @@ public abstract class ImplicitContextI implements ImplicitContext
                 key = "";
             }
 
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
+            java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
 
             if(threadContext == null)
             {
@@ -200,13 +199,13 @@ public abstract class ImplicitContextI implements ImplicitContext
                 key = "";
             }
 
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
+            java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
 
             if(threadContext == null)
             {
                 return "";
             }
-            String val = (String)threadContext.get(key);
+            String val = threadContext.get(key);
             if(val == null)
             {
                 val = "";
@@ -226,15 +225,15 @@ public abstract class ImplicitContextI implements ImplicitContext
             }
 
             Thread currentThread = Thread.currentThread();
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(currentThread);
+            java.util.Map<String, String> threadContext = _map.get(currentThread);
 
             if(threadContext == null)
             {
-                threadContext = new java.util.HashMap();
+                threadContext = new java.util.HashMap<String, String>();
                 _map.put(currentThread, threadContext);
             }
-            
-            String oldVal = (String)threadContext.put(key, value);
+
+            String oldVal = threadContext.put(key, value);
             if(oldVal == null)
             {
                 oldVal = "";
@@ -249,14 +248,14 @@ public abstract class ImplicitContextI implements ImplicitContext
                 key = "";
             }
 
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
+            java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
 
             if(threadContext == null)
             {
                 return null;
             }
 
-            String val = (String)threadContext.remove(key);
+            String val = threadContext.remove(key);
 
             if(val == null)
             {
@@ -265,10 +264,10 @@ public abstract class ImplicitContextI implements ImplicitContext
             return val;
         }
 
-        public void write(java.util.Map prxContext, IceInternal.BasicStream os)
+        public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os)
         {
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
-            
+            java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
+
             if(threadContext == null || threadContext.isEmpty())
             {
                 ContextHelper.write(os, prxContext);
@@ -279,17 +278,17 @@ public abstract class ImplicitContextI implements ImplicitContext
             }
             else
             {
-                java.util.Map combined = (java.util.Map)threadContext.clone();
+                java.util.Map<String, String> combined = new java.util.HashMap<String, String>(threadContext);
                 combined.putAll(prxContext);
                 ContextHelper.write(os, combined);
             }
         }
 
-        java.util.Map combine(java.util.Map prxContext)
+        java.util.Map<String, String> combine(java.util.Map<String, String> prxContext)
         {
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
+            java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
 
-            java.util.Map combined = (java.util.Map)threadContext.clone();
+            java.util.Map<String, String> combined = new java.util.HashMap<String, String>(threadContext);
             combined.putAll(prxContext);
             return combined;
         }
@@ -297,7 +296,7 @@ public abstract class ImplicitContextI implements ImplicitContext
         //
         // Synchronized map Thread -> Context
         //
-        private java.util.Map _map = java.util.Collections.synchronizedMap(new java.util.HashMap());
-
-    } 
+        private java.util.Map<Thread, java.util.Map<String, String> > _map =
+            java.util.Collections.synchronizedMap(new java.util.HashMap<Thread, java.util.Map<String, String> >());
+    }
 }

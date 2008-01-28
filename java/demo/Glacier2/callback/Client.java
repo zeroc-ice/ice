@@ -150,7 +150,7 @@ public class Client extends Ice.Application
                 }
                 if(line.equals("t"))
                 {
-                    java.util.Map context = new java.util.HashMap();
+                    java.util.Map<String, String> context = new java.util.HashMap<String, String>();
                     context.put("_fwd", "t");
                     if(override != null)
                     {
@@ -160,7 +160,7 @@ public class Client extends Ice.Application
                 }
                 else if(line.equals("o"))
                 {
-                    java.util.Map context = new java.util.HashMap();
+                    java.util.Map<String, String> context = new java.util.HashMap<String, String>();
                     context.put("_fwd", "o");
                     if(override != null)
                     {
@@ -170,7 +170,7 @@ public class Client extends Ice.Application
                 }
                 else if(line.equals("O"))
                 {
-                    java.util.Map context = new java.util.HashMap();
+                    java.util.Map<String, String> context = new java.util.HashMap<String, String>();
                     context.put("_fwd", "O");
                     if(override != null)
                     {

@@ -18,10 +18,10 @@ public final class RouterManager
     synchronized void
     destroy()
     {
-        java.util.Iterator i = _table.values().iterator();
+        java.util.Iterator<RouterInfo> i = _table.values().iterator();
         while(i.hasNext())
         {
-            RouterInfo info = (RouterInfo)i.next();
+            RouterInfo info = i.next();
             info.destroy();
         }
         _table.clear();
@@ -46,7 +46,7 @@ public final class RouterManager
 
         synchronized(this)
         {
-            RouterInfo info = (RouterInfo)_table.get(router);
+            RouterInfo info = _table.get(router);
             if(info == null)
             {
                 info = new RouterInfo(router);
@@ -68,11 +68,11 @@ public final class RouterManager
 
             synchronized(this)
             {
-                info = (RouterInfo)_table.remove(router);
+                info = _table.remove(router);
             }
         }
         return info;
     }
 
-    private java.util.HashMap _table = new java.util.HashMap();
+    private java.util.HashMap<Ice.RouterPrx, RouterInfo> _table = new java.util.HashMap<Ice.RouterPrx, RouterInfo>();
 }

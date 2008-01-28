@@ -68,10 +68,10 @@ public class WorkQueue extends Thread
         //
         // Throw exception for any outstanding requests.
         //
-        java.util.Iterator p = _callbacks.iterator();
+        java.util.Iterator<CallbackEntry> p = _callbacks.iterator();
         while(p.hasNext())
         {
-            CallbackEntry entry = (CallbackEntry)p.next();
+            CallbackEntry entry = p.next();
             entry.cb.ice_exception(new RequestCanceledException());
         }
     }
@@ -104,12 +104,12 @@ public class WorkQueue extends Thread
     }
 
     public synchronized void
-    destroy()
+    _destroy()                  // Thread.destroy is deprecated.
     {
         _done = true;
         notify();
     }
 
-    private java.util.LinkedList _callbacks = new java.util.LinkedList();
+    private java.util.LinkedList<CallbackEntry> _callbacks = new java.util.LinkedList<CallbackEntry>();
     private boolean _done = false;
 }

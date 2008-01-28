@@ -15,7 +15,7 @@ public class FixedReference extends Reference
     FixedReference(Instance instance,
                    Ice.Communicator communicator,
                    Ice.Identity identity,
-                   java.util.Map context,
+                   java.util.Map<String, String> context,
                    String facet,
                    int mode,
                    boolean secure,

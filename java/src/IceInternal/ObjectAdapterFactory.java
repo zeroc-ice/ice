@@ -14,7 +14,7 @@ public final class ObjectAdapterFactory
     public void
     shutdown()
     {
-        java.util.HashMap adapters;
+        java.util.Map<String, Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             //
@@ -40,10 +40,10 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            java.util.Iterator i = adapters.values().iterator();
+            java.util.Iterator<Ice.ObjectAdapterI> i = adapters.values().iterator();
             while(i.hasNext())
             {
-                Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+                Ice.ObjectAdapter adapter = i.next();
                 adapter.deactivate();
             }
         }
@@ -52,7 +52,7 @@ public final class ObjectAdapterFactory
     public void
     waitForShutdown()
     {
-        java.util.HashMap adapters;
+        java.util.Map<String, Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             //
@@ -92,10 +92,10 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            java.util.Iterator i = adapters.values().iterator();
+            java.util.Iterator<Ice.ObjectAdapterI> i = adapters.values().iterator();
             while(i.hasNext())
             {
-                Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+                Ice.ObjectAdapter adapter = i.next();
                 adapter.waitForDeactivate();
             }
         }
@@ -124,7 +124,7 @@ public final class ObjectAdapterFactory
         //
         waitForShutdown();
 
-        java.util.HashMap adapters;
+        java.util.Map<String, Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             adapters = _adapters;
@@ -142,10 +142,10 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            java.util.Iterator i = adapters.values().iterator();
+            java.util.Iterator<Ice.ObjectAdapterI> i = adapters.values().iterator();
             while(i.hasNext())
             {
-                Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+                Ice.ObjectAdapter adapter = i.next();
                 adapter.destroy();
             }
         }
@@ -159,7 +159,7 @@ public final class ObjectAdapterFactory
             throw new Ice.ObjectAdapterDeactivatedException();
         }
 
-        Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters.get(name);
+        Ice.ObjectAdapterI adapter = _adapters.get(name);
         if(adapter != null)
         {
             throw new Ice.AlreadyRegisteredException("object adapter", name);
@@ -189,7 +189,7 @@ public final class ObjectAdapterFactory
     public Ice.ObjectAdapter
     findObjectAdapter(Ice.ObjectPrx proxy)
     {
-        java.util.ArrayList adapters;
+        java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             if(_instance == null)
@@ -197,15 +197,15 @@ public final class ObjectAdapterFactory
                 return null;
             }
 
-            adapters = new java.util.ArrayList(_adapters.values());
+            adapters = new java.util.ArrayList<Ice.ObjectAdapterI>(_adapters.values());
         }
 
-        java.util.Iterator p = adapters.iterator();
+        java.util.Iterator<Ice.ObjectAdapterI> p = adapters.iterator();
         while(p.hasNext())
         {
             try
             {
-                Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)p.next();
+                Ice.ObjectAdapterI adapter = p.next();
                 if(adapter.isLocal(proxy))
                 {
                     return adapter;
@@ -234,7 +234,7 @@ public final class ObjectAdapterFactory
     public void
     flushBatchRequests()
     {
-        java.util.ArrayList adapters;
+        java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             if(_adapters == null)
@@ -242,13 +242,13 @@ public final class ObjectAdapterFactory
                 return;
             }
 
-            adapters = new java.util.ArrayList(_adapters.values());
+            adapters = new java.util.ArrayList<Ice.ObjectAdapterI>(_adapters.values());
         }
 
-        java.util.Iterator p = adapters.iterator();
+        java.util.Iterator<Ice.ObjectAdapterI> p = adapters.iterator();
         while(p.hasNext())
         {
-            ((Ice.ObjectAdapterI)p.next()).flushBatchRequests();
+            p.next().flushBatchRequests();
         }
     }
 
@@ -276,6 +276,6 @@ public final class ObjectAdapterFactory
 
     private Instance _instance;
     private Ice.Communicator _communicator;
-    private java.util.HashMap _adapters = new java.util.HashMap();
+    private java.util.Map<String, Ice.ObjectAdapterI> _adapters = new java.util.HashMap<String, Ice.ObjectAdapterI>();
     private boolean _waitForShutdown;
 }

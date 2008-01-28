@@ -9,10 +9,10 @@
 
 package IceInternal;
 
-public class DictionaryPatcher implements Patcher, Ice.ReadObjectCallback
+public class DictionaryPatcher<K, V> implements Patcher, Ice.ReadObjectCallback
 {
     public
-    DictionaryPatcher(java.util.Map dict, Class cls, String type, java.lang.Object key)
+    DictionaryPatcher(java.util.Map<K, V> dict, Class<V> cls, String type, K key)
     {
         _dict = dict;
         _cls = cls;
@@ -35,7 +35,7 @@ public class DictionaryPatcher implements Patcher, Ice.ReadObjectCallback
             }
         }
 
-        _dict.put(_key, v);
+        _dict.put(_key, _cls.cast(v));
     }
 
     public String
@@ -50,8 +50,8 @@ public class DictionaryPatcher implements Patcher, Ice.ReadObjectCallback
         patch(v);
     }
 
-    private java.util.Map _dict;
-    private Class _cls;
+    private java.util.Map<K, V> _dict;
+    private Class<V> _cls;
     private String _type;
-    private java.lang.Object _key;
+    private K _key;
 }

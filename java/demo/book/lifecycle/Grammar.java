@@ -69,7 +69,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_CREATE_FILE)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -82,7 +82,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_CREATE_DIR)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -104,7 +104,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_CD)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -124,7 +124,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_CAT)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -137,7 +137,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_WRITE)
                 {
-                    java.util.LinkedList s = strings();
+                    java.util.LinkedList<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -150,7 +150,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_RM)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -173,10 +173,10 @@ class Grammar
         }
     }
 
-    private java.util.LinkedList
+    private java.util.LinkedList<String>
     strings()
     {
-        java.util.LinkedList l = new java.util.LinkedList();
+        java.util.LinkedList<String> l = new java.util.LinkedList<String>();
         while(true)
         {
             _token = _scanner.nextToken();

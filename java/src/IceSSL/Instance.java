@@ -659,10 +659,10 @@ class Instance
                 CipherExpression ce = (CipherExpression)_ciphers[i];
                 if(ce.not)
                 {
-                    java.util.Iterator e = result.iterator();
+                    java.util.Iterator<String> e = result.iterator();
                     while(e.hasNext())
                     {
-                        String cipher = (String)e.next();
+                        String cipher = e.next();
                         if(ce.cipher != null)
                         {
                             if(ce.cipher.equals(cipher))
@@ -752,16 +752,16 @@ class Instance
         {
             try
             {
-                java.util.Collection subjectAltNames =
+                java.util.Collection<java.util.List<?> > subjectAltNames =
                     ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
                 java.util.ArrayList<String> ipAddresses = new java.util.ArrayList<String>();
                 java.util.ArrayList<String> dnsNames = new java.util.ArrayList<String>();
                 if(subjectAltNames != null)
                 {
-                    java.util.Iterator i = subjectAltNames.iterator();
+                    java.util.Iterator<java.util.List<?> > i = subjectAltNames.iterator();
                     while(i.hasNext())
                     {
-                        java.util.List l = (java.util.List)i.next();
+                        java.util.List<?> l = i.next();
                         assert(!l.isEmpty());
                         Integer n = (Integer)l.get(0);
                         if(n.intValue() == 7)

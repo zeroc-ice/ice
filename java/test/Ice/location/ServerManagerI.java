@@ -15,7 +15,7 @@ public class ServerManagerI extends _ServerManagerDisp
     {
         _adapter = adapter;
         _registry = registry;
-        _communicators = new java.util.ArrayList();
+        _communicators = new java.util.ArrayList<Ice.Communicator>();
         _initData = initData;
 
         _initData.properties.setProperty("TestAdapter.Endpoints", "default");
@@ -28,10 +28,10 @@ public class ServerManagerI extends _ServerManagerDisp
     public void
     startServer(Ice.Current current)
     {
-        java.util.Iterator i = _communicators.iterator();
+        java.util.Iterator<Ice.Communicator> i = _communicators.iterator();
         while(i.hasNext())
         {
-            Ice.Communicator c = (Ice.Communicator)i.next();
+            Ice.Communicator c = i.next();
             c.waitForShutdown();
             c.destroy();
         }
@@ -67,16 +67,16 @@ public class ServerManagerI extends _ServerManagerDisp
     public void
     shutdown(Ice.Current current)
     {
-        java.util.Iterator i = _communicators.iterator();
+        java.util.Iterator<Ice.Communicator> i = _communicators.iterator();
         while(i.hasNext())
         {
-            ((Ice.Communicator)i.next()).destroy();
+            i.next().destroy();
         }
         _adapter.getCommunicator().shutdown();
     }
 
     private Ice.ObjectAdapter _adapter;
     private ServerLocatorRegistry _registry;
-    private java.util.ArrayList _communicators;
+    private java.util.List<Ice.Communicator> _communicators;
     private Ice.InitializationData _initData;
 }

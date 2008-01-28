@@ -61,7 +61,7 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
     public void
     runTimerTask()
     {
-        java.util.HashSet connections = new java.util.HashSet();
+        java.util.Set<Ice.ConnectionI> connections = new java.util.HashSet<Ice.ConnectionI>();
 
         synchronized(this)
         {
@@ -79,10 +79,10 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
         // so that connections can be added or removed during
         // monitoring.
         //
-        java.util.Iterator iter = connections.iterator();
+        java.util.Iterator<Ice.ConnectionI> iter = connections.iterator();
         while(iter.hasNext())
         {
-            Ice.ConnectionI connection = (Ice.ConnectionI)iter.next();
+            Ice.ConnectionI connection = iter.next();
             
             try
             {              
@@ -125,5 +125,5 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
     }
     
     private Instance _instance;
-    private java.util.HashSet _connections = new java.util.HashSet();
+    private java.util.Set<Ice.ConnectionI> _connections = new java.util.HashSet<Ice.ConnectionI>();
 }

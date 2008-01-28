@@ -36,7 +36,7 @@ public class HelloI extends _HelloDisp
     {
         System.out.println("Shutting down...");
 
-        _workQueue.destroy();
+        _workQueue._destroy();
         current.adapter.getCommunicator().shutdown();
     }
 

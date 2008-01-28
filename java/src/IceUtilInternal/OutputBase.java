@@ -107,14 +107,14 @@ public class OutputBase
     public void
     useCurrentPosAsIndent()
     {
-        _indentSave.addFirst(new Integer(_indent));
+        _indentSave.addFirst(_indent);
         _indent = _pos;
     }
 
     public void
     zeroIndent()
     {
-        _indentSave.addFirst(new Integer(_indent));
+        _indentSave.addFirst(_indent);
         _indent = 0;
     }
 
@@ -122,7 +122,7 @@ public class OutputBase
     restoreIndent()
     {
         assert(!_indentSave.isEmpty());
-        _indent = ((Integer)_indentSave.removeFirst()).intValue();
+        _indent = _indentSave.removeFirst().intValue();
     }
 
     public void
@@ -182,8 +182,7 @@ public class OutputBase
     protected int _pos;
     protected int _indent;
     protected int _indentSize;
-    protected java.util.LinkedList _indentSave = new java.util.LinkedList();
+    protected java.util.LinkedList<Integer> _indentSave = new java.util.LinkedList<Integer>();
     protected boolean _useTab;
     protected boolean _separator;
-
 }

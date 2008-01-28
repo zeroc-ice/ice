@@ -26,14 +26,14 @@ class TrustManager
             _client = parse(properties.getProperty(key));
             key = "IceSSL.TrustOnly.Server";
             _allServer = parse(properties.getProperty(key));
-            java.util.Map dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
-            java.util.Iterator p = dict.entrySet().iterator();
+            java.util.Map<String, String> dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
+            java.util.Iterator<java.util.Map.Entry<String, String> > p = dict.entrySet().iterator();
             while(p.hasNext())
             {
-                java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                key = (String)entry.getKey();
+                java.util.Map.Entry<String, String> entry = p.next();
+                key = entry.getKey();
                 String name = key.substring("IceSSL.TrustOnly.Server.".length());
-                _server.put(name, parse((String)entry.getValue()));
+                _server.put(name, parse(entry.getValue()));
             }
         }
         catch(RFC2253.ParseException e)
@@ -47,7 +47,8 @@ class TrustManager
     boolean
     verify(ConnectionInfo info)
     {
-        java.util.List trustset = new java.util.LinkedList();
+        java.util.List<java.util.List<java.util.List<RFC2253.RDNPair> > > trustset =
+            new java.util.LinkedList<java.util.List<java.util.List<RFC2253.RDNPair> > >();
         if(!_all.isEmpty())
         {
             trustset.add(_all);
@@ -61,7 +62,7 @@ class TrustManager
             }
             if(info.adapterName.length() > 0)
             {
-                java.util.List p = (java.util.List)_server.get(info.adapterName);
+                java.util.List<java.util.List<RFC2253.RDNPair> > p = _server.get(info.adapterName);
                 if(p != null)
                 {
                     trustset.add(p);
@@ -116,19 +117,19 @@ class TrustManager
                             "remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
                     }
                 }
-                java.util.List dn = RFC2253.parseStrict(subjectName);
+                java.util.List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);
 
                 //
                 // Try matching against everything in the trust set.
                 //
-                java.util.Iterator p = trustset.iterator();
+                java.util.Iterator<java.util.List<java.util.List<RFC2253.RDNPair> > > p = trustset.iterator();
                 while(p.hasNext())
                 {
-                    java.util.List matchSet = (java.util.List)p.next();
+                    java.util.List<java.util.List<RFC2253.RDNPair> > matchSet = p.next();
                     if(_traceLevel > 1)
                     {
                         String s = "trust manager matching PDNs:\n";
-                        java.util.Iterator q = matchSet.iterator();
+                        java.util.Iterator<java.util.List<RFC2253.RDNPair> > q = matchSet.iterator();
                         boolean addSemi = false;
                         while(q.hasNext())
                         {
@@ -137,8 +138,8 @@ class TrustManager
                                 s += ';';
                             }
                             addSemi = true;
-                            java.util.List rdnSet = (java.util.List)q.next();
-                            java.util.Iterator r = rdnSet.iterator();
+                            java.util.List<RFC2253.RDNPair> rdnSet = q.next();
+                            java.util.Iterator<RFC2253.RDNPair> r = rdnSet.iterator();
                             boolean addComma = false;
                             while(r.hasNext())
                             {
@@ -147,7 +148,7 @@ class TrustManager
                                     s += ',';
                                 }
                                 addComma = true;
-                                RFC2253.RDNPair rdn = (RFC2253.RDNPair)r.next();
+                                RFC2253.RDNPair rdn = r.next();
                                 s += rdn.key;
                                 s += '=';
                                 s += rdn.value;
@@ -172,12 +173,12 @@ class TrustManager
     }
 
     private boolean
-    match(java.util.List matchSet, java.util.List subject)
+    match(java.util.List<java.util.List<RFC2253.RDNPair> > matchSet, java.util.List<RFC2253.RDNPair> subject)
     {
-        java.util.Iterator r = matchSet.iterator();
+        java.util.Iterator<java.util.List<RFC2253.RDNPair> > r = matchSet.iterator();
         while(r.hasNext())
         {
-            if(matchRDNs((java.util.List)r.next(), subject))
+            if(matchRDNs(r.next(), subject))
             {
                 return true;
             }
@@ -186,17 +187,17 @@ class TrustManager
     }
 
     private boolean
-    matchRDNs(java.util.List match, java.util.List subject)
+    matchRDNs(java.util.List<RFC2253.RDNPair> match, java.util.List<RFC2253.RDNPair> subject)
     {
-        java.util.Iterator p = match.iterator();
+        java.util.Iterator<RFC2253.RDNPair> p = match.iterator();
         while(p.hasNext())
         {
-            RFC2253.RDNPair matchRDN = (RFC2253.RDNPair)p.next();
+            RFC2253.RDNPair matchRDN = p.next();
             boolean found = false;
-            java.util.Iterator q = subject.iterator();
+            java.util.Iterator<RFC2253.RDNPair> q = subject.iterator();
             while(q.hasNext())
             {
-                RFC2253.RDNPair subjectRDN = (RFC2253.RDNPair)q.next();
+                RFC2253.RDNPair subjectRDN = q.next();
                 if(matchRDN.key.equals(subjectRDN.key))
                 {
                     found = true;
@@ -214,7 +215,7 @@ class TrustManager
         return true;
     }
 
-    java.util.List
+    java.util.List<java.util.List<RFC2253.RDNPair> >
     parse(String value)
         throws RFC2253.ParseException
     {
@@ -257,15 +258,16 @@ class TrustManager
         // DNs on ';' which cannot be blindly split because of quotes,
         // \ and such.
         //
-        java.util.List l = RFC2253.parse(value);
-        java.util.List result = new java.util.LinkedList();
-        java.util.Iterator p = l.iterator();
+        java.util.List<java.util.List<RFC2253.RDNPair> > l = RFC2253.parse(value);
+        java.util.List<java.util.List<RFC2253.RDNPair> > result =
+            new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+        java.util.Iterator<java.util.List<RFC2253.RDNPair> > p = l.iterator();
         while(p.hasNext())
         {
-            java.util.List dn = (java.util.List)p.next();
+            java.util.List<RFC2253.RDNPair> dn = p.next();
             String v = new String();
             boolean first = true;
-            java.util.Iterator q = dn.iterator();
+            java.util.Iterator<RFC2253.RDNPair> q = dn.iterator();
             while(q.hasNext())
             {
                 if(!first)
@@ -273,7 +275,7 @@ class TrustManager
                     v += ",";
                 }
                 first = false;
-                RFC2253.RDNPair pair = (RFC2253.RDNPair)q.next();
+                RFC2253.RDNPair pair = q.next();
                 v += pair.key;
                 v += "=";
                 v += pair.value;
@@ -288,8 +290,9 @@ class TrustManager
     private Ice.Communicator _communicator;
     private int _traceLevel;
 
-    private java.util.List _all;
-    private java.util.List _client;
-    private java.util.List _allServer;
-    private java.util.Map _server = new java.util.HashMap();
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _all;
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _client;
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _allServer;
+    private java.util.Map<String, java.util.List<java.util.List<RFC2253.RDNPair> > > _server =
+        new java.util.HashMap<String, java.util.List<java.util.List<RFC2253.RDNPair> > >();
 }

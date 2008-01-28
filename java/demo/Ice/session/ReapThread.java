@@ -38,10 +38,10 @@ class ReapThread extends Thread
             
             if(!_terminated)
             {
-                java.util.Iterator p = _sessions.iterator();
+                java.util.Iterator<SessionProxyPair> p = _sessions.iterator();
                 while(p.hasNext())
                 {
-                    SessionProxyPair s = (SessionProxyPair)p.next();
+                    SessionProxyPair s = p.next();
                     try
                     {
                         //
@@ -83,5 +83,5 @@ class ReapThread extends Thread
 
     private final long _timeout = 10 * 1000; // 10 seconds.
     private boolean _terminated = false;
-    private java.util.List _sessions = new java.util.LinkedList();
+    private java.util.List<SessionProxyPair> _sessions = new java.util.LinkedList<SessionProxyPair>();
 }

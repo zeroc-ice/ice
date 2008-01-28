@@ -168,9 +168,10 @@ public class SelectorThread
     public void
     run()
     {
-        java.util.HashMap socketMap = new java.util.HashMap();
-        java.util.LinkedList readyList = new java.util.LinkedList();
-        java.util.LinkedList finishedList = new java.util.LinkedList();
+        java.util.Map<java.nio.channels.SelectableChannel, SocketInfo> socketMap =
+            new java.util.HashMap<java.nio.channels.SelectableChannel, SocketInfo>();
+        java.util.LinkedList<SocketInfo> readyList = new java.util.LinkedList<SocketInfo>();
+        java.util.LinkedList<SocketInfo> finishedList = new java.util.LinkedList<SocketInfo>();
         while(true)
         {
             int ret = 0;
@@ -236,7 +237,7 @@ public class SelectorThread
                     _keys.remove(_fdIntrReadKey);
 
                     clearInterrupt();
-                    SocketInfo info = (SocketInfo)_changes.removeFirst();
+                    SocketInfo info = _changes.removeFirst();
                     if(info.cb != null) // Registration
                     {
                         try
@@ -252,7 +253,7 @@ public class SelectorThread
                     }
                     else // Unregistration
                     {
-                        info = (SocketInfo)socketMap.get(info.fd);
+                        info = socketMap.get(info.fd);
                         if(info != null && info.status != SocketStatus.Finished)
                         {
                             if(info.timeout >= 0)
@@ -279,13 +280,13 @@ public class SelectorThread
                 //
                 // Examine the selection key set.
                 //
-                java.util.Iterator iter = _keys.iterator();
+                java.util.Iterator<java.nio.channels.SelectionKey> iter = _keys.iterator();
                 while(iter.hasNext())
                 {
                     //
                     // Ignore selection keys that have been cancelled or timed out.
                     //
-                    java.nio.channels.SelectionKey key = (java.nio.channels.SelectionKey)iter.next();
+                    java.nio.channels.SelectionKey key = iter.next();
                     iter.remove();
                     assert(key != _fdIntrReadKey);
                     SocketInfo info = (SocketInfo)key.attachment();
@@ -298,10 +299,10 @@ public class SelectorThread
                 }
             }
 
-            java.util.Iterator iter = readyList.iterator();
+            java.util.Iterator<SocketInfo> iter = readyList.iterator();
             while(iter.hasNext())
             {
-                SocketInfo info = (SocketInfo)iter.next();
+                SocketInfo info = iter.next();
                 SocketStatus status;
                 try
                 {
@@ -318,7 +319,7 @@ public class SelectorThread
                     _instance.initializationData().logger.error(s);
                     status = SocketStatus.Finished;
                 }
-                    
+
                 if(status == SocketStatus.Finished)
                 {
                     finishedList.add(info);
@@ -351,7 +352,7 @@ public class SelectorThread
             iter = finishedList.iterator();
             while(iter.hasNext())
             {
-                SocketInfo info = (SocketInfo)iter.next();
+                SocketInfo info = iter.next();
                 if(info.status != SocketStatus.Finished)
                 {
                     try
@@ -430,8 +431,8 @@ public class SelectorThread
     private java.nio.channels.SelectionKey _fdIntrReadKey;
     private java.nio.channels.WritableByteChannel _fdIntrWrite;
     private java.nio.channels.Selector _selector;
-    private java.util.Set _keys;
-    private java.util.LinkedList _changes = new java.util.LinkedList();
+    private java.util.Set<java.nio.channels.SelectionKey> _keys;
+    private java.util.LinkedList<SocketInfo> _changes = new java.util.LinkedList<SocketInfo>();
 
     private final class SocketInfo implements TimerTask
     {

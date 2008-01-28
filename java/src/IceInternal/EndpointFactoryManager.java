@@ -21,7 +21,7 @@ public final class EndpointFactoryManager
     {
         for(int i = 0; i < _factories.size(); i++)
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = _factories.get(i);
             if(f.type() == factory.type())
             {
                 assert(false);
@@ -35,7 +35,7 @@ public final class EndpointFactoryManager
     {
         for(int i = 0; i < _factories.size(); i++)
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = _factories.get(i);
             if(f.type() == type)
             {
                 return f;
@@ -69,7 +69,7 @@ public final class EndpointFactoryManager
 
         for(int i = 0; i < _factories.size(); i++)
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = _factories.get(i);
             if(f.protocol().equals(protocol))
             {
                 return f.create(s.substring(m.end()), oaEndpoint);
@@ -100,7 +100,7 @@ public final class EndpointFactoryManager
             EndpointI ue = new UnknownEndpointI(s.substring(m.end()));
             for(int i = 0; i < _factories.size(); i++)
             {
-                EndpointFactory f = (EndpointFactory)_factories.get(i);
+                EndpointFactory f = _factories.get(i);
                 if(f.type() == ue.type())
                 {
                     //
@@ -130,7 +130,7 @@ public final class EndpointFactoryManager
 
         for(int i = 0; i < _factories.size(); i++)
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = _factories.get(i);
             if(f.type() == type)
             {
                 return f.read(s);
@@ -144,12 +144,12 @@ public final class EndpointFactoryManager
     {
         for(int i = 0; i < _factories.size(); i++)
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = _factories.get(i);
             f.destroy();
         }
         _factories.clear();
     }
 
     private Instance _instance;
-    private java.util.ArrayList _factories = new java.util.ArrayList();
+    private java.util.List<EndpointFactory> _factories = new java.util.ArrayList<EndpointFactory>();
 }

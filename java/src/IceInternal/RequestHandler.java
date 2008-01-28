@@ -28,7 +28,7 @@ public interface RequestHandler
 
     Ice.ConnectionI getConnection(boolean wait);
 
-    Outgoing getOutgoing(String operation, Ice.OperationMode mode, java.util.Map context)
+    Outgoing getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
         throws LocalExceptionWrapper;
 
     void reclaimOutgoing(Outgoing out);

@@ -356,7 +356,7 @@ final class EndpointI extends IceInternal.EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public java.util.List
+    public java.util.List<IceInternal.Connector>
     connectors()
     {
         return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport()));
@@ -388,21 +388,22 @@ final class EndpointI extends IceInternal.EndpointI
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //
-    public java.util.List
+    public java.util.List<IceInternal.EndpointI>
     expand()
     {
-        java.util.ArrayList endps = new java.util.ArrayList();
-        java.util.ArrayList hosts = IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+        java.util.ArrayList<IceInternal.EndpointI> endps = new java.util.ArrayList<IceInternal.EndpointI>();
+        java.util.ArrayList<String> hosts =
+            IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
         if(hosts == null || hosts.isEmpty())
         {
             endps.add(this);
         }
         else
         {
-            java.util.Iterator p = hosts.iterator();
+            java.util.Iterator<String> p = hosts.iterator();
             while(p.hasNext())
             {
-                endps.add(new EndpointI(_instance, (String)p.next(), _port, _timeout, _connectionId, _compress));
+                endps.add(new EndpointI(_instance, p.next(), _port, _timeout, _connectionId, _compress));
             }
         }
         return endps;
@@ -438,11 +439,19 @@ final class EndpointI extends IceInternal.EndpointI
     public boolean
     equals(java.lang.Object obj)
     {
-        return compareTo(obj) == 0;
+        try
+        {
+            return compareTo((IceInternal.EndpointI)obj) == 0;
+        }
+        catch(ClassCastException ee)
+        {
+            assert(false);
+            return false;
+        }
     }
 
     public int
-    compareTo(java.lang.Object obj) // From java.lang.Comparable
+    compareTo(IceInternal.EndpointI obj) // From java.lang.Comparable
     {
         EndpointI p = null;
 
@@ -452,15 +461,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         catch(ClassCastException ex)
         {
-            try
-            {
-                IceInternal.EndpointI e = (IceInternal.EndpointI)obj;
-                return type() < e.type() ? -1 : 1;
-            }
-            catch(ClassCastException ee)
-            {
-                assert(false);
-            }
+            return type() < obj.type() ? -1 : 1;
         }
 
         if(this == p)
@@ -503,14 +504,14 @@ final class EndpointI extends IceInternal.EndpointI
         return _host.compareTo(p._host);
     }
 
-    public java.util.List
-    connectors(java.util.List addresses)
+    public java.util.List<IceInternal.Connector>
+    connectors(java.util.List<java.net.InetSocketAddress> addresses)
     {
-        java.util.ArrayList connectors = new java.util.ArrayList();
-        java.util.Iterator p = addresses.iterator();
+        java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
+        java.util.Iterator<java.net.InetSocketAddress> p = addresses.iterator();
         while(p.hasNext())
         {
-            connectors.add(new ConnectorI(_instance, (java.net.InetSocketAddress)p.next(), _timeout, _connectionId));
+            connectors.add(new ConnectorI(_instance, p.next(), _timeout, _connectionId));
         }
         return connectors;
     }

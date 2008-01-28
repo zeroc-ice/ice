@@ -63,7 +63,7 @@ public class ConnectionRequestHandler implements RequestHandler
     }
 
     public Outgoing
-    getOutgoing(String operation, Ice.OperationMode mode, java.util.Map context)
+    getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
         throws LocalExceptionWrapper
     {
         return _connection.getOutgoing(this, operation, mode, context);

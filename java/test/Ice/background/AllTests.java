@@ -111,7 +111,7 @@ public class AllTests
         }
 
         public synchronized void
-        destroy()
+        _destroy()                  // Thread.destroy is deprecated
         {
             _destroyed = true;
         }
@@ -407,8 +407,8 @@ public class AllTests
             }
         }
         
-        thread1.destroy();
-        thread2.destroy();
+        thread1._destroy();
+        thread2._destroy();
         
         try
         {
@@ -642,8 +642,8 @@ public class AllTests
             }
         }
 
-        thread1.destroy();
-        thread2.destroy();
+        thread1._destroy();
+        thread2._destroy();
 
         try
         {
@@ -1162,8 +1162,8 @@ public class AllTests
             background.ice_getCachedConnection().close(true);
         }
 
-        thread1.destroy();
-        thread2.destroy();
+        thread1._destroy();
+        thread2._destroy();
 
         try
         {

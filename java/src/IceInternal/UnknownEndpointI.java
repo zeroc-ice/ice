@@ -238,16 +238,16 @@ final class UnknownEndpointI extends EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public java.util.List
+    public java.util.List<Connector>
     connectors()
     {
-        return new java.util.ArrayList();
+        return new java.util.ArrayList<Connector>();
     }
 
     public void
     connectors_async(EndpointI_connectors callback)
     {
-        callback.connectors(new java.util.ArrayList());
+        callback.connectors(new java.util.ArrayList<Connector>());
     }
 
     //
@@ -269,10 +269,10 @@ final class UnknownEndpointI extends EndpointI
     // host if listening on INADDR_ANY on server side or if no host
     // was specified on client side.
     //
-    public java.util.List
+    public java.util.List<EndpointI>
     expand()
     {
-        java.util.ArrayList endps = new java.util.ArrayList();
+        java.util.List<EndpointI> endps = new java.util.ArrayList<EndpointI>();
         endps.add(this);
         return endps;
     }
@@ -298,11 +298,19 @@ final class UnknownEndpointI extends EndpointI
     public boolean
     equals(java.lang.Object obj)
     {
-        return compareTo(obj) == 0;
+        try
+        {
+            return compareTo((EndpointI)obj) == 0;
+        }
+        catch(ClassCastException ee)
+        {
+            assert(false);
+            return false;
+        }
     }
 
     public int
-    compareTo(java.lang.Object obj) // From java.lang.Comparable
+    compareTo(EndpointI obj) // From java.lang.Comparable
     {
         UnknownEndpointI p = null;
 

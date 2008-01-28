@@ -132,7 +132,7 @@ public class XMLOutput extends OutputBase
     public XMLOutput
     ee()
     {
-        String element = (String)_elementStack.removeFirst();
+        String element = _elementStack.removeFirst();
 
         dec();
         if(_se)
@@ -202,7 +202,7 @@ public class XMLOutput extends OutputBase
     {
         if(_elementStack.size() > 0)
         {
-            return (String)_elementStack.getFirst();
+            return _elementStack.getFirst();
         }
         else
         {
@@ -263,7 +263,7 @@ public class XMLOutput extends OutputBase
         return v;
     }
 
-    private java.util.LinkedList _elementStack = new java.util.LinkedList();
+    private java.util.LinkedList<String> _elementStack = new java.util.LinkedList<String>();
 
     boolean _se;
     boolean _text;

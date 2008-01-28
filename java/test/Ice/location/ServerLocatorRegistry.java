@@ -42,7 +42,7 @@ public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
     getAdapter(String adapter)
         throws Ice.AdapterNotFoundException
     {
-        Ice.ObjectPrx obj = (Ice.ObjectPrx)_adapters.get(adapter);
+        Ice.ObjectPrx obj = _adapters.get(adapter);
         if(obj == null)
         {
             throw new Ice.AdapterNotFoundException();
@@ -54,7 +54,7 @@ public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
     getObject(Ice.Identity id)
         throws Ice.ObjectNotFoundException
     {
-        Ice.ObjectPrx obj = (Ice.ObjectPrx)_objects.get(id);
+        Ice.ObjectPrx obj = _objects.get(id);
         if(obj == null)
         {
             throw new Ice.ObjectNotFoundException();   
@@ -62,6 +62,7 @@ public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
         return obj;
     }
 
-    private java.util.HashMap _adapters = new java.util.HashMap();
-    private java.util.HashMap _objects = new java.util.HashMap();
+    private java.util.HashMap<String, Ice.ObjectPrx> _adapters = new java.util.HashMap<String, Ice.ObjectPrx>();
+    private java.util.HashMap<Ice.Identity, Ice.ObjectPrx> _objects =
+        new java.util.HashMap<Ice.Identity, Ice.ObjectPrx>();
 }

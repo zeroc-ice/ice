@@ -32,12 +32,12 @@
         <javac srcdir="${generated.dir}" destdir="${class.dir}"
 	    source="${jdk.version}" debug="${debug}">
             <classpath refid="ice.classpath"/>
-	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	    <compilerarg value="${javac.lint}"/>
         </javac>
 	<javac srcdir="." destdir="${class.dir}" source="${jdk.version}"
             excludes="generated/**" debug="${debug}">
             <classpath refid="ice.classpath"/>
-	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	    <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
 

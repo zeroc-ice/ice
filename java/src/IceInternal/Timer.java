@@ -20,7 +20,7 @@ public final class Timer extends Thread
     // Renamed from destroy to _destroy to avoid a deprecation warning caused
     // by the destroy method inherited from Thread.
     //
-    public void 
+    public void
     _destroy()
     {
         synchronized(this)
@@ -32,11 +32,11 @@ public final class Timer extends Thread
 
             _instance = null;
             notify();
-            
+
             _tokens.clear();
             _tasks.clear();
         }
-        
+
         while(true)
         {
             try
@@ -60,7 +60,7 @@ public final class Timer extends Thread
 
         final Token token = new Token(IceInternal.Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
 
-        Object previous = _tasks.put(task, token);
+        Token previous = _tasks.put(task, token);
         assert previous == null;
         _tokens.add(token);
 
@@ -80,7 +80,7 @@ public final class Timer extends Thread
 
         final Token token = new Token(IceInternal.Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
 
-        Object previous = _tasks.put(task, token);
+        Token previous = _tasks.put(task, token);
         assert previous == null;
         _tokens.add(token);
 
@@ -98,7 +98,7 @@ public final class Timer extends Thread
             return false;
         }
 
-        Token token = (Token)_tasks.remove(task);
+        Token token = _tasks.remove(task);
         if(token == null)
         {
             return false;
@@ -130,7 +130,7 @@ public final class Timer extends Thread
         throws Throwable
     {
         IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-        
+
         super.finalize();
     }
 
@@ -179,16 +179,16 @@ public final class Timer extends Thread
                         }
                     }
                 }
-            
+
                 if(_instance == null)
                 {
                     break;
                 }
-                
+
                 while(!_tokens.isEmpty() && _instance != null)
                 {
                     long now = IceInternal.Time.currentMonotonicTimeMillis();
-                    Token first = (Token)_tokens.first();
+                    Token first = _tokens.first();
                     if(first.scheduledTime <= now)
                     {
                         _tokens.remove(first);
@@ -199,7 +199,7 @@ public final class Timer extends Thread
                         }
                         break;
                     }
-                    
+
                     _wakeUpTime = first.scheduledTime;
                     while(true)
                     {
@@ -213,7 +213,7 @@ public final class Timer extends Thread
                         }
                     }
                 }
-                
+
                 if(_instance == null)
                 {
                     break;
@@ -240,14 +240,14 @@ public final class Timer extends Thread
                             _instance.initializationData().logger.error(s);
                         }
                     }
-                } 
+                }
             }
         }
     }
 
     static private class Token implements Comparable
     {
-        public 
+        public
         Token(long scheduledTime, int id, long delay, TimerTask task)
         {
             this.scheduledTime = scheduledTime;
@@ -256,7 +256,7 @@ public final class Timer extends Thread
             this.task = task;
         }
 
-        public int 
+        public int
         compareTo(Object o)
         {
             //
@@ -280,7 +280,7 @@ public final class Timer extends Thread
             {
                 return 1;
             }
-            
+
             return 0;
         }
 
@@ -290,8 +290,8 @@ public final class Timer extends Thread
         TimerTask task;
     }
 
-    private final java.util.SortedSet _tokens = new java.util.TreeSet();
-    private final java.util.Map _tasks = new java.util.HashMap();
+    private final java.util.SortedSet<Token> _tokens = new java.util.TreeSet<Token>();
+    private final java.util.Map<TimerTask, Token> _tasks = new java.util.HashMap<TimerTask, Token>();
     private Instance _instance;
     private long _wakeUpTime = Long.MAX_VALUE;
     private int _tokenId = 0;

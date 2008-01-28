@@ -434,7 +434,7 @@ public class Client
                 arr[i].seq8 = new String[] { "string1", "string2", "string3", "string4" };
                 arr[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
                 arr[i].seq10 = new Test.MyClass[4]; // null elements.
-                arr[i].d = new java.util.HashMap();
+                arr[i].d = new java.util.HashMap<String, Test.MyClass>();
                 arr[i].d.put("hi", arr[i]);
             }
             out = Ice.Util.createOutputStream(communicator);

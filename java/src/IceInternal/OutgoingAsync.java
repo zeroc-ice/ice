@@ -18,8 +18,8 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         {
             _sent = true;
 
-	    if(!_proxy.ice_isTwoway())
-	    {
+            if(!_proxy.ice_isTwoway())
+            {
                 __release();
             }
             else if(_response)
@@ -31,14 +31,14 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
                 assert(_timerTask == null);
                 _timerTask = new TimerTask()
                 {
-		    public void
-		    runTimerTask()
-		    {
-			__runTimerTask(connection);
-		    }
-		};
-		_proxy.__reference().getInstance().timer().schedule(_timerTask, connection.timeout());
-	    }
+                    public void
+                    runTimerTask()
+                    {
+                        __runTimerTask(connection);
+                    }
+                };
+                _proxy.__reference().getInstance().timer().schedule(_timerTask, connection.timeout());
+            }
         }
     }
 
@@ -46,7 +46,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
     __finished(BasicStream is)
     {
         assert(_proxy.ice_isTwoway()); // Can only be called for twoways.
-        
+
         byte replyStatus;
         try
         {
@@ -59,7 +59,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
                 {
                     _timerTask = null; // Timer cancelled.
                 }
-            
+
                 while(!_sent || _timerTask != null)
                 {
                     try
@@ -193,9 +193,9 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
             __finished(ex);
             return;
         }
-        
+
         assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
-            
+
         try
         {
             __response(replyStatus == ReplyStatus.replyOK);
@@ -219,7 +219,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
                 {
                     _timerTask = null; // Timer cancelled.
                 }
-                
+
                 while(_timerTask != null)
                 {
                     try
@@ -232,7 +232,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
                 }
             }
         }
-     
+
         //
         // NOTE: at this point, synchronization isn't needed, no other threads should be
         // calling on the callback.
@@ -272,7 +272,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
     }
 
     protected final void
-    __prepare(Ice.ObjectPrx prx, String operation, Ice.OperationMode mode, java.util.Map context)
+    __prepare(Ice.ObjectPrx prx, String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
     {
         assert(__os != null);
 
@@ -280,7 +280,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         _delegate = null;
         _cnt = 0;
         _mode = mode;
-        
+
         //
         // Can't call async via a batch proxy.
         //
@@ -288,13 +288,13 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         {
             throw new Ice.FeatureNotSupportedException("can't send batch requests with AMI");
         }
-        
+
         __os.writeBlob(IceInternal.Protocol.requestHdr);
-        
+
         Reference ref = _proxy.__reference();
 
         ref.getIdentity().__write(__os);
-        
+
         //
         // For compatibility with the old FacetPath.
         //
@@ -308,11 +308,11 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
             String[] facetPath = { facet };
             __os.writeStringSeq(facetPath);
         }
-        
+
         __os.writeString(operation);
-        
+
         __os.writeByte((byte)mode.value());
-        
+
         if(context != null)
         {
             //
@@ -326,8 +326,8 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
             // Implicit context
             //
             Ice.ImplicitContextI implicitContext = ref.getInstance().getImplicitContext();
-            java.util.Map prxContext = ref.getContext();
-            
+            java.util.Map<String, String> prxContext = ref.getContext();
+
             if(implicitContext == null)
             {
                 Ice.ContextHelper.write(__os, prxContext);
@@ -337,7 +337,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
                 implicitContext.write(prxContext, __os);
             }
         }
-        
+
         __os.startWriteEncaps();
     }
 
@@ -367,7 +367,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
 
     protected abstract void __response(boolean ok);
 
-    protected void 
+    protected void
     __throwUserException()
         throws Ice.UserException
     {
@@ -407,20 +407,20 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
             // close connection message, the server guarantees that all outstanding requests
             // can safely be repeated.
             //
-            // An ObjectNotExistException can always be retried as well without violating 
+            // An ObjectNotExistException can always be retried as well without violating
             // "at-most-once" (see the implementation of the checkRetryAfterException method of
             // the ProxyFactory class for the reasons why it can be useful).
-            // 
-            if(!_sent || 
-               exc instanceof Ice.CloseConnectionException || 
+            //
+            if(!_sent ||
+               exc instanceof Ice.CloseConnectionException ||
                exc instanceof Ice.ObjectNotExistException)
             {
                 throw exc;
             }
-            
+
             //
-            // Throw the exception wrapped in a LocalExceptionWrapper, to indicate that the 
-            // request cannot be resent without potentially violating the "at-most-once" 
+            // Throw the exception wrapped in a LocalExceptionWrapper, to indicate that the
+            // request cannot be resent without potentially violating the "at-most-once"
             // principle.
             //
             throw new LocalExceptionWrapper(exc, false);
@@ -448,7 +448,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         synchronized(__monitor)
         {
             assert(_timerTask != null && _sent); // Can only be set once the request is sent.
-            
+
             if(_response) // If the response was just received, don't close the connection.
             {
                 connection = null;

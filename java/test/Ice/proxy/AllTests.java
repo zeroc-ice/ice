@@ -401,9 +401,9 @@ public class AllTests
         test(!compObj.ice_router(null).equals(compObj.ice_router(rtr2)));
         test(!compObj.ice_router(rtr1).equals(compObj.ice_router(rtr2)));
 
-        java.util.Map ctx1 = new java.util.HashMap();
+        java.util.Map<String, String> ctx1 = new java.util.HashMap<String, String>();
         ctx1.put("ctx1", "v1");
-        java.util.Map ctx2 = new java.util.HashMap();
+        java.util.Map<String, String> ctx2 = new java.util.HashMap<String, String>();
         ctx2.put("ctx2", "v2");
         test(compObj.ice_context(null).equals(compObj.ice_context(null)));
         test(compObj.ice_context(ctx1).equals(compObj.ice_context(ctx1)));
@@ -451,14 +451,14 @@ public class AllTests
         System.out.print("testing checked cast with context... ");
         System.out.flush();
 
-        java.util.Map c = cl.getContext();
+        java.util.Map<String, String> c = cl.getContext();
         test(c == null || c.size() == 0);
 
-        c = new java.util.HashMap();
+        c = new java.util.HashMap<String, String>();
         c.put("one", "hello");
         c.put("two", "world");
         cl = Test.MyClassPrxHelper.checkedCast(base, c);
-        java.util.Map c2 = cl.getContext();
+        java.util.Map<String, String> c2 = cl.getContext();
         test(c.equals(c2));
         System.out.println("ok");
 

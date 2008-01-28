@@ -18,7 +18,7 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        java.util.ArrayList ports = new java.util.ArrayList(args.length);
+        java.util.List<Integer> ports = new java.util.ArrayList<Integer>(args.length);
         for(int i = 0; i < args.length; i++)
         {
             if(args[i].charAt(0) == '-')
@@ -43,7 +43,7 @@ public class Client
                 ex.printStackTrace();
                 return 1;
             }
-            ports.add(new Integer(port));
+            ports.add(port);
         }
 
         if(ports.isEmpty())
@@ -56,7 +56,7 @@ public class Client
         int[] arr = new int[ports.size()];
         for(int i = 0; i < arr.length; i++)
         {
-            arr[i] = ((Integer)ports.get(i)).intValue();
+            arr[i] = ports.get(i).intValue();
         }
 
         try

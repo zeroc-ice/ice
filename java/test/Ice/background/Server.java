@@ -58,6 +58,9 @@ public class Server
             return null;
         }
 
+        /**
+         * @deprecated addProxy() is deprecated, use addProxies() instead.
+         **/
         public void
         addProxy(Ice.ObjectPrx proxy, Ice.Current current)
         {

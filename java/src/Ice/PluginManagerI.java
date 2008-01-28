@@ -26,13 +26,13 @@ public final class PluginManagerI implements PluginManager
         //
         // Invoke initialize() on the plugins, in the order they were loaded.
         //
-        java.util.ArrayList initializedPlugins = new java.util.ArrayList();
+        java.util.List<Plugin> initializedPlugins = new java.util.ArrayList<Plugin>();
         try
         {
-            java.util.Iterator i = _initOrder.iterator();
+            java.util.Iterator<Plugin> i = _initOrder.iterator();
             while(i.hasNext())
             {
-                Plugin p = (Plugin)i.next();
+                Plugin p = i.next();
                 p.initialize();
                 initializedPlugins.add(p);
             }
@@ -43,10 +43,10 @@ public final class PluginManagerI implements PluginManager
             // Destroy the plugins that have been successfully initialized, in the
             // reverse order.
             //
-            java.util.ListIterator i = initializedPlugins.listIterator(initializedPlugins.size());
+            java.util.ListIterator<Plugin> i = initializedPlugins.listIterator(initializedPlugins.size());
             while(i.hasPrevious())
             {
-                Plugin p = (Plugin)i.previous();
+                Plugin p = i.previous();
                 try
                 {
                     p.destroy();
@@ -70,7 +70,7 @@ public final class PluginManagerI implements PluginManager
             throw new CommunicatorDestroyedException();
         }
 
-        Plugin p = (Plugin)_plugins.get(name);
+        Plugin p = _plugins.get(name);
         if(p != null)
         {
             return p;
@@ -104,10 +104,10 @@ public final class PluginManagerI implements PluginManager
     {
         if(_communicator != null)
         {
-            java.util.Iterator i = _plugins.values().iterator();
+            java.util.Iterator<Plugin> i = _plugins.values().iterator();
             while(i.hasNext())
             {
-                Plugin p = (Plugin)i.next();
+                Plugin p = i.next();
                 p.destroy();
             }
 
@@ -141,7 +141,7 @@ public final class PluginManagerI implements PluginManager
         //
         final String prefix = "Ice.Plugin.";
         Properties properties = _communicator.getProperties();
-        java.util.Map plugins = properties.getPropertiesForPrefix(prefix);
+        java.util.Map<String, String> plugins = properties.getPropertiesForPrefix(prefix);
 
         final String loadOrder = properties.getProperty("Ice.PluginLoadOrder");
         if(loadOrder.length() > 0)
@@ -188,10 +188,10 @@ public final class PluginManagerI implements PluginManager
         //
         while(!plugins.isEmpty())
         {
-            java.util.Iterator p = plugins.entrySet().iterator();
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            java.util.Iterator<java.util.Map.Entry<String, String> > p = plugins.entrySet().iterator();
+            java.util.Map.Entry<String, String> entry = p.next();
 
-            String name = ((String)entry.getKey()).substring(prefix.length());
+            String name = entry.getKey().substring(prefix.length());
 
             int dotPos = name.lastIndexOf('.');
             if(dotPos != -1)
@@ -207,8 +207,7 @@ public final class PluginManagerI implements PluginManager
                 else if(suffix.equals("java"))
                 {
                     name = name.substring(0, dotPos);
-                    String value = (String)entry.getValue();
-                    loadPlugin(name, value, cmdArgs);
+                    loadPlugin(name, entry.getValue(), cmdArgs);
                     p.remove();
                 }
                 else
@@ -225,10 +224,10 @@ public final class PluginManagerI implements PluginManager
                 //
                 // Is there a .java entry?
                 //
-                String value = (String)entry.getValue();
+                String value = entry.getValue();
                 p.remove();
 
-                String javaValue = (String)plugins.remove("Ice.Plugin." + name + ".java");
+                String javaValue = plugins.remove("Ice.Plugin." + name + ".java");
                 if(javaValue != null)
                 {
                     value = javaValue;
@@ -384,8 +383,8 @@ public final class PluginManagerI implements PluginManager
     }
 
     private Communicator _communicator;
-    private java.util.HashMap _plugins = new java.util.HashMap();
-    private java.util.ArrayList _initOrder = new java.util.ArrayList();
+    private java.util.Map<String, Plugin> _plugins = new java.util.HashMap<String, Plugin>();
+    private java.util.List<Plugin> _initOrder = new java.util.ArrayList<Plugin>();
     private Logger _logger = null;
     private boolean _initialized;
 }

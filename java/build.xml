@@ -156,12 +156,11 @@
         <mkdir dir="${cache.dir}"/>
 	<depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
 	<javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
-	    source="${jdk.version}" debug="${debug}"
+	    source="1.5" debug="${debug}"
 	    excludes="IceGridGUI/**"
 	    includes="**"
 	    deprecation="on">
-	    <exclude name="Ice/Holder*" if="java2"/>
-	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	    <compilerarg value="${javac.lint}"/>
 	</javac>
     </target>
 
@@ -173,7 +172,7 @@
 	</jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="ice-compile" if="java2">
+    <target name="icegridadmin-compile" depends="ice-compile">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
 	    source="1.5" debug="${debug}"
 	    includes="IceGridGUI/**"
@@ -182,7 +181,6 @@
 
     <condition property="build-icegridadmin-pro-jar">
 	<and>
-	    <isset property="java2" />
 	    <isset property="hasProguard" />
 	    <available file="${jgoodies.looks}" />
 	    <available file="${jgoodies.forms}" />
@@ -190,12 +188,9 @@
     </condition>
 
     <condition property="build-icegridadmin-plain-jar">
-	<and>
-	    <isset property="java2" />
-	    <not>
-               <isset property="build-icegridadmin-pro-jar" />
-            </not>
-	</and>	
+        <not>
+           <isset property="build-icegridadmin-pro-jar" />
+        </not>
     </condition>
 
     <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">

@@ -1131,28 +1131,28 @@ public final class ConnectionI extends IceInternal.EventHandler
             
         finishStart(_exception);
 
-        java.util.Iterator i = _queuedStreams.iterator();
-        while(i.hasNext())
+        java.util.Iterator<OutgoingMessage> p = _queuedStreams.iterator();
+        while(p.hasNext())
         {
-            OutgoingMessage message = (OutgoingMessage)i.next();
+            OutgoingMessage message = p.next();
             message.finished(_exception);
         }
         _queuedStreams.clear();
         
-        i = _requests.entryIterator(); // _requests is immutable at this point.
-        while(i.hasNext())
+        java.util.Iterator<IceInternal.Outgoing> q =
+            _requests.values().iterator(); // _requests is immutable at this point.
+        while(q.hasNext())
         {
-            IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-            IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
+            IceInternal.Outgoing out = q.next();
             out.finished(_exception); // The exception is immutable at this point.
         }
         _requests.clear();
 
-        i = _asyncRequests.entryIterator(); // _asyncRequests is immutable at this point.
-        while(i.hasNext())
+        java.util.Iterator<IceInternal.OutgoingAsync> r =
+            _asyncRequests.values().iterator(); // _asyncRequests is immutable at this point.
+        while(r.hasNext())
         {
-            IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-            IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
+            IceInternal.OutgoingAsync out = r.next();
             out.__finished(_exception); // The exception is immutable at this point.
         }
         _asyncRequests.clear();
@@ -1326,7 +1326,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             }
             else
             {
-                java.util.LinkedList streams = _queuedStreams;
+                java.util.LinkedList<OutgoingMessage> streams = _queuedStreams;
                 _queuedStreams = _sendStreams;
                 _sendStreams = streams;
                 return IceInternal.SocketStatus.NeedWrite; // We're not finished yet, there's more data to send!
@@ -1964,7 +1964,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
         while(!_sendStreams.isEmpty())
         {
-            OutgoingMessage message = (OutgoingMessage)_sendStreams.getFirst();
+            OutgoingMessage message = _sendStreams.getFirst();
             if(!message.prepared)
             {
                 IceInternal.BasicStream stream = message.stream;
@@ -2288,14 +2288,14 @@ public final class ConnectionI extends IceInternal.EventHandler
                 {
                     IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                     info.requestId = info.stream.readInt();
-                    IceInternal.Outgoing out = (IceInternal.Outgoing)_requests.remove(info.requestId);
+                    IceInternal.Outgoing out = _requests.remove(info.requestId);
                     if(out != null)
                     {
                         out.finished(info.stream);
                     }
                     else
                     {
-                        info.outAsync = (IceInternal.OutgoingAsync)_asyncRequests.remove(info.requestId);
+                        info.outAsync = _asyncRequests.remove(info.requestId);
                         if(info.outAsync == null)
                         {
                             throw new UnknownRequestIdException();
@@ -2668,28 +2668,26 @@ public final class ConnectionI extends IceInternal.EventHandler
 
                 if(closed)
                 {
-                    java.util.Iterator i = _queuedStreams.iterator();
-                    while(i.hasNext())
+                    java.util.Iterator<OutgoingMessage> p = _queuedStreams.iterator();
+                    while(p.hasNext())
                     {
-                        OutgoingMessage message = (OutgoingMessage)i.next();
+                        OutgoingMessage message = p.next();
                         message.finished(_exception);
                     }
                     _queuedStreams.clear();
 
-                    i = _requests.entryIterator();
-                    while(i.hasNext())
+                    java.util.Iterator<IceInternal.Outgoing> q = _requests.values().iterator();
+                    while(q.hasNext())
                     {
-                        IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-                        IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
+                        IceInternal.Outgoing out = q.next();
                         out.finished(_exception); // The exception is immutable at this point.
                     }
                     _requests.clear();
 
-                    i = _asyncRequests.entryIterator();
-                    while(i.hasNext())
+                    java.util.Iterator<IceInternal.OutgoingAsync> r = _asyncRequests.values().iterator();
+                    while(r.hasNext())
                     {
-                        IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-                        IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
+                        IceInternal.OutgoingAsync out = r.next();
                         out.__finished(_exception); // The exception is immutable at this point.
                     }
                     _asyncRequests.clear();
@@ -2778,7 +2776,8 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     public IceInternal.Outgoing
-    getOutgoing(IceInternal.RequestHandler handler, String operation, OperationMode mode, java.util.Map context)
+    getOutgoing(IceInternal.RequestHandler handler, String operation, OperationMode mode,
+                java.util.Map<String, String> context)
         throws IceInternal.LocalExceptionWrapper
     {
         IceInternal.Outgoing out = null;
@@ -2968,8 +2967,10 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private int _nextRequestId;
 
-    private IceInternal.IntMap _requests = new IceInternal.IntMap();
-    private IceInternal.IntMap _asyncRequests = new IceInternal.IntMap();
+    private java.util.Map<Integer, IceInternal.Outgoing> _requests =
+        new java.util.HashMap<Integer, IceInternal.Outgoing>();
+    private java.util.Map<Integer, IceInternal.OutgoingAsync> _asyncRequests =
+        new java.util.HashMap<Integer, IceInternal.OutgoingAsync>();
 
     private LocalException _exception;
 
@@ -2980,8 +2981,8 @@ public final class ConnectionI extends IceInternal.EventHandler
     private boolean _batchRequestCompress;
     private int _batchMarker;
 
-    private java.util.LinkedList _queuedStreams = new java.util.LinkedList();
-    private java.util.LinkedList _sendStreams = new java.util.LinkedList();
+    private java.util.LinkedList<OutgoingMessage> _queuedStreams = new java.util.LinkedList<OutgoingMessage>();
+    private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<OutgoingMessage>();
     private boolean _sendInProgress;
 
     private int _dispatchCount;

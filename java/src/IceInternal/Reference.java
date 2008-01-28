@@ -54,7 +54,7 @@ public abstract class Reference implements Cloneable
         return _instance;
     }
 
-    public final java.util.Map
+    public final java.util.Map<String, String>
     getContext()
     {
         return _context;
@@ -92,7 +92,7 @@ public abstract class Reference implements Cloneable
     // corresponding value changed.
     //
     public final Reference
-    changeContext(java.util.Map newContext)
+    changeContext(java.util.Map<String, String> newContext)
     {
         if(newContext == null)
         {
@@ -105,7 +105,7 @@ public abstract class Reference implements Cloneable
         }
         else
         {
-            r._context = new java.util.HashMap(newContext);
+            r._context = new java.util.HashMap<String, String>(newContext);
         }
         return r;
     }
@@ -423,7 +423,7 @@ public abstract class Reference implements Cloneable
 
     protected int _hashValue;
     protected boolean _hashInitialized;
-    private static java.util.HashMap _emptyContext = new java.util.HashMap();
+    private static java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
 
     final private Instance _instance;
     final private Ice.Communicator _communicator;
@@ -431,7 +431,7 @@ public abstract class Reference implements Cloneable
     private int _mode;
     private boolean _secure;
     private Ice.Identity _identity;
-    private java.util.Map _context;
+    private java.util.Map<String, String> _context;
     private String _facet;
     protected boolean _overrideCompress;
     protected boolean _compress; // Only used if _overrideCompress == true
@@ -440,7 +440,7 @@ public abstract class Reference implements Cloneable
     Reference(Instance instance,
               Ice.Communicator communicator,
               Ice.Identity identity,
-              java.util.Map context,
+              java.util.Map<String, String> context,
               String facet,
               int mode,
               boolean secure)

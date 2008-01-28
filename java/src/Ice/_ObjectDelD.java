@@ -280,11 +280,11 @@ public class _ObjectDelD implements _ObjectDel
             ImplicitContextI implicitContext =
                 __reference.getInstance().getImplicitContext();
             
-            java.util.Map prxContext = __reference.getContext();
+            java.util.Map<String, String> prxContext = __reference.getContext();
             
             if(implicitContext == null)
             {
-                current.ctx = new java.util.HashMap(prxContext);
+                current.ctx = new java.util.HashMap<String, String>(prxContext);
             }
             else
             {

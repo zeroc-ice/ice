@@ -183,7 +183,7 @@ public class ConnectRequestHandler
     }
 
     public Outgoing
-    getOutgoing(String operation, Ice.OperationMode mode, java.util.Map context)
+    getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
         throws LocalExceptionWrapper
     {
         synchronized(this)
@@ -397,10 +397,10 @@ public class ConnectRequestHandler
 
         try
         {
-            java.util.Iterator p = _requests.iterator(); // _requests is immutable when _flushing = true
+            java.util.Iterator<Request> p = _requests.iterator(); // _requests is immutable when _flushing = true
             while(p.hasNext())
             {
-                Request request = (Request)p.next();
+                Request request = p.next();
                 if(request.out != null)
                 {
                     _connection.sendAsyncRequest(request.out, _compress, _response);
@@ -493,10 +493,10 @@ public class ConnectRequestHandler
     void
     flushRequestsWithException(Ice.LocalException ex)
     {
-        java.util.Iterator p = _requests.iterator();
+        java.util.Iterator<Request> p = _requests.iterator();
         while(p.hasNext())
         {
-            Request request = (Request)p.next();
+            Request request = p.next();
             if(request.out != null)
             {            
                 request.out.__finished(ex);
@@ -512,10 +512,10 @@ public class ConnectRequestHandler
     void
     flushRequestsWithException(LocalExceptionWrapper ex)
     {
-        java.util.Iterator p = _requests.iterator();
+        java.util.Iterator<Request> p = _requests.iterator();
         while(p.hasNext())
         {
-            Request request = (Request)p.next();
+            Request request = p.next();
             if(request.out != null)
             {            
                 request.out.__finished(ex);
@@ -539,7 +539,7 @@ public class ConnectRequestHandler
     private boolean _response;
     private Ice.LocalException _exception = null;
 
-    private java.util.List _requests = new java.util.LinkedList();
+    private java.util.List<Request> _requests = new java.util.LinkedList<Request>();
     private boolean _batchRequestInProgress;
     private int _batchRequestsSize;
     private BasicStream _batchStream;

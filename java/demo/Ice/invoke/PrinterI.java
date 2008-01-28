@@ -45,20 +45,20 @@ public class PrinterI extends Ice.Blobject
         }
         else if(current.operation.equals("printDictionary"))
         {
-            java.util.Map dict = Demo.StringDictHelper.read(in);
+            java.util.Map<String, String> dict = Demo.StringDictHelper.read(in);
             in.destroy();
             System.out.print("Printing dictionary {");
-            java.util.Iterator i = dict.entrySet().iterator();
+            java.util.Iterator<java.util.Map.Entry<String, String> > i = dict.entrySet().iterator();
             boolean first = true;
             while(i.hasNext())
             {
-                java.util.Map.Entry e = (java.util.Map.Entry)i.next();
+                java.util.Map.Entry<String, String> e = i.next();
                 if(!first)
                 {
                     System.out.print(", ");
                 }
                 first = false;
-                System.out.print(e.getKey().toString() + "=" + e.getValue().toString());
+                System.out.print(e.getKey() + "=" + e.getValue());
             }
             System.out.println("}");
             return true;

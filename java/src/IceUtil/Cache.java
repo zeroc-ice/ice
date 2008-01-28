@@ -20,8 +20,8 @@ public class Cache
     {
         _store = store;
     }
-    
-    public Object 
+
+    public Object
     getIfPinned(Object key)
     {
         synchronized(_map)
@@ -30,7 +30,7 @@ public class Cache
             return val == null ? null : val.obj;
         }
     }
-    
+
     public Object
     unpin(Object key)
     {
@@ -49,7 +49,7 @@ public class Cache
             _map.clear();
         }
     }
-    
+
     public int
     size()
     {
@@ -105,7 +105,6 @@ public class Cache
         return pinImpl(key, newObj);
     }
 
-    
     static private class CacheValue
     {
         CacheValue()
@@ -128,34 +127,34 @@ public class Cache
         {
             CacheValue val = null;
             java.util.concurrent.CountDownLatch latch = null;
-            
+
             synchronized(_map)
             {
-                val = (CacheValue)_map.get(key); 
-                if(val == null) 
-                { 
-                    val = new CacheValue(); 
-                    _map.put(key, val); 
-                } 
-                else 
-                { 
-                    if(val.obj != null) 
-                    { 
-                        return val.obj;        
-                    } 
-                    if(val.latch == null) 
-                    { 
-                        // 
-                        // The first queued thread creates the latch 
-                        // 
-                        val.latch = new java.util.concurrent.CountDownLatch(1); 
-                    } 
-                    latch = val.latch; 
-                } 
+                val = (CacheValue)_map.get(key);
+                if(val == null)
+                {
+                    val = new CacheValue();
+                    _map.put(key, val);
+                }
+                else
+                {
+                    if(val.obj != null)
+                    {
+                        return val.obj;
+                    }
+                    if(val.latch == null)
+                    {
+                        //
+                        // The first queued thread creates the latch
+                        //
+                        val.latch = new java.util.concurrent.CountDownLatch(1);
+                    }
+                    latch = val.latch;
+                }
             }
-            
-            if(latch != null) 
-            { 
+
+            if(latch != null)
+            {
                 try
                 {
                     latch.await();
@@ -164,16 +163,16 @@ public class Cache
                 {
                     // Ignored
                 }
-                
-                // 
-                // val could be stale now, e.g. some other thread pinned and unpinned the 
-                // object while we were waiting. 
-                // So start over. 
-                // 
+
+                //
+                // val could be stale now, e.g. some other thread pinned and unpinned the
+                // object while we were waiting.
+                // So start over.
+                //
                 continue;
-            } 
-            else 
-            {                     
+            }
+            else
+            {
                 Object obj;
                 try
                 {
@@ -181,37 +180,37 @@ public class Cache
                 }
                 catch(RuntimeException e)
                 {
-                    synchronized(_map) 
+                    synchronized(_map)
                     {
                         _map.remove(key);
-                        latch = val.latch; 
-                        val.latch = null; 
+                        latch = val.latch;
+                        val.latch = null;
                     }
-                    if(latch != null)  
-                    { 
+                    if(latch != null)
+                    {
                         latch.countDown();
                         assert latch.getCount() == 0;
                     }
                     throw e;
                 }
-                
-                synchronized(_map) 
-                { 
-                    if(obj != null) 
-                    {  
-                        val.obj = obj; 
-                    } 
-                    else 
-                    { 
+
+                synchronized(_map)
+                {
+                    if(obj != null)
+                    {
+                        val.obj = obj;
+                    }
+                    else
+                    {
                         if(newObj == null)
                         {
                             //
                             // pin() did not find the object
                             //
-                            
-                            // 
-                            // The waiting threads will have to call load() to see by themselves. 
-                            // 
+
+                            //
+                            // The waiting threads will have to call load() to see by themselves.
+                            //
                             _map.remove(key);
                         }
                         else
@@ -221,23 +220,21 @@ public class Cache
                             //
                             val.obj = newObj;
                         }
-                    } 
-                    
-                    latch = val.latch; 
-                    val.latch = null; 
-                } 
-                if(latch != null)  
-                { 
+                    }
+
+                    latch = val.latch;
+                    val.latch = null;
+                }
+                if(latch != null)
+                {
                     latch.countDown();
                     assert latch.getCount() == 0;
-                } 
+                }
                 return obj;
-            }          
+            }
         }
     }
 
-
-    private final java.util.Map _map = new java.util.HashMap();
+    private final java.util.Map<Object, CacheValue> _map = new java.util.HashMap<Object, CacheValue>();
     private final Store _store;
-
 }

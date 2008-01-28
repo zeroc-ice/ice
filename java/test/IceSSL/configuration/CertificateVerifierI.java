@@ -22,15 +22,15 @@ public class CertificateVerifierI implements IceSSL.CertificateVerifier
         {
             try
             {
-                java.util.Collection subjectAltNames =
+                java.util.Collection<java.util.List<?> > subjectAltNames =
                     ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
                 test(subjectAltNames != null);
-                java.util.ArrayList ipAddresses = new java.util.ArrayList();
-                java.util.ArrayList dnsNames = new java.util.ArrayList();
-                java.util.Iterator i = subjectAltNames.iterator();
+                java.util.List<String> ipAddresses = new java.util.ArrayList<String>();
+                java.util.List<String> dnsNames = new java.util.ArrayList<String>();
+                java.util.Iterator<java.util.List<?> > i = subjectAltNames.iterator();
                 while(i.hasNext())
                 {
-                    java.util.List l = (java.util.List)i.next();
+                    java.util.List<?> l = i.next();
                     test(!l.isEmpty());
                     Integer n = (Integer)l.get(0);
                     if(n.intValue() == 7)

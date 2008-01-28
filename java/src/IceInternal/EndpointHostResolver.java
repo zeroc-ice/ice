@@ -93,10 +93,10 @@ public class EndpointHostResolver
                         Network.getAddresses(resolve.host, resolve.port, _instance.protocolSupport())));
         }
 
-        java.util.Iterator p = _queue.iterator();
+        java.util.Iterator<ResolveEntry> p = _queue.iterator();
         while(p.hasNext())
         {
-            ((ResolveEntry)p.next()).callback.exception(new Ice.CommunicatorDestroyedException());
+            p.next().callback.exception(new Ice.CommunicatorDestroyedException());
         }
         _queue.clear();
     }
@@ -111,7 +111,7 @@ public class EndpointHostResolver
 
     private final Instance _instance;
     private boolean _destroyed;
-    private java.util.LinkedList _queue = new java.util.LinkedList(); 
+    private java.util.LinkedList<ResolveEntry> _queue = new java.util.LinkedList<ResolveEntry>(); 
 
     private final class HelperThread extends Thread
     {

@@ -21,7 +21,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
         _server = server;
         _logger = _server.communicator().getLogger();
         _argv = args;
-        _traceServiceObserver = _server.communicator().getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
+        _traceServiceObserver =
+            _server.communicator().getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
     public java.util.Map
@@ -62,7 +63,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         info.service.start(name, info.communicator == null ? _server.communicator() : info.communicator,
                                            info.args);
                         info.active = true;
-                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
+                        observers = new java.util.HashSet<ServiceObserverPrx>(_observers);
                     }
                     catch(java.lang.Exception e)
                     {
@@ -70,13 +71,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                         e.printStackTrace(pw);
                         pw.flush();
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
                                         sw.toString());
                     }
                 }
             }
         }
-        
+
         if(!found)
         {
             throw new NoSuchServiceException();
@@ -84,7 +85,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
         if(observers != null)
         {
-            java.util.List<String> services = new java.util.Vector<String>();
+            java.util.List<String> services = new java.util.ArrayList<String>();
             services.add(name);
             servicesStarted(services, observers);
         }
@@ -110,17 +111,17 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 if(info.name.equals(name))
                 {
                     found = true;
-                    
+
                     if(!info.active)
                     {
                         throw new AlreadyStoppedException();
                     }
-                    
+
                     try
                     {
                         info.service.stop();
                         info.active = false;
-                        observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
+                        observers = new java.util.HashSet<ServiceObserverPrx>(_observers);
                     }
                     catch(java.lang.Exception e)
                     {
@@ -128,7 +129,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                         e.printStackTrace(pw);
                         pw.flush();
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
                                         sw.toString());
                     }
                 }
@@ -142,7 +143,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
         if(observers != null)
         {
-            java.util.List<String> services = new java.util.Vector<String>();
+            java.util.List<String> services = new java.util.ArrayList<String>();
             services.add(name);
             servicesStopped(services, observers);
         }
@@ -165,9 +166,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 {
                     _logger.trace("IceBox.ServiceObserver",
                                   "Added service observer " + _server.communicator().proxyToString(observer));
-                } 
-                
-                
+                }
+
+
                 for(ServiceInfo info: _services)
                 {
                     if(info.active)
@@ -175,10 +176,10 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         activeServices.add(info.name);
                     }
                 }
-                
+
             }
         }
-         
+
         if(activeServices.size() > 0)
         {
             AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
@@ -187,7 +188,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     {
                         // ok, success
                     }
-                    
+
                     public void ice_exception(Ice.LocalException ex)
                     {
                         //
@@ -196,7 +197,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         removeObserver(observer, ex);
                     }
                 };
-            
+
             observer.servicesStarted_async(cb, activeServices.toArray(new String[0]));
         }
     }
@@ -252,7 +253,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // then load any remaining services.
             //
             final String prefix = "IceBox.Service.";
-            java.util.Map services = properties.getPropertiesForPrefix(prefix);
+            java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
             if(loadOrder != null)
             {
                 for(int i = 0; i < loadOrder.length; ++i)
@@ -260,7 +261,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     if(loadOrder[i].length() > 0)
                     {
                         String key = prefix + loadOrder[i];
-                        String value = (String)services.get(key);
+                        String value = services.get(key);
                         if(value == null)
                         {
                             FailureException ex = new FailureException();
@@ -272,12 +273,12 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     }
                 }
             }
-            java.util.Iterator p = services.entrySet().iterator();
+            java.util.Iterator<java.util.Map.Entry<String, String> > p = services.entrySet().iterator();
             while(p.hasNext())
             {
-                java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                String name = ((String)entry.getKey()).substring(prefix.length());
-                String value = (String)entry.getValue();
+                java.util.Map.Entry<String, String> entry = p.next();
+                String name = entry.getKey().substring(prefix.length());
+                String value = entry.getValue();
                 load(name, value);
             }
 
@@ -307,7 +308,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             //
             _server.shutdownOnInterrupt();
 
-            
+
             //
             // Register "this" as a facet to the Admin object and
             // create Admin object
@@ -318,7 +319,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
                 //
                 // Add a Properties facet for each service
-                // 
+                //
                 for(ServiceInfo info: _services)
                 {
                     Ice.Communicator communicator = info.communicator != null ? info.communicator : _sharedCommunicator;
@@ -335,7 +336,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 //
             }
 
-            // 
+            //
             // Start request dispatching after we've started the services.
             //
             if(adapter != null)
@@ -440,7 +441,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         // shared communicator, depending on the value of the
         // IceBox.UseSharedCommunicator property.
         //
-        java.util.ArrayList l = new java.util.ArrayList();
+        java.util.List<String> l = new java.util.ArrayList<String>();
         for(int j = 0; j < args.length; j++)
         {
             l.add(args[j]);
@@ -452,7 +453,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 l.add(_argv[j]);
             }
         }
-        
+
         Ice.StringSeqHolder serviceArgs = new Ice.StringSeqHolder();
         serviceArgs.value = (String[])l.toArray(new String[0]);
 
@@ -525,25 +526,26 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 //
                 // Erase properties in 'properties'
                 //
-                java.util.Map allProps = properties.getPropertiesForPrefix("");
-                java.util.Iterator p = allProps.keySet().iterator();
+                java.util.Map<String, String> allProps = properties.getPropertiesForPrefix("");
+                java.util.Iterator<String> p = allProps.keySet().iterator();
                 while(p.hasNext())
                 {
-                    String key = (String)p.next();
+                    String key = p.next();
                     if(svcProperties.getProperty(key).length() == 0)
                     {
                         properties.setProperty(key, "");
                     }
                 }
-                
+
                 //
                 // Add the service properties to the shared communicator properties.
                 //
-                p = svcProperties.getPropertiesForPrefix("").entrySet().iterator();
-                while(p.hasNext())
+                java.util.Iterator<java.util.Map.Entry<String, String> > q =
+                    svcProperties.getPropertiesForPrefix("").entrySet().iterator();
+                while(q.hasNext())
                 {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                    properties.setProperty((String)entry.getKey(), (String)entry.getValue());
+                    java.util.Map.Entry<String, String> entry = q.next();
+                    properties.setProperty(entry.getKey(), entry.getValue());
                 }
 
                 //
@@ -557,7 +559,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 info.communicator = createCommunicator(service, serviceArgs);
                 communicator = info.communicator;
             }
-        
+
             try
             {
                 info.args = serviceArgs.value;
@@ -566,8 +568,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
                 //
                 // There is no need to notify the observers since the 'start all'
-                // (that indirectly calls this method) occurs before the creation of 
-                // the Server Admin object, and before the activation of the main 
+                // (that indirectly calls this method) occurs before the creation of
+                // the Server Admin object, and before the activation of the main
                 // object adapter (so before any observer can be registered)
                 //
             }
@@ -596,7 +598,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         _logger.warning("ServiceManager: exception in shutting down communicator for service "
                                         + service + "\n" + sw.toString());
                     }
-                    
+
                     try
                     {
                         info.communicator.destroy();
@@ -632,20 +634,20 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private void
     stopAll()
     {
-        java.util.List<String> stoppedServices = new java.util.Vector<String>();
+        java.util.List<String> stoppedServices = new java.util.ArrayList<String>();
         java.util.Set<ServiceObserverPrx> observers = null;
 
-        
+
         synchronized(this)
         {
             //
-            // First, for each service, we call stop on the service and flush its database environment to 
+            // First, for each service, we call stop on the service and flush its database environment to
             // the disk. Services are stopped in the reverse order of the order they were started.
             //
-            java.util.ListIterator p = _services.listIterator(_services.size());
+            java.util.ListIterator<ServiceInfo> p = _services.listIterator(_services.size());
             while(p.hasPrevious())
             {
-                ServiceInfo info = (ServiceInfo)p.previous();
+                ServiceInfo info = p.previous();
                 if(info.active)
                 {
                     try
@@ -660,11 +662,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                         e.printStackTrace(pw);
                         pw.flush();
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
                                         sw.toString());
                     }
                 }
-                
+
                 try
                 {
                     _server.communicator().removeAdminFacet("IceBox.Service." + info.name + ".Properties");
@@ -673,7 +675,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 {
                     // Ignored
                 }
-                
+
                 if(info.communicator != null)
                 {
                     try
@@ -694,10 +696,10 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                         e.printStackTrace(pw);
                         pw.flush();
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
                                         sw.toString());
                     }
-            
+
                     try
                     {
                         info.communicator.destroy();
@@ -708,7 +710,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                         e.printStackTrace(pw);
                         pw.flush();
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
                                         sw.toString());
                     }
                 }
@@ -726,20 +728,19 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                     e.printStackTrace(pw);
                     pw.flush();
-                    _logger.warning("ServiceManager: unknown exception while destroying shared communicator:\n" + 
+                    _logger.warning("ServiceManager: unknown exception while destroying shared communicator:\n" +
                                     sw.toString());
                 }
                 _sharedCommunicator = null;
             }
 
             _services.clear();
-            observers = (java.util.Set<ServiceObserverPrx>)_observers.clone();
+            observers = new java.util.HashSet<ServiceObserverPrx>(_observers);
         }
 
         servicesStopped(stoppedServices, observers);
     }
 
-    
     private void
     servicesStarted(java.util.List<String> services, java.util.Set<ServiceObserverPrx> observers)
     {
@@ -757,7 +758,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         {
                             // ok, success
                         }
-                        
+
                         public void ice_exception(Ice.LocalException ex)
                         {
                             //
@@ -789,7 +790,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         {
                             // ok, success
                         }
-                        
+
                         public void ice_exception(Ice.LocalException ex)
                         {
                             //
@@ -813,8 +814,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
             observerRemoved(observer, ex);
         }
     }
-    
-    private void 
+
+    private void
     observerRemoved(ServiceObserverPrx observer, RuntimeException ex)
     {
         if(_traceServiceObserver >= 1)
@@ -822,9 +823,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
             _logger.trace("IceBox.ServiceObserver",
                           "Removed service observer " + _server.communicator().proxyToString(observer)
                           + "\nafter catching " + ex.toString());
-        } 
-    } 
-    
+        }
+    }
+
     static class ServiceInfo
     {
         public String name;
@@ -840,19 +841,19 @@ public class ServiceManagerI extends _ServiceManagerDisp
         {
             _properties = properties;
         }
-    
+
         public String
         getProperty(String name, Ice.Current current)
         {
             return _properties.getProperty(name);
         }
-    
-        public java.util.TreeMap
+
+        public java.util.TreeMap<String, String>
         getPropertiesForPrefix(String name, Ice.Current current)
         {
-            return new java.util.TreeMap(_properties.getPropertiesForPrefix(name));
+            return new java.util.TreeMap<String, String>(_properties.getPropertiesForPrefix(name));
         }
-    
+
         private final Ice.Properties _properties;
     }
 
@@ -877,8 +878,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
 
         //
-        // Set the default program name for the service properties. By default it's 
-        // the IceBox program name + "-" + the service name, or just the IceBox 
+        // Set the default program name for the service properties. By default it's
+        // the IceBox program name + "-" + the service name, or just the IceBox
         // program name if we're creating the shared communicator (service == "").
         //
         String programName = communicatorProperties.getProperty("Ice.ProgramName");
@@ -912,11 +913,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // read the service config file if it's specified with --Ice.Config.
             //
             properties = Ice.Util.createProperties(args, properties);
-        
+
             if(service.length() > 0)
             {
                 //
-                // Next, parse the service "<service>.*" command line options (the Ice command 
+                // Next, parse the service "<service>.*" command line options (the Ice command
                 // line options were parsed by the createProperties above)
                 //
                 args.value = properties.parseCommandLineOptions(service, args.value);
@@ -924,7 +925,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
 
         //
-        // Remaining command line options are passed to the communicator. This is 
+        // Remaining command line options are passed to the communicator. This is
         // necessary for Ice plugin properties (e.g.: IceSSL).
         //
         Ice.InitializationData initData = new Ice.InitializationData();

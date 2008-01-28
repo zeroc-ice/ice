@@ -18,7 +18,8 @@ public final class ValueWriter
     }
 
     private static void
-    writeValue(String name, java.lang.Object value, java.util.Map objectTable, IceUtilInternal.OutputBase out)
+    writeValue(String name, java.lang.Object value, java.util.Map<java.lang.Object, java.lang.Object> objectTable,
+               IceUtilInternal.OutputBase out)
     {
         if(value == null)
         {
@@ -27,7 +28,7 @@ public final class ValueWriter
         }
         else
         {
-            Class c = value.getClass();
+            Class<?> c = value.getClass();
             if(c.equals(Byte.class) || c.equals(Short.class) || c.equals(Integer.class) || c.equals(Long.class) ||
                c.equals(Double.class) || c.equals(Float.class) || c.equals(Boolean.class))
             {
@@ -99,7 +100,7 @@ public final class ValueWriter
                 {
                     if(objectTable == null)
                     {
-                        objectTable = new java.util.IdentityHashMap();
+                        objectTable = new java.util.IdentityHashMap<java.lang.Object, java.lang.Object>();
                     }
                     objectTable.put(value, null);
                     writeFields(name, value, c, objectTable, out);
@@ -178,7 +179,8 @@ public final class ValueWriter
     }
 
     private static void
-    writeFields(String name, java.lang.Object obj, Class c, java.util.Map objectTable, IceUtilInternal.OutputBase out)
+    writeFields(String name, java.lang.Object obj, Class c,
+                java.util.Map<java.lang.Object, java.lang.Object> objectTable, IceUtilInternal.OutputBase out)
     {
         if(!c.equals(java.lang.Object.class))
         {

@@ -78,7 +78,7 @@ public class AllTests
         adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1");
         adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2");
         adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "");
-        java.util.Map fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
+        java.util.Map<String, Ice.Object> fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
         test(fm.size() == 2);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);

@@ -12,7 +12,7 @@ package IceInternal;
 public final class Outgoing implements OutgoingMessageCallback
 {
     public
-    Outgoing(RequestHandler handler, String operation, Ice.OperationMode mode, java.util.Map context)
+    Outgoing(RequestHandler handler, String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
         throws LocalExceptionWrapper
     {
         _state = StateUnsent;
@@ -30,7 +30,7 @@ public final class Outgoing implements OutgoingMessageCallback
     // These functions allow this object to be reused, rather than reallocated.
     //
     public void
-    reset(RequestHandler handler, String operation, Ice.OperationMode mode, java.util.Map context)
+    reset(RequestHandler handler, String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
         throws LocalExceptionWrapper
     {
         _state = StateUnsent;
@@ -449,7 +449,7 @@ public final class Outgoing implements OutgoingMessageCallback
     }
 
     private void
-    writeHeader(String operation, Ice.OperationMode mode, java.util.Map context)
+    writeHeader(String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
         throws LocalExceptionWrapper
     {
         switch(_handler.getReference().getMode())
@@ -505,7 +505,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 // Implicit context
                 //
                 Ice.ImplicitContextI implicitContext = _handler.getReference().getInstance().getImplicitContext();
-                java.util.Map prxContext = _handler.getReference().getContext();
+                java.util.Map<String, String> prxContext = _handler.getReference().getContext();
                 
                 if(implicitContext == null)
                 {

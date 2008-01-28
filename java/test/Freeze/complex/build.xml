@@ -35,11 +35,11 @@
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}"
 	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}">
-	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	    <compilerarg value="${javac.lint}"/>
 	</javac>
 	<javac srcdir="." destdir="${class.dir}" source="${jdk.version}"
 	    classpath="${lib.dir}" excludes="generated/**" debug="${debug}">
-	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	    <compilerarg value="${javac.lint}"/>
 	</javac>
     </target>
 

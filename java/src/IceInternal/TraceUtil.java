@@ -62,7 +62,7 @@ public final class TraceUtil
         }
     }
 
-    private static java.util.Set slicingIds = new java.util.HashSet();
+    private static java.util.Set<String> slicingIds = new java.util.HashSet<String>();
 
     synchronized static void
     traceSlicing(String kind, String typeId, String slicingCat, Ice.Logger logger)
