@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>OpenSSLRuntime.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>&lt;ISProjectFolder&gt;\install\openssl\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>OpenSSLRuntime.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>&lt;ISProjectFolder&gt;\install\openssl\runtimex64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">

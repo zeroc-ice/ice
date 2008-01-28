@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,28 +11,31 @@ top_srcdir = cpp
 !include cpp/config/Make.rules.mak
 
 SUBDIRS			= cpp java py
+CLEAN_SUBDIRS		= java py cpp
 DEPEND_SUBDIRS		= cpp py
 INSTALL_SUBDIRS		= cpp py
 
 !if "$(CPP_COMPILER)" == "VC60"
 SUBDIRS			= $(SUBDIRS) php rb
+CLEAN_SUBDIRS		= php rb $(CLEAN_SUBDIRS)
 DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) php rb
 INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) php rb
 !else
 SUBDIRS			= $(SUBDIRS) cs vb
+CLEAN_SUBDIRS		= cs vb $(CLEAN_SUBDIRS)
 DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) cs vb
 INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) cs
 !endif
 
-$(EVERYTHING)::
+all::
 	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) $@" || exit 1
+	    @echo "making all in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
 
-all clean::
+clean::
 	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) $@" || exit 1
+	    @echo "making clean in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) clean" || exit 1
 
 depend::
 	@for %i in ( $(DEPEND_SUBDIRS) ) do \

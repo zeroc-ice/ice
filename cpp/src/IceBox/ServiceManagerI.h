@@ -19,7 +19,7 @@
 namespace IceBox
 {
 
-class ServiceManagerI : public ServiceManager, public IceUtil::Mutex
+class ServiceManagerI : public ServiceManager, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -37,6 +37,21 @@ public:
 
     int run();
 
+    bool start();
+    void stop();
+
+    void removeObserver(const ServiceObserverPrx&, const Ice::Exception&);
+
+private:
+
+    enum ServiceStatus
+    {
+        Stopping,
+        Stopped,
+        Starting,
+        Started
+    };
+
     struct ServiceInfo
     {
         ::std::string name;
@@ -44,16 +59,9 @@ public:
         ::IceInternal::DynamicLibraryPtr library;
         ::Ice::CommunicatorPtr communicator;
         ::std::string envName;
-        bool active;
+        ServiceStatus status;
         Ice::StringSeq args;
     };
-
-    bool start();
-    void stop();
-
-    void removeObserver(const ServiceObserverPrx&, const Ice::Exception&);
-
-private:
 
     void load(const std::string&, const std::string&);
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
@@ -70,6 +78,7 @@ private:
     ::Ice::LoggerPtr _logger;
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
     std::vector<ServiceInfo> _services;
+    bool _pendingStatusChanges;
 
     std::set<ServiceObserverPrx> _observers;
     int _traceServiceObserver;

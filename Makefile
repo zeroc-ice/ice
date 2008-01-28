@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -8,14 +8,22 @@
 # **********************************************************************
 
 SUBDIRS			= cpp java cs py rb php
+CLEAN_SUBDIRS		= java cs py rb php cpp
 DEPEND_SUBDIRS		= cpp cs py rb php
 INSTALL_SUBDIRS		= cpp cs py rb php
 
-all clean::
+all::
 	@for subdir in $(SUBDIRS); \
 	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	    echo "making all in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) all ) || exit 1; \
+	done
+
+clean::
+	@for subdir in $(CLEAN_SUBDIRS); \
+	do \
+	    echo "making clean in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) clean ) || exit 1; \
 	done
 
 depend::
