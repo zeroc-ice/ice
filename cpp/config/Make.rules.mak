@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC71, VC80, VC80_EXPRESS, BCC2006 
+# VC60, VC71, VC80, VC80_EXPRESS, VC90, BCC2006 
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC80
@@ -50,17 +50,14 @@ BCB		= C:\Program Files\Borland\BDS\4.0
 TPH_EXT		= BCC
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
 TPH_EXT		= VC80
+!elseif "$(CPP_COMPILER)" == "VC90_EXPRESS"
+TPH_EXT		= VC90
 !else
 TPH_EXT		= $(CPP_COMPILER)
 !endif
 
 !if "$(THIRDPARTY_HOME)" == ""
 THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
-
-!if "$(AS)" == "ml64"
-THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
-!endif
-
 !endif
 
 #
@@ -76,6 +73,8 @@ THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
 MT = "$(VS80COMNTOOLS)bin\mt.exe"
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
 MT = "$(PDK_HOME)\bin\mt.exe"
+!else
+MT = mt.exe
 !endif
 
 
@@ -105,7 +104,8 @@ SETARGV			= setargv.obj
 !if "$(CPP_COMPILER)" == "BCC2006"
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
-        "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS"
+        "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS" || \
+        "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" 
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
