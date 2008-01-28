@@ -76,8 +76,6 @@ def environmentCheck(target):
     required = ["DB_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME", "MCPP_HOME"]
     if target == "vc60":
         required.append("STLPORT_HOME")
-    elif target == "vc80":
-        required.extend(["PHP_BIN_HOME", "PHP_SRC_HOME", "PYTHON_HOME"])
 
     fail = False
 

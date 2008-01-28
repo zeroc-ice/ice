@@ -613,6 +613,20 @@
 		<row><td>LicenseAgreement</td><td>DlgTitle</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_LicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages\common\BERKELEY_DB_LICENSE.rtf</td><td/></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Agree</td><td>RadioButtonGroup</td><td>9</td><td>190</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicenseMCPP</td><td/><td>Next</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING15##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>MCPPLicense</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Bitmap1</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>262145</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td>NewBinary20</td></row>
+		<row><td>MCPPLicense</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##ID_STRING20##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##ID_STRING21##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING16##</td><td>Agree</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>MCPPLicense</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Line1</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Line2</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING14##</td><td>Back</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>MCPPLicense</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages\common\MCPP_LICENSE.rtf</td><td/></row>
+		<row><td>MCPPLicense</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty11</td><td>##NEW_STRING5##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>MCPPLicense</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty21</td><td>##NEW_STRING6##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_BACK##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
 		<row><td>MaintenanceType</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
@@ -833,6 +847,8 @@
 		<row><td>JGoodiesLooksLicense</td><td>Next</td><td>Enable</td><td>AgreeToLicense1112 = "Yes"</td></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>Disable</td><td>AgreeToLicense &lt;&gt; "Yes"</td></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>Enable</td><td>AgreeToLicense = "Yes"</td></row>
+		<row><td>MCPPLicense</td><td>Next</td><td>Disable</td><td>AgreeToLicenseMCPP &lt;&gt; "Yes"</td></row>
+		<row><td>MCPPLicense</td><td>Next</td><td>Enable</td><td>AgreeToLicenseMCPP = "Yes"</td></row>
 		<row><td>OpenSSLLicense</td><td>Next</td><td>Disable</td><td>AgreeToLicense1 &lt;&gt; "Yes"</td></row>
 		<row><td>OpenSSLLicense</td><td>Next</td><td>Enable</td><td>AgreeToLicense1 = "Yes"</td></row>
 		<row><td>ReadyToInstall</td><td>DlgTitle</td><td>Show</td><td>ProgressType0="Modify"</td></row>
@@ -965,7 +981,10 @@
 		<row><td>JGoodiesLooksLicense</td><td>Next</td><td>NewDialog</td><td>DestinationFolder</td><td>AgreeToLicense1112 = "Yes"</td><td>1</td></row>
 		<row><td>LicenseAgreement</td><td>Back</td><td>NewDialog</td><td>InstallWelcome</td><td>1</td><td>1</td></row>
 		<row><td>LicenseAgreement</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
-		<row><td>LicenseAgreement</td><td>Next</td><td>NewDialog</td><td>Bzip2License</td><td>AgreeToLicense = "Yes"</td><td>1</td></row>
+		<row><td>LicenseAgreement</td><td>Next</td><td>NewDialog</td><td>MCPPLicense</td><td>AgreeToLicense = "Yes"</td><td>1</td></row>
+		<row><td>MCPPLicense</td><td>Back</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>1</td></row>
+		<row><td>MCPPLicense</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
+		<row><td>MCPPLicense</td><td>Next</td><td>NewDialog</td><td>Bzip2License</td><td>AgreeToLicenseMCPP = "Yes"</td><td>1</td></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>NewDialog</td><td>MaintenanceWelcome</td><td>1</td><td>0</td></row>
 		<row><td>MaintenanceType</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>MaintenanceType</td><td>Next</td><td>NewDialog</td><td>CustomSetup</td><td>_IsMaintenance = "Change"</td><td>12</td></row>
@@ -1102,6 +1121,7 @@
 		<row><td>JGoodiesFormsLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING35##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
 		<row><td>JGoodiesLooksLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING43##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
 		<row><td>LicenseAgreement</td><td>50</td><td>50</td><td>374</td><td>266</td><td>2</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Agree</td><td>Next</td><td>Cancel</td><td>License Agreement</td><td/><td>0</td><td/></row>
+		<row><td>MCPPLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING19##</td><td>Agree</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
 		<row><td>MaintenanceType</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>RadioGroup</td><td>Next</td><td>Cancel</td><td>Change, Reinstall, Remove</td><td/><td>0</td><td/></row>
 		<row><td>MaintenanceWelcome</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Next</td><td>Next</td><td>Cancel</td><td>Maintenance Welcome</td><td/><td>0</td><td/></row>
 		<row><td>OpenSSLLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING11##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
@@ -1596,6 +1616,7 @@
 		<row><td>packages</td><td>ExpatDevKit.VC80.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC80.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td></row>
 		<row><td>packages</td><td>JGoodies.VC80.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td></row>
+		<row><td>packages</td><td>MCPPDevKit.VC80.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLDevKit.VC80.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC80.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td></row>
 	</table>
@@ -1689,6 +1710,7 @@
 		<row><td>ExpatDevKit.VC80.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC80.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>JGoodies.VC80.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td><td>JGoodies Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>MCPPDevKit.VC80.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>0</td><td>MCPP Dev Kit for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLDevKit.VC80.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC80.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
@@ -2872,6 +2894,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>AgreeToLicense111</td><td>No</td><td/></row>
 		<row><td>AgreeToLicense1111</td><td>No</td><td/></row>
 		<row><td>AgreeToLicense1112</td><td>No</td><td/></row>
+		<row><td>AgreeToLicenseMCPP</td><td>No</td><td/></row>
 		<row><td>ApplicationUsers</td><td>AllUsers</td><td/></row>
 		<row><td>DWUSINTERVAL</td><td>30</td><td/></row>
 		<row><td>DefaultUIFont</td><td>Tahoma8</td><td/></row>
@@ -2950,6 +2973,8 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>AgreeToLicense1111</td><td>2</td><td>Yes</td><td>1</td><td>3</td><td>295</td><td>15</td><td>##NEW_STRING17##</td><td/><td>0</td></row>
 		<row><td>AgreeToLicense1112</td><td>1</td><td>No</td><td>1</td><td>16</td><td>295</td><td>15</td><td>##NEW_STRING21##</td><td/><td>0</td></row>
 		<row><td>AgreeToLicense1112</td><td>2</td><td>Yes</td><td>1</td><td>1</td><td>295</td><td>15</td><td>##NEW_STRING22##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicenseMCPP</td><td>1</td><td>No</td><td>1</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING7##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicenseMCPP</td><td>2</td><td>Yes</td><td>1</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING8##</td><td/><td>0</td></row>
 		<row><td>ApplicationUsers</td><td>1</td><td>AllUsers</td><td>1</td><td>7</td><td>290</td><td>14</td><td>##IDS__IsRegisterUserDlg_Anyone##</td><td/><td/></row>
 		<row><td>ApplicationUsers</td><td>2</td><td>OnlyCurrentUser</td><td>1</td><td>23</td><td>290</td><td>14</td><td>##IDS__IsRegisterUserDlg_OnlyMe##</td><td/><td/></row>
 		<row><td>_IsMaintenance</td><td>1</td><td>Change</td><td>0</td><td>0</td><td>290</td><td>14</td><td>##IDS__IsMaintenanceDlg_Modify##</td><td/><td/></row>
