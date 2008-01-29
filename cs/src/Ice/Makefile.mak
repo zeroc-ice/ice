@@ -130,6 +130,10 @@ GDIR		= generated
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
 
+!if "$(UNSAFE)" == "yes"
+MCSFLAGS	= $(MCSFLAGS) -define:UNSAFE
+!endif
+
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)

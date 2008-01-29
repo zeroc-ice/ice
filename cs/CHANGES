@@ -1,6 +1,11 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- The Ice.Application class now supports signal handling on Mono.
+
+- Added the build macro UNSAFE, which can be disabled if you want to
+  build a version of the Ice run time without the use of unsafe code.
+
 - It is now possible for IceBox services to recursively start/stop
   other IceBox services from within service start/stop method. The
   Ice.Admin.ThreadPool.Size property much be set to a high enough
