@@ -231,7 +231,7 @@ proxyIceIsA(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((O), O)"), type, ctx);
+    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((s), O)"), type, ctx);
 
     return iceIsA(*self->proxy, newArgs.get());
 }
