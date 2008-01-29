@@ -8,42 +8,6 @@
 # **********************************************************************
 
 #
-# Set value to 1 if you are building Ice for .NET against an RPM installation
-# of Ice.
-#
-USE_ICE_RPM ?= 0
-
-USE_SRC_DIST = 0
-
-#
-# Checks for ICE_HOME environment variable.  If it isn't present,
-# attempt to find an Ice installation in /usr or the default install
-# location.
-#
-ifneq ($(ICE_HOME),)
-    ifeq ($(USE_ICE_RPM), 1)
-$(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
-    endif
-
-    ICE_DIR = $(ICE_HOME)
-
-    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-$(error Unable to locate slice2cs in $(ICE_DIR). Please verify ICE_HOME is properly configured and Ice is correctly installed.)
-    endif
-else
-    ifeq ($(USE_ICE_RPM),1)
-        ICE_DIR=/usr
-    
-	ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-$(error Unable to locate slice2cs in $(ICE_DIR). Please verify that the required RPMS are properly installed.)
-	endif
-    else
-        ICE_DIR = $(top_srcdir)/..
-        USE_SRC_DIST = 1
-    endif
-endif
-
-#
 # If you are compiling with MONO you must define this symbol.
 #
 MONO = yes
@@ -53,7 +17,7 @@ MONO = yes
 # if it does not exist.
 #
 
-prefix			?= /opt/IceNET-$(VERSION)
+prefix			?= /opt/Ice-$(VERSION)
 
 #
 # The default behavior of 'make install' attempts to add the Ice for .NET
@@ -78,6 +42,15 @@ DEBUG			= yes
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+# Setup some variables for Make.rules.common 
+ice_language = cs
+slice_translator = slice2cs
+
+ifeq ($(shell test -f $(top_srcdir)/../config/Make.common.rules && echo 0),0)
+    include $(top_srcdir)/../config/Make.common.rules
+else
+    include $(top_srcdir)/config/Make.common.rules
+endif
 
 ifeq ($(MONO), yes)
 	DSEP = /
@@ -88,42 +61,22 @@ endif
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 
-ifneq ($(ICE_DIR),)
-    ifneq ($(USE_SRC_DIST),0)
-        ifeq ($(LP64),yes)
-            export LD_LIBRARY_PATH := $(ICE_DIR)/cpp/lib64:$(LD_LIBRARY_PATH)
-        else
-            export LD_LIBRARY_PATH := $(ICE_DIR)/cpp/lib:$(LD_LIBRARY_PATH)
-        endif
-    else
-        ifeq ($(LP64),yes)
-            export LD_LIBRARY_PATH := $(ICE_DIR)/lib64:$(LD_LIBRARY_PATH)
-        else
-            export LD_LIBRARY_PATH := $(ICE_DIR)/lib:$(LD_LIBRARY_PATH)
-        endif
-    endif
-endif
-
-bindir			= $(top_srcdir)/bin
-libdir			= $(top_srcdir)/lib
-
-#
-# If a slice directory is contained along with this distribution -- use it. 
-# Otherwise use paths relative to $(ICE_DIR).
-#
-ifneq ($(USE_ICE_RPM),0)
-    slicedir		= /usr/share/Ice-$(VERSION)/slice
+ifdef ice_src_dist
+    bindir = $(ice_dir)/cs/bin
 else
-    slicedir		= $(top_srcdir)/../slice
+    bindir = $(ice_dir)/bin
 endif
 
-
+ifdef ice_rpm_dist
+    slicedir = /usr/share/Ice-$(VERSION)/slice
+else
+    slicedir = $(ice_dir)/slice
+endif
 
 install_bindir		= $(prefix)/bin
-install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
 
-ifneq ($(ICE_DIR),/usr)
+ifndef ice_rpm_dist
 ref = -r:$(bindir)/$(1).dll
 else
 ref = -pkg:$(1)
@@ -146,7 +99,7 @@ else
 MCS			= csc -nologo
 endif
 
-LIBS			= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
+LIBS		= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 ifeq ($(DEBUG),yes)
@@ -157,34 +110,10 @@ ifeq ($(OPTIMIZE),yes)
     MCSFLAGS := $(MCSFLAGS) -optimize+
 endif
 
-ifeq ($(installdata),)
-    installdata		= $(INSTALL_DATA) $(1) $(2); \
-			  chmod a+r $(2)/$(notdir $(1))
-endif
-
-ifeq ($(installprogram),)
-    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
-endif
-
-ifeq ($(installlibrary),)
-    installlibrary	= $(INSTALL_LIBRARY) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
-endif
-
-ifeq ($(mkdir),)
-    mkdir		= mkdir $(1) ; \
-			  chmod a+rx $(1)
-endif
-
-ifneq ($(USE_SRC_DIST),0)
-   SLICE2CS = $(ICE_DIR)/cpp/bin/slice2cs
+ifdef ice_src_dist
+    SLICE2CS = $(ice_cpp_dir)/bin/slice2cs
 else
-    ifneq ($(USE_ICE_RPM),0)
-       SLICE2CS	= /usr/bin/slice2cs
-    else
-       SLICE2CS = $(ICE_DIR)/bin/slice2cs
-    endif
+    SLICE2CS = $(ice_dir)/bin/slice2cs
 endif
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
@@ -210,24 +139,19 @@ all:: $(TARGETS)
 depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
 	-rm -f .depend
 	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_C_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_C_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_C_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_S_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_S_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_S_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_AMD_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_AMD_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_AMD_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_SAMD_SRCS)" ; then \
-	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SAMD_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SAMD_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 
 clean::

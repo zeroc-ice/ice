@@ -47,17 +47,30 @@ BCB		= C:\Program Files\Borland\BDS\4.0
 # change the following setting to reflect the installation location.
 #
 !if "$(CPP_COMPILER)" == "BCC2006"
-TPH_EXT		= BCC
+THIRDPARTY_HOME_EXT	= BCC
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
+<<<<<<< HEAD:cpp/config/Make.rules.mak
+THIRDPARTY_HOME_EXT	= VC80
+=======
 TPH_EXT		= VC80
 !elseif "$(CPP_COMPILER)" == "VC90_EXPRESS"
 TPH_EXT		= VC90
+>>>>>>> origin/master:cpp/config/Make.rules.mak
 !else
-TPH_EXT		= $(CPP_COMPILER)
+THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
 !endif
 
 !if "$(THIRDPARTY_HOME)" == ""
+<<<<<<< HEAD:cpp/config/Make.rules.mak
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
+
+!if "$(AS)" == "ml64"
+THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
+!endif
+
+=======
 THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
+>>>>>>> origin/master:cpp/config/Make.rules.mak
 !endif
 
 #
@@ -82,16 +95,36 @@ MT = mt.exe
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+# Setup some variables for Make.rules.common.mak
+ice_language     = cpp
+!if !exist ($(top_srcdir)\..\cpp)
+# Don't require slice2cpp if it's the source distribution.
+slice_translator = slice2cpp
+!endif
+
+!if exist ($(top_srcdir)\..\config\Make.common.rules)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 SOVERSION		= 33
+
+!if "$(ice_src_dist)" != ""
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include
-slicedir		= $(top_srcdir)\..\slice
+!else
+bindir			= $(ice_dir)\bin
+libdir			= $(ice_dir)\lib
+includedir		= $(ice_dir)\include
+!endif
+
+slicedir		= $(ice_dir)\slice
 
 install_bindir		= $(prefix)\bin
-
 install_includedir	= $(prefix)\include
 install_slicedir	= $(prefix)\slice
 install_schemadir	= $(prefix)\schema

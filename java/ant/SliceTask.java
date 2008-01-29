@@ -17,6 +17,7 @@ import org.apache.tools.ant.taskdefs.ExecTask;
 import org.apache.tools.ant.taskdefs.Execute;
 import org.apache.tools.ant.taskdefs.PumpStreamHandler;
 import org.apache.tools.ant.types.Commandline;
+import org.apache.tools.ant.types.Environment;
 import org.apache.tools.ant.types.Commandline.Argument;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
@@ -312,7 +313,102 @@ public class SliceTask extends org.apache.tools.ant.Task
         return dependencies;
 
     }
-   
+
+    protected String
+    getDefaultTranslator(String name)
+    {
+        String iceInstall = getIceHome();
+        if(iceInstall != null)
+        {
+            return new File(iceInstall + File.separator + "bin" + File.separator + name).toString();
+        }
+        else
+        {
+            //
+            // If the location of the Ice install is not known, we
+            // rely on a path search to find the translator.
+            //
+            return name;
+        }
+    }
+
+    protected void
+    addLdLibraryPath(ExecTask task)
+    {
+        String iceInstall = getIceHome();
+        if(iceInstall != null)
+        {
+            String ldLibPathEnv = null;
+            String ldLib64PathEnv = null;
+            String libPath = new File(iceInstall + File.separator + "lib").toString();
+            String lib64Path = null;
+
+            String os = System.getProperty("os.name");
+            if(os.equals("Mac OS X"))
+            {
+                ldLibPathEnv = "DYLD_LIBRARY_PATH";
+            }
+            else if(os.equals("AIX"))
+            {
+                ldLibPathEnv = "LIBPATH";
+            }
+            else if(os.equals("HP-UX"))
+            {
+                ldLibPathEnv = "SHLIB_PATH";
+                ldLib64PathEnv = "LD_LIBRARY_PATH";
+                lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "pa20_64").toString();
+            }
+            else if(os.startsWith("Windows"))
+            {
+                //
+                // No need to change the PATH environment variable on Windows, the DLLs should be found 
+                // in the translator local directory.
+                //
+                //ldLibPathEnv = "PATH";
+            }
+            else if(os.equals("SunOS"))
+            {
+                ldLibPathEnv = "LD_LIBRARY_PATH";
+                ldLib64PathEnv = "LD_LIBRARY_PATH_64";
+                lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "sparcv9").toString();
+            }
+            else
+            {
+                ldLibPathEnv = "LD_LIBRARY_PATH";
+                ldLib64PathEnv = "LD_LIBRARY_PATH_64";
+                lib64Path = new File(iceInstall + File.separator + "lib64").toString();
+            }
+
+            if(ldLibPathEnv != null)
+            {
+                String envLibPath = getEnvironment(ldLibPathEnv);
+                if(envLibPath != null)
+                {
+                    libPath = libPath + File.pathSeparator + envLibPath;
+                }
+
+                Environment.Variable v = new Environment.Variable();
+                v.setKey(ldLibPathEnv);
+                v.setValue(libPath);
+                task.addEnv(v);
+            }
+
+            if(ldLib64PathEnv != null)
+            {
+                String envLib64Path = getEnvironment(ldLib64PathEnv);
+                if(envLib64Path != null)
+                {
+                    lib64Path = lib64Path + File.pathSeparator + envLib64Path;
+                }
+
+                Environment.Variable v = new Environment.Variable();
+                v.setKey(ldLib64PathEnv);
+                v.setValue(lib64Path);
+                task.addEnv(v);
+            }
+        }
+    }
+
     //
     // Query for the location of the Ice install. The Ice install
     // location may be indicated in one of two ways:
@@ -335,20 +431,7 @@ public class SliceTask extends org.apache.tools.ant.Task
             }
             else 
             {
-                //
-                // Check for the presence of the ICE_HOME environment variable.
-                //
-                java.util.Vector env = Execute.getProcEnvironment();
-                java.util.Enumeration e = env.elements();
-                while(e.hasMoreElements())
-                {
-                    String entry = (String)e.nextElement();
-                    if(entry.startsWith("ICE_HOME="))
-                    {
-                        _iceHome = entry.substring(entry.indexOf('=') + 1);
-                        break;
-                    }
-                }
+                _iceHome = getEnvironment("ICE_HOME");
             }
         }
         return _iceHome;
@@ -399,6 +482,22 @@ public class SliceTask extends org.apache.tools.ant.Task
 
         public String[] _dependencies;
         public long _timeStamp;
+    }
+
+    private String
+    getEnvironment(String key)
+    {
+        java.util.Vector env = Execute.getProcEnvironment();
+        java.util.Enumeration e = env.elements();
+        while(e.hasMoreElements())
+        {
+            String entry = (String)e.nextElement();
+            if(entry.startsWith(key + "="))
+            {
+                return entry.substring(entry.indexOf('=') + 1);
+            }
+        }
+        return null;
     }
 
     protected File _dependencyFile;

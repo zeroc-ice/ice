@@ -48,5 +48,3 @@ BASELIBS		= -lIceUtil -lpthread
 LIBS			= -lIce $(BASELIBS)
 
 PLATFORM_HAS_READLINE   := no
-
-export DYLD_LIBRARY_PATH := $(libdir):$(DYLD_LIBRARY_PATH)

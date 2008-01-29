@@ -7,19 +7,12 @@
 #
 # **********************************************************************
 
-!if "$(ICE_HOME)" == ""
-ICE_DIR		= $(top_srcdir)\..
-USE_SRC_DIR	= 1
-!else
-ICE_DIR 	= $(ICE_HOME)
-!endif
-
 #
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
 
-prefix			= C:\IceNET-$(VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # The default behavior of 'nmake /f Makefile.mak install' attempts to add
@@ -48,13 +41,26 @@ DEBUG			= yes
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+# Setup some variables for Make.rules.common
+ice_language = cs
+slice_translator = slice2cs.exe
+
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 
-bindir			= $(top_srcdir)\bin
-libdir			= $(top_srcdir)\lib
+!if "$(ice_src_dist)" != ""
+bindir			= $(ice_dir)\cs\bin
+!else
+bindir			= $(ice_dir)\bin
+!endif
 
-slicedir                = $(top_srcdir)\..\slice
+slicedir                = $(ice_dir)\slice
 
 install_bindir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib
@@ -79,13 +85,13 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-!if "$(USE_SRC_DIR)" == "1"
-SLICE2CS		= "$(ICE_DIR)\cpp\bin\slice2cs.exe"
+!if "$(ice_src_dist)" != ""
+SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
 !else
-SLICE2CS		= "$(ICE_DIR)\bin\slice2cs.exe"
+SLICE2CS		= "$(ice_dir)\bin\slice2cs.exe"
 !endif
 
-EVERYTHING		= all clean install 
+EVERYTHING		= all clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice

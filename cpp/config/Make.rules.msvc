@@ -18,8 +18,11 @@ AR 		= lib.exe
 RC		= rc.exe
 
 PREOUT		= /out:
-PRELIBS		= 
+PRELIBS		=
 
+!if "$(ice_src_dist)" != ""
+
+# If building a source distribution, use THIRDPARTY_HOME for the 3rd party libraries
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
 LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib"
@@ -30,13 +33,15 @@ CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" -D_STLP_NEW_PLATFORM_SD
 
 !endif
 
-#
-# ICE_DIR should only be set with demo tarball build, and if we are
-# building the demo tarball with VC60 then STLPort include must be set
-# properly.
-#
-!if "$(CPP_COMPILER)" == "VC60" & "$(ICE_DIR)" != ""
-CPPFLAGS        = -I"$(ICE_DIR)\include\stlport" $(CPPFLAGS)
+!else
+
+# If building against a binary distribution, the 3rd party headers are located in
+# the same include directory as Ice headers so there's nothing special to do,
+# except for STLport if building w/ VC6.
+!if "$(CPP_COMPILER)" == "VC60"
+CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
+!endif
+
 !endif
 
 CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc -FD -D_CONSOLE

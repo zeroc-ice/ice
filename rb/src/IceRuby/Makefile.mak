@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= IceRuby$(LIBSUFFIX).lib
-DLLNAME         = $(rubydir)\IceRuby$(LIBSUFFIX).dll
+DLLNAME         = $(libdir)\IceRuby$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
@@ -45,6 +45,6 @@ $(DLLNAME): $(OBJS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 install:: all
-	copy $(DLLNAME) $(install_rubydir)
+	copy $(DLLNAME) $(install_libdir)
 
 !include .depend
