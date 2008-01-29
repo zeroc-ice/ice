@@ -47,30 +47,17 @@ BCB		= C:\Program Files\Borland\BDS\4.0
 # change the following setting to reflect the installation location.
 #
 !if "$(CPP_COMPILER)" == "BCC2006"
-THIRDPARTY_HOME_EXT	= BCC
+THIRDPARTY_HOME_EXT 	= BCC
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
-<<<<<<< HEAD:cpp/config/Make.rules.mak
 THIRDPARTY_HOME_EXT	= VC80
-=======
-TPH_EXT		= VC80
 !elseif "$(CPP_COMPILER)" == "VC90_EXPRESS"
-TPH_EXT		= VC90
->>>>>>> origin/master:cpp/config/Make.rules.mak
+THIRDPARTY_HOME_EXT	= VC90
 !else
 THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
 !endif
 
 !if "$(THIRDPARTY_HOME)" == ""
-<<<<<<< HEAD:cpp/config/Make.rules.mak
 THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
-
-!if "$(AS)" == "ml64"
-THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
-!endif
-
-=======
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
->>>>>>> origin/master:cpp/config/Make.rules.mak
 !endif
 
 #
