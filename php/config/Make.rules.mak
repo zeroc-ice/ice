@@ -44,19 +44,21 @@ PHP_BIN_HOME		= C:\php-5.2.1-Win32
 !endif
 
 #
-# If third party libraries are not installed in the default location
-# or THIRDPARTY_HOME is not set in your environment variables then
-# change the following setting to reflect the installation location.
+# STLPort is required if using MSVC++ 6.0. Change if STLPort
+# is located in a different location.
 #
-!if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(CPP_COMPILER)
+!if "$(CPP_COMPILER)" == "VC60"
+STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 !endif
+
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-# Setup some variables for Make.rules.common
+#
+# Common definitions
+#
 ice_language     = php
 ice_require_cpp  = yes
 slice_translator = slice2cpp.exe
@@ -67,11 +69,10 @@ slice_translator = slice2cpp.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-SHELL			= /bin/sh
-VERSION			= 3.3.0
-SOVERSION		= 33
 libdir			= $(top_srcdir)\lib
 install_libdir		= $(prefix)\lib
+
+THIRDPARTY_HOME 	= $(STLPORT_HOME)
 
 !if "$(CPP_COMPILER)" != "VC60"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)

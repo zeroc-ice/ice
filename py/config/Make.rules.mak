@@ -37,23 +37,11 @@ PYTHON_HOME		= C:\Python24
 !endif
 
 #
-# If third party libraries are not installed in the default location
-# or THIRDPARTY_HOME is not set in your environment variables then
-# change the following setting to reflect the installation location.
+# STLPort is required if using MSVC++ 6.0. Change if STLPort
+# is located in a different location.
 #
-!if "$(CPP_COMPILER)" == "VC80_EXPRESS"
-THIRDPARTY_HOME_EXT	= VC80
-!else
-THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
-!endif
-
-!if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
-
-!if "$(AS)" == "ml64"
-THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
-!endif
-
+!if "$(CPP_COMPILER)" == "VC60"
+STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 !endif
 
 #
@@ -69,13 +57,17 @@ THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
 MT = "$(VS80COMNTOOLS)bin\mt.exe"
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
 MT = "$(PDK_HOME)\bin\mt.exe"
+!else
+MT = mt.exe
 !endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-# Setup some variables for Make.rules.common
+#
+# Common definitions
+#
 ice_language     = py
 ice_require_cpp  = yes
 slice_translator = slice2py.exe
@@ -86,17 +78,17 @@ slice_translator = slice2py.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-SHELL			= /bin/sh
-VERSION			= 3.3.0
-SOVERSION		= 33
 libdir			= $(top_srcdir)\python
 install_pythondir	= $(prefix)\python
 install_libdir		= $(prefix)\python
+
+THIRDPARTY_HOME 	= $(STLPORT_HOME)
 
 !if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC71" && \
     "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
+
 
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 

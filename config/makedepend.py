@@ -54,7 +54,7 @@ for line in fileinput.input():
             continue
 
         if s.startswith(subcppincludedir):
-            s = "$(ice_cpp_dir)" + s[len(subcppincludedir):]
+            s = "$(ice_cpp_dir)/include" + s[len(subcppincludedir):]
             print s,
             continue
 

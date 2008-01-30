@@ -54,14 +54,16 @@ DEBUG			= yes
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-# Setup some variables for Make.rules.common 
+#
+# Common definitions
+#
 ice_language = cs
 slice_translator = slice2cs
 
-ifeq ($(shell test -f $(top_srcdir)/../config/Make.common.rules && echo 0),0)
-    include $(top_srcdir)/../config/Make.common.rules
-else
+ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
     include $(top_srcdir)/config/Make.common.rules
+else
+    include $(top_srcdir)/../config/Make.common.rules
 endif
 
 ifeq ($(MONO), yes)
@@ -70,25 +72,16 @@ else
 	DSEP = \\
 endif
 
-SHELL			= /bin/sh
-VERSION			= 3.3.0
-
 ifdef ice_src_dist
     bindir = $(ice_dir)/cs/bin
 else
     bindir = $(ice_dir)/bin
 endif
 
-ifdef ice_rpm_dist
-    slicedir = /usr/share/Ice-$(VERSION)/slice
-else
-    slicedir = $(ice_dir)/slice
-endif
-
 install_bindir		= $(prefix)/bin
 install_slicedir	= $(prefix)/slice
 
-ifndef ice_rpm_dist
+ifneq ($(ice_dir),/usr)
 ref = -r:$(bindir)/$(1).dll
 else
 ref = -pkg:$(1)

@@ -82,10 +82,12 @@ MT = mt.exe
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-# Setup some variables for Make.rules.common.mak
+#
+# Common definitions
+#
 ice_language     = cpp
 !if !exist ($(top_srcdir)\..\cpp)
-# Don't require slice2cpp if it's the source distribution.
+# Don't check for slice2cpp in ICE_HOME if building the source distribution
 slice_translator = slice2cpp
 !endif
 
@@ -94,10 +96,6 @@ slice_translator = slice2cpp
 !else
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
-
-SHELL			= /bin/sh
-VERSION			= 3.3.0
-SOVERSION		= 33
 
 !if "$(ice_src_dist)" != ""
 bindir			= $(top_srcdir)\bin
@@ -109,15 +107,13 @@ libdir			= $(ice_dir)\lib
 includedir		= $(ice_dir)\include
 !endif
 
-slicedir		= $(ice_dir)\slice
-
 install_bindir		= $(prefix)\bin
 install_includedir	= $(prefix)\include
 install_slicedir	= $(prefix)\slice
 install_schemadir	= $(prefix)\schema
 install_docdir		= $(prefix)\doc
-
-OBJEXT			= .obj
+install_libdir	  	= $(prefix)\lib
+libsubdir	  	= lib
 
 SETARGV			= setargv.obj
 
@@ -130,9 +126,6 @@ SETARGV			= setargv.obj
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
-
-install_libdir	  = $(prefix)\lib
-libsubdir	  = lib
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX	= $(LIBSUFFIX)d
