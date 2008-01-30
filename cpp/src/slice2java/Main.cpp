@@ -136,6 +136,24 @@ main(int argc, char* argv[])
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
+    //
+    // Look for the Java2 metadata.
+    //
+    bool java2 = false;
+    for(StringList::iterator p = globalMetadata.begin(); p != globalMetadata.end(); ++p)
+    {
+        if((*p) == "java:java2")
+        {
+            java2 = true;
+            break;
+        }
+    }
+
+    if(java2)
+    {
+        cerr << argv[0] << ": warning: The Java2 mapping is deprecated." << endl;
+    }
+
     bool caseSensitive = opts.isSet("case-sensitive");
 
     if(args.empty())
@@ -242,18 +260,6 @@ main(int argc, char* argv[])
 
     if(!checksumClass.empty())
     {
-        //
-        // Look for the Java2 metadata.
-        //
-        bool java2 = false;
-        for(StringList::iterator p = globalMetadata.begin(); p != globalMetadata.end(); ++p)
-        {
-            if((*p) == "java:java2")
-            {
-                java2 = true;
-                break;
-            }
-        }
         Gen::writeChecksumClass(checksumClass, output, checksums, java2);
     }
 

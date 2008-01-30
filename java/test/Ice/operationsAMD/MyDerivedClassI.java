@@ -127,7 +127,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opByteBoolD_async(Test.AMD_MyClass_opByteBoolD cb,
-                      java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
+                      java.util.Map p1, java.util.Map p2,
                       Ice.Current current)
     {
         java.util.Map<Byte, Boolean> p3 = p1;
@@ -218,7 +218,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opLongFloatD_async(Test.AMD_MyClass_opLongFloatD cb,
-                       java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
+                       java.util.Map p1, java.util.Map p2,
                        Ice.Current current)
     {
         java.util.Map<Long, Float> p3 = p1;
@@ -249,7 +249,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opShortIntD_async(Test.AMD_MyClass_opShortIntD cb,
-                      java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
+                      java.util.Map p1, java.util.Map p2,
                       Ice.Current current)
     {
         java.util.Map<Short, Integer> p3 = p1;
@@ -311,7 +311,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStringMyEnumD_async(Test.AMD_MyClass_opStringMyEnumD cb,
-                          java.util.Map<String, Test.MyEnum> p1, java.util.Map<String, Test.MyEnum> p2,
+                          java.util.Map p1, java.util.Map p2,
                           Ice.Current current)
     {
         java.util.Map<String, Test.MyEnum> p3 = p1;
@@ -409,7 +409,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStringStringD_async(Test.AMD_MyClass_opStringStringD cb,
-                          java.util.Map<String, String> p1, java.util.Map<String, String> p2,
+                          java.util.Map p1, java.util.Map p2,
                           Ice.Current current)
     {
         java.util.Map<String, String> p3 = p1;

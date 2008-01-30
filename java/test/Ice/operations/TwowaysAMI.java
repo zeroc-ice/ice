@@ -777,8 +777,11 @@ class TwowaysAMI
     private static class AMI_MyClass_opByteBoolDI extends Test.AMI_MyClass_opByteBoolD
     {
         public void
-        ice_response(java.util.Map<Byte, Boolean> ro, java.util.Map<Byte, Boolean> _do)
+        ice_response(java.util.Map _ro, java.util.Map __do)
         {
+            // TODO: Fix the parameter types and remove these casts below when the Java2 mapping is removed.
+            java.util.Map<Byte, Boolean> ro = (java.util.Map<Byte, Boolean>)_ro;
+            java.util.Map<Byte, Boolean> _do = (java.util.Map<Byte, Boolean>)__do;
             java.util.Map<Byte, Boolean> di1 = new java.util.HashMap<Byte, Boolean>();
             di1.put((byte)10, Boolean.TRUE);
             di1.put((byte)100, Boolean.FALSE);
@@ -809,8 +812,11 @@ class TwowaysAMI
     private static class AMI_MyClass_opShortIntDI extends Test.AMI_MyClass_opShortIntD
     {
         public void
-        ice_response(java.util.Map<Short, Integer> ro, java.util.Map<Short, Integer> _do)
+        ice_response(java.util.Map _ro, java.util.Map __do)
         {
+            // TODO: Fix the parameter types and remove these casts below when the Java2 mapping is removed.
+            java.util.Map<Short, Integer> ro = (java.util.Map<Short, Integer>)_ro;
+            java.util.Map<Short, Integer> _do = (java.util.Map<Short, Integer>)__do;
             java.util.Map<Short, Integer> di1 = new java.util.HashMap<Short, Integer>();
             di1.put((short)110, -1);
             di1.put((short)1100, 123123);
@@ -841,8 +847,11 @@ class TwowaysAMI
     private static class AMI_MyClass_opLongFloatDI extends Test.AMI_MyClass_opLongFloatD
     {
         public void
-        ice_response(java.util.Map<Long, Float> ro, java.util.Map<Long, Float> _do)
+        ice_response(java.util.Map _ro, java.util.Map __do)
         {
+            // TODO: Fix the parameter types and remove these casts below when the Java2 mapping is removed.
+            java.util.Map<Long, Float> ro = (java.util.Map<Long, Float>)_ro;
+            java.util.Map<Long, Float> _do = (java.util.Map<Long, Float>)__do;
             java.util.Map<Long, Float> di1 = new java.util.HashMap<Long, Float>();
             di1.put(999999110L, new Float(-1.1f));
             di1.put(999999111L, new Float(123123.2f));
@@ -873,7 +882,7 @@ class TwowaysAMI
     private static class AMI_MyClass_opStringStringDI extends Test.AMI_MyClass_opStringStringD
     {
         public void
-        ice_response(java.util.Map<String, String> ro, java.util.Map<String, String> _do)
+        ice_response(java.util.Map ro, java.util.Map _do)
         {
             java.util.Map<String, String> di1 = new java.util.HashMap<String, String>();
             di1.put("foo", "abc -1.1");
@@ -905,7 +914,7 @@ class TwowaysAMI
     private static class AMI_MyClass_opStringMyEnumDI extends Test.AMI_MyClass_opStringMyEnumD
     {
         public void
-        ice_response(java.util.Map<String, Test.MyEnum> ro, java.util.Map<String, Test.MyEnum> _do)
+        ice_response(java.util.Map ro, java.util.Map _do)
         {
             java.util.Map<String, Test.MyEnum> di1 = new java.util.HashMap<String, Test.MyEnum>();
             di1.put("abc", Test.MyEnum.enum1);
@@ -976,7 +985,7 @@ class TwowaysAMI
         }
 
         public void
-        ice_response(java.util.Map<String, String> r)
+        ice_response(java.util.Map r)
         {
             test(r.equals(_d));
             callback.called();
@@ -1006,7 +1015,7 @@ class TwowaysAMI
         }
 
         public void
-        ice_response(java.util.Map<String, String> r)
+        ice_response(java.util.Map r)
         {
             test(!r.equals(_d));
             callback.called();

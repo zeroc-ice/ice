@@ -744,7 +744,7 @@ public class AllTests
     private static class AMI_Test_dictionaryTestI extends AMI_TestIntf_dictionaryTest
     {
         public void
-        ice_response(java.util.Map<Integer, B> r, java.util.Map<Integer, B> bout)
+        ice_response(java.util.Map r, java.util.Map bout)
         {
             this.r = r;
             this.bout = bout;
@@ -2054,7 +2054,7 @@ public class AllTests
             try
             {
                 java.util.IdentityHashMap<Integer, B> bin = new java.util.IdentityHashMap<Integer, B>();
-                BDictHolder bout = new BDictHolder();
+                BDictHolder boutH = new BDictHolder();
                 java.util.Map<Integer, B> r;
                 int i;
                 for(i = 0; i < 10; ++i)
@@ -2067,12 +2067,14 @@ public class AllTests
                     bin.put(i, d1);
                 }
 
-                r = test.dictionaryTest(bin, bout);
+                r = test.dictionaryTest(bin, boutH);
+                // TODO: Remove this cast when the Java2 mapping is removed.
+                java.util.Map<Integer, B> bout = (java.util.Map<Integer, B>)boutH.value;
 
-                test(bout.value.size() == 10);
+                test(bout.size() == 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    B b = bout.value.get(i * 10);
+                    B b = bout.get(i * 10);
                     test(b != null);
                     String s = "D1." + new Integer(i).toString();
                     test(b.sb.equals(s));

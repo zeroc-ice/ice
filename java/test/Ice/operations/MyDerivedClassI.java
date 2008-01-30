@@ -82,7 +82,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public java.util.Map<Byte, Boolean>
-    opByteBoolD(java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
+    opByteBoolD(java.util.Map p1, java.util.Map p2,
                 Test.ByteBoolDHolder p3,
                 Ice.Current current)
     {
@@ -175,7 +175,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public java.util.Map<Long, Float>
-    opLongFloatD(java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
+    opLongFloatD(java.util.Map p1, java.util.Map p2,
                  Test.LongFloatDHolder p3,
                  Ice.Current current)
     {
@@ -207,7 +207,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public java.util.Map<Short, Integer>
-    opShortIntD(java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
+    opShortIntD(java.util.Map p1, java.util.Map p2,
                 Test.ShortIntDHolder p3,
                 Ice.Current current)
     {
@@ -272,8 +272,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return p1 + " " + p2;
     }
 
-    public java.util.Map<String, Test.MyEnum>
-    opStringMyEnumD(java.util.Map<String, Test.MyEnum> p1, java.util.Map<String, Test.MyEnum> p2,
+    public java.util.Map
+    opStringMyEnumD(java.util.Map p1, java.util.Map p2,
                     Test.StringMyEnumDHolder p3,
                     Ice.Current current)
     {
@@ -369,7 +369,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public java.util.Map<String, String>
-    opStringStringD(java.util.Map<String, String> p1, java.util.Map<String, String> p2,
+    opStringStringD(java.util.Map p1, java.util.Map p2,
                     Test.StringStringDHolder p3,
                     Ice.Current current)
     {
