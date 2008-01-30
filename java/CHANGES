@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Ice for Java now supports the ICE_CONFIG environment variable.
+
+- The Java2 language mapping is now deprecated.
+
 - It is now possible for IceBox services to recursively start/stop
   other IceBox services from within service start/stop method. The
   Ice.Admin.ThreadPool.Size property much be set to a high enough
