@@ -5,8 +5,8 @@ This version of Ice for .NET requires Mono version 1.2.5.1 or later.
 Note that Mono currently does not contain full SSL support and 
 therefore IceSSL is not supported.
 
-Unpack the archive. The sources will be contained in the IceNET-@ver@
-subdirectory.
+Unpack the source archive. The .NET sources will be contained in the 
+Ice-@ver@/cs subdirectory.
 
 You will need the Slice to C# translator and supporting executables
 and libraries. You can download a binary distribution from the ZeroC
@@ -20,9 +20,10 @@ To build Ice for .NET, run
 
 $ make
 
-in the top-level directory.
+in the cs subdirectory.
 
-You need to set (and export) ICE_HOME to the top-level directory of
+If you have not built Ice for C++ from the cpp subdirectory, then
+you need to set (and export) ICE_HOME to the top-level directory of
 an Ice for C++ installation. (The makefiles look there for a bin
 directory that contains slice2cs.)
 
@@ -88,13 +89,14 @@ Running the tests
 -----------------
 
 Some of the Ice for .NET tests employ applications that are part of the
-Ice for C++ distribution. You need to set the ICE_HOME environment
-variable to the path where these applications are installed for these
-tests to run properly:
+Ice for C++ distribution. If you have not built Ice for C++ from the cpp
+subdirectory then you need to set the ICE_HOME environment variable to
+the path where these applications are installed for these tests to run 
+properly:
 
 $ export ICE_HOME=/opt/Ice-@ver@
 
-You must add IceNET-@ver@/bin to your MONO_PATH. (Don't forget to export
+You must add Ice-@ver@/cs/bin to your MONO_PATH. (Don't forget to export
 MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
 directory) in the Global Assembly Cache (GAC), using gacutil -i
 <name>. For example:
@@ -122,7 +124,7 @@ case of a failure, the tests abort with "failed".
 Running the demos
 -----------------
 
-To run the demos, you need to have IceNET-@ver@/bin in your MONO_PATH
+To run the demos, you need to have Ice-@ver@/cs/bin in your MONO_PATH
 (or install the Ice DLLs in the GAC, as for running the tests). See
 the README file in each demo directory for a description of each demo.
 
@@ -130,15 +132,12 @@ the README file in each demo directory for a description of each demo.
 Installation
 ------------
 
-On Linux, open config/Make.rules.cs and change the "prefix" variable
-to hold the top-level installation directory. This directory will be
+Open config/Make.rules.cs and change the "prefix" variable to hold
+the top-level installation directory. This directory will be
 created automatically if necessary. Also review the comments for the
 "no_gac" variable and decide whether to enable it. Next, run
 
 $ make install
-
-On other platforms, copy the libraries from IceNET-@ver@/bin to the
-desired location.
 
 After installation, add the directory containing the libraries to
 your MONO_PATH. When building applications, you need to reference
@@ -164,7 +163,7 @@ Patch releases of Ice are binary compatible. For example, version
 compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
 recompile.
 
-A patch release includes policy assemblies in IceNET-@ver@/bin that
+A patch release includes policy assemblies in Ice-@ver@/cs/bin that
 supply the Mono run time with the required compatibility information.
 To upgrade an existing application to a new patch release, the policy
 assemblies must be present in your MONO_PATH, or they must be

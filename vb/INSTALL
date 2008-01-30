@@ -6,7 +6,7 @@ The code has been built and tested with:
 - Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
   Version 2.0.50727.
 
-Unpack the archive. The sources will be contained in the IceVB-@ver@
+Unpack the archive. The VB sources will be contained in the Ice-@ver@\vb
 subdirectory.
 
 Add the directory containing slice2cs to the list of "Executable
@@ -22,15 +22,14 @@ Alternatively, you can set the environment variable ICE_HOME to the
 location of your Ice installation root directory.
 
 To use Visual Basic (or other .NET languages) with Ice, you need
-the run-time support provided by the Ice for C# assembly
+the run-time support provided by the Ice for .NET assembly
 (icecs.dll). The Ice for Visual Basic build environment expects
-icecs.dll to be installed in $(solutiondir)\..\IceCS-@ver@\bin.
-Alternatively, you can install icecs.dll in the Global Assembly Cache
-(GAC). If you have installed the Ice binary distribution for Windows,
-the icecs.dll assembly has already been installed in the GAC. If you
-prefer to install the assembly in the GAC yourself, refer to the
-INSTALL file included with the Ice for C# source distribution for
-instructions.
+icecs.dll to be installed in $(solutiondir)\..\cs\bin.  Alternatively,
+you can install icecs.dll in the Global Assembly Cache (GAC). If you
+have installed the Ice binary distribution for Windows, the icecs.dll
+assembly has already been installed in the GAC. If you prefer to
+install the assembly in the GAC yourself, refer to the INSTALL file
+in the cs subdirectory  for instructions.
 
 To compile your Slice definitions, you need to use slice2cs to generate
 C# source code and use a C# compiler to compile the generated code into

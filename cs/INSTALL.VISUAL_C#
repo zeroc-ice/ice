@@ -9,8 +9,8 @@ Ice for .NET has been built and tested with:
 - Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
   Version 2.0.50727.
 
-Unpack the archive. The sources will be contained in the IceNET-@ver@
-subdirectory.
+Unpack the archive. The .NET sources will be contained in the
+Ice-@ver@\cs subdirectory.
 
 You will need the Slice to C# translator and supporting executables
 and libraries from the Ice for C++ distribution. You can download a
@@ -21,19 +21,18 @@ Binary distributions for the supported platforms are available at
 
   http://www.zeroc.com/download.html
 
-Make sure that the directory containing slice2cs is in your PATH. Note
-that icecpp.exe must be in your path as well, as must be the Ice for
-C++ run-time libraries iceutil and slice.
-
 Follow these steps to build the source:
 
-1) Set ICE_HOME to the directory of your Ice for C++ installation.
+1) If you have not built Ice for C++ from the cpp subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
    For example:
 
    > set ICE_HOME=C:\Ice-@ver@
 
 2) Change to the top-level directory of the Ice for .NET source
    distribution.
+
+   > cd Ice-@ver@\cs
 
 3) Open config\Make.rules.mak.cs and review the comments that describe
    the settings you can modify. For example, you may wish to enable
@@ -85,9 +84,10 @@ Running the tests
 -----------------
 
 Some of the Ice for .NET tests employ applications that are part of the
-Ice for C++ distribution. You need to set the ICE_HOME environment
-variable to the path where these applications are installed for these
-tests to run properly:
+Ice for C++ distribution. If you have not built Ice for C++ from the cpp
+subdirectory then you need to set the ICE_HOME environment variable to
+the path where these applications are installed for these tests to run
+properly:
 
   > set ICE_HOME=c:\Ice-@ver@
 

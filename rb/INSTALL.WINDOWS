@@ -8,7 +8,7 @@ This file describes how to compile Ice for Ruby on a Windows platform.
 Requirements
 ------------
 
-- Ice @ver@
+- Ice @ver@ for C++
 - Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)*
 - Ruby 1.8.4 or 1.8.5
 
@@ -54,8 +54,11 @@ Follow these steps to build the Ice extension for Ruby:
 
 2) Change to the Ice for Ruby source directory.
 
-3) Set the ICE_HOME environment variable with the Ice installation
-   directory. For example:
+   > cd Ice-@ver@\rb
+
+3) If you installed Ice @ver@ for Visual C++ 6.0 distribution in a 
+   non-standard location set the ICE_HOME environment variable with the
+   Ice installation directory. For example:
 
    > set ICE_HOME=C:\Ice-@ver@
 
@@ -88,20 +91,20 @@ The Ruby interpreter must be able to locate the Ice extension. One way
 to configure the interpreter is to define the RUBYLIB environment
 variable as follows:
 
-  > set RUBYLIB=C:\IceRuby-@ver@\ruby
+  > set RUBYLIB=C:\Ice-@ver@\ruby
 
-This example assumes your Ice for Ruby source distribution is located
-in the C:\IceRuby-@ver@ directory.
+This example assumes your Ice for Ruby installation is located in the
+C:\Ice-@ver@ directory.
 
 In addition, you must modify your PATH environment variable to include
 the following directories:
 
   C:\Ice-@ver@-VC60\bin
-  C:\IceRuby-@ver@\bin
+  C:\Ice-@ver@\bin
 
 At a command prompt, you can set your PATH as shown below:
 
-  > set PATH=C:\Ice-@ver@-VC60\bin;C:\IceRuby-@ver@\bin;%PATH%
+  > set PATH=C:\Ice-@ver@-VC60\bin;C:\Ice-@ver@\bin;%PATH%
 
 To verify that Ruby can load the Ice extension successfully, open a
 command window and start the interpreter using irb.bat:
@@ -169,7 +172,7 @@ programs, we begin by starting the server:
 
 In a separate window, start the client:
 
-  > cd \IceRuby-@ver@\demo\Ice\hello
+  > cd Ice-@ver@\rb\demo\Ice\hello
   > ruby Client.rb
 
 Some demo directories contain README files if additional requirements

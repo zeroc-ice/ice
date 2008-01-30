@@ -1,0 +1,5 @@
+This archive contains the source code for Ice for the C++, Java, .NET,
+Python, Ruby and PHP language mappings.
+
+Please refer to the README and INSTALL files in the appropriate subdirectory
+for specific information on each language mapping.

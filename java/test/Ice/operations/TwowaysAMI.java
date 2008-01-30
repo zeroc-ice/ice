@@ -882,8 +882,11 @@ class TwowaysAMI
     private static class AMI_MyClass_opStringStringDI extends Test.AMI_MyClass_opStringStringD
     {
         public void
-        ice_response(java.util.Map ro, java.util.Map _do)
+        ice_response(java.util.Map _ro, java.util.Map __do)
         {
+            // TODO: Fix the parameters and remove the casts below when the Java2 mapping is removed.
+            java.util.Map<String, String> ro = (java.util.Map<String, String>)_ro;
+            java.util.Map<String, String> _do = (java.util.Map<String, String>)__do;
             java.util.Map<String, String> di1 = new java.util.HashMap<String, String>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
@@ -914,8 +917,11 @@ class TwowaysAMI
     private static class AMI_MyClass_opStringMyEnumDI extends Test.AMI_MyClass_opStringMyEnumD
     {
         public void
-        ice_response(java.util.Map ro, java.util.Map _do)
+        ice_response(java.util.Map _ro, java.util.Map __do)
         {
+            // TODO: Fix the parameters and remove the casts below when the Java2 mapping is removed.
+            java.util.Map<String, Test.MyEnum> ro = (java.util.Map<String, Test.MyEnum>)_ro;
+            java.util.Map<String, Test.MyEnum> _do = (java.util.Map<String, Test.MyEnum>)__do;
             java.util.Map<String, Test.MyEnum> di1 = new java.util.HashMap<String, Test.MyEnum>();
             di1.put("abc", Test.MyEnum.enum1);
             di1.put("", Test.MyEnum.enum2);

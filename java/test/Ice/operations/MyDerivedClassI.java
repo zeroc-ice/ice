@@ -272,7 +272,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return p1 + " " + p2;
     }
 
-    public java.util.Map
+    public java.util.Map<String, Test.MyEnum>
     opStringMyEnumD(java.util.Map p1, java.util.Map p2,
                     Test.StringMyEnumDHolder p3,
                     Ice.Current current)

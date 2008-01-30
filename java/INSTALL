@@ -1,4 +1,4 @@
-This distribution contains the Ice for Java source code, class files,
+This directory contains the Ice for Java source code, class files,
 and HTML reference material. The following sections describe the
 requirements for using Ice for Java and provide instructions for
 installing it.
@@ -28,12 +28,9 @@ files to your target platform.
 Java version
 ------------
 
-Ice for Java requires Java version 1.4.2 or later. Older versions are
-not supported, because Ice makes use of the new java.nio packages.
-(java.nio was introduced in version 1.4.0, but was broken on Windows.)
+Ice for Java requires Java version 1.5.0 or later.
 
-You can download Java2, Java5, and Java6 for Solaris, Windows, and
-Linux from
+You can download Java5 and Java6 for Solaris, Windows, and Linux from:
 
   http://java.sun.com
 
@@ -168,9 +165,10 @@ Tests and Demos
 ======================================================================
 
 Some of the Ice for Java tests employ applications that are part of the
-Ice for C++ distribution. You need to set the ICE_HOME environment
-variable to the path where these applications are installed for these
-tests to run properly:
+Ice for C++ distribution. If you have not built Ice for C++ from the cpp
+subdirectory then you need to set the ICE_HOME environment variable to
+the path where these applications are installed for these tests to run
+properly:
 
   # On Unix.
   $ export ICE_HOME=/opt/Ice-@ver@
