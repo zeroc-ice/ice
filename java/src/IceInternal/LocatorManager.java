@@ -18,10 +18,10 @@ public final class LocatorManager
     synchronized void
     destroy()
     {
-        java.util.Iterator i = _table.values().iterator();
+        java.util.Iterator<LocatorInfo> i = _table.values().iterator();
         while(i.hasNext())
         {
-            LocatorInfo info = (LocatorInfo)i.next();
+            LocatorInfo info = i.next();
             info.destroy();
         }
         _table.clear();
@@ -51,7 +51,7 @@ public final class LocatorManager
 
         synchronized(this)
         {
-            LocatorInfo info = (LocatorInfo)_table.get(locator);
+            LocatorInfo info = _table.get(locator);
             if(info == null)
             {
                 //
@@ -59,7 +59,7 @@ public final class LocatorManager
                 // have only one table per locator (not one per locator
                 // proxy).
                 //
-                LocatorTable table = (LocatorTable)_locatorTables.get(locator.ice_getIdentity());
+                LocatorTable table = _locatorTables.get(locator.ice_getIdentity());
                 if(table == null)
                 {
                     table = new LocatorTable();
@@ -74,6 +74,8 @@ public final class LocatorManager
         }
     }
 
-    private java.util.HashMap _table = new java.util.HashMap();
-    private java.util.HashMap _locatorTables = new java.util.HashMap();
+    private java.util.HashMap<Ice.LocatorPrx, LocatorInfo> _table =
+        new java.util.HashMap<Ice.LocatorPrx, LocatorInfo>();
+    private java.util.HashMap<Ice.Identity, LocatorTable> _locatorTables =
+        new java.util.HashMap<Ice.Identity, LocatorTable>();
 }

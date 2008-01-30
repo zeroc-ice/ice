@@ -16,7 +16,7 @@ public class Server extends Ice.Application
         public void
         run()
         {
-            _workQueue.destroy();
+            _workQueue._destroy();
             communicator().shutdown();
         }
     }

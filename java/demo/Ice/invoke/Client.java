@@ -123,7 +123,7 @@ public class Client extends Ice.Application
                     // Marshal the in parameter.
                     //
                     Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
-                    java.util.Map dict = new java.util.HashMap();
+                    java.util.Map<String, String> dict = new java.util.HashMap<String, String>();
                     dict.put("The", "streaming");
                     dict.put("API", "works!");
                     Demo.StringDictHelper.write(out, dict);

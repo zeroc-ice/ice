@@ -21,10 +21,10 @@ public final class ServantManager
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Map<String, Ice.Object> m = _servantMapMap.get(ident);
         if(m == null)
         {
-            m = new java.util.HashMap();
+            m = new java.util.HashMap<String, Ice.Object>();
             _servantMapMap.put(ident, m);
         }
         else
@@ -55,9 +55,9 @@ public final class ServantManager
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Map<String, Ice.Object> m = _servantMapMap.get(ident);
         Ice.Object obj = null;
-        if(m == null || (obj = (Ice.Object)m.remove(facet)) == null)
+        if(m == null || (obj = m.remove(facet)) == null)
         {
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
             ex.id = _instance.identityToString(ident);
@@ -76,12 +76,12 @@ public final class ServantManager
         return obj;
     }
 
-    public synchronized java.util.Map
+    public synchronized java.util.Map<String, Ice.Object>
     removeAllFacets(Ice.Identity ident)
     {
         assert(_instance != null); // Must not be called after destruction.
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Map<String, Ice.Object> m = _servantMapMap.get(ident);
         if(m == null)
         {
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
@@ -111,28 +111,28 @@ public final class ServantManager
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Map<String, Ice.Object> m = _servantMapMap.get(ident);
         Ice.Object obj = null;
         if(m != null)
         {
-            obj = (Ice.Object)m.get(facet);
+            obj = m.get(facet);
         }
 
         return obj;
     }
 
-    public synchronized java.util.Map
+    public synchronized java.util.Map<String, Ice.Object>
     findAllFacets(Ice.Identity ident)
     {
         assert(_instance != null); // Must not be called after destruction.
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Map<String, Ice.Object> m = _servantMapMap.get(ident);
         if(m != null)
         {
-            return new java.util.HashMap(m);
+            return new java.util.HashMap<String, Ice.Object>(m);
         }
 
-        return new java.util.HashMap();
+        return new java.util.HashMap<String, Ice.Object>();
     }
 
     public synchronized boolean
@@ -146,7 +146,7 @@ public final class ServantManager
         //
         //assert(_instance != null); // Must not be called after destruction.
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Map<String, Ice.Object> m = _servantMapMap.get(ident);
         if(m == null)
         {
             return false;
@@ -163,7 +163,7 @@ public final class ServantManager
     {
         assert(_instance != null); // Must not be called after destruction.
 
-        Ice.ServantLocator l = (Ice.ServantLocator)_locatorMap.get(category);
+        Ice.ServantLocator l = _locatorMap.get(category);
         if(l != null)
         {
             Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
@@ -186,7 +186,7 @@ public final class ServantManager
         //
         //assert(_instance != null); // Must not be called after destruction.
 
-        return (Ice.ServantLocator)_locatorMap.get(category);
+        return _locatorMap.get(category);
     }
 
     //
@@ -223,14 +223,14 @@ public final class ServantManager
 
         _servantMapMap.clear();
         
-        java.util.Iterator p = _locatorMap.entrySet().iterator();
+        java.util.Iterator<java.util.Map.Entry<String, Ice.ServantLocator> > p = _locatorMap.entrySet().iterator();
         while(p.hasNext())
         {
-            java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-            Ice.ServantLocator locator = (Ice.ServantLocator)e.getValue();
+            java.util.Map.Entry<String, Ice.ServantLocator> e = p.next();
+            Ice.ServantLocator locator = e.getValue();
             try
             {
-                locator.deactivate((String)e.getKey());
+                locator.deactivate(e.getKey());
             }
             catch(java.lang.Exception ex)
             {
@@ -251,6 +251,7 @@ public final class ServantManager
 
     private Instance _instance;
     final private String _adapterName;
-    private java.util.HashMap _servantMapMap = new java.util.HashMap();
-    private java.util.HashMap _locatorMap = new java.util.HashMap();
+    private java.util.Map<Ice.Identity, java.util.Map<String, Ice.Object> > _servantMapMap =
+        new java.util.HashMap<Ice.Identity, java.util.Map<String, Ice.Object> >();
+    private java.util.Map<String, Ice.ServantLocator> _locatorMap = new java.util.HashMap<String, Ice.ServantLocator>();
 }

@@ -30,7 +30,7 @@ public final class Admin
         public int
         run(String[] args)
         {
-            java.util.ArrayList commands = new java.util.ArrayList();
+            java.util.List<String> commands = new java.util.ArrayList<String>();
 
             int idx = 0;
             while(idx < args.length)

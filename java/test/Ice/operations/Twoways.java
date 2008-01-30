@@ -479,103 +479,103 @@ class Twoways
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
-            di1.put(new Byte((byte)10), Boolean.TRUE);
-            di1.put(new Byte((byte)100), Boolean.FALSE);
-            java.util.Map di2 = new java.util.HashMap();
-            di2.put(new Byte((byte)10), Boolean.TRUE);
-            di2.put(new Byte((byte)11), Boolean.FALSE);
-            di2.put(new Byte((byte)101), Boolean.TRUE);
+            java.util.Map<Byte, Boolean> di1 = new java.util.HashMap<Byte, Boolean>();
+            di1.put((byte)10, Boolean.TRUE);
+            di1.put((byte)100, Boolean.FALSE);
+            java.util.Map<Byte, Boolean> di2 = new java.util.HashMap<Byte, Boolean>();
+            di2.put((byte)10, Boolean.TRUE);
+            di2.put((byte)11, Boolean.FALSE);
+            di2.put((byte)101, Boolean.TRUE);
 
             Test.ByteBoolDHolder _do = new Test.ByteBoolDHolder();
-            java.util.Map ro = p.opByteBoolD(di1, di2, _do);
+            java.util.Map<Byte, Boolean> ro = p.opByteBoolD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
-            test(((Boolean)ro.get(new Byte((byte)10))).booleanValue() == true);
-            test(((Boolean)ro.get(new Byte((byte)11))).booleanValue() == false);
-            test(((Boolean)ro.get(new Byte((byte)100))).booleanValue() == false);
-            test(((Boolean)ro.get(new Byte((byte)101))).booleanValue() == true);
+            test(ro.get((byte)10).booleanValue() == true);
+            test(ro.get((byte)11).booleanValue() == false);
+            test(ro.get((byte)100).booleanValue() == false);
+            test(ro.get((byte)101).booleanValue() == true);
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
-            di1.put(new Short((short)110), new Integer(-1));
-            di1.put(new Short((short)1100), new Integer(123123));
-            java.util.Map di2 = new java.util.HashMap();
-            di2.put(new Short((short)110), new Integer(-1));
-            di2.put(new Short((short)111), new Integer(-100));
-            di2.put(new Short((short)1101), new Integer(0));
+            java.util.Map<Short, Integer> di1 = new java.util.HashMap<Short, Integer>();
+            di1.put((short)110, -1);
+            di1.put((short)1100, 123123);
+            java.util.Map<Short, Integer> di2 = new java.util.HashMap<Short, Integer>();
+            di2.put((short)110, -1);
+            di2.put((short)111, -100);
+            di2.put((short)1101, 0);
 
             Test.ShortIntDHolder _do = new Test.ShortIntDHolder();
-            java.util.Map ro = p.opShortIntD(di1, di2, _do);
+            java.util.Map<Short, Integer> ro = p.opShortIntD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
-            test(((Integer)ro.get(new Short((short)110))).intValue() == -1);
-            test(((Integer)ro.get(new Short((short)111))).intValue() == -100);
-            test(((Integer)ro.get(new Short((short)1100))).intValue() == 123123);
-            test(((Integer)ro.get(new Short((short)1101))).intValue() == 0);
+            test(ro.get((short)110).intValue() == -1);
+            test(ro.get((short)111).intValue() == -100);
+            test(ro.get((short)1100).intValue() == 123123);
+            test(ro.get((short)1101).intValue() == 0);
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
-            di1.put(new Long(999999110L), new Float(-1.1f));
-            di1.put(new Long(999999111L), new Float(123123.2f));
-            java.util.Map di2 = new java.util.HashMap();
-            di2.put(new Long(999999110L), new Float(-1.1f));
-            di2.put(new Long(999999120L), new Float(-100.4f));
-            di2.put(new Long(999999130L), new Float(0.5f));
+            java.util.Map<Long, Float> di1 = new java.util.HashMap<Long, Float>();
+            di1.put(999999110L, new Float(-1.1f));
+            di1.put(999999111L, new Float(123123.2f));
+            java.util.Map<Long, Float> di2 = new java.util.HashMap<Long, Float>();
+            di2.put(999999110L, new Float(-1.1f));
+            di2.put(999999120L, new Float(-100.4f));
+            di2.put(999999130L, new Float(0.5f));
 
             Test.LongFloatDHolder _do = new Test.LongFloatDHolder();
-            java.util.Map ro = p.opLongFloatD(di1, di2, _do);
+            java.util.Map<Long, Float> ro = p.opLongFloatD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
-            test(((Float)ro.get(new Long(999999110L))).floatValue() == -1.1f);
-            test(((Float)ro.get(new Long(999999120L))).floatValue() == -100.4f);
-            test(((Float)ro.get(new Long(999999111L))).floatValue() == 123123.2f);
-            test(((Float)ro.get(new Long(999999130L))).floatValue() == 0.5f);
+            test(ro.get(999999110L).floatValue() == -1.1f);
+            test(ro.get(999999120L).floatValue() == -100.4f);
+            test(ro.get(999999111L).floatValue() == 123123.2f);
+            test(ro.get(999999130L).floatValue() == 0.5f);
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
+            java.util.Map<String, String> di1 = new java.util.HashMap<String, String>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
-            java.util.Map di2 = new java.util.HashMap();
+            java.util.Map<String, String> di2 = new java.util.HashMap<String, String>();
             di2.put("foo", "abc -1.1");
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
 
             Test.StringStringDHolder _do = new Test.StringStringDHolder();
-            java.util.Map ro = p.opStringStringD(di1, di2, _do);
+            java.util.Map<String, String> ro = p.opStringStringD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
-            test(((String)ro.get("foo")).equals("abc -1.1"));
-            test(((String)ro.get("FOO")).equals("abc -100.4"));
-            test(((String)ro.get("bar")).equals("abc 123123.2"));
-            test(((String)ro.get("BAR")).equals("abc 0.5"));
+            test(ro.get("foo").equals("abc -1.1"));
+            test(ro.get("FOO").equals("abc -100.4"));
+            test(ro.get("bar").equals("abc 123123.2"));
+            test(ro.get("BAR").equals("abc 0.5"));
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
+            java.util.Map<String, Test.MyEnum> di1 = new java.util.HashMap<String, Test.MyEnum>();
             di1.put("abc", Test.MyEnum.enum1);
             di1.put("", Test.MyEnum.enum2);
-            java.util.Map di2 = new java.util.HashMap();
+            java.util.Map<String, Test.MyEnum> di2 = new java.util.HashMap<String, Test.MyEnum>();
             di2.put("abc", Test.MyEnum.enum1);
             di2.put("qwerty", Test.MyEnum.enum3);
             di2.put("Hello!!", Test.MyEnum.enum2);
 
             Test.StringMyEnumDHolder _do = new Test.StringMyEnumDHolder();
-            java.util.Map ro = p.opStringMyEnumD(di1, di2, _do);
+            java.util.Map<String, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
-            test(((Test.MyEnum)ro.get("abc")) == Test.MyEnum.enum1);
-            test(((Test.MyEnum)ro.get("qwerty")) == Test.MyEnum.enum3);
-            test(((Test.MyEnum)ro.get("")) == Test.MyEnum.enum2);
-            test(((Test.MyEnum)ro.get("Hello!!")) == Test.MyEnum.enum2);
+            test(ro.get("abc") == Test.MyEnum.enum1);
+            test(ro.get("qwerty") == Test.MyEnum.enum3);
+            test(ro.get("") == Test.MyEnum.enum2);
+            test(ro.get("Hello!!") == Test.MyEnum.enum2);
         }
 
         {
@@ -598,24 +598,24 @@ class Twoways
         }
 
         {
-            java.util.HashMap ctx = new java.util.HashMap();
+            java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
             ctx.put("one", "ONE");
             ctx.put("two", "TWO");
             ctx.put("three", "THREE");
             {
                 test(p.ice_getContext().isEmpty());
-                java.util.Map r = p.opContext();
+                java.util.Map<String, String> r = p.opContext();
                 test(!r.equals(ctx));
             }
             {
-                java.util.Map r = p.opContext(ctx);
+                java.util.Map<String, String> r = p.opContext(ctx);
                 test(p.ice_getContext().isEmpty());
                 test(r.equals(ctx));
             }
             {
                 Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
                 test(p2.ice_getContext().equals(ctx));
-                java.util.Map r = p2.opContext();
+                java.util.Map<String, String> r = p2.opContext();
                 test(r.equals(ctx));
                 r = p2.opContext(ctx);
                 test(r.equals(ctx));
@@ -669,53 +669,53 @@ class Twoways
             //
             // Test implicit context propagation
             //
-            
+
             String[] impls = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties()._clone();
                 initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
-                
+
                 Ice.Communicator ic = Ice.Util.initialize(initData);
-                
-                java.util.Map ctx = new java.util.HashMap();
+
+                java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
                 ctx.put("one", "ONE");
                 ctx.put("two", "TWO");
                 ctx.put("three", "THREE");
-                
+
                 Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
                     ic.stringToProxy("test:default -p 12010 -t 10000"));
-                
+
                 ic.getImplicitContext().setContext(ctx);
                 test(ic.getImplicitContext().getContext().equals(ctx));
                 test(p3.opContext().equals(ctx));
-                
+
                 test(ic.getImplicitContext().containsKey("zero") == false);
                 String r = ic.getImplicitContext().put("zero", "ZERO");
                 test(r.equals(""));
                 test(ic.getImplicitContext().containsKey("zero") == true);
                 test(ic.getImplicitContext().get("zero").equals("ZERO"));
-                
+
                 ctx = ic.getImplicitContext().getContext();
                 test(p3.opContext().equals(ctx));
-                
-                java.util.Map prxContext = new java.util.HashMap();
+
+                java.util.Map<String, String> prxContext = new java.util.HashMap<String, String>();
                 prxContext.put("one", "UN");
                 prxContext.put("four", "QUATRE");
-                
-                java.util.Map combined = new java.util.HashMap(ctx);
+
+                java.util.Map<String, String> combined = new java.util.HashMap<String, String>(ctx);
                 combined.putAll(prxContext);
                 test(combined.get("one").equals("UN"));
-                
+
                 p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
-                
+
                 ic.getImplicitContext().setContext(null);
                 test(p3.opContext().equals(prxContext));
-                
+
                 ic.getImplicitContext().setContext(ctx);
                 test(p3.opContext().equals(combined));
-                
+
                 test(ic.getImplicitContext().remove("one").equals("ONE"));
 
                 ic.destroy();

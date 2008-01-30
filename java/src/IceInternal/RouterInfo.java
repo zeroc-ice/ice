@@ -281,6 +281,6 @@ public final class RouterInfo
     private EndpointI[] _clientEndpoints;
     private EndpointI[] _serverEndpoints;
     private Ice.ObjectAdapter _adapter;
-    private java.util.HashSet _identities = new java.util.HashSet();
-    private java.util.List _evictedIdentities = new java.util.ArrayList();
+    private java.util.Set<Ice.Identity> _identities = new java.util.HashSet<Ice.Identity>();
+    private java.util.List<Ice.Identity> _evictedIdentities = new java.util.ArrayList<Ice.Identity>();
 }

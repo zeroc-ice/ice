@@ -46,12 +46,12 @@ class RFC2253
         int pos;
     }
 
-    public static java.util.List
+    public static java.util.List<java.util.List<RDNPair> >
     parse(String data)
         throws ParseException
     {
-        java.util.List results = new java.util.LinkedList();
-        java.util.List current = new java.util.LinkedList();
+        java.util.List<java.util.List<RDNPair> > results = new java.util.LinkedList<java.util.List<RDNPair> >();
+        java.util.List<RDNPair> current = new java.util.LinkedList<RDNPair>();
         ParseState state = new ParseState();
         state.data = data;
         state.pos = 0;
@@ -67,7 +67,7 @@ class RFC2253
             {
                 ++state.pos;
                 results.add(current);
-                current = new java.util.LinkedList();
+                current = new java.util.LinkedList<RDNPair>();
             }
             else if(state.pos < state.data.length())
             {
@@ -82,11 +82,11 @@ class RFC2253
         return results;
     }
 
-    public static java.util.List
+    public static java.util.List<RDNPair>
     parseStrict(String data)
         throws ParseException
     {
-        java.util.List results = new java.util.LinkedList();
+        java.util.List<RDNPair> results = new java.util.LinkedList<RDNPair>();
         ParseState state = new ParseState();
         state.data = data;
         state.pos = 0;
@@ -179,7 +179,7 @@ class RFC2253
         //
         // Here we must also check for "oid." and "OID." before parsing
         // according to the ALPHA KEYCHAR* rule.
-        // 
+        //
         // First the OID case.
         //
         if(Character.isDigit(state.data.charAt(state.pos)) ||

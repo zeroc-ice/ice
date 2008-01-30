@@ -13,7 +13,7 @@ class Parser
 {
     Parser(DirectoryPrx root)
     {
-        _dirs = new java.util.LinkedList();
+        _dirs = new java.util.LinkedList<DirectoryPrx>();
         _dirs.addFirst(root);
     }
 
@@ -39,7 +39,7 @@ class Parser
     {
         try
         {
-            list((DirectoryPrx)_dirs.get(0), recursive, 0);
+            list(_dirs.get(0), recursive, 0);
         }
         catch(Ice.LocalException ex)
         {
@@ -79,14 +79,14 @@ class Parser
     }
 
     void
-    createFile(java.util.List names)
+    createFile(java.util.List<String> names)
     {
-        DirectoryPrx dir = (DirectoryPrx)_dirs.getFirst();
+        DirectoryPrx dir = _dirs.getFirst();
 
-        java.util.Iterator i = names.iterator();
+        java.util.Iterator<String> i = names.iterator();
         while(i.hasNext())
         {
-            String name = (String)i.next();
+            String name = i.next();
             if(name.equals(".."))
             {
                 System.out.println("Cannot create a file named `..'");
@@ -105,14 +105,14 @@ class Parser
     }
 
     void
-    createDir(java.util.List names)
+    createDir(java.util.List<String> names)
     {
-        DirectoryPrx dir = (DirectoryPrx)_dirs.getFirst();
+        DirectoryPrx dir = _dirs.getFirst();
 
-        java.util.Iterator i = names.iterator();
+        java.util.Iterator<String> i = names.iterator();
         while(i.hasNext())
         {
-            String name = (String)i.next();
+            String name = i.next();
             if(name.equals(".."))
             {
                 System.out.println("Cannot create a directory named `..'");
@@ -139,11 +139,11 @@ class Parser
         }
         else
         {
-            java.util.ListIterator i = _dirs.listIterator(_dirs.size());
+            java.util.ListIterator<DirectoryPrx> i = _dirs.listIterator(_dirs.size());
             i.previous();
             while(i.hasPrevious())
             {
-                System.out.print("/" + (String)(((DirectoryPrx)i.previous()).name()));
+                System.out.print("/" + i.previous().name());
             }
         }
         System.out.println();
@@ -170,7 +170,7 @@ class Parser
             return;
         }
 
-        DirectoryPrx dir = (DirectoryPrx)_dirs.getFirst();
+        DirectoryPrx dir = _dirs.getFirst();
         NodeDesc d;
         try
         {
@@ -192,7 +192,7 @@ class Parser
     void
     cat(String name)
     {
-        DirectoryPrx dir = (DirectoryPrx)_dirs.getFirst();
+        DirectoryPrx dir = _dirs.getFirst();
         NodeDesc d;
         try
         {
@@ -217,10 +217,10 @@ class Parser
     }
 
     void
-    write(java.util.LinkedList args)
+    write(java.util.LinkedList<String> args)
     {
-        DirectoryPrx dir = (DirectoryPrx)_dirs.getFirst();
-        String name = (String)args.getFirst();
+        DirectoryPrx dir = _dirs.getFirst();
+        String name = args.getFirst();
         args.removeFirst();
         NodeDesc d;
         try
@@ -240,10 +240,10 @@ class Parser
         FilePrx f = FilePrxHelper.uncheckedCast(d.proxy);
 
         String[] l = new String[args.size()];
-        java.util.Iterator i = args.iterator();
+        java.util.Iterator<String> i = args.iterator();
         for(int j = 0; j < args.size(); ++j)
         {
-            l[j] = (String)i.next();
+            l[j] = i.next();
         }
         try
         {
@@ -256,14 +256,14 @@ class Parser
     }
 
     void
-    destroy(java.util.List names)
+    destroy(java.util.List<String> names)
     {
-        DirectoryPrx dir = (DirectoryPrx)_dirs.getFirst();
+        DirectoryPrx dir = _dirs.getFirst();
 
-        java.util.Iterator i = names.iterator();
+        java.util.Iterator<String> i = names.iterator();
         while(i.hasNext())
         {
-            String name = (String)i.next();
+            String name = i.next();
             if(name.equals("*"))
             {
                 NodeDesc[] nodes = dir.list();
@@ -355,7 +355,7 @@ class Parser
         return 0;
     }
 
-    private java.util.LinkedList _dirs;
+    private java.util.LinkedList<DirectoryPrx> _dirs;
 
     private java.io.BufferedReader _in;
 }

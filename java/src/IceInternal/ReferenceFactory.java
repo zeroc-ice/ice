@@ -345,11 +345,11 @@ public final class ReferenceFactory
             return create(ident, facet, mode, secure, null, null, propertyPrefix);
         }
 
-        java.util.ArrayList endpoints = new java.util.ArrayList();
+        java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
 
         if(s.charAt(beg) == ':')
         {
-            java.util.ArrayList unknownEndpoints = new java.util.ArrayList();
+            java.util.ArrayList<String> unknownEndpoints = new java.util.ArrayList<String>();
             end = beg;
 
             while(end < s.length() && s.charAt(end) == ':')
@@ -413,17 +413,17 @@ public final class ReferenceFactory
             if(endpoints.size() == 0)
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = (String)unknownEndpoints.get(0);
+                e.str = unknownEndpoints.get(0);
                 throw e;
             }
             else if(unknownEndpoints.size() != 0 &&
                    _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
             {
                 String msg = "Proxy contains unknown endpoints:";
-                java.util.Iterator iter = unknownEndpoints.iterator();
+                java.util.Iterator<String> iter = unknownEndpoints.iterator();
                 while(iter.hasNext())
                 {
-                    msg += " `" + (String)iter.next() + "'";
+                    msg += " `" + iter.next() + "'";
                 }
                 _instance.initializationData().logger.warning(msg);
             }
@@ -618,22 +618,22 @@ public final class ReferenceFactory
         // WeakHashMap class internally creates a weak reference for the
         // key, and we use a weak reference for the value as well.
         //
-        java.lang.ref.WeakReference w = (java.lang.ref.WeakReference)_references.get(ref);
+        java.lang.ref.WeakReference<Reference> w = _references.get(ref);
         if(w != null)
         {
-            Reference r = (Reference)w.get();
+            Reference r = w.get();
             if(r != null)
             {
                 ref = r;
             }
             else
             {
-                _references.put(ref, new java.lang.ref.WeakReference(ref));
+                _references.put(ref, new java.lang.ref.WeakReference<Reference>(ref));
             }
         }
         else
         {
-            _references.put(ref, new java.lang.ref.WeakReference(ref));
+            _references.put(ref, new java.lang.ref.WeakReference<Reference>(ref));
         }
 
         return ref;
@@ -665,13 +665,14 @@ public final class ReferenceFactory
             }
         }
 
-        java.util.ArrayList unknownProps = new java.util.ArrayList();
-        java.util.Map props = _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        java.util.Iterator p = props.entrySet().iterator();
+        java.util.ArrayList<String> unknownProps = new java.util.ArrayList<String>();
+        java.util.Map<String, String> props =
+            _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+        java.util.Iterator<java.util.Map.Entry<String, String> > p = props.entrySet().iterator();
         while(p.hasNext())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String prop = (String)entry.getKey();
+            java.util.Map.Entry<String, String> entry = p.next();
+            String prop = entry.getKey();
 
             boolean valid = false;
             for(int i = 0; i < _suffixes.length; ++i)
@@ -692,10 +693,10 @@ public final class ReferenceFactory
         if(unknownProps.size() != 0)
         {
             String message = "found unknown properties for proxy '" + prefix + "':";
-            p = unknownProps.iterator();
-            while(p.hasNext())
+            java.util.Iterator<String> q = unknownProps.iterator();
+            while(q.hasNext())
             {
-                message += "\n    " + (String)p.next();
+                message += "\n    " + q.next();
             }
             _instance.initializationData().logger.warning(message);
         }
@@ -819,5 +820,6 @@ public final class ReferenceFactory
     final private Ice.Communicator _communicator;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
-    private java.util.WeakHashMap _references = new java.util.WeakHashMap();
+    private java.util.WeakHashMap<Reference, java.lang.ref.WeakReference<Reference> > _references =
+        new java.util.WeakHashMap<Reference, java.lang.ref.WeakReference<Reference> >();
 }

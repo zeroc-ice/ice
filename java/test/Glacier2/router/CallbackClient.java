@@ -221,7 +221,7 @@ class CallbackClient extends Ice.Application
             System.out.flush();
             CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
             CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-            java.util.Map context = new java.util.HashMap();
+            java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "o");
             oneway.initiateCallback(onewayR, context);
             test(callbackReceiverImpl.callbackOK());
@@ -231,7 +231,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("testing twoway callback... ");
             System.out.flush();
-            java.util.Map context = new java.util.HashMap();
+            java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             twoway.initiateCallback(twowayR, context);
             test(callbackReceiverImpl.callbackOK());
@@ -241,7 +241,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("ditto, but with user exception... ");
             System.out.flush();
-            java.util.Map context = new java.util.HashMap();
+            java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             try
             {
@@ -260,7 +260,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("trying twoway callback with fake category... ");
             System.out.flush();
-            java.util.Map context = new java.util.HashMap();
+            java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             try
             {
@@ -276,7 +276,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("testing whether other allowed category is accepted... ");
             System.out.flush();
-            java.util.Map context = new java.util.HashMap();
+            java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                 twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
@@ -288,7 +288,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("testing whether disallowed category gets rejected... ");
             System.out.flush();
-            java.util.Map context = new java.util.HashMap();
+            java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             try
             {
@@ -306,7 +306,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("testing whether user-id as category is accepted... ");
             System.out.flush();
-            java.util.Map context = new java.util.HashMap();
+            java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                 twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));

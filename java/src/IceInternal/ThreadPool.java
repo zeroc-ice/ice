@@ -103,7 +103,7 @@ public final class ThreadPool
         
         try
         {
-            _threads = new java.util.ArrayList();
+            _threads = new java.util.ArrayList<EventHandlerThread>();
             for(int i = 0; i < _size; i++)
             {
                 EventHandlerThread thread = new EventHandlerThread(_programNamePrefix + _prefix + "-" +
@@ -261,10 +261,10 @@ public final class ThreadPool
         // wouldn't be possible here anyway, because otherwise the
         // other threads would never terminate.)
         //
-        java.util.Iterator i = _threads.iterator();
+        java.util.Iterator<EventHandlerThread> i = _threads.iterator();
         while(i.hasNext())
         {
-            EventHandlerThread thread = (EventHandlerThread)i.next();
+            EventHandlerThread thread = i.next();
             
             while(true)
             {
@@ -467,12 +467,12 @@ public final class ThreadPool
         {
             if(TRACE_REGISTRATION)
             {
-                java.util.Set keys = _selector.keys();
+                java.util.Set<java.nio.channels.SelectionKey> keys = _selector.keys();
                 trace("selecting on " + keys.size() + " channels:");
-                java.util.Iterator i = keys.iterator();
+                java.util.Iterator<java.nio.channels.SelectionKey> i = keys.iterator();
                 while(i.hasNext())
                 {
-                    java.nio.channels.SelectionKey key = (java.nio.channels.SelectionKey)i.next();
+                    java.nio.channels.SelectionKey key = i.next();
                     trace("  " + key.channel());
                 }
             }
@@ -486,7 +486,7 @@ public final class ThreadPool
             //
             if(!_pendingHandlers.isEmpty())
             {
-                handler = (EventHandler)_pendingHandlers.removeFirst();
+                handler = _pendingHandlers.removeFirst();
             }
             else
             {
@@ -542,7 +542,7 @@ public final class ThreadPool
                                 _keys.remove(_fdIntrReadKey);
                                 clearInterrupt();
                                 assert(!_workItems.isEmpty());
-                                workItem = (ThreadPoolWorkItem)_workItems.removeFirst();
+                                workItem = _workItems.removeFirst();
                             }
                             else if(_destroyed)
                             {
@@ -568,7 +568,7 @@ public final class ThreadPool
                                 // An event handler must have been registered or unregistered.
                                 //
                                 assert(!_changes.isEmpty());
-                                FdHandlerPair change = (FdHandlerPair)_changes.removeFirst();
+                                FdHandlerPair change = _changes.removeFirst();
                                 
                                 if(change.handler != null) // Addition if handler is set.
                                 {
@@ -615,7 +615,7 @@ public final class ThreadPool
                                 }
                                 else // Removal if handler is not set.
                                 {
-                                    HandlerKeyPair pair = (HandlerKeyPair)_handlerMap.remove(change.fd);
+                                    HandlerKeyPair pair = _handlerMap.remove(change.fd);
                                     assert(pair != null);
                                     handler = pair.handler;
                                     finished = true;
@@ -639,13 +639,13 @@ public final class ThreadPool
                         else
                         {
                             java.nio.channels.SelectionKey key = null;
-                            java.util.Iterator iter = _keys.iterator();
+                            java.util.Iterator<java.nio.channels.SelectionKey> iter = _keys.iterator();
                             while(iter.hasNext())
                             {
                                 //
                                 // Ignore selection keys that have been cancelled
                                 //
-                                java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)iter.next();
+                                java.nio.channels.SelectionKey k = iter.next();
                                 iter.remove();
                                 if(k.isValid() && k != _fdIntrReadKey)
                                 {
@@ -885,10 +885,10 @@ public final class ThreadPool
                         assert(_running <= sz);
                         if(_running < sz)
                         {
-                            java.util.Iterator i = _threads.iterator();
+                            java.util.Iterator<EventHandlerThread> i = _threads.iterator();
                             while(i.hasNext())
                             {
-                                EventHandlerThread thread = (EventHandlerThread)i.next();
+                                EventHandlerThread thread = i.next();
 
                                 if(!thread.isAlive())
                                 {
@@ -1108,10 +1108,10 @@ public final class ThreadPool
                     if(_keys.size() > 0)
                     {
                         trace("after selectNow, there are " + _keys.size() + " selected keys:");
-                        java.util.Iterator i = _keys.iterator();
+                        java.util.Iterator<java.nio.channels.SelectionKey> i = _keys.iterator();
                         while(i.hasNext())
                         {
-                            java.nio.channels.SelectionKey key = (java.nio.channels.SelectionKey)i.next();
+                            java.nio.channels.SelectionKey key = i.next();
                             trace("  " + keyToString(key));
                         }
                     }
@@ -1271,12 +1271,13 @@ public final class ThreadPool
     private java.nio.channels.SelectionKey _fdIntrReadKey;
     private java.nio.channels.WritableByteChannel _fdIntrWrite;
     private java.nio.channels.Selector _selector;
-    private java.util.Set _keys;
+    private java.util.Set<java.nio.channels.SelectionKey> _keys;
 
-    private java.util.LinkedList _changes = new java.util.LinkedList();
-    private java.util.LinkedList _workItems = new java.util.LinkedList();
+    private java.util.LinkedList<FdHandlerPair> _changes = new java.util.LinkedList<FdHandlerPair>();
+    private java.util.LinkedList<ThreadPoolWorkItem> _workItems = new java.util.LinkedList<ThreadPoolWorkItem>();
 
-    private java.util.HashMap _handlerMap = new java.util.HashMap();
+    private java.util.Map<java.nio.channels.SelectableChannel, HandlerKeyPair> _handlerMap =
+        new java.util.HashMap<java.nio.channels.SelectableChannel, HandlerKeyPair>();
 
     private int _timeout;
 
@@ -1286,7 +1287,7 @@ public final class ThreadPool
     // the thread pool to read more data before it re-enters a blocking call to
     // select().
     //
-    private java.util.LinkedList _pendingHandlers = new java.util.LinkedList();
+    private java.util.LinkedList<EventHandler> _pendingHandlers = new java.util.LinkedList<EventHandler>();
 
     private final class EventHandlerThread extends Thread
     {
@@ -1362,7 +1363,7 @@ public final class ThreadPool
     private final int _sizeMax; // Maximum number of threads.
     private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
 
-    private java.util.ArrayList _threads; // All threads, running or not.
+    private java.util.List<EventHandlerThread> _threads; // All threads, running or not.
     private int _threadIndex; // For assigning thread names.
     private int _running; // Number of running threads.
     private int _inUse; // Number of threads that are currently in use.

@@ -279,8 +279,8 @@ public class AllTests
         System.out.flush();
         {
             Test.AdapterPrx[] adapters = server.getAdapters();
-            java.util.Set threadPerConnectionThreads = new java.util.HashSet();
-            java.util.Set threadPoolThreads = new java.util.HashSet();
+            java.util.Set<Integer> threadPerConnectionThreads = new java.util.HashSet<Integer>();
+            java.util.Set<Integer> threadPoolThreads = new java.util.HashSet<Integer>();
 
             for(int i = 0; i < adapters.length; ++i)
             {
@@ -301,7 +301,7 @@ public class AllTests
                     test(!cb.notified());
                     test(tid == cb.id()); // The thread id must be the same for both requests.
                     test(!threadPerConnectionThreads.contains(new Integer(tid)));
-                    threadPerConnectionThreads.add(new Integer(tid));
+                    threadPerConnectionThreads.add(tid);
 
                     //
                     // Closing the connection and creating a new one should start a new thread
@@ -310,8 +310,8 @@ public class AllTests
                     adapter.ice_getConnection().close(false);
                     int tid2 = adapter.getThreadId();
                     test(tid != tid2);
-                    test(!threadPerConnectionThreads.contains(new Integer(tid2)));
-                    threadPerConnectionThreads.add(new Integer(tid2));
+                    test(!threadPerConnectionThreads.contains(tid2));
+                    threadPerConnectionThreads.add(tid2);
                 }
                 else
                 {
@@ -324,8 +324,8 @@ public class AllTests
                     test(tid != cb.id()); // The thread ids must be different for the requests.
                     test(!threadPoolThreads.contains(new Integer(tid)));
                     threadPoolThreads.add(new Integer(tid));
-                    test(!threadPoolThreads.contains(new Integer(cb.id())));
-                    threadPoolThreads.add(new Integer(cb.id()));
+                    test(!threadPoolThreads.contains(cb.id()));
+                    threadPoolThreads.add(cb.id());
                 }
             }
         }

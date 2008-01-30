@@ -44,7 +44,7 @@ class AttackClient extends Ice.Application
         BackendPrx backend = BackendPrxHelper.uncheckedCast(backendBase);
         backend.ice_ping();
 
-        java.util.HashMap backends = new java.util.HashMap();
+        java.util.Map<BackendPrx, BackendPrx> backends = new java.util.HashMap<BackendPrx, BackendPrx>();
         java.util.Random rand = new java.util.Random();
 
         String msg = "";
@@ -85,7 +85,7 @@ class AttackClient extends Ice.Application
             }
             else
             {
-                backend = (BackendPrx)backends.get(newBackend);
+                backend = backends.get(newBackend);
             }
 
             backend.ice_ping();

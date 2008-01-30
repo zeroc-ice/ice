@@ -744,7 +744,7 @@ public class AllTests
     private static class AMI_Test_dictionaryTestI extends AMI_TestIntf_dictionaryTest
     {
         public void
-        ice_response(java.util.Map r, java.util.Map bout)
+        ice_response(java.util.Map<Integer, B> r, java.util.Map<Integer, B> bout)
         {
             this.r = r;
             this.bout = bout;
@@ -771,8 +771,8 @@ public class AllTests
 
         private Callback callback = new Callback();
 
-        public java.util.Map r;
-        public java.util.Map bout;
+        public java.util.Map<Integer, B> r;
+        public java.util.Map<Integer, B> bout;
     }
 
     private static class AMI_Test_throwBaseAsBaseI extends AMI_TestIntf_throwBaseAsBase
@@ -2053,9 +2053,9 @@ public class AllTests
         {
             try
             {
-                java.util.IdentityHashMap bin = new java.util.IdentityHashMap();
+                java.util.IdentityHashMap<Integer, B> bin = new java.util.IdentityHashMap<Integer, B>();
                 BDictHolder bout = new BDictHolder();
-                java.util.Map r;
+                java.util.Map<Integer, B> r;
                 int i;
                 for(i = 0; i < 10; ++i)
                 {
@@ -2064,7 +2064,7 @@ public class AllTests
                     d1.sb = s;
                     d1.pb = d1;
                     d1.sd1 = s;
-                    bin.put(new Integer(i), d1);
+                    bin.put(i, d1);
                 }
 
                 r = test.dictionaryTest(bin, bout);
@@ -2072,7 +2072,7 @@ public class AllTests
                 test(bout.value.size() == 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    B b = (B)bout.value.get(new Integer(i * 10));
+                    B b = bout.value.get(i * 10);
                     test(b != null);
                     String s = "D1." + new Integer(i).toString();
                     test(b.sb.equals(s));
@@ -2085,11 +2085,11 @@ public class AllTests
                 test(r.size() == 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    B b = (B)r.get(new Integer(i * 20));
+                    B b = r.get(i * 20);
                     test(b != null);
                     String s = "D1." + new Integer(i * 20).toString();
                     test(b.sb.equals(s));
-                    test(b.pb == (i == 0 ? (B)null : (B)r.get(new Integer((i - 1) * 20))));
+                    test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
                     D1 d1 = (D1)b;
                     test(d1 != null);
                     test(d1.sd1.equals(s));
@@ -2106,9 +2106,9 @@ public class AllTests
         System.out.print("dictionary slicing (AMI)... ");
         System.out.flush();
         {
-            java.util.Map bin = new java.util.HashMap();
-            java.util.Map bout;
-            java.util.Map r;
+            java.util.Map<Integer, B> bin = new java.util.HashMap<Integer, B>();
+            java.util.Map<Integer, B> bout;
+            java.util.Map<Integer, B> r;
             int i;
             for(i = 0; i < 10; ++i)
             {
@@ -2117,7 +2117,7 @@ public class AllTests
                 d1.sb = s;
                 d1.pb = d1;
                 d1.sd1 = s;
-                bin.put(new Integer(i), d1);
+                bin.put(i, d1);
             }
 
             AMI_Test_dictionaryTestI cb = new AMI_Test_dictionaryTestI();
@@ -2129,7 +2129,7 @@ public class AllTests
             test(bout.size() == 10);
             for(i = 0; i < 10; ++i)
             {
-                B b = (B)bout.get(new Integer(i * 10));
+                B b = bout.get(i * 10);
                 test(b != null);
                 String s = "D1." + new Integer(i).toString();
                 test(b.sb.equals(s));
@@ -2142,11 +2142,11 @@ public class AllTests
             test(r.size() == 10);
             for(i = 0; i < 10; ++i)
             {
-                B b = (B)r.get(new Integer(i * 20));
+                B b = r.get(i * 20);
                 test(b != null);
                 String s = "D1." + new Integer(i * 20).toString();
                 test(b.sb.equals(s));
-                test(b.pb == (i == 0 ? (B)null : (B)r.get(new Integer((i - 1) * 20))));
+                test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
                 D1 d1 = (D1)b;
                 test(d1 != null);
                 test(d1.sd1.equals(s));

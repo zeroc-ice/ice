@@ -139,7 +139,7 @@ public class Client extends Ice.Application
             _refresh.start();
         }
             
-        java.util.ArrayList hellos = new java.util.ArrayList();
+        java.util.ArrayList<HelloPrx> hellos = new java.util.ArrayList<HelloPrx>();
 
         menu();
 
@@ -170,7 +170,7 @@ public class Client extends Ice.Application
                     }
                     if(index < hellos.size())
                     {
-                        HelloPrx hello = (HelloPrx)hellos.get(index);
+                        HelloPrx hello = hellos.get(index);
                         hello.sayHello();
                     }
                     else
@@ -182,7 +182,7 @@ public class Client extends Ice.Application
                 else if(line.equals("c"))
                 {
                     hellos.add(_session.createHello());
-                    System.out.println("created hello object " + (hellos.size()-1));
+                    System.out.println("created hello object " + (hellos.size() - 1));
                 }
                 else if(line.equals("s"))
                 {

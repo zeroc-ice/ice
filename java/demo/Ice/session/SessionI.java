@@ -64,10 +64,10 @@ class SessionI extends _SessionDisp
         try
         {
             c.adapter.remove(c.id);
-            java.util.Iterator p = _objs.iterator();
+            java.util.Iterator<HelloPrx> p = _objs.iterator();
             while(p.hasNext())
             {
-                c.adapter.remove(((HelloPrx)p.next()).ice_getIdentity());
+                c.adapter.remove(p.next().ice_getIdentity());
             }
         }
         catch(Ice.ObjectAdapterDeactivatedException e)
@@ -92,5 +92,6 @@ class SessionI extends _SessionDisp
     private boolean _destroy = false; // true if destroy() was called, false otherwise.
     private long _timestamp; // The last time the session was refreshed.
     private int _nextId = 0; // The id of the next hello object. This is used for tracing purposes.
-    private java.util.List _objs = new java.util.LinkedList(); // List of per-client allocated Hello objects.
+    private java.util.List<HelloPrx> _objs =
+        new java.util.LinkedList<HelloPrx>(); // List of per-client allocated Hello objects.
 }

@@ -30,7 +30,7 @@ final class LocatorTable
             return null;
         }
 
-        EndpointTableEntry entry = (EndpointTableEntry)_adapterEndpointsTable.get(adapter);
+        EndpointTableEntry entry = _adapterEndpointsTable.get(adapter);
         if(entry != null && checkTTL(entry.time, ttl))
         {
             return entry.endpoints;
@@ -48,7 +48,7 @@ final class LocatorTable
     synchronized IceInternal.EndpointI[]
     removeAdapterEndpoints(String adapter)
     {
-        EndpointTableEntry entry = (EndpointTableEntry)_adapterEndpointsTable.remove(adapter);
+        EndpointTableEntry entry = _adapterEndpointsTable.remove(adapter);
         return entry != null ? entry.endpoints : null;
     }
 
@@ -60,7 +60,7 @@ final class LocatorTable
             return null;
         }
 
-        ProxyTableEntry entry = (ProxyTableEntry)_objectTable.get(id);
+        ProxyTableEntry entry = _objectTable.get(id);
         if(entry != null && checkTTL(entry.time, ttl))
         {
             return entry.proxy;
@@ -77,7 +77,7 @@ final class LocatorTable
     synchronized Ice.ObjectPrx
     removeProxy(Ice.Identity id)
     {
-        ProxyTableEntry entry = (ProxyTableEntry)_objectTable.remove(id);
+        ProxyTableEntry entry = _objectTable.remove(id);
         return entry != null ? entry.proxy : null;
     }
 
@@ -105,7 +105,7 @@ final class LocatorTable
 
         final public long time;
         final public IceInternal.EndpointI[] endpoints;
-    };
+    }
 
     private static final class ProxyTableEntry
     {
@@ -117,9 +117,10 @@ final class LocatorTable
 
         final public long time;
         final public Ice.ObjectPrx proxy;
-    };
+    }
 
-    private java.util.HashMap _adapterEndpointsTable = new java.util.HashMap();
-    private java.util.HashMap _objectTable = new java.util.HashMap();
+    private java.util.Map<String, EndpointTableEntry> _adapterEndpointsTable =
+        new java.util.HashMap<String, EndpointTableEntry>();
+    private java.util.Map<Ice.Identity, ProxyTableEntry> _objectTable =
+        new java.util.HashMap<Ice.Identity, ProxyTableEntry>();
 }
-

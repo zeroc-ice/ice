@@ -522,7 +522,7 @@ final class UdpEndpointI extends EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public java.util.List
+    public java.util.List<Connector>
     connectors()
     {
         return connectors(Network.getAddresses(_host, _port, _instance.protocolSupport()));
@@ -552,21 +552,21 @@ final class UdpEndpointI extends EndpointI
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //
-    public java.util.List
+    public java.util.List<EndpointI>
     expand()
     {
-        java.util.ArrayList endps = new java.util.ArrayList();
-        java.util.ArrayList hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+        java.util.ArrayList<EndpointI> endps = new java.util.ArrayList<EndpointI>();
+        java.util.ArrayList<String> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
         if(hosts == null || hosts.isEmpty())
         {
             endps.add(this);
         }
         else
         {
-            java.util.Iterator p = hosts.iterator();
+            java.util.Iterator<String> p = hosts.iterator();
             while(p.hasNext())
             {
-                endps.add(new UdpEndpointI(_instance, (String)p.next(), _port, _mcastInterface, _mcastTtl,
+                endps.add(new UdpEndpointI(_instance, p.next(), _port, _mcastInterface, _mcastTtl,
                                            _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor,
                                            _connect, _connectionId, _compress));
             }
@@ -605,11 +605,19 @@ final class UdpEndpointI extends EndpointI
     public boolean
     equals(java.lang.Object obj)
     {
-        return compareTo(obj) == 0;
+        try
+        {
+            return compareTo((EndpointI)obj) == 0;
+        }
+        catch(ClassCastException ee)
+        {
+            assert(false);
+            return false;
+        }
     }
 
     public int
-    compareTo(java.lang.Object obj) // From java.lang.Comparable
+    compareTo(EndpointI obj) // From java.lang.Comparable
     {
         UdpEndpointI p = null;
 
@@ -619,15 +627,7 @@ final class UdpEndpointI extends EndpointI
         }
         catch(ClassCastException ex)
         {
-            try
-            {
-                EndpointI e = (EndpointI)obj;
-                return type() < e.type() ? -1 : 1;
-            }
-            catch(ClassCastException ee)
-            {
-                assert(false);
-            }
+            return type() < obj.type() ? -1 : 1;
         }
 
         if(this == p)
@@ -721,16 +721,16 @@ final class UdpEndpointI extends EndpointI
         return _host.compareTo(p._host);
     }
 
-    public java.util.List
-    connectors(java.util.List addresses)
+    public java.util.List<Connector>
+    connectors(java.util.List<java.net.InetSocketAddress> addresses)
     {
-        java.util.ArrayList connectors = new java.util.ArrayList();
-        java.util.Iterator p = addresses.iterator();
+        java.util.ArrayList<Connector> connectors = new java.util.ArrayList<Connector>();
+        java.util.Iterator<java.net.InetSocketAddress> p = addresses.iterator();
         while(p.hasNext())
         {
             connectors.add(
-                new UdpConnector(_instance, (java.net.InetSocketAddress)p.next(), _mcastInterface, _mcastTtl,
-                                 _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor, _connectionId));
+                new UdpConnector(_instance, p.next(), _mcastInterface, _mcastTtl, _protocolMajor, _protocolMinor,
+                                 _encodingMajor, _encodingMinor, _connectionId));
         }
         return connectors;
     }

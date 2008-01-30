@@ -45,7 +45,6 @@ public class IncomingAsync extends IncomingBase
         in.adopt(this);
     }
 
-
     final protected void
     __response(boolean ok)
     {
@@ -59,10 +58,10 @@ public class IncomingAsync extends IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                
+
                 int save = _os.pos();
                 _os.pos(Protocol.headerSize + 4); // Reply status position.
-                
+
                 if(ok)
                 {
                     _os.writeByte(ReplyStatus.replyOK);
@@ -71,7 +70,7 @@ public class IncomingAsync extends IncomingBase
                 {
                     _os.writeByte(ReplyStatus.replyUserException);
                 }
-                
+
                 _os.pos(save);
 
                 _connection.sendResponse(_os, _compress);
@@ -90,7 +89,7 @@ public class IncomingAsync extends IncomingBase
     final protected void
     __exception(java.lang.Exception exc)
     {
-        
+
         try
         {
             if(!__servantLocatorFinished())
@@ -147,7 +146,7 @@ public class IncomingAsync extends IncomingBase
         }
     }
 
-    final protected boolean 
+    final protected boolean
     __validateResponse(boolean ok)
     {
         if(!_retriable)
@@ -177,10 +176,10 @@ public class IncomingAsync extends IncomingBase
 
         //
         // interceptorAsyncCallbackList is null or all its elements returned OK
-        // 
-        
+        //
+
         synchronized(this)
-        {   
+        {
             if(_active)
             {
                 _active = false;
@@ -193,8 +192,7 @@ public class IncomingAsync extends IncomingBase
         }
     }
 
-    
-    final protected boolean 
+    final protected boolean
     __validateException(java.lang.Exception exc)
     {
         if(!_retriable)
@@ -206,10 +204,10 @@ public class IncomingAsync extends IncomingBase
         {
             if(_interceptorAsyncCallbackList != null)
             {
-                java.util.Iterator p = _interceptorAsyncCallbackList.iterator();
+                java.util.Iterator<Ice.DispatchInterceptorAsyncCallback> p = _interceptorAsyncCallbackList.iterator();
                 while(p.hasNext())
                 {
-                    Ice.DispatchInterceptorAsyncCallback  cb = (Ice.DispatchInterceptorAsyncCallback)p.next();
+                    Ice.DispatchInterceptorAsyncCallback cb = p.next();
                     if(cb.exception(exc) == false)
                     {
                         return false;
@@ -224,8 +222,8 @@ public class IncomingAsync extends IncomingBase
 
         //
         // interceptorAsyncCallbackList is null or all its elements returned OK
-        // 
-        
+        //
+
         synchronized(this)
         {
             if(_active)
@@ -240,14 +238,12 @@ public class IncomingAsync extends IncomingBase
         }
     }
 
-
     final protected BasicStream
     __os()
     {
         return _os;
     }
 
-    
     private final boolean _retriable;
     private boolean _active = false; // only meaningful when _retriable == true
 }

@@ -112,6 +112,6 @@ class BackgroundControllerI extends _BackgroundControllerDisp
     }
 
     final private Ice.ObjectAdapter _adapter;
-    final private java.util.HashSet _pausedCalls = new java.util.HashSet();
+    final private java.util.Set<String> _pausedCalls = new java.util.HashSet<String>();
     final private Configuration _configuration;
 }

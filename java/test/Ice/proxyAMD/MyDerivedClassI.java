@@ -43,5 +43,5 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return super.ice_isA(s, current);
     }
 
-    private java.util.Map _ctx;
+    private java.util.Map<String, String> _ctx;
 }

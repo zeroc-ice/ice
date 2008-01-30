@@ -65,5 +65,5 @@ public final class DirectoryI extends _DirectoryDisp
     public static Ice.ObjectAdapter _adapter;
     private String _name;
     private DirectoryI _parent;
-    private java.util.ArrayList _contents = new java.util.ArrayList();
+    private java.util.List<NodePrx> _contents = new java.util.ArrayList<NodePrx>();
 }

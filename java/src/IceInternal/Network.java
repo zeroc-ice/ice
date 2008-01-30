@@ -833,11 +833,11 @@ public final class Network
             // Iterate over the network interfaces and pick an IP
             // address (preferably not the loopback address).
             //
-            java.util.ArrayList addrs = getLocalAddresses(protocol);
-            java.util.Iterator iter = addrs.iterator();
+            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocol);
+            java.util.Iterator<java.net.InetAddress> iter = addrs.iterator();
             while(addr == null && iter.hasNext())
             {
-                java.net.InetAddress a = (java.net.InetAddress)iter.next();
+                java.net.InetAddress a = iter.next();
                 if(protocol == EnableBoth ||
                    (protocol == EnableIPv4 && a instanceof java.net.Inet4Address) ||
                    (protocol == EnableIPv6 && a instanceof java.net.Inet6Address))
@@ -856,10 +856,11 @@ public final class Network
         return addr;
     }
 
-    public static java.util.ArrayList
+    public static java.util.ArrayList<java.net.InetSocketAddress>
     getAddresses(String host, int port, int protocol)
     {
-        java.util.ArrayList addresses = new java.util.ArrayList();
+        java.util.ArrayList<java.net.InetSocketAddress> addresses =
+            new java.util.ArrayList<java.net.InetSocketAddress>();
         try
         {
             java.net.InetAddress[] addrs;
@@ -902,20 +903,20 @@ public final class Network
         return addresses;
     }
 
-    public static java.util.ArrayList
+    public static java.util.ArrayList<java.net.InetAddress>
     getLocalAddresses(int protocol)
     {
-        java.util.ArrayList result = new java.util.ArrayList();
+        java.util.ArrayList<java.net.InetAddress> result = new java.util.ArrayList<java.net.InetAddress>();
         try
         {
-            java.util.Enumeration ifaces = java.net.NetworkInterface.getNetworkInterfaces();
+            java.util.Enumeration<java.net.NetworkInterface> ifaces = java.net.NetworkInterface.getNetworkInterfaces();
             while(ifaces.hasMoreElements())
             {
-                java.net.NetworkInterface iface = (java.net.NetworkInterface)ifaces.nextElement();
-                java.util.Enumeration addrs = iface.getInetAddresses();
+                java.net.NetworkInterface iface = ifaces.nextElement();
+                java.util.Enumeration<java.net.InetAddress> addrs = iface.getInetAddresses();
                 while(addrs.hasMoreElements())
                 {
-                    java.net.InetAddress addr = (java.net.InetAddress)addrs.nextElement();
+                    java.net.InetAddress addr = addrs.nextElement();
                     if(!addr.isLoopbackAddress())
                     {
                         if(protocol == EnableBoth ||
@@ -1003,7 +1004,7 @@ public final class Network
         return fds;
     }
 
-    public static java.util.ArrayList
+    public static java.util.ArrayList<String>
     getHostsForEndpointExpand(String host, int protocolSupport)
     {
         boolean wildcard = (host == null || host.length() == 0);
@@ -1018,18 +1019,18 @@ public final class Network
             }
         }
 
-        java.util.ArrayList hosts = new java.util.ArrayList();
+        java.util.ArrayList<String> hosts = new java.util.ArrayList<String>();
         if(wildcard)
         {
-            java.util.ArrayList addrs = getLocalAddresses(protocolSupport);
-            java.util.Iterator p = addrs.iterator();
+            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocolSupport);
+            java.util.Iterator<java.net.InetAddress> p = addrs.iterator();
             while(p.hasNext())
             {
                 //
                 // NOTE: We don't publish link-local IPv6 addresses as these addresses can only 
                 // be accessed in general with a scope-id.
                 //
-                java.net.InetAddress addr = (java.net.InetAddress)p.next();
+                java.net.InetAddress addr = p.next();
                 if(!addr.isLinkLocalAddress())
                 {
                     hosts.add(addr.getHostAddress());

@@ -28,12 +28,12 @@ public final class ObjectFactoryManager
     public void
     remove(String id)
     {
-        Object o = null;
+        Ice.ObjectFactory factory = null;
 
         synchronized(this)
         {
-            o = _factoryMap.get(id);
-            if(o == null)
+            factory = _factoryMap.get(id);
+            if(factory == null)
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                 ex.id = id;
@@ -43,13 +43,13 @@ public final class ObjectFactoryManager
             _factoryMap.remove(id);
         }
 
-        ((Ice.ObjectFactory)o).destroy();   
+        factory.destroy();   
     }
 
     public synchronized Ice.ObjectFactory
     find(String id)
     {
-        return (Ice.ObjectFactory)_factoryMap.get(id);
+        return _factoryMap.get(id);
     }
 
     //
@@ -62,20 +62,21 @@ public final class ObjectFactoryManager
     void
     destroy()
     {
-        java.util.Map oldMap = null;
+        java.util.Map<String, Ice.ObjectFactory> oldMap = null;
         synchronized(this)
         {
             oldMap = _factoryMap;
-            _factoryMap = new java.util.HashMap();
+            _factoryMap = new java.util.HashMap<String, Ice.ObjectFactory>();
         }
 
-        java.util.Iterator i = oldMap.values().iterator();
+        java.util.Iterator<Ice.ObjectFactory> i = oldMap.values().iterator();
         while(i.hasNext())
         {
-            Ice.ObjectFactory factory = (Ice.ObjectFactory)i.next();
+            Ice.ObjectFactory factory = i.next();
             factory.destroy();
         }
     }
 
-    private java.util.HashMap _factoryMap = new java.util.HashMap();
+    private java.util.Map<String, Ice.ObjectFactory> _factoryMap =
+        new java.util.HashMap<String, Ice.ObjectFactory>();
 }

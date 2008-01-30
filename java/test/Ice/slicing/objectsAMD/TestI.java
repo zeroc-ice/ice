@@ -266,30 +266,30 @@ public final class TestI extends _TestIntfDisp
     }
 
     public void
-    dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, java.util.Map bin, Ice.Current current)
+    dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, java.util.Map<Integer, B> bin, Ice.Current current)
     {
-        java.util.Map bout = new java.util.HashMap();
+        java.util.Map<Integer, B> bout = new java.util.HashMap<Integer, B>();
         int i;
         for(i = 0; i < 10; ++i)
         {
-            B b = (B)bin.get(new Integer(i));
+            B b = bin.get(i);
             D2 d2 = new D2();
             d2.sb = b.sb;
             d2.pb = b.pb;
             d2.sd2 = "D2";
             d2.pd2 = d2;
-            bout.put(new Integer(i * 10), d2);
+            bout.put(i * 10, d2);
         }
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<Integer, B> r = new java.util.HashMap<Integer, B>();
         for(i = 0; i < 10; ++i)
         {
             String s = "D1." + new Integer(i * 20).toString();
             D1 d1 = new D1();
             d1.sb = s;
-            d1.pb = (i == 0 ? (B)null : (B)r.get(new Integer((i - 1) * 20)));
+            d1.pb = (i == 0 ? null : r.get((i - 1) * 20));
             d1.sd1 = s;
             d1.pd1 = d1;
-            r.put(new Integer(i * 20), d1);
+            r.put(i * 20, d1);
         }
         cb.ice_response(r, bout);
     }

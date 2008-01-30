@@ -81,13 +81,13 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return p1;
     }
 
-    public java.util.Map
-    opByteBoolD(java.util.Map p1, java.util.Map p2,
+    public java.util.Map<Byte, Boolean>
+    opByteBoolD(java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
                 Test.ByteBoolDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<Byte, Boolean> r = new java.util.HashMap<Byte, Boolean>();
         r.putAll(p1);
         r.putAll(p2);
         return r;
@@ -174,13 +174,13 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
-    public java.util.Map
-    opLongFloatD(java.util.Map p1, java.util.Map p2,
+    public java.util.Map<Long, Float>
+    opLongFloatD(java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
                  Test.LongFloatDHolder p3,
                  Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<Long, Float> r = new java.util.HashMap<Long, Float>();
         r.putAll(p1);
         r.putAll(p2);
         return r;
@@ -206,13 +206,13 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return Test.MyEnum.enum3;
     }
 
-    public java.util.Map
-    opShortIntD(java.util.Map p1, java.util.Map p2,
+    public java.util.Map<Short, Integer>
+    opShortIntD(java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
                 Test.ShortIntDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<Short, Integer> r = new java.util.HashMap<Short, Integer>();
         r.putAll(p1);
         r.putAll(p2);
         return r;
@@ -272,13 +272,13 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return p1 + " " + p2;
     }
 
-    public java.util.Map
-    opStringMyEnumD(java.util.Map p1, java.util.Map p2,
+    public java.util.Map<String, Test.MyEnum>
+    opStringMyEnumD(java.util.Map<String, Test.MyEnum> p1, java.util.Map<String, Test.MyEnum> p2,
                     Test.StringMyEnumDHolder p3,
                     Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<String, Test.MyEnum> r = new java.util.HashMap<String, Test.MyEnum>();
         r.putAll(p1);
         r.putAll(p2);
         return r;
@@ -300,7 +300,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
     }
 
-    public java.util.Map
+    public java.util.Map<String, String>
     opContext(Ice.Current current)
     {
         return current.ctx;
@@ -368,13 +368,13 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
-    public java.util.Map
-    opStringStringD(java.util.Map p1, java.util.Map p2,
+    public java.util.Map<String, String>
+    opStringStringD(java.util.Map<String, String> p1, java.util.Map<String, String> p2,
                     Test.StringStringDHolder p3,
                     Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<String, String> r = new java.util.HashMap<String, String>();
         r.putAll(p1);
         r.putAll(p2);
         return r;

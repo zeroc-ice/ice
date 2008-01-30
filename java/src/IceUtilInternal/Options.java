@@ -38,7 +38,7 @@ public final class Options
         int state = NormalState;
 
         StringBuffer arg = new StringBuffer();
-        java.util.List vec = new java.util.ArrayList();
+        java.util.List<String> vec = new java.util.ArrayList<String>();
 
         for(int i = 0; i < line.length(); ++i)
         {

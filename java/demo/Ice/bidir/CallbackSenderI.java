@@ -32,7 +32,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 
         Ice.ObjectPrx base = current.con.createProxy(ident);
         CallbackReceiverPrx client = CallbackReceiverPrxHelper.uncheckedCast(base);
-        _clients.addElement(client);
+        _clients.add(client);
     }
 
     public void
@@ -41,7 +41,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
         int num = 0;
         while(true)
         {
-            java.util.Vector clients;
+            java.util.List<CallbackReceiverPrx> clients;
             synchronized(this)
             {
                 try
@@ -51,31 +51,30 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
                 catch(java.lang.InterruptedException ex)
                 {
                 }
-                
+
                 if(_destroy)
                 {
                     break;
                 }
-                
-                
-                clients = new java.util.Vector(_clients);
+
+                clients = new java.util.ArrayList<CallbackReceiverPrx>(_clients);
             }
 
             if(!clients.isEmpty())
             {
                 ++num;
 
-                java.util.Iterator p = clients.iterator();
+                java.util.Iterator<CallbackReceiverPrx> p = clients.iterator();
                 while(p.hasNext())
                 {
-                    CallbackReceiverPrx r = (CallbackReceiverPrx)p.next();
+                    CallbackReceiverPrx r = p.next();
                     try
                     {
                         r.callback(num);
                     }
                     catch(Exception ex)
                     {
-                        System.out.println("removing client `" + _communicator.identityToString(r.ice_getIdentity()) + 
+                        System.out.println("removing client `" + _communicator.identityToString(r.ice_getIdentity()) +
                                            "':");
                         ex.printStackTrace();
 
@@ -91,5 +90,5 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 
     private Ice.Communicator _communicator;
     private boolean _destroy = false;
-    private java.util.Vector _clients = new java.util.Vector();
+    private java.util.List<CallbackReceiverPrx> _clients = new java.util.ArrayList<CallbackReceiverPrx>();
 }

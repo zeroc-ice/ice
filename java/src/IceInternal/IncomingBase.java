@@ -43,7 +43,8 @@ public class IncomingBase
             //
             // Copy, not just reference
             //
-            _interceptorAsyncCallbackList = new java.util.LinkedList(in._interceptorAsyncCallbackList);
+            _interceptorAsyncCallbackList =
+                new java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback>(in._interceptorAsyncCallbackList);
         }
 
         //
@@ -375,5 +376,5 @@ public class IncomingBase
 
     protected Ice.ConnectionI _connection;
 
-    protected java.util.LinkedList _interceptorAsyncCallbackList;
+    protected java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback> _interceptorAsyncCallbackList;
 }

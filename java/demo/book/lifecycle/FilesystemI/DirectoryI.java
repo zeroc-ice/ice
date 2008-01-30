@@ -53,13 +53,13 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
             reap();
 
             NodeDesc[] ret = new NodeDesc[_contents.size()];
-            java.util.Iterator pos = _contents.entrySet().iterator();
+            java.util.Iterator<java.util.Map.Entry<String, NodeI> > pos = _contents.entrySet().iterator();
             for(int i = 0; i < _contents.size(); ++i)
             {
-                java.util.Map.Entry e = (java.util.Map.Entry)pos.next();
-                NodeI p = (NodeI)e.getValue();
+                java.util.Map.Entry<String, NodeI> e = pos.next();
+                NodeI p = e.getValue();
                 ret[i] = new NodeDesc();
-                ret[i].name = (String)e.getKey();
+                ret[i].name = e.getKey();
                 ret[i].type = p instanceof FileI ? NodeType.FileType : NodeType.DirType;
                 ret[i].proxy = NodePrxHelper.uncheckedCast(c.adapter.createProxy(p.id()));
             }
@@ -198,7 +198,7 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
         _parent = parent;
         _id = new Identity();
         _destroyed = false;
-        _contents = new java.util.HashMap();
+        _contents = new java.util.HashMap<String, NodeI>();
 
         if(parent == null)
         {
@@ -225,16 +225,16 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
     public void
     addReapEntry(String name)
     {
-        java.util.List l = (java.util.List)_reapMap.get(this);
+        java.util.List<String> l = _reapMap.get(this);
         if(l != null)
         {
             l.add(name);
         }
         else
         {
-            java.util.ArrayList v = new java.util.ArrayList();
-            v.add(name);
-            _reapMap.put(this, v);
+            l = new java.util.ArrayList<String>();
+            l.add(name);
+            _reapMap.put(this, l);
         }
     }
 
@@ -243,13 +243,14 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
     private static void
     reap()
     {
-        java.util.Iterator i = _reapMap.entrySet().iterator();
+        java.util.Iterator<java.util.Map.Entry<DirectoryI, java.util.List<String> > > i =
+            _reapMap.entrySet().iterator();
         while(i.hasNext())
         {
-            java.util.Map.Entry e = (java.util.Map.Entry)i.next();
-            DirectoryI dir = (DirectoryI)e.getKey();
-            java.util.List v = (java.util.List)e.getValue();
-            java.util.Iterator j = v.iterator();
+            java.util.Map.Entry<DirectoryI, java.util.List<String> > e = i.next();
+            DirectoryI dir = e.getKey();
+            java.util.List<String> l = e.getValue();
+            java.util.Iterator<String> j = l.iterator();
             while(j.hasNext())
             {
                 dir._contents.remove(j.next());
@@ -264,7 +265,8 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
     private DirectoryI _parent; // Immutable
     private Identity _id;       // Immutable
     private boolean _destroyed;
-    private java.util.Map _contents;
+    private java.util.Map<String, NodeI> _contents;
 
-    private static java.util.Map _reapMap = new java.util.HashMap();
+    private static java.util.Map<DirectoryI, java.util.List<String> > _reapMap =
+        new java.util.HashMap<DirectoryI, java.util.List<String> >();
 }

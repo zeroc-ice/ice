@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
+abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<EndpointI>
 {
     public String
     toString()
@@ -86,7 +86,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public abstract java.util.List connectors();
+    public abstract java.util.List<Connector> connectors();
     public abstract void connectors_async(EndpointI_connectors callback);
 
     //
@@ -102,7 +102,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //
-    public abstract java.util.List expand();
+    public abstract java.util.List<EndpointI> expand();
 
     //
     // Check whether the endpoint is equivalent to another one.
@@ -113,10 +113,10 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // Compare endpoints for sorting purposes.
     //
     public abstract boolean equals(java.lang.Object obj);
-    public abstract int compareTo(java.lang.Object obj); // From java.lang.Comparable.
+    public abstract int compareTo(EndpointI obj); // From java.lang.Comparable.
 
-    public java.util.List 
-    connectors(java.util.List addresses)
+    public java.util.List<Connector>
+    connectors(java.util.List<java.net.InetSocketAddress> addresses)
     {
         //
         // This method must be extended by endpoints which use the EndpointHostResolver to create

@@ -33,11 +33,11 @@ public class AllTests
         //
         System.out.print("testing checksums... ");
         System.out.flush();
-        java.util.Iterator p = SliceChecksums.checksums.entrySet().iterator();
+        java.util.Iterator<java.util.Map.Entry<String, String> > p = SliceChecksums.checksums.entrySet().iterator();
         while(p.hasNext())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String key = (String)entry.getKey();
+            java.util.Map.Entry<String, String> entry = p.next();
+            String key = entry.getKey();
             int pos = key.indexOf("Local");
             test(pos == -1);
         }
@@ -45,7 +45,7 @@ public class AllTests
         //
         // Get server's Slice checksums.
         //
-        java.util.Map d = checksum.getSliceChecksums();
+        java.util.Map<String, String> d = checksum.getSliceChecksums();
 
         //
         // Compare the checksums. For a type FooN whose name ends in an integer N,
@@ -57,8 +57,8 @@ public class AllTests
         while(p.hasNext())
         {
             int n = 0;
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String key = (String)entry.getKey();
+            java.util.Map.Entry<String, String> entry = p.next();
+            String key = entry.getKey();
             java.util.regex.Matcher m = patt.matcher(key);
             if(m.find())
             {

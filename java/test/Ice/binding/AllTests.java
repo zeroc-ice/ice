@@ -22,7 +22,7 @@ public class AllTests
 
     static class GetAdapterNameCB extends AMI_TestIntf_getAdapterName
     {
-        synchronized public void 
+        synchronized public void
         ice_response(String adapterName)
         {
             _name = adapterName;
@@ -56,9 +56,9 @@ public class AllTests
             }
             return _name;
         }
-        
+
         private String _name = null;
-    };
+    }
 
     private static String
     getAdapterNameWithAMI(TestIntfPrx test)
@@ -69,14 +69,14 @@ public class AllTests
     }
 
     private static TestIntfPrx
-    createTestIntfPrx(java.util.List adapters)
+    createTestIntfPrx(java.util.List<RemoteObjectAdapterPrx> adapters)
     {
-        java.util.List endpoints = new java.util.ArrayList();
+        java.util.List<Ice.Endpoint> endpoints = new java.util.ArrayList<Ice.Endpoint>();
         TestIntfPrx test = null;
-        java.util.Iterator p = adapters.iterator();
+        java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
         while(p.hasNext())
         {
-            test = ((RemoteObjectAdapterPrx)p.next()).getTestIntf();
+            test = p.next().getTestIntf();
             Ice.Endpoint[] edpts = test.ice_getEndpoints();
             endpoints.addAll(java.util.Arrays.asList(edpts));
         }
@@ -85,12 +85,12 @@ public class AllTests
     }
 
     private static void
-    deactivate(RemoteCommunicatorPrx communicator, java.util.List adapters)
+    deactivate(RemoteCommunicatorPrx communicator, java.util.List<RemoteObjectAdapterPrx> adapters)
     {
-        java.util.Iterator p = adapters.iterator();
+        java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
         while(p.hasNext())
         {
-            communicator.deactivateObjectAdapter((RemoteObjectAdapterPrx)p.next());
+            communicator.deactivateObjectAdapter(p.next());
         }
     }
 
@@ -111,9 +111,9 @@ public class AllTests
 
             test1.ice_ping();
             test2.ice_ping();
-        
+
             com.deactivateObjectAdapter(adapter);
-        
+
             TestIntfPrx test3 = TestIntfPrxHelper.uncheckedCast(test1);
             test(test3.ice_getConnection() == test1.ice_getConnection());
             test(test3.ice_getConnection() == test2.ice_getConnection());
@@ -132,7 +132,7 @@ public class AllTests
         System.out.print("testing binding with multiple endpoints... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter11", "default"));
             adapters.add(com.createObjectAdapter("Adapter12", "default"));
             adapters.add(com.createObjectAdapter("Adapter13", "default"));
@@ -141,13 +141,14 @@ public class AllTests
             // Ensure that when a connection is opened it's reused for new
             // proxies and that all endpoints are eventually tried.
             //
-            java.util.Set names = new java.util.HashSet();
+            java.util.Set<String> names = new java.util.HashSet<String>();
             names.add("Adapter11");
             names.add("Adapter12");
             names.add("Adapter13");
             while(!names.isEmpty())
             {
-                java.util.List adpts = new java.util.ArrayList(adapters);
+                java.util.List<RemoteObjectAdapterPrx> adpts =
+                    new java.util.ArrayList<RemoteObjectAdapterPrx>(adapters);
 
                 TestIntfPrx test1 = createTestIntfPrx(adpts);
                 java.util.Collections.shuffle(adpts);
@@ -157,7 +158,7 @@ public class AllTests
 
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
-            
+
                 names.remove(test1.getAdapterName());
                 test1.ice_getConnection().close(false);
             }
@@ -167,12 +168,12 @@ public class AllTests
             // always send the request over the same connection.)
             //
             {
-                java.util.Iterator p = adapters.iterator();
+                java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
                 while(p.hasNext())
                 {
-                    ((RemoteObjectAdapterPrx)p.next()).getTestIntf().ice_ping();
+                    p.next().getTestIntf().ice_ping();
                 }
-                
+
                 TestIntfPrx test = createTestIntfPrx(adapters);
                 String name = test.getAdapterName();
                 final int nRetry = 10;
@@ -183,39 +184,40 @@ public class AllTests
                 p = adapters.iterator();
                 while(p.hasNext())
                 {
-                    ((RemoteObjectAdapterPrx)p.next()).getTestIntf().ice_getConnection().close(false);
+                    p.next().getTestIntf().ice_getConnection().close(false);
                 }
-            }       
+            }
 
             //
             // Deactivate an adapter and ensure that we can still
             // establish the connection to the remaining adapters.
             //
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+            com.deactivateObjectAdapter(adapters.get(0));
             names.add("Adapter12");
             names.add("Adapter13");
             while(!names.isEmpty())
             {
-                java.util.List adpts = new java.util.ArrayList(adapters);
+                java.util.List<RemoteObjectAdapterPrx> adpts =
+                    new java.util.ArrayList<RemoteObjectAdapterPrx>(adapters);
 
                 TestIntfPrx test1 = createTestIntfPrx(adpts);
                 java.util.Collections.shuffle(adpts);
                 TestIntfPrx test2 = createTestIntfPrx(adpts);
                 java.util.Collections.shuffle(adpts);
                 TestIntfPrx test3 = createTestIntfPrx(adpts);
-            
+
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.remove(test1.getAdapterName());
                 test1.ice_getConnection().close(false);
             }
-        
+
             //
             // Deactivate an adapter and ensure that we can still
             // establish the connection to the remaining adapter.
             //
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
+            com.deactivateObjectAdapter(adapters.get(2));
             TestIntfPrx test = createTestIntfPrx(adapters);
             test(test.getAdapterName().equals("Adapter12"));
 
@@ -226,7 +228,7 @@ public class AllTests
         System.out.print("testing binding with multiple endpoints and AMI... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("AdapterAMI11", "default"));
             adapters.add(com.createObjectAdapter("AdapterAMI12", "default"));
             adapters.add(com.createObjectAdapter("AdapterAMI13", "default"));
@@ -235,13 +237,14 @@ public class AllTests
             // Ensure that when a connection is opened it's reused for new
             // proxies and that all endpoints are eventually tried.
             //
-            java.util.Set names = new java.util.HashSet();
+            java.util.Set<String> names = new java.util.HashSet<String>();
             names.add("AdapterAMI11");
             names.add("AdapterAMI12");
             names.add("AdapterAMI13");
             while(!names.isEmpty())
             {
-                java.util.List adpts = new java.util.ArrayList(adapters);
+                java.util.List<RemoteObjectAdapterPrx> adpts =
+                    new java.util.ArrayList<RemoteObjectAdapterPrx>(adapters);
 
                 TestIntfPrx test1 = createTestIntfPrx(adpts);
                 java.util.Collections.shuffle(adpts);
@@ -251,7 +254,7 @@ public class AllTests
 
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
-            
+
                 names.remove(getAdapterNameWithAMI(test1));
                 test1.ice_getConnection().close(false);
             }
@@ -261,12 +264,12 @@ public class AllTests
             // always send the request over the same connection.)
             //
             {
-                java.util.Iterator p = adapters.iterator();
+                java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
                 while(p.hasNext())
                 {
-                    ((RemoteObjectAdapterPrx)p.next()).getTestIntf().ice_ping();
+                    p.next().getTestIntf().ice_ping();
                 }
-                
+
                 TestIntfPrx test = createTestIntfPrx(adapters);
                 String name = getAdapterNameWithAMI(test);
                 final int nRetry = 10;
@@ -277,39 +280,40 @@ public class AllTests
                 p = adapters.iterator();
                 while(p.hasNext())
                 {
-                    ((RemoteObjectAdapterPrx)p.next()).getTestIntf().ice_getConnection().close(false);
+                    p.next().getTestIntf().ice_getConnection().close(false);
                 }
-            }       
+            }
 
             //
             // Deactivate an adapter and ensure that we can still
             // establish the connection to the remaining adapters.
             //
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+            com.deactivateObjectAdapter(adapters.get(0));
             names.add("AdapterAMI12");
             names.add("AdapterAMI13");
             while(!names.isEmpty())
             {
-                java.util.List adpts = new java.util.ArrayList(adapters);
+                java.util.List<RemoteObjectAdapterPrx> adpts =
+                    new java.util.ArrayList<RemoteObjectAdapterPrx>(adapters);
 
                 TestIntfPrx test1 = createTestIntfPrx(adpts);
                 java.util.Collections.shuffle(adpts);
                 TestIntfPrx test2 = createTestIntfPrx(adpts);
                 java.util.Collections.shuffle(adpts);
                 TestIntfPrx test3 = createTestIntfPrx(adpts);
-            
+
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.remove(getAdapterNameWithAMI(test1));
                 test1.ice_getConnection().close(false);
             }
-        
+
             //
             // Deactivate an adapter and ensure that we can still
             // establish the connection to the remaining adapter.
             //
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
+            com.deactivateObjectAdapter(adapters.get(2));
             TestIntfPrx test = createTestIntfPrx(adapters);
             test(getAdapterNameWithAMI(test).equals("AdapterAMI12"));
 
@@ -320,7 +324,7 @@ public class AllTests
         System.out.print("testing random endpoint selection... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter21", "default"));
             adapters.add(com.createObjectAdapter("Adapter22", "default"));
             adapters.add(com.createObjectAdapter("Adapter23", "default"));
@@ -328,7 +332,7 @@ public class AllTests
             TestIntfPrx test = createTestIntfPrx(adapters);
             test(test.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
 
-            java.util.Set names = new java.util.HashSet();
+            java.util.Set<String> names = new java.util.HashSet<String>();
             names.add("Adapter21");
             names.add("Adapter22");
             names.add("Adapter23");
@@ -357,7 +361,7 @@ public class AllTests
         System.out.print("testing ordered endpoint selection... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter31", "default"));
             adapters.add(com.createObjectAdapter("Adapter32", "default"));
             adapters.add(com.createObjectAdapter("Adapter33", "default"));
@@ -374,14 +378,14 @@ public class AllTests
             //
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter31"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+            com.deactivateObjectAdapter(adapters.get(0));
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter32"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(1));
+            com.deactivateObjectAdapter(adapters.get(1));
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter33"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
-        
+            com.deactivateObjectAdapter(adapters.get(2));
+
             try
             {
                 test.getAdapterName();
@@ -397,7 +401,7 @@ public class AllTests
             //
             // Now, re-activate the adapters with the same endpoints in the opposite
             // order.
-            // 
+            //
             adapters.add(com.createObjectAdapter("Adapter36", endpoints[2].toString()));
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter36"); i++);
             test(i == nRetry);
@@ -426,9 +430,9 @@ public class AllTests
             test(test1.ice_getConnection() == test2.ice_getConnection());
 
             test1.ice_ping();
-        
+
             com.deactivateObjectAdapter(adapter);
-        
+
             TestIntfPrx test3 = TestIntfPrxHelper.uncheckedCast(test1);
             try
             {
@@ -444,7 +448,7 @@ public class AllTests
         System.out.print("testing per request binding with multiple endpoints... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter51", "default"));
             adapters.add(com.createObjectAdapter("Adapter52", "default"));
             adapters.add(com.createObjectAdapter("Adapter53", "default"));
@@ -452,7 +456,7 @@ public class AllTests
             TestIntfPrx test = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!test.ice_isConnectionCached());
 
-            java.util.Set names = new java.util.HashSet();
+            java.util.Set<String> names = new java.util.HashSet<String>();
             names.add("Adapter51");
             names.add("Adapter52");
             names.add("Adapter53");
@@ -461,7 +465,7 @@ public class AllTests
                 names.remove(test.getAdapterName());
             }
 
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+            com.deactivateObjectAdapter(adapters.get(0));
 
             names.add("Adapter52");
             names.add("Adapter53");
@@ -470,11 +474,10 @@ public class AllTests
                 names.remove(test.getAdapterName());
             }
 
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
-
+            com.deactivateObjectAdapter(adapters.get(2));
 
             test(test.getAdapterName().equals("Adapter52"));
-        
+
             deactivate(com, adapters);
         }
         System.out.println("ok");
@@ -482,7 +485,7 @@ public class AllTests
         System.out.print("testing per request binding with multiple endpoints and AMI... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("AdapterAMI51", "default"));
             adapters.add(com.createObjectAdapter("AdapterAMI52", "default"));
             adapters.add(com.createObjectAdapter("AdapterAMI53", "default"));
@@ -490,7 +493,7 @@ public class AllTests
             TestIntfPrx test = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!test.ice_isConnectionCached());
 
-            java.util.Set names = new java.util.HashSet();
+            java.util.Set<String> names = new java.util.HashSet<String>();
             names.add("AdapterAMI51");
             names.add("AdapterAMI52");
             names.add("AdapterAMI53");
@@ -499,7 +502,7 @@ public class AllTests
                 names.remove(getAdapterNameWithAMI(test));
             }
 
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+            com.deactivateObjectAdapter(adapters.get(0));
 
             names.add("AdapterAMI52");
             names.add("AdapterAMI53");
@@ -508,11 +511,10 @@ public class AllTests
                 names.remove(getAdapterNameWithAMI(test));
             }
 
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
-
+            com.deactivateObjectAdapter(adapters.get(2));
 
             test(getAdapterNameWithAMI(test).equals("AdapterAMI52"));
-        
+
             deactivate(com, adapters);
         }
         System.out.println("ok");
@@ -520,7 +522,7 @@ public class AllTests
         System.out.print("testing per request binding and ordered endpoint selection... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter61", "default"));
             adapters.add(com.createObjectAdapter("Adapter62", "default"));
             adapters.add(com.createObjectAdapter("Adapter63", "default"));
@@ -539,14 +541,14 @@ public class AllTests
             //
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter61"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+            com.deactivateObjectAdapter(adapters.get(0));
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter62"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(1));
+            com.deactivateObjectAdapter(adapters.get(1));
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter63"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
-        
+            com.deactivateObjectAdapter(adapters.get(2));
+
             try
             {
                 test.getAdapterName();
@@ -562,7 +564,7 @@ public class AllTests
             //
             // Now, re-activate the adapters with the same endpoints in the opposite
             // order.
-            // 
+            //
             adapters.add(com.createObjectAdapter("Adapter66", endpoints[2].toString()));
             for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter66"); i++);
             test(i == nRetry);
@@ -580,7 +582,7 @@ public class AllTests
         System.out.print("testing per request binding and ordered endpoint selection and AMI... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("AdapterAMI61", "default"));
             adapters.add(com.createObjectAdapter("AdapterAMI62", "default"));
             adapters.add(com.createObjectAdapter("AdapterAMI63", "default"));
@@ -599,14 +601,14 @@ public class AllTests
             //
             for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI61"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+            com.deactivateObjectAdapter(adapters.get(0));
             for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI62"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(1));
+            com.deactivateObjectAdapter(adapters.get(1));
             for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI63"); i++);
             test(i == nRetry);
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
-        
+            com.deactivateObjectAdapter(adapters.get(2));
+
             try
             {
                 test.getAdapterName();
@@ -622,7 +624,7 @@ public class AllTests
             //
             // Now, re-activate the adapters with the same endpoints in the opposite
             // order.
-            // 
+            //
             adapters.add(com.createObjectAdapter("AdapterAMI66", endpoints[2].toString()));
             for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI66"); i++);
             test(i == nRetry);
@@ -640,13 +642,13 @@ public class AllTests
         System.out.print("testing endpoint mode filtering... ");
         System.out.flush();
         {
-            java.util.List adapters = new java.util.ArrayList();
+            java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter71", "default"));
             adapters.add(com.createObjectAdapter("Adapter72", "udp"));
 
             TestIntfPrx test = createTestIntfPrx(adapters);
             test(test.getAdapterName().equals("Adapter71"));
-        
+
             TestIntfPrx testUDP = TestIntfPrxHelper.uncheckedCast(test.ice_datagram());
             test(test.ice_getConnection() != testUDP.ice_getConnection());
             try
@@ -664,10 +666,10 @@ public class AllTests
             System.out.print("testing unsecure vs. secure endpoints... ");
             System.out.flush();
             {
-                java.util.List adapters = new java.util.ArrayList();
+                java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
                 adapters.add(com.createObjectAdapter("Adapter81", "ssl"));
                 adapters.add(com.createObjectAdapter("Adapter82", "tcp"));
-            
+
                 TestIntfPrx test = createTestIntfPrx(adapters);
                 int i;
                 for(i = 0; i < 5; i++)
@@ -675,7 +677,7 @@ public class AllTests
                     test(test.getAdapterName().equals("Adapter82"));
                     test.ice_getConnection().close(false);
                 }
-            
+
                 TestIntfPrx testSecure = TestIntfPrxHelper.uncheckedCast(test.ice_secure(true));
                 test(testSecure.ice_isSecure());
                 testSecure = TestIntfPrxHelper.uncheckedCast(test.ice_secure(false));
@@ -684,8 +686,8 @@ public class AllTests
                 test(testSecure.ice_isSecure());
                 test(test.ice_getConnection() != testSecure.ice_getConnection());
 
-                com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(1));
-            
+                com.deactivateObjectAdapter(adapters.get(1));
+
                 for(i = 0; i < 5; i++)
                 {
                     test(test.getAdapterName().equals("Adapter81"));
@@ -700,7 +702,7 @@ public class AllTests
                     test.ice_getConnection().close(false);
                 }
 
-                com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+                com.deactivateObjectAdapter(adapters.get(0));
                 try
                 {
                     testSecure.ice_ping();
@@ -716,6 +718,5 @@ public class AllTests
         }
 
         com.shutdown();
-        
     }
 }

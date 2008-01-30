@@ -1179,7 +1179,10 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
                     case Builtin::KindObject:
                     {
                         assert(i == 1); // Must be the element value, since an object cannot be a key.
-                        out << nl << "__is.readObject(new IceInternal.DictionaryPatcher(" << v << ", " 
+                        string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
+                        string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
+                        out << nl << "__is.readObject(new IceInternal.DictionaryPatcher<" << keyTypeStr << ", "
+                            << valueTypeStr << ">(" << v << ", " 
                             << valueS << ".class, \"" << value->typeId() << "\", __key));";
                         break;
                     }
@@ -1199,9 +1202,11 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             {
                 if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
                 {
+                    string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
+                    string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
                     writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-                                              "new IceInternal.DictionaryPatcher(" + v + ", " + typeS + ".class, \"" +
-                                              type->typeId() + "\", __key)");
+                                              "new IceInternal.DictionaryPatcher<" + keyTypeStr + ", " + valueTypeStr +
+                                              ">(" + v + ", " + typeS + ".class, \"" + type->typeId() + "\", __key)");
                 }
                 else
                 {
@@ -1592,8 +1597,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     //
                     out << nl << v << ".add(null);";
                     ostringstream patchParams;
-                    patchParams << "new IceInternal.ListPatcher(" << v << ", " << origContentS << ".class, __type"
-                                << iter << ", __i" << iter << ')';
+                    patchParams << "new IceInternal.ListPatcher<" << origContentS << ">(" << v << ", " << origContentS
+                                << ".class, __type" << iter << ", __i" << iter << ')';
                     writeMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false, StringList(),
                                               patchParams.str());
                 }
@@ -2427,8 +2432,11 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
                     }
                     case Builtin::KindObject:
                     {
-                        out << nl << "__inS.readObject(new IceInternal.DictionaryPatcher(" << v << ", "
-                            << valueS << ".class, \"" << value->typeId() << "\", __key));";
+                        string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
+                        string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
+                        out << nl << "__inS.readObject(new IceInternal.DictionaryPatcher<" << keyTypeStr << ", "
+                            << valueTypeStr << ">(" << v << ", " << valueS << ".class, \"" << value->typeId()
+                            << "\", __key));";
                         break;
                     }
                     case Builtin::KindObjectProxy:
@@ -2448,9 +2456,12 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
                 string s = typeToString(type, TypeModeIn, package);
                 if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
                 {
+                    string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
+                    string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
                     writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-                                                    "new IceInternal.DictionaryPatcher(" + v + ", " + s +
-                                                    ".class, \"" + type->typeId() + "\", __key)");
+                                                    "new IceInternal.DictionaryPatcher<" + keyTypeStr + ", " +
+                                                    valueTypeStr + ">(" + v + ", " + s + ".class, \"" +
+                                                    type->typeId() + "\", __key)");
                 }
                 else
                 {
@@ -2826,8 +2837,8 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                     //
                     out << nl << v << ".add(null);";
                     ostringstream patchParams;
-                    patchParams << "new IceInternal.ListPatcher(" << v << ", " << origContentS << ".class, __type"
-                                << iter << ", __i" << iter << ')';
+                    patchParams << "new IceInternal.ListPatcher<" << origContentS << ">(" << v << ", " << origContentS
+                                << ".class, __type" << iter << ", __i" << iter << ')';
                     writeStreamMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false,
                                                     StringList(), patchParams.str());
                 }

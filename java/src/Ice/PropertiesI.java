@@ -33,19 +33,15 @@ public final class PropertiesI implements Properties
     getProperty(String key)
     {
         String result = null;
-        PropertyValue pv = (PropertyValue)_properties.get(key);
+        PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key);
+            result = System.getProperty(key, "");
         }
         else
         {
             pv.used = true;
             result = pv.value;
-        }
-        if(result == null)
-        {
-            result = "";
         }
         return result;
     }
@@ -54,19 +50,15 @@ public final class PropertiesI implements Properties
     getPropertyWithDefault(String key, String value)
     {
         String result = null;
-        PropertyValue pv = (PropertyValue)_properties.get(key);
+        PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key);
+            result = System.getProperty(key, value);
         }
         else
         {
             pv.used = true;
             result = pv.value;
-        }
-        if(result == null)
-        {
-            result = value;
         }
         return result;
     }
@@ -81,7 +73,7 @@ public final class PropertiesI implements Properties
     getPropertyAsIntWithDefault(String key, int value)
     {
         String result = null;
-        PropertyValue pv = (PropertyValue)_properties.get(key);
+        PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
             result = System.getProperty(key);
@@ -123,7 +115,7 @@ public final class PropertiesI implements Properties
         }
 
         String result = null;
-        PropertyValue pv = (PropertyValue)_properties.get(key);
+        PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
             result = System.getProperty(key);
@@ -152,18 +144,18 @@ public final class PropertiesI implements Properties
     }
 
 
-    public synchronized java.util.Map
+    public synchronized java.util.Map<String, String>
     getPropertiesForPrefix(String prefix)
     {
-        java.util.HashMap result = new java.util.HashMap();
-        java.util.Iterator p = _properties.entrySet().iterator();
+        java.util.HashMap<String, String> result = new java.util.HashMap<String, String>();
+        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = _properties.entrySet().iterator();
         while(p.hasNext())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String key = (String)entry.getKey();
+            java.util.Map.Entry<String, PropertyValue> entry = p.next();
+            String key = entry.getKey();
             if(prefix.length() == 0 || key.startsWith(prefix))
             {
-                PropertyValue pv = (PropertyValue)entry.getValue();
+                PropertyValue pv = entry.getValue();
                 pv.used = true;
                 result.put(key, pv.value);
             }
@@ -191,6 +183,10 @@ public final class PropertiesI implements Properties
             {
                 String pattern = IceInternal.PropertyNames.validProps[i][0].pattern();
                 dotPos = pattern.indexOf('.');
+                //
+                // Each top level prefix describes a non-empty namespace. Having a string without a
+                // prefix followed by a dot is an error.
+                //
                 assert(dotPos != -1);
                 String propPrefix = pattern.substring(0, dotPos - 1);
                 if(!propPrefix.equals(prefix))
@@ -229,7 +225,7 @@ public final class PropertiesI implements Properties
             //
             if(value != null && value.length() > 0)
             {
-                PropertyValue pv = (PropertyValue)_properties.get(key);
+                PropertyValue pv = _properties.get(key);
                 if(pv != null)
                 {
                     pv.value = value;
@@ -251,12 +247,12 @@ public final class PropertiesI implements Properties
     getCommandLineOptions()
     {
         String[] result = new String[_properties.size()];
-        java.util.Iterator p = _properties.entrySet().iterator();
+        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = _properties.entrySet().iterator();
         int i = 0;
         while(p.hasNext())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            result[i++] = "--" + entry.getKey() + "=" + ((PropertyValue)entry.getValue()).value;
+            java.util.Map.Entry<String, PropertyValue> entry = p.next();
+            result[i++] = "--" + entry.getKey() + "=" + entry.getValue().value;
         }
         assert(i == result.length);
         return result;
@@ -271,7 +267,7 @@ public final class PropertiesI implements Properties
         }
         pfx = "--" + pfx;
 
-        java.util.ArrayList result = new java.util.ArrayList();
+        java.util.ArrayList<String> result = new java.util.ArrayList<String>();
         for(int i = 0; i < options.length; i++)
         {
             String opt = options[i];
@@ -289,9 +285,7 @@ public final class PropertiesI implements Properties
                 result.add(opt);
             }
         }
-        String[] arr = new String[result.size()];
-        result.toArray(arr);
-        return arr;
+        return (String[])result.toArray(new String[0]);
     }
 
     public String[]
@@ -330,18 +324,18 @@ public final class PropertiesI implements Properties
         return new PropertiesI(this);
     }
 
-    public synchronized java.util.List
+    public synchronized java.util.List<String>
     getUnusedProperties()
     {
-        java.util.List unused = new java.util.ArrayList();
-        java.util.Iterator p = _properties.entrySet().iterator();
+        java.util.List<String> unused = new java.util.ArrayList<String>();
+        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = _properties.entrySet().iterator();
         while(p.hasNext())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            PropertyValue pv = (PropertyValue)entry.getValue();
+            java.util.Map.Entry<String, PropertyValue> entry = p.next();
+            PropertyValue pv = entry.getValue();
             if(!pv.used)
             {
-                unused.add((String)entry.getKey());
+                unused.add(entry.getKey());
             }
         }
         return unused;
@@ -353,12 +347,12 @@ public final class PropertiesI implements Properties
         // NOTE: we can't just do a shallow copy of the map as the map values 
         // would otherwise be shared between the two PropertiesI object.
         //
-        //_properties = new java.util.HashMap(p._properties);
-        java.util.Iterator p = props._properties.entrySet().iterator();
+        //_properties = new java.util.HashMap<String, PropertyValue>(props._properties);
+        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = props._properties.entrySet().iterator();
         while(p.hasNext())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            _properties.put(entry.getKey(), new PropertyValue((PropertyValue)entry.getValue()));
+            java.util.Map.Entry<String, PropertyValue> entry = p.next();
+            _properties.put(entry.getKey(), new PropertyValue(entry.getValue()));
         }
     }
 
@@ -370,7 +364,7 @@ public final class PropertiesI implements Properties
     {
         if(defaults != null)
         {
-            _properties = new java.util.HashMap(((PropertiesI)defaults)._properties);
+            _properties = new java.util.HashMap<String, PropertyValue>(((PropertiesI)defaults)._properties);
         }
         
         boolean loadConfigFiles = false;
@@ -395,6 +389,14 @@ public final class PropertiesI implements Properties
                 }
                 args.value = arr;
             }
+        }
+
+        if(!loadConfigFiles)
+        {
+            //
+            // If Ice.Config is not set, load from ICE_CONFIG (if set)
+            //
+            loadConfigFiles = !_properties.containsKey("Ice.Config");
         }
 
         if(loadConfigFiles)
@@ -479,9 +481,21 @@ public final class PropertiesI implements Properties
     {
         String value = getProperty("Ice.Config");
 
-        if(value.equals("1"))
+        if(value.length() == 0 || value.equals("1"))
         {
-            value = "";
+            try
+            {
+                value = System.getenv("ICE_CONFIG");
+                if(value == null)
+                {
+                    value = "";
+                }
+            }
+            catch(SecurityException ex)
+            {
+                Ice.Util.getProcessLogger().warning("unable to access ICE_CONFIG environment variable");
+                value = "";
+            }
         }
 
         if(value.length() > 0)
@@ -501,7 +515,7 @@ public final class PropertiesI implements Properties
     //
     private String[] splitString(String str, String delim)
     {
-        java.util.List l = new java.util.ArrayList();
+        java.util.List<String> l = new java.util.ArrayList<String>();
         char[] arr = new char[str.length()];
         int pos = 0;
         
@@ -516,7 +530,8 @@ public final class PropertiesI implements Properties
             }
             while(pos < str.length())
             {
-                if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() && str.charAt(pos + 1) == quoteChar)
+                if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() &&
+                   str.charAt(pos + 1) == quoteChar)
                 {
                     ++pos;
                 }
@@ -553,5 +568,5 @@ public final class PropertiesI implements Properties
         return (String[])l.toArray(new String[0]);
     }
 
-    private java.util.HashMap _properties = new java.util.HashMap();
+    private java.util.HashMap<String, PropertyValue> _properties = new java.util.HashMap<String, PropertyValue>();
 }

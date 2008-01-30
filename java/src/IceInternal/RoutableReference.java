@@ -609,7 +609,7 @@ public class RoutableReference extends Reference
     RoutableReference(Instance instance,
                       Ice.Communicator communicator,
                       Ice.Identity identity,
-                      java.util.Map context,
+                      java.util.Map<String, String> context,
                       String facet,
                       int mode,
                       boolean secure,
@@ -672,7 +672,7 @@ public class RoutableReference extends Reference
     private EndpointI[]
     filterEndpoints(EndpointI[] allEndpoints)
     {
-        java.util.ArrayList endpoints = new java.util.ArrayList();
+        java.util.List<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
 
         //
         // Filter out unknown endpoints.
@@ -697,10 +697,10 @@ public class RoutableReference extends Reference
                 //
                 // Filter out datagram endpoints.
                 //
-                java.util.Iterator i = endpoints.iterator();
+                java.util.Iterator<EndpointI> i = endpoints.iterator();
                 while(i.hasNext())
                 {
-                    EndpointI endpoint = (EndpointI)i.next();
+                    EndpointI endpoint = i.next();
                     if(endpoint.datagram())
                     {
                         i.remove();
@@ -715,10 +715,10 @@ public class RoutableReference extends Reference
                 //
                 // Filter out non-datagram endpoints.
                 //
-                java.util.Iterator i = endpoints.iterator();
+                java.util.Iterator<EndpointI> i = endpoints.iterator();
                 while(i.hasNext())
                 {
-                    EndpointI endpoint = (EndpointI)i.next();
+                    EndpointI endpoint = i.next();
                     if(!endpoint.datagram())
                     {
                         i.remove();
@@ -759,10 +759,10 @@ public class RoutableReference extends Reference
         DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
         if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
         {
-            java.util.Iterator i = endpoints.iterator();
+            java.util.Iterator<EndpointI> i = endpoints.iterator();
             while(i.hasNext())
             {
-                EndpointI endpoint = (EndpointI)i.next();
+                EndpointI endpoint = i.next();
                 if(!endpoint.secure())
                 {
                     i.remove();
@@ -951,7 +951,7 @@ public class RoutableReference extends Reference
         }
     }
 
-    static class EndpointComparator implements java.util.Comparator
+    static class EndpointComparator implements java.util.Comparator<EndpointI>
     {
         EndpointComparator(boolean preferSecure)
         {
@@ -959,10 +959,8 @@ public class RoutableReference extends Reference
         }
         
         public int
-        compare(java.lang.Object l, java.lang.Object r)
+        compare(EndpointI le, EndpointI re)
         {
-            IceInternal.EndpointI le = (IceInternal.EndpointI)l;
-            IceInternal.EndpointI re = (IceInternal.EndpointI)r;
             boolean ls = le.secure();
             boolean rs = re.secure();
             if((ls && rs) || (!ls && !rs))

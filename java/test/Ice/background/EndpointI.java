@@ -182,15 +182,15 @@ final class EndpointI extends IceInternal.EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public java.util.List
+    public java.util.List<IceInternal.Connector>
     connectors()
     {
         _configuration.checkConnectorsException();
-        java.util.ArrayList connectors = new java.util.ArrayList();
-        java.util.Iterator p = _endpoint.connectors().iterator();
+        java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
+        java.util.Iterator<IceInternal.Connector> p = _endpoint.connectors().iterator();
         while(p.hasNext())
         {
-            connectors.add(new Connector((IceInternal.Connector)p.next()));
+            connectors.add(new Connector(p.next()));
         }
         return connectors;
     }
@@ -201,13 +201,13 @@ final class EndpointI extends IceInternal.EndpointI
         class Callback implements IceInternal.EndpointI_connectors
         {
             public void 
-            connectors(java.util.List cons)
+            connectors(java.util.List<IceInternal.Connector> cons)
             {
-                java.util.ArrayList connectors = new java.util.ArrayList();
-                java.util.Iterator p = cons.iterator();
+                java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
+                java.util.Iterator<IceInternal.Connector> p = cons.iterator();
                 while(p.hasNext())
                 {
-                    connectors.add(new Connector((IceInternal.Connector)p.next()));
+                    connectors.add(new Connector(p.next()));
                 }
                 cb.connectors(connectors);
             }
@@ -238,14 +238,14 @@ final class EndpointI extends IceInternal.EndpointI
         return p;
     }
 
-    public java.util.List
+    public java.util.List<IceInternal.EndpointI>
     expand()
     {
-        java.util.ArrayList endps = new java.util.ArrayList();
-        java.util.Iterator iter = _endpoint.expand().iterator();
+        java.util.List<IceInternal.EndpointI> endps = new java.util.ArrayList<IceInternal.EndpointI>();
+        java.util.Iterator<IceInternal.EndpointI> iter = _endpoint.expand().iterator();
         while(iter.hasNext())
         {
-            IceInternal.EndpointI endpt = (IceInternal.EndpointI)iter.next();
+            IceInternal.EndpointI endpt = iter.next();
             endps.add(endpt == _endpoint ? this : new EndpointI(endpt));
         }
         return endps;
@@ -278,11 +278,19 @@ final class EndpointI extends IceInternal.EndpointI
     public boolean
     equals(java.lang.Object obj)
     {
-        return compareTo(obj) == 0;
+        try
+        {
+            return compareTo((IceInternal.EndpointI)obj) == 0;
+        }
+        catch(ClassCastException ee)
+        {
+            assert(false);
+            return false;
+        }
     }
 
     public int
-    compareTo(java.lang.Object obj) // From java.lang.Comparable
+    compareTo(IceInternal.EndpointI obj) // From java.lang.Comparable
     {
         EndpointI p = null;
 
@@ -292,15 +300,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         catch(ClassCastException ex)
         {
-            try
-            {
-                IceInternal.EndpointI e = (IceInternal.EndpointI)obj;
-                return type() < e.type() ? -1 : 1;
-            }
-            catch(ClassCastException ee)
-            {
-                assert(false);
-            }
+            return type() < obj.type() ? -1 : 1;
         }
 
         if(this == p)

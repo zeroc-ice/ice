@@ -114,7 +114,7 @@ public class Subscriber extends Ice.Application
         //
         // Add a Servant for the Ice Object.
         //
-        java.util.Map qos = new java.util.HashMap();
+        java.util.Map<String, String> qos = new java.util.HashMap<String, String>();
         Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
         //
         // Set up the proxy.

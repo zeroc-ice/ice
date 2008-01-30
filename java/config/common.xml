@@ -47,25 +47,9 @@
         <not><isset property="jdk.version"/></not>
     </condition>
 
-    <!-- Use -Xlint:unchecked when using JDK 1.5 -->
-    <condition property="javac.lint" value="-Xlint:unchecked" else="">
-	<and>
-	    <not>
-	        <isset property="java2"/>
-	    </not>
-	    <istrue value="${lint.unchecked}"/>
-	</and>
-    </condition>
-
-    <!-- javac doesn't like an empty argument, so we have to disable the use
-         of javac.lint when the property is empty -->
-    <condition property="javac.lint.compiler" value="bogus">
-	<equals arg1="${javac.lint}" arg2=""/>
-    </condition>
-    <condition property="javac.lint.compiler" value="javac1.5">
-	<not>
-	    <equals arg1="${javac.lint}" arg2=""/>
-	</not>
+    <!-- Use -Xlint when requested -->
+    <condition property="javac.lint" value="-Xlint:${lint}" else="-Xlint:none">
+        <isset property="lint"/>
     </condition>
 
     <!-- Commonly needed properties -->

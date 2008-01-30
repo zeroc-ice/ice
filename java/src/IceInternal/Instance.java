@@ -279,7 +279,7 @@ public final class Instance
     }
 
     public synchronized void
-    setDefaultContext(java.util.Map ctx)
+    setDefaultContext(java.util.Map<String, String> ctx)
     {
         if(_state == StateDestroyed)
         {
@@ -292,11 +292,11 @@ public final class Instance
         }
         else
         {
-            _defaultContext = new java.util.HashMap(ctx);
+            _defaultContext = new java.util.HashMap<String, String>(ctx);
         }
     }
 
-    public synchronized java.util.Map
+    public synchronized java.util.Map<String, String>
     getDefaultContext()
     {
         if(_state == StateDestroyed)
@@ -304,7 +304,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        return new java.util.HashMap(_defaultContext);
+        return new java.util.HashMap<String, String>(_defaultContext);
     }
 
     public Ice.ImplicitContextI
@@ -400,15 +400,15 @@ public final class Instance
                     //
                     // Add all facets to OA
                     //
-                    java.util.Map filteredFacets = new java.util.HashMap();
-                    java.util.Iterator p = _adminFacets.entrySet().iterator();
+                    java.util.Map<String, Ice.Object> filteredFacets = new java.util.HashMap<String, Ice.Object>();
+                    java.util.Iterator<java.util.Map.Entry<String, Ice.Object> > p = _adminFacets.entrySet().iterator();
                     while(p.hasNext())
                     {
-                        java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+                        java.util.Map.Entry<String, Ice.Object> entry = p.next();
 
-                        if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains((String)entry.getKey()))
+                        if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(entry.getKey()))
                         {
-                            _adminAdapter.addFacet((Ice.Object)entry.getValue(), _adminIdentity, (String)entry.getKey());
+                            _adminAdapter.addFacet(entry.getValue(), _adminIdentity, entry.getKey());
                         }
                         else
                         {
@@ -523,7 +523,7 @@ public final class Instance
         Ice.Object result = null;
         if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
         {
-            result = (Ice.Object)_adminFacets.remove(facet);
+            result = _adminFacets.remove(facet);
 
             if(result == null)
             {
@@ -1014,14 +1014,14 @@ public final class Instance
 
         if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
         {
-            java.util.List unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
+            java.util.List<String> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
             if(unusedProperties.size() != 0)
             {
                 String message = "The following properties were set but never read:";
-                java.util.Iterator p = unusedProperties.iterator();
+                java.util.Iterator<String> p = unusedProperties.iterator();
                 while(p.hasNext())
                 {
-                    message += "\n    " + (String)p.next();
+                    message += "\n    " + p.next();
                 }
                 _initData.logger.warning(message);
             }
@@ -1032,13 +1032,13 @@ public final class Instance
     validatePackages()
     {
         final String prefix = "Ice.Package.";
-        java.util.Map map = _initData.properties.getPropertiesForPrefix(prefix);
-        java.util.Iterator p = map.entrySet().iterator();
+        java.util.Map<String, String> map = _initData.properties.getPropertiesForPrefix(prefix);
+        java.util.Iterator<java.util.Map.Entry<String, String> > p = map.entrySet().iterator();
         while(p.hasNext())
         {
-            java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-            String key = (String)e.getKey();
-            String pkg = (String)e.getValue();
+            java.util.Map.Entry<String, String> e = p.next();
+            String key = e.getKey();
+            String pkg = e.getValue();
             if(key.length() == prefix.length())
             {
                 _initData.logger.warning("ignoring invalid property: " + key + "=" + pkg);
@@ -1087,14 +1087,14 @@ public final class Instance
     private final boolean _background;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
-    private java.util.Map _defaultContext;
+    private java.util.Map<String, String> _defaultContext;
 
     private Ice.ObjectAdapter _adminAdapter;
-    private java.util.Map _adminFacets = new java.util.HashMap();
-    private java.util.Set _adminFacetFilter = new java.util.HashSet();
+    private java.util.Map<String, Ice.Object> _adminFacets = new java.util.HashMap<String, Ice.Object>();
+    private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<String>();
     private Ice.Identity _adminIdentity;
 
-    private static java.util.Map _emptyContext = new java.util.HashMap();
+    private static java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
 
     private static boolean _oneOffDone = false;
 }

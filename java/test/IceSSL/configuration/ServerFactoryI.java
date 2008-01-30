@@ -19,15 +19,15 @@ class ServerFactoryI extends Test._ServerFactoryDisp
     }
 
     public Test.ServerPrx
-    createServer(java.util.Map props, Ice.Current current)
+    createServer(java.util.Map<String, String> props, Ice.Current current)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
-        java.util.Iterator i = props.entrySet().iterator();
+        java.util.Iterator<java.util.Map.Entry<String, String> > i = props.entrySet().iterator();
         while(i.hasNext())
         {
-            java.util.Map.Entry e = (java.util.Map.Entry)i.next();
-            initData.properties.setProperty((String)e.getKey(), (String)e.getValue());
+            java.util.Map.Entry<String, String> e = i.next();
+            initData.properties.setProperty(e.getKey(), e.getValue());
         }
 
         String[] args = new String[0];
@@ -47,7 +47,7 @@ class ServerFactoryI extends Test._ServerFactoryDisp
         Ice.Identity key = srv.ice_getIdentity();
         if(_servers.containsKey(key))
         {
-            ServerI server = (ServerI)_servers.get(key);
+            ServerI server = _servers.get(key);
             server.destroy();
             _servers.remove(key);
         }
@@ -60,5 +60,5 @@ class ServerFactoryI extends Test._ServerFactoryDisp
         current.adapter.getCommunicator().shutdown();
     }
 
-    private java.util.HashMap _servers = new java.util.HashMap();
+    private java.util.Map<Ice.Identity, ServerI> _servers = new java.util.HashMap<Ice.Identity, ServerI>();
 }

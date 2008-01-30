@@ -127,11 +127,11 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opByteBoolD_async(Test.AMD_MyClass_opByteBoolD cb,
-                      java.util.Map p1, java.util.Map p2,
+                      java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
                       Ice.Current current)
     {
-        java.util.Map p3 = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<Byte, Boolean> p3 = p1;
+        java.util.Map<Byte, Boolean> r = new java.util.HashMap<Byte, Boolean>();
         r.putAll(p1);
         r.putAll(p2);
         cb.ice_response(r, p3);
@@ -218,11 +218,11 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opLongFloatD_async(Test.AMD_MyClass_opLongFloatD cb,
-                       java.util.Map p1, java.util.Map p2,
+                       java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
                        Ice.Current current)
     {
-        java.util.Map p3 = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<Long, Float> p3 = p1;
+        java.util.Map<Long, Float> r = new java.util.HashMap<Long, Float>();
         r.putAll(p1);
         r.putAll(p2);
         cb.ice_response(r, p3);
@@ -249,11 +249,11 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opShortIntD_async(Test.AMD_MyClass_opShortIntD cb,
-                      java.util.Map p1, java.util.Map p2,
+                      java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
                       Ice.Current current)
     {
-        java.util.Map p3 = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<Short, Integer> p3 = p1;
+        java.util.Map<Short, Integer> r = new java.util.HashMap<Short, Integer>();
         r.putAll(p1);
         r.putAll(p2);
         cb.ice_response(r, p3);
@@ -311,11 +311,11 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStringMyEnumD_async(Test.AMD_MyClass_opStringMyEnumD cb,
-                          java.util.Map p1, java.util.Map p2,
+                          java.util.Map<String, Test.MyEnum> p1, java.util.Map<String, Test.MyEnum> p2,
                           Ice.Current current)
     {
-        java.util.Map p3 = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<String, Test.MyEnum> p3 = p1;
+        java.util.Map<String, Test.MyEnum> r = new java.util.HashMap<String, Test.MyEnum>();
         r.putAll(p1);
         r.putAll(p2);
         cb.ice_response(r, p3);
@@ -409,11 +409,11 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStringStringD_async(Test.AMD_MyClass_opStringStringD cb,
-                          java.util.Map p1, java.util.Map p2,
+                          java.util.Map<String, String> p1, java.util.Map<String, String> p2,
                           Ice.Current current)
     {
-        java.util.Map p3 = p1;
-        java.util.Map r = new java.util.HashMap();
+        java.util.Map<String, String> p3 = p1;
+        java.util.Map<String, String> r = new java.util.HashMap<String, String>();
         r.putAll(p1);
         r.putAll(p2);
         cb.ice_response(r, p3);
