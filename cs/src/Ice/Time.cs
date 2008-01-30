@@ -13,8 +13,12 @@ namespace IceInternal
 
     public sealed class Time
     {
-#if UNSAFE
-
+#if MANAGED
+        public static long currentMonotonicTimeMillis()
+        {
+            return System.DateTime.Now.Ticks / 10000;
+        }
+#else
         [DllImport("Kernel32.dll")]
         private static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
 
@@ -40,11 +44,6 @@ namespace IceInternal
         }
 
         private static long _frequency = -1;
-#else
-        public static long currentMonotonicTimeMillis()
-        {
-            return System.DateTime.Now.Ticks / 10000;
-        }
 #endif
     }
 }

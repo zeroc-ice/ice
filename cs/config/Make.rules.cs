@@ -30,16 +30,16 @@ prefix			?= /opt/Ice-$(VERSION)
 #no_gac			= 1
 
 #
-# Ice uses "unsafe" code to implement the following features:
+# Ice invokes unmanaged code to implement the following features:
 #
 # - Protocol compression
 # - Signal processing in the Ice.Application class (Windows only)
 # - Monotonic time (Windows only)
 #
-# Disable UNSAFE below if you do not require these features and prefer that
-# the Ice run time not use unsafe code.
+# Enable MANAGED below if you do not require these features and prefer that
+# the Ice run time use only managed code.
 #
-UNSAFE			= yes
+#MANAGED		= yes
 
 #
 # Define DEBUG as yes if you want to build with debug information and

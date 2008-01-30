@@ -688,7 +688,14 @@ namespace Ice
 
         private class WindowsSignals : Signals
         {
-#if UNSAFE
+#if MANAGED
+            public void register(SignalHandler handler)
+            {
+                //
+                // Signals aren't supported in managed code on Windows.
+                //
+            }
+#else
             public void register(SignalHandler handler)
             {
                 _handler = handler;
@@ -714,10 +721,6 @@ namespace Ice
             //
             [DllImport("kernel32.dll")]
             private static extern bool SetConsoleCtrlHandler(EventHandler eh, bool add);
-#else
-            public void register(SignalHandler handler)
-            {
-            }
 #endif
         }
     }
