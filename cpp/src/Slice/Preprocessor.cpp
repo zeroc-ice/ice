@@ -156,7 +156,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     //
     mcpp_use_mem_buffers(1);
     mcpp_lib_main(static_cast<int>(args.size()) + 1, argv);
-    delete argv;
+    delete[] argv;
 
     //
     // Write output to temporary file. Print errors to stderr.
@@ -214,7 +214,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     mcpp_use_mem_buffers(1);
     mcpp_lib_main(static_cast<int>(args.size() + 1), argv);
-    delete argv;
+    delete[] argv;
 
     //
     // Get mcpp output/errors.
