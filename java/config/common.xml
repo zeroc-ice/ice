@@ -42,11 +42,6 @@
 	<isset property="java2"/>
     </condition>
 
-    <!-- Require 1.5 compatibility for the source code -->
-    <condition property="jdk.version" value="1.5">
-        <not><isset property="jdk.version"/></not>
-    </condition>
-
     <!-- Use -Xlint when requested -->
     <condition property="javac.lint" value="-Xlint:${lint}" else="-Xlint:none">
         <isset property="lint"/>

@@ -266,8 +266,10 @@ public final class TestI extends _TestIntfDisp
     }
 
     public void
-    dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, java.util.Map<Integer, B> bin, Ice.Current current)
+    dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, java.util.Map _bin, Ice.Current current)
     {
+        // TODO: Fix the parameters and remove the cast below when the Java2 mapping is removed.
+        java.util.Map<Integer, B> bin = (java.util.Map<Integer, B>)_bin;
         java.util.Map<Integer, B> bout = new java.util.HashMap<Integer, B>();
         int i;
         for(i = 0; i < 10; ++i)

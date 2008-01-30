@@ -19,8 +19,10 @@ class ServerFactoryI extends Test._ServerFactoryDisp
     }
 
     public Test.ServerPrx
-    createServer(java.util.Map<String, String> props, Ice.Current current)
+    createServer(java.util.Map _props, Ice.Current current)
     {
+        // TODO: Fix the parameters and remove the cast below when the Java2 mapping is removed.
+        java.util.Map<String, String> props = (java.util.Map<String, String>)_props;
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
         java.util.Iterator<java.util.Map.Entry<String, String> > i = props.entrySet().iterator();

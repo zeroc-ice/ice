@@ -244,8 +244,10 @@ public final class TestI extends _TestIntfDisp
     }
 
     public java.util.Map<Integer, B>
-    dictionaryTest(java.util.Map<Integer, B> bin, BDictHolder bout, Ice.Current current)
+    dictionaryTest(java.util.Map _bin, BDictHolder bout, Ice.Current current)
     {
+        // TODO: Fix the parameters and remove the cast below when the Java2 mapping is removed.
+        java.util.Map<Integer, B> bin = (java.util.Map<Integer, B>)_bin;
         bout.value = new java.util.HashMap<Integer, B>();
         int i;
         for(i = 0; i < 10; ++i)
