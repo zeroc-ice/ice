@@ -110,7 +110,7 @@ CasinoClient::run(int argc, char* argv[])
 
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
        
-    int index = rand() % players.size();
+    int index = static_cast<int>(rand() % players.size());
     Casino::PlayerPrx gonner = players[index];
     players[index] = 0;
 

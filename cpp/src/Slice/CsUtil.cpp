@@ -1223,7 +1223,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        int sz = en->getEnumerators().size();
+        size_t sz = en->getEnumerators().size();
         string dataType;
         string func = marshal ? "write" : "read";
         if(sz <= 0x7f)

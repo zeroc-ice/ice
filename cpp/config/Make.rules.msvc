@@ -25,7 +25,12 @@ PRELIBS		=
 # If building a source distribution, use THIRDPARTY_HOME for the 3rd party libraries
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
+
+!if "$(AS)" == "ml64" || "$(XTARGET)" == "x64" 
+LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib\x64"
+!else
 LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib"
+!endif
 
 !if "$(CPP_COMPILER)" == "VC60"
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" -D_STLP_NEW_PLATFORM_SDK $(CPPFLAGS)
@@ -63,7 +68,7 @@ CPPFLAGS	= $(CPPFLAGS) -MTd
 !else
 CPPFLAGS	= $(CPPFLAGS) -MDd
 !endif
-!if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
+!if "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71"
 CPPFLAGS        = $(CPPFLAGS) -GZ
 !else
 CPPFLAGS        = $(CPPFLAGS) -RTC1

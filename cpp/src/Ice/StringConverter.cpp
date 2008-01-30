@@ -106,18 +106,18 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
     //
     // First convert to UTF-16
     //
-    int sourceSize = sourceEnd - sourceStart;
+    int sourceSize = static_cast<int>(sourceEnd - sourceStart);
     if(sourceSize == 0)
     {
         return buffer.getMoreBytes(1, 0);
     }
 
-    size_t size = 0;
+    int size = 0;
     int writtenWchar = 0;
     ScopedArray<wchar_t> wbuffer;
     do
     {
-        size = size == 0 ? static_cast<size_t>(sourceSize) + 2 : 2 * size;
+        size = size == 0 ? sourceSize + 2 : 2 * size;
         wbuffer.reset(new wchar_t[size]);
 
         writtenWchar = MultiByteToWideChar(_cp, MB_ERR_INVALID_CHARS, sourceStart,
@@ -154,14 +154,14 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     //
     // And then to a multi-byte narrow string
     //
-    size_t size = 0;
+    int size = 0;
     int writtenChar = 0;
     ScopedArray<char> buffer;
     do
     {
-        size = size == 0 ? static_cast<size_t>(sourceEnd - sourceStart) + 2 : 2 * size;
+        size = size == 0 ? static_cast<int>(sourceEnd - sourceStart) + 2 : 2 * size;
         buffer.reset(new char[size]);
-        writtenChar = WideCharToMultiByte(_cp, 0, wtarget.data(), wtarget.size(),
+        writtenChar = WideCharToMultiByte(_cp, 0, wtarget.data(), static_cast<int>(wtarget.size()),
                                           buffer.get(), size, 0, 0);
     } while(writtenChar == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
 

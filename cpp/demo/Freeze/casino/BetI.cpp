@@ -39,7 +39,7 @@ BetI::accept(const Casino::PlayerPrx& p, const Ice::Current&)
 int 
 BetI::getChipsInPlay(const Ice::Current&) const
 {
-    return amount * potentialWinners.size();
+    return amount * static_cast<int>(potentialWinners.size());
 }
 
 Ice::Long
@@ -56,7 +56,7 @@ BetI::complete(int random, const Ice::Current& current)
         random = -random;
     }
 
-    int size = potentialWinners.size();
+    int size = static_cast<int>(potentialWinners.size());
 
     //
     // Pick a winner using random

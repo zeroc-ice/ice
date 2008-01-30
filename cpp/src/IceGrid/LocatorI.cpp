@@ -208,7 +208,7 @@ LocatorI::Request::execute()
     {
         Lock sync(*this);
         assert(_count > 0 && _lastAdapter != _adapters.end());
-        for(unsigned int i = _proxies.size(); i < _count; ++i)
+        for(unsigned int i = static_cast<unsigned int>(_proxies.size()); i < _count; ++i)
         {
             if(_lastAdapter == _adapters.end())
             {

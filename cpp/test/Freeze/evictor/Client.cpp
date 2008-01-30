@@ -379,12 +379,12 @@ public:
             //
             // Transfer 100 at random between two distinct accounts 
             //
-            Test::AccountPrx from = _accounts[IceUtilInternal::random(_accounts.size())];
+	    Test::AccountPrx from = _accounts[IceUtilInternal::random(static_cast<int>(_accounts.size()))];
             
             Test::AccountPrx to;
             do
             {
-                to = _accounts[IceUtilInternal::random(_accounts.size())];
+	        to = _accounts[IceUtilInternal::random(static_cast<int>(_accounts.size()))];
             }
             while(from == to);
                 
@@ -779,7 +779,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool trans
         totalBalance = servants[0]->getTotalBalance();
         test(totalBalance > 0);
 
-        const int threadCount = accounts.size();
+        const int threadCount = static_cast<int>(accounts.size());
         
         vector<ThreadPtr> threads(threadCount);
         for(i = 0; i < threadCount; i++)

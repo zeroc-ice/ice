@@ -155,7 +155,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     // Call mcpp using memory buffer.
     //
     mcpp_use_mem_buffers(1);
-    mcpp_lib_main(args.size() + 1, argv);
+    mcpp_lib_main(static_cast<int>(args.size()) + 1, argv);
     delete argv;
 
     //
@@ -213,7 +213,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     // Call mcpp using memory buffer.
     //
     mcpp_use_mem_buffers(1);
-    mcpp_lib_main(args.size() + 1, argv);
+    mcpp_lib_main(static_cast<int>(args.size() + 1), argv);
     delete argv;
 
     //
@@ -266,8 +266,8 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         //
         // Strip white space from the file name.
         //
-        int b = file.find_first_not_of(" \t");
-        int e = file.find_last_not_of(" \t");
+        size_t b = file.find_first_not_of(" \t");
+        size_t e = file.find_last_not_of(" \t");
         file = file.substr(b, e - b + 1);
         
         //

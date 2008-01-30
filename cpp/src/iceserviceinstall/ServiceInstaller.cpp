@@ -706,7 +706,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     //
     res = RegSetValueEx(key, "EventMessageFile", 0, REG_EXPAND_SZ,
                         reinterpret_cast<const BYTE*>(resourceFile.c_str()),
-                        resourceFile.length() + 1);
+                        static_cast<DWORD>(resourceFile.length() + 1));
 
     if(res == ERROR_SUCCESS)
     {
