@@ -134,7 +134,7 @@ def convertLicensesToRTF(toolDir, installTarget):
         collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),
                            "STLport", "STLPORT_LICENSE.rtf"))
         collection.extend(jgoodies)
-    elif installTarget in ["vc71", "vc80", "vc80_x64"]:
+    elif installTarget in ["vc71", "vc80", "vc90"]:
         collection.extend(jgoodies)
 
     third_party_sources_file_hdr = """Source Code
@@ -282,10 +282,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 
 def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installers):
 
-    if installVersion == "vc80_x64":
-        installVersion = "VC80-x64"
-    else:
-        installVersion = installVersion.upper()
+    installVersion = installVersion.upper()
 
     #
     # Build and copy to the stage directory root.
@@ -335,7 +332,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
-                "logfile", "vc60", "vc71", "vc80", "vc80_x64", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
+                "logfile", "vc60", "vc80", "vc90", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
                 "bzip2home=", "mcpphome=", "jgoodiesformshome=", "jgoodieslookshome=", "thirdparty="])
         except getopt.GetoptError:
             usage()
@@ -363,12 +360,10 @@ def main():
                 debugLevel = logging.INFO
             elif o == '--vc60':
                 target = 'vc60'
-            elif o == '--vc71':
-                target = 'vc71'
             elif o == '--vc80':
                 target = 'vc80'
-            elif o == '--vc80_x64':
-                target = 'vc80_x64'
+            elif o == '--vc90':
+                target = 'vc90'
             elif o == '--sslhome':
                 os.environ['OPENSSL_HOME'] = a
             elif o == '--expathome':
@@ -446,10 +441,7 @@ def main():
         if sourcesVersion.find('b') != -1:
             defaults['dllversion'] = defaults['dllversion'] + 'b'
 
-        if target == "vc80_x64":
-            defaults['OutDir'] = "x64/"
-        else:
-            defaults['OutDir'] = ''
+        defaults['OutDir'] = ''
 
         if os.path.exists(stageDir):
             try:

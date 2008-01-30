@@ -8,42 +8,11 @@
 # **********************************************************************
 
 #
-# Set value to 1 if you are building Ice for PHP against an RPM installation
-# of Ice.
-#
-USE_ICE_RPM ?= 0
-
-USE_SRC_DIST = 0
-
-ifneq ($(ICE_HOME),)
-    ifeq ($(USE_ICE_RPM), 1)
-$(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
-    endif
-
-    ICE_DIR = $(ICE_HOME)
-
-    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cpp && echo 0),0)
-$(error Unable to locate Ice files in $(ICE_DIR). Please verify ICE_HOME is properly configured and Ice is correctly installed.)
-    endif
-else
-    ifeq ($(USE_ICE_RPM),1)
-        ICE_DIR=/usr
-
-        ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cpp && echo 0),0)
-$(error Unable to locate Ice files in $(ICE_DIR). Please verify that the required Ice RPMs are properly installed.) 
-        endif
-    else
-        ICE_DIR = $(top_srcdir)/..
-        USE_SRC_DIST = 1 
-    endif
-endif
-
-#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
 
-prefix			?= /opt/IcePHP-$(VERSION)
+prefix			?= /opt/Ice-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be unset
@@ -81,15 +50,6 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 PHP_HOME		?= /opt/php
 
-UNAME			:= $(shell uname)
-
-#
-# Locate and load platform specific definitions.
-#
-configdir		= $(top_srcdir)/../cpp/config
-
-include	 $(configdir)/Make.rules.$(UNAME)
-
 #
 # Verifies the PHP_HOME is valid and attempts to adjust for platform variances
 # in install directories.  SuSE installs into 'php5' while Redhat installs to
@@ -113,13 +73,23 @@ else
     endif
 endif
 
-PHP_FLAGS		?= -I$(PHP_INCLUDE_DIR) -I$(PHP_INCLUDE_DIR)/main -I$(PHP_INCLUDE_DIR)/Zend \
-			   -I$(PHP_INCLUDE_DIR)/TSRM
+PHP_FLAGS ?= -I$(PHP_INCLUDE_DIR) -I$(PHP_INCLUDE_DIR)/main -I$(PHP_INCLUDE_DIR)/Zend -I$(PHP_INCLUDE_DIR)/TSRM
 
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+# Setup some variables for Make.rules.common 
+ice_language     = php
+ice_require_cpp  = yes
+slice_translator = slice2cpp
+
+ifeq ($(shell test -f $(top_srcdir)/../config/Make.common.rules && echo 0),0)
+    include $(top_srcdir)/../config/Make.common.rules
+else
+    include $(top_srcdir)/config/Make.common.rules
+endif
 
 SHELL			= /bin/sh
 VERSION_MAJOR           = 3
@@ -127,115 +97,52 @@ VERSION_MINOR           = 3
 VERSION			= 3.3.0
 SOVERSION		= 33
 libdir			= $(top_srcdir)/lib
-
-install_slicedir	= $(prefix)/slice
+install_libdir		= $(prefix)/lib$(lp64suffix)
 
 INSTALL			= cp -fp
 INSTALL_PROGRAM		= ${INSTALL}
 INSTALL_LIBRARY		= ${INSTALL}
 INSTALL_DATA		= ${INSTALL}
 
-ifneq ($(ICE_DIR),)
-    ifneq ($(USE_SRC_DIST),0)
-        ifeq ($(LP64),yes)
-           ICE_LIB_DIRS	= -L$(ICE_DIR)/cpp/lib64 -L$(ICE_DIR)/cpp/lib
-        else 
-           ICE_LIB_DIRS	= -L$(ICE_DIR)/cpp/lib
-        endif
-    else
-        ifeq ($(LP64),yes)
-           ICE_LIB_DIRS	= -L$(ICE_DIR)/lib64 -L$(ICE_DIR)/lib
-        else 
-           ICE_LIB_DIRS	= -L$(ICE_DIR)/lib
-        endif
-    endif
-endif
+UNAME			:= $(shell uname)
 
-ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
-
-ifneq ($(ICE_DIR),)
-    ifneq ($(USE_SRC_DIST),0)
-        ICE_FLAGS	= -I$(ICE_DIR)/cpp/include
-    else
-        ICE_FLAGS	= -I$(ICE_DIR)/include
-    endif
-endif
-
-ifneq ($(USE_ICE_RPM),0)
-    slicedir		= /usr/share/Ice-$(VERSION)/slice
+#
+# Platform specific definitions
+#
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+    configdir = $(top_srcdir)/config
 else
-    slicedir		= $(top_srcdir)/../slice
-endif
+    configdir = $(top_srcdir)/../cpp/config
+endif 
+include	 $(configdir)/Make.rules.$(UNAME)
 
-ifeq ($(LP64),yes)
-    install_libdir	= $(prefix)/lib$(lp64suffix)
+ifdef ice_src_dist
+    ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+endif
+ifdef ice_bin_dist
+    ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
+    ICE_FLAGS	= -I$(ice_dir)/include
+endif
+ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
+
+ifdef ice_rpm_dist
+    slicedir = /usr/share/Ice-$(VERSION)/slice
 else
-    install_libdir	= $(prefix)/lib
+    slicedir = $(ice_dir)/slice
 endif
 
 ifneq ($(embedded_runpath_prefix),)
-   ifeq ($(LP64),yes)
-       runpath_libdir	  := $(embedded_runpath_prefix)/lib$(lp64suffix)
-   else
-       runpath_libdir	  := $(embedded_runpath_prefix)/lib
-   endif
+   runpath_libdir	 := $(embedded_runpath_prefix)/lib$(lp64suffix)
 endif
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
-
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
-
-#
-# Default functions for shared library names. A Python extension library
-# cannot have a "lib" prefix, so Python-specific functions are defined.
-#
-
-ifeq ($(mklibfilename),)
-    mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
-endif
-
-ifeq ($(mksoname),)
-    mksoname		= $(if $(2),lib$(1).so.$(2),lib$(1).so)
-endif
-
-ifeq ($(mklibname),)
-    mklibname		= lib$(1).so
-endif
-
-ifndef mklibtargets
-    mklibtargets	= $(1) $(2) $(3)
-endif
-
-ifeq ($(mkshlib),)
-    $(error You need to define mkshlib in Make.rules.$(UNAME)) 
-endif
-
-ifeq ($(installlib),)
-    installlib		= $(INSTALL) $(2)/$(3) $(1); \
-			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
-			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
-			  chmod a+rx $(1)/$(3) 
-endif
 
 ifeq ($(installphplib),)
     installphplib	= $(INSTALL) $(1) $(2); \
 			  chmod a+rx $(2)/$(notdir $(1))
-endif
-
-ifeq ($(installdata),)
-    installdata		= $(INSTALL_DATA) $(1) $(2); \
-			  chmod a+r $(2)/$(notdir $(1))
-endif
-
-ifeq ($(installprogram),)
-    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
-endif
-
-ifeq ($(mkdir),)
-    mkdir		= mkdir $(1) ; \
-			  chmod a+rx $(1)
 endif
 
 #
@@ -262,8 +169,7 @@ all:: $(SRCS) $(TARGETS)
 depend:: $(SRCS) $(SLICE_SRCS)
 	-rm -f .depend
 	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
-	    $(configdir)/makedepend.py >> .depend; \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 
 ifneq ($(TEMPLATE_REPOSITORY),)

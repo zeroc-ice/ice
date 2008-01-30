@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC71, VC80, VC80_EXPRESS, BCC2006 
+# VC60, VC71, VC80, VC80_EXPRESS, VC90, BCC2006 
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC80
@@ -47,20 +47,17 @@ BCB		= C:\Program Files\Borland\BDS\4.0
 # change the following setting to reflect the installation location.
 #
 !if "$(CPP_COMPILER)" == "BCC2006"
-TPH_EXT		= BCC
+THIRDPARTY_HOME_EXT 	= BCC
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
-TPH_EXT		= VC80
+THIRDPARTY_HOME_EXT	= VC80
+!elseif "$(CPP_COMPILER)" == "VC90_EXPRESS"
+THIRDPARTY_HOME_EXT	= VC90
 !else
-TPH_EXT		= $(CPP_COMPILER)
+THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
 !endif
 
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
-
-!if "$(AS)" == "ml64"
-THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
-!endif
-
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
 !endif
 
 #
@@ -76,6 +73,8 @@ THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
 MT = "$(VS80COMNTOOLS)bin\mt.exe"
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
 MT = "$(PDK_HOME)\bin\mt.exe"
+!else
+MT = mt.exe
 !endif
 
 
@@ -83,16 +82,36 @@ MT = "$(PDK_HOME)\bin\mt.exe"
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+# Setup some variables for Make.rules.common.mak
+ice_language     = cpp
+!if !exist ($(top_srcdir)\..\cpp)
+# Don't require slice2cpp if it's the source distribution.
+slice_translator = slice2cpp
+!endif
+
+!if exist ($(top_srcdir)\..\config\Make.common.rules)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 SOVERSION		= 33
+
+!if "$(ice_src_dist)" != ""
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include
-slicedir		= $(top_srcdir)\..\slice
+!else
+bindir			= $(ice_dir)\bin
+libdir			= $(ice_dir)\lib
+includedir		= $(ice_dir)\include
+!endif
+
+slicedir		= $(ice_dir)\slice
 
 install_bindir		= $(prefix)\bin
-
 install_includedir	= $(prefix)\include
 install_slicedir	= $(prefix)\slice
 install_schemadir	= $(prefix)\schema
@@ -105,7 +124,8 @@ SETARGV			= setargv.obj
 !if "$(CPP_COMPILER)" == "BCC2006"
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
-        "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS"
+        "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS" || \
+        "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" 
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)

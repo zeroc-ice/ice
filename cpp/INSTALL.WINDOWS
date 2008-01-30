@@ -258,7 +258,8 @@ Now you're ready to build Ice:
 Visual C++ 2005 Note
 --------------------
 
-Compiling the src\IcePatch2 directory generates a number of warnings:
+Compiling the src\IcePatch2 and src\iceserviceinstaller directories
+generates warnings like the one shown below:
  
 security.manifest:manifest authoring warning 81010002:Unrecognized Element
 "trustInfo" in namespace "urn:schemas-microsoft-com:asm.v3".

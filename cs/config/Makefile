@@ -20,4 +20,4 @@ install::
 	    echo "Creating $(prefix)/config..." ; \
 	    $(call mkdir,$(prefix)/config) ; \
 	fi
-	$(call installdata,Make.rules.cs,$(prefix)/config)
+

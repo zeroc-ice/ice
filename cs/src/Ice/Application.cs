@@ -12,6 +12,7 @@ namespace Ice
 
     using System;
     using System.Diagnostics;
+    using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Threading;
 
@@ -34,25 +35,13 @@ namespace Ice
 
         public Application()
         {
-#if !__MonoCS__
-            bool rc = SetConsoleCtrlHandler(_handler, true); 
-            Debug.Assert(rc);
-#endif
         }
 
         public Application(SignalPolicy signalPolicy)
         {
             _signalPolicy = signalPolicy;
-
-#if !__MonoCS__
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                bool rc = SetConsoleCtrlHandler(_handler, true); 
-                Debug.Assert(rc);
-            }
-#endif
         }
-        
+
         //
         // This main() must be called by the global Main(). main()
         // initializes the Communicator, calls run(), and destroys
@@ -78,12 +67,12 @@ namespace Ice
                 }
                 catch(Ice.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": " + ex);
+                    Console.Error.WriteLine(_appName + ":\n" + ex);
                     return 1;
                 }
                 catch(System.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": unknown exception: " + ex);
+                    Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
                     return 1;
                 }
             }
@@ -103,58 +92,252 @@ namespace Ice
                 }
                 catch(Ice.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": " + ex);
+                    Console.Error.WriteLine(_appName + ":\n" + ex);
                     return 1;
                 }
                 catch(System.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": unknown exception: " + ex);
+                    Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
                     return 1;
                 }
             }
             initData.logger = logger;
             return main(args, initData);
         }
-        
-        public int main(string[] args, InitializationData initializationData)
+
+        public int main(string[] args, InitializationData initData)
         {
             if(_communicator != null)
             {
                 Console.Error.WriteLine(_appName + ": only one instance of the Application class can be used");
                 return 1;
-            }   
-            int status = 0;
-            
-            //
-            // We parse the properties here to extract Ice.ProgramName.
-            // 
-            InitializationData initData;
-            if(initializationData != null)
+            }
+
+            int status;
+
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
-                initData = (InitializationData)initializationData.Clone();
+                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+                {
+                    _signals = new WindowsSignals();
+                }
+                else
+                {
+                    _signals = new MonoSignals();
+                }
+                _signals.register(_handler);
+
+                status = mainInternal(args, initData);
+
+                _signals = null;
             }
             else
             {
-                initData = new InitializationData();
+                status = mainInternal(args, initData);
             }
-            initData.properties = Util.createProperties(ref args, initData.properties);
 
-            //
-            // If the process logger is the default logger, we replace it with a
-            // a logger which is using the program name for the prefix.
-            //
-            if(Util.getProcessLogger() is LoggerI)
+            return status;
+        }
+
+        //
+        // Return the application name.
+        //
+        public static string appName()
+        {
+            return _appName;
+        }
+
+        //
+        // One limitation of this class is that there can only be one
+        // Application instance, with one global Communicator, accessible
+        // with this communicator() operation. This limitiation is due to
+        // how the signal handling functions below operate. If you require
+        // multiple Communicators, then you cannot use this Application
+        // framework class.
+        //
+        public static Communicator communicator()
+        {
+            return _communicator;
+        }
+
+        public static void destroyOnInterrupt()
+        {
+            if(_signalPolicy == SignalPolicy.HandleSignals)
             {
-                Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName")));
+                lock(_mutex)
+                {
+                    if(_callback == _holdCallback)
+                    {
+                        _released = true;
+                        Monitor.Pulse(_mutex);
+                    }
+                    _callback = _destroyCallback;
+                }
             }
-            
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
+        }
+
+        public static void shutdownOnInterrupt()
+        {
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                lock(_mutex)
+                {
+                    if(_callback == _holdCallback)
+                    {
+                        _released = true;
+                        Monitor.Pulse(_mutex);
+                    }
+                    _callback = _shutdownCallback;
+                }
+            }
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
+        }
+
+        public static void ignoreInterrupt()
+        {
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                lock(_mutex)
+                {
+                    if(_callback == _holdCallback)
+                    {
+                        _released = true;
+                        Monitor.Pulse(_mutex);
+                    }
+                    _callback = null;
+                }
+            }
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
+        }
+
+        public static void callbackOnInterrupt()
+        {
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                lock(_mutex)
+                {
+                    if(_callback == _holdCallback)
+                    {
+                        _released = true;
+                        Monitor.Pulse(_mutex);
+                    }
+                    _callback = _userCallback;
+                }
+            }
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
+        }
+
+        public static void holdInterrupt()
+        {
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                lock(_mutex)
+                {
+                    if(_callback != _holdCallback)
+                    {
+                        _previousCallback = _callback;
+                        _released = false;
+                        _callback = _holdCallback;
+                    }
+                    // else, we were already holding signals
+                }
+            }
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
+        }
+
+        public static void releaseInterrupt()
+        {
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                lock(_mutex)
+                {
+                    if(_callback == _holdCallback)
+                    {
+                        //
+                        // Note that it's very possible no signal is held;
+                        // in this case the callback is just replaced and
+                        // setting _released to true and signalling _mutex
+                        // do no harm.
+                        //
+
+                        _released = true;
+                        _callback = _previousCallback;
+                        Monitor.Pulse(_mutex);
+                    }
+                    // Else nothing to release.
+                }
+            }
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
+        }
+
+        public static bool interrupted()
+        {
+            lock(_mutex)
+            {
+                return _interrupted;
+            }
+        }
+
+        private int mainInternal(string[] args, InitializationData initializationData)
+        {
+            int status = 0;
+
             try
             {
-                _communicator = Util.initialize(ref args, initData);
+                //
+                // We parse the properties here to extract Ice.ProgramName.
+                //
+                InitializationData initData;
+                if(initializationData != null)
+                {
+                    initData = (InitializationData)initializationData.Clone();
+                }
+                else
+                {
+                    initData = new InitializationData();
+                }
+                initData.properties = Util.createProperties(ref args, initData.properties);
+
+                //
+                // If the process logger is the default logger, we replace it with a
+                // a logger which is using the program name for the prefix.
+                //
+                if(Util.getProcessLogger() is LoggerI)
+                {
+                    Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName")));
+                }
+
                 _application = this;
-                
+                _communicator = Util.initialize(ref args, initData);
+                _destroyed = false;
+
                 Properties props = _communicator.getProperties();
-                _nohup = props.getPropertyAsInt("Ice.Nohup") != 0;
+                _nohup = props.getPropertyAsInt("Ice.Nohup") > 0;
                 _appName = props.getPropertyWithDefault("Ice.ProgramName", _appName);
 
                 //
@@ -164,17 +347,17 @@ namespace Ice
                 {
                     destroyOnInterrupt();
                 }
-                
+
                 status = run(args);
             }
             catch(Ice.Exception ex)
             {
-                Console.Error.WriteLine(_appName + ": " + ex);
+                Console.Error.WriteLine(_appName + ":\n" + ex);
                 status = 1;
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + ": unknown exception: " + ex);
+                Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
                 status = 1;
             }
 
@@ -188,26 +371,27 @@ namespace Ice
                 ignoreInterrupt();
             }
 
-            Monitor.Enter(sync);
-            while(_callbackInProgress)
+            lock(_mutex)
             {
-                Monitor.Wait(sync);
+                while(_callbackInProgress)
+                {
+                    Monitor.Wait(_mutex);
+                }
+                if(_destroyed)
+                {
+                    _communicator = null;
+                }
+                else
+                {
+                    _destroyed = true;
+                    //
+                    // _communicator != null means that it will be destroyed
+                    // next; _destroyed == true ensures that any
+                    // remaining callback won't do anything
+                    //
+                }
+                _application = null;
             }
-            if(_destroyed)
-            {
-                _communicator = null;
-            }
-            else
-            {
-                _destroyed = true;
-                //
-                // _communicator != 0 means that it will be destroyed
-                // next; _destroyed == true ensures that any
-                // remaining callback won't do anything
-                //
-            }
-            _application = null;
-            Monitor.Exit(sync);
 
             if(_communicator != null)
             {
@@ -217,195 +401,30 @@ namespace Ice
                 }
                 catch(Ice.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": " + ex);
+                    Console.Error.WriteLine(_appName + ":\n" + ex);
                     status = 1;
                 }
                 catch(System.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": unknown exception: " + ex);
+                    Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
                     status = 1;
                 }
                 _communicator = null;
-            }   
+            }
+
             return status;
         }
 
         //
-        // Return the application name.
+        // First-level handler.
         //
-        public static string appName()
+        private static void signalHandler(int sig)
         {
-            return _appName;
-        }
-        
-        //
-        // One limitation of this class is that there can only be one
-        // Application instance, with one global Communicator, accessible
-        // with this communicator() operation. This limitiation is due to
-        // how the signal handling functions below operate. If you require
-        // multiple Communicators, then you cannot use this Application
-        // framework class.
-        //
-        public static Communicator communicator()
-        {
-            return _communicator;
-        }
-        
-        public static void destroyOnInterrupt()
-        {
-            if(_signalPolicy == SignalPolicy.HandleSignals)
+            Callback callback;
+            lock(_mutex)
             {
-                Monitor.Enter(sync);
-                if(_callback == _holdCallback)
-                {
-                    _callback = _destroyCallback;
-                    _released = true;
-                    Monitor.Pulse(sync);
-                }
-                else
-                {
-                    _callback = _destroyCallback;
-                }
-                Monitor.Exit(sync);
+                callback = _callback;
             }
-            else
-            {
-                Console.Error.WriteLine(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
-            }
-        }
-        
-        public static void shutdownOnInterrupt()
-        {
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                Monitor.Enter(sync);
-                if(_callback == _holdCallback)
-                {
-                    _callback = _shutdownCallback;
-                    _released = true;
-                    Monitor.Pulse(sync);
-                }
-                else
-                {
-                    _callback = _shutdownCallback;
-                }
-                Monitor.Exit(sync);
-            }
-            else
-            {
-                Console.Error.WriteLine(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
-            }
-        }
-        
-        public static void ignoreInterrupt()
-        {
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                Monitor.Enter(sync);
-                if(_callback == _holdCallback)
-                {
-                    _callback = null;
-                    _released = true;
-                    Monitor.Pulse(sync);
-                }
-                else
-                {
-                    _callback = null;
-                }
-                Monitor.Exit(sync);
-            }
-            else
-            {
-                Console.Error.WriteLine(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
-            }
-        }
-
-        public static void callbackOnInterrupt()
-        {   
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                Monitor.Enter(sync);
-                if(_callback == _holdCallback)
-                {
-                    _released = true;
-                    _callback = _userCallback;
-                    Monitor.Pulse(sync);
-                }
-                else
-                {
-                    _callback = _userCallback;
-                }
-                Monitor.Exit(sync);
-            }
-            else
-            {
-                Console.Error.WriteLine(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
-            }
-        }
-        
-        public static void holdInterrupt()
-        {
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                Monitor.Enter(sync);
-                if(_callback != _holdCallback)
-                {
-                    _previousCallback = _callback;
-                    _callback = _holdCallback;
-                    _released = false;
-                }
-                // else, we were already holding signals
-                Monitor.Exit(sync);
-            }
-            else
-            {
-                Console.Error.WriteLine(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
-            }
-        }
-        
-        public static void releaseInterrupt()
-        {
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                Monitor.Enter(sync);
-                if(_callback == _holdCallback)
-                {
-                    _callback = _previousCallback;
-                    _released = true;
-                    Monitor.Pulse(sync);
-                }
-                // Else nothing to release.
-                Monitor.Exit(sync);
-            }
-            else
-            {
-                Console.Error.WriteLine(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
-            }
-        }
-
-        public static bool interrupted()
-        {
-            Monitor.Enter(sync);
-            bool rc = _interrupted;
-            Monitor.Exit(sync);
-            return rc;
-        }
-
-#if !__MonoCS__
-        //
-        // First-level handler
-        //
-        private static Boolean HandlerRoutine(int sig)
-        {
-            Monitor.Enter(sync);
-            Callback callback = _callback;
-            Monitor.Exit(sync);
             if(callback != null)
             {
                 try
@@ -417,31 +436,33 @@ namespace Ice
                     Debug.Assert(false);
                 }
             }
-            return true;
         }
-#endif
 
         //
         // The callbacks to be invoked from the handler.
         //
         private static void holdInterruptCallback(int sig)
         {
-            bool destroyed;
-            Callback callback;
-            Monitor.Enter(sync);
-            while(!_released)
+            Callback callback = null;
+            lock(_mutex)
             {
-                Monitor.Wait(sync);
+                while(!_released)
+                {
+                    Monitor.Wait(_mutex);
+                }
+
+                if(_destroyed)
+                {
+                    //
+                    // Being destroyed by main thread
+                    //
+                    return;
+                }
+
+                callback = _callback;
             }
 
-            destroyed = _destroyed;
-            callback = _callback;
-            Monitor.Exit(sync);
-
-            //
-            // If not being destroyed by main thread call callback.
-            //
-            if(!destroyed && callback != null)
+            if(callback != null)
             {
                 callback(sig);
             }
@@ -452,141 +473,117 @@ namespace Ice
         //
         private static void destroyOnInterruptCallback(int sig)
         {
-            bool ignore = false;
-            Monitor.Enter(sync);
-            if(_destroyed)
+            lock(_mutex)
             {
-                //
-                // Being destroyed by main thread
-                //
-                ignore = true;
-            }
-            else if(_nohup && sig == SIGHUP)
-            {
-                ignore = true;
-            }
-            else
-            {
+                if(_destroyed)
+                {
+                    //
+                    // Being destroyed by main thread
+                    //
+                    return;
+                }
+                if(_nohup && sig == SIGHUP)
+                {
+                    return;
+                }
+
+                Debug.Assert(!_callbackInProgress);
                 _callbackInProgress = true;
                 _interrupted = true;
                 _destroyed = true;
             }
-            Monitor.Exit(sync);
-
-            if(ignore)
-            {
-                return;
-            }
 
             try
             {
+                Debug.Assert(_communicator != null);
                 _communicator.destroy();
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + ": while destroying in response to signal: " + ex);
+                Console.Error.WriteLine(_appName + " (while destroying in response to signal " + sig + "):\n" + ex);
             }
 
-            Monitor.Enter(sync);
-            _callbackInProgress = false;
-            Monitor.Pulse(sync);
-            Monitor.Exit(sync);
+            lock(_mutex)
+            {
+                _callbackInProgress = false;
+                Monitor.Pulse(_mutex);
+            }
         }
 
         private static void shutdownOnInterruptCallback(int sig)
         {
-            bool ignore = false;
-            Monitor.Enter(sync);
-            if(_destroyed)
+            lock(_mutex)
             {
-                //
-                // Being destroyed by main thread
-                //
-                ignore = true;
-            }
-            else if(_nohup && sig == SIGHUP)
-            {
-                ignore = true;
-            }
-            else
-            {
+                if(_destroyed)
+                {
+                    //
+                    // Being destroyed by main thread
+                    //
+                    return;
+                }
+                if(_nohup && sig == SIGHUP)
+                {
+                    return;
+                }
+
+                Debug.Assert(!_callbackInProgress);
                 _callbackInProgress = true;
                 _interrupted = true;
-            }
-            Monitor.Exit(sync);
-
-            if(ignore)
-            {
-                return;
             }
 
             try
             {
+                Debug.Assert(_communicator != null);
                 _communicator.shutdown();
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + ": while shutting down in response to signal: " + ex);
+                Console.Error.WriteLine(_appName + " (while shutting down in response to signal " + sig + "):\n" + ex);
             }
 
-            Monitor.Enter(sync);
-            _callbackInProgress = false;
-            Monitor.Pulse(sync);
-            Monitor.Exit(sync);
+            lock(_mutex)
+            {
+                _callbackInProgress = false;
+                Monitor.Pulse(_mutex);
+            }
         }
 
         private static void userCallbackOnInterruptCallback(int sig)
         {
-            bool ignore = false;
-            Monitor.Enter(sync);
-            if(_destroyed)
+            lock(_mutex)
             {
-                //
-                // Being destroyed by main thread
-                //
-                ignore = true;
-            }
-            // For SIGHUP the user callback is always called. It can
-            // decide what to do.
-            else
-            {
+                if(_destroyed)
+                {
+                    //
+                    // Being destroyed by main thread
+                    //
+                    return;
+                }
+                // For SIGHUP the user callback is always called. It can
+                // decide what to do.
+                Debug.Assert(!_callbackInProgress);
                 _callbackInProgress = true;
                 _interrupted = true;
-            }
-            Monitor.Exit(sync);
-
-            if(ignore)
-            {
-                return;
             }
 
             try
             {
-                if(_application != null)
-                {
-                    _application.interruptCallback(sig);
-                }
+                Debug.Assert(_application != null);
+                _application.interruptCallback(sig);
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + ": while interrupting in response to signal: " + ex);
+                Console.Error.WriteLine(_appName + " (while interrupting in response to signal " + sig + "):\n" + ex);
             }
 
-            Monitor.Enter(sync);
-            _callbackInProgress = false;
-            Monitor.Pulse(sync);
-            Monitor.Exit(sync);
+            lock(_mutex)
+            {
+                _callbackInProgress = false;
+                Monitor.Pulse(_mutex);
+            }
         }
 
-#if !__MonoCS__
-        public delegate void ControlEventHandler(int consoleEvent);
-        [DllImport("kernel32.dll")]
-        private static extern Boolean SetConsoleCtrlHandler(Application.EventHandler eh, Boolean add);
-#endif
-
-        private static readonly object sync = typeof(Application);
-
-        private const int SIGHUP = 5; // CTRL_LOGOFF_EVENT, from wincon.h
+        private static readonly object _mutex = new object();
 
         private static bool _callbackInProgress = false;
         private static bool _destroyed = false;
@@ -594,12 +591,6 @@ namespace Ice
         private static bool _released = false;
         private static bool _nohup = false;
         private static SignalPolicy _signalPolicy = SignalPolicy.HandleSignals;
-
-        private delegate Boolean EventHandler(int sig);
-#if !__MonoCS__
-        private static readonly Application.EventHandler _handler
-            = new Application.EventHandler(HandlerRoutine); // First-level handler
-#endif
 
         private delegate void Callback(int sig);
         private static readonly Callback _destroyCallback = new Callback(destroyOnInterruptCallback);
@@ -617,5 +608,120 @@ namespace Ice
         private static string _appName = AppDomain.CurrentDomain.FriendlyName;
         private static Communicator _communicator;
         private static Application _application;
+
+        private static int SIGHUP;
+        static Application()
+        {
+            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            {
+                SIGHUP = 5; // CTRL_LOGOFF_EVENT, from wincon.h
+            }
+            else
+            {
+                SIGHUP = 1;
+            }
+        }
+
+        private delegate void SignalHandler(int sig);
+        private static readonly SignalHandler _handler = new SignalHandler(signalHandler);
+        private Signals _signals;
+
+        private interface Signals
+        {
+            void register(SignalHandler handler);
+        }
+
+        private class MonoSignals : Signals
+        {
+            public void register(SignalHandler handler)
+            {
+                try
+                {
+                    //
+                    // Signal handling in Mono is provided in the Mono.Unix.Native namespace.
+                    // We use reflection to do the equivalent of the following:
+                    //
+                    // Stdlib.signal(Signum.SIGHUP, delegate);
+                    // Stdlib.signal(Signum.SIGINT, delegate);
+                    // Stdlib.signal(Signum.SIGTERM, delegate);
+                    //
+                    // We don't use conditional compilation so that the Ice assembly can be
+                    // used without change on Windows and Mono.
+                    //
+                    Assembly a = Assembly.Load(
+                        "Mono.Posix, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+                    Type sigs = a.GetType("Mono.Unix.Native.Signum");
+                    object SIGHUP = Enum.Parse(sigs, "SIGHUP");
+                    object SIGINT = Enum.Parse(sigs, "SIGINT");
+                    object SIGTERM = Enum.Parse(sigs, "SIGTERM");
+                    Type stdlib = a.GetType("Mono.Unix.Native.Stdlib");
+                    MethodInfo method = stdlib.GetMethod("signal", BindingFlags.Static | BindingFlags.Public);
+                    Type del = a.GetType("Mono.Unix.Native.SignalHandler");
+                    _delegate = Delegate.CreateDelegate(del, handler.Target, handler.Method);
+                    object[] args = new object[2];
+                    args[0] = SIGHUP;
+                    args[1] = _delegate;
+                    method.Invoke(null, args);
+                    args[0] = SIGINT;
+                    args[1] = _delegate;
+                    method.Invoke(null, args);
+                    args[0] = SIGTERM;
+                    args[1] = _delegate;
+                    method.Invoke(null, args);
+                }
+                catch(System.DllNotFoundException)
+                {
+                    //
+                    // The class Mono.Unix.Native.Stdlib requires libMonoPosixHelper.so. Mono raises
+                    // DllNotFoundException if it cannot be found in the shared library search path.
+                    //
+                    Console.Error.WriteLine("Ice.Application: warning: unable to initialize signals");
+                }
+                catch(System.Exception)
+                {
+                    Debug.Assert(false);
+                }
+            }
+
+            private Delegate _delegate;
+        }
+
+        private class WindowsSignals : Signals
+        {
+#if MANAGED
+            public void register(SignalHandler handler)
+            {
+                //
+                // Signals aren't supported in managed code on Windows.
+                //
+            }
+#else
+            public void register(SignalHandler handler)
+            {
+                _handler = handler;
+                _callback = new EventHandler(callback);
+
+                bool rc = SetConsoleCtrlHandler(_callback, true);
+                Debug.Assert(rc);
+            }
+
+            private delegate bool EventHandler(int sig);
+            private EventHandler _callback;
+            private SignalHandler _handler;
+
+            private bool callback(int sig)
+            {
+                _handler(sig);
+                return true;
+            }
+
+            //
+            // It's not necessary to wrap DllImport in conditional compilation. The binding occurs
+            // at run time, and it will never be executed on Mono.
+            //
+            [DllImport("kernel32.dll")]
+            private static extern bool SetConsoleCtrlHandler(EventHandler eh, bool add);
+#endif
+        }
     }
 }

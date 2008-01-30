@@ -150,20 +150,7 @@ public class Slice2JavaTask extends SliceTask
             String translator;
             if(_translator == null)
             {
-                String iceInstall = getIceHome();
-
-                //
-                // If the location of the Ice install is not known, we
-                // rely on a path search to find the translator.
-                //
-                if(iceInstall == null)
-                {
-                    translator = "slice2java";
-                }
-                else
-                {
-                    translator = new File(iceInstall + File.separator + "bin" + File.separator + "slice2java").toString();
-                }
+                translator = getDefaultTranslator("slice2java");
             }
             else
             {
@@ -297,6 +284,7 @@ public class Slice2JavaTask extends SliceTask
             //
             log(translator + " " + cmd);
             ExecTask task = (ExecTask)getProject().createTask("exec");
+            addLdLibraryPath(task);
             task.setFailonerror(true);
             Argument arg = task.createArg();
             arg.setLine(cmd.toString());
@@ -353,6 +341,7 @@ public class Slice2JavaTask extends SliceTask
             final String outputProperty = "slice2java.depend." + System.currentTimeMillis();
 
             task = (ExecTask)getProject().createTask("exec");
+            addLdLibraryPath(task);
             task.setFailonerror(true);
             arg = task.createArg();
             arg.setLine(cmd.toString());

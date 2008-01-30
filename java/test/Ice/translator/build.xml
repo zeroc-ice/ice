@@ -68,12 +68,12 @@
 
     <target name="compile" depends="generate">
         <mkdir dir="${class.dir}"/>
-	<javac srcdir="." destdir="${class.dir}" source="${jdk.version}" classpath="${lib.dir}" excludes="generated/**"
+	<javac srcdir="." destdir="${class.dir}" classpathref="ice.classpath" excludes="generated/**"
 	    debug="${debug}">
 	    <compilerarg value="${javac.lint}"/>
 	</javac>
-	<javac srcdir="${generated.dir}" destdir="${class.dir}" source="${jdk.version}"
-	    classpath="${lib.dir}" debug="${debug}">
+	<javac srcdir="${generated.dir}" destdir="${class.dir}"
+	    classpathref="ice.classpath" debug="${debug}">
 	    <compilerarg value="${javac.lint}"/>
 	</javac>
     </target>

@@ -1,0 +1,239 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+# Ensure ice_language has been set by the file that includes this one.
+ifndef ice_language
+$(error ice_language must be defined)
+endif
+
+#
+# The following variables might also be defined:
+# 
+# - slice_translator: the name of the slice translator required for the build.
+#   Setting this variable is required when building source trees other than the
+#   the source distribution (e.g.: the demo sources).
+#                  
+# - ice_require_cpp: define this variable to check for the presence of the C++
+#   dev kit and check for the existence of the include/Ice/Config.h header.
+#
+
+#
+# The following code below checks if:
+#
+# - we're building a source distribution (in which case either the translator from the 
+#   source distribution is used or the one from an external binary distribution specified 
+#   with ICE_HOME=<path> or -Dice.home=<path>).
+#
+# - we're building against a binary distribution (e.g.: building the demos using a binary
+#   distribution specified with ICE_HOME=<path> or -Dice.home=<path>).
+#
+# - we're building against an RPM distribution (e.g.: building the demos using the installed
+#   RPM distribution).
+#
+# NOTE: Changes made to these rules should also be applied to java/config/common.xml
+# 
+# Once the kind of distribution is determined either ice_src_dist, ice_bin_dist 
+# or ice_rpm_dist is defined and the ice_dir variable contains the home of the 
+# Ice distribution. If we're building a source distribution, ice_cpp_dir is also
+# set to the home of the Ice distribution containing the C++ binaries (which can 
+# be different from $(ice_dir)/cpp).
+#
+
+#
+# First, check if we're building a source distribution.
+#
+ifeq ($(shell test -d $(top_srcdir)/../$(ice_language) && echo 0),0)
+    #
+    # When building a source distribution, we allow using either the translators
+    # from a binary distribution or the local translators.
+    #
+    ice_dir = $(top_srcdir)/..
+    ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
+	ice_cpp_dir = $(ice_dir)/cpp
+    else
+        ifeq ($(shell test "$(ICE_HOME)" -a -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
+            ice_cpp_dir = $(ICE_HOME)
+        else
+            ice_cpp_dir = $(ice_dir)/cpp
+        endif
+    endif
+endif
+ifdef ice_dir
+    ice_src_dist = 1
+endif
+
+#
+# Then, check if we're building against a binary distribution.
+#
+ifndef ice_dir
+    ifndef slice_translator
+$(error slice_translator must be defined)
+    endif
+
+    ifeq ($(shell test -f $(top_srcdir)/bin/$(slice_translator) && echo 0), 0)
+        ice_dir = $(top_srcdir)
+    else 
+        ifeq ($(shell test "$(ICE_HOME)" -a -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
+            ice_dir = $(ICE_HOME)
+        endif
+    endif
+    ifdef ice_dir
+        ice_bin_dist = 1
+    endif
+endif
+
+#
+# Then, check if we're building against an RPM distribution.
+#
+ifndef ice_dir
+    ifndef slice_translator
+$(error slice_translator must be defined)
+    endif
+
+    ifeq ($(shell test -f /usr/bin/$(slice_translator) && echo 0),0)
+        ice_dir = /usr
+    endif
+    ifdef ice_dir
+        ice_rpm_dist = 1
+    endif
+endif
+
+#
+# At this point, either ice_rpm_dist, ice_src_dist or ice_bin_dist should be set, if not
+# we couldn't find a valid Ice distribution.
+#
+ifndef ice_dir
+$(error Unable to find a valid Ice distribution, please verify ICE_HOME is properly configured and Ice is correctly installed.)
+endif
+
+#
+# If ice_require_cpp is defined, ensure the C++ headers exist
+#
+ifeq ($(ice_require_cpp), "yes")
+    ifdef ice_src_dist
+        ice_cpp_header = $(ice_cpp_dir)/include/Ice/Config.h
+    else
+        ice_cpp_header = $(ice_dir)/include/Ice/Config.h
+    endif
+    ifneq ($(shell test -f $(ice_cpp_header) && echo 0),0)
+$(error Unable to find a valid Ice distribution with the C++ header files, please verify ICE_HOME is properly configured and Ice is correctly installed.)
+    endif
+endif
+
+#
+# If we're building against an RPM or binary distribution and LP64 is not 
+# defined, we check a binary and set it automatically.
+#
+ifndef ice_src_dist
+    ifeq ($(LP64),)
+        ifneq ($(shell file $(ice_dir)/bin/icebox | grep 64-bit),)
+            LP64=yes
+        endif
+    endif
+
+    ifdef ice_rpm_dist
+        # Clear the embedded runpath prefix if building against RPM distribution.
+        embedded_runpath_prefix =
+    endif
+endif
+
+#
+# Set environment variables for the Slice translator.
+#
+ifndef ice_rpm_dist
+    ifdef ice_src_dist
+        ice_lib_dir = $(ice_cpp_dir)/lib
+    else
+        ice_lib_dir = $(ice_dir)/lib
+    endif
+
+    ifeq ($(shell uname),Linux)
+        export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
+        export LD_LIBRARY_PATH := $(ice_lib_dir)64:$(LD_LIBRARY_PATH)
+    endif
+
+    ifeq ($(shell uname),SunOS)
+        export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
+        export LD_LIBRARY_PATH_64 := $(ice_lib_dir)/sparcv9:$(LD_LIBRARY_PATH_64)
+    endif
+
+    ifeq ($(shell uname),Darwin)
+        export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
+    endif
+
+    ifeq ($(shell uname),AIX)
+        export LIBPATH := $(ice_lib_dir):$(LIBPATH)
+    endif
+
+    ifeq ($(shell uname),HP-UX)
+        export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
+        export SHLIB_PATH := $(ice_lib_dir)/pa20_64:$(SHLIB_PATH)
+    endif
+endif
+
+
+#
+# Default functions for shared library names
+#
+
+ifeq ($(mklibfilename),)
+    mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+endif
+
+ifeq ($(mksoname),)
+    mksoname		= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+endif
+
+ifeq ($(mklibname),)
+    ifeq ($(STATICLIBS),yes)
+	mklibname	= lib$(1).a
+    else
+	mklibname	= lib$(1).so
+    endif
+endif
+
+ifndef mklibtargets
+    ifeq ($(STATICLIBS),yes)
+	mklibtargets	= $(3)
+    else
+	mklibtargets	= $(1) $(2) $(3)
+    endif
+endif
+
+ifeq ($(installlib),)
+    ifeq ($(STATICLIBS),yes)
+	installlib	= $(INSTALL) $(2)/$(5) $(1); \
+			  chmod a+rx $(1)/$(5) 
+    else
+	installlib	= $(INSTALL) $(2)/$(3) $(1); \
+			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
+			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
+			  chmod a+rx $(1)/$(3) 
+    endif
+endif
+
+ifeq ($(installdata),)
+    installdata		= $(INSTALL_DATA) $(1) $(2); \
+			  chmod a+r $(2)/$(notdir $(1))
+endif
+
+ifeq ($(installprogram),)
+    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(mkdir),)
+    mkdir		= mkdir $(1) ; \
+			  chmod a+rx $(1)
+endif
+

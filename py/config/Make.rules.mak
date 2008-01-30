@@ -7,19 +7,12 @@
 #
 # **********************************************************************
 
-!if "$(ICE_HOME)" == ""
-ICE_DIR		= $(top_srcdir)\..
-USE_SRC_DIR	= 1
-!else
-ICE_DIR 	= $(ICE_HOME)
-!endif
-
 #
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
 
-prefix			= C:\IcePy-$(VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -44,11 +37,23 @@ PYTHON_HOME		= C:\Python24
 !endif
 
 #
-# STLPort is required if using MSVC++ 6.0. Change if STLPort
-# is located in a different location.
+# If third party libraries are not installed in the default location
+# or THIRDPARTY_HOME is not set in your environment variables then
+# change the following setting to reflect the installation location.
 #
-!if "$(CPP_COMPILER)" == "VC60" && "$(STLPORT_HOME)" == ""
-STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
+!if "$(CPP_COMPILER)" == "VC80_EXPRESS"
+THIRDPARTY_HOME_EXT	= VC80
+!else
+THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
+!endif
+
+!if "$(THIRDPARTY_HOME)" == ""
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
+
+!if "$(AS)" == "ml64"
+THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
+!endif
+
 !endif
 
 #
@@ -56,7 +61,7 @@ STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 # manifest tool. This must be the 6.x version of mt.exe, not the 5.x
 # version!
 #
-# For VC80 Express mt.exe 6.x is provided by the Windows Platform SDK. 
+# For VC80 Express mt.exe 6.x is provided by the Windows Platform SDK.
 # It is necessary to set the location of the Platform SDK through the
 # PDK_HOME environment variable (see INSTALL for details).
 #
@@ -70,15 +75,23 @@ MT = "$(PDK_HOME)\bin\mt.exe"
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+# Setup some variables for Make.rules.common
+ice_language     = py
+ice_require_cpp  = yes
+slice_translator = slice2py.exe
+
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 SOVERSION		= 33
 libdir			= $(top_srcdir)\python
-
-install_slicedir	= $(prefix)\slice
 install_pythondir	= $(prefix)\python
-
-THIRDPARTY_HOME		= $(STLPORT_HOME)
+install_libdir		= $(prefix)\python
 
 !if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC71" && \
     "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
@@ -94,15 +107,15 @@ PYLIBSUFFIX     = _$(LIBSUFFIX)
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 
-!if "$(USE_SRC_DIR)" == "1"
-ICE_CPPFLAGS		= -I"$(ICE_DIR)\cpp\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\cpp\lib"
+!if "$(ice_src_dist)" != ""
+ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib"
 !else
-ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
+ICE_CPPFLAGS		= -I"$(ice_dir)\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib"
 !endif
 
-slicedir                = $(top_srcdir)\..\slice
+slicedir                = $(ice_dir)\slice
 
 PYTHON_CPPFLAGS		= -I"$(PYTHON_HOME)\include"
 PYTHON_LDFLAGS		= /LIBPATH:"$(PYTHON_HOME)\libs"
@@ -113,10 +126,10 @@ libsubdir		= lib
 ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
-!if "$(USE_SRC_DIR)" == "1"
-SLICE2PY		= "$(ICE_DIR)\cpp\bin\slice2py.exe"
+!if "$(ice_src_dist)" != ""
+SLICE2PY		= "$(ice_cpp_dir)\bin\slice2py.exe"
 !else
-SLICE2PY		= "$(ICE_DIR)\bin\slice2py.exe"
+SLICE2PY		= "$(ice_dir)\bin\slice2py.exe"
 !endif
 
 EVERYTHING		= all clean install

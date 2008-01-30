@@ -20,11 +20,19 @@ namespace IceInternal
 
     public class BasicStream
     {
+#if !MANAGED
         [DllImport("bzip2.dll")]
         static extern IntPtr BZ2_bzlibVersion();
+#endif
 
         static BasicStream()
         {
+#if MANAGED
+            //
+            // Protocol compression is not supported when using managed code.
+            //
+            _bzlibInstalled = false;
+#else
             //
             // Simple trick to find out whether bzip2 is
             // installed: Call the BZ2_bzlibVersion() function in the
@@ -44,6 +52,7 @@ namespace IceInternal
             {
                 _bzlibInstalled = false;
             }
+#endif
         }
 
         public BasicStream(Instance instance)
@@ -2346,6 +2355,7 @@ namespace IceInternal
             _readEncapsStack.patchMap.Remove(patchIndex);
         }
 
+#if !MANAGED
         static string getBZ2Error(int error)
         {
             string rc;
@@ -2405,12 +2415,14 @@ namespace IceInternal
             }
             return rc;
         }
+#endif
 
         public static bool compressible()
         {
             return _bzlibInstalled;
         }
 
+#if !MANAGED
         [DllImport("libbz2.dll")]
         extern static int BZ2_bzBuffToBuffCompress(byte[] dest,
                                                    ref int destLen,
@@ -2419,9 +2431,14 @@ namespace IceInternal
                                                    int blockSize100k,
                                                    int verbosity,
                                                    int workFactor);
+#endif
 
         public bool compress(ref BasicStream cstream, int headerSize, int compressionLevel)
         {
+#if MANAGED
+            cstream = this;
+            return false;
+#else
             if(!_bzlibInstalled)
             {
                 cstream = this;
@@ -2481,8 +2498,10 @@ namespace IceInternal
             cstream._buf.b.put(compressed, 0, compressedLen);
 
             return true;
+#endif
         }
 
+#if !MANAGED
         [DllImport("libbz2.dll")]
         extern static int BZ2_bzBuffToBuffDecompress(byte[] dest,
                                                      ref int destLen,
@@ -2490,9 +2509,13 @@ namespace IceInternal
                                                      int sourceLen,
                                                      int small,
                                                      int verbosity);
+#endif
 
         public BasicStream uncompress(int headerSize)
         {
+#if MANAGED
+            return this;
+#else
             if(!_bzlibInstalled)
             {
                 return this;
@@ -2522,6 +2545,7 @@ namespace IceInternal
             ucStream._buf.b.put(_buf.b.rawBytes(0, headerSize));
             ucStream._buf.b.put(uncompressed, 0, uncompressedLen);
             return ucStream;
+#endif
         }
 
         internal virtual int pos()

@@ -14,6 +14,7 @@
     <!-- set global properties for this build -->
     <property name="top.dir" value="."/>
     <property name="src.dir" value="src"/>
+    <property name="lib.dir" value="lib"/>
     <property name="generated.dir" value="generated"/>
     <property name="cache.dir" value="depcache"/>
 

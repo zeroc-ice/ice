@@ -42,7 +42,7 @@ static CtrlCHandlerCallback _previousCallback = 0;
 // before and after run(), and once communicator->destroy() has returned, we assume that 
 // only the main thread and CtrlCHandler threads are running.
 //
-static const char* _appName = 0;
+static string _appName;
 static Application* _application;
 static CommunicatorPtr _communicator;
 static CtrlCHandler* _ctrlCHandler = 0;
@@ -118,31 +118,26 @@ destroyOnInterruptCallback(int signal)
         _destroyed = true;
     }
         
-    assert(_communicator != 0);
-    
     try
     {
+        assert(_communicator != 0);
         _communicator->destroy();
     }
     catch(const std::exception& ex)
     {
-        cerr << _appName << " (while destroying in response to signal " << signal 
-             << "): " << ex.what() << endl;
+        cerr << _appName << " (while destroying in response to signal " << signal << "): " << ex.what() << endl;
     }
     catch(const std::string& msg)
     {
-        cerr << _appName << " (while destroying in response to signal " << signal
-             << "): " << msg << endl;
+        cerr << _appName << " (while destroying in response to signal " << signal << "): " << msg << endl;
     }
-    catch(const char * msg)
+    catch(const char* msg)
     {
-        cerr << _appName << " (while destroying in response to signal " << signal
-             << "): " << msg << endl;
+        cerr << _appName << " (while destroying in response to signal " << signal << "): " << msg << endl;
     }
     catch(...)
     {
-        cerr << _appName << " (while destroying in response to signal " << signal 
-             << "): unknown exception" << endl;
+        cerr << _appName << " (while destroying in response to signal " << signal << "): unknown exception" << endl;
     }
 
     {
@@ -151,7 +146,6 @@ destroyOnInterruptCallback(int signal)
     }
     _condVar->signal();
 }
-
 
 static void
 shutdownOnInterruptCallback(int signal)
@@ -169,35 +163,33 @@ shutdownOnInterruptCallback(int signal)
         {
             return;
         }
+
         assert(!_callbackInProgress);
         _callbackInProgress = true;
         _interrupted = true;
     }
 
-    assert(_communicator != 0);
     try
     {
+        assert(_communicator != 0);
         _communicator->shutdown();
     }
     catch(const std::exception& ex)
     {
-        cerr << _appName << " (while shutting down in response to signal " << signal 
-             << "): std::exception: " << ex.what() << endl;
+        cerr << _appName << " (while shutting down in response to signal " << signal << "): std::exception: "
+             << ex.what() << endl;
     }
     catch(const std::string& msg)
     {
-        cerr << _appName << " (while shutting down in response to signal " << signal
-             << "): " << msg << endl;
+        cerr << _appName << " (while shutting down in response to signal " << signal << "): " << msg << endl;
     }
-    catch(const char * msg)
+    catch(const char* msg)
     {
-        cerr << _appName << " (while shutting down in response to signal " << signal
-             << "): " << msg << endl;
+        cerr << _appName << " (while shutting down in response to signal " << signal << "): " << msg << endl;
     }
     catch(...)
     {
-        cerr << _appName << " (while shutting down in response to signal " << signal 
-             << "): unknown exception" << endl;
+        cerr << _appName << " (while shutting down in response to signal " << signal << "): unknown exception" << endl;
     }
 
     {
@@ -226,30 +218,27 @@ callbackOnInterruptCallback(int signal)
         _interrupted = true;
     }
 
-    assert(_application != 0);
     try
     {
+        assert(_application != 0);
         _application->interruptCallback(signal);
     }
     catch(const std::exception& ex)
     {
-        cerr << _appName << " (while interrupting in response to signal " << signal 
-             << "): std::exception: " << ex.what() << endl;
+        cerr << _appName << " (while interrupting in response to signal " << signal << "): std::exception: "
+             << ex.what() << endl;
     }
     catch(const std::string& msg)
     {
-        cerr << _appName << " (while interrupting in response to signal " << signal
-             << "): " << msg << endl;
+        cerr << _appName << " (while interrupting in response to signal " << signal << "): " << msg << endl;
     }
-    catch(const char * msg)
+    catch(const char* msg)
     {
-        cerr << _appName << " (while interrupting in response to signal " << signal
-             << "): " << msg << endl;
+        cerr << _appName << " (while interrupting in response to signal " << signal << "): " << msg << endl;
     }
     catch(...)
     {
-        cerr << _appName << " (while interrupting in response to signal " << signal 
-             << "): unknown exception" << endl;
+        cerr << _appName << " (while interrupting in response to signal " << signal << "): unknown exception" << endl;
     }
 
     {
@@ -258,7 +247,6 @@ callbackOnInterruptCallback(int signal)
     }
     _condVar->signal();
 }
-
 
 Ice::Application::Application(SignalPolicy signalPolicy)
 {
@@ -303,7 +291,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
     }
     return main(argc, argv, initData);
 }
-
 
 int
 Ice::Application::main(int argc, char* argv[], const InitializationData& initData)
@@ -402,7 +389,7 @@ Ice::Application::interruptCallback(int)
 const char*
 Ice::Application::appName()
 {
-    return _appName;
+    return _appName.c_str();
 }
 
 CommunicatorPtr
@@ -607,7 +594,11 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
         //
         // The default is to destroy when a signal is received.
         //
-        destroyOnInterrupt();
+        if(_signalPolicy == HandleSignals)
+        {
+            destroyOnInterrupt();
+        }
+
         status = run(argc, argv);
     }
     catch(const std::exception& ex)
@@ -636,7 +627,10 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
     // it would not make sense to release a held signal to run
     // shutdown or destroy.
     //
-    ignoreInterrupt();
+    if(_signalPolicy == HandleSignals)
+    {
+        ignoreInterrupt();
+    }
 
     {
         StaticMutex::Lock lock(_mutex);

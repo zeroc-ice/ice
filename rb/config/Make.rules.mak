@@ -7,19 +7,12 @@
 #
 # **********************************************************************
 
-!if "$(ICE_HOME)" == ""
-ICE_DIR		= $(top_srcdir)\..
-USE_SRC_DIR	= 1
-!else
-ICE_DIR 	= $(ICE_HOME)
-!endif
-
 #
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
 
-prefix			= C:\IceRuby-$(VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -44,27 +37,35 @@ RUBY_HOME		= C:\ruby
 !endif
 
 #
-# Set STLPORT_HOME to your STLPort installation directory.
+# If third party libraries are not installed in the default location
+# or THIRDPARTY_HOME is not set in your environment variables then
+# change the following setting to reflect the installation location.
 #
-!if "$(STLPORT_HOME)" == ""
-STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
+!if "$(THIRDPARTY_HOME)" == ""
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(CPP_COMPILER)
 !endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+# Setup some variables for Make.rules.common
+ice_language     = rb
+ice_require_cpp  = yes
+slice_translator = slice2rb.exe
+
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 SOVERSION		= 33
-libdir			= $(top_srcdir)\lib
-rubydir			= $(top_srcdir)\ruby
-
-install_libdir		= $(prefix)\lib
-install_slicedir        = $(prefix)\slice
+libdir			= $(top_srcdir)\ruby
 install_rubydir		= $(prefix)\ruby
-
-THIRDPARTY_HOME         = $(STLPORT_HOME)
+install_libdir		= $(prefix)\ruby
 
 !if "$(CPP_COMPILER)" != "VC60"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
@@ -78,15 +79,15 @@ LIBSUFFIX       = $(LIBSUFFIX)d
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 
-!if "$(USE_SRC_DIR)" == "1"
-ICE_CPPFLAGS		= -I"$(ICE_DIR)\cpp\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\cpp\lib"
+!if "$(ice_src_dist)" != ""
+ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib"
 !else
-ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
+ICE_CPPFLAGS		= -I"$(ice_dir)\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib"
 !endif
 
-slicedir                = $(top_srcdir)\..\slice
+slicedir                = $(ice_dir)\slice
 
 RUBY_CPPFLAGS		= -I"$(RUBY_HOME)\lib\ruby\1.8\i386-mswin32"
 RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"
@@ -95,10 +96,10 @@ RUBY_LIBS		= msvcrt-ruby18.lib
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
-!if "$(USE_SRC_DIR)" == "1"
-SLICE2RB		= "$(ICE_DIR)\cpp\bin\slice2rb.exe"
+!if "$(ice_src_dist)" != ""
+SLICE2RB		= "$(ice_cpp_dir)\bin\slice2rb.exe"
 !else
-SLICE2RB		= "$(ICE_DIR)\bin\slice2rb.exe"
+SLICE2RB		= "$(ice_dir)\bin\slice2rb.exe"
 !endif
 
 EVERYTHING		= all clean install

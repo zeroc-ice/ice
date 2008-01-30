@@ -7,13 +7,6 @@
 #
 # **********************************************************************
 
-!if "$(ICE_HOME)" == ""
-ICE_DIR		= $(top_srcdir)\..
-USE_SRC_DIR	= 1
-!else
-ICE_DIR 	= $(ICE_HOME)
-!endif
-
 #
 # Define DEBUG as yes if you want to build with debug information and
 # assertions enabled.
@@ -31,28 +24,31 @@ ICE_DIR 	= $(ICE_HOME)
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+# Setup some variables for Make.rules.common
+ice_language = vb
+slice_translator = slice2cs.exe
+
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 
-bindir			= $(top_srcdir)\bin
-libdir			= $(top_srcdir)\lib
-
-!if exist ("$(ICE_DIR)\bin\icecs.dll")
-csbindir	 	= $(ICE_DIR)\bin
+!if "$(ice_src_dist)" != ""
+csbindir			= $(ice_dir)\cs\bin
 !else
-csbindir 		= $(top_srcdir)\..\cs\bin
+csbindir			= $(ice_dir)\bin
 !endif
+
+slicedir                = $(ice_dir)\slice
 
 #
 # If a slice directory is contained along with this distribution -- use it. 
 # Otherwise use paths relative to $(ICE_HOME).
 #
-
-!if exist ("$(ICE_DIR)\slice")
-slicedir 		= $(ICE_DIR)\slice
-!else
-slicedir                = $(ICE_DIR)\..\slice
-!endif
 
 VBC			= vbc -nologo /r:system.dll
 
@@ -72,10 +68,10 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-!if "$(USE_SRC_DIR)" == "1"
-SLICE2CS		= "$(ICE_DIR)\cpp\bin\slice2cs.exe"
+!if "$(ice_src_dist)" != ""
+SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
 !else
-SLICE2CS		= "$(ICE_DIR)\bin\slice2cs.exe"
+SLICE2CS		= "$(ice_dir)\bin\slice2cs.exe"
 !endif
 
 EVERYTHING		= all clean depend config
@@ -102,7 +98,7 @@ clean::
 
 !if "$(SLICE_SRCS)" != ""
 depend::
-	$(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | python $(top_srcdir)\config\makedepend.py > .depend
+	$(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | python $(ice_dir)\config\makedepend.py > .depend
 !else
 depend::
 !endif

@@ -230,19 +230,14 @@ do
     # Now append wildcard matched exclusions! Scan path, add exclusions for
     # each instance of the provided file specs
     #
-    find $mappingdir `fquery .gitignore expect.py` | (tee -a exclusions.dat &&\
-    if [ `wc -l` == 0 ]  
-    then 
-        echo "'find' no results" >2 
-        exit 1 
-    fi) 
+    find $mappingdir `fquery .gitignore expect.py` >> exclusions.bat
 
     #
     # Use tar + the exclusion file to copy the archive to a staging location.
     # We don't want to work on the archive in place because it makes it
     # difficult to resolve distribution related issues.
     #
-    tar c $mappingdir -X exclusions.dat | tar xf - -C $DISTRIBUTION
+    tar c -X exclusions.dat $mappingdir | tar xf - -C $DISTRIBUTION
 done
 
 cp Makefile $DISTRIBUTION
@@ -254,15 +249,16 @@ cp allTests.py $DISTRIBUTION
 echo "Fixing version markup..."
 
 cd $DISTRIBUTION
-
-for f in "cpp/config/glacier2router.cfg cpp/config/icegridregistry.cfg" 
+for f in "cpp/config/glacier2router.cfg cpp/config/icegridregistry.cfg"
 do
-    sed -i -e "s/@ver@/$ICEVER/g" -e "s/@mmver@/$ICEMMVER/g" $f
+    sed -i "" -e "s/@ver@/$ICEVER/g" $f
+    sed -i "" -e "s/@mmver@/$ICEMMVER/g" $f
 done
 
 for f in `find . -name "INSTALL*" -or -name "README*" -type f` 
 do 
-    sed -i -e "s/@ver@/$ICEVER/g" -e "s/@mmver@/$ICEMMVER/g" $f 
+    sed -i "" -e "s/@ver@/$ICEVER/g" $f
+    sed -i "" -e "s/@mmver@/$ICEMMVER/g" $f
 done
 
 for f in `find . -name "*.y"`
@@ -311,7 +307,7 @@ do
     [ -e $f ] || { echo "ERROR: `pwd`/$f does not exist" ; exit 1; }
     cp $f $SOURCEDIR
 done
-tar cfz $SOURCEDIR/distfiles.tar.gz distribution --exclude distribution/bin -C cpp/include/IceUtil Config.h -C ../../.. `[ -e RELEASE_NOTES.txt ] && echo "RELEASE_NOTES.txt"` || { echo "ERROR: tar operation returned non-zero status" ; exit 1; }
+tar cfz $SOURCEDIR/distfiles.tar.gz --exclude distribution/bin distribution -C cpp/include/IceUtil Config.h -C ../../.. `[ -e RELEASE_NOTES.txt ] && echo "RELEASE_NOTES.txt"` || { echo "ERROR: tar operation returned non-zero status" ; exit 1; }
 
 #
 # Consolidating demoscript archive.
