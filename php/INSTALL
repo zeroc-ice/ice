@@ -19,18 +19,23 @@ Requirements
 Building PHP with the Ice extension (Linux)
 ======================================================================
 
-This source distribution only supports building IcePHP as a dynamic
+This source distribution only supports building Ice for PHP as a dynamic
 PHP extension; the product of the build is a shared library that you
 must configure PHP to load.
 
-Follow the steps below to build IcePHP:
+Follow the steps below to build Ice for PHP:
 
-1. Edit config/Make.rules and review the build settings. For example,
+1. Change to Ice for PHP source subdirectory.
+
+   > cd Ice-@ver@/php
+
+2. Edit config/Make.rules and review the build settings. For example,
    you may want to enable OPTIMIZE. If your PHP installation resides
    in a non-standard location, modify the PHP_HOME setting to contain
    the installation directory.
 
-2. Set the ICE_HOME environment variable to the directory containing
+3. If you have not built Ice for C++ from the cpp subdirectory, then
+   set the ICE_HOME environment variable to the directory containing 
    your Ice installation. For example, if Ice is installed in
    /opt/Ice-@ver@, set ICE_HOME as follows:
 
@@ -73,17 +78,20 @@ Follow these instructions to build the Ice extension:
 1) Download the PHP5 binary archive or Windows installer and install
    the distribution.
 
-2) Download and extract the PHP5 sources (IcePHP requires the PHP
+2) Download and extract the PHP5 sources (Ice for PHP requires the PHP
    header files).
 
 3) Open a command window.
 
-4) Set the ICE_HOME environment variable to the location of your Ice
-   installation. For example:
+4) If you have not built Ice for C++ from the cpp subdirectory then you 
+   need to set the ICE_HOME environment variable to the location of your
+   Ice for C++ installation. For example:
 
    > set ICE_HOME=C:\Ice-@ver@-VC60
 
-5) Change to the IcePHP source directory.
+5) Change to the Ice for PHP source directory.
+
+  > cd Ice-@ver@\php
 
 6) Open config\Make.rules.mak, review the comments, and make any
    necessary changes. In particular, you may need to change the values
@@ -94,7 +102,7 @@ Follow these instructions to build the Ice extension:
 
    > nmake /f Makefile.mak
 
-8) Upon successful completion, the IcePHP extension is created as
+8) Upon successful completion, the Ice for PHP extension is created as
    bin\php_ice.dll (Release) or bin\php_iced.dll (Debug).
 
 
@@ -171,7 +179,7 @@ new features. In particular, SELinux can prevent the httpd daemon from
 opening network connections and reading files without the proper
 SELinux types.
 
-If you suspect that your IcePHP application does not work due to
+If you suspect that your Ice for PHP application does not work due to
 SELinux restrictions, we recommend that you first try it with SELinux
 disabled. As root, run:
 
@@ -179,8 +187,8 @@ disabled. As root, run:
 
 to disable SELinux until the next reboot of your computer.
 
-If you want to run httpd with IcePHP and SELinux enabled, you must do
-the following:
+If you want to run httpd with Ice for PHP and SELinux enabled, you must
+do the following:
 
 - Allow httpd to open network connections:
 

@@ -32,26 +32,17 @@ Follow these steps:
 
    $ export RUBY_HOME=/opt/ruby-1.8.5
 
-2. If you installed the Ice @ver@ for C++ development kit in a
-   non-standard location, set the ICE_HOME environment variable to the
-   installation directory. For example:
+2. If you have not built Ice for C++ from the cpp subdirectory or if
+   you installed the Ice @ver@ for C++ development kit in a non-standard
+   location, set the ICE_HOME environment variable to the installation
+   directory. For example:
 
    $ export ICE_HOME=/opt/Ice-@ver@
 
-3. If necessary, modify your PATH environment variable to include the
-   following directories:
-
-   $ export PATH=$ICE_HOME/bin:$RUBY_HOME/bin:$PATH
-
-4. If necessary, modify your LD_LIBRARY_PATH environment variable to
-   include $ICE_HOME/lib:
-
-   $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
-
-5. Review the settings in config/Make.rules and adjust as necessary.
+3. Review the settings in config/Make.rules and adjust as necessary.
    For example, you may wish to enable OPTIMIZE.
 
-6. Run make.
+4. Run make.
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
@@ -63,20 +54,20 @@ The Ruby interpreter must be able to locate the Ice extension. One way
 to configure the interpreter is to define the RUBYLIB environment
 variable as follows:
 
-  $ export RUBYLIB=/opt/IceRuby-@ver@/ruby:$RUBYLIB
+  $ export RUBYLIB=/opt/Ice-@ver@/ruby:$RUBYLIB
 
 This example assumes that your Ice for Ruby installation is located in
-the /opt/IceRuby-@ver@ directory.
+the /opt/Ice-@ver@ directory.
 
 In addition, you must modify your PATH environment variable to include
-the directory /opt/IceRuby-@ver@/bin as shown below:
+the directory /opt/Ice-@ver@/bin as shown below:
 
-  $ export PATH=/opt/IceRuby-@ver@/bin:$PATH
+  $ export PATH=/opt/Ice-@ver@/bin:$PATH
 
 You must also modify LD_LIBRARY_PATH to include the directory
-/opt/IceRuby-@ver@/lib:
+/opt/Ice-@ver@/lib:
 
-  $ export LD_LIBRARY_PATH=/opt/IceRuby-@ver@/lib:LD_LIBRARY_PATH
+  $ export LD_LIBRARY_PATH=/opt/Ice-@ver@/lib:LD_LIBRARY_PATH
 
 To verify that Ruby can load the Ice extension successfully, open a
 command window and start the interpreter using irb:
@@ -115,9 +106,9 @@ There are two ways to solve this problem:
 - Change the default security context for the Ice extension using the
   following command:
 
-  $ chcon -t texrel_shlib_t /opt/IceRuby-@ver@/ruby/IceRuby.so
+  $ chcon -t texrel_shlib_t /opt/Ice-@ver@/ruby/IceRuby.so
 
-  Replace /opt/IceRuby-@ver@ with your installation directory.
+  Replace /opt/Ice-@ver@ with your installation directory.
 
 - Disable SELinux completely by adding the following line to your
   /etc/sysconfig/selinux file:
@@ -140,16 +131,15 @@ must first start its corresponding server from another Ice language
 mapping, such as C++.
 
 As an example, let's run the hello application in demo/Ice/hello using
-the C++ server. Assuming that your compiled Ice source distribution is
-located in /tmp/Ice-@ver@, and that you have already compiled the
-sample C++ programs, we begin by starting the server:
+the C++ server. Assuming that you have already compiled the sample C++
+programs in the cpp subdirectory, we begin by starting the server:
 
-  $ cd /tmp/Ice-@ver@/demo/Ice/hello
+  $ cd Ice-@ver@/cpp/demo/Ice/hello
   $ server
 
 In a separate window, start the client:
 
-  $ cd /opt/IceRuby-@ver@/demo/Ice/hello
+  $ cd Ice-@ver@/rb/demo/Ice/hello
   $ ruby Client.rb
 
 Some demo directories contain README files if additional requirements

@@ -19,22 +19,32 @@ Building the Ice extension for Python (Linux/Solaris/HP-UX/Mac OS X)
 
 Follow these steps to build the Ice extension for Python:
 
-1) Edit config/Make.rules and do the following:
+1) Change to Ice for Python source subdirectory.
+
+   > cd Ice-@ver@/py
+
+2) If you have not built Ice for C++ from the cpp subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
+
+   > export ICE_HOME=/opt/Ice-@ver@
+
+3) Edit config/Make.rules and do the following:
 
    * Modify the installation prefix (if necessary).
 
    * Review the comments describing the PYTHON_HOME variable.
 
-2) Execute 'python -V' to verify that the correct Python interpreter
+4) Execute 'python -V' to verify that the correct Python interpreter
    is in your executable search path.
 
-3) Run 'make'.
+5) Run 'make'.
 
-4) Upon successful completion, run 'make install'. You may need
+6) Upon successful completion, run 'make install'. You may need
    additional user privileges to install in the directory specified by
    config/Make.rules.
 
-5) See "Configuring your Environment" below.
+7) See "Configuring your Environment" below.
 
 
 ======================================================================
@@ -53,10 +63,13 @@ Follow these steps to build the Ice extension for Python:
    start a "Visual Studio Command Prompt" by selecting the appropriate
    entry from the Visual Studio program group in your Start menu.
 
-2) Change to the Ice for Python source directory.
+2) Change to the Ice for Python source subdirectory.
 
-3) Set the ICE_HOME environment variable with the Ice installation
-   directory. For example:
+  > cd Ice-@ver@\py
+
+3) If you have not built Ice for C++ from the cpp subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
 
    > set ICE_HOME=C:\Ice-@ver@
 
@@ -116,10 +129,10 @@ Unix:
 
   Modify your PYTHONPATH environment variable to include the Ice 
   extension for Python. Assuming you installed the extension in the
-  default directory (/opt/IcePy-@ver@), you would modify your
+  default directory (/opt/Ice-@ver@), you would modify your
   environment as shown below:
 
-  $ export ICEPY_HOME=/opt/IcePy-@ver@
+  $ export ICEPY_HOME=/opt/Ice-@ver@
   $ export PYTHONPATH=$ICEPY_HOME/python:$PYTHONPATH
 
 Windows:
@@ -129,10 +142,10 @@ Windows:
   DLL as well as the Python source files in the "python" subdirectory.
   This is normally accomplished by setting the PYTHONPATH environment
   variable to contain the necessary subdirectory. For example, if
-  the Ice for Python extension is installed in C:\IcePy-@ver@, you
+  the Ice for Python extension is installed in C:\Ice-@ver@, you
   could configure your environment as follows:
 
-  > set ICEPY_HOME=C:\IcePy-@ver@
+  > set ICEPY_HOME=C:\Ice-@ver@
   > set PYTHONPATH=%ICEPY_HOME%\python
 
 

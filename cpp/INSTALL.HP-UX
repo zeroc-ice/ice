@@ -135,9 +135,9 @@ your home directory):
 
 $ gunzip -c Ice-@ver@.tar.gz | tar xvf -
 
-Change the working directory to Ice-@ver@:
+Change the working directory to Ice-@ver@/cpp:
 
-$ cd Ice-@ver@
+$ cd Ice-@ver@/cpp
 
 Edit config/Make.rules to establish your build configuration. The
 comments in the file provide more information. Pay particular

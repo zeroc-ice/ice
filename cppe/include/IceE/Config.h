@@ -61,6 +61,13 @@
 #endif
 
 //
+// Blackfin does not support wstring.
+//
+#if defined(__BFIN__)
+#undef ICEE_HAS_WSTRING
+#endif
+
+//
 // Use poll()/WSAEventSelect for timeouts. 
 //
 // Using WSAEventSelect for timeouts on Windows is necessary because
@@ -97,13 +104,14 @@
 // of Itanium (IA64) and MIPS.
 //
 #if defined(__i386)  || defined(_M_IX86)    || defined (__x86_64) || \
-    defined (_M_ARM) || defined(__MIPSEL__) || defined (__ARMEL__)
+    defined (_M_ARM) || defined(__MIPSEL__) || defined (__ARMEL__) || \
+    defined (__BFIN__)
 #   define ICE_LITTLE_ENDIAN
 #elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || \
       defined(__ppc__) || defined(_ARCH_COM) || defined(__MIPSEB__)
 #   define ICE_BIG_ENDIAN
 #else
-#   error "Unknown architecture"
+#    define ICE_LITTLE_ENDIAN
 #endif
 
 //
