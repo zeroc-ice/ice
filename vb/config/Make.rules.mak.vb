@@ -24,7 +24,9 @@
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-# Setup some variables for Make.rules.common
+#
+# Common definitions
+#
 ice_language = vb
 slice_translator = slice2cs.exe
 
@@ -34,16 +36,11 @@ slice_translator = slice2cs.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-SHELL			= /bin/sh
-VERSION			= 3.3.0
-
 !if "$(ice_src_dist)" != ""
 csbindir			= $(ice_dir)\cs\bin
 !else
 csbindir			= $(ice_dir)\bin
 !endif
-
-slicedir                = $(ice_dir)\slice
 
 #
 # If a slice directory is contained along with this distribution -- use it. 
