@@ -53,7 +53,9 @@ DEBUG			= yes
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-# Setup some variables for Make.rules.common
+#
+# Common definitions
+#
 ice_language = cs
 slice_translator = slice2cs.exe
 
@@ -63,16 +65,11 @@ slice_translator = slice2cs.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-SHELL			= /bin/sh
-VERSION			= 3.3.0
-
 !if "$(ice_src_dist)" != ""
 bindir			= $(ice_dir)\cs\bin
 !else
 bindir			= $(ice_dir)\bin
 !endif
-
-slicedir                = $(ice_dir)\slice
 
 install_bindir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib

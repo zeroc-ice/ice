@@ -11,7 +11,24 @@
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+SHELL			= /bin/sh
+VERSION_MAJOR   	= 3
+VERSION_MINOR   	= 3
+VERSION			= 3.3.0
+SOVERSION		= 33
+
+INSTALL			= cp -fp
+INSTALL_PROGRAM		= ${INSTALL}
+INSTALL_LIBRARY		= ${INSTALL}
+INSTALL_DATA		= ${INSTALL}
+
+OBJEXT			= .o
+
+UNAME			:= $(shell uname)
+
+#
 # Ensure ice_language has been set by the file that includes this one.
+#
 ifndef ice_language
 $(error ice_language must be defined)
 endif
@@ -28,92 +45,80 @@ endif
 #
 
 #
-# The following code below checks if:
+# First, check if we're building a source distribution. 
 #
-# - we're building a source distribution (in which case either the translator from the 
-#   source distribution is used or the one from an external binary distribution specified 
-#   with ICE_HOME=<path> or -Dice.home=<path>).
-#
-# - we're building against a binary distribution (e.g.: building the demos using a binary
-#   distribution specified with ICE_HOME=<path> or -Dice.home=<path>).
-#
-# - we're building against an RPM distribution (e.g.: building the demos using the installed
-#   RPM distribution).
-#
-# NOTE: Changes made to these rules should also be applied to java/config/common.xml
-# 
-# Once the kind of distribution is determined either ice_src_dist, ice_bin_dist 
-# or ice_rpm_dist is defined and the ice_dir variable contains the home of the 
-# Ice distribution. If we're building a source distribution, ice_cpp_dir is also
-# set to the home of the Ice distribution containing the C++ binaries (which can 
-# be different from $(ice_dir)/cpp).
-#
-
-#
-# First, check if we're building a source distribution.
+# If building from a source distribution, ice_dir is defined to the
+# top-level directory of the source distribution and ice_cpp_dir is
+# defined to the directory containing the C++ binaries and headers to
+# use to build the sources.
 #
 ifeq ($(shell test -d $(top_srcdir)/../$(ice_language) && echo 0),0)
-    #
-    # When building a source distribution, we allow using either the translators
-    # from a binary distribution or the local translators.
-    #
+
     ice_dir = $(top_srcdir)/..
-    ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
-	ice_cpp_dir = $(ice_dir)/cpp
-    else
-        ifeq ($(shell test "$(ICE_HOME)" -a -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
-            ice_cpp_dir = $(ICE_HOME)
-        else
-            ice_cpp_dir = $(ice_dir)/cpp
-        endif
-    endif
-endif
-ifdef ice_dir
     ice_src_dist = 1
+
+    #
+    # When building a source distribution, if ICE_HOME is specified, it takes precedence over 
+    # the source tree for building the language mappings. For example, this can be used to 
+    # build the Python language mapping using the translators from the distribution specified
+    # by ICE_HOME.
+    #
+    ifneq ($(ICE_HOME),)
+
+        ifdef slice_translator
+            ifneq ($(shell test -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+            endif
+	    ice_cpp_dir = $(ICE_HOME)
+	else
+$(warning Ignoring ICE_HOME environment variable to build current source tree.)
+	    ice_cpp_dir = $(ice_dir)/cpp
+	endif
+
+	ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
+$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
+	endif
+    else
+	ice_cpp_dir = $(ice_dir)/cpp
+    endif
+
 endif
 
 #
 # Then, check if we're building against a binary distribution.
 #
-ifndef ice_dir
+ifndef ice_src_dist
+
     ifndef slice_translator
 $(error slice_translator must be defined)
     endif
 
-    ifeq ($(shell test -f $(top_srcdir)/bin/$(slice_translator) && echo 0), 0)
-        ice_dir = $(top_srcdir)
-    else 
-        ifeq ($(shell test "$(ICE_HOME)" -a -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
-            ice_dir = $(ICE_HOME)
+    ifneq ($(ICE_HOME),)
+        ifneq ($(shell test -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+        endif
+        ice_dir = $(ICE_HOME)
+    else
+        ifeq ($(shell test -f $(top_srcdir)/bin/$(slice_translator) && echo 0), 0)
+            ice_dir = $(top_srcdir)
+        else 
+	    ifeq ($(shell test -f /usr/bin/$(slice_translator) && echo 0), 0)
+	        ice_dir = /usr
+	        ifeq ($(shell test -f /opt/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
+$(warning Found $(slice_translator) in both /usr/bin and /opt/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
+		endif
+	    else
+	        ifeq ($(shell test -f /opt/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
+	            ice_dir = /opt/Ice-$(VERSION)
+		endif
+	    endif
         endif
     endif
-    ifdef ice_dir
-        ice_bin_dist = 1
-    endif
-endif
 
-#
-# Then, check if we're building against an RPM distribution.
-#
-ifndef ice_dir
-    ifndef slice_translator
-$(error slice_translator must be defined)
-    endif
-
-    ifeq ($(shell test -f /usr/bin/$(slice_translator) && echo 0),0)
-        ice_dir = /usr
-    endif
-    ifdef ice_dir
-        ice_rpm_dist = 1
-    endif
-endif
-
-#
-# At this point, either ice_rpm_dist, ice_src_dist or ice_bin_dist should be set, if not
-# we couldn't find a valid Ice distribution.
-#
-ifndef ice_dir
+    ifndef ice_dir
 $(error Unable to find a valid Ice distribution, please verify ICE_HOME is properly configured and Ice is correctly installed.)
+    endif
+    ice_bin_dist = 1
 endif
 
 #
@@ -126,7 +131,7 @@ ifeq ($(ice_require_cpp), "yes")
         ice_cpp_header = $(ice_dir)/include/Ice/Config.h
     endif
     ifneq ($(shell test -f $(ice_cpp_header) && echo 0),0)
-$(error Unable to find a valid Ice distribution with the C++ header files, please verify ICE_HOME is properly configured and Ice is correctly installed.)
+$(error Unable to find the C++ header files in $(ice_dir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
     endif
 endif
 
@@ -141,16 +146,25 @@ ifndef ice_src_dist
         endif
     endif
 
-    ifdef ice_rpm_dist
+    ifeq ($(ice_dir), /usr)
         # Clear the embedded runpath prefix if building against RPM distribution.
         embedded_runpath_prefix =
     endif
 endif
 
 #
+# Set slicedir to the path of the directory containing the Slice files.
+#
+ifeq ($(ice_dir), /usr)
+    slicedir = /usr/share/Ice-$(VERSION)/slice
+else
+    slicedir = $(ice_dir)/slice
+endif
+
+#
 # Set environment variables for the Slice translator.
 #
-ifndef ice_rpm_dist
+ifneq ($(ice_dir), /usr)
     ifdef ice_src_dist
         ice_lib_dir = $(ice_cpp_dir)/lib
     else

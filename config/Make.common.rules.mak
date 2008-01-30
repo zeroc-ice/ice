@@ -11,7 +11,15 @@
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+SHELL			= /bin/sh
+VERSION			= 3.3.0
+SOVERSION		= 33
+
+OBJEXT			= .obj
+
+#
 # Ensure ice_language has been set by the file that includes this one.
+#
 !if "$(ice_language)" == ""
 !error ice_language must be defined
 !endif
@@ -28,73 +36,72 @@
 #
 
 #
-# The following code below checks if:
+# First, check if we're building a source distribution. 
 #
-# - we're building a source distribution (in which case either the translator from the
-#   source distribution is used or the one from an external binary distribution specified
-#   with ICE_HOME=<path> or -Dice.home=<path>).
-#
-# - we're building against a binary distribution (e.g.: building the demos using a binary
-#   distribution specified with ICE_HOME=<path> or -Dice.home=<path>).
-#
-# NOTE: Changes made to these rules should also be applied to java/config/common.xml
-#
-# Once the kind of distribution is determined either ice_src_dist, ice_bin_dist
-# is defined and the ice_dir variable contains the home of the Ice distribution.
-# If we're building a source distribution, ice_cpp_dir is also set to the home of
-# the Ice distribution containing the C++ binaries (which can be different from
-# $(ice_dir)/cpp).
-#
-
-#
-# First, check if we're building a source distribution.
+# If building from a source distribution, ice_dir is defined to the
+# top-level directory of the source distribution and ice_cpp_dir is
+# defined to the directory containing the C++ binaries and headers to
+# use to build the sources.
 #
 !if exist ($(top_srcdir)\..\$(ice_language))
-#
-# When building a source distribution, we allow using either the translators
-# from a binary distribution or the local translators.
-#
+
 ice_dir = $(top_srcdir)\..
-!if exist ($(ice_dir)\cpp\bin\$(slice_translator))
-ice_cpp_dir = $(ice_dir)\cpp
-!else
-!if "$(ICE_HOME)" != "" && exist ($(ICE_HOME)\bin\$(slice_translator))
+ice_src_dist = 1
+
+#
+# When building a source distribution, if ICE_HOME is specified, it takes precedence over 
+# the source tree for building the language mappings. For example, this can be used to 
+# build the Python language mapping using the translators from the distribution specified
+# by ICE_HOME.
+#
+!if "$(ICE_HOME)" != ""
+
+!if "$(slice_translator)" != ""
+!if !exist ($(ICE_HOME)\bin\$(slice_translator))
+!error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.
+!endif
 ice_cpp_dir = $(ICE_HOME)
 !else
+!message Ignoring ICE_HOME environment variable to build current source tree.
+ice_cpp_dir = $(ice_dir)/cpp
+!endif
+
+!if exist ($(ice_dir)\cpp\bin\$(slice_translator))
+!message Found $(slice_translator) in both ICE_HOME\bin and $(ice_dir)\cpp\bin, ICE_HOME\bin\$(slice_translator) will be used!
+!endif
+
+!else
+
 ice_cpp_dir = $(ice_dir)\cpp
+
 !endif
-!endif
-!endif
-!if "$(ice_dir)" != ""
-ice_src_dist = 1
+
 !endif
 
 #
 # Then, check if we're building against a binary distribution.
 #
-!if "$(ice_dir)" == ""
+!if "$(ice_src_dist)" == ""
+
 !if "$(slice_translator)" == ""
 !error slice_translator must be defined
 !endif
 
-!if exist ($(top_srcdir)\bin\$(slice_translator))
-ice_dir = $(top_srcdir)
-!else
-!if "$(ICE_HOME)" != "" && exist ($(ICE_HOME)\bin\$(slice_translator))
+!if "$(ICE_HOME)" != ""
+!if !exist ($(ICE_HOME)\bin\$(slice_translator))
+!error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.
+!endif
 ice_dir = $(ICE_HOME)
-!endif
-!endif
-!if "$(ice_dir)" != ""
-ice_bin_dist = 1
-!endif
+!elseif exist ($(top_srcdir)/bin/$(slice_translator))
+ice_dir = $(top_srcdir)
+!elseif exist ("C:\Ice-$(VERSION)\bin\$(slice_translator)")
+ice_dir = "C:\Ice-$(VERSION)"
 !endif
 
-#
-# At this point, either ice_src_dist or ice_bin_dist should be set, if not
-# we couldn't find a valid Ice distribution.
-#
 !if "$(ice_dir)" == ""
 !error Unable to find a valid Ice distribution, please verify ICE_HOME is properly configured and Ice is correctly installed.
+!endif
+ice_bin_dist = 1
 !endif
 
 #
@@ -110,3 +117,9 @@ ice_cpp_header = $(ice_dir)\include\Ice\Config.h
 !error Unable to find a valid Ice distribution with the C++ header files, please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 !endif
+
+#
+# Set slicedir to the path of the directory containing the Slice files.
+#
+slicedir		= $(ice_dir)\slice
+

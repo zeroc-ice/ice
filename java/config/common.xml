@@ -80,30 +80,27 @@
       <path location="${top.dir}"/>
     </pathconvert>
 
-    <!-- 
-
-         The following code below now checks if:
-
-         - we're building a source distribution (in which case either the translator from the source 
-           distribution is used or the one from an external binary distribution specified with 
-           ICE_HOME=<path> or -Dice.home=<path>).
-
-         - we're building against a binary distribution (e.g.: building the demos using a binary
-           distribution specified with ICE_HOME=<path> or -Dice.home=<path>).
-
-         - we're building against an RPM distribution (e.g.: building the demos using the installed
-           RPM distribution).
-
-         Once we have figured this out, we set the ice.home, slice.dir, ant.task.dir and ice.classpath 
-         properties accordingly.
-
-         NOTE: Changes made to these rules should also be applied to config/Make.common.rules
-
-      -->
-
     <condition property="slice.translator" value="slice2java.exe" else="slice2java">
       <os family="windows"/>
     </condition>
+
+    <fail message="Unable to find ${slice.translator} in ${ice.home}, please verify ice.home is properly configured and Ice is correctly installed.">
+        <condition>
+            <and>
+                <isset property="ice.home"/>
+                <not><available file="${ice.home}/bin/${slice.translator}"/></not>
+            </and>
+        </condition>
+    </fail>
+    <fail message="Unable to find ${slice.translator} in ${env.ICE_HOME}, please verify ICE_HOME is properly configured and Ice is correctly installed.">
+        <condition>
+            <and>
+                <not><isset property="ice.home"/></not>
+                <isset property="env.ICE_HOME"/>
+                <not><available file="${env.ICE_HOME}/bin/${slice.translator}"/></not>
+            </and>
+        </condition>
+    </fail>
 
     <!-- First, check if we're building a source distribution. -->
 
@@ -119,18 +116,18 @@
             <available file="${ice.home}/bin/${slice.translator}"/>
         </and>
     </condition>
-    <condition property="ice.cpp.dir" value="${ice.dir}/cpp">
-        <and>
-            <isset property="ice.dir"/>
-            <not><isset property="ice.cpp.dir"/></not>
-            <available file="${ice.dir}/cpp/bin/${slice.translator}"/>
-        </and>
-    </condition>
     <condition property="ice.cpp.dir" value="${env.ICE_HOME}" else="${ice.dir}/cpp">
         <and>
             <isset property="ice.dir"/>
             <not><isset property="ice.cpp.dir"/></not>
             <available file="${env.ICE_HOME}/bin/${slice.translator}"/>
+        </and>
+    </condition>
+    <condition property="ice.warn.duplicate.translator">
+        <and>
+             <isset property="ice.cpp.dir"/>
+             <not><equals arg1="${ice.cpp.dir}" arg2="${ice.dir}/cpp"/></not>
+             <available file="${ice.dir}/cpp/bin/${slice.translator}"/>
         </and>
     </condition>
     <condition property="ice.src.dist">
@@ -144,48 +141,50 @@
     <condition property="ice.dir" value="${ice.home}">
         <and>
           <not><isset property="ice.dir"/></not>
-          <available file="${ice.home}/bin/${slice.translator}"/>
-          <available file="${ice.home}/ant/SliceTask.class"/>
+          <isset property="ice.home"/>
+        </and>
+    </condition>
+    <condition property="ice.dir" value="${env.ICE_HOME}">
+        <and>
+          <not><isset property="ice.dir"/></not>
+          <isset property="env.ICE_HOME"/>
         </and>
     </condition>
     <condition property="ice.dir" value="${ice.top.dir}">
         <and>
           <not><isset property="ice.dir"/></not>
           <available file="${ice.top.dir}/bin/${slice.translator}"/>
-          <available file="${ice.top.dir}/ant/SliceTask.class"/>
         </and>
     </condition>
-    <condition property="ice.dir" value="${env.ICE_HOME}">
+    <condition property="ice.dir" value="/usr">
         <and>
           <not><isset property="ice.dir"/></not>
-          <available file="${env.ICE_HOME}/bin/${slice.translator}"/>
-          <available file="${env.ICE_HOME}/ant/SliceTask.class"/>
+          <available file="/usr/bin/${slice.translator}"/>
+        </and>
+    </condition>
+    <condition property="ice.dir" value="C:\Ice-${ice.version}">
+        <and>
+            <os family="windows"/>
+            <not><isset property="ice.dir"/></not>
+            <available file="C:\Ice-${ice.version}\bin\${slice.translator}"/>
+        </and>
+    </condition>
+    <condition property="ice.dir" value="/opt/Ice-${ice.version}">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="ice.dir"/></not>
+            <available file="/opt/Ice-${ice.version}/bin/${slice.translator}"/>
         </and>
     </condition>
     <condition property="ice.bin.dist">
         <and>
             <not><isset property="ice.src.dist"/></not>
             <isset property="ice.dir"/>
-	    </and>
+        </and>
     </condition>
-
-    <!-- Then, check if we're building against an RPM distribution on Linux. -->
-
-    <condition property="ice.rpm.dist">
-        <and>
-            <os name="Linux"/>
-            <not><isset property="ice.dir"/></not>
-            <available file="/usr/lib/Ice-${ice.version}/ant/SliceTask.class"/>
-            <available file="/usr/bin/${slice.translator}"/>
-	    </and>
-    </condition>
-
-    <!-- At this point, either ice.rpm.dist, ice.src.dist or ice.bin.dist should be set, if not
-         we couldn't find a valid Ice distribution. -->
     <fail message="Unable to find a valid Ice distribution, please verify ICE_HOME is properly configured and Ice is correctly installed.">
         <condition>
             <not><or>
-              <isset property="ice.rpm.dist"/>
               <isset property="ice.src.dist"/>
               <isset property="ice.bin.dist"/>
             </or></not>
@@ -199,37 +198,16 @@
     <condition property="ice.home" value="${ice.cpp.dir}">
         <isset property="ice.src.dist"/>
     </condition>
-    <fail message="Unable to find a valid Ice distribution in ${ice.home}, please verify ice.home is properly configured and Ice is correctly installed.">
-        <condition>
-            <and>
-              <isset property="ice.rpm.dist"/>
-              <isset property="ice.home"/>
-              <not><available file="${ice.home}/bin/${slice.translator}"/></not>
-            </and>  
-        </condition>
-    </fail>
-    <fail message="Unable to find a valid Ice distribution in ${env.ICE_HOME}, please verify ICE_HOME is properly configured and Ice is correctly installed.">
-        <condition>
-            <and>
-              <isset property="ice.rpm.dist"/>
-              <not><isset property="ice.home"/></not>
-              <isset property="env.ICE_HOME"/>
-              <not><available file="${env.ICE_HOME}/bin/${slice.translator}"/></not>
-            </and>  
-        </condition>
-    </fail>
 
-    <target name="config-init">
+    <target name="config-init-warn" if="ice.warn.duplicate.translator">
+        <echo message="Found ${slice.translator} in both ${ice.cpp.dir}/bin and ${ice.dir}/cpp/bin, ${ice.cpp.dir}/bin/${slice.translator} will be used!" level="warning"/>
+    </target>
+
+    <target name="config-init" depends="config-init-warn">
 
         <!-- Set slice.dir to the directory containing the Slice files. -->
-	<condition property="slice.dir" value="${ice.dir}/slice">
-	    <isset property="ice.src.dist"/>
-	</condition>
-	<condition property="slice.dir" value="${ice.dir}/slice">
-	    <isset property="ice.bin.dist"/>
-	</condition>
-	<condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice">
-	    <isset property="ice.rpm.dist"/>
+	<condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">
+	    <equals arg1="${ice.dir}" arg2="/usr"/>
 	</condition>
 
         <!-- Set ant.task.dir to the directory containing the Slice ant tasks. -->
@@ -237,10 +215,16 @@
 	    <isset property="ice.src.dist"/>
 	</condition>
 	<condition property="ant.task.dir" value="${ice.dir}/ant">
-	    <isset property="ice.bin.dist"/>
+            <and>
+	        <isset property="ice.bin.dist"/>
+                <not><equals arg1="${ice.dir}" arg2="/usr"/></not>
+            </and>
 	</condition>
 	<condition property="ant.task.dir" value="/usr/lib/Ice-${ice.version}/ant">
-	    <isset property="ice.rpm.dist"/>
+            <and>
+	        <isset property="ice.bin.dist"/>
+                <equals arg1="${ice.dir}" arg2="/usr"/>
+            </and>
 	</condition>
 
 	<taskdef name="slice2java" classpath="${ant.task.dir}" classname="Slice2JavaTask"/>
@@ -251,10 +235,16 @@
 	    <isset property="ice.src.dist"/>
 	</condition>
 	<condition property="dist.lib.dir" value="${ice.dir}/lib">
-	    <isset property="ice.bin.dist"/>
+            <and>
+	        <isset property="ice.bin.dist"/>
+                <not><equals arg1="${ice.dir}" arg2="/usr"/></not>
+            </and>
 	</condition>
 	<condition property="dist.lib.dir" value="/usr/lib/Ice-${ice.version}">
-	    <isset property="ice.rpm.dist"/>
+            <and>
+	        <isset property="ice.bin.dist"/>
+                <equals arg1="${ice.dir}" arg2="/usr"/>
+            </and>
 	</condition>
 
 	<condition property="dist.jar.file" value="${dist.lib.dir}/java2/Ice.jar" else="${dist.lib.dir}/Ice.jar">

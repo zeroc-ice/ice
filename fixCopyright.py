@@ -167,9 +167,7 @@ def replaceAllCopyrights(path, patchIceE):
     files = os.listdir(path)
     for x in files:
         fullpath = os.path.join(path, x);
-        if x == "CVS":
-            print "Skipping CVS directory"
-        elif os.path.isdir(fullpath) and not os.path.islink(fullpath):
+        if os.path.isdir(fullpath) and not os.path.islink(fullpath):
             replaceAllCopyrights(fullpath, patchIceE)
         else:
             
@@ -203,7 +201,7 @@ def replaceAllCopyrights(path, patchIceE):
             elif fnmatch.fnmatch(x, "Make*") or fnmatch.fnmatch(x, "*.properties"):
                 commentMark = "#"
                 copyrightLines = makefileCopyright
-            elif fnmatch.fnmatch(x, "*.xml")
+            elif fnmatch.fnmatch(x, "*.xml"):
                 commentBegin = "<!--"
                 commentEnd = "-->"
                 copyrightLines = xmlCopyright
@@ -235,51 +233,53 @@ for x in sys.argv[1:]:
     else:
         path = x
 
+ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__)))
+
 if patchIceE:
-    icee_home = findSourceTree("cppe", os.path.join("include", "IceE", "Config.h"))
+    icee_home = os.path.join(ice_dir, "cppe")
     if icee_home:
         replaceAllCopyrights(icee_home, True)
 
-    iceje_home = findSourceTree("javae", os.path.join("src", "IceUtil", "Version.java"))
+    iceje_home = os.path.join(ice_dir, "javae")
     if iceje_home:
         replaceAllCopyrights(iceje_home, True)
 else:
-    ice_home = findSourceTree("cpp", os.path.join("include", "IceUtil", "Config.h"))
+    ice_home = os.path.join(ice_dir, "cpp")
     if ice_home:
         replaceAllCopyrights(ice_home, False)
 
-    icej_home = findSourceTree("java", os.path.join("src", "IceUtil", "Version.java"))
+    icej_home = os.path.join(ice_dir, "java")
     if icej_home:
         replaceAllCopyrights(icej_home, False)
 
-    icecs_home = findSourceTree("cs", os.path.join("src", "Ice", "AssemblyInfo.cs"))
+    icecs_home = os.path.join(ice_dir, "cs")
     if icecs_home:
         replaceAllCopyrights(icecs_home, False)
 
-    icevb_home = findSourceTree("vb", os.path.join("config", "Make.rules.mak.vb"))
+    icevb_home = os.path.join(ice_dir, "vb")
     if icevb_home:
         replaceAllCopyrights(icevb_home, False)
 
-    icephp_home = findSourceTree("php", os.path.join("src", "IcePHP", "Profile.h"))
+    icephp_home = os.path.join(ice_dir, "php")
     if icephp_home:
         replaceAllCopyrights(icephp_home, False)
 
-    icepy_home = findSourceTree("py", os.path.join("modules", "IcePy", "Config.h"))
+    icepy_home = os.path.join(ice_dir, "py")
     if icepy_home:
         replaceAllCopyrights(icepy_home, False)
 
-    icerb_home = findSourceTree("rb", os.path.join("src", "IceRuby", "Config.h"))
+    icerb_home = os.path.join(ice_dir, "rb")
     if icerb_home:
         replaceAllCopyrights(icerb_home, False)
 
-    icedemo_home = findSourceTree("demoscript", os.path.join("pexpect.py"))
+    icedemo_home = os.path.join(ice_dir, "demoscript")
     if icedemo_home:
         replaceAllCopyrights(icedemo_home, False)
 
-    icedist_home = findSourceTree("distribution", os.path.join("lib", "DistUtils.py"))
+    icedist_home = os.path.join(ice_dir, "distribution")
     if icedist_home:
         replaceAllCopyrights(icedist_home, False)
         
-    config_home = findSourceTree("config", os.path.join("TestUtil.py"))
+    config_home = os.path.join(ice_dir, "config")
     if config_home:
         replaceAllCopyrights(config_home, False)
