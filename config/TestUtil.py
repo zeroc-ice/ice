@@ -79,6 +79,19 @@ def configurePaths():
     os.environ["CLASSPATH"] = os.path.join(toplevel, "java", "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
     os.environ["CLASSPATH"] = os.path.join(toplevel, "java", "lib") + os.pathsep + os.getenv("CLASSPATH", "")
 
+    if isWin32():
+        # This isn't needed, each test executable has a configuration file that specfies the assemblies to use.
+        #os.environ["PATH"] = os.path.join(toplevel, "cs", "bin") + os.pathsep + os.getenv("PATH", "")
+        pass
+    else:
+        os.environ["MONO_PATH"] = os.path.join(toplevel, "cs", "bin") + os.pathsep + os.getenv("MONO_PATH", "")
+    
+    # Not necessary, the tests look for python directly
+    #os.environ["PYTHONPATH"] = os.path.join(toplevel, "py", "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+
+    # Not necessary, the tests look for ruby directly
+    #os.environ["RUBYLIB"] = os.path.join(toplevel, "rb", "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
+ 
 def addLdPath(libpath):
     if isWin32():
         os.environ["PATH"] = libpath + os.pathsep + os.getenv("PATH", "")
@@ -224,6 +237,15 @@ def findTopLevel():
         raise "can't find toplevel directory!"
 
     return toplevel
+
+def getIceCppDir():
+    
+    #
+    # TODO: Right now, we simply return the source distribution cpp directory. In 
+    # the future we could allow running the tests against a binary distribution 
+    # specified with ICE_HOME?
+    #
+    return os.path.join(findTopLevel(), "cpp")
 
 findTopLevel()
 configurePaths()

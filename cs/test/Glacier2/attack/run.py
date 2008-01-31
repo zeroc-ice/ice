@@ -20,21 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-ice_home = None
-if not os.environ.has_key('ICE_HOME'):
-    relPath = os.path.join(TestUtil.findTopLevel(), "cpp", "bin") 
-    checkfile = "glacier2router"
-    if TestUtil.isWin32():
-        checkfile = checkfile + ".exe" 
-    if os.path.exists(os.path.join(relPath, checkfile)):
-        ice_home = os.path.dirname(relPath) 
-    else:
-        print "ICE_HOME is not defined."
-        sys.exit(0)
-else:
-    ice_home = os.environ['ICE_HOME']
-
-router = os.path.join(ice_home, "bin", "glacier2router")
+router = os.path.join(TestUtil.getIceCppDir(), "bin", "glacier2router")
 name = os.path.join("Glacier2", "router")
 testdir = os.path.dirname(os.path.abspath(__file__))
 

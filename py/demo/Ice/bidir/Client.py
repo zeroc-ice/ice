@@ -12,15 +12,13 @@ import os, sys, Ice
 
 slice_dir = os.path.normpath("../../../../slice")
 if not os.path.exists(slice_dir):
-    home_dir = os.getenv('ICEPY_HOME', '')
-    if len(home_dir) == 0 or not os.path.exists(os.path.join(home_dir, 'slice')):
-        home_dir = os.getenv('ICE_HOME', '')
+    home_dir = os.getenv('ICE_HOME', '')
     if len(home_dir) == 0 or not os.path.exists(os.path.join(home_dir, 'slice')):
         home_dir = os.path.join('/', 'usr', 'share', 'Ice-3.3.0')
     if not os.path.exists(os.path.join(home_dir, 'slice')):
         home_dir = os.path.join('/', 'opt', 'Ice-3.3.0')
     if not os.path.exists(os.path.join(home_dir, 'slice')):
-        print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
+        print sys.argv[0] + ': Slice directory not found. Define ICE_HOME.'
         sys.exit(1)
     slice_dir = os.path.join(home_dir, "slice")
 

@@ -10,6 +10,16 @@
 
 import os, sys, shutil
 
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+
 #
 # Show usage information.
 #
@@ -39,11 +49,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
 
-if not os.environ.has_key("ICE_HOME"):
-    print sys.argv[0] + ": error: ICE_HOME is not defined"
-    sys.exit(1)
-
-cppcerts = os.path.join(os.environ["ICE_HOME"], "test", "IceSSL", "certs")
+cppcerts = os.path.join(TestUtil.getIceCppDir(), "test", "IceSSL", "certs")
 
 certs = [\
     "c_dsa_nopass_ca1", \

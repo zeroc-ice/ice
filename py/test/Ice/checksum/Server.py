@@ -18,7 +18,6 @@ else:
     raise "can't find toplevel directory!"
 
 sys.path.insert(0, os.path.join(toplevel, "python"))
-sys.path.insert(0, os.path.join(toplevel, "lib"))
 
 import Ice
 
@@ -27,11 +26,9 @@ import Ice
 #
 slice_dir = os.path.join(os.path.join(toplevel, "..", "slice"))
 if not os.path.exists(slice_dir):
-    home_dir = os.getenv('ICEPY_HOME', '')
+    home_dir = os.getenv('ICE_HOME', '')
     if len(home_dir) == 0 or not os.path.exists(os.path.join(home_dir, "slice")):
-        home_dir = os.getenv('ICE_HOME', '')
-    if len(home_dir) == 0 or not os.path.exists(os.path.join(home_dir, "slice")):
-        print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
+        print sys.argv[0] + ': Slice directory not found. Define ICE_HOME.'
         sys.exit(1)
     slice_dir = os.path.join(home_dir, "slice")
 

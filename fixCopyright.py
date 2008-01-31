@@ -13,19 +13,6 @@ def usage():
     print "-h    Show this message."
     print
 
-def findSourceTree(tree, file):
-    for path in [".", "..", "../..", "../../..", "../../../.."]:
-        path = os.path.normpath(path)
-        if os.path.exists(os.path.join(path, file)):
-            break
-        path = os.path.join(path, tree)
-        if os.path.exists(os.path.join(path, file)):
-            break
-        path = None
-    if not path:
-        print "warning: can't find " + tree + " directory!"
-    return path
-
 #
 # Returns the new copyright
 #

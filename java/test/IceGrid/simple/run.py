@@ -23,20 +23,6 @@ import IceGridAdmin
 
 testdir = os.path.dirname(os.path.abspath(__file__))
 
-ice_home = None
-if not os.environ.has_key('ICE_HOME'):
-    relPath = os.path.join(TestUtil.findTopLevel(), "cpp", "bin") 
-    checkfile = "icegridnode"
-    if TestUtil.isWin32():
-        checkfile = checkfile + ".exe" 
-    if os.path.exists(os.path.join(relPath, checkfile)):
-        ice_home = os.path.dirname(relPath) 
-    else:
-        print "ICE_HOME is not defined."
-        sys.exit(0)
-else:
-    ice_home = os.environ['ICE_HOME']
-
 name = os.path.join("IceGrid", "simple")
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
