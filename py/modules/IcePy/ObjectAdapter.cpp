@@ -314,7 +314,7 @@ adapterGetName(ObjectAdapterObject* self)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(name.c_str()));
+    return createString(name);
 }
 
 #ifdef WIN32

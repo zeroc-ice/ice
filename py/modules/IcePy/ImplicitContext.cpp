@@ -178,7 +178,7 @@ implicitContextGet(ImplicitContextObject* self, PyObject* args)
         setPythonException(ex);
         return 0;
     }
-    return PyString_FromString(const_cast<char*>(val.c_str()));
+    return createString(val);
 }
 
 #ifdef WIN32
@@ -204,7 +204,7 @@ implicitContextPut(ImplicitContextObject* self, PyObject* args)
         setPythonException(ex);
         return 0;
     }
-    return PyString_FromString(const_cast<char*>(oldVal.c_str()));
+    return createString(oldVal);
 }
 
 #ifdef WIN32
@@ -229,7 +229,7 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
         setPythonException(ex);
         return 0;
     }
-    return PyString_FromString(const_cast<char*>(val.c_str()));
+    return createString(val);
 }
 
 static PyMethodDef ImplicitContextMethods[] =

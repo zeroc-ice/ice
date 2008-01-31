@@ -163,7 +163,7 @@ propertiesStr(PropertiesObject* self)
         str.append(p->first + "=" + p->second);
     }
 
-    return PyString_FromString(const_cast<char*>(str.c_str()));
+    return createString(str);
 }
 
 #ifdef WIN32
@@ -190,7 +190,7 @@ propertiesGetProperty(PropertiesObject* self, PyObject* args)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(value.c_str()));
+    return createString(value);
 }
 
 #ifdef WIN32
@@ -218,7 +218,7 @@ propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(value.c_str()));
+    return createString(value);
 }
 
 #ifdef WIN32
@@ -388,8 +388,8 @@ propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
     {
         for(Ice::PropertyDict::iterator p = dict.begin(); p != dict.end(); ++p)
         {
-            PyObjectHandle key = PyString_FromString(const_cast<char*>(p->first.c_str()));
-            PyObjectHandle val = PyString_FromString(const_cast<char*>(p->second.c_str()));
+            PyObjectHandle key = createString(p->first);
+            PyObjectHandle val = createString(p->second);
             if(!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
                 return 0;

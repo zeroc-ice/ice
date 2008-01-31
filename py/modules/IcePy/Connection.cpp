@@ -236,7 +236,7 @@ connectionType(ConnectionObject* self)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(type.c_str()));
+    return createString(type);
 }
 
 #ifdef WIN32
@@ -278,7 +278,7 @@ connectionToString(ConnectionObject* self)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(str.c_str()));
+    return createString(str);
 }
 
 static PyMethodDef ConnectionMethods[] =

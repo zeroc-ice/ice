@@ -154,7 +154,7 @@ currentGetter(CurrentObject* self, void* closure)
     {
         if(!self->facet)
         {
-            self->facet = PyString_FromString(const_cast<char*>(self->current->facet.c_str()));
+            self->facet = createString(self->current->facet);
         }
         Py_INCREF(self->facet);
         result = self->facet;
@@ -164,7 +164,7 @@ currentGetter(CurrentObject* self, void* closure)
     {
         if(!self->operation)
         {
-            self->operation = PyString_FromString(const_cast<char*>(self->current->operation.c_str()));
+            self->operation = createString(self->current->operation);
         }
         Py_INCREF(self->operation);
         result = self->operation;

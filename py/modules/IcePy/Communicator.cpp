@@ -489,7 +489,7 @@ communicatorProxyToString(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(str.c_str()));
+    return createString(str);
 }
 
 #ifdef WIN32
@@ -577,7 +577,7 @@ communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(str.c_str()));
+    return createString(str);
 }
 
 #ifdef WIN32

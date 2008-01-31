@@ -582,7 +582,7 @@ IcePy::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
     case PrimitiveInfo::KindString:
     {
         string val = is->readString();
-        PyObjectHandle p = PyString_FromString(val.c_str());
+        PyObjectHandle p = PyString_FromStringAndSize(val.c_str(), static_cast<Py_ssize_t>(val.size()));
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
@@ -1534,7 +1534,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
 
         for(int i = 0; i < sz; ++i)
         {
-            PyObjectHandle item = PyString_FromString(seq[i].c_str());
+            PyObjectHandle item = PyString_FromStringAndSize(seq[i].c_str(), static_cast<Py_ssize_t>(seq[i].size()));
             if(!item.get())
             {
                 throw AbortMarshaling();
@@ -3092,7 +3092,7 @@ IcePy_stringify(PyObject*, PyObject* args)
     info->print(value, out, &history);
 
     string str = ostr.str();
-    return PyString_FromString(str.c_str());
+    return createString(str);
 }
 
 extern "C"
@@ -3115,5 +3115,5 @@ IcePy_stringifyException(PyObject*, PyObject* args)
     info->print(value, out);
 
     string str = ostr.str();
-    return PyString_FromString(str.c_str());
+    return createString(str);
 }

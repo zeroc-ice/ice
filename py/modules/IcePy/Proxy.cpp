@@ -104,7 +104,7 @@ static PyObject*
 endpointToString(EndpointObject* self)
 {
     string str = (*self->endpoint)->toString();
-    return PyString_FromString(const_cast<char*>(str.c_str()));
+    return createString(str);
 }
 
 //
@@ -184,7 +184,7 @@ static PyObject*
 proxyRepr(ProxyObject* self)
 {
     string str = (*self->proxy)->ice_toString();
-    return PyString_FromString(const_cast<char*>(str.c_str()));
+    return createString(str);
 }
 
 #ifdef WIN32
@@ -478,7 +478,7 @@ proxyIceGetFacet(ProxyObject* self)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(facet.c_str()));
+    return createString(facet);
 }
 
 #ifdef WIN32
@@ -538,7 +538,7 @@ proxyIceGetAdapterId(ProxyObject* self)
         return 0;
     }
 
-    return PyString_FromString(const_cast<char*>(id.c_str()));
+    return createString(id);
 }
 
 #ifdef WIN32

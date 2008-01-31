@@ -47,6 +47,11 @@ inline PyObject* getTrue()
     return reinterpret_cast<PyObject*>(i);
 }
 
+inline PyObject* createString(const std::string& str)
+{
+    return PyString_FromStringAndSize(str.c_str(), static_cast<Py_ssize_t>(str.size()));
+}
+
 //
 // Invokes Py_DECREF on a Python object.
 //
