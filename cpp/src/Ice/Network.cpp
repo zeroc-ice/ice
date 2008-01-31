@@ -822,16 +822,27 @@ IceInternal::setMcastGroup(SOCKET fd, const struct sockaddr_storage& group, cons
     {
         struct ip_mreq mreq;
         mreq.imr_multiaddr = reinterpret_cast<const struct sockaddr_in*>(&group)->sin_addr;
-        struct sockaddr_storage addr;
-        getAddress(interface, 0, addr, EnableIPv4);
-        mreq.imr_interface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+        mreq.imr_interface.s_addr = INADDR_ANY;
+        if(interface.size() > 0)
+        {
+            struct sockaddr_storage addr;
+            getAddressForServer(interface, 0, addr, EnableIPv4);
+            mreq.imr_interface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+        }
         rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq)));
     }
     else
     {
         struct ipv6_mreq mreq;
         mreq.ipv6mr_multiaddr = reinterpret_cast<const struct sockaddr_in6*>(&group)->sin6_addr;
-        mreq.ipv6mr_interface = atoi(interface.c_str()); 
+        istringstream p(interface);
+        if(!(p >> mreq.ipv6mr_interface) || !p.eof())
+        {
+            closeSocketNoThrow(fd);
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = 0;
+            throw ex;
+        }
         rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, int(sizeof(mreq)));
     }
     if(rc == SOCKET_ERROR)

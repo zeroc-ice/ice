@@ -106,7 +106,6 @@ ICE_API void getAddressForServer(const std::string&, int, struct sockaddr_storag
 ICE_API void getAddress(const std::string&, int, struct sockaddr_storage&, ProtocolSupport);
 ICE_API std::vector<struct sockaddr_storage> getAddresses(const std::string&, int, ProtocolSupport, bool);
 
-
 ICE_API int compareAddress(const struct sockaddr_storage&, const struct sockaddr_storage&);
 
 ICE_API void createPipe(SOCKET fds[2]);
