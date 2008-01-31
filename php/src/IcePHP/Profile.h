@@ -17,12 +17,14 @@
 //
 extern "C"
 {
+ZEND_FUNCTION(Ice_version);
 ZEND_FUNCTION(Ice_loadProfile);
 ZEND_FUNCTION(Ice_loadProfileWithArgs);
 ZEND_FUNCTION(Ice_dumpProfile);
 }
 
 #define ICE_PHP_PROFILE_FUNCTIONS \
+    ZEND_FE(Ice_version,             NULL) \
     ZEND_FE(Ice_loadProfile,         NULL) \
     ZEND_FE(Ice_loadProfileWithArgs, NULL) \
     ZEND_FE(Ice_dumpProfile,         NULL)

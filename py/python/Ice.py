@@ -37,6 +37,7 @@ import IcePy
 # Add some symbols to the Ice module.
 #
 ObjectPrx = IcePy.ObjectPrx
+version = IcePy.version
 identityToString = IcePy.identityToString
 stringToIdentity = IcePy.stringToIdentity
 generateUUID = IcePy.generateUUID

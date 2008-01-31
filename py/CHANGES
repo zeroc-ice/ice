@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added the Ice.version() function to return the Ice version as a
+  string.
+
 - Changed servant locators so both locate() and finished() can
   throw user exceptions. (See the manual for details.)
 

@@ -877,6 +877,14 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 
 extern "C"
 PyObject*
+IcePy_version(PyObject* /*self*/)
+{
+    string s = ICE_STRING_VERSION;
+    return IcePy::createString(s);
+}
+
+extern "C"
+PyObject*
 IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
     PyObject* identityType = IcePy::lookupType("Ice.Identity");

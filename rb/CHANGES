@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added the Ice::version() function to return the Ice version as a
+  string.
+
 - Fixed a code generation bug with slice2rb where the reserved words
   BEGIN and END would generate classes, modules and constants named
   _BEGIN, and _END which is illegal. They now generate BEGIN_ and

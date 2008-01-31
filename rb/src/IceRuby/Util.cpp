@@ -15,6 +15,25 @@
 using namespace std;
 using namespace IceRuby;
 
+extern "C"
+VALUE
+IceRuby_version(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
+{
+    ICE_RUBY_TRY
+    {
+        string s = ICE_STRING_VERSION;
+        return createString(s);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+void
+IceRuby::initUtil(VALUE iceModule)
+{
+    rb_define_module_function(iceModule, "version", CAST_METHOD(IceRuby_version), -1);
+}
+
 IceRuby::RubyException::RubyException()
 {
     ex = rb_gv_get("$!");

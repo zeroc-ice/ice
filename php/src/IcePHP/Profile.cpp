@@ -831,6 +831,17 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     return true;
 }
 
+ZEND_FUNCTION(Ice_version)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    string s = ICE_STRING_VERSION;
+    RETURN_STRINGL(const_cast<char*>(s.c_str()), s.length(), 1);
+}
+
 ZEND_FUNCTION(Ice_loadProfile)
 {
     if(ZEND_NUM_ARGS() > 1)

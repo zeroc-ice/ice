@@ -36,6 +36,7 @@ Init_IceRuby()
     initSlice(iceModule);
     initTypes(iceModule);
     initImplicitContext(iceModule);
+    initUtil(iceModule);
 }
 
 }

@@ -16,6 +16,8 @@
 namespace IceRuby
 {
 
+void initUtil(VALUE);
+
 class RubyException
 {
 public:

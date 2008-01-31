@@ -270,6 +270,7 @@ private:
 
 }
 
+extern "C" PyObject* IcePy_version(PyObject*);
 extern "C" PyObject* IcePy_identityToString(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_stringToIdentity(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_generateUUID(PyObject*);
