@@ -26,7 +26,7 @@ public abstract class EvictorBase implements Ice.ServantLocator
         //
         // Check if we have a servant in the map already.
         //
-        EvictorEntry entry = (EvictorEntry)_map.get(c.id);
+        EvictorEntry entry = _map.get(c.id);
         if(entry != null)
         {
             //
@@ -90,7 +90,7 @@ public abstract class EvictorBase implements Ice.ServantLocator
     {
         Ice.Object servant;
         java.lang.Object userCookie;
-        java.util.Iterator queuePos;
+        java.util.Iterator<Ice.Identity> queuePos;
         int useCount;
     }
 
@@ -101,12 +101,12 @@ public abstract class EvictorBase implements Ice.ServantLocator
         // look at the excess elements to see whether any of them
         // can be evicted.
         //
-        java.util.Iterator p = _queue.riterator();
+        java.util.Iterator<Ice.Identity> p = _queue.riterator();
         int excessEntries = _map.size() - _size;
         for(int i = 0; i < excessEntries; ++i)
         {
-            Ice.Identity id = (Ice.Identity)p.next();
-            EvictorEntry e = (EvictorEntry)_map.get(id);
+            Ice.Identity id = p.next();
+            EvictorEntry e = _map.get(id);
             if(e.useCount == 0)
             {
                 evict(e.servant, e.userCookie); // Down-call
@@ -116,7 +116,9 @@ public abstract class EvictorBase implements Ice.ServantLocator
         }
     }
 
-    private java.util.Map _map = new java.util.HashMap();
-    private Evictor.LinkedList _queue = new Evictor.LinkedList();
+    private java.util.Map<Ice.Identity, EvictorEntry> _map =
+        new java.util.HashMap<Ice.Identity, EvictorEntry>();
+    private Evictor.LinkedList<Ice.Identity> _queue =
+        new Evictor.LinkedList<Ice.Identity>();
     private int _size;
 }

@@ -1,8 +1,9 @@
 namespace Evictor
 {
+    using System.Collections.Generic;
+
     public abstract class EvictorBase : Ice.ServantLocator
     {
-
         public EvictorBase()
         {
             _size = 1000;
@@ -13,18 +14,18 @@ namespace Evictor
             _size = size < 0 ? 1000 : size;
         }
 
-        protected abstract Ice.Object add(Ice.Current c, out System.Object cookie);
+        protected abstract Ice.Object add(Ice.Current c, out object cookie);
 
-        protected abstract void evict(Ice.Object servant, out System.Object xcookie);
+        protected abstract void evict(Ice.Object servant, object cookie);
 
-        public Ice.Object locate(Ice.Current c, out System.Object cookie)
+        public Ice.Object locate(Ice.Current c, out object cookie)
         {
             lock(this)
             {
                 //
                 // Check if we a servant in the map already.
                 //
-                EvictorEntry entry = (EvictorEntry)_map[c.id];
+                EvictorEntry entry = _map[c.id];
                 if(entry != null)
                 {
                     //
@@ -56,7 +57,7 @@ namespace Evictor
                 //
                 ++(entry.useCount);
                 _queue.AddFirst(c.id);
-                entry.queuePos = (LinkedList.Enumerator)_queue.GetEnumerator();
+                entry.queuePos = (LinkedList<Ice.Identity>.Enumerator)_queue.GetEnumerator();
                 entry.queuePos.MoveNext();
 
                 cookie = entry;
@@ -65,7 +66,7 @@ namespace Evictor
             }
         }
 
-        public void finished(Ice.Current c, Ice.Object o, System.Object cookie)
+        public void finished(Ice.Current c, Ice.Object o, object cookie)
         {
             lock(this)
             {
@@ -92,8 +93,8 @@ namespace Evictor
         private class EvictorEntry
         {
             internal Ice.Object servant;
-            internal System.Object userCookie;
-            internal LinkedList.Enumerator queuePos;
+            internal object userCookie;
+            internal LinkedList<Ice.Identity>.Enumerator queuePos;
             internal int useCount;
         }
 
@@ -104,13 +105,13 @@ namespace Evictor
             // look at the excess elements to see whether any of them
             // can be evicted.
             //
-            LinkedList.Enumerator p = (LinkedList.Enumerator)_queue.GetEnumerator();
+            LinkedList<Ice.Identity>.Enumerator p = (LinkedList<Ice.Identity>.Enumerator)_queue.GetEnumerator();
             int excessEntries = _map.Count - _size;
             for(int i = 0; i < excessEntries; ++i)
             {
                 p.MovePrev();
-                Ice.Identity id = (Ice.Identity)p.Current;
-                EvictorEntry e = (EvictorEntry)_map[id];
+                Ice.Identity id = p.Current;
+                EvictorEntry e = _map[id];
                 if(e.useCount == 0)
                 {
                     evict(e.servant, e.userCookie); // Down-call
@@ -120,8 +121,8 @@ namespace Evictor
             }
         }
 
-        private System.Collections.Hashtable _map = new System.Collections.Hashtable();
-        private LinkedList _queue = new LinkedList();
+        private Dictionary<Ice.Identity, EvictorEntry> _map = new Dictionary<Ice.Identity, EvictorEntry>();
+        private LinkedList<Ice.Identity> _queue = new LinkedList<Ice.Identity>();
         private int _size;
     }
 }

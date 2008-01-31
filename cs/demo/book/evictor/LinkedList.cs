@@ -2,15 +2,14 @@ namespace Evictor
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
 
-    public class LinkedList : ICollection, ICloneable
+    public class LinkedList<T> : ICollection<T>, ICollection, ICloneable
     {
         public LinkedList()
         {
-            _head = null;
-            _tail = null;
-            _count = 0;
+            Clear();
         }
 
         public int Count
@@ -18,6 +17,14 @@ namespace Evictor
             get
             {
                 return _count;
+            }
+        }
+
+        public bool IsReadOnly
+        {
+            get
+            {
+                return false;
             }
         }
 
@@ -37,7 +44,7 @@ namespace Evictor
             }
         }
 
-        public void CopyTo(Array array, int index)
+        public void CopyTo(T[] array, int index)
         {
             //
             // Check preconditions.
@@ -69,9 +76,19 @@ namespace Evictor
             Node n = _head;
             while(n != null)
             {
-                array.SetValue(n.val, index++);
+                array[index++] = n.val;
                 n = (Node)n.next;
             }
+        }
+
+        void ICollection.CopyTo(Array array, int index)
+        {
+            T[] arr = array as T[];
+            if(arr == null)
+            {
+                throw new ArgumentException("array");
+            }
+            CopyTo(arr, index);
         }
 
         public IEnumerator GetEnumerator()
@@ -79,9 +96,14 @@ namespace Evictor
             return new Enumerator(this);
         }
 
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
         public object Clone()
         {
-            LinkedList l = new LinkedList();
+            LinkedList<T> l = new LinkedList<T>();
             Node cursor = _head;
             while(cursor != null)
             {
@@ -91,7 +113,7 @@ namespace Evictor
             return l;
         }
 
-        public void Add(object value)
+        public void Add(T value)
         {
             Node n = new Node();
             n.val = value;
@@ -110,7 +132,7 @@ namespace Evictor
             _count++;
         }
 
-        public void AddFirst(object value)
+        public void AddFirst(T value)
         {
             Node n = new Node();
             n.val = value;
@@ -127,6 +149,43 @@ namespace Evictor
             n.prev = null;
             _head = n;
             _count++;
+        }
+
+        public void Clear()
+        {
+            _head = null;
+            _tail = null;
+            _count = 0;
+        }
+
+        public bool Contains(T value)
+        {
+            return Find(value) != null;
+        }
+
+        public bool Remove(T value)
+        {
+            Node n = Find(value);
+            if(n != null)
+            {
+                Remove(n);
+                return true;
+            }
+            return false;
+        }
+
+        private Node Find(T value)
+        {
+            Node n = _head;
+            while(n != null)
+            {
+                if(Object.Equals(value, n.val))
+                {
+                    return n;
+                }
+                n = n.next;
+            }
+            return null;
         }
 
         private void Remove(Node n)
@@ -157,16 +216,16 @@ namespace Evictor
         {
             internal Node next;
             internal Node prev;
-            internal object val;
+            internal T val;
         }
 
         private Node _head;
         private Node _tail;
         private int _count;
 
-        public class Enumerator : IEnumerator
+        public class Enumerator : IEnumerator<T>, IEnumerator, IDisposable
         {
-            internal Enumerator(LinkedList list)
+            internal Enumerator(LinkedList<T> list)
             {
                 _list = list;
                 _current = null;
@@ -183,7 +242,7 @@ namespace Evictor
                 _removed = false;
             }
 
-            public object Current
+            public T Current
             {
                 get
                 {
@@ -192,6 +251,14 @@ namespace Evictor
                         throw new InvalidOperationException("iterator not positioned on an element");
                     }
                     return _current.val;
+                }
+            }
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return Current;
                 }
             }
 
@@ -249,7 +316,17 @@ namespace Evictor
                 _current = null;
             }
 
-            private LinkedList _list; // The list we are iterating over.
+            public void Dispose()
+            {
+                if(_list == null)
+                {
+                    throw new ObjectDisposedException(null);
+                }
+                Reset();
+                _list = null;
+            }
+
+            private LinkedList<T> _list; // The list we are iterating over.
             private Node _current;    // Current iterator position.
             private Node _moveNext;   // Remembers node that followed a removed element.
             private Node _movePrev;   // Remembers node that preceded a removed element.

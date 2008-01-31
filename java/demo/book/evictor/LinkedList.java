@@ -20,7 +20,7 @@ package Evictor;
 //    retained over structural changes to the list itself (similar to an
 //    STL list).
 //
-public class LinkedList
+public class LinkedList<T>
 {
     public
     LinkedList()
@@ -28,7 +28,7 @@ public class LinkedList
         _header.next = _header.previous = _header;
     }
 
-    public java.lang.Object
+    public T
     getFirst()
     {
         if(_size == 0)
@@ -40,7 +40,7 @@ public class LinkedList
     }
 
     public void
-    addFirst(java.lang.Object o)
+    addFirst(T o)
     {
         addBefore(o, _header.next);
     }
@@ -57,19 +57,19 @@ public class LinkedList
         return _size;
     }
 
-    public java.util.Iterator
+    public java.util.Iterator<T>
     iterator()
     {
         return new ForwardIterator();
     }
 
-    public java.util.Iterator
+    public java.util.Iterator<T>
     riterator()
     {
         return new ReverseIterator();
     }
 
-    private class ForwardIterator implements java.util.Iterator
+    private class ForwardIterator implements java.util.Iterator<T>
     {
         public boolean
         hasNext()
@@ -77,7 +77,7 @@ public class LinkedList
             return _next != null;
         }
 
-        public java.lang.Object
+        public T
         next()
         {
             if(_next == null)
@@ -122,11 +122,11 @@ public class LinkedList
             _current = null;
         }
 
-        private Entry _current;
-        private Entry _next;
+        private Entry<T> _current;
+        private Entry<T> _next;
     }
 
-    private class ReverseIterator implements java.util.Iterator
+    private class ReverseIterator implements java.util.Iterator<T>
     {
         public boolean
         hasNext()
@@ -134,7 +134,7 @@ public class LinkedList
             return _next != null;
         }
 
-        public java.lang.Object
+        public T
         next()
         {
             if(_next == null)
@@ -179,17 +179,17 @@ public class LinkedList
             _current = null;
         }
 
-        private Entry _current;
-        private Entry _next;
+        private Entry<T> _current;
+        private Entry<T> _next;
     }
 
-    private static class Entry 
+    private static class Entry<T>
     {
-        java.lang.Object element;
-        Entry next;
-        Entry previous;
+        T element;
+        Entry<T> next;
+        Entry<T> previous;
 
-        Entry(java.lang.Object element, Entry next, Entry previous)
+        Entry(T element, Entry<T> next, Entry<T> previous)
         {
             this.element = element;
             this.next = next;
@@ -197,10 +197,10 @@ public class LinkedList
         }
     }
 
-    private Entry
-    addBefore(java.lang.Object o, Entry e)
+    private Entry<T>
+    addBefore(T o, Entry<T> e)
     {
-        Entry newEntry = new Entry(o, e, e.previous);
+        Entry<T> newEntry = new Entry<T>(o, e, e.previous);
         newEntry.previous.next = newEntry;
         newEntry.next.previous = newEntry;
         _size++;
@@ -208,7 +208,7 @@ public class LinkedList
     }
 
     private void
-    remove(Entry e)
+    remove(Entry<T> e)
     {
         if(e == _header)
         {
@@ -220,6 +220,6 @@ public class LinkedList
         _size--;
     }
 
-    private Entry _header = new Entry(null, null, null);
+    private Entry<T> _header = new Entry<T>(null, null, null);
     private int _size = 0;
 }
