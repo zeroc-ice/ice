@@ -170,6 +170,10 @@
 	    <include name="**/*.class"/>
             <exclude name="IceGridGUI/**"/>
 	    <exclude name="*.jar"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+                <attribute name="Class-Path" value="db.jar /usr/share/java/db45/db.jar"/>
+            </manifest>
 	</jar>
     </target>
 
