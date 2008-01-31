@@ -109,11 +109,13 @@ public class Client
                 catch(Ice.LocalException e)
                 {
                     System.err.println("Caught unexpected : " + e.toString());
+                    e.printStackTrace();
                     test(false);
                     return;
                 }
                 catch(Exception e)
                 {
+                    e.printStackTrace();
                     test(false);
                     return;
                 }
@@ -877,11 +879,6 @@ public class Client
             communicator = Ice.Util.initialize(args);
             status = run(args, communicator);
         }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
         catch(Test.AlreadyRegisteredException ex)
         {
             ex.printStackTrace();
@@ -893,6 +890,11 @@ public class Client
             status = 1;
         }
         catch(Test.EvictorDeactivatedException ex)
+        {
+            ex.printStackTrace();
+            status = 1;
+        }
+        catch(Exception ex)
         {
             ex.printStackTrace();
             status = 1;

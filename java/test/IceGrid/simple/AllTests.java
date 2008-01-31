@@ -58,10 +58,11 @@ public class AllTests
         final private long _timeout;
         private boolean _terminated;
     }
+
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }

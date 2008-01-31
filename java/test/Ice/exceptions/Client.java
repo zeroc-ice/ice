@@ -35,7 +35,7 @@ public class Client
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(args, communicator);
         }
-        catch(Ice.LocalException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             status = 1;

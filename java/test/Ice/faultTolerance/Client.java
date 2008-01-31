@@ -87,12 +87,12 @@ public class Client
             //
             // This test aborts servers, so we don't want warnings.
             //
-           initData. properties.setProperty("Ice.Warn.Connections", "0");
+            initData. properties.setProperty("Ice.Warn.Connections", "0");
 
-           communicator = Ice.Util.initialize(argsH, initData);
+            communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator);
         }
-        catch(Ice.LocalException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             status = 1;

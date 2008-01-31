@@ -138,7 +138,7 @@ public class Server
 
             status = run(args, communicator, Console.Out);
         }
-        catch(Ice.LocalException ex)
+        catch(System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

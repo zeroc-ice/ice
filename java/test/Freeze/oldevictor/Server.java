@@ -80,7 +80,7 @@ public class Server
             args = holder.value;
             status = run(args, communicator, envName);
         }
-        catch(Ice.LocalException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             status = 1;

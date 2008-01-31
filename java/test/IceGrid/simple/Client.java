@@ -24,8 +24,6 @@ public class Client
             }
         }
 
-        ;
-
         if(!withDeploy)
         {
             AllTests.allTests(communicator);
@@ -49,13 +47,13 @@ public class Client
             communicator = Ice.Util.initialize(args);
             status = run(args, communicator);
         }
-        catch (Ice.LocalException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

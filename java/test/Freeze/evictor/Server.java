@@ -24,7 +24,6 @@ public class Server
         }
     }
 
-
     static class ServantFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
         public Ice.Object
@@ -95,7 +94,7 @@ public class Server
             args = holder.value;
             status = run(args, communicator, envName);
         }
-        catch(Ice.LocalException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             status = 1;

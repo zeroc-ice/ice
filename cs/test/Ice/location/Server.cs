@@ -60,7 +60,7 @@ public class Server
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator, initData);
         }
-        catch(Ice.LocalException ex)
+        catch(System.Exception ex)
         {
             System.Console.Error.WriteLine(ex);
             status = 1;

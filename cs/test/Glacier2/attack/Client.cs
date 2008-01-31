@@ -95,7 +95,8 @@ public class Client : Ice.Application
         Console.Out.Flush();
         backend.shutdown();
         communicator().setDefaultRouter(null);
-        Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+        Ice.ObjectPrx processBase =
+            communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
         Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
         test(process != null);
         process.shutdown();

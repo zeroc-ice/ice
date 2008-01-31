@@ -49,7 +49,7 @@ public class Client
             communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }
-        catch (Ice.LocalException ex)
+        catch (System.Exception ex)
         {
             System.Console.Error.WriteLine(ex);
             status = 1;

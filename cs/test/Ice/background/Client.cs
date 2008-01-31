@@ -54,7 +54,7 @@ public class Client
 
             status = run(args, communicator);
         }
-        catch(Ice.LocalException ex)
+        catch(System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;

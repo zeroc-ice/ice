@@ -22,12 +22,12 @@ public class Server
         communicator.waitForShutdown();
         return 0;
     }
-    
+
     public static void Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
         Debug.Listeners.Add(new ConsoleTraceListener());
 
         try
@@ -35,13 +35,13 @@ public class Server
             communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }
-        catch (Ice.LocalException ex)
+        catch(System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             status = 1;
         }
-        
-        if (communicator != null)
+
+        if(communicator != null)
         {
             try
             {
@@ -53,7 +53,7 @@ public class Server
                 status = 1;
             }
         }
-        
+
         if(status != 0)
         {
             System.Environment.Exit(status);
