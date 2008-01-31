@@ -57,22 +57,22 @@ installation of the Ice for C++ development kit.
 Java
 ----
 
-To use Ice for Java with Java5 or Java6, add Ice.jar to your CLASSPATH,
-as shown in the following bash command:
+To use Ice for Java with the Java5 mapping, add Ice.jar to your
+CLASSPATH, as shown in the following bash command:
 
 $ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
 
-To use the Java2 version of Ice instead, modify your CLASSPATH as
+To use Ice for Java with the Java2 mapping, modify your CLASSPATH as
 follows:
 
 $ export CLASSPATH=/usr/lib/Ice-@ver@/java2/Ice.jar:$CLASSPATH
 
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-In order to use Freeze, you must add db.jar to your CLASSPATH. In
-addition, the JVM requires the directory containing the Berkeley DB
-libraries to be listed in java.library.path, therefore you must add
-this directory to your LD_LIBRARY_PATH. Assuming you are using the RPM
-installation of Berkeley DB, the bash command is shown below:
+If you plan to use Freeze for persistence, it is not necessary to add
+$ICE_HOME/lib/db.jar to your CLASSPATH because Ice.jar contains a
+manifest class path that includes db.jar automatically. However, the
+JVM requires that the directory containing the Berkeley DB libraries
+be listed in java.library.path, therefore you must add this directory
+to LD_LIBRARY_PATH:
 
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 

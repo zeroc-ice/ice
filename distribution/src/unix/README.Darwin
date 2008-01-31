@@ -48,7 +48,7 @@ web site at http://www.zeroc.com/download.html.
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2 or J2SE 1.5.0.
+Ice for Java requires J2SE 1.5.0 or later.
 
 
 Python
@@ -127,24 +127,24 @@ such as IceGrid or Glacier2.
 Java
 ----
 
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
-CLASSPATH, as shown below:
+To use Ice for Java with the Java5 mapping, you must add
+$ICE_HOME/lib/Ice.jar to your CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
-To use the Java2 version of Ice instead, modify your CLASSPATH as
+To use Ice for Java with the Java2 mapping, modify your CLASSPATH as
 follows:
 
 $ export CLASSPATH=$ICE_HOME/lib/java2/Ice.jar:$CLASSPATH
 
-If you plan to use Freeze for persistence, you must also add the
-Berkeley DB JAR file (db.jar) to your CLASSPATH:
+If you plan to use Freeze for persistence, it is not necessary to add
+$ICE_HOME/lib/db.jar to your CLASSPATH because Ice.jar contains a
+manifest class path that includes db.jar automatically. However, the
+JVM requires that the directory containing the Berkeley DB libraries
+be listed in java.library.path, therefore you must add this directory
+to DYLD_LIBRARY_PATH:
 
-$ export CLASSPATH=$ICE_HOME/lib/db.jar:$CLASSPATH
-
-In addition, the JVM requires that the directory containing the
-Berkeley DB libraries be listed in java.library.path, therefore you
-must add this directory to DYLD_LIBRARY_PATH.
+$ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
 
 
 Python

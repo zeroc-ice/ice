@@ -210,7 +210,7 @@ Building and running the Java demos
 
 The Java demos are in the demoj directory.
 
-To build the Java demos, you need the Java SDK 1.4.2 or later, and Ant
+To build the Java demos, you need J2SE SDK 1.5.0 or later, and Ant
 1.6.3 or later. They can be downloaded from:
 
   http://java.sun.com/j2se/index.jsp
@@ -229,12 +229,12 @@ desired subdirectory and then running 'ant'.
 
 Before running the demos you must modify your CLASSPATH as follows:
 
-set CLASSPATH=%ICE_HOME%\lib\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
+set CLASSPATH=%ICE_HOME%\lib\Ice.jar;classes;%CLASSPATH%
 
-If you prefer to use Ice for Java2 rather than Java5, modify your CLASSPATH
-as shown below:
+If you prefer to use Ice for Java with the Java2 mapping, modify your
+CLASSPATH as shown below:
 
-set CLASSPATH=%ICE_HOME%\lib\java2\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
+set CLASSPATH=%ICE_HOME%\lib\java2\Ice.jar;classes;%CLASSPATH%
 
 In addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore the Ice bin

@@ -28,7 +28,7 @@ files to your target platform.
 Java version
 ------------
 
-Ice for Java requires Java version 1.5.0 or later.
+Ice for Java requires J2SE 1.5.0 or later.
 
 You can download Java5 and Java6 for Solaris, Windows, and Linux from:
 

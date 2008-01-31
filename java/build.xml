@@ -172,7 +172,7 @@
 	    <exclude name="*.jar"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
-                <attribute name="Class-Path" value="db.jar /usr/share/java/db45/db.jar"/>
+                <attribute name="Class-Path" value="db.jar /usr/share/java/db46/db.jar ../db.jar"/>
             </manifest>
 	</jar>
     </target>
