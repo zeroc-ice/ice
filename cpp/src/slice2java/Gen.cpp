@@ -3836,7 +3836,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string helper = getAbsolute(p, "", "", "Helper");
     string package = getPackage(p);
     StringList metaData = p->getMetaData();
-    string abstractType = typeToString(p, TypeModeIn, package, StringList(), true);
+    string formalType = typeToString(p, TypeModeIn, package, StringList(), true);
 
     if(open(helper))
     {
@@ -3846,16 +3846,16 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
 
-        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << abstractType << " __v)";
+        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << formalType << " __v)";
         out << sb;
         iter = 0;
         writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
         out << eb;
 
-        out << sp << nl << "public static " << abstractType
+        out << sp << nl << "public static " << formalType
             << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
-        out << nl << abstractType << " __v;";
+        out << nl << formalType << " __v;";
         iter = 0;
         writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
         out << nl << "return __v;";
@@ -3863,17 +3863,17 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
         if(_stream)
         {
-            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << abstractType
+            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << formalType
                 << " __v)";
             out << sb;
             iter = 0;
             writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
             out << eb;
 
-            out << sp << nl << "public static " << abstractType
+            out << sp << nl << "public static " << formalType
                 << nl << "read(Ice.InputStream __inS)";
             out << sb;
-            out << nl << abstractType << " __v;";
+            out << nl << formalType << " __v;";
             iter = 0;
             writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
             out << nl << "return __v;";
