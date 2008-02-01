@@ -157,8 +157,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     // we need to save handle to stdin so we can restore it
     // after mcpp has finished its processing.
     //
-#ifdef _WIN32
-#else
+#ifndef _WIN32
     int stdin_save;
     stdin_save = dup(0);
 #endif
@@ -174,6 +173,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     // Restore stdin.
     //
 #ifdef _WIN32
+    freopen("CON", "rt", stdin);
 #else
     fflush(stdin);
     ::close(0);
