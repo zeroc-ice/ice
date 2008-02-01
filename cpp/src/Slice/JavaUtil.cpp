@@ -423,7 +423,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                                    TypeMode mode,
                                    const string& package,
                                    const StringList& metaData,
-                                   bool abstract) const
+                                   bool formal) const
 {
     static const char* builtinTable[] =
     {
@@ -497,14 +497,14 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
             else
             {
                 //
-                // Only use the type's generated holder if the concrete and
-                // abstract types match.
+                // Only use the type's generated holder if the instance and
+                // formal types match.
                 //
-                string concreteType, abstractType;
-                getDictionaryTypes(dict, "", metaData, concreteType, abstractType);
-                string origConcreteType, origAbstractType;
-                getDictionaryTypes(dict, "", StringList(), origConcreteType, origAbstractType);
-                if(abstractType == origAbstractType && concreteType == origConcreteType)
+                string instanceType, formalType;
+                getDictionaryTypes(dict, "", metaData, instanceType, formalType);
+                string origInstanceType, origFormalType;
+                getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
+                if(formalType == origFormalType && instanceType == origInstanceType)
                 {
                     return getAbsolute(dict, package, "", "Holder");
                 }
@@ -514,7 +514,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 //
                 // The custom type may or may not be compatible with the type used
                 // in the generated holder. For Java5, we can use a generic holder
-                // that holds a value of the abstract custom type. Otherwise, we
+                // that holds a value of the formal custom type. Otherwise, we
                 // use MapHolder.
                 //
                 if(java2)
@@ -523,15 +523,15 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 }
                 else
                 {
-                    return string("Ice.Holder<") + abstractType + " >";
+                    return string("Ice.Holder<") + formalType + " >";
                 }
             }
         }
         else
         {
-            string concreteType, abstractType;
-            getDictionaryTypes(dict, package, metaData, concreteType, abstractType);
-            return abstract ? abstractType : concreteType;
+            string instanceType, formalType;
+            getDictionaryTypes(dict, package, metaData, instanceType, formalType);
+            return formal ? formalType : instanceType;
         }
     }
 
@@ -547,14 +547,14 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
             else
             {
                 //
-                // Only use the type's generated holder if the concrete and
-                // abstract types match.
+                // Only use the type's generated holder if the instance and
+                // formal types match.
                 //
-                string concreteType, abstractType;
-                getSequenceTypes(seq, "", metaData, concreteType, abstractType);
-                string origConcreteType, origAbstractType;
-                getSequenceTypes(seq, "", StringList(), origConcreteType, origAbstractType);
-                if(abstractType == origAbstractType && concreteType == origConcreteType)
+                string instanceType, formalType;
+                getSequenceTypes(seq, "", metaData, instanceType, formalType);
+                string origInstanceType, origFormalType;
+                getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+                if(formalType == origFormalType && instanceType == origInstanceType)
                 {
                     return getAbsolute(seq, package, "", "Holder");
                 }
@@ -564,16 +564,16 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 //
                 // The custom type may or may not be compatible with the type used
                 // in the generated holder. For Java5, we can use a generic holder
-                // that holds a value of the abstract custom type. Otherwise, we
+                // that holds a value of the formal custom type. Otherwise, we
                 // choose a predefined holder class.
                 //
                 if(java2)
                 {
-                    if(abstractType == "java.util.ArrayList")
+                    if(formalType == "java.util.ArrayList")
                     {
                         return "Ice.ArrayListHolder";
                     }
-                    else if(abstractType == "java.util.LinkedList")
+                    else if(formalType == "java.util.LinkedList")
                     {
                         return "Ice.LinkedListHolder";
                     }
@@ -584,15 +584,15 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 }
                 else
                 {
-                    return string("Ice.Holder<") + abstractType + " >";
+                    return string("Ice.Holder<") + formalType + " >";
                 }
             }
         }
         else
         {
-            string concreteType, abstractType;
-            getSequenceTypes(seq, package, metaData, concreteType, abstractType);
-            return abstract ? abstractType : concreteType;
+            string instanceType, formalType;
+            getSequenceTypes(seq, package, metaData, instanceType, formalType);
+            return formal ? formalType : instanceType;
         }
     }
 
@@ -617,7 +617,7 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
                                          TypeMode mode,
                                          const string& package,
                                          const StringList& metaData,
-                                         bool abstract) const
+                                         bool formal) const
 {
     static const char* builtinTable[] =
     {
@@ -640,7 +640,7 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
         return builtinTable[builtin->kind()];
     }
 
-    return typeToString(type, mode, package, metaData, abstract);
+    return typeToString(type, mode, package, metaData, formal);
 }
 
 void
@@ -935,7 +935,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     string v = param;
 
     bool java2 = false;
-    string concreteType;
+    string instanceType;
 
     if(_featureProfile != Slice::IceE)
     {
@@ -955,11 +955,11 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         // without local metadata to determine whether we can use
         // the helper.
         //
-        string abstractType;
-        getDictionaryTypes(dict, "", metaData, concreteType, abstractType);
-        string origConcreteType, origAbstractType;
-        getDictionaryTypes(dict, "", StringList(), origConcreteType, origAbstractType);
-        if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
+        string formalType;
+        getDictionaryTypes(dict, "", metaData, instanceType, formalType);
+        string origInstanceType, origFormalType;
+        getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
+        if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
         {
             useHelper = false;
         }
@@ -1109,7 +1109,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        out << nl << v << " = new " << concreteType << "();";
+        out << nl << v << " = new " << instanceType << "();";
         out << nl << "int __sz" << iterS << " = __is.readSize();";
         out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
@@ -1239,7 +1239,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 
     bool java2 = false;
     bool customType = false;
-    string concreteType;
+    string instanceType;
 
     if(_featureProfile != Slice::IceE)
     {
@@ -1259,11 +1259,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // without local metadata to determine whether we can use
         // the helper.
         //
-        string abstractType;
-        customType = getSequenceTypes(seq, "", metaData, concreteType, abstractType);
-        string origConcreteType, origAbstractType;
-        getSequenceTypes(seq, "", StringList(), origConcreteType, origAbstractType);
-        if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
+        string formalType;
+        customType = getSequenceTypes(seq, "", metaData, instanceType, formalType);
+        string origInstanceType, origFormalType;
+        getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+        if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
         {
             useHelper = false;
         }
@@ -1397,7 +1397,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << v << " = new " << concreteType << "();";
+                out << nl << v << " = new " << instanceType << "();";
                 ostringstream o;
                 o << origContentS << "[]";
                 int d = depth;
@@ -1557,7 +1557,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     isObject = true;
                 }
-                out << nl << v << " = new " << concreteType << "();";
+                out << nl << v << " = new " << instanceType << "();";
                 out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
                 if(type->isVariableLength())
                 {
@@ -2210,11 +2210,11 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
     // without local metadata to determine whether we can use
     // the helper.
     //
-    string concreteType, abstractType;
-    getDictionaryTypes(dict, "", metaData, concreteType, abstractType);
-    string origConcreteType, origAbstractType;
-    getDictionaryTypes(dict, "", StringList(), origConcreteType, origAbstractType);
-    if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
+    string instanceType, formalType;
+    getDictionaryTypes(dict, "", metaData, instanceType, formalType);
+    string origInstanceType, origFormalType;
+    getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
+    if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
     {
         useHelper = false;
     }
@@ -2363,7 +2363,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        out << nl << v << " = new " << concreteType << "();";
+        out << nl << v << " = new " << instanceType << "();";
         out << nl << "int __sz" << iterS << " = __inS.readSize();";
         out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
@@ -2508,11 +2508,11 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     // without local metadata to determine whether we can use
     // the helper.
     //
-    string concreteType, abstractType;
-    bool customType = getSequenceTypes(seq, "", metaData, concreteType, abstractType);
-    string origConcreteType, origAbstractType;
-    getSequenceTypes(seq, "", StringList(), origConcreteType, origAbstractType);
-    if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
+    string instanceType, formalType;
+    bool customType = getSequenceTypes(seq, "", metaData, instanceType, formalType);
+    string origInstanceType, origFormalType;
+    getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+    if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
     {
         useHelper = false;
     }
@@ -2645,7 +2645,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << v << " = new " << concreteType << "();";
+                out << nl << v << " = new " << instanceType << "();";
                 ostringstream o;
                 o << origContentS << "[]";
                 int d = depth;
@@ -2805,7 +2805,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 {
                     isObject = true;
                 }
-                out << nl << v << " = new " << concreteType << "();";
+                out << nl << v << " = new " << instanceType << "();";
                 out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
                 if(isObject)
                 {
@@ -3084,11 +3084,11 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
 }
 
 bool
-Slice::JavaGenerator::getTypeMetaData(const StringList& metaData, string& concreteType, string& abstractType)
+Slice::JavaGenerator::getTypeMetaData(const StringList& metaData, string& instanceType, string& formalType)
 {
     //
-    // Extract the concrete type and an optional abstract type.
-    // The correct syntax is "java:type:concrete-type[:abstract-type]".
+    // Extract the instance type and an optional formal type.
+    // The correct syntax is "java:type:instance-type[:formal-type]".
     //
     static const string prefix = "java:type:";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
@@ -3099,13 +3099,13 @@ Slice::JavaGenerator::getTypeMetaData(const StringList& metaData, string& concre
             string::size_type pos = str.find(':', prefix.size());
             if(pos != string::npos)
             {
-                concreteType = str.substr(prefix.size(), pos - prefix.size());
-                abstractType = str.substr(pos + 1);
+                instanceType = str.substr(prefix.size(), pos - prefix.size());
+                formalType = str.substr(pos + 1);
             }
             else
             {
-                concreteType = str.substr(prefix.size());
-                abstractType.clear();
+                instanceType = str.substr(prefix.size());
+                formalType.clear();
             }
             return true;
         }
@@ -3150,14 +3150,14 @@ bool
 Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
                                          const string& package,
                                          const StringList& metaData,
-                                         string& concreteType,
-                                         string& abstractType) const
+                                         string& instanceType,
+                                         string& formalType) const
 {
     bool customType = false;
 
     if(_featureProfile == Slice::IceE)
     {
-        concreteType = abstractType = "java.util.Hashtable";
+        instanceType = formalType = "java.util.Hashtable";
         return customType;
     }
 
@@ -3199,16 +3199,16 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
             string::size_type pos = ct.find('}');
             if(pos != string::npos)
             {
-                concreteType = ct.substr(1, pos - 1);
+                instanceType = ct.substr(1, pos - 1);
                 if(!java2)
                 {
-                    concreteType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+                    instanceType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
                 }
             }
         }
         else
         {
-            concreteType = ct;
+            instanceType = ct;
         }
 
         if(!at.empty())
@@ -3218,16 +3218,16 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
                 string::size_type pos = at.find('}');
                 if(pos != string::npos)
                 {
-                    abstractType = at.substr(1, pos - 1);
+                    formalType = at.substr(1, pos - 1);
                     if(!java2)
                     {
-                        abstractType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+                        formalType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
                     }
                 }
             }
             else
             {
-                abstractType = at;
+                formalType = at;
             }
         }
     }
@@ -3235,28 +3235,28 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     //
     // Return a default type for the platform.
     //
-    if(concreteType.empty())
+    if(instanceType.empty())
     {
-        concreteType = "java.util.HashMap";
+        instanceType = "java.util.HashMap";
         if(!java2)
         {
-            concreteType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+            instanceType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
         }
     }
 
     //
-    // If an abstract type is not defined, we use the concrete type as the default.
-    // If instead we chose a default abstract type, such as Map<K, V>, then we
+    // If a formal type is not defined, we use the instance type as the default.
+    // If instead we chose a default formal type, such as Map<K, V>, then we
     // might inadvertently generate uncompilable code. The Java5 compiler does not
     // allow polymorphic assignment between generic types if it can weaken the
     // compile-time type safety rules.
     //
-    if(abstractType.empty())
+    if(formalType.empty())
     {
-        abstractType = "java.util.Map";
+        formalType = "java.util.Map";
         if(!java2)
         {
-            abstractType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+            formalType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
         }
     }
 
@@ -3267,14 +3267,14 @@ bool
 Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
                                        const string& package,
                                        const StringList& metaData,
-                                       string& concreteType,
-                                       string& abstractType) const
+                                       string& instanceType,
+                                       string& formalType) const
 {
     bool customType = false;
 
     if(_featureProfile == Slice::IceE)
     {
-        concreteType = abstractType = typeToString(seq->type(), TypeModeIn, package) + "[]";
+        instanceType = formalType = typeToString(seq->type(), TypeModeIn, package) + "[]";
         return customType;
     }
 
@@ -3314,16 +3314,16 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
             string::size_type pos = ct.find('}');
             if(pos != string::npos)
             {
-                concreteType = ct.substr(1, pos - 1);
+                instanceType = ct.substr(1, pos - 1);
                 if(!java2)
                 {
-                    concreteType += "<" + typeStr + ">";
+                    instanceType += "<" + typeStr + ">";
                 }
             }
         }
         else
         {
-            concreteType = ct;
+            instanceType = ct;
         }
 
         if(!at.empty())
@@ -3333,31 +3333,31 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
                 string::size_type pos = at.find('}');
                 if(pos != string::npos)
                 {
-                    abstractType = at.substr(1, pos - 1);
+                    formalType = at.substr(1, pos - 1);
                     if(!java2)
                     {
-                        abstractType += "<" + typeStr + ">";
+                        formalType += "<" + typeStr + ">";
                     }
                 }
             }
             else
             {
-                abstractType = at;
+                formalType = at;
             }
         }
         else
         {
             //
-            // If an abstract type is not defined, we use the concrete type as the default.
-            // If instead we chose a default abstract type, such as List<T>, then we
+            // If a formal type is not defined, we use the instance type as the default.
+            // If instead we chose a default formal type, such as List<T>, then we
             // might inadvertently generate uncompilable code. The Java5 compiler does not
             // allow polymorphic assignment between generic types if it can weaken the
             // compile-time type safety rules.
             //
-            abstractType = "java.util.List";
+            formalType = "java.util.List";
             if(!java2)
             {
-                abstractType += "<" + typeStr + ">";
+                formalType += "<" + typeStr + ">";
             }
         }
     }
@@ -3365,9 +3365,9 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     //
     // The default mapping is a native array.
     //
-    if(concreteType.empty())
+    if(instanceType.empty())
     {
-        concreteType = abstractType = typeToString(seq->type(), TypeModeIn, package) + "[]";
+        instanceType = formalType = typeToString(seq->type(), TypeModeIn, package) + "[]";
     }
 
     return customType;
