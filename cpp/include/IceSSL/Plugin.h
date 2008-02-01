@@ -123,6 +123,8 @@ typedef IceUtil::Handle<Certificate> CertificatePtr;
 //
 class ICE_SSL_API PublicKey : public IceUtil::Shared
 {
+public:
+
     ~PublicKey();
 
     EVP_PKEY* key() const;

@@ -1,6 +1,8 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added "public" keyword to the definition of IceSSL::PublicKey.
+
 - Fixed a bug in slice2freeze in which it was not properly handling
   the "cpp:type:wstring" metadata, which would result in narrow 
   strings being used in generated code when wstring should have been
