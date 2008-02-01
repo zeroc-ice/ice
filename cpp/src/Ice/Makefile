@@ -46,7 +46,6 @@ OBJS		= Acceptor.o \
 		  FactoryTable.o \
 		  GC.o \
 		  Identity.o \
-		  IdentityUtil.o \
 		  ImplicitContextI.o \
 		  ImplicitContext.o \
 		  IncomingAsync.o \

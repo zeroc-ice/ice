@@ -64,37 +64,6 @@ public abstract class Application
         return main(appName, args, initData);
     }
 
-    /**
-     * @deprecated This method has been deprecated.
-     **/
-    public final int
-    main(String appName, String[] args, String configFile, Logger logger)
-    {
-        InitializationData initData = new InitializationData();
-        if(configFile != null)
-        {
-            try
-            {
-                initData.properties = Util.createProperties();
-                initData.properties.load(configFile);
-            }
-            catch(LocalException ex)
-            {
-                System.err.println(appName + ": " + ex);
-                ex.printStackTrace();
-                return 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                System.err.println(appName + ": unknown exception");
-                ex.printStackTrace();
-                return 1;
-            }
-        }
-        initData.logger = logger;
-        return main(appName, args, initData);
-    }
-
     public final int
     main(String appName, String[] args, InitializationData initializationData)
     {

@@ -79,32 +79,6 @@ namespace Ice
             return main(args, initData);
         }
 
-        [Obsolete("This method has been deprecated.")]
-        public int main(string[] args, string configFile, Logger logger)
-        {
-            InitializationData initData = new InitializationData();
-            if(configFile != null)
-            {
-                try
-                {
-                    initData.properties = Util.createProperties();
-                    initData.properties.load(configFile);
-                }
-                catch(Ice.Exception ex)
-                {
-                    Console.Error.WriteLine(_appName + ":\n" + ex);
-                    return 1;
-                }
-                catch(System.Exception ex)
-                {
-                    Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
-                    return 1;
-                }
-            }
-            initData.logger = logger;
-            return main(args, initData);
-        }
-
         public int main(string[] args, InitializationData initData)
         {
             if(_communicator != null)

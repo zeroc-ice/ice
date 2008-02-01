@@ -9,7 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/Locator.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Registry.h>

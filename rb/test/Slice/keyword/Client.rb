@@ -52,9 +52,9 @@ def run(args, communicator)
     test(e.method(:_do))
     test(e.method(:_case))
     f = BEGIN_::Next.new
-    f.new = 0
+    f._new = 0
     g = BEGIN_::Nil.new
-    g.new = 0
+    g._new = 0
     g._not = 0
     g._or = 0
     # TODO: Test local interface

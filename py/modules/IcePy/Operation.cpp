@@ -16,7 +16,6 @@
 #include <Types.h>
 #include <Util.h>
 #include <Ice/Communicator.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>

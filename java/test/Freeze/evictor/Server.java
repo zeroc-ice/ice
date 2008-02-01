@@ -24,7 +24,7 @@ public class Server
         }
     }
 
-    static class ServantFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    static class ServantFactory implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)
@@ -41,7 +41,7 @@ public class Server
         }
     }
 
-    static class FacetFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    static class FacetFactory implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)

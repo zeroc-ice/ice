@@ -81,10 +81,8 @@ public:
     bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
 
-    ICE_DEPRECATED_API ::Ice::Int ice_hash() const;
     ::Ice::Int ice_getHash() const;
 
-    ICE_DEPRECATED_API ::Ice::CommunicatorPtr ice_communicator() const;
     ::Ice::CommunicatorPtr ice_getCommunicator() const;
 
     ::std::string ice_toString() const;
@@ -169,24 +167,19 @@ public:
                           const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
     ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
 
     ::Ice::Context ice_getContext() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
     ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_defaultContext() const;
 
     const ::std::string& ice_getFacet() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
     ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
     ::std::string ice_getAdapterId() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newAdapterId(const ::std::string&) const;
     ::Ice::ObjectPrx ice_adapterId(const ::std::string&) const;
 
     ::Ice::EndpointSeq ice_getEndpoints() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newEndpoints(const ::Ice::EndpointSeq&) const;
     ::Ice::ObjectPrx ice_endpoints(const ::Ice::EndpointSeq&) const;
 
     ::Ice::Int ice_getLocatorCacheTimeout() const;
@@ -211,7 +204,6 @@ public:
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
 
     bool ice_isCollocationOptimized() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_collocationOptimized(bool) const;
 
     ::Ice::ObjectPrx ice_twoway() const;
@@ -232,7 +224,6 @@ public:
     bool ice_isThreadPerConnection() const;
     ::Ice::ObjectPrx ice_threadPerConnection(bool) const;
 
-    ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection();
     ::Ice::ConnectionPtr ice_getConnection();
     ::Ice::ConnectionPtr ice_getCachedConnection() const;
 

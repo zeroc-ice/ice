@@ -1,6 +1,25 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The following APIs were deprecated in Ice 3.1 and have been
+  removed:
+
+  Application::main(int, char*[], const char*, const Ice::LoggerPtr&)
+  initializeWithLogger
+  initializeWithProperties
+  initializeWithPropertiesAndLogger
+  stringToIdentity
+  identityToString
+  ObjectPrx::ice_hash
+  ObjectPrx::ice_communicator
+  ObjectPrx::ice_newIdentity
+  ObjectPrx::ice_newContext
+  ObjectPrx::ice_newFacet
+  ObjectPrx::ice_newAdapterId
+  ObjectPrx::ice_newEndpoints
+  ObjectPrx::ice_collocationOptimization
+  ObjectPrx::ice_connection
+
 - Added "public" keyword to the definition of IceSSL::PublicKey.
 
 - Fixed a bug in slice2freeze in which it was not properly handling

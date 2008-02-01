@@ -11,16 +11,8 @@ package Ice;
 
 public interface ObjectPrx
 {
-    /**
-     * @deprecated This method has been replaced with ice_getHash.
-     **/
-    int ice_hash();
     int ice_getHash();
 
-    /**
-     * @deprecated This method has been replaced with ice_getCommunicator.
-     **/
-    Communicator ice_communicator();
     Communicator ice_getCommunicator();
 
     String ice_toString();
@@ -47,17 +39,9 @@ public interface ObjectPrx
                           java.util.Map context);
 
     Identity ice_getIdentity();
-    /**
-     * @deprecated This method has been replaced with ice_identity.
-     **/
-    ObjectPrx ice_newIdentity(Identity newIdentity);
     ObjectPrx ice_identity(Identity newIdentity);
 
     java.util.Map ice_getContext();
-    /**
-     * @deprecated This method has been replaced with ice_context.
-     **/
-    ObjectPrx ice_newContext(java.util.Map newContext);
     ObjectPrx ice_context(java.util.Map newContext);
     /**
      * @deprecated This method has been replaced with ice_context.
@@ -65,24 +49,12 @@ public interface ObjectPrx
     ObjectPrx ice_defaultContext();
 
     String ice_getFacet(); 
-    /**
-     * @deprecated This method has been replaced with ice_facet.
-     **/
-    ObjectPrx ice_newFacet(String newFacet);
     ObjectPrx ice_facet(String newFacet);
 
     String ice_getAdapterId();
-    /**
-     * @deprecated This method has been replaced with ice_adapterId.
-     **/
-    ObjectPrx ice_newAdapterId(String newAdapterId);
     ObjectPrx ice_adapterId(String newAdapterId);
 
     Endpoint[] ice_getEndpoints();
-    /**
-     * @deprecated This method has been replaced with ice_endpoints.
-     **/
-    ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
     ObjectPrx ice_endpoints(Endpoint[] newEndpoints);
 
     int ice_getLocatorCacheTimeout();
@@ -107,10 +79,6 @@ public interface ObjectPrx
     ObjectPrx ice_locator(Ice.LocatorPrx locator);
 
     boolean ice_isCollocationOptimized();
-    /**
-     * @deprecated This method has been replaced with ice_collocationOptimized.
-     **/
-    ObjectPrx ice_collocationOptimization(boolean b);
     ObjectPrx ice_collocationOptimized(boolean b);
 
     ObjectPrx ice_twoway();
@@ -131,10 +99,6 @@ public interface ObjectPrx
     boolean ice_isThreadPerConnection();
     ObjectPrx ice_threadPerConnection(boolean tpc);
 
-    /**
-     * @deprecated This method has been replaced with ice_getConnection.
-     **/
-    Connection ice_connection();
     Connection ice_getConnection();
     Connection ice_getCachedConnection();
 

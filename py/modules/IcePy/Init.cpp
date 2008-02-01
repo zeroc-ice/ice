@@ -31,10 +31,6 @@ static PyMethodDef methods[] =
 {
     { STRCAST("version"), reinterpret_cast<PyCFunction>(IcePy_version), METH_NOARGS,
         PyDoc_STR(STRCAST("version() -> string")) },
-    { STRCAST("identityToString"), reinterpret_cast<PyCFunction>(IcePy_identityToString), METH_VARARGS,
-        PyDoc_STR(STRCAST("identityToString(id) -> string")) },
-    { STRCAST("stringToIdentity"), reinterpret_cast<PyCFunction>(IcePy_stringToIdentity), METH_VARARGS,
-        PyDoc_STR(STRCAST("stringToIdentity(str) -> Ice.Identity")) },
     { STRCAST("generateUUID"), reinterpret_cast<PyCFunction>(IcePy_generateUUID), METH_NOARGS,
         PyDoc_STR(STRCAST("generateUUID() -> string")) },
     { STRCAST("createProperties"), reinterpret_cast<PyCFunction>(IcePy_createProperties), METH_VARARGS,

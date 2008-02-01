@@ -24,7 +24,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
-#include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_connection().
+#include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_getConnection().
 #include <Ice/Stream.h>
 #include <Ice/ImplicitContextI.h>
 
@@ -85,21 +85,9 @@ IceProxy::Ice::Object::operator<(const Object& r) const
 }
 
 Int
-IceProxy::Ice::Object::ice_hash() const
-{
-    return ice_getHash();
-}
-
-Int
 IceProxy::Ice::Object::ice_getHash() const
 {
     return _reference->hash();
-}
-
-CommunicatorPtr
-IceProxy::Ice::Object::ice_communicator() const
-{
-    return ice_getCommunicator();
 }
 
 CommunicatorPtr
@@ -331,12 +319,6 @@ IceProxy::Ice::Object::ice_identity(const Identity& newIdentity) const
     }
 }
 
-ObjectPrx
-IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
-{
-    return ice_identity(newIdentity);
-}
-
 Context
 IceProxy::Ice::Object::ice_getContext() const
 {
@@ -349,12 +331,6 @@ IceProxy::Ice::Object::ice_context(const Context& newContext) const
     ObjectPrx proxy = __newInstance();
     proxy->setup(_reference->changeContext(newContext));
     return proxy;
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
-{
-    return ice_context(newContext);
 }
 
 ObjectPrx
@@ -386,12 +362,6 @@ IceProxy::Ice::Object::ice_facet(const string& newFacet) const
     }
 }
 
-ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
-{
-    return ice_facet(newFacet);
-}
-
 string
 IceProxy::Ice::Object::ice_getAdapterId() const
 {
@@ -411,12 +381,6 @@ IceProxy::Ice::Object::ice_adapterId(const string& newAdapterId) const
         proxy->setup(_reference->changeAdapterId(newAdapterId));
         return proxy;
     }
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_newAdapterId(const string& newAdapterId) const
-{
-    return ice_adapterId(newAdapterId);
 }
 
 EndpointSeq
@@ -450,12 +414,6 @@ IceProxy::Ice::Object::ice_endpoints(const EndpointSeq& newEndpoints) const
         proxy->setup(_reference->changeEndpoints(endpoints));
         return proxy;
     }
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_newEndpoints(const EndpointSeq& newEndpoints) const
-{
-    return ice_endpoints(newEndpoints);
 }
 
 Int
@@ -613,12 +571,6 @@ bool
 IceProxy::Ice::Object::ice_isCollocationOptimized() const
 {
     return _reference->getCollocationOptimized();
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_collocationOptimization(bool b) const
-{
-    return ice_collocationOptimized(b);
 }
 
 ObjectPrx
@@ -809,12 +761,6 @@ IceProxy::Ice::Object::ice_threadPerConnection(bool b) const
         proxy->setup(ref);
         return proxy;
     }
-}
-
-ConnectionPtr
-IceProxy::Ice::Object::ice_connection()
-{
-    return ice_getConnection();
 }
 
 ConnectionPtr

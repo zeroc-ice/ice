@@ -1,6 +1,22 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The following APIs were deprecated in Ice 3.1 and have been
+  removed:
+
+  initializeWithLogger
+  initializeWithProperties
+  initializeWithPropertiesAndLogger
+  identityToString
+  stringToIdentity
+  ObjectPrx.ice_communicator
+  ObjectPrx.ice_newIdentity
+  ObjectPrx.ice_newContext
+  ObjectPrx.ice_newFacet
+  ObjectPrx.ice_newAdapterId
+  ObjectPrx.ice_newEndpoints
+  ObjectPrx.ice_connection
+
 - Added the Ice.version() function to return the Ice version as a
   string.
 

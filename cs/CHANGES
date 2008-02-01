@@ -1,6 +1,23 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- The following APIs were deprecated in Ice 3.1 and have been
+  removed:
+
+  Application.main(String, String[], String, Logger)
+  Util.initializeWithLogger
+  Util.initializeWithProperties
+  Util.initializeWithPropertiesAndLogger
+  ObjectPrx.ice_hash
+  ObjectPrx.ice_communicator
+  ObjectPrx.ice_newIdentity
+  ObjectPrx.ice_newContext
+  ObjectPrx.ice_newFacet
+  ObjectPrx.ice_newAdapterId
+  ObjectPrx.ice_newEndpoints
+  ObjectPrx.ice_collocationOptimization
+  ObjectPrx.ice_connection
+
 - The Ice.Application class now supports signal handling on Mono.
 
 - Added the build macro MANAGED, which can be enabled if you want to

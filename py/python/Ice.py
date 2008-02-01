@@ -38,8 +38,6 @@ import IcePy
 #
 ObjectPrx = IcePy.ObjectPrx
 version = IcePy.version
-identityToString = IcePy.identityToString
-stringToIdentity = IcePy.stringToIdentity
 generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
 
@@ -303,35 +301,6 @@ class CommunicatorI(Communicator):
 def initialize(args=None, data=None):
     communicator = IcePy.Communicator(args, data)
     return CommunicatorI(communicator)
-
-#
-# Ice.initializeWithProperties()
-#
-def initializeWithProperties(args, properties):
-    warnings.warn("initializeWithProperties has been deprecated, use initialize instead", DeprecationWarning, 2)
-    data = InitializationData()
-    data.properties = properties
-    return initialize(args, data)
-
-#
-# Ice.initializeWithLogger()
-#
-def initializeWithLogger(args, logger):
-    warnings.warn("initializeWithLogger has been deprecated, use initialize instead", DeprecationWarning, 2)
-    data = InitializationData()
-    data.logger = logger
-    return initialize(args, data)
-
-#
-# Ice.initializeWithPropertiesAndLogger()
-#
-def initializeWithPropertiesAndLogger(args, properties, logger):
-    warnings.warn("initializeWithPropertiesAndLogger has been deprecated, use initialize instead",
-                  DeprecationWarning, 2)
-    data = InitializationData()
-    data.properties = properties
-    data.logger = logger
-    return initialize(args, data)
 
 #
 # ObjectAdapter wrapper.

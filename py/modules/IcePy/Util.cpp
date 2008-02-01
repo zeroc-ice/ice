@@ -12,7 +12,6 @@
 #endif
 #include <Util.h>
 #include <IceUtil/DisableWarnings.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/LocalException.h>
 #include <IceUtil/UUID.h>
 #include <Slice/PythonUtil.h>
@@ -881,60 +880,6 @@ IcePy_version(PyObject* /*self*/)
 {
     string s = ICE_STRING_VERSION;
     return IcePy::createString(s);
-}
-
-extern "C"
-PyObject*
-IcePy_identityToString(PyObject* /*self*/, PyObject* args)
-{
-    PyObject* identityType = IcePy::lookupType("Ice.Identity");
-    PyObject* p;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &p))
-    {
-        return 0;
-    }
-
-    Ice::Identity id;
-    if(!IcePy::getIdentity(p, id))
-    {
-        return 0;
-    }
-
-    string s;
-    try
-    {
-        s = Ice::identityToString(id);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        IcePy::setPythonException(ex);
-        return 0;
-    }
-    return IcePy::createString(s);
-}
-
-extern "C"
-PyObject*
-IcePy_stringToIdentity(PyObject* /*self*/, PyObject* args)
-{
-    char* str;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
-    {
-        return 0;
-    }
-
-    Ice::Identity id;
-    try
-    {
-        id = Ice::stringToIdentity(str);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        IcePy::setPythonException(ex);
-        return 0;
-    }
-
-    return IcePy::createIdentity(id);
 }
 
 extern "C"

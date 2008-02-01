@@ -335,32 +335,6 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
 }
 
 int
-Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice::LoggerPtr& logger)
-{
-    InitializationData initData;
-    if(configFile)
-    {
-        try
-        {
-            initData.properties = createProperties();
-            initData.properties->load(configFile);
-        }
-        catch(const std::exception& ex)
-        {
-            cerr << argv[0] << ex.what() << endl;
-            return EXIT_FAILURE;
-        }
-        catch(...)
-        {
-            cerr << argv[0] << ": unknown exception" << endl;
-            return EXIT_FAILURE;
-        }
-    }
-    initData.logger = logger;
-    return main(argc, argv, initData);
-}
-
-int
 Ice::Application::main(const StringSeq& args)
 {
     ArgVector av(args);

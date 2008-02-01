@@ -46,7 +46,7 @@ namespace Ice
         {
             return new PropertiesI(ref args, null);
         }
-        
+
         public static Properties createProperties(ref string[] args, Properties defaults)
         {
             return new PropertiesI(ref args, defaults);
@@ -68,7 +68,7 @@ namespace Ice
                 initData = (InitializationData)initData.Clone();
             }
 
-            initData.properties = createProperties(ref args, initData.properties);          
+            initData.properties = createProperties(ref args, initData.properties);
 
             CommunicatorI result = new CommunicatorI(initData);
             result.finishSetup(ref args);
@@ -97,32 +97,6 @@ namespace Ice
             return initialize(null);
         }
 
-        [Obsolete("This method is deprecated, use initialize instead.")]
-        public static Communicator initializeWithLogger(ref string[] args, Logger logger)
-        {
-            InitializationData initData = new InitializationData();
-            initData.logger = logger;
-            return initialize(ref args, initData);
-        }
-        
-        [Obsolete("This method is deprecated, use initialize instead.")]
-        public static Communicator initializeWithProperties(ref string[] args, Properties properties)
-        {
-            InitializationData initData = new InitializationData();
-            initData.properties = properties;
-            return initialize(ref args, initData);
-        }
-
-        [Obsolete("This method is deprecated, use initialize instead.")]
-        public static Communicator initializeWithPropertiesAndLogger(ref string[] args, Properties properties,
-                                                                     Ice.Logger logger)
-        {
-            InitializationData initData = new InitializationData();
-            initData.properties = properties;
-            initData.logger = logger;
-            return initialize(ref args, initData);
-        }
-        
         public static IceInternal.Instance getInstance(Communicator communicator)
         {
             CommunicatorI p = (CommunicatorI) communicator;
@@ -137,7 +111,7 @@ namespace Ice
         public static Identity stringToIdentity(string s)
         {
             Identity ident = new Identity();
-            
+
             //
             // Find unescaped separator.
             //
@@ -162,7 +136,7 @@ namespace Ice
                 }
                 pos++;
             }
-            
+
             if(slash == -1)
             {
                 if(!IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, out ident.name))
@@ -195,10 +169,10 @@ namespace Ice
                     ident.name = "";
                 }
             }
-            
+
             return ident;
         }
-        
+
         public static string identityToString(Identity ident)
         {
             if(ident.category.Length == 0)
@@ -207,7 +181,8 @@ namespace Ice
             }
             else
             {
-                return IceUtilInternal.StringUtil.escapeString(ident.category, "/") + '/' + IceUtilInternal.StringUtil.escapeString(ident.name, "/");
+                return IceUtilInternal.StringUtil.escapeString(ident.category, "/") + '/' +
+                    IceUtilInternal.StringUtil.escapeString(ident.name, "/");
             }
         }
 
@@ -215,8 +190,7 @@ namespace Ice
         {
             return Guid.NewGuid().ToString().ToUpper();
         }
-        
-        
+
         public static int
         proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
         {

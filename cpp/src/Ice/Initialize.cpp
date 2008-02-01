@@ -191,33 +191,6 @@ Ice::initialize(const InitializationData& initData, Int version)
     return result;
 }
 
-
-CommunicatorPtr
-Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
-{
-    InitializationData initData;
-    initData.properties = properties;
-    return initialize(argc, argv, initData, version);
-}
-
-CommunicatorPtr
-Ice::initializeWithLogger(int& argc, char* argv[], const LoggerPtr& logger, Int version)
-{
-    InitializationData initData;
-    initData.logger = logger;
-    return initialize(argc, argv, initData, version);
-}
-
-CommunicatorPtr
-Ice::initializeWithPropertiesAndLogger(int& argc, char* argv[], const PropertiesPtr& properties,
-                                       const LoggerPtr& logger, Int version)
-{
-    InitializationData initData;
-    initData.properties = properties;
-    initData.logger = logger;
-    return initialize(argc, argv, initData, version);
-}
-
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
 {

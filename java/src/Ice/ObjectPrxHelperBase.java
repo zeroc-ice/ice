@@ -17,27 +17,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
         return _reference.hashCode();
     }
 
-    /**
-     * @deprecated This method has been replaced with ice_getHash.
-     **/
-    public final int
-    ice_hash()
-    {
-        return ice_getHash();
-    }
-
     public final int
     ice_getHash()
     {
         return _reference.hashCode();
-    }
-
-    /**
-     * @deprecated This method has been replaced with ice_getCommunicator.
-     **/
-    public final Communicator ice_communicator()
-    {
-        return ice_getCommunicator();
     }
 
     public final Communicator ice_getCommunicator()
@@ -312,15 +295,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    /**
-     * @deprecated This method has been replaced with ice_identity.
-     **/
-    public final ObjectPrx
-    ice_newIdentity(Identity newIdentity)
-    {
-        return ice_identity(newIdentity);
-    }
-
     public final java.util.Map
     ice_getContext()
     {
@@ -331,15 +305,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
     ice_context(java.util.Map newContext)
     {
         return newInstance(_reference.changeContext(newContext));
-    }
-
-    /**
-     * @deprecated This method has been replaced with ice_context.
-     **/
-    public final ObjectPrx
-    ice_newContext(java.util.Map newContext)
-    {
-        return ice_context(newContext);
     }
 
     /**
@@ -377,15 +342,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    /**
-     * @deprecated This method has been replaced with ice_facet.
-     **/
-    public final ObjectPrx
-    ice_newFacet(String newFacet)
-    {
-        return ice_facet(newFacet);
-    }
-
     public final String
     ice_getAdapterId()
     {
@@ -410,15 +366,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    /**
-     * @deprecated This method has been replaced with ice_adapterId.
-     **/
-    public final ObjectPrx
-    ice_newAdapterId(String newAdapterId)
-    {
-        return ice_adapterId(newAdapterId);
-    }
-
     public final Endpoint[]
     ice_getEndpoints()
     {
@@ -438,15 +385,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
             edpts = (IceInternal.EndpointI[])java.util.Arrays.asList(newEndpoints).toArray(edpts);
             return newInstance(_reference.changeEndpoints(edpts));
         }
-    }
-
-    /**
-     * @deprecated This method has been replaced with ice_endpoints.
-     **/
-    public final ObjectPrx
-    ice_newEndpoints(Endpoint[] newEndpoints)
-    {
-        return ice_endpoints(newEndpoints);
     }
 
     public final int
@@ -590,15 +528,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
     ice_isCollocationOptimized()
     {
         return _reference.getCollocationOptimized();
-    }
-
-    /**
-     * @deprecated This method has been replaced with ice_collocationOptimized.
-     **/
-    public final ObjectPrx
-    ice_collocationOptimization(boolean b)
-    {
-        return ice_collocationOptimized(b);
     }
 
     public final ObjectPrx
@@ -769,15 +698,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         {
             return newInstance(ref);
         }
-    }
-
-    /**
-     * @deprecated This method has been replaced with ice_collocationOptimized.
-     **/
-    public final Connection
-    ice_connection()
-    { 
-       return ice_getConnection();
     }
 
     public final Connection

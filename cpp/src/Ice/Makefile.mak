@@ -47,7 +47,6 @@ OBJS		= Acceptor.obj \
 		  FactoryTable.obj \
 		  GC.obj \
 		  Identity.obj \
-		  IdentityUtil.obj \
 		  ImplicitContextI.obj \
 		  ImplicitContext.obj \
 		  IncomingAsync.obj \
