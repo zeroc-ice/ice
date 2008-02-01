@@ -34,7 +34,6 @@ class Server(Ice.Application):
         self.communicator().waitForShutdown()
         return 0
 
-print "hello world"
 sys.stdout.flush()
 app = Server()
 sys.exit(app.main(sys.argv, "config.server"))

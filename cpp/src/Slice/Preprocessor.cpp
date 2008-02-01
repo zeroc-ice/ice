@@ -150,13 +150,30 @@ Slice::Preprocessor::preprocess(bool keepComments)
     {
         argv[i + 1] = (char*) args[i].c_str();
     }
-    
+
+    //
+    // Mcpp redirects stdin which causes problems for Python
+    // and Ruby applications which use loadSlice. Therefore
+    // we need to save handle to stdin so we can restore it
+    // after mcpp has finished its processing.
+    //
+    int stdin_save;
+    stdin_save = dup(0);
+
     //
     // Call mcpp using memory buffer.
     //
     mcpp_use_mem_buffers(1);
     mcpp_lib_main(static_cast<int>(args.size()) + 1, argv);
     delete[] argv;
+
+    //
+    // Restore stdin.
+    //
+    fflush(stdin);
+    ::close(0);
+    dup2(stdin_save, 0);
+    ::close(stdin_save);
 
     //
     // Write output to temporary file. Print errors to stderr.
@@ -167,7 +184,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     _cppFile = ".preprocess." + IceUtil::generateUUID();
     SignalHandler::addFile(_cppFile);
 #ifdef _WIN32
-    _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
+    _cppHandle = ::_fopen(_cppFile.c_str(), "w+");
 #else
     _cppHandle = ::fopen(_cppFile.c_str(), "w+");
 #endif
