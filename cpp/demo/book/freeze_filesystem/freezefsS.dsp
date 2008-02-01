@@ -176,7 +176,7 @@ SOURCE=.\PersistentFilesystem.ice
 InputPath=.\PersistentFilesystem.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe PersistentFilesystem.ice
+	..\..\..\bin\slice2cpp.exe -I. PersistentFilesystem.ice
 
 "PersistentFilesystem.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -191,7 +191,7 @@ BuildCmds= \
 InputPath=.\PersistentFilesystem.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe PersistentFilesystem.ice
+	..\..\..\bin\slice2cpp.exe -I. PersistentFilesystem.ice
 
 "PersistentFilesystem.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="customevictS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="transformReadnew" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=customevictS - Win32 Debug
+CFG=transformReadnew - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "customevictS.mak".
+!MESSAGE NMAKE /f "transformReadnew.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "customevictS.mak" CFG="customevictS - Win32 Debug"
+!MESSAGE NMAKE /f "transformReadnew.mak" CFG="transformReadnew - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "customevictS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "customevictS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "transformReadnew - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "transformReadnew - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=customevictS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "customevictS - Win32 Release"
+!IF  "$(CFG)" == "transformReadnew - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../../include/stlport" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../../include/stlport" /I "dummyinclude" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../lib" /FIXED:no
-# SUBTRACT LINK32 /debug
+# ADD LINK32 IceXML.lib Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
+# SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "customevictS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "transformReadnew - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -68,7 +68,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../../include/stlport" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../../include/stlport" /I "dummyinclude" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -77,53 +77,29 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 Freezed.lib Iced.lib IceUtild.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Freezed.lib Iced.lib IceUtild.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
 
 # Begin Target
 
-# Name "customevictS - Win32 Release"
-# Name "customevictS - Win32 Debug"
+# Name "transformReadnew - Win32 Release"
+# Name "transformReadnew - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\CurrentDatabase.cpp
+SOURCE=.\NewContactData.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Database.cpp
+SOURCE=.\NewContacts.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Evictor.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\EvictorBase.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Item.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ItemI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ItemInfo.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Server.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SimpleEvictor.cpp
+SOURCE=.\readnew.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -131,35 +107,11 @@ SOURCE=.\SimpleEvictor.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\CurrentDatabase.h
+SOURCE=.\NewContactData.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Database.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Evictor.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\EvictorBase.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Item.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ItemI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ItemInfo.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SimpleEvictor.h
+SOURCE=.\NewContacts.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -167,72 +119,53 @@ SOURCE=.\SimpleEvictor.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Item.ice
+SOURCE=.\NewContactData.ice
 
-!IF  "$(CFG)" == "customevictS - Win32 Release"
+!IF  "$(CFG)" == "transformReadnew - Win32 Release"
 
+USERDEP__NEWCO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Item.ice
+InputPath=.\NewContactData.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Item.ice
+	..\..\..\bin\slice2cpp.exe NewContactData.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::NewContacts,string,Demo::ContactData,sort --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice \
+	
 
-"Item.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Item.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"NewContacts.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"NewContacts.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "customevictS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "transformReadnew - Win32 Debug"
 
+USERDEP__NEWCO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Item.ice
+InputPath=.\NewContactData.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Item.ice
+	..\..\..\bin\slice2cpp.exe NewContactData.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::NewContacts,string,Demo::ContactData,sort --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice \
+	
 
-"Item.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Item.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\ItemInfo.ice
-
-!IF  "$(CFG)" == "customevictS - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\ItemInfo.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe ItemInfo.ice
-
-"ItemInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ItemInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "customevictS - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\ItemInfo.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe ItemInfo.ice
-
-"ItemInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContacts.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ItemInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContacts.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

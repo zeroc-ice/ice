@@ -198,16 +198,43 @@ Package=<4>
     Project_Dep_Name freezefsS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name customevictC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name customevictS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name lifecyclefsC
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name lifecyclefsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name casinoC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name casinoS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformCreate
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformRead
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformRecreate
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformReadnew
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceboxgridC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceboxgridS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name backup
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customEvictorC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customEvictorS
     End Project Dependency
 }}}
 
@@ -221,6 +248,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name allocateS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -245,11 +275,26 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name asyncS
+    End Project Dependency
 }}}
 
 ###############################################################################
 
 Project: "asyncS"=.\Ice\async\asyncS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "backup"=.\Freeze\backup\backup.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -281,6 +326,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name bidirS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -305,11 +353,41 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name callbackS
+    End Project Dependency
 }}}
 
 ###############################################################################
 
 Project: "callbackS"=.\ice\callback\callbackS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "casinoC"=.\Freeze\casino\casinoC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name casinoS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "casinoS"=.\Freeze\casino\casinoS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -329,6 +407,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name chatS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -353,6 +434,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name clockS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -377,6 +461,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name converterS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -401,6 +488,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name counterS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -417,7 +507,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "customevictC"=.\Freeze\customEvictor\customevictC.dsp - Package Owner=<4>
+Project: "customEvictorC"=.\Freeze\customEvictor\customEvictorC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -425,11 +515,14 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name customEvictorS
+    End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "customevictS"=.\Freeze\customEvictor\customevictS.dsp - Package Owner=<4>
+Project: "customEvictorS"=.\Freeze\customEvictor\customEvictorS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -449,6 +542,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name freezefsS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -473,6 +569,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2callbackS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -509,6 +608,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name helloS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -533,11 +635,41 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name helloiceboxS
+    End Project Dependency
 }}}
 
 ###############################################################################
 
 Project: "helloiceboxS"=.\icebox\hello\helloiceboxS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "iceboxgridC"=.\IceGrid\icebox\iceboxgridC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name iceboxgridS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "iceboxgridS"=.\IceGrid\icebox\iceboxgridS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -557,6 +689,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name invokeS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -581,6 +716,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name latencyS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -605,6 +743,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name libraryCOL
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -629,6 +770,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name libraryCOL
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -641,6 +785,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name lifecyclefsS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -701,6 +848,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name minimalS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -725,6 +875,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name nestedS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -749,6 +902,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name phonebookCOL
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -773,6 +929,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name phonebookCOL
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -785,6 +944,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name printerS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -809,6 +971,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name replicatedS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -833,6 +998,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name replicationS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -857,6 +1025,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name sessionActivationS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -881,6 +1052,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name sessionS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -905,6 +1079,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name simpleS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -929,6 +1106,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name simplefsS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -953,11 +1133,68 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name throughputS
+    End Project Dependency
 }}}
 
 ###############################################################################
 
 Project: "throughputS"=.\ice\throughput\throughputS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "transformCreate"=.\Freeze\transform\transformCreate.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "transformRead"=.\Freeze\transform\transformRead.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name transformCreate
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "transformReadnew"=.\Freeze\transform\transformReadnew.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name transformRecreate
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "transformRecreate"=.\Freeze\transform\transformRecreate.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -977,6 +1214,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name valueS
+    End Project Dependency
 }}}
 
 ###############################################################################

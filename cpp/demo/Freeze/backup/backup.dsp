@@ -115,38 +115,34 @@ SOURCE=.\dummy.ice
 
 !IF  "$(CFG)" == "backup - Win32 Release"
 
-USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"
+USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe -I..\..\..\slice --dict IntLongMap,int,long IntLongMap
-	
+	..\..\..\bin\slice2freeze.exe -I..\..\..\..\slice --dict IntLongMap,int,long IntLongMap
 
 "IntLongMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "IntLongMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "backup - Win32 Debug"
 
-USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"
+USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe -I..\..\..\slice --dict IntLongMap,int,long IntLongMap
-	
+	..\..\..\bin\slice2freeze.exe -I..\..\..\..\slice --dict IntLongMap,int,long IntLongMap
 
 "IntLongMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "IntLongMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-
 # End Custom Build
 
 !ENDIF 

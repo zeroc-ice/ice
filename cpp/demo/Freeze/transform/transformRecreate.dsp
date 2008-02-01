@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="libraryS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="transformRecreate" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=libraryS - Win32 Debug
+CFG=transformRecreate - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "libraryS.mak".
+!MESSAGE NMAKE /f "transformRecreate.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "libraryS.mak" CFG="libraryS - Win32 Debug"
+!MESSAGE NMAKE /f "transformRecreate.mak" CFG="transformRecreate - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "libraryS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "libraryS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "transformRecreate - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "transformRecreate - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=libraryS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "libraryS - Win32 Release"
+!IF  "$(CFG)" == "transformRecreate - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../../include/stlport" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../../include/stlport" /I "dummyinclude" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 IceXML.lib Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 IceXML.lib Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "libraryS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "transformRecreate - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -68,7 +68,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../../include/stlport" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../../include/stlport" /I "dummyinclude" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -77,37 +77,29 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 Freezed.lib Iced.lib IceUtild.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Freezed.lib Iced.lib IceUtild.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
 
 # Begin Target
 
-# Name "libraryS - Win32 Release"
-# Name "libraryS - Win32 Debug"
+# Name "transformRecreate - Win32 Release"
+# Name "transformRecreate - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\BookFactory.cpp
+SOURCE=.\NewContactData.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Library.cpp
+SOURCE=.\NewContacts.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LibraryI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\LibraryTypes.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Server.cpp
+SOURCE=.\recreate.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -115,19 +107,11 @@ SOURCE=.\Server.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\BookFactory.h
+SOURCE=.\NewContactData.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Library.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\LibraryI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\LibraryTypes.h
+SOURCE=.\NewContacts.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -135,53 +119,53 @@ SOURCE=.\LibraryTypes.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Library.ice
+SOURCE=.\NewContactData.ice
 
-!IF  "$(CFG)" == "libraryS - Win32 Release"
+!IF  "$(CFG)" == "transformRecreate - Win32 Release"
 
-USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
+USERDEP__NEWCO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Library.ice
+InputPath=.\NewContactData.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe --ice Library.ice \
-	..\..\..\bin\slice2freeze.exe --ice -I../../../../slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ../../../../slice/Ice/BuiltinSequences.ice Library.ice \
+	..\..\..\bin\slice2cpp.exe NewContactData.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::NewContacts,string,Demo::ContactData,sort --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice \
 	
 
-"LibraryTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"LibraryTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Library.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContacts.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Library.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContacts.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "libraryS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "transformRecreate - Win32 Debug"
 
-USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
+USERDEP__NEWCO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Library.ice
+InputPath=.\NewContactData.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe --ice Library.ice \
-	..\..\..\bin\slice2freeze.exe --ice -I../../../../slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ../../../../slice/Ice/BuiltinSequences.ice Library.ice \
+	..\..\..\bin\slice2cpp.exe NewContactData.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::NewContacts,string,Demo::ContactData,sort --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice \
 	
 
-"LibraryTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"LibraryTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContactData.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Library.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContacts.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Library.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NewContacts.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

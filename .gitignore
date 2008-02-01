@@ -36,6 +36,7 @@ sgenerated
 *.lib
 *.idb
 *.suo
+*.vcproj
 core.*
 cpp/src/Ice/EventLoggerMsg.h
 cpp/src/Ice/EventLoggerMsg.rc

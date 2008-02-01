@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="customevictC" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="casinoS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=customevictC - Win32 Debug
+CFG=casinoS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "customevictC.mak".
+!MESSAGE NMAKE /f "casinoS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "customevictC.mak" CFG="customevictC - Win32 Debug"
+!MESSAGE NMAKE /f "casinoS.mak" CFG="casinoS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "customevictC - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "customevictC - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "casinoS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "casinoS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=customevictC - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "customevictC - Win32 Release"
+!IF  "$(CFG)" == "casinoS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
-# SUBTRACT LINK32 /debug
+# ADD LINK32 IceXML.lib Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
+# SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "customevictC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "casinoS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,18 +84,38 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "customevictC - Win32 Release"
-# Name "customevictC - Win32 Debug"
+# Name "casinoS - Win32 Release"
+# Name "casinoS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Client.cpp
+SOURCE=.\BankI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Item.cpp
+SOURCE=.\BetI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BetResolver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Casino.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CasinoStore.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PlayerI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Server.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -103,12 +123,108 @@ SOURCE=.\Item.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Item.h
+SOURCE=.\BankI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BetI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BetResolver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Casino.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CasinoStore.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PlayerI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\Casino.ice
+
+!IF  "$(CFG)" == "casinoS - Win32 Release"
+
+USERDEP__CASIN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\Casino.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe Casino.ice
+
+"Casino.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Casino.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "casinoS - Win32 Debug"
+
+USERDEP__CASIN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=.\Casino.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe Casino.ice
+
+"Casino.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Casino.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\CasinoStore.ice
+
+!IF  "$(CFG)" == "casinoS - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\CasinoStore.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. -I..\..\..\..\slice CasinoStore.ice
+
+"CasinoStore.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"CasinoStore.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "casinoS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\CasinoStore.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. -I..\..\..\..\slice CasinoStore.ice
+
+"CasinoStore.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"CasinoStore.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Source File
 

@@ -1,66 +1,114 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "callbackC", "Ice\callback\callbackC.csproj", "{DD2D44C1-E67A-4142-8B52-4C15463BF13E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{61A697D5-36BB-4B00-88A7-E4A1C0034B66} = {61A697D5-36BB-4B00-88A7-E4A1C0034B66}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "callbackS", "Ice\callback\callbackS.csproj", "{61A697D5-36BB-4B00-88A7-E4A1C0034B66}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloC", "Ice\hello\helloC.csproj", "{228B2AFC-57DC-4E1F-8335-D0CD657A987B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B41ADFF-7802-4A36-8374-C32DE33B0290} = {0B41ADFF-7802-4A36-8374-C32DE33B0290}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloS", "Ice\hello\helloS.csproj", "{0B41ADFF-7802-4A36-8374-C32DE33B0290}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "latencyC", "Ice\latency\latencyC.csproj", "{7ED53E0A-4E93-42CA-AE8E-BB97AAFCF579}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BE103A1D-3AA6-40F6-BE0E-34AC909207EA} = {BE103A1D-3AA6-40F6-BE0E-34AC909207EA}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "latencyS", "Ice\latency\latencyS.csproj", "{BE103A1D-3AA6-40F6-BE0E-34AC909207EA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nestedC", "Ice\nested\nestedC.csproj", "{2F6A2DC8-0F08-44A9-98E6-EB0C3525CA59}"
+	ProjectSection(ProjectDependencies) = postProject
+		{871F0301-D864-420C-A859-5711F00078A9} = {871F0301-D864-420C-A859-5711F00078A9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nestedS", "Ice\nested\nestedS.csproj", "{871F0301-D864-420C-A859-5711F00078A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "throughputC", "Ice\throughput\throughputC.csproj", "{AEEFC3E3-7ADB-4764-8B26-E48E968C3252}"
+	ProjectSection(ProjectDependencies) = postProject
+		{092EBA96-7E30-49BE-96D3-B3F78F7E0CDE} = {092EBA96-7E30-49BE-96D3-B3F78F7E0CDE}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "throughputS", "Ice\throughput\throughputS.csproj", "{092EBA96-7E30-49BE-96D3-B3F78F7E0CDE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "valueC", "Ice\value\valueC.csproj", "{09767289-E658-49F2-ADD6-2EB467328E6F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0E78B6EA-2CDF-401A-BC2D-364E44A46636} = {0E78B6EA-2CDF-401A-BC2D-364E44A46636}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "valueS", "Ice\value\valueS.csproj", "{0E78B6EA-2CDF-401A-BC2D-364E44A46636}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "printerC", "book\printer\printerC.csproj", "{B48255A1-FF6B-4A45-AA80-E4149A75393D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2374126D-F982-4E2F-B9F3-278F8B38A310} = {2374126D-F982-4E2F-B9F3-278F8B38A310}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "printerS", "book\printer\printerS.csproj", "{2374126D-F982-4E2F-B9F3-278F8B38A310}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleFSC", "book\simple_filesystem\simpleFSC.csproj", "{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46} = {ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleFSS", "book\simple_filesystem\simpleFSS.csproj", "{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "invokeC", "Ice\invoke\invokeC.csproj", "{64B7BE89-5E04-44B9-90F6-C040FB9111EA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581} = {CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "invokeS", "Ice\invoke\invokeS.csproj", "{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bidirC", "Ice\bidir\bidirC.csproj", "{8707D8A6-5B7F-4DAB-9619-E18ABB2D9966}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F0D08374-2E49-4B47-BD72-0FA5E75804DD} = {F0D08374-2E49-4B47-BD72-0FA5E75804DD}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bidirS", "Ice\bidir\bidirS.csproj", "{F0D08374-2E49-4B47-BD72-0FA5E75804DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackC", "Glacier2\callback\glacier2callbackC.csproj", "{2AC78A13-497B-44B1-8BF0-156877B78293}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E0C03A3C-1504-49B6-9C20-9B96DF17649E} = {E0C03A3C-1504-49B6-9C20-9B96DF17649E}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackS", "Glacier2\callback\glacier2callbackS.csproj", "{E0C03A3C-1504-49B6-9C20-9B96DF17649E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackSS", "Glacier2\callback\glacier2callbackSS.csproj", "{B41A6B60-9582-4814-9291-4758BEF1E9CC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionC", "Ice\session\sessionC.csproj", "{C735D2B4-548E-4B46-BA4A-B081EFB728AA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765} = {2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionS", "Ice\session\sessionS.csproj", "{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalC", "Ice\minimal\minimalC.csproj", "{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A} = {8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalS", "Ice\minimal\minimalS.csproj", "{8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloIceBoxC", "IceBox\hello\helloIceBoxC.csproj", "{6C390D21-6B1A-467A-A533-1A02DA104A64}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8D371651-BFA4-43C9-B143-77F06F02B310} = {8D371651-BFA4-43C9-B143-77F06F02B310}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleIceGridC", "IceGrid\simple\simpleIceGridC.csproj", "{E50ACFB0-D945-4ED0-9E1D-6053A86BA43E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7F5F90B7-88D5-47EB-B8FD-2BEF5A08E0D9} = {7F5F90B7-88D5-47EB-B8FD-2BEF5A08E0D9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleIceGridS", "IceGrid\simple\simpleIceGridS.csproj", "{7F5F90B7-88D5-47EB-B8FD-2BEF5A08E0D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clockC", "IceStorm\clock\clockC.csproj", "{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FC6800FD-F1B4-4ADC-850C-6D53FFC26D81} = {FC6800FD-F1B4-4ADC-850C-6D53FFC26D81}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clockS", "IceStorm\clock\clockS.csproj", "{FC6800FD-F1B4-4ADC-850C-6D53FFC26D81}"
 EndProject
@@ -69,10 +117,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "asyncS", "Ice\async\asyncS.csproj", "{1234ADFF-7802-4A36-8374-C32DE33B0290}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "asyncC", "Ice\async\asyncC.csproj", "{5678ADFF-7802-4A36-8374-C32DE33B0290}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1234ADFF-7802-4A36-8374-C32DE33B0290} = {1234ADFF-7802-4A36-8374-C32DE33B0290}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lifecycleFSS", "book\lifecycle\lifecycleFSS.csproj", "{710B7320-A714-4560-BCB0-A50FCA6ECAC5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lifecycleFSC", "book\lifecycle\lifecycleFSC.csproj", "{E6B38408-D998-40CE-A018-C53529B270D5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{710B7320-A714-4560-BCB0-A50FCA6ECAC5} = {710B7320-A714-4560-BCB0-A50FCA6ECAC5}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

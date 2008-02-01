@@ -128,7 +128,7 @@ USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe  -I../../../slice  Callback.ice
+	..\..\..\bin\slice2cpp.exe  -I../../../../slice  Callback.ice
 
 "Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -144,7 +144,7 @@ USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe  -I../../../slice  Callback.ice
+	..\..\..\bin\slice2cpp.exe  -I../../../../slice  Callback.ice
 
 "Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
