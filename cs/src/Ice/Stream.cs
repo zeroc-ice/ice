@@ -158,7 +158,7 @@ namespace Ice
 
     public abstract class UserExceptionWriter : UserException
     {
-        UserExceptionWriter(Communicator communicator)
+        public UserExceptionWriter(Communicator communicator)
         {
             communicator_ = communicator;
         }
