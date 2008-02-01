@@ -157,8 +157,11 @@ Slice::Preprocessor::preprocess(bool keepComments)
     // we need to save handle to stdin so we can restore it
     // after mcpp has finished its processing.
     //
+#ifdef _WIN32
+#else
     int stdin_save;
     stdin_save = dup(0);
+#endif
 
     //
     // Call mcpp using memory buffer.
@@ -170,10 +173,13 @@ Slice::Preprocessor::preprocess(bool keepComments)
     //
     // Restore stdin.
     //
+#ifdef _WIN32
+#else
     fflush(stdin);
     ::close(0);
     dup2(stdin_save, 0);
     ::close(stdin_save);
+#endif
 
     //
     // Write output to temporary file. Print errors to stderr.
@@ -184,7 +190,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     _cppFile = ".preprocess." + IceUtil::generateUUID();
     SignalHandler::addFile(_cppFile);
 #ifdef _WIN32
-    _cppHandle = ::_fopen(_cppFile.c_str(), "w+");
+    _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
 #else
     _cppHandle = ::fopen(_cppFile.c_str(), "w+");
 #endif
