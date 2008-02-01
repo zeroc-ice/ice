@@ -42,7 +42,7 @@
     </PostBuildEvent>
   </PropertyGroup>
   <Target Name="CompileSlice" Inputs="Callback.ice" Outputs="generated\Callback.cs">
-    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe -I$(ICE_HOME)\slice --output-dir generated Callback.ice" />
+    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe -I..\..\..\..\slice --output-dir generated Callback.ice" />
   </Target>
   <Target Name="AfterClean">
     <Delete Files="generated\Callback.cs" />
