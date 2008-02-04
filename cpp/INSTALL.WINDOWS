@@ -46,8 +46,6 @@ The following C++ compilers are supported:
   In order to build the MFC demos, you need to install the MFC
   "Shared Libraries for Unicode".
 
-- Borland C++Builder 2006 Update 2
-
 
 Visual C++ 2005 Express Setup
 -----------------------------
