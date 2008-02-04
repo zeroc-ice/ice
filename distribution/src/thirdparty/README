@@ -1,0 +1,258 @@
+======================================================================
+Introduction
+======================================================================
+
+This archive contains the source code distributions, including any
+source patches, for the third-party packages required to build Ice.
+
+This document provides instructions for applying patches and for
+configuring the third-party packages on each of the supported
+platforms.
+
+For more information about the third-party dependencies, please refer
+to the links below:
+
+STLport        http://www.stlport.org
+Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+expat          http://expat.sourceforge.net
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+mcpp           http://mcpp.sourceforge.net
+
+
+======================================================================
+Patches
+======================================================================
+
+
+mcpp
+----
+
+The file mcpp-2.4.6.patch in this archive contains several important
+fixes required by Ice. We expect that these changes will be included
+in a future release of mcpp.
+
+After extracting the mcpp source distribution, change to the top-level
+directory and apply the patch as shown below:
+
+  $ cd mcpp-2.6.4
+  $ patch -p0 < ../mcpp-2.6.4.patch
+
+Follow the platform-specific instructions below for configuring and
+building mcpp.
+
+
+======================================================================
+Instructions for Linux
+======================================================================
+
+If a third-party package is not listed below, there are no special
+requirements for configuring or building that package.
+
+
+Berkeley DB
+-----------
+
+Berkeley DB must be configured with C++ support enabled. If you intend
+to use Ice for Java with Berkeley DB, you must also enable Java
+support:
+
+  $ ../dist/configure --enable-cxx
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+
+
+mcpp
+----
+
+If you have not already applied the patch for mcpp, please read the
+"Patches" section above before continuing.
+
+Ice requires the library version of mcpp, so configure mcpp as shown
+below:
+
+  $ ./configure CFLAGS=-fPIC --enable-mcpplib --disable-shared
+  (and --prefix=<dir> if you like)
+
+On 64-bit platforms, after installation it is necessary to rename the
+library installation directory from $(prefix)/lib to $(prefix>/lib64.
+
+
+======================================================================
+Instructions for HP-UX
+======================================================================
+
+
+Berkeley DB
+-----------
+
+Berkeley DB must be configured with C++ support enabled. Furthermore,
+it must be compiled with a C++ compiler that is compatible with the
+one you are using. If you intend to use Ice for Java with Berkeley DB,
+you must also enable Java support.
+
+We recommend that you configure and build Berkeley DB with:
+
+  $ export CXXOPTS="-AA -mt"
+  $ export CCOPTS="-mt"
+  $ ../dist/configure --enable-cxx
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+
+For 64-bit builds, use:
+
+  $ export CXXOPTS="-AA +DD64 -mt"
+  $ export CCOPTS="+DD64 -mt"
+  $ ../dist/configure --enable-cxx 
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+ 
+
+OpenSSL
+-------
+
+We do not recommend using the binary distribution available from
+the "Software Porting And Archive Centre for HP-UX" as it depends on
+the GCC runtime.
+
+A recommended configuration is:
+
+  $ ./Configure hpux-parisc2-cc shared
+  (and --prefix=<dir> if you like)
+
+For 64-bit builds, a recommended configuration is:
+
+  $ ./Configure hpux64-parisc2-cc shared
+  (and --prefix=<dir> if you like)
+
+
+expat
+-----
+
+If you prefer not to compile expat yourself, a 32-bit binary
+distribution is available from the "Software Porting And Archive
+Centre for HP-UX" located at
+
+  http://hpux.cs.utah.edu
+
+There are no special configuration requirements for building expat
+from source.
+
+
+bzip2
+-----
+
+If you prefer not to compile bzip2 yourself, a 32-bit binary
+distribution is available from the "Software Porting And Archive
+Centre for HP-UX" located at
+
+  http://hpux.cs.utah.edu
+
+There are no special configuration requirements for building bzip2
+from source.
+
+
+mcpp
+----
+
+If you have not already applied the patch for mcpp, please read the
+"Patches" section above before continuing.
+
+Ice requires the library version of mcpp, so configure mcpp as shown
+below:
+
+  $ ./configure CC=cc CXX=aCC CFLAGS=+Z --enable-mcpplib --disable-shared
+  (and --prefix=<dir> if you like)
+
+For 64-bit builds, after installation it is necessary to move
+libraries from $(prefix)/lib to $(prefix)/lib/pa20_64.
+
+
+======================================================================
+Instructions for Mac OS X
+======================================================================
+
+If a third-party package is not listed below, there are no special
+requirements for configuring or building that package.
+
+
+Berkeley DB
+-----------
+
+Berkeley DB must be configured with C++ support enabled. If you intend
+to use Ice for Java with Berkeley DB, you must also enable Java
+support:
+
+  $ ../dist/configure --enable-cxx
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+
+
+mcpp
+----
+
+If you have not already applied the patch for mcpp, please read the
+"Patches" section above before continuing.
+
+Ice requires the library version of mcpp, so configure mcpp as shown
+below:
+
+  $ ./configure --enable-mcpplib --disable-shared
+  (and --prefix=<dir> if you like)
+
+
+======================================================================
+Instructions for Solaris
+======================================================================
+
+If a third-party package is not listed below, there are no special
+requirements for configuring or building that package.
+
+
+Berkeley DB
+-----------
+
+Berkeley DB must be configured with C++ support enabled. If you intend
+to use Ice for Java with Berkeley DB, you must also enable Java
+support:
+
+  $ ../dist/configure --enable-cxx
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+
+
+OpenSSL
+-------
+
+OpenSSL is included with the Solaris 10 operating system and is
+installed in /usr/sfw. If you want to use this version of OpenSSL
+with Ice, we recommend that you also install the "Solaris 10
+Encryption Kit" available from:
+
+  http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
+
+This kit is required to run the IceSSL tests successfully.
+
+
+expat
+-----
+
+expat is included with the Solaris 10 operating system and is
+installed in /usr/sfw.
+
+
+mcpp
+----
+
+If you have not already applied the patch for mcpp, please read the
+"Patches" section above before continuing.
+
+Ice requires the library version of mcpp, so configure mcpp as shown
+below:
+
+  $ ./configure CC=cc CXX=CC CFLAGS=-KPIC --enable-mcpplib --disable-shared
+  (and --prefix=<dir> if you like)
+
+On 64-bit platforms, after installation it is necessary to rename the
+library installation directory from $(prefix)/lib to
+$(prefix)/lib/sparcv9.

@@ -35,55 +35,28 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.5.20 configured with --enable-cxx, and built with a
-  C++ compiler compatible with the one you are using.
-
-  If you intend to use Ice for Java with Berkeley DB, you must also
-  include the option --enable-java.
-
-- expat 1.95.7 or later
-
+- Berkeley DB 4.6.21
+- expat 1.95.7 or 2.0.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- bzip2 1.0.x
+- mcpp 2.6.4 with patch
 
-- bzip2 1.0
+We recommend downloading the Ice third-party source archive from
 
-You can download these packages at the following locations:
+  http://www.zeroc.com/download.html
+
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and 
+configuration instructions.
+
+For more information about these dependencies, please refer to
+the links below:
 
 Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
-expat          http://sourceforge.net/projects/expat/
+expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
-
-bzip2, expat and openssl are distributed with the Solaris 10 operating
-system.
-
-The "bundled" expat and openssl are installed in /usr/sfw. If you want
-to use the bundled openssl with Ice, we recommend that you also
-install the "Solaris 10 Encryption Kit" available from:
-
-http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
-
-This kit is required to run the IceSSL tests successfully.
-
-- mcpp 2.6.4, which can be downloaded from
-
-  http://mcpp.sourceforge.net/download.html
-
-  After downloading and unpacking the source distribution it is 
-  necessary to first apply a source patch available on the Ice
-  download page before building. From the mcpp 2.6.4 base directory
-  run
-
-  patch -p0 < mcpp-2.6.4.patch
-
-  Ice requires the library version of mcpp, so configure mcpp similar
-  to the following
-
-  ./configure CC=cc CXX=CC CFLAGS=-KPIC --enable-mcpplib --disable-shared
-  (and --prefix=<dir> if you like)
-
-  For 64 bit builds, after installation it is necessary to move libraries
-  from $(prefix)/lib to $(prefix)/lib/sparcv9.
+mcpp           http://mcpp.sourceforge.net
 
 
 GNU Make 3.80

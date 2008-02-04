@@ -22,35 +22,32 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.5.20 configured with --enable-cxx.
+- Berkeley DB 4.6.21
+- expat 1.95.7 or 2.0.0
+- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- bzip2 1.0.x
+- mcpp 2.6.4 with patch
 
-  If you intend to use Ice for Java with Berkeley DB, you must also
-  include the option --enable-java.
+Some of these packages are included with your system. For those
+packages that are not installed or have an older version than what
+is listed above, we recommend downloading the Ice third-party source
+archive from
 
-  You can download the Berkeley DB source distribution from
+  http://www.zeroc.com/download.html
 
-  http://www.oracle.com/technology/software/products/berkeley-db/index.html
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and 
+configuration instructions.
 
-- expat 2.0. You can download expat from
+For more information about these dependencies, please refer to
+the links below:
 
-  http://sourceforge.net/projects/expat/
+Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+expat          http://expat.sourceforge.net
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+mcpp           http://mcpp.sourceforge.net
 
-- mcpp 2.6.4, which can be downloaded from
-
-  http://mcpp.sourceforge.net/download.html
-
-  After downloading and unpacking the source distribution it is 
-  necessary to first apply a source patch available on the Ice
-  download page before building. From the mcpp 2.6.4 base directory
-  run
-
-  patch -p0 < mcpp-2.6.4.patch
-
-  Ice requires the library version of mcpp, so configure mcpp similar
-  to the following
-
-  ./configure --enable-mcpplib --disable-shared
-  (and --prefix=<dir> if you like)
 
 ======================================================================
 Compilation and Testing

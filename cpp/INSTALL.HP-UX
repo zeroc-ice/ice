@@ -31,82 +31,28 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.5.20 with C++ support enabled, and built with a C++
-  compiler compatible with the one you are using.
+- Berkeley DB 4.6.21
+- expat 1.95.7 or 2.0.0
+- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- bzip2 1.0.x
+- mcpp 2.6.4 with patch
 
-  You can download the Berkeley DB source distribution from
+We recommend downloading the Ice third-party source archive from
 
-  http://www.oracle.com/technology/software/products/berkeley-db/index.html
+  http://www.zeroc.com/download.html
 
-  We recommend that you configure and build Berkeley DB with:
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and 
+configuration instructions.
 
-  $ export CXXOPTS="-AA -mt"
-  $ export CCOPTS="-mt"
-  $ ../dist/configure --enable-cxx
-  (plus --prefix=<dir> and/or --enable-java if you like)
-  $ gmake
+For more information about these dependencies, please refer to
+the links below:
 
-  If you intend to use Ice for Java with Berkeley DB, you must also
-  include the option --enable-java.
-
-  For 64-bit builds, use:
-
-  $ export CXXOPTS="-AA +DD64 -mt"
-  $ export CCOPTS="+DD64 -mt"
-  $ ../dist/configure --enable-cxx 
-  (plus --prefix=<dir> and/or --enable-java if you like)
-  $ gmake
- 
-- OpenSSL 0.9.8, which can be downloaded from
-
-  http://www.openssl.org
-
-  We do not recommend using the binary distribution available from
-  the "Software Porting And Archive Centre for HP-UX" as it depends on
-  the GCC runtime.
-
-  A recommended configuration is:
-
-  ./Configure hpux-parisc2-cc shared
-  (and --prefix=<dir> if you like)
-
-  For 64-bit builds, a recommended configuration is:
-
-  ./Configure hpux64-parisc2-cc shared
-  (and --prefix=<dir> if you like)
-
-- expat 2.0, which can be downloaded from
-
-  http://sourceforge.net/projects/expat
-
-  For 32-bit builds, you can also use the binary distribution from the
-  "Software Porting And Archive Centre for HP-UX" located at
-  http://hpux.cs.utah.edu.
-
-- bzip2 1.0, which can be downloaded from the "Software Porting And
-  Archive Centre for HP-UX", http://hpux.cs.utah.edu. For 32-bit
-  builds, you can also use the binary distribution from the "Software
-  Porting And Archive Centre for HP-UX".
-
-- mcpp 2.6.4, which can be downloaded from 
-
-  http://mcpp.sourceforge.net/download.html
-
-  After downloading and unpacking the source distribution it is 
-  necessary to first apply a source patch available on the Ice
-  download page before building. From the mcpp 2.6.4 base directory
-  run
-
-  patch -p0 < mcpp-2.6.4.patch
-
-  Ice requires the library version of mcpp, so configure mcpp similar
-  to the following
-
-  ./configure CC=cc CXX=aCC CFLAGS=+Z --enable-mcpplib --disable-shared
-  (and --prefix=<dir> if you like)
-
-  For 64 bit builds, after installation it is necessary to move libraries
-  from $(prefix)/lib to $(prefix)/lib/pa20_64.
+Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+expat          http://expat.sourceforge.net
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+mcpp           http://mcpp.sourceforge.net
   
 
 GNU Make 3.80

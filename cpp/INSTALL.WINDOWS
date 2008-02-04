@@ -1,4 +1,20 @@
 ======================================================================
+Introduction
+======================================================================
+
+This file describes the Ice source distribution, including information
+about compiler requirements, third-party dependencies, and
+instructions for building and testing the distribution.
+
+If you prefer, you can download a Windows installer that contains
+pre-compiled debug and release libraries, executables, and everything
+else necessary to build Ice applications on Windows. Installers for
+each supported compiler are available at the link below:
+
+  http://www.zeroc.com/download.html
+
+
+======================================================================
 Requirements
 ======================================================================
 
@@ -40,7 +56,7 @@ The following C++ compilers are supported:
   (February 2003) and STLport 4.6.2 (or later)
 
   The Standard Template Library included with Visual C++ 6.0 is not 
-  supported. STLPort is included in the Ice third-party package
+  supported. STLport is included in the Ice third-party package
   for Visual C++ 6.0.
 
   In order to build the MFC demos, you need to install the MFC
@@ -80,7 +96,7 @@ Visual C++ 6.0 Setup
 --------------------
 
 Users of Visual C++ 6.0 need to install the February 2003 Microsoft
-Platform SDK to compile Ice:
+Platform SDK in order to compile Ice:
 
   http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm
 
@@ -116,92 +132,34 @@ Third-party libraries
 Ice has dependencies on a number of third-party libraries:
 
 - STLport 4.6.2 or later (only for Visual C++ 6.0)
-- Berkeley DB 4.5.20
+- Berkeley DB 4.6.21
 - expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
-- mcpp 2.6.4
+- mcpp 2.6.4 with patch
 
-If you have downloaded an Ice binary installer, you already have all 
-of the required third-party libraries and do not need to download any 
-additional packages, nor do you need to compile the Ice source
-code.
+You do not need to build these packages yourself, as ZeroC supplies a
+Windows installer for each supported compiler that contains release
+and debug libraries for all of the third-party dependencies.
 
-If you want to compile an Ice source distribution, you can download an
-installer containing binaries for all of the required third-party
-libraries from the ZeroC web site:
+If you intend to build the third-party dependencies from source, we
+recommend downloading the Ice third-party source archive from
 
   http://www.zeroc.com/download.html
 
-Finally, if you prefer to download and install the third-party
-dependencies yourself, you can find them at the following locations:
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and 
+configuration instructions.
 
-STLport         http://www.stlport.org/download.html
-Berkeley DB     http://www.oracle.com/database/berkeley-db/index.html
-expat           http://sourceforge.net/projects/expat/
-OpenSSL         http://www.openssl.org
-bzip2           http://sources.redhat.com/bzip2
-mcpp            http://mcpp.sourceforge.net/download.html
+For more information about these dependencies, please refer to
+the links below:
 
-For STLport installation instructions, please refer to
-
-  http://www.stlport.org/doc/install.html
-
-Note: For a regular build of bzip2, both the debug and the release
-library are named "libbz2.lib". In order to have both a debug and a
-release version on your system, please rename the debug library to
-"libbz2d.lib". This is also what the Ice project files expect if you
-build a debug version of Ice. 
-
-Since Ice requires the library version of mcpp you cannot use the
-mcpp Windows installer but must build it yourself. Once you downloaded
-and unpacked the mcpp source package use the following steps to build
-mcpp:
-
-1. From the mcpp base direcory apply the mcpp source patch available 
-   on the Ice download page:
-
-   patch -p0 < mcpp-2.6.4.patch
-
-   You can download the patch utility from the following location if
-   you do not already have it available.
-
-   http://gnuwin32.sourceforge.net/packages/patch.htm
-
-2. CD to the mcpp src directory:
-
-   cd src
-
-3. Apply the appropriate patch for noconfig.H from the noconfig
-   directory. For example for VS2005 you would run:
-
-   patch -p0 < ../noconfig/vc2005.def
-
-4. Build the mcpp library:
-
-   nmake MCPP_LIB=1 /f ../nonconfig/visualc.mak mcpplib
-
-   Or for the debug version of the library:
-
-   nmake MCPP_LIB=1 DEBUG=1 /f ../nonconfig/visualc.mak mcpplib
-
-If you compile the third-party libraries from source code, we
-recommend that you use the same Visual C++ version to build all of
-the third-party libraries.
-
-Users of Visual C++ 6.0 must configure Visual Studio to use STLPort
-before building Berkeley DB:
-
-- In the Visual C++ 6.0 IDE, choose Tools->Options->Directories
-
-- Select "Include files"
-
-- Add the include directory for STLport first in the list. (Note that
-  you must add the "include\stlport" directory, not just "include".)
-
-- Select "Library files"
-
-- Add the lib directory for STLport.
+STLport        http://www.stlport.org
+Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+expat          http://expat.sourceforge.net
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+mcpp           http://mcpp.sourceforge.net
 
 
 Python
@@ -213,15 +171,6 @@ interest in running the test scripts, Python is not required.
 You can download a Python distribution for Windows from
 
   http://www.python.org/download
-
-Important note for Windows 98, Windows 98 SE and Windows ME users:
-
-The Windows 9x shell is too limited to run the Ice test suite. For
-these versions of Windows, you need Cygwin and the python interpreter
-that comes with Cygwin in order to run the test suite. Cygwin can be
-downloaded from:
-
-  http://www.cygwin.com
 
 
 ======================================================================
