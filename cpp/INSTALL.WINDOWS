@@ -162,6 +162,18 @@ bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
 
 
+Monotonic clock
+---------------
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
+
+
 Python
 ------
 

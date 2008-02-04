@@ -46,12 +46,15 @@ This distribution depends on a number of third-party libraries:
 - OpenSSL
 - bzip2
 
-All of these libraries are included with your RHEL4 distribution in the
-following RPMs:
+All of these libraries are included with your RHEL4 distribution in
+the following RPMs:
 
 expat:	       expat
 OpenSSL:       openssl
 bzip2:         bzip2-libs
+
+On RHEL 4, Ice also requires the nptl-devel package, which contains
+the function pthread_condattr_setclock.
 
 
 Java
