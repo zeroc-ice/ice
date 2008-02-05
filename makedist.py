@@ -473,6 +473,7 @@ for root, dirnames, filesnames in os.walk('.'):
             if not os.path.exists(os.path.join(distDir, demoscriptDistDir, root)):
                 os.makedirs(os.path.join(distDir, demoscriptDistDir, root))
             copy(filepath, os.path.join(distDir, demoscriptDistDir, filepath))
+            os.remove(filepath)
         else:
             fixFilePermission(filepath)
 
@@ -540,6 +541,13 @@ for d in os.listdir('.'):
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copytree(os.path.join(d, "demo"), os.path.join(demoDistDir, getMappingDir("demo", d)))
+
+# Remove Windows project files and configuration files from the demo distribution
+for root, dirnames, filesnames in os.walk(demoDistDir):
+    for f in filesnames:
+        for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config"]:
+            if fnmatch.fnmatch(f, m):
+                os.remove(os.path.join(root, f))
 
 print "ok"
 

@@ -7,26 +7,8 @@
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-import os, sys, shutil, re, string, getopt, glob, logging, fileinput
+import os, sys, shutil, re, string, getopt, glob, fileinput
 
-# TODO:
-# 
-#   * Tidying and tracing.
-#    * use os.path.join() where appropriate instead of string
-#      concatenation.
-#   * Perl is used in some places for 'sed' like functionality. This
-#     could be replaced by Python code.
-#   * Consistent string quotes. 
-#   * Revisit how this works now that we are using git.
-#   * Collecting source distributions adds quite a bit to this script
-#     and isn't really necessary. It doesn't really work properly now
-#     anyways since we have two different Java distributions and
-#     makebindist.py doesn't know how to create them both.
-#
-
-#
-# TODO: We need a solid way to get the location of the git repository.
-#
 repoDir = os.getcwd()
     
 def initDirectory(d):
