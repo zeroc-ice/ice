@@ -284,14 +284,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     while((end = unprocessed.find(".ice", pos)) != string::npos)
     {
         end += 4;
-        string file = unprocessed.substr(pos, end - pos);
-
-        //
-        // Strip white space from the file name.
-        //
-        size_t b = file.find_first_not_of(" \t");
-        size_t e = file.find_last_not_of(" \t");
-        file = file.substr(b, e - b + 1);
+        string file = IceUtilInternal::trim(unprocessed.substr(pos, end - pos));
         
         //
         // Normalize paths if not relative path.

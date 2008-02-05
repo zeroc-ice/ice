@@ -27,6 +27,11 @@ ICE_API std::string escapeString(const std::string&, const std::string&);
 ICE_API bool unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string&);
 
 //
+// Trim white space
+//
+ICE_API std::string trim(const std::string&);
+
+//
 // If a single or double quotation mark is found at the start
 // position, then the position of the matching closing quote is
 // returned. If no quotation mark is found at the start position, then

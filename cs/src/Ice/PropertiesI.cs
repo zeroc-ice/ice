@@ -421,48 +421,51 @@ namespace Ice
         private void parseLine(string line)
         {
             string s = line;
-            
-            int hash = s.IndexOf('#');
-            if(hash == 0)
+
+            //
+            // Remove comments and unescape #'s
+            //
+            int idx = 0;
+            while((idx = s.IndexOf("#", idx)) != -1)
             {
-                return; // ignore comment lines
-            }
-            else if(hash != - 1)
-            {
-                s = s.Substring(0, (hash) - (0));
-            }
-            
-            s = s.Trim();
-            
-            char[] arr = s.ToCharArray();
-            int end = -1;
-            for(int i = 0; i < arr.Length; i++)
-            {
-                if(arr[i] == ' ' || arr[i] == '\t' || arr[i] == '\r' || arr[i] == '\n' || arr[i] == '=')
+                if(idx == 0 || s[idx - 1] != '\\')
                 {
-                    end = i;
+                    s = s.Substring(0, idx);
                     break;
                 }
+                ++idx;
             }
-            if(end == -1)
+            s = s.Replace("\\#", "#");
+
+            //
+            // Split key/value and unescape ='s
+            //
+            int split = -1;
+            idx = 0;
+            while((idx = s.IndexOf("=", idx)) != -1)
             {
+                if(idx == 0 || s[idx - 1] != '\\')
+                {
+                    split = idx;
+                    break;
+                }
+                ++idx;
+            }
+            if(split == 0 || split == -1)
+            {
+                s = s.Trim();
+                if(s.Length != 0)
+                {
+                    Ice.Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
+                }
                 return;
             }
-            
-            string key = s.Substring(0, end);
-            
-            end = s.IndexOf('=', end);
-            if(end == -1)
-            {
-                return;
-            }
-            ++end;
-            
-            string val = "";
-            if(end < s.Length)
-            {
-                val = s.Substring(end).Trim();
-            }
+
+            string key = s.Substring(0, split).Trim();
+            string val = s.Substring(split + 1, s.Length - split - 1).Trim();
+
+            key = key.Replace("\\=", "=");
+            val = val.Replace("\\=", "=");
             
             setProperty(key, val);
         }

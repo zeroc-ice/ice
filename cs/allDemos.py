@@ -10,6 +10,9 @@
 
 import os, sys, getopt, re
 
+keepGoing = False
+testErrors = []
+
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
@@ -20,6 +23,8 @@ if sys.platform == "win32":
     sys.exit(1)
 
 def runDemos(args, demos, num = 0):
+    global testErrors
+    global keepGoing
 
     rootPath = "demo"
     if not os.path.exists(rootPath):
@@ -51,8 +56,14 @@ def runDemos(args, demos, num = 0):
         if status:
             if(num > 0):
                 print "[" + str(num) + "]",
-            print "test in " + dir + " failed with exit status", status,
-            sys.exit(status)
+            message = "demo in " + dir + " failed with exit status", status,
+            print message
+            if keepGoing == False:
+                print "exiting"
+                sys.exit(status)
+            else:
+                print " ** Error logged and will be displayed again when suite is completed **"
+                testErrors.append(message)
 
 #
 # List of all basic demos.
@@ -65,7 +76,7 @@ demos = [
     "Ice/invoke",
     "Ice/latency",
     "Ice/minimal",
-    #"Ice/multicast",
+    "Ice/multicast",
     "Ice/nested",
     "Ice/session",
     "Ice/throughput",
@@ -91,11 +102,13 @@ def usage():
     print "  --trace                 Run the demos with tracing enabled."
     print "  --host=host             Set --Ice.Default.Host=<host>."
     print "  --mode=debug|release    Run the demos with debug or release mode builds (win32 only)."
+    print "  --continue              Keep running when a demo fails."
     sys.exit(2)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
-            "filter=", "rfilter=", "start-after=", "start=", "loop", "fast", "trace", "debug", "host=", "mode="])
+            "filter=", "rfilter=", "start-after=", "start=", "loop", "fast", "trace", "debug", "host=", "mode=", 
+            "continue"])
 except getopt.GetoptError:
     usage()
 
@@ -115,6 +128,8 @@ arg = ""
 for o, a in opts:
     if o in ("-l", "--loop"):
         loop = True
+    elif o in ("-c", "--continue"):
+        keepGoing = True
     elif o in ("-r", "-R", "--filter", '--rfilter'):
         regexp = re.compile(a)
         if o in ("--rfilter", "-R"):
@@ -144,3 +159,8 @@ if loop:
         num += 1
 else:
     runDemos(arg, demos)
+
+if len(testErrors) > 0:
+    print "The following errors occurred:"
+    for x in testErrors:
+        print x
