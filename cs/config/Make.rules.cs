@@ -79,7 +79,6 @@ else
 endif
 
 install_bindir		= $(prefix)/bin
-install_slicedir	= $(prefix)/slice
 
 ifneq ($(ice_dir),/usr)
 ref = -r:$(bindir)/$(1).dll
@@ -132,6 +131,11 @@ EVERYTHING		= all depend clean install config
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
+
+ifeq ($(installlibrary),)
+    installlibrary	= $(INSTALL_LIBRARY) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
 
 %.cs: %.ice
 	$(SLICE2CS) $(SLICE2CSFLAGS) $<

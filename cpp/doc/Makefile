@@ -38,27 +38,24 @@ reference/index.html: $(SLICEFILES)
 clean::
 	-rm -rf reference/*
 
-install::
-	@if test -f reference/index.html ; \
+install:: reference/index.html
+	@if test ! -d $(install_docdir)/reference ; \
 	then \
-	    if test ! -d $(install_docdir)/reference ; \
-	    then \
-		echo "Creating $(install_docdir)/reference..." ; \
-		$(call mkdir,$(install_docdir)/reference) ; \
-	    fi ; \
-	    echo "Installing HTML..." ; \
-	    $(call installdata,reference/*.*,$(install_docdir)/reference) ; \
-            for i in reference/*; \
-            do if test -d $$i ; \
-               then \
-                  if test ! -d $(install_docdir)/$$i ; \
-	          then \
-		     echo "Creating $(install_docdir)/$$i..." ; \
-		     $(call mkdir,$(install_docdir)/$$i) ; \
-	          fi ; \
-	          echo "Installing files in $$i..." ; \
-	          $(call installdata,$$i/*.*,$(install_docdir)/$$i) ; \
-	       fi; \
-            done ; \
-        fi
+	    echo "Creating $(install_docdir)/reference..." ; \
+	    $(call mkdir,$(install_docdir)/reference) ; \
+	fi ; \
+	echo "Installing HTML..." ; \
+	$(call installdata,reference/*.*,$(install_docdir)/reference) ; \
+        for i in reference/*; \
+        do if test -d $$i ; \
+           then \
+              if test ! -d $(install_docdir)/$$i ; \
+	      then \
+	          echo "Creating $(install_docdir)/$$i..." ; \
+		  $(call mkdir,$(install_docdir)/$$i) ; \
+	      fi ; \
+	      echo "Installing files in $$i..." ; \
+	      $(call installdata,$$i/*.*,$(install_docdir)/$$i) ; \
+	    fi; \
+        done ; \
 

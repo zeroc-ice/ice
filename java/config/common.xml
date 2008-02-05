@@ -51,24 +51,6 @@
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
-    <!-- Check if proguard and jgoodies are available. -->
-    <condition property="hasProguard">
-	<available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
-    </condition>
-    <condition property="hasJGoodies">
-	<and>
-	    <available classname="com.jgoodies.looks.Options" classpath="${env.CLASSPATH}" />
-	    <available classname="com.jgoodies.forms.factories.Borders" classpath="${env.CLASSPATH}" />
-	</and>
-    </condition>
-    <condition property="hasProguardAndJGoodies">
-	<and>
-	    <isset property="hasProguard" />
-	    <isset property="hasJGoodies" />
-	</and>
-    </condition>
-
-
     <!-- We use pathconvert to ensure that ice.top.dir is relative to the path of the build.xml
          file insead of the current working directory. -->
     <pathconvert property="ice.top.dir">

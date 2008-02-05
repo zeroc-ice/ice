@@ -13,15 +13,9 @@ top_srcdir	= .
 
 SUBDIRS		= config src include test demo doc
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_slicedir) $(install_docdir)
+INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_docdir)
 
-install:: createdir
-
-createdir::
-	@if not exist $(prefix) \
-	    @echo "Creating $(prefix)..." && \
-	    mkdir $(prefix)
-
+install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @if not exist %i \
 		@echo "Creating %i..." && \
@@ -31,13 +25,6 @@ $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-install::
-	@echo "Copying slice files..." && \
-	cmd /c "xcopy /s /y ..\slice $(install_slicedir)" || exit 1
-
-install::
-	copy ICE_LICENSE $(prefix)
-	copy LICENSE $(prefix)
 
 test::
 	@python $(top_srcdir)/allTests.py

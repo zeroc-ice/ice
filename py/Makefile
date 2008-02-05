@@ -13,13 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= python modules
 
-install::
-	@if test ! -d $(prefix) ; \
-	then \
-	    echo "Creating $(prefix)..." ; \
-	    $(call mkdir,$(prefix)) ; \
-	fi
-
+install:: install-common
 	@if test ! -d $(install_pythondir) ; \
 	then \
 	    echo "Creating $(install_pythondir)..." ; \
@@ -32,10 +26,6 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
-
-install::
-	$(call installdata,ICE_LICENSE,$(prefix))
-	$(call installdata,LICENSE,$(prefix))
 
 test::
 	@python $(top_srcdir)/allTests.py

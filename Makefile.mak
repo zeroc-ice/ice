@@ -13,7 +13,7 @@ top_srcdir = cpp
 SUBDIRS			= cpp java py
 CLEAN_SUBDIRS		= java py cpp
 DEPEND_SUBDIRS		= cpp py
-INSTALL_SUBDIRS		= cpp py
+INSTALL_SUBDIRS		= cpp java py
 
 !if "$(CPP_COMPILER)" == "VC60"
 SUBDIRS			= $(SUBDIRS) php rb

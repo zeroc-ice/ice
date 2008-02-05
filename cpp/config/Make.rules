@@ -133,8 +133,6 @@ else
 endif
 
 install_includedir	= $(prefix)/include
-install_slicedir	= $(prefix)/slice
-install_schemadir	= $(prefix)/schema
 install_docdir		= $(prefix)/doc
 ifdef ice_src_dist
     bindir		= $(top_srcdir)/bin

@@ -13,26 +13,15 @@ top_srcdir	= .
 
 SUBDIRS		= src
 
-INSTALL_SUBDIRS = $(install_bindir)
-
-install::
-	@if not exist $(prefix) \
-	    @echo "Creating $(prefix)..." && \
-	    mkdir $(prefix)
-
-	@for %i in ( $(INSTALL_SUBDIRS) ) do \
-	    @if not exist %i \
-	        @echo "Creating %i..." && \
-		mkdir %i
+install:: install-common
+	@if not exist $(install_libdir) \
+	    @echo "Creating $(install_libdir)..." && \
+	    mkdir $(install_libdir)
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-
-install::
-	copy ICE_LICENSE $(prefix)
-	copy LICENSE $(prefix)
 
 test::
 	@python $(top_srcdir)/allTests.py

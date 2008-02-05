@@ -13,23 +13,12 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= src ruby
 
-INSTALL_SUBDIRS	= $(install_libdir) $(install_rubydir)
-
-install::
-	@if test ! -d $(prefix) ; \
+install:: install-common
+	@if test ! -d $(install_rubydir) ; \
 	then \
-	    echo "Creating $(prefix)..." ; \
-	    $(call mkdir,$(prefix)) ; \
+	    echo "Creating $(install_rubydir)..." ; \
+	    $(call mkdir,$(install_rubydir)) ; \
 	fi
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    if test ! -d $$subdir ; \
-	    then \
-		echo "Creating $$subdir..." ; \
-		mkdir -p $$subdir ; \
-		chmod a+rx $$subdir ; \
-	    fi ; \
-	done
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
@@ -37,10 +26,6 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
-
-install::
-	$(call installdata,ICE_LICENSE,$(prefix))
-	$(call installdata,LICENSE,$(prefix))
 
 test::
 	@python $(top_srcdir)/allTests.py

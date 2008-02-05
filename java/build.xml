@@ -186,19 +186,13 @@
 
     <condition property="build-icegridadmin-pro-jar">
 	<and>
-	    <isset property="hasProguard" />
+            <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
 	    <available file="${jgoodies.looks}" />
 	    <available file="${jgoodies.forms}" />
 	</and>	
     </condition>
 
-    <condition property="build-icegridadmin-plain-jar">
-        <not>
-           <isset property="build-icegridadmin-pro-jar" />
-        </not>
-    </condition>
-
-    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">
+    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" unless="build-icegridadmin-pro-jar">
 	<manifest file="${lib.dir}/icegridgui.mf">
 	    <attribute name="Class-Path" value="Ice.jar ../resources/"/>
 	</manifest>
@@ -242,6 +236,36 @@
     <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
         <ant inheritAll="false" dir="test"/>
+    </target>
+
+    <target name="install-common">
+        <mkdir dir="${prefix}"/>
+        <mkdir dir="${prefix}/lib"/>
+        <mkdir dir="${prefix}/ant"/>
+        <mkdir dir="${prefix}/help"/>
+        <copy file="${ice.dir}/LICENSE" todir="${prefix}"/>
+        <copy file="${ice.dir}/ICE_LICENSE" todir="${prefix}"/>
+        <copy todir="${prefix}/ant">
+            <fileset dir="${ant.task.dir}">
+               <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy file="${lib.dir}/IceGridGUI.jar" todir="${prefix}/lib"/>
+        <copy todir="${prefix}/help">
+            <fileset dir="resources" includes="IceGridAdmin/**"/>
+        </copy>
+    </target>
+    
+    <target name="install-jar" unless="java2">
+        <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib"/>
+    </target>
+
+    <target name="install-java2-jar" if="java2">
+        <mkdir dir="${prefix}/lib/java2"/>
+        <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib/java2"/>
+    </target>
+
+    <target name="install" depends="jar, install-common, install-jar, install-java2-jar">
     </target>
 
     <target name="clean" depends="config-init">
