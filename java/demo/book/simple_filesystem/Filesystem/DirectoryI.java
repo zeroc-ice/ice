@@ -19,7 +19,7 @@ public final class DirectoryI extends _DirectoryDisp
         _name = name;
         _parent = parent;
 
-        // Create an identity. The parent has the fixed identity "/"
+        // Create an identity. The parent has the fixed identity "RootDir"
         //
         Ice.Identity myID = 
             _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");

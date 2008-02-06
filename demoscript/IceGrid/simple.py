@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, demoscript
+import sys, demoscript, time
 
 def run(clientStr, desc = 'application'):
     print "cleaning databases...",

@@ -35,5 +35,10 @@ client = demoscript.Util.spawn('client.exe')
 client.waitTestSuccess()
 server.expect('Hello World!')
 server.kill(signal.SIGINT)
-server.waitTestSuccess()
+server.kill(signal.SIGINT)
+status = server.wait()
+if demoscript.Util.isCygwin():
+    assert server.signalstatus == signal.SIGTERM
+else:
+    assert server.signalstatus == signal.SIGINT
 print "ok"

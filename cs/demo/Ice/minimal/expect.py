@@ -37,4 +37,8 @@ print "ok"
 
 import signal
 server.kill(signal.SIGINT)
-server.waitTestSuccess()
+status = server.wait()
+if demoscript.Util.isCygwin():
+    assert server.signalstatus == signal.SIGTERM
+else:
+    assert server.signalstatus == signal.SIGINT
