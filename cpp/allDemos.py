@@ -92,6 +92,7 @@ demos = [
     "IceGrid/allocate",
     "IceGrid/sessionActivation",
     "IceGrid/replication",
+    "IceGrid/icebox",
     "Glacier2/chat",
     "Glacier2/callback",
     "Freeze/bench",

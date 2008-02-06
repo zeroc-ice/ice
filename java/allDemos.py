@@ -85,6 +85,7 @@ demos = [
     "IceBox/hello",
     "IceStorm/clock",
     "IceGrid/simple",
+    "IceGrid/icebox",
     "Glacier2/callback",
     "Freeze/bench",
     "Freeze/phonebook",
