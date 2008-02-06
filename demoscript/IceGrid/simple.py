@@ -82,6 +82,8 @@ def run(clientStr, desc = 'application'):
     print "testing client...", 
     sys.stdout.flush()
 
+    admin.sendline('server start SimpleServer-1')
+
     client = demoscript.Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('t')
