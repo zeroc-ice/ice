@@ -11,8 +11,8 @@
 // The following is required for the Vista PSDK to bring in
 // the definitions of the IN6_IS_ADDR_* macros.
 //
-#if defined(_WIN32) && !defined(NTDDI_VERSION)
-#  define NTDDI_VERSION NTDDI_WIN2KSP1
+#if defined(_WIN32) && !defined(_WIN32_WINNT)
+#       define _WIN32_WINNT 0x0501
 #endif
 
 #include <Ice/UdpTransceiver.h>
