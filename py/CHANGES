@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The use of sequences (and structs containing sequences) as valid 
+  dictionary keys has been deprecated and will be removed in a future
+  release.
+
 - The following APIs were deprecated in Ice 3.1 and have been
   removed:
 

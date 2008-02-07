@@ -254,10 +254,15 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 return false;
             }
 
-            if(!Dictionary::legalKeyType(valueType))
+            bool containsSequence;
+            if(!Dictionary::legalKeyType(valueType, containsSequence))
             {
                 cerr << _prog << ": `" << dict.value << "' is not a valid index type" << endl;
                 return false; 
+            }
+            if(containsSequence)
+            {
+                cerr << _prog << ": warning: use of sequences in dictionary keys has been deprecated" << endl;
             }
 
             if(index.caseSensitive == false)
@@ -320,10 +325,15 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             
             TypePtr dataMemberType = dataMember->type();
             
-            if(!Dictionary::legalKeyType(dataMemberType))
+            bool containsSequence;
+            if(!Dictionary::legalKeyType(dataMemberType, containsSequence))
             {
                 cerr << _prog << ": `" << index.member << "' cannot be used as an index" << endl;
                 return false; 
+            }
+            if(containsSequence)
+            {
+                cerr << _prog << ": warning: use of sequences in dictionary keys has been deprecated" << endl;
             }
 
             if(index.caseSensitive == false)

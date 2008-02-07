@@ -922,10 +922,18 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         checkForGlobalDef(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
     }
 
-    if(nt == Real && !Dictionary::legalKeyType(keyType))
+    if(nt == Real)
     {
-        _unit->error("dictionary `" + name + "' uses an illegal key type");
-        return 0;
+        bool containsSequence = false;
+        if(!Dictionary::legalKeyType(keyType, containsSequence))
+        {
+            _unit->error("dictionary `" + name + "' uses an illegal key type");
+            return 0;
+        }
+        if(containsSequence)
+        {
+            _unit->warning("use of sequences in dictionary keys has been deprecated");
+        }
     }
 
     if(!local)
@@ -3894,8 +3902,11 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 // integral types, string, and sequences and structs containing only
 // other legal key types.
 //
+// Note: Allowing sequences in dictionary keys has been deprecated as
+//       of Ice 3.3.0.
+//
 bool
-Slice::Dictionary::legalKeyType(const TypePtr& type)
+Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
 {
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
     if(bp)
@@ -3932,9 +3943,13 @@ Slice::Dictionary::legalKeyType(const TypePtr& type)
     }
 
     SequencePtr seqp = SequencePtr::dynamicCast(type);
-    if(seqp && legalKeyType(seqp->type()))
+    if(seqp)
     {
-        return true;
+        containsSequence = true;
+        if(legalKeyType(seqp->type(), containsSequence))
+        {
+            return true;
+        }
     }
 
     StructPtr strp = StructPtr::dynamicCast(type);
@@ -3943,7 +3958,7 @@ Slice::Dictionary::legalKeyType(const TypePtr& type)
         DataMemberList dml = strp->dataMembers();
         for(DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
         {
-            if(!legalKeyType((*mem)->type()))
+            if(!legalKeyType((*mem)->type(), containsSequence))
             {
                 return false;
             }
