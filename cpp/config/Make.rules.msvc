@@ -33,7 +33,7 @@ LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib"
 !endif
 
 !if "$(CPP_COMPILER)" == "VC60"
-CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" -D_STLP_NEW_PLATFORM_SDK $(CPPFLAGS)
+CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
 !endif
 
 !endif

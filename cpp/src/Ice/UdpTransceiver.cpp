@@ -7,6 +7,14 @@
 //
 // **********************************************************************
 
+//
+// The following is required for the Vista PSDK to bring in
+// the definitions of the IN6_IS_ADDR_* macros.
+//
+#if defined(_WIN32) && !defined(NTDDI_VERSION)
+#  define NTDDI_VERSION NTDDI_WIN2KSP1
+#endif
+
 #include <Ice/UdpTransceiver.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
@@ -131,7 +139,7 @@ repeat:
     ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0);
 #else
     ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0);
-#endif    
+#endif
 
     if(ret == SOCKET_ERROR)
     {
@@ -153,7 +161,7 @@ repeat:
             assert(_fd != INVALID_SOCKET);
 #ifdef _WIN32
             FD_SET(_fd, &_wFdSet);
-            
+
             if(timeout >= 0)
             {
                 struct timeval tv;
@@ -170,14 +178,14 @@ repeat:
             pollFd[0].fd = _fd;
             pollFd[0].events = POLLOUT;
             rs = ::poll(pollFd, 1, timeout);
-#endif          
+#endif
             if(rs == SOCKET_ERROR)
             {
                 if(interrupted())
                 {
                     goto repeatSelect;
                 }
-                
+
                 SocketException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
@@ -187,10 +195,10 @@ repeat:
             {
                 throw new Ice::TimeoutException(__FILE__, __LINE__);
             }
-            
+
             goto repeat;
         }
-        
+
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();
         throw ex;
@@ -201,7 +209,7 @@ repeat:
         Trace out(_logger, _traceLevels->networkCat);
         out << "sent " << ret << " bytes via udp\n" << toString();
     }
-    
+
     if(_stats)
     {
         _stats->bytesSent(type(), static_cast<Int>(ret));
@@ -289,7 +297,7 @@ repeat:
         {
             goto repeat;
         }
-        
+
         if(wouldBlock())
         {
             if(timeout == 0)
@@ -298,7 +306,7 @@ repeat:
             }
 
         repeatSelect:
-            
+
             assert(_fd != INVALID_SOCKET);
 #ifdef _WIN32
             FD_SET(_fd, &_rFdSet);
@@ -316,12 +324,12 @@ repeat:
                 {
                     goto repeatSelect;
                 }
-                
+
                 SocketException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
             }
-            
+
             if(rs == 0)
             {
                 throw TimeoutException(__FILE__, __LINE__);
@@ -346,7 +354,7 @@ repeat:
         ex.error = getSocketErrno();
         throw ex;
     }
-    
+
     if(_traceLevels->network >= 3)
     {
         Trace out(_logger, _traceLevels->networkCat);
@@ -454,7 +462,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
                 setMcastTtl(_fd, mcastTtl, _addr.ss_family == AF_INET);
             }
         }
-        
+
         if(_traceLevels->network >= 1)
         {
             Trace out(_logger, _traceLevels->networkCat);
@@ -473,7 +481,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 #endif
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, 
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
                                             const string& mcastInterface, bool connect) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
@@ -545,7 +553,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 #endif
             doBind(_fd, _addr);
         }
-        
+
         if(_traceLevels->network >= 1)
         {
             Trace out(_logger, _traceLevels->networkCat);
@@ -567,7 +575,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 IceInternal::UdpTransceiver::~UdpTransceiver()
 {
     assert(_fd == INVALID_SOCKET);
-} 
+}
 
 //
 // Set UDP receive and send buffer sizes.
