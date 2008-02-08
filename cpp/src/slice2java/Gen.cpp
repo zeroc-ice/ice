@@ -2830,100 +2830,105 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     if(java2)
     {
         out << nl << "public final class " << name;
-    }
-    else
-    {
-        out << nl << "public enum " << name;
-    }
-    out << sb;
-
-    if(!java2)
-    {
-        int n;
-        for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
-        {
-            if(en != enumerators.begin())
-            {
-                out << ',';
-            }
-            out << nl << fixKwd((*en)->name()) << '(' << n << ')';
-        }
-        out << ';';
-        out << sp;
-    }
-
-    out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
-    if(!java2)
-    {
-        out << nl << "static";
         out << sb;
-        int n;
-        for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
-        {
-            out << nl << "__values[" << n << "] = " << fixKwd((*en)->name()) << ';';
-        }
-        out << eb;
-    }
-    out << nl << "private int __value;";
 
-    //
-    // For backward compatibility, we keep the integer member in the Java5 mapping.
-    //
-    {
+        out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
+        out << nl << "private int __value;";
+
         out << sp;
         int n;
         for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
         {
             string member = fixKwd((*en)->name());
             out << nl << "public static final int _" << member << " = " << n << ';';
-            if(java2)
-            {
-                out << nl << "public static final " << name << ' ' << fixKwd(member)
-                    << " = new " << name << "(_" << member << ");";
-            }
+            out << nl << "public static final " << name << ' ' << fixKwd(member)
+                << " = new " << name << "(_" << member << ");";
         }
-    }
 
-    out << sp << nl << "public static " << name << nl << "convert(int val)";
-    out << sb;
-    out << nl << "assert val >= 0 && val < " << sz << ';';
-    out << nl << "return __values[val];";
-    out << eb;
+        out << sp << nl << "public static " << name << nl << "convert(int val)";
+        out << sb;
+        out << nl << "assert val >= 0 && val < " << sz << ';';
+        out << nl << "return __values[val];";
+        out << eb;
 
-    out << sp << nl << "public static " << name << nl << "convert(String val)";
-    out << sb;
-    out << nl << "for(int __i = 0; __i < __values.length; ++__i)";
-    out << sb;
-    out << nl << "if(__values[__i].toString().equals(val))";
-    out << sb;
-    out << nl << "return __values[__i];";
-    out << eb;
-    out << eb;
-    out << nl << "assert false;";
-    out << nl << "return null;";
-    out << eb;
+        out << sp << nl << "public static " << name << nl << "convert(String val)";
+        out << sb;
+        out << nl << "for(int __i = 0; __i < __values.length; ++__i)";
+        out << sb;
+        out << nl << "if(__values[__i].toString().equals(val))";
+        out << sb;
+        out << nl << "return __values[__i];";
+        out << eb;
+        out << eb;
+        out << nl << "assert false;";
+        out << nl << "return null;";
+        out << eb;
 
-    out << sp << nl << "public int" << nl << "value()";
-    out << sb;
-    out << nl << "return __value;";
-    out << eb;
+        out << sp << nl << "public int" << nl << "value()";
+        out << sb;
+        out << nl << "return __value;";
+        out << eb;
 
-    if(java2)
-    {
         out << sp << nl << "public String" << nl << "toString()";
         out << sb;
         out << nl << "return __T[__value];";
         out << eb;
-    }
 
-    out << sp << nl << "private" << nl << name << "(int val)";
-    out << sb;
-    out << nl << "__value = val;";
-    if(java2)
-    {
+        out << sp << nl << "private" << nl << name << "(int val)";
+        out << sb;
+        out << nl << "__value = val;";
         out << nl << "__values[val] = this;";
+        out << eb;
     }
-    out << eb;
+    else
+    {
+        out << nl << "public enum " << name;
+        out << sb;
+
+        for(en = enumerators.begin(); en != enumerators.end(); ++en)
+        {
+            if(en != enumerators.begin())
+            {
+                out << ',';
+            }
+            out << nl << fixKwd((*en)->name());
+        }
+        out << ';';
+
+        //
+        // For backward compatibility, we keep the integer member in the Java5 mapping.
+        //
+        out << sp;
+        int n;
+        for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
+        {
+            string member = fixKwd((*en)->name());
+            out << nl << "public static final int _" << member << " = " << n << ';';
+        }
+
+        out << sp << nl << "public static " << name << nl << "convert(int val)";
+        out << sb;
+        out << nl << "assert val >= 0 && val < " << sz << ';';
+        out << nl << "return values()[val];";
+        out << eb;
+
+        out << sp << nl << "public static " << name << nl << "convert(String val)";
+        out << sb;
+        out << nl << "try";
+        out << sb;
+        out << nl << "return valueOf(val);";
+        out << eb;
+        out << nl << "catch(java.lang.IllegalArgumentException ex)";
+        out << sb;
+        out << nl << "return null;";
+        out << eb;
+        out << eb;
+
+        out << sp << nl << "public int" << nl << "value()";
+        out << sb;
+        out << nl << "return ordinal();";
+        out << eb;
+    }
 
     if(!p->isLocal())
     {
@@ -2931,15 +2936,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << sb;
         if(sz <= 0x7f)
         {
-            out << nl << "__os.writeByte((byte)__value);";
+            out << nl << "__os.writeByte((byte)value());";
         }
         else if(sz <= 0x7fff)
         {
-            out << nl << "__os.writeShort((short)__value);";
+            out << nl << "__os.writeShort((short)value());";
         }
         else
         {
-            out << nl << "__os.writeInt(__value);";
+            out << nl << "__os.writeInt(value());";
         }
         out << eb;
 
@@ -2966,15 +2971,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             out << sb;
             if(sz <= 0x7f)
             {
-                out << nl << "__outS.writeByte((byte)__value);";
+                out << nl << "__outS.writeByte((byte)value());";
             }
             else if(sz <= 0x7fff)
             {
-                out << nl << "__outS.writeShort((short)__value);";
+                out << nl << "__outS.writeShort((short)value());";
             }
             else
             {
-                out << nl << "__outS.writeInt(__value);";
+                out << nl << "__outS.writeInt(value());";
             }
             out << eb;
 
