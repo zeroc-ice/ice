@@ -73,8 +73,9 @@ steps to remove the certificate:
    confirm that you want to remove this certificate.
 
 Note that under Windows Vista, the IceSSL configuration test is
-disabled due to an apparent bug with the .NET framework version
-2.0.50727.42. This bug manifests itself in those applications that
+disabled due to an apparent bug with the .NET framework in which
+obsolete SSL session ids are reused and cause server authentication
+to fail. This bug manifests itself in those applications that
 initialize and destroy multiple IceSSL plug-ins in the same process.
 As this is an unusual use case, we don't believe it will affect most
 Ice applications.
