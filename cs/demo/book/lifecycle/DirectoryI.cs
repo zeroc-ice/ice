@@ -49,7 +49,7 @@ namespace FilesystemI
                 }
             }
 
-            lock(_lcMutex)
+            lock(lcMutex)
             {
                 reap();
 
@@ -80,7 +80,7 @@ namespace FilesystemI
                 }
             }
 
-            lock(_lcMutex)
+            lock(lcMutex)
             {
                 reap();
 
@@ -110,7 +110,7 @@ namespace FilesystemI
                 }
             }
 
-            lock(_lcMutex)
+            lock(lcMutex)
             {
                 reap();
 
@@ -135,7 +135,7 @@ namespace FilesystemI
                 }
             }
 
-            lock(_lcMutex)
+            lock(lcMutex)
             {
                 reap();
 
@@ -164,7 +164,7 @@ namespace FilesystemI
                     throw new ObjectNotExistException();
                 }
 
-                lock(_lcMutex)
+                lock(lcMutex)
                 {
                     reap();
 
@@ -191,7 +191,7 @@ namespace FilesystemI
 
         public DirectoryI(ObjectAdapter a, string name, DirectoryI parent)
         {
-            _lcMutex = new System.Object();
+            lcMutex = new System.Object();
             _name = name;
             _parent = parent;
             _id = new Identity();
@@ -250,7 +250,7 @@ namespace FilesystemI
             _reapMap.Clear();
         }
 
-        public static System.Object _lcMutex = new System.Object();
+        public static System.Object lcMutex = new System.Object();
 
         private string _name; // Immutable
         private DirectoryI _parent; // Immutable

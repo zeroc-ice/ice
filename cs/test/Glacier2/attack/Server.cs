@@ -8,49 +8,60 @@
 // **********************************************************************
 
 using Test;
+using System;
 using System.Diagnostics;
+using System.Reflection;
 
-public sealed class ServantLocatorI : Ice.ServantLocator
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceTest")]
+[assembly: AssemblyDescription("Ice test")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+class Server
 {
-    public ServantLocatorI()
+    sealed class ServantLocatorI : Ice.ServantLocator
     {
-        _backend = new BackendI();
+        public ServantLocatorI()
+        {
+            _backend = new BackendI();
+        }
+
+        public Ice.Object locate(Ice.Current curr, out System.Object cookie)
+        {
+            cookie = null;
+            return _backend;
+        }
+
+        public void finished(Ice.Current curr, Ice.Object servant, System.Object cookie)
+        {
+        }
+
+        public void deactivate(string category)
+        {
+        }
+
+        private Backend _backend;
     }
 
-    public Ice.Object locate(Ice.Current curr, out System.Object cookie)
+    class App : Ice.Application
     {
-        cookie = null;
-        return _backend;
-    }
-
-    public void finished(Ice.Current curr, Ice.Object servant, System.Object cookie)
-    {
-    }
-
-    public void deactivate(string category)
-    {
-    }
-
-    private Backend _backend;
-}
-
-class Server : Ice.Application
-{
-    public override int run(string[] args)
-    {
-        communicator().getProperties().setProperty("BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("BackendAdapter");
-        adapter.addServantLocator(new ServantLocatorI(), "");
-        adapter.activate();
-        communicator().waitForShutdown();
-        return 0;
+        public override int run(string[] args)
+        {
+            communicator().getProperties().setProperty("BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("BackendAdapter");
+            adapter.addServantLocator(new ServantLocatorI(), "");
+            adapter.activate();
+            communicator().waitForShutdown();
+            return 0;
+        }
     }
 
     public static void Main(string[] args)
     {
         Debug.Listeners.Add(new ConsoleTraceListener());
 
-        Server app = new Server();
+        App app = new App();
         int status = app.main(args);
         if(status != 0)
         {

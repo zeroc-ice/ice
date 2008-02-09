@@ -7,32 +7,43 @@
 //
 // **********************************************************************
 
+using System;
 using System.Diagnostics;
+using System.Reflection;
 
-public class Server : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceTest")]
+[assembly: AssemblyDescription("Ice test")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Server
 {
-    public override int run(string[] args)
+    public class App : Ice.Application
     {
-        args = communicator().getProperties().parseCommandLineOptions("TestAdapter", args);
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new TestI(adapter), communicator().stringToIdentity("test"));
-        shutdownOnInterrupt();
-        try
+        public override int run(string[] args)
         {
-            adapter.activate();
+            args = communicator().getProperties().parseCommandLineOptions("TestAdapter", args);
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            adapter.add(new TestI(adapter), communicator().stringToIdentity("test"));
+            shutdownOnInterrupt();
+            try
+            {
+                adapter.activate();
+            }
+            catch(Ice.ObjectAdapterDeactivatedException)
+            {
+            }
+            communicator().waitForShutdown();
+            return 0;
         }
-        catch(Ice.ObjectAdapterDeactivatedException)
-        {
-        }
-        communicator().waitForShutdown();
-        return 0;
     }
 
     public static void Main(string[] args)
     {
         Debug.Listeners.Add(new ConsoleTraceListener());
 
-        Server server = new Server();
+        App server = new App();
         int status = server.main(args);
         if(status != 0)
         {

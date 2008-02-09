@@ -7,47 +7,54 @@
 //
 // **********************************************************************
 
-using System;
 using FilesystemI;
+using System;
+using System.Reflection;
 
-class FilesystemApp : Ice.Application
-{
-    public override int run(string[] args)
-    {
-        // Terminate cleanly on receipt of a signal.
-        //
-        shutdownOnInterrupt();
+[assembly: CLSCompliant(true)]
 
-        // Create an object adapter
-        //
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints(
-                                                        "LifecycleFilesystem", "default -p 10000");
-
-        // Create the root directory.
-        //
-        new DirectoryI(adapter);
-
-        // All objects are created, allow client requests now.
-        //
-        adapter.activate();
-
-        //
-        // Wait until we are done.
-        communicator().waitForShutdown();
-        if(interrupted())
-        {
-            System.Console.Error.WriteLine(appName() + ": received signal, shutting down");
-        }
-
-        return 0;
-    }
-}
+[assembly: AssemblyTitle("IceLifecycleServer")]
+[assembly: AssemblyDescription("Ice lifecycle demo server")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Server
 {
+    class App : Ice.Application
+    {
+        public override int run(string[] args)
+        {
+            // Terminate cleanly on receipt of a signal.
+            //
+            shutdownOnInterrupt();
+
+            // Create an object adapter
+            //
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints(
+                                                            "LifecycleFilesystem", "default -p 10000");
+
+            // Create the root directory.
+            //
+            new DirectoryI(adapter);
+
+            // All objects are created, allow client requests now.
+            //
+            adapter.activate();
+
+            //
+            // Wait until we are done.
+            communicator().waitForShutdown();
+            if(interrupted())
+            {
+                System.Console.Error.WriteLine(appName() + ": received signal, shutting down");
+            }
+
+            return 0;
+        }
+    }
+
     static public void Main(string[] args)
     {
-        FilesystemApp app = new FilesystemApp();
+        App app = new App();
         app.main(args);
     }
 }

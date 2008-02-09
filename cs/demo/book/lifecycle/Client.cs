@@ -6,48 +6,59 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-using System;
+
 using Filesystem;
+using System;
+using System.Reflection;
 
-public class Client : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceLifecycleClient")]
+[assembly: AssemblyDescription("Ice lifecycle demo client")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Client
 {
-    public override int run(String[] args)
+    public class App : Ice.Application
     {
-        // Terminate cleanly on receipt of a signal.
-        //
-        shutdownOnInterrupt();
-
-        // Create a proxy for the root directory
-        //
-        Ice.ObjectPrx @base = communicator().stringToProxy("RootDir:default -p 10000");
-        if(@base == null)
+        public override int run(String[] args)
         {
-            throw new Error("Could not create proxy");
+            // Terminate cleanly on receipt of a signal.
+            //
+            shutdownOnInterrupt();
+
+            // Create a proxy for the root directory
+            //
+            Ice.ObjectPrx @base = communicator().stringToProxy("RootDir:default -p 10000");
+            if(@base == null)
+            {
+                throw new Error("Could not create proxy");
+            }
+
+            // Down-cast the proxy to a Directory proxy.
+            //
+            DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(@base);
+            if(rootDir == null)
+            {
+                throw new Error("Invalid proxy");
+            }
+
+            Parser p = new Parser(rootDir);
+            return p.parse();
         }
 
-        // Down-cast the proxy to a Directory proxy.
-        //
-        DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(@base);
-        if(rootDir == null)
+        private class Error : SystemException
         {
-            throw new Error("Invalid proxy");
+            public Error(String msg)
+                : base(msg)
+            {
+            }
         }
-
-        Parser p = new Parser(rootDir);
-        return p.parse();
     }
 
     static public void Main(String[] args)
     {
-        Client app = new Client();
+        App app = new App();
         app.main(args);
-    }
-
-    private class Error : SystemException
-    {
-        public Error(String msg)
-            : base(msg)
-        {
-        }
     }
 }

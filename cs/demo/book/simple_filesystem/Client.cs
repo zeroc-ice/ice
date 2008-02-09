@@ -7,8 +7,15 @@
 //
 // **********************************************************************
 
-using System;
 using Filesystem;
+using System;
+using System.Reflection;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceSimpleLifecycleClient")]
+[assembly: AssemblyDescription("Ice simple lifecycle demo client")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client
 {

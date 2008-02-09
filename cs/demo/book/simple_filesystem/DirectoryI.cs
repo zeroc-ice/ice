@@ -21,15 +21,16 @@ public class DirectoryI : DirectoryDisp_
 
         // Create an identity. The parent has the fixed identity "/"
         //
-        Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
+        Ice.Identity myID =
+            adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
 
         // Add the identity to the object adapter
         //
-        _adapter.add(this, myID);
+        adapter.add(this, myID);
 
         // Create a proxy for the new node and add it as a child to the parent
         //
-        NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(adapter.createProxy(myID));
         if (_parent != null)
             _parent.addChild(thisNode);
     }
@@ -56,7 +57,7 @@ public class DirectoryI : DirectoryDisp_
         _contents.Add(child);
     }
 
-    public static Ice.ObjectAdapter _adapter;
+    public static Ice.ObjectAdapter adapter;
     private string _name;
     private DirectoryI _parent;
     private ArrayList _contents = new ArrayList();

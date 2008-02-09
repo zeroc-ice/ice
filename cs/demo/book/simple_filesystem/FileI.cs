@@ -23,15 +23,15 @@ public class FileI : FileDisp_
 
         // Create an identity
         //
-        Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
+        Ice.Identity myID = adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
 
         // Add the identity to the object adapter
         //
-        _adapter.add(this, myID);
+        adapter.add(this, myID);
 
         // Create a proxy for the new node and add it as a child to the parent
         //
-        NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(adapter.createProxy(myID));
         _parent.addChild(thisNode);
     }
 
@@ -56,7 +56,7 @@ public class FileI : FileDisp_
         _lines = text;
     }
 
-    public static Ice.ObjectAdapter _adapter;
+    public static Ice.ObjectAdapter adapter;
     private string _name;
     private DirectoryI _parent;
     private string[] _lines;
