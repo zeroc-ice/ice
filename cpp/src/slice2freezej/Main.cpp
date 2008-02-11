@@ -254,7 +254,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 return false;
             }
 
-            bool containsSequence;
+            bool containsSequence = false;
             if(!Dictionary::legalKeyType(valueType, containsSequence))
             {
                 cerr << _prog << ": `" << dict.value << "' is not a valid index type" << endl;
@@ -325,7 +325,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             
             TypePtr dataMemberType = dataMember->type();
             
-            bool containsSequence;
+            bool containsSequence = false;
             if(!Dictionary::legalKeyType(dataMemberType, containsSequence))
             {
                 cerr << _prog << ": `" << index.member << "' cannot be used as an index" << endl;

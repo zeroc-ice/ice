@@ -1003,7 +1003,7 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                     return false;
                 }
                 
-                bool containsSequence;
+                bool containsSequence = false;
                 if(!Dictionary::legalKeyType(valueType, containsSequence))
                 {
                     cerr << n << ": `" << dict.value << "' is not a valid index type" << endl;
@@ -1076,7 +1076,7 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                 
                 TypePtr dataMemberType = dataMember->type();
 
-                bool containsSequence;
+                bool containsSequence = false;
                 if(!Dictionary::legalKeyType(dataMemberType, containsSequence))
                 {
                     cerr << n << ": `" << index.member << "' cannot be used as an index" << endl;
