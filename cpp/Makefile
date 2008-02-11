@@ -16,7 +16,7 @@ SUBDIRS		= config src include test demo doc
 INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_docdir)
 
 install:: install-common
-ifneq ($(embedded_runpath_prefix),)
+ifeq ("$(create_runpath_symlink)",yes)
 	@if test -h $(embedded_runpath_prefix) ; \
 	then \
 	     if `\rm -f $(embedded_runpath_prefix) 2>/dev/null`; \

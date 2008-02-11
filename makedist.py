@@ -13,13 +13,6 @@ from stat import *
 from shutil import copytree, rmtree
 
 #
-# TODO: The test distribution is currently disabled. There's still some work to do
-# to get it to work. For instance, the test/Ice/background test can't be compiled
-# without the sources. The allTests.py scripts also don't support being run from
-# the test directory.
-#
-
-#
 # Sub-directories to keep to create the source distributions.
 #
 includeSubDirs = [ \
@@ -43,6 +36,7 @@ includeSubDirs = [ \
 filesToRemove = [ \
     "fixCopyright.py", \
     "fixVersion.py", \
+    "makedist.py", \
     "cpp/iceemakedist.py", \
     "cpp/iceslmakedist.py", \
     "cpp/config/makegitignore.py", \
@@ -50,12 +44,15 @@ filesToRemove = [ \
     "cpp/config/Make.rules.mak.icee", \
 #    "cpp/config/Make.rules.icesl", \
     "cpp/config/Make.rules.mak.icesl", \
+    "cpp/src/slice2cppe", \
+    "cpp/src/slice2javae", \
+    "cpp/src/slice2sl", \
     "rb/config/Make.rules.Darwin", \
 ]
 
 #
 # Files from the top-level, cpp, java and cs config directories to include in the demo 
-# and test source distribution config directory.
+# source distribution config directory.
 #
 configFiles = [ \
     "Make.*", \
@@ -77,7 +74,7 @@ certsFiles = [ \
 # Program usage.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options]"
+    print "Usage: " + sys.argv[0] + " [options] tag"
     print
     print "Options:"
     print "-h    Show this message."
@@ -115,7 +112,6 @@ def copy(srcpath, destpath):
 # Copy files from srcpath and matching the given patterns to destpath
 #
 def copyMatchingFiles(srcpath, destpath, patterns):
-
     for p in patterns:
         for f in glob.glob(os.path.join(srcpath, p)):
             copy(f, os.path.join(destpath, os.path.basename(f)))
@@ -269,6 +265,11 @@ def fixVersion(file):
     newFile.write(line)
     newFile.close()
     oldFile.close()
+
+    # Preserve the executable permission
+    st = os.stat(origfile)
+    if st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH): 
+        os.chmod(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
     os.remove(origfile)
 
 def fixFilePermission(file):
@@ -397,6 +398,9 @@ if verbose:
 else:
     quiet = ""
 
+cwd = os.getcwd()
+os.chdir(os.path.dirname(__file__))
+
 #
 # Get Ice version.
 #
@@ -419,14 +423,11 @@ print "Creating " + version + " source distributions in " + distDir
 
 demoscriptDistDir = os.path.join(distDir, "Ice-" + version + "-demo-scripts")
 demoDistDir = os.path.join(distDir, "Ice-" + version + "-demos")
-#testDistDir = os.path.join(distDir, "Ice-" + version + "-tests")
 srcDistDir = os.path.join(distDir, "Ice-" + version)
 os.mkdir(demoscriptDistDir)
 os.mkdir(demoDistDir)
 os.mkdir(os.path.join(demoDistDir, "config"))
 os.mkdir(os.path.join(demoDistDir, "certs"))
-#os.mkdir(testDistDir)
-#os.mkdir(os.path.join(testDistDir, "config"))
 
 #
 # Extract the sources with git archive using the given tag.
@@ -435,8 +436,6 @@ print "Creating git archive using " + tag + "...",
 sys.stdout.flush()
 os.system("git archive --prefix=Ice-" + version + "/ " + tag + " | ( cd " + distDir + " && tar xf - )")
 print "ok"
-
-cwd = os.getcwd()
 
 os.chdir(os.path.join(srcDistDir))
 
@@ -456,6 +455,7 @@ print "ok"
 print "Walking through distribution to fix permissions, versions, etc...",
 sys.stdout.flush()
 
+fixVersion(os.path.join("distribution", "bin", "makebindist.py"))
 fixVersion(os.path.join("cpp", "config", "glacier2router.cfg"))
 fixVersion(os.path.join("cpp", "config", "icegridregistry.cfg"))
 fixVersion(os.path.join("distribution", "src", "rpm", "glacier2router.conf"))
@@ -475,7 +475,6 @@ for root, dirnames, filesnames in os.walk('.'):
             copy(filepath, os.path.join(distDir, demoscriptDistDir, filepath))
             os.remove(filepath)
         else:
-            fixFilePermission(filepath)
 
             # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
             if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
@@ -484,6 +483,8 @@ for root, dirnames, filesnames in os.walk('.'):
                 bisonFiles.append(filepath)
             elif fnmatch.fnmatch(f, "*.l"):
                 flexFiles.append(filepath)
+
+            fixFilePermission(filepath)
     
     for d in dirnames:
         os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
@@ -506,9 +507,9 @@ fixMakeRules(os.path.join("cpp", "config", "Make.rules"))
 print "ok"
 
 #
-# Consolidate demo, demo scripts and test distributions.
+# Consolidate demo, demo scripts distributions.
 #
-print "Consolidating demo, test and demo scripts distributions...",
+print "Consolidating demo and demo scripts distributions...",
 sys.stdout.flush()
 
 # Demo distribution
@@ -521,23 +522,12 @@ copyMatchingFiles(os.path.join("cpp", "config"), os.path.join(demoDistDir, "conf
 copyMatchingFiles(os.path.join("java", "config"), os.path.join(demoDistDir, "config"), configFiles)
 copyMatchingFiles(os.path.join("cs", "config"), os.path.join(demoDistDir, "config"), configFiles)
 
-# Test distribution
-# copy("ICE_LICENSE", testDistDir)
-# copyMatchingFiles(os.path.join("config"), os.path.join(testDistDir, "config"), configFiles)
-# copyMatchingFiles(os.path.join("cpp", "config"), os.path.join(testDistDir, "config"), configFiles)
-# copyMatchingFiles(os.path.join("java", "config"), os.path.join(testDistDir, "config"), configFiles)
-# copyMatchingFiles(os.path.join("cs", "config"), os.path.join(testDistDir, "config"), configFiles)
-
-# Consolidate demoscript, test and demo distribution with files from each language mapping
+# Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "allDemos.py")):
         os.rename(os.path.join(d, "allDemos.py"), os.path.join(demoscriptDistDir, d, "allDemos.py"))
         os.rename(os.path.join(demoscriptDistDir, d), os.path.join(demoscriptDistDir, getMappingDir("demo", d)))
-
-#     if os.path.isdir(d) and os.path.exists(os.path.join(d, "test")):
-#         copytree(os.path.join(d, "test"), os.path.join(testDistDir, getMappingDir("test", d)))
-#         copy(os.path.join(d, "allTests.py"), os.path.join(testDistDir, getMappingDir("test", d)))
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copytree(os.path.join(d, "demo"), os.path.join(demoDistDir, getMappingDir("demo", d)))
@@ -557,9 +547,8 @@ print "ok"
 print "Archiving..."
 sys.stdout.flush()
 os.chdir(distDir)
-
-#for d in [srcDistDir, testDistDir, demoDistDir, demoscriptDistDir]:
-for d in [srcDistDir, demoDistDir, demoscriptDistDir]:
+os.rename("distribution", "distfiles-" + version)
+for d in [srcDistDir, demoDistDir, demoscriptDistDir, "distfiles-" + version]:
     dist = os.path.basename(d)
     print "   creating " + dist + ".tar.gz ...",
     sys.stdout.flush()
@@ -588,7 +577,7 @@ else:
 readme = open("README.txt", "w")
 print >>readme, "This directory contains the source distributions of Ice " + version + ".\n"
 print >>readme, "Creation time: " + time.strftime("%a %b %d %Y, %I:%M:%S %p (%Z)")
-(sysname, nodename, release, version, machine) = os.uname();
+(sysname, nodename, release, ver, machine) = os.uname();
 print >>readme, "Host: " + nodename
 print >>readme, "Platform: " + sysname + " " + release
 if os.path.exists("/etc/redhat-release"):
@@ -600,7 +589,7 @@ else:
 print >>readme, "User: " + os.environ["USER"]
 print >>readme, ""
 print >>readme, "" + \
-"The `distribution' directory contains the sources for building the\n" + \
+"The archive distfiles-" + version + ".tar.gz contains the sources for building the\n" + \
 "binary distributions.\n"
 readme.close()
 
@@ -609,9 +598,9 @@ readme.close()
 #
 print "Cleaning up...",
 sys.stdout.flush()
+rmtree(os.path.join(distDir, "distfiles-" + version))
 rmtree(srcDistDir)
 rmtree(demoDistDir)
-#rmtree(testDistDir)
 rmtree(demoscriptDistDir)
 print "ok"
 

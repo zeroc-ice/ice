@@ -1,20 +1,273 @@
-import fileinput
+#!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
 
-def commentOutLexYacc(target, makefile):
-    f = fileinput.input("$makefile", True)
-    inComment = False
-    inClean = False
-    for x in f:
-        if not x.startswith("\t") and x.find("$base") != -1 and x.find("$base" + ".o") == -1:
-            inComment = True 
-        elif x.startswith("clean::"):
-            inClean = True
-        elif len(x.strip()) == 0:
-            inClean = False
-            inComment = False
-        x = x.rstrip('\n')
-        if (inComment or (inClean and x.find("$base") != -1)) and not x.startswith('#'):
-                print '#',x
+import os, sys, shutil, glob, fnmatch, string, re
+from stat import *
+
+def fixPermission(dest):
+
+    if os.path.isdir(dest):
+        os.chmod(dest, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
+        for f in os.listdir(dest):
+            fixPermission(os.path.join(f, dest))
+    else:
+        if os.stat(dest).st_mode & (S_IXUSR | S_IXGRP | S_IXOTH):
+            os.chmod(dest, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
         else:
-            print x
-    f.close()
+            os.chmod(dest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) # rw-r--r--
+
+def copy(src, dest):
+
+    # Create the directories if necessary.
+    if not os.path.exists(os.path.dirname(dest)):
+        os.makedirs(os.path.dirname(dest))
+        
+    # Copy the directory, link or file.
+    if os.path.isdir(src):
+        shutil.copytree(src, dest)
+    elif os.path.islink(src):
+        if os.path.exists(dest):
+            os.remove(dest)
+        os.symlink(os.readlink(src), dest)
+    else:
+        if os.path.exists(dest):
+            os.remove(dest)
+        shutil.copy(src, dest)
+
+    fixPermission(dest)
+
+#
+# Thidparty helper classes
+#
+class ThirdParty :
+    def __init__(self, platform, name, locations, languages, buildOption = None, buildEnv = None):
+        self.name = name
+        self.languages = languages
+        self.buildOption = buildOption
+        if buildEnv:
+            self.buildEnv = buildEnv
+        else:
+            self.buildEnv = self.name.upper() + "_HOME"
+
+        #
+        # Get the location of the third party dependency. We first check if the environment
+        # variable (e.g.: DB_HOME) is set, if not we use the platform specific location.
+        #
+        self.location = os.environ.get(self.buildEnv, platform.getLocation(locations))
+
+        if self.location and os.path.islink(self.location):
+            self.location = os.path.normpath(os.path.join(os.path.dirname(self.location), os.readlink(self.location)))
+
+        #
+        # Add the third party dependency to the platform object.
+        #
+        platform.addThirdParty(self)
+            
+    def __str__(self):
+        return self.name
+
+    def checkAndPrint(self):
+
+        if self.location == None:
+            print self.name + ": <system>"
+            return True
+        else:
+            if not os.path.exists(self.location):
+                if os.environ.has_key(self.buildEnv):
+                    print self.name + ": not found at " + self.buildEnv + " location (" + self.location + ")"
+                else:
+                    print self.name + ": not found at default location (" + self.location + ")"
+                return False
+            else:
+                if os.environ.has_key(self.buildEnv):
+                    print self.name + ": " + self.location + " (from " + self.buildEnv + ")"
+                else:
+                    print self.name + ": " + self.location + " (default location)"
+                return True
+            
+    def getMakeEnv(self, language):
+        if language in self.languages and not os.environ.has_key(self.buildEnv) and self.location:
+            return self.buildEnv + "=" + self.location
+
+    def getAntOption(self):
+        if "java" in self.languages and self.buildOption and self.location:
+            return "-D" + self.buildOption + "=" + self.location
+
+    def getJar(self):
+        if "java" in self.languages and self.location and self.location.endswith(".jar"):
+            return self.location
+
+    def getFiles(self, platform):
+        return []
+
+    def includeInDistribution(self):
+        # Only copy third party files installed in /opt
+        return self.location and self.location.startswith("/opt")
+
+    def copyToDistribution(self, platform, buildDir):
+        if not self.location:
+            return
+
+        #
+        # Get files/directories to copy. The path returned by getFiles() are relative 
+        # to the third party library location and might contain wildcards characters.
+        #
+        files = [f for path in self.getFiles(platform) for f in glob.glob(os.path.join(self.location, path))]
+        if len(files) > 0:
+            print "  Copying " + self.name + "...",
+            sys.stdout.flush()
+            for src in files:
+                copy(src, os.path.join(buildDir, src[len(self.location) + 1::]))
+            print "ok"
+
+#
+# Platform helper classes
+#
+class Platform:
+    def __init__(self, uname, pkgname, languages, shlibExtension):
+        self.uname = uname
+        self.pkgname = pkgname
+        self.languages = languages
+        self.shlibExtension = shlibExtension
+        self.thirdParties = []
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def getLocation(self, locations):
+        return locations.get(self.uname, None)
+
+    def addThirdParty(self, thirdParty):
+        self.thirdParties.append(thirdParty)
+
+    def checkAndPrintThirdParties(self):
+        found = True
+        for t in self.thirdParties:
+            print "  ",
+            found &= t.checkAndPrint()
+        return found
+
+    def getPackageName(self, version):
+        return "Ice-" + version + "-bin-" + self.pkgname
+
+    def getMakeEnvs(self, version, language):
+
+        # Get third party environement variables.
+        envs = [t.getMakeEnv(language) for t in self.thirdParties if t.getMakeEnv(language)]
+
+        # Build with optimization by default.
+        if not os.environ.has_key("OPTIMIZE"):
+            envs.append("OPTIMIZE=yes")
+
+        # Language specific environment variables to pass to make.
+        if language == "cpp":
+            envs.append("create_runpath_symlink=no")
+        elif language == "cs":
+            envs.append("NOGAC=1")
+
+        return string.join(envs, " ")
+
+    def getAntEnv(self):
+        return "CLASSPATH=" + string.join([t.getJar() for t in self.thirdParties if t.getJar()], os.pathsep)
+
+    def getAntOptions(self):
+        return string.join([t.getAntOption() for t in self.thirdParties if t.getAntOption()], " ")
+
+    def getSharedLibraryFiles(self, root, path, extension = None): 
+        if not extension:
+            extension = self.shlibExtension
+        libs = []
+        for f in glob.glob(os.path.join(root, path)):
+            (dirname, basename) = os.path.split(f)
+            if fnmatch.fnmatch(basename, "*" + extension + "*") and not os.path.islink(f):
+                libs.append(os.path.join(dirname[len(root) + 1::], basename))
+        return libs
+
+    def copyDistributionFiles(self, distDir, buildDir):
+        for f in [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]:
+            filepath = os.path.join(os.path.join(distDir, "src", "unix"), f + "." + self.uname)
+            if not os.path.exists(filepath):
+                print "warning: " + filepath + " doesn't exist"
+            else:
+                copy(filepath, os.path.join(buildDir, f))
+
+    def copyThirdPartyDependencies(self, buildDir):
+        for t in filter(ThirdParty.includeInDistribution, self.thirdParties): t.copyToDistribution(self, buildDir)
+
+    def completeDistribution(self, buildDir, version):
+        pass
+
+class Darwin(Platform):
+    def __init__(self, uname, languages):
+        Platform.__init__(self, uname, "macosx", languages, "dylib")
+
+    def getSharedLibraryFiles(self, root, path, extension = None) : 
+        libraries = Platform.getSharedLibraryFiles(self, root, path, extension)
+        links = []
+        for l in libraries:
+            out = os.popen("otool -D " + os.path.join(root, l))
+            lines = out.readlines()
+            out.close()
+            if(len(lines) <= 1):
+                continue
+            link = lines[1].strip()
+            if link != os.path.join(root, l) and link.startswith(root):
+                links.append(link[len(root) + 1::])
+        return libraries + links
+
+    def completeDistribution(self, buildDir, version):
+
+        print "Fixing install names...",
+        sys.stdout.flush()
+
+        isLib = lambda f: (fnmatch.fnmatch(f, "*dylib") or fnmatch.fnmatch(f, "*jnilib")) and not os.path.islink(f)
+        isExe = lambda f : os.system('file -b ' + f + ' | grep -q "Mach-O"') == 0
+
+        #
+        # Find the install names of the third party libraries included with the distribution.
+        #
+        oldInstallNames = []
+        for t in self.thirdParties:
+            if t.includeInDistribution():
+                for l in filter(isLib, [os.path.join(buildDir, l) for l in t.getFiles(self)]):
+                    p = os.popen('otool -D ' + l + ' | tail -1')
+                    oldInstallNames.append(p.readline().strip())
+                    p.close()
+                    
+        #
+        # Find the binary files included with this distribution.
+        #
+        binFiles = [ f for f in glob.glob(os.path.join(buildDir, "bin", "*")) if isExe(f)]
+        binFiles += [ f for f in glob.glob(os.path.join(buildDir, "lib", "*")) if isLib(f)]
+
+        #
+        # Fix the install names in each binary.
+        #
+        mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
+        for oldName in oldInstallNames:
+            libName = re.sub("\/opt\/.*\/(.*)", "\\1", oldName)
+            newName = '/opt/Ice-' + mmversion + '/' + libName
+            os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/' + libName)
+            for f in binFiles:
+                os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
+
+        print "ok"
+
+class HPUX(Platform):
+    def __init__(self, uname, languages):
+        Platform.__init__(self, uname, "hpux", languages, "sl")
+
+class Linux(Platform):
+    def __init__(self, uname, languages):
+        Platform.__init__(self, uname, "linux", languages, "sl")
+
+class SunOS(Platform):
+    def __init__(self, uname, languages):
+        Platform.__init__(self, uname, "solaris", languages, "so")

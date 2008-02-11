@@ -13,13 +13,13 @@
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="."/>
-    <property name="src.dir" value="src"/>
-    <property name="lib.dir" value="lib"/>
-    <property name="generated.dir" value="generated"/>
-    <property name="cache.dir" value="depcache"/>
 
     <!-- import common definitions -->
     <import file="config/common.xml"/>
+
+    <property name="src.dir" value="src"/>
+    <property name="lib.dir" value="lib${build.suffix}"/>
+    <property name="cache.dir" value="depcache${build.suffix}"/>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
@@ -203,6 +203,13 @@
     </target>
 
     <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
+        <condition property="runtime.jar" value="${java.home}/../Classes/classes.jar" else="${java.home}/lib/rt.jar">
+            <os family="mac"/>
+        </condition>
+        <condition property="jsse.jar" value="${java.home}/../Classes/jsse.jar" else="${java.home}/lib/jsse.jar">
+            <os family="mac"/>
+        </condition>
+
 	<manifest file="${lib.dir}/icegridgui.mf">
 	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
 	    <attribute name="Class-Path" value="../help/ ../resources/ ../../share/doc/Ice-${ice.version}/ ../../share/doc/packages/Ice-${ice.version}/"/>
@@ -223,6 +230,8 @@
              -injars ${jgoodies.looks}(!META-INF/**)
              -injars ${jgoodies.forms}(!META-INF/**)
              -outjars ${lib.dir}/IceGridGUI.jar
+             -libraryjars ${runtime.jar}
+             -libraryjars ${jsse.jar}
              -include config/icegridgui.pro
         </proguard>
 	<delete file="${lib.dir}/IceGridGUItemp.jar" />
