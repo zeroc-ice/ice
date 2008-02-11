@@ -33,6 +33,10 @@ print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
 
 clientStatus = TestUtil.closePipe(clientPipe)
+
+if os.path.exists("tmp.ini"):
+    os.remove("tmp.ini")
+
 if clientStatus:
     sys.exit(1)
 

@@ -898,6 +898,10 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
         killServers()
 
     joinServers()
+
+    if lang == "php":
+	os.remove("tmp.ini")
+
     os.chdir(cwd)
 
     if clientStatus or serverStatus():
