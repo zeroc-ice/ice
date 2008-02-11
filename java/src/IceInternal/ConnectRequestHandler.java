@@ -42,12 +42,9 @@ public class ConnectRequestHandler
 
         synchronized(this)
         {
-            if(_exception != null)
+            if(initialized())
             {
-                throw _exception;
-            }
-            else if(_connection != null)
-            {
+                assert(_connection != null);
                 return new ConnectionRequestHandler(_reference, _connection, _compress);
             }
             else
@@ -473,6 +470,8 @@ public class ConnectRequestHandler
         // request handler of the proxy with the more efficient connection request 
         // handler which does not have any synchronization. This also breaks the cyclic
         // reference count with the proxy.
+        //
+        // NOTE: _updateRequestHandler is immutable once _flushing = true
         //
         if(_updateRequestHandler && _exception == null)
         {
