@@ -99,11 +99,13 @@
 
 #   ifndef _WIN32_WINNT
         //
-        // Necessary for TryEnterCriticalSection and some IPv6 macros used in Network.cpp
+        // Necessary for TryEnterCriticalSection (see IceUtil/Mutex.h).
         //
-#       define _WIN32_WINNT 0x0500
-#   elif _WIN32_WINNT < 0x0500
-#       error "Ice requires headers for Windows 2000 or later."
+#       if defined(_MSC_VER) && _MSC_VER < 1500
+#           define _WIN32_WINNT 0x0400
+#       endif
+#   elif _WIN32_WINNT < 0x0400
+#       error "TryEnterCricalSection requires _WIN32_WINNT >= 0x0400"
 #   endif
 
 #   if !defined(ICE_STATIC_LIBS) && defined(_MSC_VER) && (!defined(_DLL) || !defined(_MT))

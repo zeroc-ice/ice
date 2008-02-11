@@ -28,7 +28,8 @@ Ice has been extensively tested on:
 - Windows 2003 Server x86 and x64
 - Windows Vista x86
 
-Ice may work on Windows 2000; however we did not test on this platform.
+Ice does not work on Windows 2000; however porting Ice to Windows 2000
+should be fairly simple if you do not require UDP multicast or IPv6.
 
 There are several Ice binary distributions available for Windows, each
 built with a different C++ compiler. These distributions can be 
