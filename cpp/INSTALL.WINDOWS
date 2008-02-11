@@ -47,6 +47,8 @@ C++ compiler
 
 The following C++ compilers are supported:
 
+- Microsoft Visual C++ 2008
+
 - Microsoft Visual C++ 2005 (both Professional and Express editions)
  
   Visual C++ 2005 Express is available for download from:

@@ -34,15 +34,15 @@
 #if defined(_WIN32)
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+#  include <iphlpapi.h>
+#else
 #  include <ifaddrs.h>
 #  include <net/if.h>
-#else
 #  include <sys/ioctl.h>
-#  include <net/if.h>
-#  ifdef __sun
-#    include <sys/sockio.h>
-#  endif
+#endif
+
+#ifdef __sun
+#  include <sys/sockio.h>
 #endif
 
 using namespace std;
@@ -395,6 +395,86 @@ isWildcard(const string& host, ProtocolSupport protocol)
     {
     }
     return false;
+}
+
+int
+getInterfaceIndex(const string& name)
+{
+    int index = 0;
+#ifdef _WIN32
+    IP_ADAPTER_ADDRESSES addrs;
+    ULONG buflen = 0;
+    if(::GetAdaptersAddresses(AF_INET6, 0, 0, &addrs, &buflen) == ERROR_BUFFER_OVERFLOW)
+    {
+        PIP_ADAPTER_ADDRESSES paddrs;
+        char* buf = new char[buflen];
+        paddrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buf);
+        if(::GetAdaptersAddresses(AF_INET6, 0, 0, paddrs, &buflen) == NO_ERROR)
+        {
+            while(paddrs)
+            {
+                if(IceUtil::wstringToString(paddrs->FriendlyName) == name)
+                {
+                    index = paddrs->Ipv6IfIndex;
+                    break;
+                }
+                paddrs = paddrs->Next;
+            }
+        }
+        delete[] buf;
+    }
+#else
+    index = if_nametoindex(name.c_str());
+#endif
+
+    return index;
+}
+
+struct in_addr
+getInterfaceAddress(const string& name)
+{
+    struct in_addr addr;
+    addr.s_addr = INADDR_ANY;
+#ifdef _WIN32
+    IP_ADAPTER_ADDRESSES addrs;
+    ULONG buflen = 0;
+    if(::GetAdaptersAddresses(AF_INET, 0, 0, &addrs, &buflen) == ERROR_BUFFER_OVERFLOW)
+    {
+        PIP_ADAPTER_ADDRESSES paddrs;
+        char* buf = new char[buflen];
+        paddrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buf);
+        if(::GetAdaptersAddresses(AF_INET, 0, 0, paddrs, &buflen) == NO_ERROR)
+        {
+            while(paddrs)
+            {
+                if(IceUtil::wstringToString(paddrs->FriendlyName) == name)
+                {
+                    struct sockaddr_in addrin;
+		    memcpy(&addrin, paddrs->FirstUnicastAddress->Address.lpSockaddr,
+                           paddrs->FirstUnicastAddress->Address.iSockaddrLength);
+                    addr =  addrin.sin_addr;
+                    break;
+                }
+                paddrs = paddrs->Next;
+            }
+        }
+        delete[] buf;
+    }
+#else
+    ifreq if_address;
+    strcpy(if_address.ifr_name, name.c_str());
+
+    SOCKET fd = createSocket(false, AF_INET);
+    int rc = ioctl(fd, SIOCGIFADDR, &if_address);
+    closeSocketNoThrow(fd);
+
+    if(rc != SOCKET_ERROR)
+    {
+        addr = reinterpret_cast<struct sockaddr_in*>(&if_address.ifr_addr)->sin_addr;
+    }
+#endif
+
+    return addr;
 }
 
 }
@@ -833,9 +913,16 @@ IceInternal::setMcastGroup(SOCKET fd, const struct sockaddr_storage& group, cons
         mreq.imr_interface.s_addr = INADDR_ANY;
         if(interface.size() > 0)
         {
-            struct sockaddr_storage addr;
-            getAddressForServer(interface, 0, addr, EnableIPv4);
-            mreq.imr_interface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+            //
+            // First see if it is the interface name. If not check if IP Address.
+            //
+            mreq.imr_interface = getInterfaceAddress(interface);
+            if(mreq.imr_interface.s_addr == INADDR_ANY)
+            {
+                struct sockaddr_storage addr;
+                getAddressForServer(interface, 0, addr, EnableIPv4);
+                mreq.imr_interface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+            }
         }
         rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq)));
     }
@@ -843,13 +930,24 @@ IceInternal::setMcastGroup(SOCKET fd, const struct sockaddr_storage& group, cons
     {
         struct ipv6_mreq mreq;
         mreq.ipv6mr_multiaddr = reinterpret_cast<const struct sockaddr_in6*>(&group)->sin6_addr;
-        istringstream p(interface);
-        if(!(p >> mreq.ipv6mr_interface) || !p.eof())
+        mreq.ipv6mr_interface = 0;
+        if(interface.size() != 0)
         {
-            closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            //
+            // First check if it is the interface name. If not check if index.
+            //
+            mreq.ipv6mr_interface = getInterfaceIndex(interface);
+            if(mreq.ipv6mr_interface == 0)
+            {
+                istringstream p(interface);
+                if(!(p >> mreq.ipv6mr_interface) || !p.eof())
+                {
+                    closeSocketNoThrow(fd);
+                    SocketException ex(__FILE__, __LINE__);
+                    ex.error = 0;
+                    throw ex;
+                }
+            }
         }
         rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, int(sizeof(mreq)));
     }
@@ -868,14 +966,34 @@ IceInternal::setMcastInterface(SOCKET fd, const string& interface, bool IPv4)
     int rc;
     if(IPv4)
     {
-        struct sockaddr_storage addr;
-        getAddress(interface, 0, addr, EnableIPv4);
-        struct in_addr iface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+        //
+        // First see if it is the interface name. If not check if IP Address.
+        //
+        struct in_addr iface = getInterfaceAddress(interface);
+        if(iface.s_addr == INADDR_ANY)
+        {
+            struct sockaddr_storage addr;
+            getAddressForServer(interface, 0, addr, EnableIPv4);
+            iface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+        }
         rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&iface, int(sizeof(iface)));
     }
     else
     {
-        int interfaceNum = atoi(interface.c_str());
+        //
+        // First check if it is the interface name. If not check if index.
+        //
+        int interfaceNum = getInterfaceIndex(interface);
+        if(interfaceNum == 0)
+        {
+            istringstream p(interface);
+            if(!(p >> interfaceNum) || !p.eof())
+            {
+                closeSocketNoThrow(fd);
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = 0;
+            }
+        }
         rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&interfaceNum, int(sizeof(int)));
     }
     if(rc == SOCKET_ERROR)

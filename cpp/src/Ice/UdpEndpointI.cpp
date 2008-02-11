@@ -82,10 +82,27 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         if(argumentBeg != string::npos && str[argumentBeg] != '-')
         {
             beg = argumentBeg;
-            end = str.find_first_of(delim, beg);
-            if(end == string::npos)
+            if(str[beg] == '\"')
             {
-                end = str.length();
+                end = str.find_first_of('\"', beg + 1);
+                if(end == string::npos)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
+                else
+                {
+                    ++end;
+                }
+            }
+            else
+            {
+                end = str.find_first_of(delim, beg);
+                if(end == string::npos)
+                {
+                    end = str.length();
+                }
             }
             argument = str.substr(beg, end - beg);
             if(argument[0] == '\"' && argument[argument.size() - 1] == '\"')

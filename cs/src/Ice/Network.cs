@@ -441,7 +441,11 @@ namespace IceInternal
                     IPAddress ifaceAddr = IPAddress.Any;
                     if(iface.Length != 0)
                     {
-                        ifaceAddr = Network.getAddress(iface, 0, Network.EnableIPv4).Address;
+                        ifaceAddr = Network.getInterfaceAddress(iface);
+                        if(ifaceAddr == IPAddress.Any)
+                        {
+                            ifaceAddr = Network.getAddress(iface, 0, Network.EnableIPv4).Address;
+                        }
                     }
                     socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, 
                                            new MulticastOption(group, ifaceAddr));
@@ -451,12 +455,18 @@ namespace IceInternal
                     int ifaceIndex = 0;
                     if(iface.Length != 0)
                     {
-                        try
+                        ifaceIndex = getInterfaceIndex(iface);
+                        if(ifaceIndex == 0)
                         {
-                            ifaceIndex = System.Int32.Parse(iface);
-                        }
-                        catch(System.FormatException)
-                        {
+                            try
+                            {
+                                ifaceIndex = System.Int32.Parse(iface);
+                            }
+                            catch(System.FormatException ex)
+                            {
+                                closeSocketNoThrow(socket);
+                                throw new Ice.SocketException(ex);
+                            }
                         }
                     }
                     socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, 
@@ -1254,6 +1264,47 @@ namespace IceInternal
                 remoteEndpoint = null;
             }
             return remoteEndpoint;
+        }
+
+        private static int
+        getInterfaceIndex(string name)
+        {
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            foreach(NetworkInterface ni in nics)
+            {
+                if(ni.Name == name)
+                {
+                    IPInterfaceProperties ipProps = ni.GetIPProperties();
+                    IPv6InterfaceProperties ipv6Props = ipProps.GetIPv6Properties();
+                    if(ipv6Props != null)
+                    {
+                        return ipv6Props.Index;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        private static IPAddress
+        getInterfaceAddress(string name)
+        {
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            foreach(NetworkInterface ni in nics)
+            {
+                if(ni.Name == name)
+                {
+                    IPInterfaceProperties ipProps = ni.GetIPProperties();
+                    UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
+                    foreach(UnicastIPAddressInformation uni in uniColl)
+                    {
+                        if(uni.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            return uni.Address;
+                        }
+                    }
+                }
+            }
+            return IPAddress.Any;
         }
     }
 }
