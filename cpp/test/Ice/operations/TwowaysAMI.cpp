@@ -13,7 +13,7 @@
 #include <limits>
 
 //
-// Stupid Visual C++ defines min and max as macros :-(
+// Visual C++ defines min and max as macros
 //
 #ifdef min
 #   undef min
