@@ -331,7 +331,6 @@ Apache1 and Apache2:
    The required files from C:\Ice\bin are listed below:
 
    bzip2.dll
-   icecpp.exe
    ice@libver@.dll
    iceutil@libver@.dll
    msvcp60.dll
