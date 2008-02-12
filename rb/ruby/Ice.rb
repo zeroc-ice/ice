@@ -42,6 +42,14 @@ module Ice
         end
     end
 
+    class Object
+        include Object_mixin
+
+        def Object.ice_staticId()
+            '::Ice::Object'
+        end
+    end
+
     T_Object.defineClass(nil, true, nil, [], [])
     Object_mixin::ICE_TYPE = T_Object
 
