@@ -526,6 +526,15 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
         _out << nl << "return '" << scoped << "'";
         _out.dec();
+
+        //
+        // ice_staticId
+        //
+        _out << sp << nl << "def ice_staticId():";
+        _out.inc();
+        _out << nl << "return '" << scoped << "'";
+        _out.dec();
+        _out << nl << "ice_staticId = staticmethod(ice_staticId)";
     }
 
     if(!ops.empty())
