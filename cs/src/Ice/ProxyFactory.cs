@@ -209,11 +209,8 @@ namespace IceInternal
         {
             instance_ = instance;
             
-            string str = instance_.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
-            
-            char[] separators = { ' ', '\t', '\n', '\r' };
-            string[] arr = str.Trim().Split(separators);
-            
+            string[] arr = instance_.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
+
             if(arr.Length > 0)
             {
                 _retryIntervals = new int[arr.Length];

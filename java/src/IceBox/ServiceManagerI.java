@@ -280,16 +280,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
 
             //
-            // Parse the IceBox.LoadOrder property.
-            //
-            String order = properties.getProperty("IceBox.LoadOrder");
-            String[] loadOrder = null;
-            if(order.length() > 0)
-            {
-                loadOrder = order.trim().split("[,\t ]+");
-            }
-
-            //
             // Load and start the services defined in the property set
             // with the prefix "IceBox.Service.". These properties should
             // have the following format:
@@ -301,23 +291,21 @@ public class ServiceManagerI extends _ServiceManagerDisp
             //
             final String prefix = "IceBox.Service.";
             java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
-            if(loadOrder != null)
+            String[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
+            for(int i = 0; i < loadOrder.length; ++i)
             {
-                for(int i = 0; i < loadOrder.length; ++i)
+                if(loadOrder[i].length() > 0)
                 {
-                    if(loadOrder[i].length() > 0)
+                    String key = prefix + loadOrder[i];
+                    String value = services.get(key);
+                    if(value == null)
                     {
-                        String key = prefix + loadOrder[i];
-                        String value = services.get(key);
-                        if(value == null)
-                        {
-                            FailureException ex = new FailureException();
-                            ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
-                            throw ex;
-                        }
-                        load(loadOrder[i], value);
-                        services.remove(key);
+                        FailureException ex = new FailureException();
+                        ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
+                        throw ex;
                     }
+                    load(loadOrder[i], value);
+                    services.remove(key);
                 }
             }
             java.util.Iterator<java.util.Map.Entry<String, String> > p = services.entrySet().iterator();

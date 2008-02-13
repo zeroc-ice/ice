@@ -662,31 +662,26 @@ namespace IceSSL
         private SslProtocols parseProtocols(string property)
         {
             SslProtocols result = SslProtocols.Default;
-            string val = communicator().getProperties().getProperty(property);
-            if(val.Length > 0)
+            string[] arr = communicator().getProperties().getPropertyAsList(property);
+            if(arr.Length > 0)
             {
-                char[] delim = new char[] {',', ' '};
-                string[] arr = val.Split(delim, StringSplitOptions.RemoveEmptyEntries);
-                if(arr.Length > 0)
+                result = 0;
+                for(int i = 0; i < arr.Length; ++i)
                 {
-                    result = 0;
-                    for(int i = 0; i < arr.Length; ++i)
+                    string s = arr[i].ToLower();
+                    if(s.Equals("ssl3") || s.Equals("sslv3"))
                     {
-                        string s = arr[i].ToLower();
-                        if(s.Equals("ssl3") || s.Equals("sslv3"))
-                        {
-                            result |= SslProtocols.Ssl3;
-                        }
-                        else if(s.Equals("tls") || s.Equals("tls1") || s.Equals("tlsv1"))
-                        {
-                            result |= SslProtocols.Tls;
-                        }
-                        else
-                        {
-                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: unrecognized protocol `" + s + "'";
-                            throw e;
-                        }
+                        result |= SslProtocols.Ssl3;
+                    }
+                    else if(s.Equals("tls") || s.Equals("tls1") || s.Equals("tlsv1"))
+                    {
+                        result |= SslProtocols.Tls;
+                    }
+                    else
+                    {
+                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                        e.reason = "IceSSL: unrecognized protocol `" + s + "'";
+                        throw e;
                     }
                 }
             }

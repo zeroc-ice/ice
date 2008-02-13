@@ -11,6 +11,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Thread.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/SliceChecksums.h>
 #include <IceGrid/Parser.h>
@@ -99,7 +100,6 @@ public:
     Ice::CommunicatorPtr communicator() const { return _communicator; }
     const char* appName() const { return _appName; }
 
-    string trim(const string&);
     string getPassword(const string&);
 
 private:
@@ -380,7 +380,7 @@ Client::run(int argc, char* argv[])
                 {
                     cout << "user id: " << flush;
                     getline(cin, id);
-                    id = trim(id);
+                    id = IceUtilInternal::trim(id);
                 }
                 
                 if(password.empty())
@@ -486,7 +486,7 @@ Client::run(int argc, char* argv[])
                 {
                     cout << "user id: " << flush;
                     getline(cin, id);
-                    id = trim(id);
+                    id = IceUtilInternal::trim(id);
                 }
                 
                 if(password.empty())
@@ -615,18 +615,6 @@ Client::run(int argc, char* argv[])
 }
 
 string
-Client::trim(const string& s)
-{
-    static const string delims = "\t\r\n ";
-    string::size_type last = s.find_last_not_of(delims);
-    if(last != string::npos)
-    {
-        return s.substr(s.find_first_not_of(delims), last+1);
-    }
-    return s;
-}
-
-string
 Client::getPassword(const string& prompt)
 {
     cout << prompt << flush;
@@ -648,5 +636,5 @@ Client::getPassword(const string& prompt)
     }
 #endif
     cout << endl;
-    return trim(password);
+    return IceUtilInternal::trim(password);
 }

@@ -370,7 +370,7 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
 string
 IceUtilInternal::trim(const string& s)
 {
-    const string delim = " \t\r\n";
+    static const string delim = " \t\r\n";
     if(s.length() != 0)
     {
         string::size_type beg = s.find_first_not_of(delim);

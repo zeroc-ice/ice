@@ -357,30 +357,6 @@ IceBox::ServiceManagerI::start()
         }
 
         //
-        // Parse the IceBox.LoadOrder property.
-        //
-        string order = properties->getProperty("IceBox.LoadOrder");
-        StringSeq loadOrder;
-        if(!order.empty())
-        {
-            string::size_type beg = order.find_first_not_of(",\t ");
-            while(beg != string::npos)
-            {
-                string::size_type end = order.find_first_of(",\t ", beg);
-                if(end == string::npos)
-                {
-                    loadOrder.push_back(order.substr(beg));
-                    beg = end;
-                }
-                else
-                {
-                    loadOrder.push_back(order.substr(beg, end - beg));
-                    beg = order.find_first_not_of(",\t ", end);
-                }
-            }
-        }
-
-        //
         // Load and start the services defined in the property set
         // with the prefix "IceBox.Service.". These properties should
         // have the following format:
@@ -393,6 +369,7 @@ IceBox::ServiceManagerI::start()
         const string prefix = "IceBox.Service.";
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
         PropertyDict::iterator p;
+        StringSeq loadOrder = properties->getPropertyAsList("IceBox.LoadOrder");
         for(StringSeq::const_iterator q = loadOrder.begin(); q != loadOrder.end(); ++q)
         {
             p = services.find(prefix + *q);

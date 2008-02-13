@@ -321,17 +321,6 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
-            // Parse the LoadOrder property.
-            //
-            string order = properties.getProperty("IceBox.LoadOrder");
-            string[] loadOrder = null;
-            if(order.Length > 0)
-            {
-                char[] seperators = { ',', '\t', ' ' };
-                loadOrder = order.Trim().Split(seperators);
-            }
-
-            //
             // Load and start the services defined in the property set
             // with the prefix "Service.". These properties should
             // have the following format:
@@ -343,23 +332,21 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             string prefix = "IceBox.Service.";
             Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
-            if(loadOrder != null)
+            string[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
+            for(int i = 0; i < loadOrder.Length; ++i)
             {
-                for(int i = 0; i < loadOrder.Length; ++i)
+                if(loadOrder[i].Length > 0)
                 {
-                    if(loadOrder[i].Length > 0)
+                    string key = prefix + loadOrder[i];
+                    string value = services[key];
+                    if(value == null)
                     {
-                        string key = prefix + loadOrder[i];
-                        string value = services[key];
-                        if(value == null)
-                        {
-                            FailureException ex = new FailureException();
-                            ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
-                            throw ex;
-                        }
-                        load(loadOrder[i], value);
-                        services.Remove(key);
+                        FailureException ex = new FailureException();
+                        ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
+                        throw ex;
                     }
+                    load(loadOrder[i], value);
+                    services.Remove(key);
                 }
             }
 

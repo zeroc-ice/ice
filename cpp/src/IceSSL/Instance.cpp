@@ -146,7 +146,7 @@ IceSSL::Instance::initialize()
         // Select protocols.
         //
         {
-            string protocols = properties->getProperty(propPrefix + "Protocols");
+            StringSeq protocols = properties->getPropertyAsList(propPrefix + "Protocols");
             if(!protocols.empty())
             {
                 parseProtocols(protocols);
@@ -841,30 +841,12 @@ IceSSL::Instance::traceConnection(SSL* ssl, bool incoming)
 }
 
 void
-IceSSL::Instance::parseProtocols(const string& val)
+IceSSL::Instance::parseProtocols(const StringSeq& protocols)
 {
-    const string delim = ", ";
     bool sslv3 = false, tlsv1 = false;
-    string::size_type pos = 0;
-    while(pos != string::npos)
+    for(Ice::StringSeq::const_iterator p = protocols.begin(); p != protocols.end(); ++p)
     {
-        pos = val.find_first_not_of(delim, pos);
-        if(pos == string::npos)
-        {
-            break;
-        }
-
-        string prot;
-        string::size_type end = val.find_first_of(delim, pos);
-        if(end == string::npos)
-        {
-            prot = val.substr(pos);
-        }
-        else
-        {
-            prot = val.substr(pos, end - pos);
-        }
-        pos = end;
+        string prot = *p;
 
         if(prot == "ssl3" || prot == "sslv3")
         {
