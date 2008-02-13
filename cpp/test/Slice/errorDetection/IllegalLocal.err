@@ -11,8 +11,10 @@ IllegalLocal.ice:43: non-local class`c3' cannot contain local member `ls'
 IllegalLocal.ice:48: non-local struct`s1' cannot contain local member `ls'
 IllegalLocal.ice:53: non-local exception`e3' cannot contain local member `ls'
 IllegalLocal.ice:56: non-local sequence `los' cannot have local element type
+IllegalLocal.ice:59: warning: use of sequences in dictionary keys has been deprecated
 IllegalLocal.ice:59: non-local dictionary `d1' cannot have local key type
 IllegalLocal.ice:60: non-local dictionary `d2' cannot have local value type
+IllegalLocal.ice:61: warning: use of sequences in dictionary keys has been deprecated
 IllegalLocal.ice:61: non-local dictionary `d3' cannot have local key type
 IllegalLocal.ice:61: non-local dictionary `d3' cannot have local value type
 IllegalLocal.ice:66: non-local struct`s2' cannot contain local member `m'
