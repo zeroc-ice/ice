@@ -32,7 +32,7 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
             }
             catch(Ice.LocalException ex)
             {
-                cnt = proxy.__handleException(delegate, ex, cnt);
+                cnt = proxy.__handleException(delegate, ex, null, cnt);
             }
         }
         catch(Ice.LocalException ex)

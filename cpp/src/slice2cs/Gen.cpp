@@ -3256,16 +3256,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
         {
-            _out << nl << "cnt__ = handleExceptionWrapperRelaxed__(delBase__, ex__, cnt__);";
+            _out << nl << "handleExceptionWrapperRelaxed__(delBase__, ex__, null, ref cnt__);";
         }
         else
         {
-            _out << nl << "handleExceptionWrapper__(delBase__, ex__);";
+            _out << nl << "handleExceptionWrapper__(delBase__, ex__, null);";
         }
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";
         _out << sb;
-        _out << nl << "cnt__ = handleException__(delBase__, ex__, cnt__);";
+        _out << nl << "handleException__(delBase__, ex__, null, ref cnt__);";
         _out << eb;
         _out << eb;
 

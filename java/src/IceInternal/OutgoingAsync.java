@@ -241,7 +241,6 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         try
         {
             handleException(exc); // This will throw if the invocation can't be retried.
-            __send();
         }
         catch(Ice.LocalException ex)
         {
@@ -263,11 +262,42 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         try
         {
             handleException(ex); // This will throw if the invocation can't be retried.
-            __send();
         }
         catch(Ice.LocalException exc)
         {
             __exception(exc);
+        }
+    }
+
+    public final void
+    __send(int cnt)
+    {
+        //
+        // This method is called by the proxy to retry an invocation. It's safe to update
+        // the count here without synchronization, no other threads can access this object.
+        //
+        _cnt = cnt;
+        __send();
+    }
+
+    public final void
+    __send()
+    {
+        try
+        {
+            _sent = false;
+            _response = false;
+            _delegate = _proxy.__getDelegate(true);
+            _delegate.__getRequestHandler().sendAsyncRequest(this);
+            return;
+        }
+        catch(LocalExceptionWrapper ex)
+        {
+            handleException(ex);
+        }
+        catch(Ice.LocalException ex)
+        {
+            handleException(ex);
         }
     }
 
@@ -341,30 +371,6 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         __os.startWriteEncaps();
     }
 
-    protected final void
-    __send()
-    {
-        while(true)
-        {
-            try
-            {
-                _sent = false;
-                _response = false;
-                _delegate = _proxy.__getDelegate(true);
-                _delegate.__getRequestHandler().sendAsyncRequest(this);
-                return;
-            }
-            catch(LocalExceptionWrapper ex)
-            {
-                handleException(ex);
-            }
-            catch(Ice.LocalException ex)
-            {
-                handleException(ex);
-            }
-        }
-    }
-
     protected abstract void __response(boolean ok);
 
     protected void
@@ -388,11 +394,11 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
     {
         if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
         {
-            _cnt = _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, _cnt);
+            _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, this, _cnt);
         }
         else
         {
-            _proxy.__handleExceptionWrapper(_delegate, ex);
+            _proxy.__handleExceptionWrapper(_delegate, ex, this);
         }
     }
 
@@ -429,16 +435,16 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         {
             if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
             {
-                _cnt = _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, _cnt);
+                _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, this, _cnt);
             }
             else
             {
-                _proxy.__handleExceptionWrapper(_delegate, ex);
+                _proxy.__handleExceptionWrapper(_delegate, ex, this);
             }
         }
         catch(Ice.LocalException ex)
         {
-            _cnt = _proxy.__handleException(_delegate, ex, _cnt);
+            _proxy.__handleException(_delegate, ex, this, _cnt);
         }
     }
 

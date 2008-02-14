@@ -185,8 +185,8 @@ private:
         bool adopted;
     };
 
-    IceInternal::SocketStatus initialize();
-    IceInternal::SocketStatus validate();
+    IceInternal::SocketStatus initialize(int);
+    IceInternal::SocketStatus validate(int);
     bool send(int);
     bool sendMessage(OutgoingMessage&);
 

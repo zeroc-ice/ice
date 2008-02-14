@@ -343,7 +343,6 @@ namespace IceInternal
             try
             {
                 handleException(exc); // This will throw if the invocation can't be retried.
-                send__();
             }
             catch(Ice.LocalException ex)
             {
@@ -358,11 +357,29 @@ namespace IceInternal
             try
             {
                 handleException(ex); // This will throw if the invocation can't be retried.
-                send__();
             }
             catch(Ice.LocalException exc)
             {
                 exception__(exc);
+            }
+        }
+
+        public void send__()
+        {
+            try
+            {
+                _sent = false;
+                _response = false;
+                _delegate = _proxy.getDelegate__(true);
+                _delegate.getRequestHandler__().sendAsyncRequest(this);
+            }
+            catch(LocalExceptionWrapper ex)
+            {
+                handleException(ex);
+            }
+            catch(Ice.LocalException ex)
+            {
+                handleException(ex);
             }
         }
 
@@ -436,29 +453,6 @@ namespace IceInternal
             os__.startWriteEncaps();
         }
 
-        protected void send__()
-        {
-            while(true)
-            {
-                try
-                {
-                    _sent = false;
-                    _response = false;
-                    _delegate = _proxy.getDelegate__(true);
-                    _delegate.getRequestHandler__().sendAsyncRequest(this);
-                    return;
-                }
-                catch(LocalExceptionWrapper ex)
-                {
-                    handleException(ex);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    handleException(ex);
-                }
-            }
-        }
-
         protected abstract void response__(bool ok);
 
         protected void throwUserException__()
@@ -479,11 +473,11 @@ namespace IceInternal
         {
             if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
             {
-                _cnt = _proxy.handleExceptionWrapperRelaxed__(_delegate, ex, _cnt);
+                _proxy.handleExceptionWrapperRelaxed__(_delegate, ex, this, ref _cnt);
             }
             else
             {
-                _proxy.handleExceptionWrapper__(_delegate, ex);
+                _proxy.handleExceptionWrapper__(_delegate, ex, this);
             }
         }
 
@@ -517,16 +511,16 @@ namespace IceInternal
             {
                 if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
                 {
-                    _cnt = _proxy.handleExceptionWrapperRelaxed__(_delegate, ex, _cnt);
+                    _proxy.handleExceptionWrapperRelaxed__(_delegate, ex, this, ref _cnt);
                 }
                 else
                 {
-                    _proxy.handleExceptionWrapper__(_delegate, ex);
+                    _proxy.handleExceptionWrapper__(_delegate, ex, this);
                 }
             }
             catch(Ice.LocalException ex)
             {
-                _cnt = _proxy.handleException__(_delegate, ex, _cnt);
+                _proxy.handleException__(_delegate, ex, this, ref _cnt);
             }
         }
 
@@ -643,7 +637,7 @@ namespace Ice
                 }
                 catch(Ice.LocalException ex)
                 {
-                    cnt = proxy.handleException__(@delegate, ex, cnt);
+                    proxy.handleException__(@delegate, ex, null, ref cnt);
                 }
             }
             catch(Ice.LocalException ex)

@@ -166,11 +166,11 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(del__, ex__, cnt__);
+                    handleException__(del__, ex__, null, ref cnt__);
                 }
             }
         }
@@ -204,11 +204,11 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(del__, ex__, cnt__);
+                    handleException__(del__, ex__, null, ref cnt__);
                 }
             }
         }
@@ -241,11 +241,11 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(del__, ex__, cnt__);
+                    handleException__(del__, ex__, null, ref cnt__);
                 }
             }
         }
@@ -278,11 +278,11 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(del__, ex__, cnt__);
+                    handleException__(del__, ex__, null, ref cnt__);
                 }
             }
         }
@@ -319,16 +319,16 @@ namespace Ice
                 {
                     if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                     {
-                        cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
+                        handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
                     }
                     else
                     {
-                        handleExceptionWrapper__(del__, ex__);
+                        handleExceptionWrapper__(del__, ex__, null);
                     }
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(del__, ex__, cnt__);
+                    handleException__(del__, ex__, null, ref cnt__);
                 }
             }
         }
@@ -749,7 +749,7 @@ namespace Ice
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(del__, ex__, cnt__);
+                    handleException__(del__, ex__, null, ref cnt__);
                 }
             }
         }
@@ -792,7 +792,7 @@ namespace Ice
             }
             catch(LocalException ex__)
             {
-                cnt__ = handleException__(del__, ex__, cnt__);
+                handleException__(del__, ex__, null, ref cnt__);
             }
         }
 
@@ -874,7 +874,10 @@ namespace Ice
             }
         }
 
-        public int handleException__(ObjectDel_ @delegate, LocalException ex, int cnt)
+        public void handleException__(ObjectDel_ @delegate, 
+                                      LocalException ex, 
+                                      IceInternal.OutgoingAsync outAsync,
+                                      ref int cnt)
         {
             //
             // Only _delegate needs to be mutex protected here.
@@ -892,10 +895,10 @@ namespace Ice
                 throw ex;
             }
 
-            IceInternal.ProxyFactory proxyFactory;
+
             try
             {
-                proxyFactory = _reference.getInstance().proxyFactory();
+                _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, outAsync, ref cnt);
             }
             catch(CommunicatorDestroyedException)
             {
@@ -905,11 +908,10 @@ namespace Ice
                 //
                 throw ex;
             }
-
-            return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
         }
 
-        public void handleExceptionWrapper__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex)
+        public void handleExceptionWrapper__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex, 
+                                             IceInternal.OutgoingAsync outAsync)
         {
             lock(this)
             {
@@ -923,13 +925,19 @@ namespace Ice
             {
                 throw ex.get();
             }
+
+            if(outAsync != null)
+            {
+                outAsync.send__();
+            }
         }
 
-        public int handleExceptionWrapperRelaxed__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex, int cnt)
+        public void handleExceptionWrapperRelaxed__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex, 
+                                                    IceInternal.OutgoingAsync outAsync, ref int cnt)
         {
             if(!ex.retry())
             {
-                return handleException__(@delegate, ex.get(), cnt);
+                handleException__(@delegate, ex.get(), outAsync, ref cnt);
             }
             else
             {
@@ -940,7 +948,11 @@ namespace Ice
                         _delegate = null;
                     }
                 }
-                return cnt;
+
+                if(outAsync != null)
+                {
+                    outAsync.send__();
+                }
             }
         }
 
