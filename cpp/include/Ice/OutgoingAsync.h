@@ -79,10 +79,11 @@ public:
     void __finished(const Ice::LocalException&);
     void __finished(const LocalExceptionWrapper&);
 
+    void __send();
+
 protected:
 
     void __prepare(const Ice::ObjectPrx&, const std::string&, Ice::OperationMode, const Ice::Context*);
-    void __send();
 
     virtual void __response(bool) = 0;
     void __throwUserException();

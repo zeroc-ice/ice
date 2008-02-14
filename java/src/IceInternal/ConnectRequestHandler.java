@@ -429,7 +429,7 @@ public class ConnectRequestHandler
         {
             synchronized(this)
             {
-                assert(_exception != null && !_requests.isEmpty());
+                assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
                 _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
                     {
@@ -448,7 +448,7 @@ public class ConnectRequestHandler
         {
             synchronized(this)
             {
-                assert(_exception != null && !_requests.isEmpty());
+                assert(_exception == null && !_requests.isEmpty());
                 _exception = ex;
                 _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
                     {

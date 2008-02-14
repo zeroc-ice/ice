@@ -70,11 +70,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__del, __ex, __cnt);
+                __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
     }
@@ -111,11 +111,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__del, __ex, __cnt);
+                __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
     }
@@ -152,11 +152,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__del, __ex, __cnt);
+                __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
     }
@@ -193,11 +193,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__del, __ex, __cnt);
+                __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
     }
@@ -237,16 +237,16 @@ public class ObjectPrxHelperBase implements ObjectPrx
             {
                 if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                 {
-                    __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+                    __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt);
                 }
                 else
                 {
-                    __handleExceptionWrapper(__del, __ex);
+                    __handleExceptionWrapper(__del, __ex, null);
                 }
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__del, __ex, __cnt);
+                __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
     }
@@ -715,7 +715,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__del, __ex, __cnt);
+                __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
     }
@@ -760,7 +760,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         catch(LocalException __ex)
         {
-            __cnt = __handleException(__del, __ex, __cnt);
+            __cnt = __handleException(__del, __ex, null, __cnt);
         }
     }
 
@@ -853,7 +853,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final int
-    __handleException(_ObjectDel delegate, LocalException ex, int cnt)
+    __handleException(_ObjectDel delegate, LocalException ex, IceInternal.OutgoingAsync out, int cnt)
     {
         //
         // Only _delegate needs to be mutex protected here.
@@ -871,10 +871,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
             throw ex;
         }
 
-        IceInternal.ProxyFactory proxyFactory;
         try
         {
-            proxyFactory = _reference.getInstance().proxyFactory();
+            return _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, out, cnt);
         }
         catch(CommunicatorDestroyedException e)
         {
@@ -885,11 +884,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
             throw ex;
         }
 
-        return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
     }
 
     public final void
-    __handleExceptionWrapper(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex)
+    __handleExceptionWrapper(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex, IceInternal.OutgoingAsync out)
     {
         synchronized(this)
         {
@@ -903,14 +901,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
         {
             throw ex.get();
         }
+
+        if(out != null)
+        {
+            out.__send();
+        }
     }
 
     public final int
-    __handleExceptionWrapperRelaxed(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex, int cnt)
+    __handleExceptionWrapperRelaxed(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex, 
+                                    IceInternal.OutgoingAsync out, int cnt)
     {
         if(!ex.retry())
         {
-            return __handleException(delegate, ex.get(), cnt);
+            return __handleException(delegate, ex.get(), out, cnt);
         }
         else
         {
@@ -921,6 +925,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     _delegate = null;
                 }
             }
+
+            if(out != null)
+            {
+                out.__send(cnt);
+            }
+
             return cnt;
         }
     }

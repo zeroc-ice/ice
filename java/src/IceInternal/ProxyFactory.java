@@ -85,7 +85,7 @@ public final class ProxyFactory
     }
 
     public int
-    checkRetryAfterException(Ice.LocalException ex, Reference ref, int cnt)
+    checkRetryAfterException(Ice.LocalException ex, Reference ref, final OutgoingAsync out, int cnt)
     {
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.initializationData().logger;
@@ -128,6 +128,11 @@ public final class ProxyFactory
                 {
                     String s = "retrying operation call to add proxy to router\n" + ex.toString();
                     logger.trace(traceLevels.retryCat, s);
+                }
+
+                if(out != null)
+                {
+                    out.__send(cnt);
                 }
                 return cnt; // We must always retry, so we don't look at the retry count.
             }
@@ -200,17 +205,39 @@ public final class ProxyFactory
             logger.trace(traceLevels.retryCat, s);
         }
 
-        if(cnt > 0)
+        if(interval > 0)
         {
-            //
-            // Sleep before retrying.
-            //
-            try
+            if(out != null)
             {
-                Thread.currentThread().sleep(interval);
+                final int count = cnt;
+                _instance.timer().schedule(new TimerTask()
+                                           {
+                                               public void
+                                               runTimerTask()
+                                               {
+                                                   out.__send(count);
+                                               }
+                                           }, interval);
             }
-            catch(InterruptedException ex1)
+            else
             {
+                //
+                // Sleep before retrying.
+                //
+                try
+                {
+                    Thread.currentThread().sleep(interval);
+                }
+                catch(InterruptedException ex1)
+                {
+                }
+            }
+        }
+        else
+        {
+            if(out != null)
+            {
+                out.__send(cnt);
             }
         }
 

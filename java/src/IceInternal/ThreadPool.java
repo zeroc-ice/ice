@@ -589,10 +589,7 @@ public final class ThreadPool
                                     }
                                     catch(java.nio.channels.ClosedChannelException ex)
                                     {
-                                        //
-                                        // This is expected if the transceiver finishConnect() call failed 
-                                        // and the connection is a background connection.
-                                        //
+                                        assert(false);
                                     }
                                     _handlerMap.put(change.fd, new HandlerKeyPair(change.handler, key));
                                     
@@ -619,10 +616,7 @@ public final class ThreadPool
                                     assert(pair != null);
                                     handler = pair.handler;
                                     finished = true;
-                                    if(pair.key != null)
-                                    {
-                                        pair.key.cancel();
-                                    }
+                                    pair.key.cancel();
                                     
                                     if(TRACE_REGISTRATION)
                                     {
@@ -1155,7 +1149,7 @@ public final class ThreadPool
     select()
     {
         int ret = 0;
-
+        int spuriousWakeUp = 0;
         while(true)
         {
             try
@@ -1202,6 +1196,27 @@ public final class ThreadPool
             if(TRACE_SELECT)
             {
                 trace("select() returned " + ret + ", _keys.size() = " + _keys.size());
+            }
+
+            if(ret == 0 && _timeout <= 0)
+            {
+                //
+                // This is necessary to prevent a busy loop in case of a spurious wake-up which
+                // sometime occurs in the client thread pool when the communicator is destroyed.
+                // If there are too many successive spurious wake-ups, we log an error.
+                //
+                try
+                {
+                    Thread.currentThread().sleep(1);
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+                
+                if(++spuriousWakeUp > 100)
+                {
+                    _instance.initializationData().logger.error("spurious selector wake up in `" + _prefix + "'");
+                }
             }
 
             break;
