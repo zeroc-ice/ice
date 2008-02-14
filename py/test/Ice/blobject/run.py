@@ -24,6 +24,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 name = os.path.join("Ice", "blobject")
 

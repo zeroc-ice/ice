@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 name = os.path.join("Freeze", "evictor")
 testdir = os.path.dirname(os.path.abspath(__file__))

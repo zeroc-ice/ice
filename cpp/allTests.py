@@ -20,7 +20,6 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-
 #
 # List of all basic tests.
 #

@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 name = os.path.join("IceE", "facets")
 testdir = os.path.join(toplevel, "test", name)
