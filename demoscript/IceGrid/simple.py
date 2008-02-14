@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, demoscript
+import sys, demoscript, time
 
 def run(clientStr, desc = 'application'):
     print "cleaning databases...",
@@ -81,6 +81,8 @@ def run(clientStr, desc = 'application'):
 
     print "testing client...", 
     sys.stdout.flush()
+
+    admin.sendline('server start SimpleServer-1')
 
     client = demoscript.Util.spawn(clientStr)
     client.expect('==>')

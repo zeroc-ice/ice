@@ -79,6 +79,18 @@ libraries, and executables.
 - Add <Ice installation root directory>\bin
 
 
+Monotonic clock
+---------------
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
+
+
 Running IceGrid and Glacier2 components as services
 ---------------------------------------------------
 
@@ -319,7 +331,6 @@ Apache1 and Apache2:
    The required files from C:\Ice\bin are listed below:
 
    bzip2.dll
-   icecpp.exe
    ice@libver@.dll
    iceutil@libver@.dll
    msvcp60.dll

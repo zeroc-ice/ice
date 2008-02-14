@@ -143,43 +143,39 @@ public final class PluginManagerI implements PluginManager
         Properties properties = _communicator.getProperties();
         java.util.Map<String, String> plugins = properties.getPropertiesForPrefix(prefix);
 
-        final String loadOrder = properties.getProperty("Ice.PluginLoadOrder");
-        if(loadOrder.length() > 0)
+        final String[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
+        for(int i = 0; i < loadOrder.length; ++i)
         {
-            String[] names = loadOrder.split("[, \t\n]+");
-            for(int i = 0; i < names.length; ++i)
+            if(_plugins.containsKey(loadOrder[i]))
             {
-                if(_plugins.containsKey(names[i]))
-                {
-                    PluginInitializationException ex = new PluginInitializationException();
-                    ex.reason = "plugin `" + names[i] + "' already loaded";
-                    throw ex;
-                }
+                PluginInitializationException ex = new PluginInitializationException();
+                ex.reason = "plugin `" + loadOrder[i] + "' already loaded";
+                throw ex;
+            }
 
-                String key = "Ice.Plugin." + names[i] + ".java";
-                boolean hasKey = plugins.containsKey(key);
-                if(hasKey)
-                {
-                    plugins.remove("Ice.Plugin." + names[i]);
-                }
-                else
-                {
-                    key = "Ice.Plugin." + names[i];
-                    hasKey = plugins.containsKey(key);
-                }
-                
-                if(hasKey)
-                {
-                    final String value = (String)plugins.get(key);
-                    loadPlugin(names[i], value, cmdArgs);
-                    plugins.remove(key);
-                }
-                else
-                {
-                    PluginInitializationException ex = new PluginInitializationException();
-                    ex.reason = "plugin `" + names[i] + "' not defined";
-                    throw ex;
-                }
+            String key = "Ice.Plugin." + loadOrder[i] + ".java";
+            boolean hasKey = plugins.containsKey(key);
+            if(hasKey)
+            {
+                plugins.remove("Ice.Plugin." + loadOrder[i]);
+            }
+            else
+            {
+                key = "Ice.Plugin." + loadOrder[i];
+                hasKey = plugins.containsKey(key);
+            }
+            
+            if(hasKey)
+            {
+                final String value = (String)plugins.get(key);
+                loadPlugin(loadOrder[i], value, cmdArgs);
+                plugins.remove(key);
+            }
+            else
+            {
+                PluginInitializationException ex = new PluginInitializationException();
+                ex.reason = "plugin `" + loadOrder[i] + "' not defined";
+                throw ex;
             }
         }
 

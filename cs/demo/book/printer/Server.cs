@@ -8,6 +8,13 @@
 // **********************************************************************
 
 using System;
+using System.Reflection;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IcePrinterServer")]
+[assembly: AssemblyDescription("Ice printer demo server")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class PrinterI : Demo.PrinterDisp_
 {

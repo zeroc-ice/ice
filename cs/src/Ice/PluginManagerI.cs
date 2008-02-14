@@ -157,49 +157,44 @@ namespace Ice
             Properties properties = _communicator.getProperties();
             Dictionary<string, string> plugins = properties.getPropertiesForPrefix(prefix);
 
-            string loadOrder = properties.getProperty("Ice.PluginLoadOrder");
-            if(loadOrder.Length > 0)
+            string[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
+            for(int i = 0; i < loadOrder.Length; ++i)
             {
-                char[] delims = { ',', ' ', '\t', '\n' };
-                string[] names = loadOrder.Split(delims);
-                for(int i = 0; i < names.Length; ++i)
+                if(loadOrder[i].Length == 0)
                 {
-                    if(names[i].Length == 0)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if(_plugins.Contains(names[i]))
-                    {
-                        PluginInitializationException e = new PluginInitializationException();
-                        e.reason = "plugin `" + names[i] + "' already loaded";
-                        throw e;
-                    }
+                if(_plugins.Contains(loadOrder[i]))
+                {
+                    PluginInitializationException e = new PluginInitializationException();
+                    e.reason = "plugin `" + loadOrder[i] + "' already loaded";
+                    throw e;
+                }
 
-                    string key = "Ice.Plugin." + names[i] + ".clr";
-                    bool hasKey = plugins.ContainsKey(key);
-                    if(hasKey)
-                    {
-                        plugins.Remove("Ice.Plugin." + names[i]);
-                    }
-                    else
-                    {
-                        key = "Ice.Plugin." + names[i];
-                        hasKey = plugins.ContainsKey(key);
-                    }
+                string key = "Ice.Plugin." + loadOrder[i] + ".clr";
+                bool hasKey = plugins.ContainsKey(key);
+                if(hasKey)
+                {
+                    plugins.Remove("Ice.Plugin." + loadOrder[i]);
+                }
+                else
+                {
+                    key = "Ice.Plugin." + loadOrder[i];
+                    hasKey = plugins.ContainsKey(key);
+                }
 
-                    if(hasKey)
-                    {
-                        string value = plugins[key];
-                        loadPlugin(names[i], value, ref cmdArgs);
-                        plugins.Remove(key);
-                    }
-                    else
-                    {
-                        PluginInitializationException e = new PluginInitializationException();
-                        e.reason = "plugin `" + names[i] + "' not defined";
-                        throw e;
-                    }
+                if(hasKey)
+                {
+                    string value = plugins[key];
+                    loadPlugin(loadOrder[i], value, ref cmdArgs);
+                    plugins.Remove(key);
+                }
+                else
+                {
+                    PluginInitializationException e = new PluginInitializationException();
+                    e.reason = "plugin `" + loadOrder[i] + "' not defined";
+                    throw e;
                 }
             }
 

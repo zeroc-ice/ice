@@ -13,5 +13,12 @@ all:
 clean:
 	ant -emacs clean
 
-test::
+install::
+ifeq ($(prefix),)
+	ant -emacs install
+else
+	ant -emacs -Dprefix=$(prefix) install
+endif
+
+test:
 	@python ./allTests.py

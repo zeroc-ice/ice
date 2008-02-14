@@ -8,11 +8,19 @@
 // **********************************************************************
 
 using Test;
+using System;
 using System.Diagnostics;
+using System.Reflection;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceTest")]
+[assembly: AssemblyDescription("Ice test")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Collocated
 {
-    internal class TestClient : Ice.Application
+    internal class App : Ice.Application
     {
         public override int run(string[] args)
         {
@@ -34,7 +42,7 @@ public class Collocated
     {
         Debug.Listeners.Add(new ConsoleTraceListener());
 
-        TestClient app = new TestClient();
+        App app = new App();
         int result = app.main(args);
         if(result != 0)
         {

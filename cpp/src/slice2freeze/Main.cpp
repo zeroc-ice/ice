@@ -1003,10 +1003,15 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                     return false;
                 }
                 
-                if(!Dictionary::legalKeyType(valueType))
+                bool containsSequence = false;
+                if(!Dictionary::legalKeyType(valueType, containsSequence))
                 {
                     cerr << n << ": `" << dict.value << "' is not a valid index type" << endl;
                     return false; 
+                }
+                if(containsSequence)
+                {
+                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated" << endl;
                 }
 
 
@@ -1071,11 +1076,17 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                 
                 TypePtr dataMemberType = dataMember->type();
 
-                if(!Dictionary::legalKeyType(dataMemberType))
+                bool containsSequence = false;
+                if(!Dictionary::legalKeyType(dataMemberType, containsSequence))
                 {
                     cerr << n << ": `" << index.member << "' cannot be used as an index" << endl;
                     return false; 
                 }
+                if(containsSequence)
+                {
+                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated" << endl;
+                }
+
 
                 if(index.caseSensitive == false)
                 {

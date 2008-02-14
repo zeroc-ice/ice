@@ -4881,6 +4881,25 @@ Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
+    set<string> includes;
+    ClassList classes = p->classes();
+    for(ClassList::const_iterator q = classes.begin(); q != classes.end(); ++q)
+    {
+        ClassList bases = (*q)->bases();
+        for(ClassList::const_iterator r = bases.begin(); r != bases.end(); ++r)
+        {
+            if((*r)->isAbstract())
+            {
+                includes.insert((*r)->name());
+            }
+        }
+    }
+
+    for(set<string>::const_iterator it = includes.begin(); it != includes.end(); ++it)
+    {
+        H << nl << "#include <" << *it << "I.h>";
+    }
+    
     string name = fixKwd(p->name());
 
     H << sp << nl << "namespace " << name << nl << '{';
@@ -4911,13 +4930,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
     string cls = scope.substr(2) + name + "I";
     string classScopedAMD = scope + "AMD_" + name;
-
     ClassList bases = p->bases();
-    ClassDefPtr base;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        base = bases.front();
-    }
 
     H << sp;
     H << nl << "class " << name << "I : ";

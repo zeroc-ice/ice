@@ -97,12 +97,7 @@ private:
     friend class Cond;
 
 #ifdef _WIN32
-#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
     mutable CRITICAL_SECTION _mutex;
-#   else
-    mutable HANDLE _mutex;
-    mutable int _recursionCount;
-#   endif
 #else
     mutable pthread_mutex_t _mutex;
 #endif
@@ -113,8 +108,6 @@ private:
 //
 
 #ifdef _WIN32
-
-#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
 
 inline
 Mutex::Mutex()
@@ -168,93 +161,6 @@ Mutex::lock(LockState&) const
 {
     EnterCriticalSection(&_mutex);
 }
-
-#   else
-
-inline
-Mutex::Mutex() :
-    _recursionCount(0)
-{
-    _mutex = CreateMutex(0, false, 0);
-    if(_mutex == 0)
-    {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
-}
-
-inline
-Mutex::~Mutex()
-{
-    BOOL rc = CloseHandle(_mutex);
-    if(rc == 0)
-    {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
-}
-
-inline void
-Mutex::lock() const
-{
-    DWORD rc = WaitForSingleObject(_mutex, INFINITE);
-    if(rc != WAIT_OBJECT_0)
-    {
-        if(rc == WAIT_FAILED)
-        {
-            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-        }
-        else
-        {
-            throw ThreadSyscallException(__FILE__, __LINE__, 0);
-        }
-    }
-    _recursionCount++;
-}
-
-inline bool
-Mutex::tryLock() const
-{
-    DWORD rc = WaitForSingleObject(_mutex, 0);
-    if(rc != WAIT_OBJECT_0)
-    {
-        return false;
-    }
-    else if(_recursionCount == 1)
-    {
-        _recursionCount++;
-        unlock();
-        throw ThreadLockedException(__FILE__, __LINE__);
-    }
-    else
-    {
-        _recursionCount++;
-        return true;
-    }
-}
-
-inline void
-Mutex::unlock() const
-{
-    _recursionCount--;
-    BOOL rc = ReleaseMutex(_mutex);
-    if(rc == 0)
-    {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
-}
-
-inline void
-Mutex::unlock(LockState& state) const
-{
-    unlock();
-}
-
-inline void
-Mutex::lock(LockState&) const
-{
-    lock();
-}
-
-#   endif
 
 #else
 

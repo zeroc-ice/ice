@@ -339,15 +339,12 @@ public class RoutableReference extends Reference
     public synchronized int
     hashCode()
     {
-        if(_hashInitialized)
+        if(!_hashInitialized)
         {
-            return _hashValue;
-        }
-        super.hashCode();
-        int sz = _adapterId.length(); // Add hash of adapter ID to base hash.
-        for(int i = 0; i < sz; i++)
-        {   
-            _hashValue = 5 * _hashValue + (int)_adapterId.charAt(i);
+            super.hashCode(); // Initializes _hashValue.
+
+            // Add hash of adapter ID to base hash.
+            _hashValue = 5 * _hashValue + _adapterId.hashCode();
         }
         return _hashValue;
     }

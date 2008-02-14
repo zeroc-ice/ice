@@ -1,6 +1,18 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- Changed Ice.Exception to derive from System.Exception rather than
+  System.ApplicationException in accordance with Microsoft's
+  recommendations for writing custom exceptions.
+
+- The use of sequences (and structs containing sequences) as keys in
+  a Slice dictionary has been deprecated and will be removed in a
+  future release.
+
+- It is now possible to specify properties in a config file with
+  space, '#' or '=' in either the key or value string. It is necessary 
+  to escape '#' and '=' as '\#' and '\='.
+
 - The following APIs were deprecated in Ice 3.1 and have been
   removed:
 
@@ -26,7 +38,7 @@ Changes since version 3.2.1 (binary incompatible)
 - It is now possible for IceBox services to recursively start/stop
   other IceBox services from within service start/stop method. The
   Ice.Admin.ThreadPool.Size property much be set to a high enough
-  value to have enough threads to handle all the number of recursive 
+  value to have enough threads to handle the number of recursive 
   calls to startService/stopService.
 
 - Improved marshaling performance for Ice for .NET.

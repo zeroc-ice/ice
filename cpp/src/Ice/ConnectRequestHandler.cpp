@@ -100,14 +100,9 @@ ConnectRequestHandler::connect()
     _reference->getConnection(this);
 
     Lock sync(*this);
-    if(_exception.get())
+    if(initialized())
     {
-        _exception->ice_throw();
-        return 0; // Keep the compiler happy.
-    }
-    else if(_connection)
-    {
-        assert(_initialized);
+        assert(_connection);
         return new ConnectionRequestHandler(_reference, _connection, _compress);
     }
     else

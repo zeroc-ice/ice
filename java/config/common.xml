@@ -47,27 +47,16 @@
         <isset property="lint"/>
     </condition>
 
+    <!-- Default build suffix is empty. This can be defined by build
+         scripts to build the jars and classes file in other
+         directories than the default one. This is useful to build
+         both the Java2 and Java5 mapping with the same source tree.
+      --> 
+    <property name="build.suffix" value=""/>
+
     <!-- Commonly needed properties -->
-    <property name="class.dir" value="classes"/>
-    <property name="generated.dir" value="generated"/>
-
-    <!-- Check if proguard and jgoodies are available. -->
-    <condition property="hasProguard">
-	<available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
-    </condition>
-    <condition property="hasJGoodies">
-	<and>
-	    <available classname="com.jgoodies.looks.Options" classpath="${env.CLASSPATH}" />
-	    <available classname="com.jgoodies.forms.factories.Borders" classpath="${env.CLASSPATH}" />
-	</and>
-    </condition>
-    <condition property="hasProguardAndJGoodies">
-	<and>
-	    <isset property="hasProguard" />
-	    <isset property="hasJGoodies" />
-	</and>
-    </condition>
-
+    <property name="class.dir" value="classes${build.suffix}"/>
+    <property name="generated.dir" value="generated${build.suffix}"/>
 
     <!-- We use pathconvert to ensure that ice.top.dir is relative to the path of the build.xml
          file insead of the current working directory. -->

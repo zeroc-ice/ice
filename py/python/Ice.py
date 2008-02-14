@@ -57,6 +57,10 @@ class Object(object):
     def ice_id(self, current=None):
         return '::Ice::Object'
 
+    def ice_staticId():
+        return '::Ice::Object'
+    ice_staticId = staticmethod(ice_staticId)
+
     #
     # Do not define these here. They will be invoked if defined by a subclass.
     #

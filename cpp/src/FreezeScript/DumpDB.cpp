@@ -79,7 +79,11 @@ private:
 static void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] [dbenv [db]]\n";
+    cerr << "Usage:\n";
+    cerr << "\n";
+    cerr << n << " [options] dbenv db\n";
+    cerr << n << " -c dbenv [db]\n";
+    cerr << "\n";
     cerr <<
         "Options:\n"
         "-h, --help            Show this message.\n"

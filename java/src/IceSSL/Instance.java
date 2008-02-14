@@ -50,14 +50,13 @@ class Instance
         //
         // Select protocols.
         //
-        String protocols = properties.getProperty(prefix + "Protocols");
-        if(protocols.length() > 0)
+        String[] protocols = properties.getPropertyAsList(prefix + "Protocols");
+        if(protocols.length != 0)
         {
             java.util.ArrayList<String> l = new java.util.ArrayList<String>();
-            String[] arr = protocols.split("[ \t,]+");
-            for(int i = 0; i < arr.length; ++i)
+            for(int i = 0; i < protocols.length; ++i)
             {
-                String s = arr[i].toLowerCase();
+                String s = protocols[i].toLowerCase();
                 if(s.equals("ssl3") || s.equals("sslv3"))
                 {
                     l.add("SSLv3");
@@ -69,7 +68,7 @@ class Instance
                 else
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: unrecognized protocol `" + arr[i] + "'";
+                    e.reason = "IceSSL: unrecognized protocol `" + protocols[i] + "'";
                     throw e;
                 }
             }

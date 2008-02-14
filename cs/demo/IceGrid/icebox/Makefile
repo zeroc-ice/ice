@@ -32,4 +32,7 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 helloservice.dll: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,iceboxcs) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
+clean::
+	-rm -rf db/node/* db/registry/*
+
 include .depend

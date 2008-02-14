@@ -65,25 +65,12 @@ static const Node ExceptionNode =
                         ExceptionNames, &ExceptionParents[0]
                     };
 
-static const char* ApplicationExceptionNames[] =
-                    {
-                        0
-                    };
-static const Node* ApplicationExceptionParents[] =
-                    {
-                        &ExceptionNode, 0
-                    };
-static const Node ApplicationExceptionNode =
-                    {
-                        ApplicationExceptionNames, &ApplicationExceptionParents[0]
-                    };
-
 //
 // Must be kept in same order as definition of BaseType in header file!
 //
 static const Node* nodes[] =
                     {
-                        &ObjectNode, &ICloneableNode, &ExceptionNode, &ApplicationExceptionNode
+                        &ObjectNode, &ICloneableNode, &ExceptionNode
                     };
 
 static bool

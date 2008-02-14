@@ -19,12 +19,15 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 testdir = os.path.dirname(os.path.abspath(__file__))
 
 workqueue = os.path.join(testdir, "workqueue")
 
 print "starting workqueue...",
+if TestUtil.debug:
+    print "(" + workqueue + ")",
 workqueuePipe = os.popen(workqueue + " 2>&1")
 print "ok"
 

@@ -8,6 +8,13 @@
 // **********************************************************************
 
 using System;
+using System.Reflection;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceMinimalServer")]
+[assembly: AssemblyDescription("Ice minimal demo server")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Server
 {

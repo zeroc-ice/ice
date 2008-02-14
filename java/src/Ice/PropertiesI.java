@@ -130,7 +130,7 @@ public final class PropertiesI implements Properties
             result = pv.value;
         }
         
-        String[] arr = splitString(result, " \t\n");
+        String[] arr = splitString(result, ", \t\n");
         if(arr == null)
         {
             Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key 
@@ -431,47 +431,50 @@ public final class PropertiesI implements Properties
     {
         String s = line;
 
-        int hash = s.indexOf('#');
-        if(hash == 0)
+        //
+        // Remove comments and unescape #'s
+        //
+        int idx = 0;
+        while((idx = s.indexOf("#", idx)) != -1)
         {
-            return; // ignore comment lines
-        }
-        else if(hash != -1)
-        {
-            s = s.substring(0, hash);
-        }
-
-        s = s.trim();
-
-        final char[] arr = s.toCharArray();
-        int end = -1;
-        for(int i = 0; i < arr.length; i++)
-        {
-            if(arr[i] == ' ' || arr[i] == '\t' || arr[i] == '\r' || arr[i] == '\n' || arr[i] == '=')
+            if(idx == 0 || s.charAt(idx - 1) != '\\')
             {
-                end = i;
+                s = s.substring(0, idx);
                 break;
             }
+            ++idx;
         }
-        if(end == -1)
+        s = s.replace("\\#", "#");
+
+        //
+        // Split key/value and unescape ='s
+        //
+        int split = -1;
+        idx = 0;
+        while((idx = s.indexOf("=", idx)) != -1)
         {
+            if(idx == 0 || s.charAt(idx - 1) != '\\')
+            {
+                split = idx;
+                break;
+            }
+            ++idx;
+        }
+        if(split == 0 || split == -1)
+        {
+            s = s.trim();
+            if(s.length() != 0)
+            {
+                Ice.Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
+            }
             return;
         }
 
-        String key = s.substring(0, end);
+        String key = s.substring(0, split).trim();
+        String value = s.substring(split + 1, s.length()).trim();
 
-        end = s.indexOf('=', end);
-        if(end == -1)
-        {
-            return;
-        }
-        ++end;
-
-        String value = "";
-        if(end < s.length())
-        {
-            value = s.substring(end).trim();
-        }
+        key = key.replace("\\=", "=");
+        value = value.replace("\\=", "=");
 
         setProperty(key, value);
     }
@@ -490,6 +493,7 @@ public final class PropertiesI implements Properties
                 {
                     value = "";
                 }
+                setProperty("Ice.Config", value);
             }
             catch(SecurityException ex)
             {
@@ -498,13 +502,10 @@ public final class PropertiesI implements Properties
             }
         }
 
-        if(value.length() > 0)
+        String[] files = getPropertyAsList("Ice.Config");
+        for(int i = 0; i < files.length; i++)
         {
-            String[] files = value.split(",");
-            for(int i = 0; i < files.length; i++)
-            {
-                load(files[i]);
-            }
+            load(files[i]);
         }
 
         _properties.put("Ice.Config", new PropertyValue(value, true));

@@ -407,6 +407,12 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "class " << name;
         _out.inc();
         _out << nl << "include " << name << "_mixin";
+        _out << nl;
+        _out << nl << "def " << name << ".ice_staticId()";
+        _out.inc();
+        _out << nl << "'" << scoped << "'";
+        _out.dec();
+        _out << nl << "end";
         _out.dec();
         _out << nl << "end";
     }
@@ -422,6 +428,12 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out.inc();
         _out << nl << "include " << name << "_mixin";
+        _out << nl;
+        _out << nl << "def " << name << ".ice_staticId()";
+        _out.inc();
+        _out << nl << "'" << scoped << "'";
+        _out.dec();
+        _out << nl << "end";
 
         //
         // initialize

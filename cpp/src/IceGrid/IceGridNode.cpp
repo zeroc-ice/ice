@@ -9,6 +9,7 @@
 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Timer.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
@@ -83,7 +84,6 @@ protected:
 private:
 
     void usage(const std::string&);
-    string trim(const string&);
 
     ActivatorPtr _activator;
     IceUtil::TimerPtr _timer;
@@ -583,14 +583,14 @@ NodeService::start(int argc, char* argv[])
                 {
                     cout << "user id: " << flush;
                     getline(cin, id);
-                    id = trim(id);
+                    id = IceUtilInternal::trim(id);
                 }
                 
                 if(password.empty())
                 {
                     cout << "password: " << flush;
                     getline(cin, password);
-                    password = trim(password);
+                    password = IceUtilInternal::trim(password);
                 }
                 
                 session = registry->createAdminSession(id, password);
@@ -810,18 +810,6 @@ NodeService::usage(const string& appName)
     );
 #endif
     print("Usage: " + appName + " [options]\n" + options);
-}
-
-string
-NodeService::trim(const string& s)
-{
-    static const string delims = "\t\r\n ";
-    string::size_type last = s.find_last_not_of(delims);
-    if(last != string::npos)
-    {
-        return s.substr(s.find_first_not_of(delims), last+1);
-    }
-    return s;
 }
 
 int

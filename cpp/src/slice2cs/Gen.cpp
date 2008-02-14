@@ -1855,7 +1855,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                string name = fixId((*q)->name(), DotNet::ApplicationException, false);
+                string name = fixId((*q)->name(), DotNet::Exception, false);
                 _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
             }
             _out << eb;
@@ -1902,22 +1902,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "public override int GetHashCode()";
     _out << sb;
-    _out << nl << "int h__ = 0;";
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    if(p->base())
     {
-        string memberName = fixId((*q)->name(), DotNet::ApplicationException);
-        bool isValue = isValueType((*q)->type());
-        if(!isValue)
-        {
-            _out << nl << "if((object)" << memberName << " != null)";
-            _out << sb;
-        }
-        _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
-        if(!isValue)
-        {
-            _out << eb;
-        }
+        _out << nl << "int h__ = base.GetHashCode();";
     }
+    else
+    {
+        _out << nl << "int h__ = 0;";
+    }
+    writeMemberHashCode(dataMembers, DotNet::Exception);
     _out << nl << "return h__;";
     _out << eb;
 
@@ -1935,31 +1928,18 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    if(p->base())
     {
-        string memberName = fixId((*q)->name(), DotNet::ApplicationException);
-        bool isValue = isValueType((*q)->type());
-        if(!isValue)
-        {
-            _out << nl << "if(" << memberName << " == null)";
-            _out << sb;
-            _out << nl << "if(((" << name << ")other__)." << memberName << " != null)";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
-            _out << nl << "else";
-            _out << sb;
-        }
-        _out << nl << "if(!" << memberName << ".Equals(((" << name << ")other__)." << memberName << "))";
+        _out << nl << "if(!base.Equals(other__))";
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-        if(!isValue)
-        {
-            _out << eb;
-        }
     }
+    if(!dataMembers.empty())
+    {
+        _out << nl << name << " o__ = (" << name << ")other__;";
+    }
+    writeMemberEquals(dataMembers, DotNet::Exception);
     _out << nl << "return true;";
     _out << eb;
 
@@ -1993,7 +1973,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "os__.startWriteSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, DotNet::ApplicationException),
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, DotNet::Exception),
                                       true, false, false);
         }
         _out << nl << "os__.endWriteSlice();";
@@ -2045,7 +2025,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     _out << nl << "case " << memberCount << ":";
                     _out.inc();
                 }
-                string memberName = fixId((*q)->name(), DotNet::ApplicationException);
+                string memberName = fixId((*q)->name(), DotNet::Exception);
                 string memberType = typeToString((*q)->type());
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
                 ContainedPtr contained = ContainedPtr::dynamicCast((*q)->type());
@@ -2098,7 +2078,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     patchParams << ", " << classMemberCount++;
                 }
             }
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::ApplicationException),
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::Exception),
                                       false, false, false, patchParams.str());
         }
         _out << nl << "is__.endReadSlice();";
@@ -2116,7 +2096,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << nl << "outS__.startSlice();";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::ApplicationException),
+                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::Exception),
                                           true, true, false);
             }
             _out << nl << "outS__.endSlice();";
@@ -2146,7 +2126,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                         patchParams << ", " << classMemberCount++;
                     }
                 }
-                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::ApplicationException),
+                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::Exception),
                                           false, true, false, patchParams.str());
             }
             _out << nl << "inS__.endSlice();";
@@ -2301,21 +2281,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp << nl << "public override int GetHashCode()";
     _out << sb;
     _out << nl << "int h__ = 0;";
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-        bool isValue = isValueType((*q)->type());
-        if(!isValue)
-        {
-            _out << nl << "if(" << memberName << " != null)";
-            _out << sb;
-        }
-        _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
-        if(!isValue)
-        {
-            _out << eb;
-        }
-    }
+    writeMemberHashCode(dataMembers, isClass ? DotNet::ICloneable : 0);
     _out << nl << "return h__;";
     _out << eb;
 
@@ -2347,34 +2313,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         _out << nl << name << " o__ = (" << name << ")other__;";
     }
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-        if(!isValueType((*q)->type()))
-        {
-            _out << nl << "if(" << memberName << " == null)";
-            _out << sb;
-            _out << nl << "if(o__." << memberName << " != null)";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
-            _out << nl << "else";
-            _out << sb;
-            _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
-        }
-        else
-        {
-            _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-        }
-    }
+    writeMemberEquals(dataMembers, isClass ? DotNet::ICloneable : 0);
     _out << nl << "return true;";
     _out << eb;
 
@@ -2731,7 +2670,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     }
     else if(ExceptionPtr::dynamicCast(cont))
     {
-        baseTypes = DotNet::ApplicationException;
+        baseTypes = DotNet::Exception;
     }
     else if(ClassDefPtr::dynamicCast(cont))
     {
@@ -2794,6 +2733,168 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     _out << nl << dataMemberName << " = value;";
     _out << eb;
     _out << eb;
+}
+
+void
+Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers, int baseTypes)
+{
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name(), baseTypes);
+        TypePtr memberType = (*q)->type();
+        bool isValue = isValueType(memberType);
+        if(!isValue)
+        {
+            _out << nl << "if(" << memberName << " != null)";
+            _out << sb;
+        }
+        SequencePtr seq = SequencePtr::dynamicCast(memberType);
+        if(seq)
+        {
+            string genericType;
+            bool isGeneric = seq->findMetaData("clr:generic:", genericType);
+            bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
+            if(isArray)
+            {
+                //
+                // GetHashCode() for native arrays does not have value semantics.
+                //
+                _out << nl << "h__ = 5 * h__ + IceUtilInternal.Arrays.GetHashCode(" << memberName << ");";
+            }
+            else if(isGeneric)
+            {
+                //
+                // GetHashCode() for generic types does not have value semantics.
+                //
+                _out << nl << "h__ = 5 * h__ + IceUtilInternal.Collections.SequenceGetHashCode(" << memberName << ");";
+            }
+            else
+            {
+                //
+                // GetHashCode() for CollectionBase has value semantics.
+                //
+                _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
+            }
+        }
+        else
+        {
+            DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
+            if(dict)
+            {
+                if(dict->hasMetaData("clr:collection"))
+                {
+                    //
+                    // GetHashCode() for DictionaryBase has value semantics.
+                    //
+                    _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
+                }
+                else
+                {
+                    //
+                    // GetHashCode() for generic types does not have value semantics.
+                    //
+                    _out << nl << "h__ = 5 * h__ + IceUtilInternal.Collections.DictionaryGetHashCode(" << memberName
+                         << ");";
+                }
+            }
+            else
+            {
+                _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
+            }
+        }
+        if(!isValue)
+        {
+            _out << eb;
+        }
+    }
+}
+
+void
+Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, int baseTypes)
+{
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name(), baseTypes);
+        TypePtr memberType = (*q)->type();
+        if(!isValueType(memberType))
+        {
+            _out << nl << "if(" << memberName << " == null)";
+            _out << sb;
+            _out << nl << "if(o__." << memberName << " != null)";
+            _out << sb;
+            _out << nl << "return false;";
+            _out << eb;
+            _out << eb;
+            _out << nl << "else";
+            _out << sb;
+            SequencePtr seq = SequencePtr::dynamicCast(memberType);
+            if(seq)
+            {
+                string genericType;
+                bool isGeneric = seq->findMetaData("clr:generic:", genericType);
+                bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
+                if(isArray)
+                {
+                    //
+                    // Equals() for native arrays does not have value semantics.
+                    //
+                    _out << nl << "if(!IceUtilInternal.Arrays.Equals(" << memberName << ", o__." << memberName << "))";
+                }
+                else if(isGeneric)
+                {
+                    //
+                    // Equals() for generic types does not have value semantics.
+                    //
+                    _out << nl << "if(!IceUtilInternal.Collections.SequenceEquals(" << memberName << ", o__."
+                         << memberName << "))";
+                }
+                else
+                {
+                    //
+                    // Equals() for CollectionBase has value semantics.
+                    //
+                    _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
+                }
+            }
+            else
+            {
+                DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
+                if(dict)
+                {
+                    if(dict->hasMetaData("clr:collection"))
+                    {
+                        //
+                        // Equals() for DictionaryBase has value semantics.
+                        //
+                        _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
+                    }
+                    else
+                    {
+                        //
+                        // Equals() for generic types does not have value semantics.
+                        //
+                        _out << nl << "if(!IceUtilInternal.Collections.DictionaryEquals(" << memberName << ", o__."
+                             << memberName << "))";
+                    }
+                }
+                else
+                {
+                    _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
+                }
+            }
+            _out << sb;
+            _out << nl << "return false;";
+            _out << eb;
+            _out << eb;
+        }
+        else
+        {
+            _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
+            _out << sb;
+            _out << nl << "return false;";
+            _out << eb;
+        }
+    }
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out)

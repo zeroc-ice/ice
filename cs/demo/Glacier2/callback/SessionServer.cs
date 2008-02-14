@@ -8,38 +8,50 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
-public class SessionServer : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("Glacier2CallbackSessionServer")]
+[assembly: AssemblyDescription("Glacier2 callback demo session server")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class SessionServer
 {
-    sealed class DummyPermissionVerifierI : Glacier2.PermissionsVerifierDisp_
+    public class App : Ice.Application
     {
-        public override bool checkPermissions(String userId, String password, out string reason, Ice.Current current)
+        sealed class DummyPermissionVerifierI : Glacier2.PermissionsVerifierDisp_
         {
-            reason = null;
-            Console.WriteLine("verified user `" + userId + "' with password `" + password + "'");
-            return true;
-        }
-    };
-
-    public override int run(string[] args)
-    {
-        if(args.Length > 0)
-        {
-            Console.Error.WriteLine(appName() + ": too many arguments");
-            return 1;
+            public override bool checkPermissions(String userId, String password, out string reason,
+                                                  Ice.Current current)
+            {
+                reason = null;
+                Console.WriteLine("verified user `" + userId + "' with password `" + password + "'");
+                return true;
+            }
         }
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
-        adapter.add(new DummyPermissionVerifierI(), communicator().stringToIdentity("verifier"));
-        adapter.add(new SessionManagerI(), communicator().stringToIdentity("sessionmanager"));
-        adapter.activate();
-        communicator().waitForShutdown();
-        return 0;
+        public override int run(string[] args)
+        {
+            if(args.Length > 0)
+            {
+                Console.Error.WriteLine(appName() + ": too many arguments");
+                return 1;
+            }
+
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
+            adapter.add(new DummyPermissionVerifierI(), communicator().stringToIdentity("verifier"));
+            adapter.add(new SessionManagerI(), communicator().stringToIdentity("sessionmanager"));
+            adapter.activate();
+            communicator().waitForShutdown();
+            return 0;
+        }
     }
 
     public static void Main(string[] args)
     {
-        SessionServer app = new SessionServer();
+        App app = new App();
         int status = app.main(args, "config.sessionserver");
         if(status != 0)
         {

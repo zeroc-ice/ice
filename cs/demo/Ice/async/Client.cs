@@ -7,110 +7,120 @@
 //
 // **********************************************************************
 
-using System;
 using Demo;
+using System;
+using System.Reflection;
 
-public class Client : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceAsyncClient")]
+[assembly: AssemblyDescription("Ice async demo client")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Client
 {
-    public class AMI_Hello_sayHelloI : AMI_Hello_sayHello
+    public class App : Ice.Application
     {
-        public override void ice_response()
+        public class AMI_Hello_sayHelloI : AMI_Hello_sayHello
         {
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            if(ex is RequestCanceledException)
+            public override void ice_response()
             {
-                Console.Error.WriteLine("RequestCanceledException");
             }
-            else
+
+            public override void ice_exception(Ice.Exception ex)
             {
-                Console.Error.WriteLine("sayHello AMI call failed:");
-                Console.Error.WriteLine(ex);
-            }
-        }
-    }
-
-    private static void menu()
-    {
-        Console.Out.WriteLine(
-            "usage:\n" +
-            "i: send immediate greeting\n" +
-            "d: send delayed greeting\n" +
-            "s: shutdown server\n" +
-            "x: exit\n" +
-            "?: help\n");
-    }
-
-    public override int run(string[] args)
-    {
-        if(args.Length > 0)
-        {
-            Console.Error.WriteLine(appName() + ": too many arguments");
-            return 1;
-        }
-
-        HelloPrx hello = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
-        if(hello == null)
-        {
-            Console.Error.WriteLine("invalid proxy");
-            return 1;
-        }
-
-        menu();
-
-        string line = null;
-        do
-        {
-            try
-            {
-                Console.Out.Write("==> ");
-                Console.Out.Flush();
-                line = Console.In.ReadLine();
-                if(line == null)
+                if(ex is RequestCanceledException)
                 {
-                    break;
-                }
-                if(line.Equals("i"))
-                {
-                    hello.sayHello(0);
-                }
-                else if(line.Equals("d"))
-                {
-                    hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000);
-                }
-                else if(line.Equals("s"))
-                {
-                    hello.shutdown();
-                }
-                else if(line.Equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.Equals("?"))
-                {
-                    menu();
+                    Console.Error.WriteLine("RequestCanceledException");
                 }
                 else
                 {
-                    Console.Out.WriteLine("unknown command `" + line + "'");
-                    menu();
+                    Console.Error.WriteLine("sayHello AMI call failed:");
+                    Console.Error.WriteLine(ex);
                 }
             }
-            catch(Ice.Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-            }
         }
-        while(!line.Equals("x"));
 
-        return 0;
+        private static void menu()
+        {
+            Console.Out.WriteLine(
+                "usage:\n" +
+                "i: send immediate greeting\n" +
+                "d: send delayed greeting\n" +
+                "s: shutdown server\n" +
+                "x: exit\n" +
+                "?: help\n");
+        }
+
+        public override int run(string[] args)
+        {
+            if(args.Length > 0)
+            {
+                Console.Error.WriteLine(appName() + ": too many arguments");
+                return 1;
+            }
+
+            HelloPrx hello = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
+            if(hello == null)
+            {
+                Console.Error.WriteLine("invalid proxy");
+                return 1;
+            }
+
+            menu();
+
+            string line = null;
+            do
+            {
+                try
+                {
+                    Console.Out.Write("==> ");
+                    Console.Out.Flush();
+                    line = Console.In.ReadLine();
+                    if(line == null)
+                    {
+                        break;
+                    }
+                    if(line.Equals("i"))
+                    {
+                        hello.sayHello(0);
+                    }
+                    else if(line.Equals("d"))
+                    {
+                        hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000);
+                    }
+                    else if(line.Equals("s"))
+                    {
+                        hello.shutdown();
+                    }
+                    else if(line.Equals("x"))
+                    {
+                        // Nothing to do
+                    }
+                    else if(line.Equals("?"))
+                    {
+                        menu();
+                    }
+                    else
+                    {
+                        Console.Out.WriteLine("unknown command `" + line + "'");
+                        menu();
+                    }
+                }
+                catch(Ice.Exception ex)
+                {
+                    Console.Error.WriteLine(ex);
+                }
+            }
+            while(!line.Equals("x"));
+
+            return 0;
+        }
     }
 
     public static void Main(string[] args)
     {
-        Client app = new Client();
+        App app = new App();
         int status = app.main(args, "config.client");
         if(status != 0)
         {

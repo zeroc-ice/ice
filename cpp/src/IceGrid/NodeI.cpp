@@ -228,65 +228,45 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     //
     // Parse the properties override property.
     //
-    string overrides = props->getProperty("IceGrid.Node.PropertiesOverride");
-    Ice::StringSeq propsAsArgs;
-    if(!overrides.empty())
+    Ice::StringSeq overrides = props->getPropertyAsList("IceGrid.Node.PropertiesOverride");
+    for(Ice::StringSeq::const_iterator p = overrides.begin(); p != overrides.end(); ++p)
     {
-        string::size_type end = 0;
-        while(end != string::npos)
+        string arg = *p;
+
+        const string delim = " \t\r\n";
+
+        if(arg.find("--") == 0)
         {
-            const string delim = " \t\r\n";
-                
-            string::size_type beg = overrides.find_first_not_of(delim, end);
-            if(beg == string::npos)
-            {
-                break;
-            }
-                
-            end = overrides.find_first_of(delim, beg);
-            string arg;
-            if(end == string::npos)
-            {
-                arg = overrides.substr(beg);
-            }
-            else
-            {
-                arg = overrides.substr(beg, end - beg);
-            }
-
-            if(arg.find("--") == 0)
-            {
-                arg = arg.substr(2);
-            }
-
-            //
-            // Extract the key/value
-            //
-            string::size_type argEnd = arg.find_first_of(delim + "=");
-            if(argEnd == string::npos)
-            {
-                continue;
-            }
-            
-            string key = arg.substr(0, argEnd);
-            
-            argEnd = arg.find('=', argEnd);
-            if(argEnd == string::npos)
-            {
-                return;
-            }
-            ++argEnd;
-            
-            string value;
-            string::size_type argBeg = arg.find_first_not_of(delim, argEnd);
-            if(argBeg != string::npos)
-            {
-                argEnd = arg.length();
-                value = arg.substr(argBeg, argEnd - argBeg);
-            }
-
-            _propertiesOverride.push_back(createProperty(key, value));
+            arg = arg.substr(2);
         }
+
+        //
+        // Extract the key/value
+        //
+        string::size_type argEnd = arg.find_first_of(delim + "=");
+        if(argEnd == string::npos)
+        {
+            continue;
+        }
+        
+        string key = arg.substr(0, argEnd);
+        
+        argEnd = arg.find('=', argEnd);
+        if(argEnd == string::npos)
+        {
+            return;
+        }
+        ++argEnd;
+        
+        string value;
+        string::size_type argBeg = arg.find_first_not_of(delim, argEnd);
+        if(argBeg != string::npos)
+        {
+            argEnd = arg.length();
+            value = arg.substr(argBeg, argEnd - argBeg);
+        }
+
+        _propertiesOverride.push_back(createProperty(key, value));
     }
 }
 

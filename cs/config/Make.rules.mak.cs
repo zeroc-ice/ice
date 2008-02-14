@@ -73,7 +73,6 @@ bindir			= $(ice_dir)\bin
 
 install_bindir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib
-install_slicedir	= $(prefix)\slice
 
 !if "$(no_gac)" != ""
 NOGAC			= $(no_gac)

@@ -13,31 +13,12 @@ include $(top_srcdir)/config/Make.rules.cs
 
 SUBDIRS		= config src test demo
 
-install::
-	@if test ! -d $(prefix) ; \
-	then \
-	    echo "Creating $(prefix)..." ; \
-	    $(call mkdir,$(prefix)) ; \
-	fi
-
+install:: install-common
 	@if test ! -d $(install_bindir) ; \
 	then \
 	    echo "Creating $(install_bindir)..." ; \
 	    $(call mkdir,$(install_bindir)) ; \
 	fi
-
-	@if test ! -d $(install_slicedir) ; \
-	then \
-	    echo "Creating $(install_slicedir)..." ; \
-	    $(call mkdir,$(install_slicedir)) ; \
-	fi
-
-	cd ../slice ; \
-	for subdir in * ; \
-	do \
-	    echo "Copying slice/$$subdir to $(install_slicedir)..." ; \
-	    cp -fpr $$subdir $(install_slicedir) ; \
-	done ; \
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

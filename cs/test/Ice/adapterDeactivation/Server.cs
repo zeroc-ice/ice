@@ -7,11 +7,19 @@
 //
 // **********************************************************************
 
+using System;
 using System.Diagnostics;
+using System.Reflection;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceTest")]
+[assembly: AssemblyDescription("Ice test")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Server
 {
-    internal class TestServer : Ice.Application
+    internal class App : Ice.Application
     {
         public override int run(string[] args)
         {
@@ -29,7 +37,7 @@ public class Server
     {
         Debug.Listeners.Add(new ConsoleTraceListener());
 
-        TestServer app = new TestServer();
+        App app = new App();
         int result = app.main(args);
         if(result != 0)
         {

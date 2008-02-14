@@ -88,7 +88,7 @@ MT = mt.exe
 ice_language     = cpp
 !if !exist ($(top_srcdir)\..\cpp)
 # Don't check for slice2cpp in ICE_HOME if building the source distribution
-slice_translator = slice2cpp
+slice_translator = slice2cpp.exe
 !endif
 
 !if exist ($(top_srcdir)\..\config\Make.common.rules)
@@ -109,8 +109,6 @@ includedir		= $(ice_dir)\include
 
 install_bindir		= $(prefix)\bin
 install_includedir	= $(prefix)\include
-install_slicedir	= $(prefix)\slice
-install_schemadir	= $(prefix)\schema
 install_docdir		= $(prefix)\doc
 install_libdir	  	= $(prefix)\lib
 libsubdir	  	= lib

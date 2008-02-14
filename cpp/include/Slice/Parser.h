@@ -773,7 +773,7 @@ public:
     virtual void visit(ParserVisitor*, bool);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
-    static bool legalKeyType(const TypePtr&);
+    static bool legalKeyType(const TypePtr&, bool&);
 
 protected:
 

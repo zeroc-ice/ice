@@ -12,36 +12,39 @@ using System;
 namespace IceBox
 {
 
-public class Server : Ice.Application
+public class Server
 {
-    private static void usage()
+    public class App : Ice.Application
     {
-        Console.Error.WriteLine("Usage: iceboxnet [options] --Ice.Config=<file>\n");
-        Console.Error.WriteLine(
-            "Options:\n" +
-            "-h, --help           Show this message.\n"
-        );
-    }
-
-    public override int run(string[] args)
-    {
-        for(int i = 0; i < args.Length; ++i)
+        private static void usage()
         {
-            if(args[i].Equals("-h") || args[i].Equals("--help"))
-            {
-                usage();
-                return 0;
-            }
-            else if(!args[i].StartsWith("--"))
-            {
-                Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
-                usage();
-                return 1;
-            }
+            Console.Error.WriteLine("Usage: iceboxnet [options] --Ice.Config=<file>\n");
+            Console.Error.WriteLine(
+                "Options:\n" +
+                "-h, --help           Show this message.\n"
+            );
         }
 
-        ServiceManagerI serviceManagerImpl = new ServiceManagerI(args);
-        return serviceManagerImpl.run();
+        public override int run(string[] args)
+        {
+            for(int i = 0; i < args.Length; ++i)
+            {
+                if(args[i].Equals("-h") || args[i].Equals("--help"))
+                {
+                    usage();
+                    return 0;
+                }
+                else if(!args[i].StartsWith("--"))
+                {
+                    Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
+                    usage();
+                    return 1;
+                }
+            }
+
+            ServiceManagerI serviceManagerImpl = new ServiceManagerI(args);
+            return serviceManagerImpl.run();
+        }
     }
 
     public static void Main(string[] args)
@@ -50,7 +53,7 @@ public class Server : Ice.Application
         initData.properties = Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
-        Server server = new Server();
+        App server = new App();
         int status = server.main(args, initData);
         if(status != 0)
         {

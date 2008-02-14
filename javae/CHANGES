@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- The use of sequences (and structs containing sequences) as valid 
+  dictionary keys has been deprecated and will be removed in a future
+  release.
+
 - The property Ice.Trace.Location has been replaced by new property
   Ice.Trace.Locator.
 

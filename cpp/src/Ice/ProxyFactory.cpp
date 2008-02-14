@@ -223,53 +223,33 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
     _instance(instance)
 {
-    string str = _instance->initializationData().properties->getPropertyWithDefault("Ice.RetryIntervals", "0");
-
-    string::size_type beg;
-    string::size_type end = 0;
-
-    while(true)
+    StringSeq retryValues = _instance->initializationData().properties->getPropertyAsList("Ice.RetryIntervals");
+    if(retryValues.size() == 0)
     {
-        const string delim = " \t";
-    
-        beg = str.find_first_not_of(delim, end);
-        if(beg == string::npos)
+        _retryIntervals.push_back(0);
+    }
+    else
+    {
+        for(StringSeq::const_iterator p = retryValues.begin(); p != retryValues.end(); ++p)
         {
-            if(_retryIntervals.empty())
+            istringstream value(*p);
+
+            int v;
+            if(!(value >> v) || !value.eof())
             {
-                _retryIntervals.push_back(0);
+                v = 0;
             }
-            break;
-        }
 
-        end = str.find_first_of(delim, beg);
-        if(end == string::npos)
-        {
-            end = str.length();
-        }
-        
-        if(beg == end)
-        {
-            break;
-        }
+            //
+            // If -1 is the first value, no retry and wait intervals.
+            //
+            if(v == -1 && _retryIntervals.empty())
+            {
+                break;
+            }
 
-        istringstream value(str.substr(beg, end - beg));
-
-        int v;
-        if(!(value >> v) || !value.eof())
-        {
-            v = 0;
+            _retryIntervals.push_back(v > 0 ? v : 0);
         }
-
-        //
-        // If -1 is the first value, no retry and wait intervals.
-        //
-        if(v == -1 && _retryIntervals.empty())
-        {
-            break;
-        }
-
-        _retryIntervals.push_back(v > 0 ? v : 0);
     }
 }
 

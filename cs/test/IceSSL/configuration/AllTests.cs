@@ -111,7 +111,7 @@ public class AllTests
         {
             Console.Out.WriteLine("This test requires administrator privileges.");
             factory.shutdown();
-            return factory;
+            return null;
         }
 
         try

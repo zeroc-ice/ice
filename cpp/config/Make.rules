@@ -95,12 +95,6 @@ USE_READLINE		?= no
 #MCPP_HOME		?= /opt/mcpp
 
 #
-# Define if your OpenSSL requires Kerberos, and if Kerberos is not
-# installed in a standard location
-#
-KERBEROS_HOME           ?= /usr/kerberos
-
-#
 # If readline is not installed in a standard location where the
 # compiler can find it, AND you want to use readline, set
 # READLINE_HOME to the readline installation directory.
@@ -133,8 +127,6 @@ else
 endif
 
 install_includedir	= $(prefix)/include
-install_slicedir	= $(prefix)/slice
-install_schemadir	= $(prefix)/schema
 install_docdir		= $(prefix)/doc
 ifdef ice_src_dist
     bindir		= $(top_srcdir)/bin
@@ -162,7 +154,8 @@ else
 endif
 
 ifneq ($(embedded_runpath_prefix),)
-   runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+    create_runpath_symlink ?= yes
 endif
 
 ifneq ($(STLPORT_HOME),)
@@ -190,9 +183,9 @@ ifneq ($(DB_HOME),)
    DB_LIBS              = -L$(DB_HOME)/$(libsubdir) -ldb_cxx
    DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir))
 else
-   ifeq ($(shell if [ -d /usr/include/db45 -a -d /usr/$(libsubdir)/db45 ] ; then echo yes; fi), yes)
-      DB_FLAGS          = -I/usr/include/db45
-      DB_LIBS           = -L/usr/$(libsubdir)/db45 -ldb_cxx
+   ifeq ($(shell if [ -d /usr/include/db46 -a -d /usr/$(libsubdir)/db46 ] ; then echo yes; fi), yes)
+      DB_FLAGS          = -I/usr/include/db46
+      DB_LIBS           = -L/usr/$(libsubdir)/db46 -ldb_cxx
    else
       DB_LIBS           = -ldb_cxx
    endif

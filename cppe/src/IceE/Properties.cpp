@@ -291,49 +291,51 @@ Ice::Properties::parseLine(const string& line
 #endif
         )
 {
-    const string delim = " \t\r\n";
     string s = line;
-    
-    string::size_type idx = s.find('#');
-    if(idx != string::npos)
-    {
-	s.erase(idx);
-    }
-    
-    idx = s.find_last_not_of(delim);
-    if(idx != string::npos && idx + 1 < s.length())
-    {
-	s.erase(idx + 1);
-    }
-    
-    string::size_type beg = s.find_first_not_of(delim);
-    if(beg == string::npos)
-    {
-	return;
-    }
-    
-    string::size_type end = s.find_first_of(delim + "=", beg);
-    if(end == string::npos)
-    {
-	return;
-    }
-    
-    string key = s.substr(beg, end - beg);
-    
-    end = s.find('=', end);
-    if(end == string::npos)
-    {
-	return;
-    }
-    ++end;
 
-    string value;
-    beg = s.find_first_not_of(delim, end);
-    if(beg != string::npos)
+    //
+    // Remove comments and unescape #'s
+    //
+    string::size_type idx = 0;
+    while((idx = s.find("#", idx)) != string::npos)
     {
-	end = s.length();
-	value = s.substr(beg, end - beg);
+        if(idx != 0 && s[idx - 1] == '\\')
+        {
+            s.erase(idx - 1, 1);
+            ++idx;
+        }
+        else
+        {
+            s.erase(idx);
+            break;
+        }
     }
+
+    //
+    // Split key/value and unescape ='s
+    //
+    string::size_type split = string::npos;
+    idx = 0;
+    while((idx = s.find("=", idx)) != string::npos)
+    {
+        if(idx != 0 && s[idx - 1] == '\\')
+        {
+            s.erase(idx - 1, 1);
+        }
+        else if(split == string::npos)
+        {
+            split = idx;
+        }
+        ++idx;
+    }
+
+    if(split == 0 || split == string::npos)
+    {
+        return;
+    }
+
+    string key = IceUtil::trim(s.substr(0, split));
+    string value = IceUtil::trim(s.substr(split + 1, s.length() - split - 1));
 
 #ifdef ICEE_HAS_WSTRING
     if(converter)

@@ -7,39 +7,49 @@
 //
 // **********************************************************************
 
+using Demo;
 using System;
 using System.Threading;
-using Demo;
+using System.Reflection;
 
-public class Server : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceSessionServer")]
+[assembly: AssemblyDescription("Ice session demo server")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Server
 {
-    public override int run(string[] args)
+    public class App : Ice.Application
     {
-        if(args.Length > 0)
+        public override int run(string[] args)
         {
-            Console.Error.WriteLine(appName() + ": too many arguments");
-            return 1;
+            if(args.Length > 0)
+            {
+                Console.Error.WriteLine(appName() + ": too many arguments");
+                return 1;
+            }
+
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
+
+            ReapThread reaper = new ReapThread();
+            Thread reaperThread = new Thread(new ThreadStart(reaper.run));
+            reaperThread.Start();
+
+            adapter.add(new SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"));
+            adapter.activate();
+            communicator().waitForShutdown();
+
+            reaper.terminate();
+            reaperThread.Join();
+
+            return 0;
         }
-
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
-
-        ReapThread reaper = new ReapThread();
-        Thread reaperThread = new Thread(new ThreadStart(reaper.run));
-        reaperThread.Start();
-
-        adapter.add(new SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"));
-        adapter.activate();
-        communicator().waitForShutdown();
-
-        reaper.terminate();
-        reaperThread.Join();
-
-        return 0;
     }
 
     public static void Main(string[] args)
     {
-        Server app = new Server();
+        App app = new App();
         int status = app.main(args, "config.server");
         if(status != 0)
         {

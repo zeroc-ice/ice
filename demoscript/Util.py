@@ -163,7 +163,7 @@ class spawn(pexpect.spawn):
             else:
                 assert status == exitstatus
         elif self.language == "C#":
-            if isMono() or isCygwin() and self.sentKill:
+            if isCygwin() and self.sentKill:
                 assert self.signalstatus == self.sentKill
             else:
                 assert status == exitstatus

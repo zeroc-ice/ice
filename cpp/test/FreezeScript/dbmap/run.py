@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 directory = os.path.dirname(os.path.abspath(__file__))
 transformdb = os.path.join(toplevel, "cpp", "bin", "transformdb")

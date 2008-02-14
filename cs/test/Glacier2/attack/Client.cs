@@ -7,118 +7,128 @@
 //
 // **********************************************************************
 
+using Test;
 using System;
 using System.Collections;
 using System.Diagnostics;
-using Test;
+using System.Reflection;
 
-public class Client : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceTest")]
+[assembly: AssemblyDescription("Ice test")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Client
 {
-    public override int run(string[] args)
+    public class App : Ice.Application
     {
-        Console.Out.Write("getting router... ");
-        Console.Out.Flush();
-        Ice.ObjectPrx routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347 -t 10000");
-        Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.checkedCast(routerBase);
-        test(router != null);
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("creating session... ");
-        Console.Out.Flush();
-        router.createSession("userid", "abc123");
-        communicator().setDefaultRouter(router);
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("making thousands of invocations on proxies... ");
-        Console.Out.Flush();
-        Ice.ObjectPrx backendBase = communicator().stringToProxy("dummy:tcp -p 12010 -t 10000");
-        BackendPrx backend = BackendPrxHelper.uncheckedCast(backendBase);
-        backend.ice_ping();
-
-        Hashtable backends = new Hashtable();
-        Random rand = new Random(unchecked((int)DateTime.Now.Ticks));
-
-        String msg = "";
-        for(int i = 1; i <= 10000; ++i)
+        public override int run(string[] args)
         {
-            if(i % 100 == 0)
+            Console.Out.Write("getting router... ");
+            Console.Out.Flush();
+            Ice.ObjectPrx routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347 -t 10000");
+            Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.checkedCast(routerBase);
+            test(router != null);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("creating session... ");
+            Console.Out.Flush();
+            router.createSession("userid", "abc123");
+            communicator().setDefaultRouter(router);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("making thousands of invocations on proxies... ");
+            Console.Out.Flush();
+            Ice.ObjectPrx backendBase = communicator().stringToProxy("dummy:tcp -p 12010 -t 10000");
+            BackendPrx backend = BackendPrxHelper.uncheckedCast(backendBase);
+            backend.ice_ping();
+
+            Hashtable backends = new Hashtable();
+            Random rand = new Random(unchecked((int)DateTime.Now.Ticks));
+
+            String msg = "";
+            for(int i = 1; i <= 10000; ++i)
             {
-                for(int j = 0; j < msg.Length; ++j)
+                if(i % 100 == 0)
                 {
-                    Console.Out.Write('\b');
+                    for(int j = 0; j < msg.Length; ++j)
+                    {
+                        Console.Out.Write('\b');
+                    }
+
+                    msg = "" + i;
+                    Console.Out.Write(i);
+                    Console.Out.Flush();
                 }
 
-                msg = "" + i;
-                Console.Out.Write(i);
-                Console.Out.Flush();
+                Ice.Identity ident = new Ice.Identity("", "");
+                ident.name += (char)('A' + rand.Next() % 26);
+
+                int len = rand.Next() % 2;
+                for(int j = 0; j < len; ++j)
+                {
+                    ident.category += (char)('a' + rand.Next() % 26);
+                }
+
+                BackendPrx newBackend = BackendPrxHelper.uncheckedCast(backendBase.ice_identity(ident));
+                
+                if(!backends.ContainsKey(newBackend))
+                {
+                    backends.Add(newBackend, newBackend);
+                    backend = newBackend;
+                }
+                else
+                {
+                    backend = (BackendPrx)backends[newBackend];
+                }
+
+                backend.ice_ping();
             }
 
-            Ice.Identity ident = new Ice.Identity("", "");
-            ident.name += (char)('A' + rand.Next() % 26);
-
-            int len = rand.Next() % 2;
-            for(int j = 0; j < len; ++j)
+            for(int j = 0; j < msg.Length; ++j)
             {
-                ident.category += (char)('a' + rand.Next() % 26);
+                Console.Out.Write('\b');
             }
-
-            BackendPrx newBackend = BackendPrxHelper.uncheckedCast(backendBase.ice_identity(ident));
-            
-            if(!backends.ContainsKey(newBackend))
+            for(int j = 0; j < msg.Length; ++j)
             {
-                backends.Add(newBackend, newBackend);
-                backend = newBackend;
+                Console.Out.Write(' ');
             }
-            else
+            for(int j = 0; j < msg.Length; ++j)
             {
-                backend = (BackendPrx)backends[newBackend];
+                Console.Out.Write('\b');
             }
-
-            backend.ice_ping();
-        }
-
-        for(int j = 0; j < msg.Length; ++j)
-        {
-            Console.Out.Write('\b');
-        }
-        for(int j = 0; j < msg.Length; ++j)
-        {
-            Console.Out.Write(' ');
-        }
-        for(int j = 0; j < msg.Length; ++j)
-        {
-            Console.Out.Write('\b');
-        }
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing server and router shutdown... ");
-        Console.Out.Flush();
-        backend.shutdown();
-        communicator().setDefaultRouter(null);
-        Ice.ObjectPrx processBase =
-            communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
-        Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
-        test(process != null);
-        process.shutdown();
-        try
-        {
-           process.ice_ping();
-           test(false);
-        }
-        catch(Ice.LocalException)
-        {
             Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing server and router shutdown... ");
+            Console.Out.Flush();
+            backend.shutdown();
+            communicator().setDefaultRouter(null);
+            Ice.ObjectPrx processBase =
+                communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+            Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
+            test(process != null);
+            process.shutdown();
+            try
+            {
+               process.ice_ping();
+               test(false);
+            }
+            catch(Ice.LocalException)
+            {
+                Console.Out.WriteLine("ok");
+            }
+
+            return 0;
         }
 
-        return 0;
-    }
-
-    private static void
-    test(bool b)
-    {
-        if(!b)
+        private static void
+        test(bool b)
         {
-            throw new Exception();
+            if(!b)
+            {
+                throw new Exception();
+            }
         }
     }
 
@@ -134,7 +144,7 @@ public class Client : Ice.Application
         initData.properties = Ice.Util.createProperties(ref args);
         initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
-        Client app = new Client();
+        App app = new App();
         int status = app.main(args, initData);
 
         if(status != 0)

@@ -161,6 +161,8 @@ else
     slicedir = $(ice_dir)/slice
 endif
 
+install_slicedir = $(prefix)/slice
+
 #
 # Set environment variables for the Slice translator.
 #
@@ -251,3 +253,33 @@ ifeq ($(mkdir),)
 			  chmod a+rx $(1)
 endif
 
+all::
+
+install-common::
+	@if test ! -d $(prefix) ; \
+	then \
+	    echo "Creating $(prefix)..." ; \
+	    $(call mkdir,$(prefix)) ; \
+	fi
+
+	@if test ! -d $(install_slicedir) ; \
+	then \
+	    echo "Creating $(install_slicedir)..." ; \
+	    $(call mkdir,$(install_slicedir)) ; \
+	    cd $(top_srcdir)/../slice ; \
+	    for subdir in * ; \
+	    do \
+	        echo "Copying slice/$$subdir to $(install_slicedir)..." ; \
+	        cp -fpr $$subdir $(install_slicedir) ; \
+	    done ; \
+        fi
+
+	@if test ! -f $(prefix)/ICE_LICENSE ; \
+	then \
+	    $(call installdata,$(top_srcdir)/../ICE_LICENSE,$(prefix)) ; \
+	fi
+
+	@if test ! -f $(prefix)/LICENSE ; \
+	then \
+	    $(call installdata,$(top_srcdir)/../LICENSE,$(prefix)) ; \
+	fi

@@ -8,8 +8,15 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
 using System.Diagnostics;
+using System.Reflection;
+using System.Collections;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceTest")]
+[assembly: AssemblyDescription("Ice test")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client
 {

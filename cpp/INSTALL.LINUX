@@ -29,55 +29,46 @@ the following compilers are officially supported:
  - GCC 4.1.x on SLES 10
 
 
+Required packages
+-----------------
+
+On RHEL 4, Ice requires the nptl-devel package, which contains the
+function pthread_condattr_setclock.
+
+
 Third-party libraries
 ---------------------
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.5.20 configured with --enable-cxx.
-
-  If you intend to use Ice for Java with Berkeley DB, you must also
-  include the option --enable-java.
-
+- Berkeley DB 4.6.21
 - expat 1.95.7 or 2.0.0
-
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
-
 - bzip2 1.0.x
+- mcpp 2.6.4 with patch
 
-Berkeley DB, expat, OpenSSL, and bzip2 are usually included with your 
-Linux distribution, or you can download them from the following 
-locations:
+Some of these packages may have been included in your Linux
+distribution. For those packages that are not installed or have an
+older version than what is listed above, we recommend downloading the
+Ice third-party source archive from
+
+  http://www.zeroc.com/download.html
+
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and 
+configuration instructions.
+
+ZeroC also supplies RPMs at the link above for Berkeley DB on RHEL
+4.x, RHEL 5.x and SLES 10.x.
+
+For more information about these dependencies, please refer to
+the links below:
 
 Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
-expat          http://sourceforge.net/projects/expat/
+expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
-
-RPMs for Berkeley DB 4.5.20 on RHEL 4.4, RHEL 5 and SLES 10 are 
-available from:
-
-http://www.zeroc.com/download.html 
-
-- mcpp 2.6.4, which can be downloaded from
-
-  http://mcpp.sourceforge.net/download.html
-
-  After downloading and unpacking the source distribution it is
-  necessary to first apply a source patch available on the Ice
-  download page before building. From the mcpp 2.6.4 base directory 
-  run
-
-  patch -p0 < mcpp-2.6.4.patch
-
-  Ice requires the library version of mcpp, so configure mcpp similar 
-  to the following
-
-  ./configure CFLAGS=-fPIC --enable-mcpplib --disable-shared
-  (and --prefix=<dir> if you like)
-
-  For 64 bit machines, after installation it is necessary to rename the
-  library installation directory from $(prefix)/lib to $(prefix>/lib64.
+mcpp           http://mcpp.sourceforge.net
 
 
 Python

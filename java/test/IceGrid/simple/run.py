@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 import IceGridAdmin
 
 testdir = os.path.dirname(os.path.abspath(__file__))

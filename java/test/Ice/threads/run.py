@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 if TestUtil.getIceSSLVersion() == "1.4":
     print "Detected IceSSL version that requires thread-per-connection, skipping test."

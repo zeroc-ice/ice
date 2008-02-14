@@ -309,6 +309,22 @@ IceUtil::unescapeString(const string& s, string::size_type start, string::size_t
 }
 
 //
+// Trim white space (" \t\r\n")
+//
+string
+IceUtil::trim(const string& s)
+{
+    const string delim = " \t\r\n";
+    if(s.length() != 0)
+    {
+        string::size_type beg = s.find_first_not_of(delim);
+        string::size_type end = s.find_last_not_of(delim);
+        return s.substr(beg, end - beg + 1);
+    }
+    return s;
+}
+
+//
 // If a single or double quotation mark is found at the start position,
 // then the position of the matching closing quote is returned. If no
 // quotation mark is found at the start position, then 0 is returned.

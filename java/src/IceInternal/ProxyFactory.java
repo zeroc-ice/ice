@@ -224,9 +224,7 @@ public final class ProxyFactory
     {
         _instance = instance;
 
-        String str = _instance.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
-
-        String[] arr = str.trim().split("[ \t\n\r]+");
+        String[] arr = _instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
         if(arr.length > 0)
         {

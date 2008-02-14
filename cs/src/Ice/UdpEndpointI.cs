@@ -48,31 +48,62 @@ namespace IceInternal
             _encodingMinor = Protocol.encodingMinor;
             _connect = false;
             _compress = false;
-            
-            char[] splitChars = { ' ', '\t', '\n', '\r' };
-            string[] arr = str.Split(splitChars);
-            
-            int i = 0;
-            while(i < arr.Length)
+
+            string delim = " \t\n\r";
+
+            int beg;
+            int end = 0;
+
+            while(true)
             {
-                if(arr[i].Length == 0)
+                beg = IceUtilInternal.StringUtil.findFirstNotOf(str, delim, end);
+                if(beg == -1)
                 {
-                    i++;
-                    continue;
+                    break;
                 }
-                
-                string option = arr[i++];
+
+                end = IceUtilInternal.StringUtil.findFirstOf(str, delim, beg);
+                if(end == -1)
+                {
+                    end = str.Length;
+                }
+
+                string option = str.Substring(beg, end - beg);
                 if(option[0] != '-')
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "udp " + str;
                     throw e;
                 }
-                
+
                 string argument = null;
-                if(i < arr.Length && arr[i][0] != '-')
+                int argumentBeg = IceUtilInternal.StringUtil.findFirstNotOf(str, delim, end);
+                if(argumentBeg != -1 && str[argumentBeg] != '-')
                 {
-                    argument = arr[i++];
+                    beg = argumentBeg;
+                    if(str[beg] == '\"')
+                    {
+                        end = IceUtilInternal.StringUtil.findFirstOf(str, "\"", beg + 1);
+                        if(end == -1)
+                        {
+                            Ice.EndpointParseException e = new Ice.EndpointParseException();
+                            e.str = "udp " + str;
+                            throw e;
+                        }
+                        else
+                        {
+                            ++end;
+                        }
+                    }
+                    else
+                    {
+                        end = IceUtilInternal.StringUtil.findFirstOf(str, delim, beg);
+                        if(end == -1)
+                        {
+                            end = str.Length;
+                        }
+                    }
+                    argument = str.Substring(beg, end - beg);
                     if(argument[0] == '\"' && argument[argument.Length - 1] == '\"')
                     {
                         argument = argument.Substring(1, argument.Length - 2);

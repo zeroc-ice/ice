@@ -101,7 +101,7 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
         p->second.used = true;
 
         StringSeq result;
-        if(!IceUtilInternal::splitString(p->second.value, " \t\n", result))
+        if(!IceUtilInternal::splitString(p->second.value, ", \t\n", result))
         {
             Warning out(getProcessLogger());
             out << "mismatched quotes in property " << key << "'s value, returning default value";
@@ -406,49 +406,56 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
 void
 Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& converter)
 {
-    const string delim = " \t\r\n";
     string s = line;
     
-    string::size_type idx = s.find('#');
-    if(idx != string::npos)
+    //
+    // Remove comments and unescape #'s
+    //
+    string::size_type idx = 0;
+    while((idx = s.find("#", idx)) != string::npos)
     {
-        s.erase(idx);
+        if(idx != 0 && s[idx - 1] == '\\')
+        {
+            s.erase(idx - 1, 1);
+            ++idx;
+        }
+        else
+        {
+            s.erase(idx);
+            break;
+        }
     }
-    
-    idx = s.find_last_not_of(delim);
-    if(idx != string::npos && idx + 1 < s.length())
-    {
-        s.erase(idx + 1);
-    }
-    
-    string::size_type beg = s.find_first_not_of(delim);
-    if(beg == string::npos)
-    {
-        return;
-    }
-    
-    string::size_type end = s.find_first_of(delim + "=", beg);
-    if(end == string::npos)
-    {
-        return;
-    }
-    
-    string key = s.substr(beg, end - beg);
-    
-    end = s.find('=', end);
-    if(end == string::npos)
-    {
-        return;
-    }
-    ++end;
 
-    string value;
-    beg = s.find_first_not_of(delim, end);
-    if(beg != string::npos)
+    //
+    // Split key/value and unescape ='s
+    //
+    string::size_type split = string::npos;
+    idx = 0;
+    while((idx = s.find("=", idx)) != string::npos)
     {
-        end = s.length();
-        value = s.substr(beg, end - beg);
+        if(idx != 0 && s[idx - 1] == '\\')
+        {
+            s.erase(idx - 1, 1);
+        }
+        else if(split == string::npos)
+        {
+            split = idx;
+        }
+        ++idx;
     }
+
+    if(split == 0 || split == string::npos)
+    {
+        s = IceUtilInternal::trim(s);
+        if(s.length() != 0)
+        {
+            getProcessLogger()->warning("invalid config file entry: \"" + line + "\"");
+        }
+        return;
+    }
+
+    string key = IceUtilInternal::trim(s.substr(0, split));
+    string value = IceUtilInternal::trim(s.substr(split + 1, s.length() - split - 1));
 
     if(converter)
     {
@@ -479,29 +486,14 @@ Ice::PropertiesI::loadConfig()
         if(s && *s != '\0')
         {
             value = s;
+            setProperty("Ice.Config", value);
         }
     }
 
-    if(!value.empty())
+    StringSeq files = getPropertyAsList("Ice.Config");
+    for(StringSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
-        const string delim = " \t\r\n";
-        string::size_type beg = value.find_first_not_of(delim);
-        while(beg != string::npos)
-        {
-            string::size_type end = value.find(",", beg);
-            string file;
-            if(end == string::npos)
-            {
-                file = value.substr(beg);
-                beg = end;
-            }
-            else
-            {
-                file = value.substr(beg, end - beg);
-                beg = value.find_first_not_of("," + delim, end);
-            }
-            load(file);
-        }
+        load(*p);
     }
 
     PropertyValue pv(value, true);

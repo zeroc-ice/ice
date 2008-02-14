@@ -25,6 +25,7 @@ SRCS		= Acceptor.cs \
 		  CommunicatorI.cs \
                   Compare.cs \
 		  CollectionBase.cs \
+		  Collections.cs \
 		  ConnectRequestHandler.cs \
 		  ConnectionI.cs \
 		  ConnectionRequestHandler.cs \

@@ -33,7 +33,7 @@ client.expect('.*==>')
 print "testing with conversion... ",
 sys.stdout.flush()
 client.sendline('u')
-server.expect('Received \\(UTF-8\\): "Bonne journ(351)e"')
+server.expect('Received \\(UTF-8\\): "Bonne journ\\\\351e"')
 client.expect('Received: "Bonne journ\\\\303\\\\251e"')
 print "ok"
 

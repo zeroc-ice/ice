@@ -7,34 +7,44 @@
 //
 // **********************************************************************
 
-using System;
 using Demo;
+using System;
+using System.Reflection;
 
-public class Client : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceGridIceBoxClient")]
+[assembly: AssemblyDescription("IceGrid icebox demo client")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Client
 {
-    public override int run(string[] args)
+    public class App : Ice.Application
     {
-        if(args.Length > 0)
+        public override int run(string[] args)
         {
-            Console.Error.WriteLine(appName() + ": too many arguments");
-            return 1;
+            if(args.Length > 0)
+            {
+                Console.Error.WriteLine(appName() + ": too many arguments");
+                return 1;
+            }
+
+            HelloPrx hello = HelloPrxHelper.uncheckedCast(communicator().propertyToProxy("Hello.Proxy"));
+            if(hello == null)
+            {
+                Console.Error.WriteLine("Hello.Proxy not found");
+                return 1;
+            }
+
+            hello.sayHello();
+
+            return 0;
         }
-
-        HelloPrx hello = HelloPrxHelper.uncheckedCast(communicator().propertyToProxy("Hello.Proxy"));
-        if(hello == null)
-        {
-            Console.Error.WriteLine("Hello.Proxy not found");
-            return 1;
-        }
-
-        hello.sayHello();
-
-        return 0;
     }
 
     public static void Main(string[] args)
     {
-        Client app = new Client();
+        App app = new App();
         int status = app.main(args, "config.client");
         if(status != 0)
         {

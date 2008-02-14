@@ -95,7 +95,7 @@ ice_dir = $(ICE_HOME)
 !elseif exist ($(top_srcdir)/bin/$(slice_translator))
 ice_dir = $(top_srcdir)
 !elseif exist ("C:\Ice-$(VERSION)\bin\$(slice_translator)")
-ice_dir = "C:\Ice-$(VERSION)"
+ice_dir = C:\Ice-$(VERSION)
 !endif
 
 !if "$(ice_dir)" == ""
@@ -122,4 +122,22 @@ ice_cpp_header = $(ice_dir)\include\Ice\Config.h
 # Set slicedir to the path of the directory containing the Slice files.
 #
 slicedir		= $(ice_dir)\slice
+
+install_slicedir	= $(prefix)\slice
+
+all::
+
+install-common::
+	@if not exist $(prefix) \
+	    @echo "Creating $(prefix)..." && \
+	    mkdir $(prefix)
+
+	@if not exist $(install_slicedir) \
+	    @echo "Creating $(install_slicedir)..." && \
+	    mkdir $(install_slicedir) \
+	    @echo "Copying slice files..." && \
+	    cmd /c "xcopy /s /y ..\slice $(install_slicedir)" || exit 1
+
+	@copy ..\ICE_LICENSE $(prefix)
+	@copy ..\LICENSE $(prefix)
 

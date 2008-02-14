@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 testdir = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,7 +27,10 @@ client = os.path.join(testdir, "client")
 clientOptions = ' ' + testdir
 
 print "starting client...",
-clientPipe = os.popen(client + clientOptions + " 2>&1")
+command = client + clientOptions
+if TestUtil.debug:
+    print "(" + command + ")",
+clientPipe = os.popen(command + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

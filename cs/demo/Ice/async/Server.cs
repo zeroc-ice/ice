@@ -7,45 +7,57 @@
 //
 // **********************************************************************
 
-public class Server : Ice.Application
+using System;
+using System.Reflection;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceAsyncServer")]
+[assembly: AssemblyDescription("Ice async demo server")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Server
 {
-    public override int run(string[] args)
+    public class App : Ice.Application
     {
-        if(args.Length > 0)
+        public override int run(string[] args)
         {
-            System.Console.Error.WriteLine(appName() + ": too many arguments");
-            return 1;
+            if(args.Length > 0)
+            {
+                System.Console.Error.WriteLine(appName() + ": too many arguments");
+                return 1;
+            }
+
+            callbackOnInterrupt();
+
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
+            _workQueue = new WorkQueue();
+            adapter.add(new HelloI(_workQueue), communicator().stringToIdentity("hello"));
+
+            _workQueue.Start();
+            adapter.activate();
+
+            communicator().waitForShutdown();
+            _workQueue.Join();
+            return 0;
         }
 
-        callbackOnInterrupt();
+        public override void interruptCallback(int sig)
+        {
+            _workQueue.destroy();
+            communicator().shutdown();
+        }
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
-        _workQueue = new WorkQueue();
-        adapter.add(new HelloI(_workQueue), communicator().stringToIdentity("hello"));
-
-        _workQueue.Start();
-        adapter.activate();
-
-        communicator().waitForShutdown();
-        _workQueue.Join();
-        return 0;
-    }
-
-    public override void interruptCallback(int sig)
-    {
-        _workQueue.destroy();
-        communicator().shutdown();
+        private WorkQueue _workQueue;
     }
 
     public static void Main(string[] args)
     {
-        Server app = new Server();
+        App app = new App();
         int status = app.main(args, "config.server");
         if(status != 0)
         {
             System.Environment.Exit(status);
         }
     }
-
-    private WorkQueue _workQueue;
 }

@@ -7,170 +7,180 @@
 //
 // **********************************************************************
 
+using Demo;
 using System;
 using System.Collections.Generic;
-using Demo;
+using System.Reflection;
 
-public class Subscriber : Ice.Application
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceStormClockSubscriber")]
+[assembly: AssemblyDescription("IceStorm clock demo subscriber")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
+
+public class Subscriber
 {
-    public class ClockI : ClockDisp_
+    public class App : Ice.Application
     {
-        public override void tick(string date, Ice.Current current)
+        public class ClockI : ClockDisp_
         {
-            System.Console.Out.WriteLine(date);
-        }
-    }
-
-    public override int run(string[] args)
-    {
-        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
-            communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
-        if(manager == null)
-        {
-            Console.WriteLine("invalid proxy");
-            return 1;
+            public override void tick(string date, Ice.Current current)
+            {
+                System.Console.Out.WriteLine(date);
+            }
         }
 
-        string topicName = "time";
-        bool datagram = false;
-        bool twoway = false;
-        bool ordered = false;
-        bool batch = false;
-        int optsSet = 0;
-        for(int i = 0; i < args.Length; ++i)
+        public override int run(string[] args)
         {
-            if(args[i].Equals("--datagram"))
+            IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
+                communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
+            if(manager == null)
             {
-                datagram = true;
-                ++optsSet;
+                Console.WriteLine("invalid proxy");
+                return 1;
             }
-            else if(args[i].Equals("--twoway"))
+
+            string topicName = "time";
+            bool datagram = false;
+            bool twoway = false;
+            bool ordered = false;
+            bool batch = false;
+            int optsSet = 0;
+            for(int i = 0; i < args.Length; ++i)
             {
-                twoway = true;
-                ++optsSet;
+                if(args[i].Equals("--datagram"))
+                {
+                    datagram = true;
+                    ++optsSet;
+                }
+                else if(args[i].Equals("--twoway"))
+                {
+                    twoway = true;
+                    ++optsSet;
+                }
+                else if(args[i].Equals("--ordered"))
+                {
+                    ordered = true;
+                    ++optsSet;
+                }
+                else if(args[i].Equals("--oneway"))
+                {
+                    ++optsSet;
+                }
+                else if(args[i].Equals("--batch"))
+                {
+                    batch = true;
+                }
+                else if(args[i].StartsWith("--"))
+                {
+                    usage();
+                    return 1;
+                }
+                else
+                {
+                    topicName = args[i];
+                    break;
+                }
             }
-            else if(args[i].Equals("--ordered"))
+
+            if(batch && (twoway || ordered))
             {
-                ordered = true;
-                ++optsSet;
+                Console.WriteLine(appName() + ": batch can only be set with oneway or datagram");
+                return 1;
             }
-            else if(args[i].Equals("--oneway"))
-            {
-                ++optsSet;
-            }
-            else if(args[i].Equals("--batch"))
-            {
-                batch = true;
-            }
-            else if(args[i].StartsWith("--"))
+
+            if(optsSet > 1)
             {
                 usage();
                 return 1;
             }
-            else
-            {
-                topicName = args[i];
-                break;
-            }
-        }
 
-        if(batch && (twoway || ordered))
-	{
-	    Console.WriteLine(appName() + ": batch can only be set with oneway or datagram");
-	    return 1;
-	}
-
-        if(optsSet > 1)
-        {
-            usage();
-            return 1;
-        }
-
-        //
-        // Retrieve the topic.
-        //
-        IceStorm.TopicPrx topic;
-        try
-        {
-            topic = manager.retrieve(topicName);
-        }
-        catch(IceStorm.NoSuchTopic)
-        {
+            //
+            // Retrieve the topic.
+            //
+            IceStorm.TopicPrx topic;
             try
             {
-                topic = manager.create(topicName);
+                topic = manager.retrieve(topicName);
             }
-            catch(IceStorm.TopicExists)
+            catch(IceStorm.NoSuchTopic)
             {
-                Console.WriteLine("temporary error. try again.");
-                return 1;
+                try
+                {
+                    topic = manager.create(topicName);
+                }
+                catch(IceStorm.TopicExists)
+                {
+                    Console.WriteLine("temporary error. try again.");
+                    return 1;
+                }
             }
-        }
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Clock.Subscriber");
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Clock.Subscriber");
 
-        //
-        // Add a Servant for the Ice Object.
-        //
-        Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
+            //
+            // Add a Servant for the Ice Object.
+            //
+            Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
 
-        Dictionary<string, string> qos = new Dictionary<string, string>();
+            Dictionary<string, string> qos = new Dictionary<string, string>();
 
-        //
-        // Set up the proxy.
-        //
-        if(datagram)
-        {
-            subscriber = subscriber.ice_datagram();
-        }
-        else if(twoway)
-        {
-            // Do nothing to the subscriber proxy. Its already twoway.
-        }
-        else if(ordered)
-        {
-            // Do nothing to the subscriber proxy. Its already twoway.
-            qos["reliability"] = "ordered";
-        }
-        else // if(oneway)
-        {
-            subscriber = subscriber.ice_oneway();
-        }
-        if(batch)
-        {
+            //
+            // Set up the proxy.
+            //
             if(datagram)
             {
-                subscriber = subscriber.ice_batchDatagram();
+                subscriber = subscriber.ice_datagram();
             }
-            else
+            else if(twoway)
             {
-                subscriber = subscriber.ice_batchOneway();
+                // Do nothing to the subscriber proxy. Its already twoway.
             }
+            else if(ordered)
+            {
+                // Do nothing to the subscriber proxy. Its already twoway.
+                qos["reliability"] = "ordered";
+            }
+            else // if(oneway)
+            {
+                subscriber = subscriber.ice_oneway();
+            }
+            if(batch)
+            {
+                if(datagram)
+                {
+                    subscriber = subscriber.ice_batchDatagram();
+                }
+                else
+                {
+                    subscriber = subscriber.ice_batchOneway();
+                }
+            }
+
+            topic.subscribeAndGetPublisher(qos, subscriber);
+            adapter.activate();
+
+            shutdownOnInterrupt();
+            communicator().waitForShutdown();
+
+            //
+            // Unsubscribe all subscribed objects.
+            //
+            topic.unsubscribe(subscriber);
+
+            return 0;
         }
-        
-        topic.subscribeAndGetPublisher(qos, subscriber);
-        adapter.activate();
 
-        shutdownOnInterrupt();
-        communicator().waitForShutdown();
-
-        //
-        // Unsubscribe all subscribed objects.
-        //
-        topic.unsubscribe(subscriber);
-
-        return 0;
-    }
-
-    public void
-    usage()
-    {
-        Console.WriteLine("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]");
+        public void
+        usage()
+        {
+            Console.WriteLine("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]");
+        }
     }
 
     public static void Main(string[] args)
     {
-        Subscriber app = new Subscriber();
+        App app = new App();
         int status = app.main(args, "config.sub");
         if(status != 0)
         {

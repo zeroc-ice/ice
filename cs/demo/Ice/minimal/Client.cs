@@ -7,8 +7,15 @@
 //
 // **********************************************************************
 
-using System;
 using Demo;
+using System;
+using System.Reflection;
+
+[assembly: CLSCompliant(true)]
+
+[assembly: AssemblyTitle("IceMinimalClient")]
+[assembly: AssemblyDescription("Ice minimal demo client")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client
 {

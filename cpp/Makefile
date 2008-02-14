@@ -13,15 +13,10 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= config src include test demo doc
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_slicedir) $(install_docdir)
+INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_docdir)
 
-install::
-	@if test ! -d $(prefix) ; \
-	then \
-	    echo "Creating $(prefix)..." ; \
-	    $(call mkdir,$(prefix)) ; \
-	fi
-ifneq ($(embedded_runpath_prefix),)
+install:: install-common
+ifeq ("$(create_runpath_symlink)",yes)
 	@if test -h $(embedded_runpath_prefix) ; \
 	then \
 	     if `\rm -f $(embedded_runpath_prefix) 2>/dev/null`; \
@@ -40,36 +35,12 @@ endif
 	    fi ; \
 	done
 
-	cd ../slice ; \
-	for subdir in * ; \
-	do \
-	    echo "Copying slice/$$subdir to $(install_slicedir)..." ; \
-	    cp -fpr $$subdir $(install_slicedir) ; \
-	done ;
-
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
-
-doc::
-	@( cd doc && $(MAKE) ) || exit 1
-
-install::
-	@if test -d doc ; \
-	then \
-	    ( cd doc && $(MAKE) install ) || exit 1 ; \
-	fi
-	$(call installdata,ICE_LICENSE,$(prefix))
-	$(call installdata,LICENSE,$(prefix))
-
-clean::
-	@if test -d doc ; \
-	then \
-	    ( cd doc && $(MAKE) clean ) || exit 1 ; \
-	fi
 
 test::
 	@python $(top_srcdir)/allTests.py

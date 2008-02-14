@@ -97,15 +97,15 @@
 
 #if defined(_WIN32)
 
-//
-// Comment out the following block if you want to run on Windows 9x
-// or Windows NT 3.51.
-//
 #   ifndef _WIN32_WINNT
         //
-        // Necessary for TryEnterCriticalSection.
+        // Necessary for TryEnterCriticalSection (see IceUtil/Mutex.h).
         //
-#       define _WIN32_WINNT 0x0400
+#       if defined(_MSC_VER) && _MSC_VER < 1500
+#           define _WIN32_WINNT 0x0400
+#       endif
+#   elif _WIN32_WINNT < 0x0400
+#       error "TryEnterCricalSection requires _WIN32_WINNT >= 0x0400"
 #   endif
 
 #   if !defined(ICE_STATIC_LIBS) && defined(_MSC_VER) && (!defined(_DLL) || !defined(_MT))
@@ -129,6 +129,13 @@
 #      pragma warning( disable : 4275 )
 //      ...: decorated name length exceeded, name was truncated
 #      pragma warning( disable : 4503 )  
+#   endif
+
+    //
+    // For STLport. Define _STLP_NEW_PLATFORM_SDK if a PSDK newer than the PSDK included with VC6.
+    //
+#   if !defined(_STLP_NEW_PLATFORM_SDK) && WINVER > 0x0400
+#       define _STLP_NEW_PLATFORM_SDK 1
 #   endif
 #endif
 

@@ -18,6 +18,7 @@
 #include <Ice/ProtocolPluginFacadeF.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/TrustManagerF.h>
+#include <Ice/BuiltinSequences.h>
 
 namespace IceSSL
 {
@@ -62,7 +63,7 @@ public:
 
 private:
 
-    void parseProtocols(const std::string&);
+    void parseProtocols(const Ice::StringSeq&);
 
     Ice::LoggerPtr _logger;
     IceInternal::ProtocolPluginFacadePtr _facade;

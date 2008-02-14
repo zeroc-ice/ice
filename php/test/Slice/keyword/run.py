@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 name = os.path.join("Slice", "keyword")
 
@@ -33,6 +34,10 @@ print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
 
 clientStatus = TestUtil.closePipe(clientPipe)
+
+if os.path.exists("tmp.ini"):
+    os.remove("tmp.ini")
+
 if clientStatus:
     sys.exit(1)
 

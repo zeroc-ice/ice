@@ -62,7 +62,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
                   r' --Ice.ServerIdleTime=0' + \
                   r' --IceGrid.Registry.DefaultTemplates=' + \
-                  os.path.abspath(os.path.join(TestUtil.findTopLevel(), "config", "templates.xml"))
+                  os.path.abspath(os.path.join(TestUtil.findTopLevel(), "cpp", "config", "templates.xml"))
 
 def getDefaultLocatorProperty():
 

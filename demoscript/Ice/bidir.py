@@ -41,6 +41,6 @@ def run(clientStr, server):
     server.expect('removing client')
 
     server.kill(signal.SIGINT)
-    server.waitTestSuccess()
+    server.waitTestSuccess(timeout=30)
 
     print "ok"

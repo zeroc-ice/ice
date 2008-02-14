@@ -359,9 +359,9 @@ Activator::activate(const string& name,
                 if(_traceLevels->activator > 0)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                    out << "cannot convert `" << path << "' into an absolute path";
+                    out << "couldn't find `" << path << "' executable.";
                 }
-                throw string("The server executable path `" + path + "' can't be converted into an absolute path.");
+                throw string("Couldn't find `" + path + "' executable.");
             }
             path = absbuf;
         }

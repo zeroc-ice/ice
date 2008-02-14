@@ -26,13 +26,13 @@ dictionary<Object*, long> b4;           // Bad
 dictionary<LocalObject, long> b5;       // Bad
 
 sequence<byte> s1;
-dictionary<s1, long> d7;                // OK
+dictionary<s1, long> d7;                // Deprecated
 
 sequence<float> s2;
 dictionary<s2, long> b6;                // Bad
 
 sequence<s1> s3;
-dictionary<s3, long> b7;                // OK
+dictionary<s3, long> b7;                // Deprecated
 
 struct st1
 {
@@ -52,7 +52,7 @@ enum e { e1, e2 };
 dictionary<e, long> d9;                 // OK
 
 sequence<e> s4;
-dictionary<s4, long> d10;               // OK
+dictionary<s4, long> d10;               // Deprecated
 
 dictionary<d9, long> b9;                // Bad
 

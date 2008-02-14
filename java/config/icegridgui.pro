@@ -8,9 +8,6 @@
 
 # Preserve all public applications.
 
--libraryjars <java.home>/lib/rt.jar
--libraryjars <java.home>/lib/jsse.jar
-
 -keepclasseswithmembers public class * {
     public static void main(java.lang.String[]);
 }

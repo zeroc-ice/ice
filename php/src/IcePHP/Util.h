@@ -12,19 +12,6 @@
 
 #include <Config.h>
 
-//
-// Ice_Identity global functions.
-//
-extern "C"
-{
-ZEND_FUNCTION(Ice_stringToIdentity);
-ZEND_FUNCTION(Ice_identityToString);
-}
-
-#define ICE_PHP_IDENTITY_FUNCTIONS \
-    ZEND_FE(Ice_stringToIdentity,   NULL) \
-    ZEND_FE(Ice_identityToString,   NULL)
-
 namespace IcePHP
 {
 

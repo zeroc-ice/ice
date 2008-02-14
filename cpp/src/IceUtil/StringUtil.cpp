@@ -364,6 +364,23 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
     return true;
 }
 
+//
+// Trim white space (" \t\r\n")
+//
+string
+IceUtilInternal::trim(const string& s)
+{
+    static const string delim = " \t\r\n";
+    string::size_type beg = s.find_first_not_of(delim);
+    if(beg == string::npos)
+    {
+        return "";
+    }
+    else
+    {
+        return s.substr(beg, s.find_last_not_of(delim) - beg + 1);
+    }
+}
 
 //
 // If a single or double quotation mark is found at the start position,

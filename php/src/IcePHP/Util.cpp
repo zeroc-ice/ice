@@ -9,7 +9,6 @@
 
 #include <Util.h>
 #include <IceUtil/DisableWarnings.h>
-#include <Ice/IdentityUtil.h>
 #include <algorithm>
 #include <ctype.h>
 
@@ -72,57 +71,6 @@ splitScopedName(const string& scoped)
     }
 
     return ids;
-}
-
-ZEND_FUNCTION(Ice_stringToIdentity)
-{
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    char* str;
-    int len;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &len) == FAILURE)
-    {
-        RETURN_NULL();
-    }
-
-    try
-    {
-        Ice::Identity id = Ice::stringToIdentity(str);
-        createIdentity(return_value, id TSRMLS_CC);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-    }
-}
-
-ZEND_FUNCTION(Ice_identityToString)
-{
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
-    assert(cls);
-
-    zval *zid;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, cls) == FAILURE)
-    {
-        RETURN_NULL();
-    }
-
-    Ice::Identity id;
-    if(extractIdentity(zid, id TSRMLS_CC))
-    {
-        string s = Ice::identityToString(id);
-        RETURN_STRINGL(const_cast<char*>(s.c_str()), s.length(), 1);
-    }
 }
 
 bool

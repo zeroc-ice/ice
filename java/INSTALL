@@ -193,6 +193,9 @@ and running this command:
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
 
+Note that the Glacier2/router test will fail if it is run with --compress
+and the bzip2 classes are not present in your CLASSPATH.
+
 If you want to try out any of the demos, make sure to add lib/Ice.jar
 and "classes" to your CLASSPATH. Then change to the desired demo
 directory and follow the instructions in the README file. If no README

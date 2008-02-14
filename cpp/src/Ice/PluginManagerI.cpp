@@ -161,56 +161,39 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     PropertiesPtr properties = _communicator->getProperties();
     PropertyDict plugins = properties->getPropertiesForPrefix(prefix);
 
-    string loadOrder = properties->getProperty("Ice.PluginLoadOrder");
-    string::size_type beg = 0;
-    if(!loadOrder.empty())
+    StringSeq loadOrder = properties->getPropertyAsList("Ice.PluginLoadOrder");
+    for(StringSeq::const_iterator p = loadOrder.begin(); p != loadOrder.end(); ++p)
     {
-        const string delim = ", \t\n";
-        beg = loadOrder.find_first_not_of(delim, beg);
-        while(beg != string::npos)
+        string name = *p;
+
+        map<string, PluginPtr>::iterator p = _plugins.find(name);
+        if(p != _plugins.end())
         {
-            string name;
-            string::size_type end = loadOrder.find_first_of(delim, beg);
-            if(end == string::npos)
-            {
-                name = loadOrder.substr(beg);
-                beg = end;
-            }
-            else
-            {
-                name = loadOrder.substr(beg, end - beg);
-                beg = loadOrder.find_first_not_of(delim, end);
-            }
+            PluginInitializationException ex(__FILE__, __LINE__);
+            ex.reason = "plugin `" + name + "' already loaded";
+            throw ex;
+        }
 
-            map<string, PluginPtr>::iterator p = _plugins.find(name);
-            if(p != _plugins.end())
-            {
-                PluginInitializationException ex(__FILE__, __LINE__);
-                ex.reason = "plugin `" + name + "' already loaded";
-                throw ex;
-            }
+        PropertyDict::iterator q = plugins.find("Ice.Plugin." + name + ".cpp");
+        if(q == plugins.end())
+        {
+            q = plugins.find("Ice.Plugin." + name);
+        }
+        else
+        {
+            plugins.erase("Ice.Plugin." + name);
+        }
 
-            PropertyDict::iterator q = plugins.find("Ice.Plugin." + name + ".cpp");
-            if(q == plugins.end())
-            {
-                q = plugins.find("Ice.Plugin." + name);
-            }
-            else
-            {
-                plugins.erase("Ice.Plugin." + name);
-            }
-
-            if(q != plugins.end())
-            {
-                loadPlugin(name, q->second, cmdArgs);
-                plugins.erase(q);
-            }
-            else
-            {
-                PluginInitializationException ex(__FILE__, __LINE__);
-                ex.reason = "plugin `" + name + "' not defined";
-                throw ex;
-            }
+        if(q != plugins.end())
+        {
+            loadPlugin(name, q->second, cmdArgs);
+            plugins.erase(q);
+        }
+        else
+        {
+            PluginInitializationException ex(__FILE__, __LINE__);
+            ex.reason = "plugin `" + name + "' not defined";
+            throw ex;
         }
     }
 

@@ -35,6 +35,11 @@ ICE_UTIL_API bool unescapeString(const std::string&, std::string::size_type, std
 ICE_UTIL_API bool splitString(const std::string&, const std::string&, std::vector<std::string>&);
 
 //
+// Trim white space
+//
+ICE_UTIL_API std::string trim(const std::string&);
+
+//
 // If a single or double quotation mark is found at the start
 // position, then the position of the matching closing quote is
 // returned. If no quotation mark is found at the start position, then

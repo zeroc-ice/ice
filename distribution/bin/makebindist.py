@@ -7,1207 +7,318 @@
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-import os, sys, shutil, re, string, getopt, glob, logging, fileinput
 
-# TODO:
-# 
-#   * Tidying and tracing.
-#    * use os.path.join() where appropriate instead of string
-#      concatenation.
-#   * Perl is used in some places for 'sed' like functionality. This
-#     could be replaced by Python code.
-#   * Consistent string quotes. 
-#   * Revisit how this works now that we are using git.
-#   * Collecting source distributions adds quite a bit to this script
-#     and isn't really necessary. It doesn't really work properly now
-#     anyways since we have two different Java distributions and
-#     makebindist.py doesn't know how to create them both.
-#
+import os, sys, shutil, glob, fnmatch, string, re
+from stat import *
+
+version = "3.3.0"
+#version = "@ver@"
+distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(os.path.join(distDir, "lib"))
+from DistUtils import *
 
 #
-# TODO: We need a solid way to get the location of the git repository.
+# Defines which languges are supported on a given platform
 #
-repoDir = os.getcwd()
-    
-def initDirectory(d):
-    """Check for the existance of the directory. If it isn't there make
-    it."""
-    if os.path.exists(d):
-        #
-        # Make sure its a directory and has correct permissions.
-        #
-        if not os.path.isdir(d):
-            print 'Path ' + d + ' exists but is not a directory.'
-            sys.exit(1)
-            
-        if os.access(d, os.X_OK | os.R_OK | os.W_OK):
-            logging.info('Path ' + d + ' exists and is ok, continuing')
-        else:
-            logging.warning('Directory ' + d + ' exists, but has incorrect permissions')
-            sys.exit(1)
-    else:
-        #
-        # This could fail due to lack of permissions.
-        #
-        os.makedirs(d, 0770)
-
-class ExtProgramError:
-    def __init__(self, error = None):
-        self.msg = error
-        
-    def __str__(self):
-        return repr(self.msg)
-
-def runprog(commandstring, haltOnError = True):
-    #commandtuple = commandstring.split()
-    #result = os.spawnvpe(os.P_WAIT, commandtuple[0], commandtuple, os.environ)
-    result = os.system(commandstring)
-    if result != 0:
-        msg = 'Command %s returned error code %d' % (commandstring, result)
-        if haltOnError: 
-            raise ExtProgramError(msg)
-
-def copyfiles(srcDir, destDir):
-    '''Copy the contents of one directory to another (non-recursive)'''
-    for f in os.listdir(srcDir):
-        src = os.path.join(srcDir, f)
-        dest = os.path.join(destDir, f)
-        if not os.path.isdir(src) and not os.path.islink(src):
-            shutil.copy(src, dest)
-
-def getIceVersion(file):
-    """Extract the ICE version string from a file."""
-    config = open(file, 'r')
-    return  re.search('ICE_STRING_VERSION \"([0-9\.b]*)\"', config.read()).group(1)
-
-def getIceMMVersion(file):
-    """Extract the ICE major.minor version string from a file."""
-    config = open(file, 'r')
-    return re.search('ICE_STRING_VERSION \"([0-9]+\.[0-9]+)[\.b0-9]*\"', config.read()).group(1)
-
-def getIceSoVersion(file):
-    """Extract the ICE version ordinal from a file."""
-    config = open(file, 'r')
-    mm = re.search('ICE_STRING_VERSION \"([0-9]*\.[0-9b]*)[\.0-9]*\"', config.read()).group(1)
-    verComponents = mm.split(".")
-    return verComponents[0] + verComponents[1]
-
-def getPlatform():
-    """Determine the platform we are building and targetting for"""
-    if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
-        return 'win32'
-    elif sys.platform.startswith('linux'):
-        return 'linux'
-    elif sys.platform.startswith('sunos'):
-        return 'solaris'
-    elif sys.platform.startswith('hp'):
-        return 'hpux'
-    elif sys.platform.startswith('darwin'):
-        return 'macosx'
-    elif sys.platform.startswith('aix'):
-        return 'aix'
-    else:
-        return None
-
-def getPlatformString():
-    """Determine the platform string used in the .tar.gz names"""
-    if getPlatform() == 'linux':
-        redhat = os.system('test -f /etc/redhat-release')
-        if readcommand('uname -p') == 'x86_64':
-            if redhat == 0:
-                return 'rhel-x86_64'
-            else:
-                return 'sles-x86_64'
-        else:
-            if redhat == 0:
-                return 'rhel-i386'
-            else:
-                return 'sles-i586'
-    elif getPlatform() == "solaris":
-        if readcommand("uname -p") == "i386":
-            return "solaris-x86"
-        else:
-            return "solaris-sparc"
-    else:
-        return getPlatform()
-
-def getMakeRulesSuffix():
-    '''Ice for C++ contains system specific rules for make. This
-    function maps the system name to the appropriate file suffix.'''
-    if sys.platform.startswith('linux'):
-        return 'Linux'
-    elif sys.platform.startswith('sunos'):
-        return 'SunOS'
-    elif sys.platform.startswith('hp'):
-        return 'HP-UX'
-    elif sys.platform.startswith('darwin'):
-        return 'Darwin'
-    elif sys.platform.startswith('aix'):
-        return 'AIX'
-    else:
-        return None
-
-def getVersion(buildDir):
-    """Extracts a source file from the repository and gets the version number from it"""
-    cwd = os.getcwd()
-    if getPlatform() == 'aix':
-        os.environ['LIBPATH'] = ''
-    configFile = os.path.join(buildDir, "install", "Config.h")
-    result = [ getIceVersion(configFile), getIceSoVersion(configFile), getIceMMVersion(configFile) ]
-
-    os.chdir(cwd)
-    return result
-
-def fixVersion(filename, version, mmVersion):
-    f = fileinput.input(filename, True)
-    for line in f:
-        l = line.rstrip('\n')
-        l = l.replace('@ver@', version)
-        l = l.replace('@mmver@', mmVersion)
-        print l
-    f.close()
-
-def fixInstallFiles(buildDir, version, mmVersion):
-    """Gets the install sources for this revision"""
-    cwd = os.getcwd()
-    try:
-        os.chdir(buildDir)
-        fixVersion('install/common/README.DEMOS', version, mmVersion)
-        snapshot = os.walk('./install/unix')
-        for dirInfo in snapshot:
-            for f in dirInfo[2]:
-                fixVersion(os.path.join(dirInfo[0], f), version, mmVersion)
-    finally:
-        os.chdir(cwd)
-    return os.path.join(buildDir, "install")
-
-# XXX- I don't think this is needed any longer.
-def getInstallFilesFromLocalDirectory(buildDir, version, mmVersion):
-    '''Gets the install files from an existing repository, has the
-    advantage of working even if repository is down allowing the install-O to
-    continue working!'''
-    cwd = os.getcwd()
-    try:
-        os.chdir(buildDir)
-        target = os.path.join(buildDir, 'cpp', 'install')
-        if os.path.exists(target):
-            shutil.rmtree(target)
-        iceloc = os.path.abspath(os.path.join(os.environ['ICE_HOME'],'install'))
-        os.makedirs(target)
-        for f in ['unix', 'common', 'rpm', 'thirdparty']:
-            shutil.copytree(os.path.join(iceloc, f), os.path.join(target, f)) 
-        fixVersion('cpp/install/common/README.DEMOS', version, mmVersion)
-        snapshot = os.walk('./cpp/install/unix')
-        for dirInfo in snapshot:
-            for f in dirInfo[2]:
-                fixVersion(os.path.join(dirInfo[0], f), version, mmVersion)
-    finally:
-        os.chdir(cwd)
-    return os.path.join(buildDir, "cpp", "install")
-
-def readcommand(cmd):
-    pipe_stdin, pipe_stdout = os.popen2(cmd)
-    lines = pipe_stdout.readlines()
-    pipe_stdin.close()
-    pipe_stdout.close()
-    return lines[0].strip()
-
-def editMakeRulesCS(filename, version):
-    '''
-    The make rules in the C# distribution need some simple tweaking to
-    make them suitable for inclusion in the demo distribution.
-    '''
-    reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
-    makefile = fileinput.input(filename, True)
-    for line in makefile:
-        if reIceLocation.search(line) <> None:
-            print line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
-        elif line.startswith('prefix'):
-            print 'prefix = $(ICE_DIR)'
-        else:
-            print line.rstrip('\n')
-    makefile.close()
-
-def editMakeRules(filename, version):
-    '''
-    Ice distributions contain files with useful build rules. However,
-    these rules are source distribution specific. This script edits
-    these files to make them appropriate to accompany binary
-    distributions.
-    '''
-    reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
-
-    makefile =  fileinput.input(filename, True)
-    skipLine = 0
-    for line in makefile:
-        if (skipLine > 0):
-            skipLine = skipLine - 1 
-        elif line.startswith('slicedir'):
-            print """
-ifeq ($(ICE_DIR),/usr)
-   slicedir = $(ICE_DIR)/share/Ice-$(VERSION)/slice
-else
-   slicedir = $(ICE_DIR)/slice
-endif
-"""
-        elif line.startswith('embedded_runpath_prefix'):
-            # 
-            # embedded_runpath_prefix is moved down to after the version
-            # information is set.
-            #
-            pass
-        elif line.startswith('# Select an installation base directory'):
-            #
-            # Delete this comment
-            #
-            skipLine = 2
-        elif line.startswith('# The "root directory" for runpath'):
-            #
-            # Delete this comment
-            #
-            skipLine = 2
-        elif reIceLocation.search(line) <> None:
-            output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
-            if line.startswith('libdir'):
-                print 'ifeq ($(LP64),yes)'
-                print '    ' + output + '$(lp64suffix)'
-                print 'else'
-                print '    '  + output
-                print 'endif'
-            elif line.startswith('bindir'):
-                print output
-                #
-                # NOTE!!! Magic occurs...
-                # It simplifies building the demos for the user if
-                # we try to detect whether the executables are 64
-                # bit and, if so, set LP64=yes automagically.
-                #
-                print ''
-                print '#'
-                print '# If LP64 is unset, sample an Ice executable to see if it is 64 bit'
-                print '# and set automatically. This avoids having to set LP64 if there is'
-                print '# Ice installation in a well-known location.'
-                print '#'
-                print 'ifeq ($(LP64),)'
-                print '    ifneq ($(shell file $(bindir)/slice2cpp | grep 64-bit),)'
-                print '        LP64=yes'            
-                print '    endif'
-                print 'endif'
-                print ''
-            else:
-                print output
-
-        elif line.startswith('install_'):
-            #
-            # Delete
-            #
-            pass
-        elif line.startswith('SOVERSION'):
-            print line.rstrip('\n')
-            print """
+languages = { \
+    'SunOS' : ['cpp', 'java'], \
+    'HP-UX' : ['cpp', 'java'], \
+    'Darwin' : ['cpp', 'java', 'py'], \
+    'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
+}
 
 #
-# Checks for ICE_HOME environment variable.  If it isn't present,
-# attempt to find an Ice installation in /usr or the default install
+# Defines third party dependencies for each supported platform and their default 
 # location.
 #
-ifeq ($(ICE_HOME),)
-    ICE_DIR = /usr
-    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-        NEXTDIR = /opt/Ice-$(VERSION)
-        ifneq ($(shell test -f $(NEXTDIR)/bin/icestormadmin && echo 0),0)
-           $(error Unable to locate Ice distribution, please set ICE_HOME!)
-        else
-            ICE_DIR = $(NEXTDIR)
-        endif
-    else
-        NEXTDIR = /opt/Ice-$(VERSION)
-        ifeq ($(shell test -f $(NEXTDIR)/bin/icestormadmin && echo 0),0)
-           $(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
-        endif
-    endif
-else
-    ICE_DIR = $(ICE_HOME)
-    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-       $(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
-    endif
-endif
+bzip2 = { 'HP-UX' : '/usr/local' }
 
-ifneq ($(ICE_DIR),/usr)
-   embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
-endif
+berkeleydb = { \
+    'SunOS' : '/opt/db', \
+    'Darwin' : '/opt/db', \
+    'HP-UX' : '/opt/db', \
+}
 
-prefix = $(ICE_DIR)
+berkeleydbjar = { \
+    'Linux' : '/usr/share/java/db46/db.jar', \
+}
 
-"""
-        elif line.startswith('prefix'):
-            #
-            # Delete prefix line
-            #
-            pass
-        else:
-            print line.rstrip('\n')
+expat = { \
+    'SunOS' : '/usr/sfw', \
+    'HP-UX' : '/usr/local', \
+    'Darwin' : '/opt/expat', \
+}
 
-    #
-    # Dependency files are all going to be bogus since they contain relative
-    # paths to Ice headers. We need to adjust this.
-    #
-    os.chdir("..")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
-    makefile.close()
+openssl = { \
+    'SunOS' : '/usr/sfw', \
+    'HP-UX' : '/opt/openssl', \
+}
 
-def editMakeRulesMak(filename, version):
-    '''
-    Ice distributions contain files with useful build rules. However,
-    these rules are source distribution specific. This script edits
-    these files to make them appropriate to accompany binary
-    distributions.
-    '''
-    state = 'header'
-    reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
+mcpp = { 
+    'SunOS' : '/opt/mcpp', \
+    'HP-UX' : '/opt/mcpp', \
+    'Darwin' : '/opt/mcpp' 
+}
 
-    makefile =  fileinput.input(filename, True)
-    for line in makefile:
-        if state == 'done':
-            if reIceLocation.search(line) <> None:
-                output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
-                print output
-            elif line.startswith('install_'):
-                #
-                # Do nothing.
-                #
-                pass
-            elif line.startswith('# If third party'):
-                state = 'thirdparty'
-            else:
-                print line.rstrip('\n')
-        elif state == 'header':
-            #
-            # Reading header.
-            #
-            print line.rstrip('\n')
-            if line.strip() == "":
-                state = 'untilprefix'
-                print """
+jgoodies_looks = { \
+    'SunOS' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
+    'HP-UX' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
+    'Darwin' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
+    'Linux' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
+}
+
+jgoodies_forms = { \
+    'SunOS' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
+    'HP-UX' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
+    'Darwin' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
+    'Linux' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
+}
+
+proguard = { \
+    'SunOS' : '/share/opt/proguard4.1/lib/proguard.jar', \
+    'HP-UX' : '/share/opt/proguard4.1/lib/proguard.jar', \
+    'Darwin' : '/opt/proguard/lib/proguard.jar', \
+    'Linux' : '/opt/proguard/lib/proguard.jar', \
+}    
+
+class BerkeleyDB(ThirdParty):
+    def __init__(self, platform, locations, jarlocations):
+        ThirdParty.__init__(self, platform, "BerkeleyDB", locations, ["cpp", "java"], None, "DB_HOME")
+        if not self.location:
+            self.languages = ["java"]
+            self.location = jarlocations.get(str(platform), None)
+
+    def getFiles(self, platform):
+        files = [ os.path.join("lib", "db.jar"), os.path.join("bin", "db_*") ]
+        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"), "jnilib")
+        return files
+
+class Bzip2(ThirdParty):
+    def __init__(self, platform, locations):
+        ThirdParty.__init__(self, platform, "Bzip2", locations, ["cpp"])
+
+    def getFiles(self, platform):
+        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+
+class Expat(ThirdParty):
+    def __init__(self, platform, locations):
+        ThirdParty.__init__(self, platform, "Expat", locations, ["cpp"])
+
+    def getFiles(self, platform):
+        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+
+class OpenSSL(ThirdParty):
+    def __init__(self, platform, locations):
+        ThirdParty.__init__(self, platform, "OpenSSL", locations, ["cpp"])
+
+    def getFiles(self, platform):
+        files = [ os.path.join("bin", "openssl") ]
+        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+        return files
+
 #
-# Checks for ICE_HOME environment variable.
+# Program usage.
 #
-
-!if "$(ICE_HOME)" == ""
-!error Ice distribution not found, please set ICE_HOME!
-!endif
-
-ICE_DIR = $(ICE_HOME)
-prefix = $(ICE_DIR)
-THIRDPARTY_HOME =
-
-"""
-        elif state == 'untilprefix':
-            if line.startswith('prefix'):
-                state = 'done'
-        elif state == 'thirdparty':
-            if line.startswith('# For VC80 and VC80'):
-                print line.rstrip('\n')
-                state = 'done'
-    #
-    # Dependency files are all going to be bogus since they contain relative
-    # paths to Ice headers. We need to adjust this
-    #
-    os.chdir("..")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
-    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
-    makefile.close()
-
-def editMakeRulesMakCS(filename, version):
-    '''
-    Ice distributions contain files with useful build rules. However,
-    these rules are source distribution specific. This script edits
-    these files to make them appropriate to accompany binary
-    distributions.
-    '''
-    state = 'header'
-    reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
-
-    makefile =  fileinput.input(filename, True)
-    for line in makefile:
-        if state == 'done':
-            if reIceLocation.search(line) <> None:
-                output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
-                print output
-            elif line.startswith('install_'):
-                #
-                # Do nothing.
-                #
-                pass
-            else:
-                print line.rstrip('\n')
-        elif state == 'header':
-            #
-            # Reading header.
-            #
-            print line.rstrip('\n')
-            if line.strip() == "":
-                state = 'untilprefix'
-                print """
-#
-# Checks for ICE_HOME environment variable.
-#
-
-!if "$(ICE_HOME)" == ""
-!error Ice distribution not found, please set ICE_HOME!
-!endif
-
-ICE_DIR = $(ICE_HOME)
-prefix = $(ICE_DIR)
-
-"""
-        elif state == 'untilprefix':
-            if line.startswith('prefix'):
-                state = 'done'
-
-    makefile.close()
-
-def updateIceVersion(filename, version):
-    print 'Updating ice version in ' + filename + ' to ' + version
-    f = fileinput.input(filename, True)
-    for line in f: 
-        print line.rstrip('\n').replace('ICE_VERSION', version)
-    f.close()
-
-def obliterate(files):
-    for f in files:
-        if os.path.exists(f):
-            if os.path.isdir(f):
-                shutil.rmtree(f)
-            else:
-                os.remove(f)
-
-def extractDemos(sources, buildDir, version, distro, demoDir):
-    """Pulls the demo directory out of a distribution and massages its
-       build system so it can be built against an installed version of
-       Ice"""
-    cwd = os.getcwd()
-    os.chdir(os.path.join(buildDir, "demotree"))
-
-    #
-    # TODO: Some archives don't contain all of these elements. It might
-    # be nicer to make the toExtract list more tailored for each
-    # distribution.
-    #
-    toExtract = "%s/demo " % distro
-    if demoDir == '':
-        toExtract = toExtract + " %s/ICE_LICENSE" % distro
-    if not demoDir == 'php':
-        toExtract = toExtract + " %s/certs %s/config" % (distro, distro)
-        
-    runprog("gzip -dc " + os.path.join(sources, distro) + ".tar.gz | tar xf - " + toExtract, False)
-        
-    shutil.move(os.path.join(distro, "demo"), os.path.join(buildDir, "Ice-" + version + "-demos", "demo" + demoDir))
-    if os.path.exists(os.path.join(buildDir, "demotree", distro, "ICE_LICENSE")):
-        shutil.move(os.path.join(buildDir, "demotree", distro, "ICE_LICENSE"), \
-                os.path.join(buildDir, "Ice-%s-demos" % version, "ICE_LICENSE"))
-
-    #
-    # 'System' copying of files here because its just easier!  We don't
-    # need any configuration out of the Python tree.
-    # 
-    if not os.path.exists(buildDir + "/Ice-" + version + "-demos/certs"):
-        os.mkdir(buildDir + "/Ice-" + version + "-demos/certs")
-        
-    if not os.path.exists(buildDir + "/Ice-" + version + "-demos/config"):
-        os.mkdir(buildDir + "/Ice-" + version + "-demos/config")
-
-    if os.path.exists('%s/certs' % distro):
-        runprog("cp -pR " + distro + "/certs " + buildDir + "/Ice-" + version + "-demos")
-
-    srcConfigDir = '%s/%s/config' % (os.getcwd(), distro)
-    destConfigDir = '%s/Ice-%s-demos/config' % (buildDir, version)
-
-    if not demoDir in ['py', 'rb', 'vb'] and os.path.exists(srcConfigDir):
-        for f in os.listdir(srcConfigDir):
-            src = os.path.join(srcConfigDir, f)
-            dest = os.path.join(destConfigDir, f)
-            if not os.path.isdir(src) and not os.path.islink(src):
-                shutil.copy(src, dest)
-
-    if demoDir == 'j':
-        updateIceVersion(os.path.join(destConfigDir, 'common.xml'), version)
-
-    #
-    # Collect files to remove from the demo distribution.
-    # 
-    remove = []
-    basepath = os.path.join(buildDir, 'Ice-' + version + '-demos', 'certs')
-
-    for f in ['openssl', 'makecerts']:
-        fullpath = os.path.join(basepath, f)
-        if os.path.exists(fullpath):
-            remove.append(fullpath)
-
-    basepath = os.path.join(buildDir, 'Ice-' + version + '-demos', 'config')
-
-    if distro.startswith('Ice-'):
-        editMakeRules(os.path.join(basepath, 'Make.rules'), version)
-        editMakeRulesMak(os.path.join(basepath, 'Make.rules.mak'), version)
-    elif distro.startswith('IceNET-'):
-        editMakeRulesCS(os.path.join(basepath, 'Make.rules.cs'), version)
-        editMakeRulesMakCS(os.path.join(basepath, 'Make.rules.mak.cs'), version)
-
-    #
-    # Remove collected files.
-    #
-    obliterate(remove)
-        
-    shutil.rmtree(os.path.join(buildDir, 'demotree', distro), True)
-    os.chdir(cwd)
-
-def archiveDemoTree(buildDir, version, installFiles):
-    cwd = os.getcwd()
-    os.chdir(os.path.join(buildDir, "Ice-%s-demos" % version))
-    filesToRemove = [
-        "certs/makecerts.py",
-        "certs/ImportKey.java",
-        "certs/ImportKey.class",
-        "certs/seed.dat",
-        "config/convertssl.py",
-        "config/upgradeicegrid.py",
-        "config/upgradeicestorm.py",
-        "config/icegrid-slice.3.1.ice.gz",
-        "config/PropertyNames.def",
-        "config/makeprops.py", 
-        "config/Makefile",
-        "config/Makefile.mak",
-        "config/TestUtil.py",
-        "config/IceGridAdmin.py", 
-        "config/ice_ca.cnf",
-        "config/findSliceFiles.py",
-        "config/IcecsKey.snk",
-        "config/icegridnode.cfg",
-        "config/icegridregistry.cfg",
-        "config/makeconfig.py",
-        "config/makedepend.py",
-        "config/makegitignore.py",
-        "config/icegridgui.pro"]
-    obliterate(filesToRemove)
-    os.chdir(buildDir)
-    
-    # 
-    # Remove compiled Java.
-    # 
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name classes -type d` ; do rm -rf $f/* ; done'")
-
-    #
-    # Remove generated source files.
-    #
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name generated -type d` ; do rm -rf $f/* ; done'")
-
-    #
-    # Remove config files.
-    #
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*\.config\" ` ; do rm -f $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos/demovb -name \"*\.config\" ` ; do rm -f $f ; done'")
-
-    #
-    # Remove Windows project files.
-    #
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsp\" ` ; do rm -rf $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsw\" ` ; do rm -rf $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.sln\" ` ; do rm -rf $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.csproj\" ` ; do rm -rf $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.vbproj\" ` ; do rm -rf $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.vcproj\" ` ; do rm -rf $f ; done'")
-   
-    runprog("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
-    runprog("gzip -9 Ice-" + version + "-demos.tar")
-    runprog("zip -9r Ice-" + version + "-demos.zip Ice-" + version + "-demos")
-    os.chdir(cwd)
-
-def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion):
-    """Make the distro in buildDir sources and install it to installDir."""
-    cwd = os.getcwd()
-    os.chdir(buildDir)
-    if clean:
-        shutil.rmtree(distro, True)
-        
-    if not os.path.exists(distro):
-        filename = os.path.join(sources, distro + '.tar')
-        runprog('gzip -dc %s.gz | tar xf -' % filename)
-        
-    os.chdir(distro)
-
-    #
-    # Java does not have a 'make install' process, but comes complete
-    # with the Jar already built.
-    # 
-    if distro.startswith('IceJ'):
-        initDirectory(installDir)
-        initDirectory(os.path.join(installDir, 'lib'))
-        shutil.copy(os.path.join(buildDir, distro, "lib", "Ice.jar"), os.path.join(installDir, "lib"))
-        shutil.copy(os.path.join(buildDir, distro, "lib", "IceGridGUI.jar"), os.path.join(installDir, "lib"))
-        #
-        # We really just want to copy the files, not move them.
-        # Shelling out to a copy is easier (and more likely to always
-        # work) than shutil.copytree().
-        #
-        runprog('cp -pR ' + os.path.join(buildDir, distro, "ant") + " " + installDir)
-        runprog('find ' + installDir + '/ant  -name "*.java" | xargs rm')
-        initDirectory(os.path.join(installDir, 'help'))
-        runprog('cp -pR ' + buildDir + '/' + distro + '/resources/IceGridAdmin ' + installDir + '/help')
-        destDir = os.path.join(installDir, 'config')
-        if not os.path.exists(destDir):
-            os.mkdir(destDir)
-        shutil.copy(os.path.join('config', 'build.properties'), destDir)
-        os.chdir(cwd)
-        return
-
-    if distro.startswith('IcePy'):
-        try:
-            pyHome = os.environ['PYTHON_HOME']
-        except KeyError:
-            pyHome = None
-            
-        if pyHome == None or pyHome == '':
-            logging.info('PYTHON_HOME is not set, figuring it out and trying that')
-            pyHome = sys.exec_prefix
-            os.environ['PYTHON_HOME'] = pyHome
-            
-    # 
-    # XXX- Optimizations need to be turned on for the release.
-    #
-    
-    try:
-
-        buildCommand = "gmake NOGAC=yes OPTIMIZE=yes prefix=%s embedded_runpath_prefix=/opt/Ice-%s install" % \
-            (installDir, mmVersion)
-        if getPlatform() == "solaris":
-            os.chdir(buildDir)
-            srcdir = os.path.join(buildDir, distro + "-64")
-            
-            if clean:
-                shutil.rmtree(srcdir, True)
-            if not os.path.exists(srcdir):
-                filename = os.path.join(sources, distro + '.tar')
-                runprog('gzip -dc %s.gz | tar xf -' % filename)
-                runprog("mv %s %s" % (distro, srcdir))
-        
-            os.chdir(srcdir)
-            runprog("LP64=yes && export LP64 && " + buildCommand)
-            os.chdir(os.path.join(buildDir, distro))
-
-        runprog("LP64=no && export LP64 && " + buildCommand)
-            
-    except ExtProgramError:
-        print "gmake failed for makeInstall(%s, %s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version, mmVersion) 
-        raise
-
-    runprog('rm -rf /opt/Ice-%s' % (mmVersion), False)
-
-    if distro.startswith('IceNET'):
-        assemblies = ["glacier2cs", "iceboxcs", "icecs", "icegridcs", "icepatch2cs", "icestormcs"]
-
-        # 
-        # We are relying on pkgconfig to deal with some mono library
-        # configuration, so we need to copy these files into place.
-        #
-        if not os.path.exists("%s/lib/pkgconfig" % installDir):
-            os.makedirs("%s/lib/pkgconfig" % installDir)
-
-        for a in assemblies:
-            shutil.copy("bin/%s.dll" % a, "%s/bin/%s.dll" % (installDir, a))
-            if os.path.exists("bin/policy.%s.%s" % (mmVersion, a)):
-                shutil.copy("bin/policy.%s.%s" % (mmVersion, a), "%s/bin/policy.%s.%s" % (installDir, mmVersion, a))
-                shutil.copy("bin/policy.%s.%s.dll" % (mmVersion, a),
-                            "%s/bin/policy.%s.%s.dll" % (installDir, mmVersion, a))
-            shutil.copy("lib/pkgconfig/%s.pc" % a, "%s/lib/pkgconfig" % installDir)
-        
-
-    os.chdir(cwd)
-    
-def shlibExtensions(versionString, versionInt):
-    """Returns a tuple containing the extensions for the shared library, and
-       the 2 symbolic links (respectively)"""
-    platform = getPlatform()
-    if platform == 'hpux':
-        return ['.sl.' + versionString, '.sl.' + versionInt, '.sl']
-    elif platform == 'macosx':
-        return ['.' + versionString + '.dylib', '.' + versionInt + '.dylib', '.dylib']
-    else:
-        return ['.so.' + versionString, '.so.' + versionInt, '.so']
-
-def getPlatformLibExtension():
-    platform = getPlatform()
-    if platform == 'hpux':
-        return '.sl'
-    elif platform == 'macosx':
-        return '.dylib'
-    else:
-        return '.so'
-
-def getDBfiles(dbLocation):
-    cwd = os.getcwd()
-    os.chdir(dbLocation)
-    pipe_stdin, pipe_stdout = os.popen2('find bin -name "*" -type f')
-    lines = pipe_stdout.readlines()
-    pipe_stdin.close()
-    pipe_stdout.close()
-
-    fileList = ['lib/db.jar']
-    fileList.extend(lines)
-
-    findCmd = ''
-    if getPlatform() == 'solaris':
-        #
-        # Removed the maxdepth limiter to pick up the 64 bit versions of the libraries.
-        #
-        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f'
-        
-    elif getPlatform() == 'macosx':
-        findCmd = 'find lib \( -name "*'  + getPlatformLibExtension() + '" -or -name "*jnilib" \) -type f '
-    else:
-        findCmd = 'find lib* -name "*'  + getPlatformLibExtension() + '" -type f'
-    pipe_stdin, pipe_stdout = os.popen2(findCmd)
-    lines = pipe_stdout.readlines()
-    pipe_stdin.close()
-    pipe_stdout.close()
-    fileList.extend(lines)
-    if getPlatform() == 'aix':
-        fileList.append('lib/libdb_cxx.so')     
-
-    os.chdir(cwd)
-
-    return fileList
-
-def copyExpatFiles(expatLocation, version):
-    cwd = os.getcwd()
-    os.chdir(expatLocation)
-
-    fileList = []
-    findCmd = ''
-    if getPlatform() == 'solaris':
-        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f -maxdepth 1'
-    else:
-        findCmd = 'find lib* -name "*'  + getPlatformLibExtension() + '" -type f'
-    pipe_stdin, pipe_stdout = os.popen2(findCmd)
-    lines = pipe_stdout.readlines()
-    pipe_stdin.close()
-    pipe_stdout.close()
-    fileList.extend(lines)
-
-    linkList = []
-    findCmd = ''
-    if getPlatform() == 'solaris':
-        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type l -maxdepth 1'
-    else:
-        findCmd = 'find lib* -name "*'  + getPlatformLibExtension() + '" -type l'
-    pipe_stdin, pipe_stdout = os.popen2(findCmd)
-    lines = pipe_stdout.readlines()
-    pipe_stdin.close()
-    pipe_stdout.close()
-    fileList.extend(lines)
-    
-    for i in lines:
-        if i != 'libexpat.' + getPlatformLibExtension():
-            linkList.append(i)
-            
-    os.chdir(cwd)
-    
-    if not os.path.exists('Ice-' + version + '/' + fileList[0].strip()):
-        shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
-        os.symlink(os.path.basename(fileList[0].strip()), 'Ice-' + version + '/' + linkList[0].strip())
-
-def fixInstallNames(version, mmVersion):
-
-    #
-    # Fix the install names of the 3rd party libraries.
-    # 
-    libs = ['libdb-*.dylib', 'libdb_cxx-*.dylib', 'libdb_java-*.jnilib', 'libexpat*.dylib']
-    oldInstallNames = []
-    for l in libs:
-        p = os.popen('otool -D ' + 'Ice-' + version + '/lib/'  + l + ' | tail -1')
-        oldInstallNames.append(p.readline().strip())
-        p.close()
-
-    allFiles = []
-    p = os.popen('find Ice-' + version + '/bin -name "*" -type f')
-    allFiles.extend(p.readlines())
-    p.close()
-    p = os.popen('find Ice-' + version + '/lib -name "*.dylib" -type f')
-    allFiles.extend(p.readlines())
-    p.close()
-
-    binFiles = []
-    for f in allFiles:
-        f = f.strip()
-        if not os.system('file -b ' + f + ' | grep -q "Mach-O"'):
-            os.system('chmod u+w ' + f)
-            binFiles.append(f)
-
-    for oldName in oldInstallNames:
-        libName = re.sub("\/opt\/.*\/(.*)", "\\1", oldName)
-        newName = '/opt/Ice-' + mmVersion + '/' + libName
-
-        os.system('install_name_tool -id ' + newName + ' Ice-' + version + '/lib/' + libName)
-        for f in binFiles:
-            os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
-
-
 def usage():
-    """Print usage/help information"""
-    print 'Usage: ' + sys.argv[0] + ' [options] [tag]'
+    print "Usage: " + sys.argv[0] + " [options] tag"
     print
-    print 'Options:'
-    print '-h                     Show this message.'
-    print '--build-dir=[path]     Specify the directory where the distributions'
-    print '                       will be unpacked and built.'
-    print '--install-dir=[path]   Specify the directory where the distribution'
-    print '                       contents will be installed to.'
-    print '--install-root=[path]  Specify the root directory that will appear'
-    print '                       in the tarball.'
-    print '--sources=[path]       Specify the location of the sources directory.'
-    print '                       If this is omitted makebindist will traverse'
-    print '                       ../icej ../icepy ../icecs, etc and make the'
-    print '                       distributions for you.'
-    print '                       (Note: makedist.py seems to only work on Linux.'
-    print '                        To use makebindist.py on other UNIX platforms,'
-    print '                        you must copy pre-made source distributions onto'
-    print '                        the host and use this option to reference their'
-    print '                        location.'
-    print '-v, --verbose          Print verbose processing messages.'
-    print '--noclean              Do not clean up current sources where'
-    print '                       applicable (some bits will still be cleaned.'
-    print '--nobuild              Run through the process but don\'t build'
-    print '                       anything new.'
-    print 
-    print 'The following options set the locations for third party libraries'
-    print 'that may be required on your platform.  Alternatively, you can'
-    print 'set these locations using environment variables of the form.  If'
-    print 'you do not set locations through the enviroment or through the '
-    print 'command line, default locations will be used (system defaults +'
-    print 'the default locations indicated).'
-    print 
-    print 'LIBRARY_HOME=[path to library]'
-    print
-    print 'e.g. for bzip2'
-    print 
-    print 'export BZIP2_HOME=/opt/bzip2-1.0.3'
-    print 
-    print '--stlporthome=[path]   Specify location of the STLPort libraries, '
-    print '                       if required.'
-    print '--bzip2home=[path]     Specify location of the bzip2 libraries '
-    print '                       (default=/opt/bzip2).'
-    print '--dbhome=[path]        Specify location of Berkeley DB'
-    print '                       (default=/opt/db).'
-    print '--sslhome=[path]       Specify location of OpenSSL'
-    print '                       (default=/opt/openssl).'
-    print '--expathome=[path]     Specify location of expat libraries '
-    print '                       (default=/opt/expat).'
-    print '--readlinehome=[path]  Specify readline library and location '
-    print '                       (defaults to /opt/readline if set).'
-    print
-    print 'If no tag is specified, HEAD is used.'
+    print "Options:"
+    print "-c    Clean previous build"
+    print "-n    Don't build any language mapping"
+    print "-h    Show this message."
+    print "-v    Be verbose."
 
-def main():
+#
+# Instantiate the gobal platform object
+#
+(sysname, nodename, release, ver, machine) = os.uname();
+if not languages.has_key(sysname):
+    print sys.argv[0] + ": error: `" + sysname + "' is not a supported system"
+platform = eval(sysname.replace("-", ""))(sysname, languages[sysname])
 
-    buildEnvironment = dict()
-    buildDir = None
-    installDir = None
-    sources = os.getcwd()
-    installRoot = None
-    clean = True
-    build = True
-    version = None
-    mmVersion = None
-    soVersion = 0
-    verbose = False
-    offline = False
+#
+# Instantiate the third party libraries
+#
+thirdParties = [ \
+    Bzip2(platform, bzip2), \
+    BerkeleyDB(platform, berkeleydb, berkeleydbjar), \
+    Expat(platform, expat), \
+    OpenSSL(platform, openssl), \
+    ThirdParty(platform, "Mcpp", mcpp, ["cpp"]), \
+    ThirdParty(platform, "JGoodiesLooks", jgoodies_looks, ["java"], "jgoodies.looks"), \
+    ThirdParty(platform, "JGoodiesForms", jgoodies_forms, ["java"], "jgoodies.forms"), \
+    ThirdParty(platform, "Proguard", proguard, ["java"]), \
+]
 
-    #
-    # Process args.
-    #
-    try:
-        optionList, args = getopt.getopt(sys.argv[1:], 'hvt:',
-                                         [ 'build-dir=', 'install-dir=', 'install-root=', 'sources=',
-                                           'verbose', 'noclean', 'nobuild', 
-                                           'stlporthome=', 'bzip2home=', 'dbhome=', 'sslhome=',
-                                           'expathome=', 'readlinehome=', 'offline', 'debug'])
-               
-    except getopt.GetoptError:
+#
+# Check arguments
+#
+verbose = 0
+forceclean = 0
+nobuild = 0
+languages = [ ]
+for x in sys.argv[1:]:
+    if x == "-h":
         usage()
-        sys.exit(2)
-
-    for o, a in optionList:
-        if o == '--build-dir':
-            buildDir = a
-        elif o == '--install-dir':
-            installDir = a
-        elif o == '--install-root':
-            installRoot = a
-        elif o == '--sources':
-            sources = a
-        elif o in ('-h', '--help'):
-            usage()
-            sys.exit()
-        elif o in ('-v', '--verbose'):
-            verbose = True
-        elif o == '--noclean':
-            clean = False
-        elif o == '--nobuild':
-            build = False
-            clean = False # Cleaning doesn't make much sense if we aren't building either.
-        elif o == '--stlporthome':
-            buildEnvironment['STLPORT_HOME'] = a
-        elif o == '--bzip2home':
-            buildEnvironment['BZIP2_HOME'] = a
-        elif o == '--dbhome':
-            buildEnvironment['DB_HOME'] = a
-        elif o == '--sslhome':
-            buildEnvironment['OPENSSL_HOME'] = a
-        elif o == '--expathome':
-            buildEnvironment['EXPAT_HOME'] = a
-        elif o == '--readlinehome':
-            buildEnvironment['READLINE_HOME'] = a
-        elif o == '--offline':
-            offline = True
-
-    if sources == None or not os.path.exists(sources):
-        print "You must specify a valid location for the source distributions"
-        sys.exit(1)
-
-    #
-    # Determine location of binary distribution-only files.
-    #
-    distfiles = None
-    trypaths = [ sources, os.getcwd() ]
-    for f in trypaths:
-        if os.path.exists(os.path.join(f, "distfiles.tar.gz")):
-            distfiles = os.path.join(f, "distfiles.tar.gz")
-            break
-
-    if distfiles == None:
-        print "Unable to find distfiles.tar.gz."
-        sys.exit(1)
-            
-    if verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-
-    if offline and sources == None:
-        logging.error("You must specify a location for the sources if running in offline mode")
-        sys.exit(1)
-
-    #
-    # Configure environment.
-    #
-    if getPlatform() == 'aix':
-        dylibEnvironmentVar = 'LIBPATH'
-    elif getPlatform() == 'hpux':
-        dylibEnvironmentVar = 'SHLIB_PATH'
-    elif getPlatform() == 'macosx':
-        dylibEnvironmentVar = 'DYLD_LIBRARY_PATH'
-    else:
-        dylibEnvironmentVar = 'LD_LIBRARY_PATH'
-
-    for k, v in buildEnvironment.iteritems():
-        os.environ[k] = v
-        if os.environ.has_key(dylibEnvironmentVar):
-            os.environ[dylibEnvironmentVar] = v + '/lib:' + os.environ[dylibEnvironmentVar] 
-
-    if buildDir == None:
-        print 'No build directory specified, defaulting to $HOME/tmp/icebuild'
-        buildDir = os.path.join(os.environ.get('HOME'), "tmp", "icebuild")
-        
-    if installDir == None:
-        print 'No install directory specified, default to $HOME/tmp/iceinstall'
-        installDir = os.path.join(os.environ.get('HOME'), "tmp", "iceinstall")
-
-    #
-    # We need to clean the directory out to keep obsolete files from
-    # being installed.  This needs to happen whether we are running with
-    # noclean or not.
-    #
-    if build:
-        if os.path.exists(installDir):
-            shutil.rmtree(installDir, True)
-
-    directories = [buildDir, os.path.join(buildDir, "sources"), os.path.join(buildDir, "demotree"),
-                   os.path.join(buildDir, "install"), installDir]
-
-    for d in directories:
-        initDirectory(d)
-
-    #
-    # Unpack and update distribution files.
-    #
-    # TODO: The updates performed here should be performed by the makedist script.
-    # 
-    installFiles = None
-    os.system("gzip -dc " + distfiles + " | tar xf - -C " + os.path.join(buildDir, "install"))
-    configFile = os.path.join(buildDir, "install", "Config.h")
-    version = getIceVersion(configFile)
-    soVersion = getIceSoVersion(configFile)
-    mmVersion = getIceMMVersion(configFile)
-    version, soVersion, mmVersion = getVersion(buildDir)
-    installFiles = fixInstallFiles(buildDir, version, mmVersion)
-
-    if verbose:
-        print 'Building binary distributions for Ice-' + version + ' on ' + getPlatformString()
-        print 'Using build directory: ' + buildDir
-        print 'Using install directory: ' + installDir
+        sys.exit(0)
+    elif x == "-v":
+        verbose = 1
+    elif x == "-c":
+        forceclean = 1
+    elif x == "-n":
+        nobuild = 1
+    elif x.startswith("-"):
+        print sys.argv[0] + ": unknown option `" + x + "'"
         print
+        usage()
+        sys.exit(1)
+    else:
+        if not x in platform.languages:
+            print sys.argv[0] + ": language `" + x + "' not supported on this platform"
+            print
+            usage()
+            sys.exit(1)
+        languages.append(x)
 
-    #
-    # These last build directories will have to wait until we've got
-    # the version number for the distribution.
-    #
-    shutil.rmtree(buildDir + '/Ice-' + version + '-demos', True)
-    initDirectory(buildDir + '/Ice-' + version + '-demos/config')
+if len(languages) == 0:
+    languages = platform.languages
 
-    if build:
-        #
-        # Ice must be first or building the other source distributions will fail.
-        #
-        sourceTarBalls = [ ('cpp', 'Ice-%s' % version, ''),
-                           ('java','IceJ-%s-java2' % version, 'j')]
+if nobuild:
+    languages = []
 
-        if not getPlatform() in ['aix', 'solaris', 'hpux', 'macosx']:
-            sourceTarBalls.append(('php','IcePHP-' + version, 'php'))
+if verbose:
+    quiet = "v"
+else:
+    quiet = ""
 
-        if not getPlatform() in ['aix', 'solaris', 'hpux']:
-            sourceTarBalls.append(('py','IcePy-' + version, 'py'))
+#
+# Ensure the script is being run from the dist-@ver@ directory.
+#
+cwd = os.getcwd()
 
-        if getPlatform() == 'linux':
-            sourceTarBalls.append(('cs','IceNET-' + version, 'cs'))
-            if os.system('which ruby > /dev/null 2>&1') == 0:
-                sourceTarBalls.append(('rb', 'IceRuby-%s' % version, 'rb'))
-        
-        os.environ['ICE_HOME'] = os.path.join(buildDir, "Ice-" + version)
-        currentLibraryPath = None
-        try:
-            currentLibraryPath = os.environ[dylibEnvironmentVar] 
-        except KeyError:
-            currentLibraryPath = ''
+if not os.path.exists(os.path.join(distDir, "src", "windows", "LICENSE.rtf")):
+    print sys.argv[0] + ": you must run makebindist.py from the dist-" + version + " directory created by makedist.py"
+    sys.exit(1)
 
-        os.environ[dylibEnvironmentVar] = os.path.join(buildDir, "Ice-" + version, "lib") + os.pathsep + currentLibraryPath
-        os.environ['PATH'] = os.path.join(buildDir, "Ice-" + version, "bin") + os.pathsep + os.environ['PATH']
-
-        #
-        # Package up demo distribution.
-        #
-        if getPlatform() != 'hpux' and getPlatform() != 'solaris' and getPlatform() != 'macosx':
-            toCollect = list(sourceTarBalls)
-            toCollect.append(('vb', 'IceVB-' + version, 'vb'))
-            for cvs, tarball, demoDir in toCollect:
-                extractDemos(sources, buildDir, version, tarball, demoDir)
-                shutil.copy("%s/common/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
-            archiveDemoTree(buildDir, version, installFiles)
-            shutil.move("%s/Ice-%s-demos.tar.gz" % (buildDir, version), "%s/Ice-%s-demos.tar.gz" % (installDir, version))
-            shutil.move("%s/Ice-%s-demos.zip" % (buildDir, version), "%s/Ice-%s-demos.zip" % (installDir, version))
-
-        #
-        # Everything should be set for building stuff up now.
-        #
-        for cvs, tarball, demoDir in sourceTarBalls:
-            makeInstall(sources, buildDir, "%s/Ice-%s" % (installDir, version), tarball, clean, version, mmVersion)         
-
-        #
-        # Put the Java2 jar in its directory
-        #
-        prevDir = os.getcwd()
-        os.chdir("%s/Ice-%s/lib" % (installDir, version))
-        os.mkdir("java2")
-        shutil.move("Ice.jar", "java2/Ice.jar")
-        os.system("gzip -dc %s/IceJ-%s-java5.tar.gz | tar xf - IceJ-%s-java5/lib/Ice.jar" % (sources, version, version))
-        shutil.move("IceJ-%s-java5/lib/Ice.jar" % version, "Ice.jar")
-        shutil.rmtree("IceJ-%s-java5" % version)
-        os.chdir(prevDir)
-
-    #
-    # Sources should have already been built and installed.  We
-    # can pick the binaries up from the iceinstall directory.
-    #
-    # TODO: What is this used for?
-    #
-    binaries = glob.glob(installDir + '/Ice-' + version + '/bin/*')
-    binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
-
-    cwd = os.getcwd()
-    os.chdir(installDir)
-  
-    #
-    # Get third party libraries.
-    #
-    dbLocation = os.environ['DB_HOME']
+print "Building Ice " + version + " binary distribution (" + platform.getPackageName(version) + ".tar.gz)"
+print "Using the following third party libraries:"
+if not platform.checkAndPrintThirdParties():
+    print "error: some required third party dependencies were not found"
+    sys.exit(1)
     
-    dbFiles = getDBfiles(dbLocation)    
-    for f in dbFiles:
-        if not os.path.exists('Ice-' + version + '/' + f.strip()):
-            shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
-
-    if getPlatform() == 'macosx':
-        copyExpatFiles(os.environ['EXPAT_HOME'], version)       
-
-    if getPlatform() == 'hpux':
-        ssl = os.environ['OPENSSL_HOME']
-        shutil.copy('%s/bin/openssl' % ssl, 'Ice-%s/bin' % version)
-#       runprog('cp -R ' + ssl + '/include Ice-' + version)
-        runprog('cp ' + ssl + '/lib/lib*.sl.* Ice-' + version + '/lib')
-        runprog('rm -rf Ice-' + version + '/lib/libfips*')
-        runprog('rm -rf Ice-' + version + '/lib/engines')
-        runprog('rm -rf Ice-' + version + '/lib/pkgconfig')
-        runprog('rm -f Ice-' + version + '/lib/*.a')
-
-    uname = readcommand('uname')
-    platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
-    for psf in platformSpecificFiles:
-        platform = uname
-        if psf == 'README':
-            if platform == 'Linux':
-                if os.system('test -f /etc/redhat-release') == 0:
-                    platform = 'RHEL'
-                else:
-                    platform = 'SLES'
-            elif platform == "SunOS":
-                cpu = readcommand("uname -p")
-                if cpu == "i386":
-                    platform = platform + ".x86"
-                else:
-                    platform = platform + ".SPARC" 
-        cf = os.path.join(installFiles, 'unix', psf + '.' + platform)
-        if os.path.exists(cf):
-            shutil.copy(cf, os.path.join('Ice-' + version, psf))
-
-    # 
-    # Remove build files from binary distribution. 
-    #
-    runprog("rm -f Ice-%s/config/build.properties" % (version))
-    runprog("rm -f Ice-%s/config/Make.rules*" % (version))
-
-    # 
-    # Remove doc from binary distribution. 
-    #
-    runprog("rm -rf Ice-%s/doc" % (version))
+#
+# Ensure that the source archive or directory exists and create the build directory.
+#
+buildRootDir = os.path.join(cwd, os.path.join("build-" + platform.pkgname + "-" + version))
+srcDir = os.path.join(buildRootDir, "Ice-" + version + "-src")
+buildDir = os.path.join(buildRootDir, "Ice-" + version)
+if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
+    if os.path.exists(buildRootDir):
+        print "Removing previous build from " + os.path.join("build-" + platform.pkgname + "-" + version) + "...",
+        sys.stdout.flush()
+        shutil.rmtree(buildRootDir)
+        print "ok"
+    os.mkdir(buildRootDir)
 
     #
-    # Fix install names on Mac OS X   
+    # If we can't find the source archive in the current directory, ask its location
     #
-    if getPlatform() == 'macosx':
-        fixInstallNames(version, mmVersion)
+    if not os.path.exists(os.path.join(cwd, "Ice-" + version + ".tar.gz")):
+        print
+        src = raw_input("Couldn't find Ice-" + version + ".tar.gz in current directory, please specify\n" + \
+                        "where to download or copy the source distribution or hit enter to \n" + \
+                        "download it from sun:/share/srcdists/" + version + ": ")
+        if src == "":
+            src = "sun:/share/srcdists/" + version + "/Ice-" + version + ".tar.gz"
+        elif not src.endswith("Ice-" + version + ".tar.gz"):
+            src = os.path.join(src, "Ice-" + version + ".tar.gz")
 
-    shutil.copyfile(os.path.join(buildDir, "install", "RELEASE_NOTES.txt"), 
-                    os.path.join(installDir, "Ice-%s" % version, "RELEASE_NOTES.txt"))
-
-    runprog('tar cf Ice-' + version + '-bin-' + getPlatformString() + '.tar Ice-' + version)
-    runprog('gzip -9 Ice-' + version + '-bin-' + getPlatformString() + '.tar')
+        if os.system("scp " + src + " ."):
+            print sys.argv[0] + ": couldn't copy " + src
+            sys.exit(1)
+        
+    print "Unpacking ./Ice-" + version + ".tar.gz ...",
+    sys.stdout.flush()
+    os.chdir(buildRootDir)
+    if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
+        print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
+        sys.exit(1)
+    os.rename("Ice-" + version, srcDir)
     os.chdir(cwd)
+    print "ok"
 
-    #
-    # TODO: Cleanups?  I've left everything in place so that the process
-    # can be easily debugged.
-    #
+    os.mkdir(buildDir)
 
-if __name__ == "__main__":
-    main()
+#
+# Build and install each language mappings supported by this platform in the build directory.
+#
+for l in languages:
+    print
+    print "============= Building " + l + " sources ============="
+    print
+    os.chdir(os.path.join(srcDir, l))
+
+    if l != "java":
+        if os.system("gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install") != 0:
+            print sys.argv[0] + ": `" + l + "' build failed"
+            os.chdir(cwd)
+            sys.exit(1)
+    else:
+        antCmd = platform.getAntEnv() + " ant " + platform.getAntOptions() + " -Dprefix=" + buildDir
+
+        if os.system(antCmd + " -Dbuild.suffix=-java2 -Dice.mapping=java2 install") != 0 or \
+           os.system(antCmd + " -Dbuild.suffix=-java5 -Dice.mapping=java5 install") != 0: 
+           print sys.argv[0] + ": `" + l + "' build failed"
+           os.chdir(cwd)
+           sys.exit(1)
+
+    os.chdir(os.path.join(cwd))
+    print
+    print "============= Finished buiding " + l + " sources ============="
+    print
+
+#
+# Copy platform third party dependencies.
+#
+print "Copying third party dependencies..."
+sys.stdout.flush()
+platform.copyThirdPartyDependencies(buildDir)
+platform.completeDistribution(buildDir, version)
+
+#
+# Copy platform specific files (README, SOURCES, etc)
+#
+print "Copying distribution files (README, SOURCES, etc)...",
+sys.stdout.flush()
+platform.copyDistributionFiles(distDir, buildDir)
+
+if os.path.exists(os.path.join(buildDir, "doc")):
+    shutil.rmtree(os.path.join(buildDir, "doc"))
+print "ok"
+
+if not os.path.exists("RELEASE_NOTES.txt"):
+    print "warning: couldn't find ./RELEASE_NOTES.txt file"
+else:
+    copy("RELEASE_NOTES.txt", os.path.join(buildDir, "RELEASE_NOTES.txt"))
+
+#
+# Everything should be clean now, we can create the binary distribution archive
+# 
+print "Archiving " + platform.getPackageName(version) + ".tar.gz ...",
+sys.stdout.flush()
+os.chdir(buildRootDir)
+tarfile = os.path.join(cwd, platform.getPackageName(version)) + ".tar.gz"
+os.system("tar c" + quiet + "f - Ice-" + version + " | gzip -9 - > " + tarfile)
+os.chdir(cwd)
+print "ok"
+
+#
+# Done.
+#
+print "Cleaning up...",
+sys.stdout.flush()
+shutil.rmtree(buildRootDir)
+print "ok"
+
+os.chdir(cwd)

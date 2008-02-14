@@ -25,7 +25,7 @@ namespace IceInternal
 namespace Ice
 {
 
-    public abstract class Exception : System.ApplicationException, System.ICloneable
+    public abstract class Exception : System.Exception, System.ICloneable
     {
         public object Clone()
         {

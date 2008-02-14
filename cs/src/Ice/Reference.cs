@@ -190,25 +190,15 @@ namespace IceInternal
 
                 int h = (int)mode_;
 
-                int sz = identity_.name.Length;
-                for(int i = 0; i < sz; i++)
-                {   
-                    h = 5 * h + (int)identity_.name[i];
+                h = 5 * h + identity_.GetHashCode();
+
+                foreach(KeyValuePair<string, string> p in context_)
+                {
+                    h = 5 * h + p.Key.GetHashCode();
+                    h = 5 * h + p.Value.GetHashCode();
                 }
 
-                sz = identity_.category.Length;
-                for(int i = 0; i < sz; i++)
-                {   
-                    h = 5 * h + (int)identity_.category[i];
-                }
-
-                h = 5 * h + context_.GetHashCode();
-
-                sz = facet_.Length;
-                for(int i = 0; i < sz; i++)
-                {   
-                    h = 5 * h + (int)facet_[i];
-                }
+                h = 5 * h + facet_.GetHashCode();
 
                 h = 5 * h + (secure_ ? 1 : 0);
 
@@ -1006,15 +996,12 @@ namespace IceInternal
         {
             lock(this)
             {
-                if(base.hashInitialized_)
+                if(!hashInitialized_)
                 {
-                    return hashValue_;
-                }
-                base.GetHashCode();         // Initializes hashValue_.
-                int sz = _adapterId.Length; // Add hash of adapter ID to base hash.
-                for(int i = 0; i < sz; i++)
-                {   
-                    hashValue_ = 5 * hashValue_ + (int)_adapterId[i];
+                    base.GetHashCode(); // Initializes hashValue_.
+
+                    // Add hash of adapter ID to base hash.
+                    hashValue_ = 5 * hashValue_ + _adapterId.GetHashCode();
                 }
                 return hashValue_;
             }
