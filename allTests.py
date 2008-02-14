@@ -26,5 +26,4 @@ for d in [ "cpp", "java", "cs", "py", "rb", "php" ]:
     if len(tests) > 0:
         testGroups.extend(tests)
 
-print testGroups
 TestUtil.run(testGroups, root=True)
