@@ -112,6 +112,9 @@ private:
 
     private:
 
+        void writeMemberHashCode(const DataMemberList&, int);
+        void writeMemberEquals(const DataMemberList&, int);
+
         bool _stream;
     };
 

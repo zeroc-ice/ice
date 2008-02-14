@@ -20,7 +20,7 @@ namespace DotNet
 
 enum BaseType
 {
-    Object=1, ICloneable=2, Exception=4, ApplicationException=8, END=16
+    Object=1, ICloneable=2, Exception=4, END=8
 };
 
 extern const char * manglePrefix;
