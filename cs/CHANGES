@@ -1,9 +1,13 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
-- The use of sequences (and structs containing sequences) as valid 
-  dictionary keys has been deprecated and will be removed in a future
-  release.
+- Changed Ice.Exception to derive from System.Exception rather than
+  System.ApplicationException in accordance with Microsoft's
+  recommendations for writing custom exceptions.
+
+- The use of sequences (and structs containing sequences) as keys in
+  a Slice dictionary has been deprecated and will be removed in a
+  future release.
 
 - It is now possible to specify properties in a config file with
   space, '#' or '=' in either the key or value string. It is necessary 

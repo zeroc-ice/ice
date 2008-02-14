@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 import IceGridAdmin
 
 name = os.path.join("IceGrid", "replication")

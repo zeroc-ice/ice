@@ -2309,16 +2309,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
     {
-        C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, __cnt);";
+        C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, 0, __cnt);";
     }
     else
     {
-        C << nl << "__handleExceptionWrapper(__delBase, __ex);";
+        C << nl << "__handleExceptionWrapper(__delBase, __ex, 0);";
     }
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
-    C << nl << "__handleException(__delBase, __ex, __cnt);";
+    C << nl << "__handleException(__delBase, __ex, 0, __cnt);";
     C << eb;
     C << eb;
     C << eb;

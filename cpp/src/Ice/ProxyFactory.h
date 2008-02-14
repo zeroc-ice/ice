@@ -17,6 +17,7 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Exception.h>
+#include <Ice/OutgoingAsyncF.h>
 
 namespace IceInternal
 {
@@ -37,7 +38,7 @@ public:
 
     Ice::ObjectPrx referenceToProxy(const ReferencePtr&) const;
 
-    void checkRetryAfterException(const Ice::LocalException&, const ReferencePtr&, int&) const;
+    void checkRetryAfterException(const Ice::LocalException&, const ReferencePtr&, OutgoingAsync*, int&) const;
 
 private:
 

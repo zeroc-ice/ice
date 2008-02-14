@@ -29,10 +29,10 @@ namespace IceInternal
             current_.adapter = adapter;
             current_.con = connection;
             current_.requestId = requestId;
-            
+
             cookie_ = null;
         }
-        
+
         protected internal IncomingBase(IncomingBase inc) // Adopts the argument. It must not be used afterwards.
         {
             adopt(inc);
@@ -45,11 +45,12 @@ namespace IceInternal
                 //
                 // Copy, not just reference
                 //
-                interceptorAsyncCallbackList_ = new List<Ice.DispatchInterceptorAsyncCallback>(inc.interceptorAsyncCallbackList_);
+                interceptorAsyncCallbackList_ =
+                    new List<Ice.DispatchInterceptorAsyncCallback>(inc.interceptorAsyncCallbackList_);
             }
-            
+
             //
-            // We don't change _current as it's exposed by Ice::Request
+            // We don't change current_ as it's exposed by Ice::Request.
             //
             current_ = inc.current_;
         }
@@ -59,19 +60,19 @@ namespace IceInternal
         {
             servant_ = inc.servant_;
             inc.servant_ = null;
-            
+
             locator_ = inc.locator_;
             inc.locator_ = null;
-            
+
             cookie_ = inc.cookie_;
             inc.cookie_ = null;
-            
+
             response_ = inc.response_;
             inc.response_ = false;
-            
+
             compress_ = inc.compress_;
             inc.compress_ = 0;
-            
+
             os_ = inc.os_;
             inc.os_ = null;
 
@@ -82,7 +83,7 @@ namespace IceInternal
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public virtual void reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+        public virtual void reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
                                   bool response, byte compress, int requestId)
         {
             //
@@ -93,13 +94,13 @@ namespace IceInternal
             current_.adapter = adapter;
             current_.con = connection;
             current_.requestId = requestId;
-            
+
             Debug.Assert(cookie_ == null);
-            
+
             response_ = response;
-            
+
             compress_ = compress;
-            
+
             if(os_ == null)
             {
                 os_ = new BasicStream(instance);
@@ -107,11 +108,11 @@ namespace IceInternal
 
             connection_ = connection;
         }
-        
+
         public virtual void reclaim()
         {
             servant_ = null;
-            
+
             locator_ = null;
 
             cookie_ = null;
@@ -125,7 +126,7 @@ namespace IceInternal
         protected internal void warning__(System.Exception ex)
         {
             Debug.Assert(os_ != null);
-            
+
             using(StringWriter sw = new StringWriter())
             {
                 IceUtilInternal.OutputBase output = new IceUtilInternal.OutputBase(sw);
@@ -152,23 +153,23 @@ namespace IceInternal
                 {
                     ex.id = current_.id;
                 }
-                
+
                 if(ex.facet == null)
                 {
                     ex.facet = current_.facet;
                 }
-                
+
                 if(ex.operation == null || ex.operation.Length == 0)
                 {
                     ex.operation = current_.operation;
                 }
-                
+
                 if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
                                                                                 "Ice.Warn.Dispatch", 1) > 1)
                 {
                     warning__(ex);
                 }
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
@@ -190,7 +191,7 @@ namespace IceInternal
                         Debug.Assert(false);
                     }
                     ex.id.write__(os_);
- 
+
                     //
                     // For compatibility with the old FacetPath.
                     //
@@ -222,7 +223,7 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
@@ -245,7 +246,7 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
@@ -268,7 +269,7 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
@@ -291,7 +292,7 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
@@ -307,7 +308,6 @@ namespace IceInternal
 
                 return;
             }
-
             catch(Ice.UserException ex)
             {
                 if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
@@ -315,7 +315,7 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
@@ -331,7 +331,6 @@ namespace IceInternal
 
                 return;
             }
-
             catch(System.Exception ex)
             {
                 if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
@@ -339,7 +338,7 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
@@ -356,22 +355,22 @@ namespace IceInternal
                 return;
             }
         }
-        
+
         protected internal Ice.Current current_;
         protected internal Ice.Object servant_;
         protected internal Ice.ServantLocator locator_;
         protected internal System.Object cookie_;
-        
+
         protected internal bool response_;
         protected internal byte compress_;
-        
+
         protected internal BasicStream os_;
-        
+
         protected Ice.ConnectionI connection_;
 
         protected List<Ice.DispatchInterceptorAsyncCallback> interceptorAsyncCallbackList_;
     }
-        
+
     sealed public class Incoming : IncomingBase, Ice.Request
     {
         public Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
@@ -412,7 +411,7 @@ namespace IceInternal
 
             base.reset(instance, connection, adapter, response, compress, requestId);
         }
-        
+
         public override void reclaim()
         {
             _cb = null;
@@ -459,23 +458,23 @@ namespace IceInternal
                 string second = _is.readString();
                 current_.ctx[first] = second;
             }
-            
+
             if(response_)
             {
                 Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
                 os_.writeByte(ReplyStatus.replyOK);
                 os_.startWriteEncaps();
             }
-            
+
             byte replyStatus = ReplyStatus.replyOK;
             Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;
-            
+
             //
             // Don't put the code above into the try block below. Exceptions
             // in the code above are considered fatal, and must propagate to
             // the caller of this operation.
             //
-            
+
             try
             {
                 try
@@ -524,7 +523,7 @@ namespace IceInternal
                             {
                                 replyStatus = ReplyStatus.replyUserException;
                             }
-                        }           
+                        }
                     }
                 }
                 finally
@@ -554,7 +553,7 @@ namespace IceInternal
                 handleException__(ex);
                 return;
             }
-            
+
             //
             // Don't put the code below into the try block above. Exceptions
             // in the code below are considered fatal, and must propagate to
@@ -572,19 +571,19 @@ namespace IceInternal
                 //
                 return;
             }
-            
+
             if(response_)
             {
                 os_.endWriteEncaps();
-                
+
                 if(replyStatus != ReplyStatus.replyOK && replyStatus != ReplyStatus.replyUserException)
                 {
                     Debug.Assert(replyStatus == ReplyStatus.replyObjectNotExist ||
                                  replyStatus == ReplyStatus.replyFacetNotExist);
-                    
+
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(replyStatus);
-                    
+
                     current_.id.write__(os_);
 
                     //
@@ -617,17 +616,17 @@ namespace IceInternal
                 connection_.sendNoResponse();
             }
         }
-        
+
         public BasicStream istr()
         {
             return _is;
         }
-        
+
         public BasicStream ostr()
         {
             return os_;
         }
-        
+
 
         public void
         push(Ice.DispatchInterceptorAsyncCallback cb)
@@ -636,18 +635,18 @@ namespace IceInternal
             {
                 interceptorAsyncCallbackList_ = new List<Ice.DispatchInterceptorAsyncCallback>();
             }
-            
+
             interceptorAsyncCallbackList_.Insert(0, cb);
         }
-        
+
         public void
         pop()
         {
             Debug.Assert(interceptorAsyncCallbackList_ != null);
             interceptorAsyncCallbackList_.RemoveAt(0);
         }
-                
-        public void 
+
+        public void
         startOver()
         {
             if(_inParamPos == -1)
@@ -660,22 +659,22 @@ namespace IceInternal
             else
             {
                 killAsync();
-                
+
                 //
                 // Let's rewind _is and clean-up os_
                 //
                 _is.pos(_inParamPos);
-                
+
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); 
+                    os_.resize(Protocol.headerSize + 4, false);
                     os_.writeByte(ReplyStatus.replyOK);
                     os_.startWriteEncaps();
                 }
             }
         }
-        
+
         public void
         killAsync()
         {
@@ -691,24 +690,24 @@ namespace IceInternal
                 _cb = null;
             }
         }
-        
+
         internal void
         setActive(IncomingAsync cb)
         {
             Debug.Assert(_cb == null);
             _cb = cb;
         }
-        
-        internal bool 
+
+        internal bool
         isRetriable()
         {
             return _inParamPos != -1;
         }
-    
+
         public Incoming next; // For use by Connection.
-        
+
         private BasicStream _is;
-        
+
         private IncomingAsync _cb;
         private int _inParamPos = -1;
     }

@@ -477,7 +477,7 @@ IceInternal::Reference::hashInit() const
 	h = 5 * h + *p;
     }
 
-    _hashValue = 5 * _hashValue + static_cast<Int>(_secure);
+    h = 5 * h + static_cast<Int>(_secure);
 
     _hashValue = h;
     _hashInitialized = true;

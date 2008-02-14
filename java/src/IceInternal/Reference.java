@@ -195,25 +195,11 @@ public abstract class Reference implements Cloneable
         
         int h = _mode;
 
-        int sz = _identity.name.length();
-        for(int i = 0; i < sz; i++)
-        {   
-            h = 5 * h + (int)_identity.name.charAt(i);
-        }
+        h = 5 * h + _identity.hashCode();
 
-        sz = _identity.category.length();
-        for(int i = 0; i < sz; i++)
-        {   
-            h = 5 * h + (int)_identity.category.charAt(i);
-        }
+        h = 5 * h + _context.hashCode();
 
-        h = 5 * h + _context.entrySet().hashCode();
-
-        sz = _facet.length();
-        for(int i = 0; i < sz; i++)
-        {   
-            h = 5 * h + (int)_facet.charAt(i);
-        }
+        h = 5 * h + _facet.hashCode();
 
         h = 5 * h + (_secure ? 1 : 0);
 

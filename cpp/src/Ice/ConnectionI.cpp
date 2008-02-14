@@ -31,6 +31,31 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+
+class CallFinished : public ThreadPoolWorkItem
+{
+public:
+
+    CallFinished(const Ice::ConnectionIPtr& connection) : _connection(connection)
+    {
+    }
+
+    virtual void
+    execute(const ThreadPoolPtr& threadPool)
+    {
+        _connection->finished(threadPool);
+    }
+
+private:
+
+    ConnectionIPtr _connection;
+};
+
+}
+
+
 Ice::LocalObject* IceInternal::upCast(ConnectionI* p) { return p; }
 
 void
@@ -131,127 +156,94 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
                 assert(_exception.get());
                 _exception->ice_throw();
             }
+        }
 
+        if(_threadPerConnection)
+        {
             //
             // In thread per connection mode, we create the thread for the connection. The
             // intialization and validation of the connection is taken care of by the thread
-            // per connection. If a callback is given, no need to wait, the thread will notify
-            // the callback, otherwise wait until the connection is validated.
+            // per connection.
             //
-            if(_threadPerConnection)
+            try
             {
-                try
-                {
-                    _thread = new ThreadPerConnection(this);
-                    _thread->start(_threadPerConnectionStackSize);
-                }
-                catch(const IceUtil::Exception& ex)
-                {
-                    {
-                        Error out(_logger);
-                        out << "cannot create thread for connection:\n" << ex;
-                    }
-
-                    //
-                    // Clean up.
-                    //
-                    _thread = 0;
-                    _state = StateClosed;
-                
-                    ex.ice_throw();
-                }
-            
-                if(!callback) // Wait for the connection to be validated.
-                {
-                    while(_state <= StateNotValidated)
-                    {
-                        wait();
-                    }
-                
-                    if(_state >= StateClosing)
-                    {
-                        assert(_exception.get());
-                        _exception->ice_throw();
-                    }
-                }
-                return; // We're done.
+                _thread = new ThreadPerConnection(this);
+                _thread->start(_threadPerConnectionStackSize);
             }
-        }
+            catch(const IceUtil::Exception& ex)
+            {
+                {
+                    Error out(_logger);
+                    out << "cannot create thread for connection:\n" << ex;
+                }
 
-        SocketStatus status = initialize();
-        if(status == Finished)
-        {
-            status = validate();
-        }
-        
-        if(status == Finished)
-        {
-            finishStart();
-            return; // We're done!
-        }
-
-        assert(callback);
-
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        if(_state == StateClosed)
-        {
-            assert(_exception.get());
-            _exception->ice_throw();
-        }
-
-        int timeout;
-        DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-        if(defaultsAndOverrides->overrideConnectTimeout)
-        {
-            timeout = defaultsAndOverrides->overrideConnectTimeoutValue;
+                //
+                // Clean up.
+                //
+                _thread = 0;
+                ex.ice_throw();
+            }
         }
         else
         {
-            timeout = _endpoint->timeout();
+            SocketStatus status = initialize(0);
+            if(status == Finished)
+            {
+                status = validate(0);
+            }
+                
+            if(status == Finished)
+            {
+                finishStart();
+                return; // We're done!
+            }
+
+            int timeout;
+            DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+            if(defaultsAndOverrides->overrideConnectTimeout)
+            {
+                timeout = defaultsAndOverrides->overrideConnectTimeoutValue;
+            }
+            else
+            {
+                timeout = _endpoint->timeout();
+            }
+                
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            if(_state == StateClosed)
+            {
+                assert(_exception.get());
+                _exception->ice_throw();
+            }
+            _sendInProgress = true;
+            _selectorThread->_register(_transceiver->fd(), this, status, timeout);
         }
-        
-        _sendInProgress = true;
-        _selectorThread->_register(_transceiver->fd(), this, status, timeout);
-        return;
+            
+        if(!callback) // Wait for the connection to be validated.
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            while(_state <= StateNotValidated)
+            {
+                wait();
+            }
+                
+            if(_state >= StateClosing)
+            {
+                assert(_exception.get());
+                _exception->ice_throw();
+            }
+        }
     }
     catch(const Ice::LocalException& ex)
     {
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
             setState(StateClosed, ex);
-
-            //
-            // If start is called with a callback, the callback is notified either by the
-            // thread per connection or the thread pool.
-            //
             if(callback)
             {
-                if(!_threadPerConnection)
-                {
-                    registerWithPool();
-                    unregisterWithPool(); // Let finished do the close.
-                }
                 return;
             }
-
-            //
-            // Close the transceiver if there's no thread per connection, otherwise, the
-            // thread per connection takes care of it.
-            //
-            if(!_thread && _transceiver)
-            {
-                try
-                {
-                    _transceiver->close();
-                }
-                catch(const Ice::LocalException&)
-                {
-                    // Here we ignore any exceptions in close().
-                }
-                _transceiver = 0;
-            }
         }
-        
         waitUntilFinished();
         throw;
     }
@@ -1343,7 +1335,7 @@ Ice::ConnectionI::socketReady(bool finished)
             
                 if(state == StateNotInitialized)
                 {
-                    SocketStatus status = initialize();
+                    SocketStatus status = initialize(0);
                     if(status != Finished)
                     {
                         return status;
@@ -1352,7 +1344,7 @@ Ice::ConnectionI::socketReady(bool finished)
             
                 if(state <= StateNotValidated)
                 {
-                    SocketStatus status = validate();
+                    SocketStatus status = validate(0);
                     if(status != Finished)
                     {
                         return status;
@@ -1391,8 +1383,15 @@ Ice::ConnectionI::socketReady(bool finished)
         }
         else
         {
-            registerWithPool();
-            unregisterWithPool(); // Let finished() do the close.
+            if(!_registeredWithPool)
+            {
+                _threadPool->execute(new CallFinished(this));
+                ++_finishedCount; // For each unregistration, finished() is called once.
+            }
+            else
+            {
+                unregisterWithPool();
+            }
         }
         notifyAll();
         return Finished;
@@ -1725,7 +1724,7 @@ Ice::ConnectionI::setState(State state)
 
             _transceiver->shutdownWrite(); // Prevent further writes.
         }
-        else if(_state <= StateNotValidated || _threadPerConnection)
+        else if(_threadPerConnection)
         {
             //
             // If we are in thread per connection mode or we're initializing 
@@ -1737,9 +1736,15 @@ Ice::ConnectionI::setState(State state)
         }
         else
         {
-            registerWithPool();
-            unregisterWithPool(); // Let finished() do the close.
-
+            if(!_registeredWithPool)
+            {
+                _threadPool->execute(new CallFinished(this));
+                ++_finishedCount; // For each unregistration, finished() is called once.
+            }
+            else
+            {
+                unregisterWithPool();
+            }
             _transceiver->shutdownWrite(); // Prevent further writes.
         }
         break;
@@ -1823,28 +1828,14 @@ Ice::ConnectionI::initiateShutdown()
 }
 
 SocketStatus
-Ice::ConnectionI::initialize()
+Ice::ConnectionI::initialize(int timeout)
 {
-    int timeout = 0;
-    if(!_startCallback || _threadPerConnection)
-    {
-        DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-        if(defaultsAndOverrides->overrideConnectTimeout)
-        {
-            timeout = defaultsAndOverrides->overrideConnectTimeoutValue;
-        }
-        else
-        {
-            timeout = _endpoint->timeout();
-        }
-    }
-    
     try
     {
         SocketStatus status = _transceiver->initialize(timeout);
         if(status != Finished)
         {
-            if(!_startCallback || _threadPerConnection)
+            if(timeout != 0)
             {
                 throw TimeoutException(__FILE__, __LINE__);
             }
@@ -1876,23 +1867,10 @@ Ice::ConnectionI::initialize()
 }
 
 SocketStatus
-Ice::ConnectionI::validate()
+Ice::ConnectionI::validate(int timeout)
 {
     if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
-        Int timeout = 0;
-        if(!_startCallback || _threadPerConnection)
-        {
-            if(_instance->defaultsAndOverrides()->overrideConnectTimeout)
-            {
-                timeout = _instance->defaultsAndOverrides()->overrideConnectTimeoutValue;
-            }
-            else
-            {
-                timeout = _endpoint->timeout();
-            }
-        }
-
         if(_adapter) // The server side has the active role for connection validation.
         {
             BasicStream& os = _stream;
@@ -1915,14 +1893,14 @@ Ice::ConnectionI::validate()
             else
             {
                 // The stream can only be non-empty if we're doing a non-blocking connection validation.
-                assert(_startCallback && !_threadPerConnection);
+                assert(!_threadPerConnection);
             }
 
             try
             {
                 if(!_transceiver->write(os, timeout))
                 {
-                    if(!_startCallback || _threadPerConnection)
+                    if(timeout != 0)
                     {
                         throw TimeoutException(__FILE__, __LINE__);
                     }
@@ -1945,14 +1923,14 @@ Ice::ConnectionI::validate()
             else
             {
                 // The stream can only be non-empty if we're doing a non-blocking connection validation.
-                assert(_startCallback && !_threadPerConnection); 
+                assert(!_threadPerConnection); 
             }
 
             try
             {
                 if(!_transceiver->read(is, timeout))
                 {
-                    if(!_startCallback || _threadPerConnection)
+                    if(timeout != 0)
                     {
                         throw TimeoutException(__FILE__, __LINE__);
                     }
@@ -2743,10 +2721,21 @@ Ice::ConnectionI::run()
         //
         SocketStatus status;
 
-        status = initialize();
+        int timeout;
+        DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+        if(defaultsAndOverrides->overrideConnectTimeout)
+        {
+            timeout = defaultsAndOverrides->overrideConnectTimeoutValue;
+        }
+        else
+        {
+            timeout = _endpoint->timeout();
+        }
+
+        status = initialize(timeout);
         assert(status == Finished);
         
-        status = validate();
+        status = validate(timeout);
         assert(status == Finished);
     }
     catch(const LocalException& ex)

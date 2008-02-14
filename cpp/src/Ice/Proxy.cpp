@@ -118,11 +118,11 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context* context)
         }
         catch(const LocalExceptionWrapper& __ex)
         {
-            __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+            __handleExceptionWrapperRelaxed(__del, __ex, 0, __cnt);
         }
         catch(const LocalException& __ex)
         {
-            __handleException(__del, __ex, __cnt);
+            __handleException(__del, __ex, 0, __cnt);
         }
     }
 }
@@ -142,11 +142,11 @@ IceProxy::Ice::Object::ice_ping(const Context* context)
         }
         catch(const LocalExceptionWrapper& __ex)
         {
-            __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+            __handleExceptionWrapperRelaxed(__del, __ex, 0, __cnt);
         }
         catch(const LocalException& __ex)
         {
-            __handleException(__del, __ex, __cnt);
+            __handleException(__del, __ex, 0, __cnt);
         }
     }
 }
@@ -166,11 +166,11 @@ IceProxy::Ice::Object::ice_ids(const Context* context)
         }
         catch(const LocalExceptionWrapper& __ex)
         {
-            __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+            __handleExceptionWrapperRelaxed(__del, __ex, 0, __cnt);
         }
         catch(const LocalException& __ex)
         {
-            __handleException(__del, __ex, __cnt);
+            __handleException(__del, __ex, 0, __cnt);
         }
     }
 }
@@ -190,11 +190,11 @@ IceProxy::Ice::Object::ice_id(const Context* context)
         }
         catch(const LocalExceptionWrapper& __ex)
         {
-            __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+            __handleExceptionWrapperRelaxed(__del, __ex, 0, __cnt);
         }
         catch(const LocalException& __ex)
         {
-            __handleException(__del, __ex, __cnt);
+            __handleException(__del, __ex, 0, __cnt);
         }
     }
 }
@@ -242,16 +242,16 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
             bool canRetry = mode == Nonmutating || mode == Idempotent;
             if(canRetry)
             {
-                __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
+                __handleExceptionWrapperRelaxed(__del, __ex, 0, __cnt);
             }
             else
             {
-                __handleExceptionWrapper(__del, __ex);
+                __handleExceptionWrapper(__del, __ex, 0);
             }
         }
         catch(const LocalException& __ex)
         {
-            __handleException(__del, __ex, __cnt);
+            __handleException(__del, __ex, 0, __cnt);
         }
     }
 }
@@ -778,7 +778,7 @@ IceProxy::Ice::Object::ice_getConnection()
         }
         catch(const LocalException& __ex)
         {
-            __handleException(__del, __ex, __cnt);
+            __handleException(__del, __ex, 0, __cnt);
         }
     }
 }
@@ -821,7 +821,7 @@ IceProxy::Ice::Object::ice_flushBatchRequests()
     }
     catch(const LocalException& __ex)
     {
-        __handleException(__del, __ex, __cnt);
+        __handleException(__del, __ex, 0, __cnt);
     }
 }
 
@@ -888,15 +888,18 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 void
 IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>& delegate,
                                          const LocalException& ex, 
+                                         ::IceInternal::OutgoingAsync* out,
                                          int& cnt)
 {
     //
     // Only _delegate needs to be mutex protected here.
     //
-    IceUtil::Mutex::Lock sync(*this);
-    if(delegate.get() == _delegate.get())
     {
-        _delegate = 0;
+        IceUtil::Mutex::Lock sync(*this);
+        if(delegate.get() == _delegate.get())
+        {
+            _delegate = 0;
+        }
     }
 
     if(cnt == -1) // Don't retry if the retry count is -1.
@@ -904,10 +907,9 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
         ex.ice_throw();
     }
 
-    ProxyFactoryPtr proxyFactory;
     try
     {
-        proxyFactory = _reference->getInstance()->proxyFactory();
+        _reference->getInstance()->proxyFactory()->checkRetryAfterException(ex, _reference, out, cnt);
     }
     catch(const CommunicatorDestroyedException&)
     {
@@ -916,13 +918,12 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
         //
         ex.ice_throw();
     }
-
-    proxyFactory->checkRetryAfterException(ex, _reference, cnt);
 }
 
 void
 IceProxy::Ice::Object::__handleExceptionWrapper(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>& delegate,
-                                                const LocalExceptionWrapper& ex)
+                                                const LocalExceptionWrapper& ex,
+                                                IceInternal::OutgoingAsync* out)
 {
     {
         IceUtil::Mutex::Lock sync(*this);
@@ -936,22 +937,36 @@ IceProxy::Ice::Object::__handleExceptionWrapper(const ::IceInternal::Handle< ::I
     {
         ex.get()->ice_throw();
     }
+
+    if(out)
+    {
+        out->__send();
+    }
 }
 
 void
 IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>& del,
-                                                       const LocalExceptionWrapper& ex, int& cnt)
+                                                       const LocalExceptionWrapper& ex, 
+                                                       ::IceInternal::OutgoingAsync* out, 
+                                                       int& cnt)
 {
     if(!ex.retry())
     {
-        __handleException(del, *ex.get(), cnt);
+        __handleException(del, *ex.get(), out, cnt);
     }
     else
     {
-        IceUtil::Mutex::Lock sync(*this);
-        if(del.get() == _delegate.get())
         {
-            _delegate = 0;
+            IceUtil::Mutex::Lock sync(*this);
+            if(del.get() == _delegate.get())
+            {
+                _delegate = 0;
+            }
+        }
+
+        if(out)
+        {
+            out->__send();
         }
     }
 }

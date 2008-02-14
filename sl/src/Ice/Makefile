@@ -22,6 +22,7 @@ SRCS		= Application.cs \
 		  Object.cs \
 		  ByteBuffer.cs \
 		  CollectionBase.cs \
+		  Collections.cs \
 		  CommunicatorI.cs \
 		  Compare.cs \
 		  DefaultsAndOverrides.cs \

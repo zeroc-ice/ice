@@ -19,6 +19,7 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+TestUtil.processCmdLine()
 
 router = os.path.join(TestUtil.getIceCppDir(), "bin", "glacier2router")
 name = os.path.join("Glacier2", "router")

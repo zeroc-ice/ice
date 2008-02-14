@@ -371,13 +371,15 @@ string
 IceUtilInternal::trim(const string& s)
 {
     static const string delim = " \t\r\n";
-    if(s.length() != 0)
+    string::size_type beg = s.find_first_not_of(delim);
+    if(beg == string::npos)
     {
-        string::size_type beg = s.find_first_not_of(delim);
-        string::size_type end = s.find_last_not_of(delim);
-        return s.substr(beg, end - beg + 1);
+        return "";
     }
-    return s;
+    else
+    {
+        return s.substr(beg, s.find_last_not_of(delim) - beg + 1);
+    }
 }
 
 //

@@ -18,7 +18,8 @@ else:
     raise "can't find toplevel directory!"
 
 sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil 
+import TestUtil
+TestUtil.processCmdLine() 
 
 testdir = os.path.dirname(os.path.abspath(__file__))
 
