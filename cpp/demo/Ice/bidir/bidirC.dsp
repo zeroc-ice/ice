@@ -120,7 +120,9 @@ USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice Callback.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Callback.ice \
+	
 
 "Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -136,7 +138,9 @@ USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice Callback.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Callback.ice \
+	
 
 "Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -120,7 +120,9 @@ USERDEP__PRINT="../../../bin/slice2cpp.exe"
 InputPath=.\Printer.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice Printer.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Printer.ice \
+	
 
 "Printer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -136,7 +138,9 @@ USERDEP__PRINT="..\..\..\bin\slice2cpp.exe"
 InputPath=.\Printer.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice Printer.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Printer.ice \
+	
 
 "Printer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

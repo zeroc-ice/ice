@@ -53,6 +53,21 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 Ice.lib IceUtil.lib Glacier2.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug
+# Begin Custom Build
+InputPath=.\client.exe
+SOURCE="$(InputPath)"
+
+BuildCmds= \
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Chat.ice \
+	
+
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "chatC - Win32 Debug"
 
@@ -79,6 +94,21 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 Iced.lib IceUtild.lib Glacier2d.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
+# Begin Custom Build
+InputPath=.\client.exe
+SOURCE="$(InputPath)"
+
+BuildCmds= \
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Chat.ice \
+	
+
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ENDIF 
 

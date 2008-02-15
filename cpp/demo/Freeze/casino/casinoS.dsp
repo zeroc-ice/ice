@@ -198,7 +198,9 @@ SOURCE=.\CasinoStore.ice
 InputPath=.\CasinoStore.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. -I..\..\..\..\slice CasinoStore.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I. -I%slicedir% CasinoStore.ice \
+	
 
 "CasinoStore.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -213,7 +215,9 @@ BuildCmds= \
 InputPath=.\CasinoStore.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. -I..\..\..\..\slice CasinoStore.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I. -I%slicedir% CasinoStore.ice \
+	
 
 "CasinoStore.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

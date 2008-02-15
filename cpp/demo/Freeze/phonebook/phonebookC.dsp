@@ -187,7 +187,9 @@ USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice PhoneBook.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% PhoneBook.ice \
+	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -203,7 +205,9 @@ USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice PhoneBook.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% PhoneBook.ice \
+	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -128,7 +128,9 @@ USERDEP__CHAT_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"
 InputPath=.\Chat.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice Chat.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Chat.ice \
+	
 
 "Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -144,7 +146,9 @@ USERDEP__CHAT_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"
 InputPath=.\Chat.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../../slice Chat.ice
+	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
+	..\..\..\bin\slice2cpp.exe -I%sliceDir% Chat.ice \
+	
 
 "Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
