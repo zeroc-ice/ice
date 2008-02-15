@@ -55,7 +55,10 @@
     </PostBuildEvent>
   </PropertyGroup>
   <Target Name="CompileSlice" Inputs="Latency.ice" Outputs="generated\Latency.cs">
-    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --output-dir generated Latency.ice" />
+    <Exec Condition="Exists('..\..\..\slice')"
+          Command="..\..\..\bin\slice2cs.exe --output-dir generated Latency.ice"/>
+    <Exec Condition="Exists('..\..\..\..\slice')"
+          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Latency.ice"/>
   </Target>
   <Target Name="AfterClean">
     <Delete Files="generated\Latency.cs" />
