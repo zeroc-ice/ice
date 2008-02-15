@@ -99,6 +99,10 @@ def remove(path):
 #
 def copy(srcpath, destpath):
 
+    if not os.path.exists(srcpath):
+        print "warning: " + srcpath + " doesn't exist"
+        return
+
     if os.path.isdir(destpath):
         destpath = os.path.join(destpath, os.path.basename(srcpath))
 
@@ -514,7 +518,7 @@ sys.stdout.flush()
 
 # Demo distribution
 copy("ICE_LICENSE", demoDistDir)
-copy(os.path.join(distDir, "distribution", "src", "windows", "README.DEMOS"), os.path.join(demoDistDir))
+copy(os.path.join(distDir, "distribution", "src", "common", "README.DEMOS"), os.path.join(demoDistDir))
 
 copyMatchingFiles(os.path.join("certs"), os.path.join(demoDistDir, "certs"), certsFiles)
 copyMatchingFiles(os.path.join("config"), os.path.join(demoDistDir, "config"), configFiles)
@@ -542,6 +546,12 @@ for root, dirnames, filesnames in os.walk(demoDistDir):
 print "ok"
 
 #
+# Copy CHANGES and RELEASE_NOTES.txt
+#
+copy(os.path.join(srcDistDir, "cpp", "CHANGES"), os.path.join(distDir, "Ice-" + version + "-CHANGES"))
+copy(os.path.join(distDir, "distribution", "src", "common", "RELEASE_NOTES.txt"), distDir)
+
+#
 # Everything should be clean now, we can create the source distributions archives
 # 
 print "Archiving..."
@@ -564,15 +574,6 @@ for d in [srcDistDir, demoDistDir]:
     else:
         os.system("zip -9rq " + dist +".zip " + dist)
     print "ok"
-
-#
-# Copy CHANGES and RELEASE_NOTES.txt
-#
-copy(os.path.join("Ice-" + version, "cpp", "CHANGES"), "Ice-" + version + "-CHANGES")
-if os.path.exists(os.path.join("Ice-" + version, "RELEASE_NOTES.txt")):
-    copy(os.path.join("Ice-" + version, "RELEASE_NOTES.txt", "RELEASE_NOTES.txt"))
-else:
-    print "warning: couldn't find ./RELEASE_NOTES.txt file"
 
 readme = open("README.txt", "w")
 print >>readme, "This directory contains the source distributions of Ice " + version + ".\n"

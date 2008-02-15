@@ -18,6 +18,23 @@ public final class ConnectionI extends IceInternal.EventHandler
         void connectionStartFailed(ConnectionI connection, Ice.LocalException ex);
     }
 
+    public class CallFinished implements IceInternal.ThreadPoolWorkItem
+    {
+        public 
+        CallFinished(ConnectionI connection)
+        {
+            _connection = connection;
+        }
+
+        public void
+        execute(IceInternal.ThreadPool threadPool)
+        {
+            _connection.finished(threadPool);
+        }
+
+        final private ConnectionI _connection;
+    }
+
     public void
     start(StartCallback callback)
     {
@@ -35,92 +52,59 @@ public final class ConnectionI extends IceInternal.EventHandler
                     assert(_exception != null);
                     throw _exception;
                 }
+            }
 
+            if(_threadPerConnection)
+            {
                 //
                 // In thread per connection mode, we create the thread for the connection. The
                 // intialization and validation of the connection is taken care of by the thread
-                // per connection. If a callback is given, no need to wait, the thread will notify
-                // the callback, otherwise wait until the connection is validated.
+                // per connection.
                 //
-                if(_threadPerConnection)
+                try
                 {
-                    try
-                    {
-                        _thread = new ThreadPerConnection();
-                        _thread.start();
-                    }
-                    catch(java.lang.Exception ex)
-                    {
-                        java.io.StringWriter sw = new java.io.StringWriter();
-                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                        ex.printStackTrace(pw);
-                        pw.flush();
-                        _logger.error("cannot create thread for connection:\n" + sw.toString());
+                    _thread = new ThreadPerConnection();
+                    _thread.start();
+                }
+                catch(java.lang.Exception ex)
+                {
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                    _logger.error("cannot create thread for connection:\n" + sw.toString());
+                    
+                    //
+                    // Clean up.
+                    //
+                    _thread = null;
 
-                        //
-                        // Clean up.
-                        //
-                        _thread = null;
-                        _state = StateClosed;
-
-                        Ice.SyscallException e = new Ice.SyscallException();
-                        e.initCause(ex);
-                        throw e;
-                    }
-
-                    if(callback == null) // Wait for the connection to be validated.
-                    {
-                        while(_state <= StateNotValidated)
-                        {
-                            try
-                            {
-                                wait();
-                            }
-                            catch(InterruptedException ex)
-                            {
-                            }
-                        }
-                        
-                        if(_state >= StateClosing)
-                        {
-                            assert(_exception != null);
-                            throw _exception;
-                        }
-                    }
-                    return; // We're done.
+                    Ice.SyscallException e = new Ice.SyscallException();
+                    e.initCause(ex);
+                    throw e;
                 }
             }
-
-            assert(!_threadPerConnection);
-
-            //
-            // Initialize the connection transceiver and then validate the connection.
-            //
-            IceInternal.SocketStatus status = initialize();
-            if(status == IceInternal.SocketStatus.Finished)
+            else
             {
-                status = validate();
-            }
-
-            if(status == IceInternal.SocketStatus.Finished)
-            {
-                finishStart(null);
-                return; // We're done!
-            }
-
-            //
-            // If the initialization or validation couldn't be completed without potentially 
-            // blocking, we register the connection with the selector thread and return.
-            //
-
-            synchronized(this)
-            {
-                if(_state == StateClosed)
+                //
+                // Initialize the connection transceiver and then validate the connection.
+                //
+                IceInternal.SocketStatus status = initialize(0);
+                if(status == IceInternal.SocketStatus.Finished)
                 {
-                    assert(_exception != null);
-                    throw _exception;
+                    status = validate(0);
                 }
-
+                
+                if(status == IceInternal.SocketStatus.Finished)
+                {
+                    finishStart(null);
+                    return; // We're done!
+                }
+                
+                //
+                // If the initialization or validation couldn't be completed without potentially 
+                // blocking, we register the connection with the selector thread and return.
+                //
                 int timeout;
                 IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
                 if(defaultsAndOverrides.overrideConnectTimeout)
@@ -131,9 +115,40 @@ public final class ConnectionI extends IceInternal.EventHandler
                 {
                     timeout = _endpoint.timeout();
                 }
-                
-                _sendInProgress = true;
-                _selectorThread._register(_transceiver.fd(), this, status, timeout);
+
+                synchronized(this)
+                {
+                    if(_state == StateClosed)
+                    {
+                        assert(_exception != null);
+                        throw _exception;
+                    }
+                    _sendInProgress = true;
+                    _selectorThread._register(_transceiver.fd(), this, status, timeout);
+                }
+            }
+
+            if(callback == null) // Wait for the connection to be validated.
+            {
+                synchronized(this)
+                {
+                    while(_state <= StateNotValidated)
+                    {
+                        try
+                        {
+                            wait();
+                        }
+                        catch(InterruptedException ex)
+                        {
+                        }
+                    }
+                    
+                    if(_state >= StateClosing)
+                    {
+                        assert(_exception != null);
+                        throw _exception;
+                    }
+                }
             }
         }
         catch(Ice.LocalException ex)
@@ -141,39 +156,11 @@ public final class ConnectionI extends IceInternal.EventHandler
             synchronized(this)
             {
                 setState(StateClosed, ex);
-
-                //
-                // If start is called with a callback, the callback is notified either by the
-                // thread per conncetion or the thread pool.
-                //
                 if(callback != null)
                 {
-                    if(!_threadPerConnection)
-                    {
-                        registerWithPool();
-                        unregisterWithPool(); // Let finished() do the close.
-                    }
                     return;
                 }
-                
-                //
-                // Close the transceiver if there's no thread per connection. Otherwise, wait
-                // for the thread per connection to take care of it.
-                // 
-                if(_thread == null && _transceiver != null)
-                {
-                    try
-                    {
-                        _transceiver.close();
-                    }
-                    catch(LocalException e)
-                    {
-                        // Here we ignore any exceptions in close().
-                    }
-                    _transceiver = null;
-                }
             }
-
             waitUntilFinished();
             throw ex;
         }
@@ -1258,7 +1245,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 
                     if(state == StateNotInitialized)
                     {
-                        IceInternal.SocketStatus status = initialize();
+                        IceInternal.SocketStatus status = initialize(0);
                         if(status != IceInternal.SocketStatus.Finished)
                         {
                             return status;
@@ -1267,7 +1254,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 
                     if(state <= StateNotValidated)
                     {
-                        IceInternal.SocketStatus status = validate();
+                        IceInternal.SocketStatus status = validate(0);
                         if(status != IceInternal.SocketStatus.Finished)
                         {
                             return status;
@@ -1308,8 +1295,15 @@ public final class ConnectionI extends IceInternal.EventHandler
                 }
                 else
                 {
-                    registerWithPool();
-                    unregisterWithPool(); // Let finished() do the close.
+                    if(!_registeredWithPool)
+                    {
+                        _threadPool.execute(new CallFinished(this));
+                        ++_finishedCount; // For each unregistration, finished() is called once.
+                    }
+                    else
+                    {
+                        unregisterWithPool();
+                    }
                 }
                 
                 notifyAll();
@@ -1654,7 +1648,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
                     _transceiver.shutdownWrite();
                 }
-                else if(_state <= StateNotValidated || _threadPerConnection)
+                else if(_threadPerConnection)
                 {
                     //
                     // If we are in thread per connection mode and the thread is started, we
@@ -1665,8 +1659,15 @@ public final class ConnectionI extends IceInternal.EventHandler
                 }
                 else
                 {
-                    registerWithPool();
-                    unregisterWithPool(); // Let finished() do the close.
+                    if(!_registeredWithPool)
+                    {
+                        _threadPool.execute(new CallFinished(this));
+                        ++_finishedCount; // For each unregistration, finished() is called once.
+                    }
+                    else
+                    {
+                        unregisterWithPool();
+                    }
                     
                     //
                     // Prevent further writes.
@@ -1751,28 +1752,14 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     private IceInternal.SocketStatus 
-    initialize()
+    initialize(int timeout)
     {
-        int timeout = 0;
-        if(_startCallback == null || _threadPerConnection)
-        {
-            IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            if(defaultsAndOverrides.overrideConnectTimeout)
-            {
-                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-            }
-            else
-            {
-                timeout = _endpoint.timeout();
-            }
-        }
-        
         try
         {
             IceInternal.SocketStatus status = _transceiver.initialize(timeout);
             if(status != IceInternal.SocketStatus.Finished)
             {
-                if(_startCallback == null || _threadPerConnection)
+                if(timeout != 0)
                 {
                     throw new Ice.TimeoutException();
                 }
@@ -1804,24 +1791,10 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     private IceInternal.SocketStatus
-    validate()
+    validate(int timeout)
     {
         if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
         {
-            int timeout = 0;
-            if(_startCallback == null || _threadPerConnection)
-            {
-                IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-                if(defaultsAndOverrides.overrideConnectTimeout)
-                {
-                    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-                }
-                else
-                {
-                    timeout = _endpoint.timeout();
-                }
-            }
-            
             if(_adapter != null) // The server side has the active role for connection validation.
             {
                 IceInternal.BasicStream os = _stream;
@@ -1841,14 +1814,14 @@ public final class ConnectionI extends IceInternal.EventHandler
                 else
                 {
                     // The stream can only be non-empty if we're doing a non-blocking connection validation.
-                    assert(_startCallback != null && !_threadPerConnection); 
+                    assert(!_threadPerConnection); 
                 }
                 
                 try
                 {
                     if(!_transceiver.write(os.getBuffer(), timeout))
                     {
-                        if(_startCallback == null || _threadPerConnection)
+                        if(timeout != 0)
                         {
                             throw new Ice.TimeoutException();
                         }
@@ -1871,14 +1844,14 @@ public final class ConnectionI extends IceInternal.EventHandler
                 else
                 {
                     // The stream can only be non-empty if we're doing a non-blocking connection validation.
-                    assert(_startCallback != null && !_threadPerConnection); 
+                    assert(!_threadPerConnection); 
                 }
 
                 try
                 {
                     if(!_transceiver.read(is.getBuffer(), timeout, _hasMoreData))
                     {
-                        if(_startCallback == null || _threadPerConnection)
+                        if(timeout != 0)
                         {
                             throw new Ice.TimeoutException();
                         }
@@ -2430,10 +2403,21 @@ public final class ConnectionI extends IceInternal.EventHandler
 
             IceInternal.SocketStatus status;
 
-            status = initialize();
+            int timeout;
+            IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideConnectTimeout)
+            {
+                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+            }
+            else
+            {
+                timeout = _endpoint.timeout();
+            }
+            
+            status = initialize(timeout);
             assert(status == IceInternal.SocketStatus.Finished);
 
-            status = validate();
+            status = validate(timeout);
             assert(status == IceInternal.SocketStatus.Finished);
         }
         catch(LocalException ex)

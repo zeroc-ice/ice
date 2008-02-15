@@ -233,11 +233,12 @@ public:
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
-                           const ::Ice::LocalException&, int&);
+                           const ::Ice::LocalException&, IceInternal::OutgoingAsync*, int&);
     void __handleExceptionWrapper(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
-                                  const ::IceInternal::LocalExceptionWrapper&);
+                                  const ::IceInternal::LocalExceptionWrapper&, IceInternal::OutgoingAsync*);
     void __handleExceptionWrapperRelaxed(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&,
-                                         const ::IceInternal::LocalExceptionWrapper&, int&);
+                                         const ::IceInternal::LocalExceptionWrapper&, IceInternal::OutgoingAsync*,
+                                         int&);
     void __checkTwowayOnly(const char*) const;
     void __checkTwowayOnly(const ::std::string&) const;
 

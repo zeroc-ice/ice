@@ -398,7 +398,6 @@ IceInternal::OutgoingAsync::__finished(const Ice::LocalException& exc)
     try
     {
         handleException(exc); // This will throw if the invocation can't be retried.
-        __send();
     }
     catch(const Ice::LocalException& ex)
     {
@@ -420,11 +419,31 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& ex)
     try
     {
         handleException(ex); // This will throw if the invocation can't be retried.
-        __send();
     }
     catch(const Ice::LocalException& ex)
     {
         __exception(ex);
+    }
+}
+
+void
+IceInternal::OutgoingAsync::__send()
+{
+    try
+    {
+        _sent = false;
+        _response = false;
+        _delegate = _proxy->__getDelegate(true);
+        _delegate->__getRequestHandler()->sendAsyncRequest(this);
+        return;
+    }
+    catch(const LocalExceptionWrapper& ex)
+    {
+        handleException(ex);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        handleException(ex);
     }
 }
 
@@ -496,30 +515,6 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 }
 
 void
-IceInternal::OutgoingAsync::__send()
-{
-    while(true)
-    {
-        try
-        {
-            _sent = false;
-            _response = false;
-            _delegate = _proxy->__getDelegate(true);
-            _delegate->__getRequestHandler()->sendAsyncRequest(this);
-            return;
-        }
-        catch(const LocalExceptionWrapper& ex)
-        {
-            handleException(ex);
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            handleException(ex);
-        }
-    }
-}
-
-void
 IceInternal::OutgoingAsync::__throwUserException()
 {
     try
@@ -539,11 +534,11 @@ IceInternal::OutgoingAsync::handleException(const LocalExceptionWrapper& ex)
 {
     if(_mode == Nonmutating || _mode == Idempotent)
     {
-        _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, _cnt);
+        _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, this, _cnt);
     }
     else
     {
-        _proxy->__handleExceptionWrapper(_delegate, ex);
+        _proxy->__handleExceptionWrapper(_delegate, ex, this);
     }
 }
 
@@ -580,16 +575,16 @@ IceInternal::OutgoingAsync::handleException(const Ice::LocalException& exc)
     {
         if(_mode == Nonmutating || _mode == Idempotent)
         {
-            _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, _cnt);
+            _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, this, _cnt);
         }
         else
         {
-            _proxy->__handleExceptionWrapper(_delegate, ex);
+            _proxy->__handleExceptionWrapper(_delegate, ex, this);
         }
     }
     catch(const Ice::LocalException& ex)
     {
-        _proxy->__handleException(_delegate, ex, _cnt);
+        _proxy->__handleException(_delegate, ex, this, _cnt);
     }
 }
 
@@ -723,7 +718,7 @@ Ice::AMI_Object_ice_flushBatchRequests::__invoke(const ObjectPrx& prx)
         }
         catch(const Ice::LocalException& ex)
         {
-            prx->__handleException(delegate, ex, cnt);
+            prx->__handleException(delegate, ex, 0, cnt);
         }
     }
     catch(const Ice::LocalException& ex)

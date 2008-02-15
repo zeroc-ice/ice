@@ -166,28 +166,28 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     {
         string name = *p;
 
-        map<string, PluginPtr>::iterator p = _plugins.find(name);
-        if(p != _plugins.end())
+        map<string, PluginPtr>::iterator q = _plugins.find(name);
+        if(q != _plugins.end())
         {
             PluginInitializationException ex(__FILE__, __LINE__);
             ex.reason = "plugin `" + name + "' already loaded";
             throw ex;
         }
 
-        PropertyDict::iterator q = plugins.find("Ice.Plugin." + name + ".cpp");
-        if(q == plugins.end())
+        PropertyDict::iterator r = plugins.find("Ice.Plugin." + name + ".cpp");
+        if(r == plugins.end())
         {
-            q = plugins.find("Ice.Plugin." + name);
+            r = plugins.find("Ice.Plugin." + name);
         }
         else
         {
             plugins.erase("Ice.Plugin." + name);
         }
 
-        if(q != plugins.end())
+        if(r != plugins.end())
         {
-            loadPlugin(name, q->second, cmdArgs);
-            plugins.erase(q);
+            loadPlugin(name, r->second, cmdArgs);
+            plugins.erase(r);
         }
         else
         {

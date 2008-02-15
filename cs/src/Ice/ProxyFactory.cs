@@ -11,9 +11,23 @@ using System.Diagnostics;
 
 namespace IceInternal
 {
-
     public sealed class ProxyFactory
     {
+        private sealed class RetryTask : TimerTask
+        {
+            internal RetryTask(OutgoingAsync outAsync)
+            {
+                _outAsync = outAsync;
+            }
+            
+            public void runTimerTask()
+            {
+                _outAsync.send__();
+            }
+
+            private OutgoingAsync _outAsync;
+        }
+
         public Ice.ObjectPrx stringToProxy(string str)
         {
             Reference r = instance_.referenceFactory().create(str, null);
@@ -81,7 +95,7 @@ namespace IceInternal
             }
         }
         
-        public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, int cnt)
+        public void checkRetryAfterException(Ice.LocalException ex, Reference @ref, OutgoingAsync outAsync, ref int cnt)
         {
             TraceLevels traceLevels = instance_.traceLevels();
             Ice.Logger logger = instance_.initializationData().logger;
@@ -124,7 +138,11 @@ namespace IceInternal
                         string s = "retrying operation call to add proxy to router\n" + ex;
                         logger.trace(traceLevels.retryCat, s);
                     }
-                    return cnt; // We must always retry, so we don't look at the retry count.
+                    if(outAsync != null)
+                    {
+                        outAsync.send__();
+                    }
+                    return; // We must always retry, so we don't look at the retry count.
                 }
                 else
                 {
@@ -193,13 +211,25 @@ namespace IceInternal
 
             if(interval > 0)
             {
-                //
-                // Sleep before retrying.
-                //
-                System.Threading.Thread.Sleep(interval);
+                if(outAsync != null)
+                {
+                    instance_.timer().schedule(new RetryTask(outAsync), interval);
+                }
+                else
+                {
+                    //
+                    // Sleep before retrying.
+                    //
+                    System.Threading.Thread.Sleep(interval);
+                }
             }
-
-            return cnt;
+            else
+            {
+                if(outAsync != null)
+                {
+                    outAsync.send__();
+                }
+            }
         }
 
         //

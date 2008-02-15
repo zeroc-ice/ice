@@ -39,79 +39,63 @@ namespace Ice
                         Debug.Assert(_exception != null);
                         throw _exception;
                     }
+                }
 
+                if(_threadPerConnection)
+                {
                     //
                     // In thread per connection mode, we create the thread for the connection. The
                     // intialization and validation of the connection is taken care of by the thread
-                    // per connection. If a callback is given, no need to wait, the thread will notify
-                    // the callback, otherwise wait until the connection is validated.
+                    // per connection.
                     //
-                    if(_threadPerConnection)
+                    try
                     {
-                        try
-                        {
-                            _thread = new Thread(new ThreadStart(RunThreadPerConnection));
-                            _thread.IsBackground = true;
-                            _thread.Start();
-                        }
-                        catch(System.Exception ex)
-                        {
-                            _logger.error("cannot create thread for connection:\n" + ex);
-
-                            //
-                            // Clean up.
-                            //
-                            _thread = null;
-                            _state = StateClosed;
-
-                            throw new SyscallException(ex);
-                        }
-
-                        if(callback == null) // Wait for the connection to be validated.
-                        {
-                            while(_state <= StateNotValidated)
-                            {
-                                Monitor.Wait(this);
-                            }
-
-                            if(_state >= StateClosing)
-                            {
-                                Debug.Assert(_exception != null);
-                                throw _exception;
-                            }
-                        }
-                        return; // We're done.
+                        _thread = new Thread(new ThreadStart(RunThreadPerConnection));
+                        _thread.IsBackground = true;
+                        _thread.Start();
                     }
-                }
-
-                //
-                // Initialize the connection transceiver and then validate the connection.
-                //
-                if(callback == null)
-                {
-                    //
-                    // Use blocking I/O, possibly with a timeout.
-                    //
-                    initialize();
-                    validate();
-                    finishStart(null);
+                    catch(System.Exception ex)
+                    {
+                        _logger.error("cannot create thread for connection:\n" + ex);
+                        
+                        //
+                        // Clean up.
+                        //
+                        _thread = null;
+                        throw new SyscallException(ex);
+                    }
                 }
                 else
                 {
                     //
                     // Use asynchronous I/O. We cannot begin an asynchronous I/O request from
-                    // this thread, so we queue a work item.
+                    // this thread if a callback is provided, so we queue a work item.
                     //
+                    if(callback == null)
+                    {
+                        initializeAsync(null);
+                    }
+                    else
+                    {
+                        bool b = System.Threading.ThreadPool.UnsafeQueueUserWorkItem(initializeAsync, null);
+                        Debug.Assert(b);
+                    }
+                }
+
+                if(callback == null) // Wait for the connection to be validated.
+                {
                     lock(this)
                     {
-                        if(_state == StateClosed)
+                        while(_state <= StateNotValidated)
+                        {
+                            Monitor.Wait(this);
+                        }
+                        
+                        if(_state >= StateClosing)
                         {
                             Debug.Assert(_exception != null);
                             throw _exception;
                         }
-
-                        bool b = System.Threading.ThreadPool.UnsafeQueueUserWorkItem(initializeAsync, null);
-                        Debug.Assert(b);
                     }
                 }
             }
@@ -120,38 +104,11 @@ namespace Ice
                 lock(this)
                 {
                     setState(StateClosed, ex);
-
-                    //
-                    // If start is called with a callback, the callback is notified either by the
-                    // thread per connection or the thread pool.
-                    //
                     if(callback != null)
                     {
-                        if(!_threadPerConnection)
-                        {
-                            finished();
-                        }
                         return;
                     }
-
-                    //
-                    // Close the transceiver if there's no thread per connection. Otherwise, wait
-                    // for the thread per connection to take care of it.
-                    //
-                    if(_thread == null && _transceiver != null)
-                    {
-                        try
-                        {
-                            _transceiver.close();
-                        }
-                        catch(LocalException)
-                        {
-                            // Here we ignore any exceptions in close().
-                        }
-                        _transceiver = null;
-                    }
                 }
-
                 waitUntilFinished();
                 throw ex;
             }
@@ -1325,7 +1282,7 @@ namespace Ice
 
                         _transceiver.shutdownWrite(); // Prevent further writes.
                     }
-                    else if(_state <= StateNotValidated || _threadPerConnection)
+                    else if(_threadPerConnection)
                     {
                         //
                         // If we are in thread per connection mode or we are still initializing, we

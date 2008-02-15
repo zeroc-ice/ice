@@ -21,11 +21,7 @@ final class Transceiver implements IceInternal.Transceiver
         if(timeout == 0)
         {
             IceInternal.SocketStatus status = _configuration.initializeSocketStatus();
-            if(status == IceInternal.SocketStatus.NeedConnect)
-            {
-                return status;
-            }
-            else if(status == IceInternal.SocketStatus.NeedWrite)
+            if(status == IceInternal.SocketStatus.NeedConnect || status == IceInternal.SocketStatus.NeedWrite)
             {
                 if(!_initialized)
                 {

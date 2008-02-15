@@ -36,12 +36,13 @@
 #  include <ws2tcpip.h>
 #  include <iphlpapi.h>
 #else
-#  include <ifaddrs.h>
 #  include <net/if.h>
 #  include <sys/ioctl.h>
 #endif
 
-#ifdef __sun
+#if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+#  include <ifaddrs.h>
+#elif defined(__sun)
 #  include <sys/sockio.h>
 #endif
 

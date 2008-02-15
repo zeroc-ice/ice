@@ -19,13 +19,38 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LocalException.h>
+#include <Ice/OutgoingAsync.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(ProxyFactory* p) { return p; }
+namespace
+{
 
+class RetryTask : public IceUtil::TimerTask
+{
+public:
+    
+    RetryTask(const OutgoingAsyncPtr& out) : _out(out)
+    {
+    }
+                    
+    virtual void
+    runTimerTask()
+    {
+        _out->__send();
+    }
+
+private:
+
+    const OutgoingAsyncPtr _out;
+};
+
+}
+
+IceUtil::Shared* IceInternal::upCast(ProxyFactory* p) { return p; }
+    
 ObjectPrx
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
@@ -95,7 +120,10 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 }
 
 void
-IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
+IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, 
+                                                    const ReferencePtr& ref, 
+                                                    OutgoingAsync* out,
+                                                    int& cnt) const
 {
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     LoggerPtr logger = _instance->initializationData().logger;
@@ -137,6 +165,11 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
             {
                 Trace out(logger, traceLevels->retryCat);
                 out << "retrying operation call to add proxy to router\n" << ex;
+            }
+
+            if(out)
+            {
+                out->__send();
             }
             return; // We must always retry, so we don't look at the retry count.
         }
@@ -213,10 +246,24 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     
     if(interval > 0)
     {
-        //
-        // Sleep before retrying.
-        //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
+        if(out)
+        {
+            _instance->timer()->schedule(new RetryTask(out), IceUtil::Time::milliSeconds(interval));
+        }
+        else
+        {
+            //
+            // Sleep before retrying.
+            //
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
+        }
+    }
+    else
+    {
+        if(out)
+        {
+            out->__send();
+        }
     }
 }
 
