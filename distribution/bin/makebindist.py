@@ -88,6 +88,13 @@ class BerkeleyDB(ThirdParty):
             self.languages = ["java"]
             self.location = jarlocations.get(str(platform), None)
 
+    def getJar(self):
+        if self.location:
+            if self.location.endswith(".jar"):
+                return self.location
+            else:
+                return os.path.join(self.location, "lib", "db.jar")
+
     def getFiles(self, platform):
         files = [ os.path.join("lib", "db.jar"), os.path.join("bin", "db_*") ]
         files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
