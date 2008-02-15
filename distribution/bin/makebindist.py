@@ -11,118 +11,16 @@
 import os, sys, shutil, glob, fnmatch, string, re
 from stat import *
 
-version = "3.3.0"
-#version = "@ver@"
+#
+# NOTE: See lib/DistUtils.py for default third-party locations and 
+# languages to be built on each platform.
+#
+
+version = "@ver@"
 distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(os.path.join(distDir, "lib"))
-from DistUtils import *
-
-#
-# Defines which languges are supported on a given platform
-#
-languages = { \
-    'SunOS' : ['cpp', 'java'], \
-    'HP-UX' : ['cpp', 'java'], \
-    'Darwin' : ['cpp', 'java', 'py'], \
-    'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
-}
-
-#
-# Defines third party dependencies for each supported platform and their default 
-# location.
-#
-bzip2 = { 'HP-UX' : '/usr/local' }
-
-berkeleydb = { \
-    'SunOS' : '/opt/db', \
-    'Darwin' : '/opt/db', \
-    'HP-UX' : '/opt/db', \
-}
-
-berkeleydbjar = { \
-    'Linux' : '/usr/share/java/db46/db.jar', \
-}
-
-expat = { \
-    'SunOS' : '/usr/sfw', \
-    'HP-UX' : '/usr/local', \
-    'Darwin' : '/opt/expat', \
-}
-
-openssl = { \
-    'SunOS' : '/usr/sfw', \
-    'HP-UX' : '/opt/openssl', \
-}
-
-mcpp = { 
-    'SunOS' : '/opt/mcpp', \
-    'HP-UX' : '/opt/mcpp', \
-    'Darwin' : '/opt/mcpp' 
-}
-
-jgoodies_looks = { \
-    'SunOS' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
-    'HP-UX' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
-    'Darwin' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
-    'Linux' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
-}
-
-jgoodies_forms = { \
-    'SunOS' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
-    'HP-UX' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
-    'Darwin' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
-    'Linux' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
-}
-
-proguard = { \
-    'SunOS' : '/share/opt/proguard4.1/lib/proguard.jar', \
-    'HP-UX' : '/share/opt/proguard4.1/lib/proguard.jar', \
-    'Darwin' : '/opt/proguard/lib/proguard.jar', \
-    'Linux' : '/opt/proguard/lib/proguard.jar', \
-}    
-
-class BerkeleyDB(ThirdParty):
-    def __init__(self, platform, locations, jarlocations):
-        ThirdParty.__init__(self, platform, "BerkeleyDB", locations, ["cpp", "java"], None, "DB_HOME")
-        if not self.location:
-            self.languages = ["java"]
-            self.location = jarlocations.get(str(platform), None)
-
-    def getJar(self):
-        if self.location:
-            if self.location.endswith(".jar"):
-                return self.location
-            else:
-                return os.path.join(self.location, "lib", "db.jar")
-
-    def getFiles(self, platform):
-        files = [ os.path.join("lib", "db.jar"), os.path.join("bin", "db_*") ]
-        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
-        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"), "jnilib")
-        return files
-
-class Bzip2(ThirdParty):
-    def __init__(self, platform, locations):
-        ThirdParty.__init__(self, platform, "Bzip2", locations, ["cpp"])
-
-    def getFiles(self, platform):
-        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
-
-class Expat(ThirdParty):
-    def __init__(self, platform, locations):
-        ThirdParty.__init__(self, platform, "Expat", locations, ["cpp"])
-
-    def getFiles(self, platform):
-        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
-
-class OpenSSL(ThirdParty):
-    def __init__(self, platform, locations):
-        ThirdParty.__init__(self, platform, "OpenSSL", locations, ["cpp"])
-
-    def getFiles(self, platform):
-        files = [ os.path.join("bin", "openssl") ]
-        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
-        return files
+import DistUtils
+from DistUtils import copy
 
 #
 # Program usage.
@@ -139,24 +37,7 @@ def usage():
 #
 # Instantiate the gobal platform object
 #
-(sysname, nodename, release, ver, machine) = os.uname();
-if not languages.has_key(sysname):
-    print sys.argv[0] + ": error: `" + sysname + "' is not a supported system"
-platform = eval(sysname.replace("-", ""))(sysname, languages[sysname])
-
-#
-# Instantiate the third party libraries
-#
-thirdParties = [ \
-    Bzip2(platform, bzip2), \
-    BerkeleyDB(platform, berkeleydb, berkeleydbjar), \
-    Expat(platform, expat), \
-    OpenSSL(platform, openssl), \
-    ThirdParty(platform, "Mcpp", mcpp, ["cpp"]), \
-    ThirdParty(platform, "JGoodiesLooks", jgoodies_looks, ["java"], "jgoodies.looks"), \
-    ThirdParty(platform, "JGoodiesForms", jgoodies_forms, ["java"], "jgoodies.forms"), \
-    ThirdParty(platform, "Proguard", proguard, ["java"]), \
-]
+platform = DistUtils.getPlatform()
 
 #
 # Check arguments
@@ -164,7 +45,7 @@ thirdParties = [ \
 verbose = 0
 forceclean = 0
 nobuild = 0
-languages = [ ]
+buildLanguages = [ ]
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
@@ -186,13 +67,13 @@ for x in sys.argv[1:]:
             print
             usage()
             sys.exit(1)
-        languages.append(x)
+        buildLanguages.append(x)
 
-if len(languages) == 0:
-    languages = platform.languages
+if len(buildLanguages) == 0:
+    buildLanguages = platform.languages
 
 if nobuild:
-    languages = []
+    buildLanguages = []
 
 if verbose:
     quiet = "v"
@@ -260,17 +141,43 @@ if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
 #
 # Build and install each language mappings supported by this platform in the build directory.
 #
-for l in languages:
+for l in buildLanguages:
     print
     print "============= Building " + l + " sources ============="
     print
+
     os.chdir(os.path.join(srcDir, l))
 
     if l != "java":
-        if os.system("gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install") != 0:
+
+        makeCmd = "gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install"
+        
+        #
+        # Copy the language source directory to a directory suffixed with -lp64 
+        # if this platform supports a 64 bits build and the directory doesn't 
+        # exist yet.
+        #
+        if l in platform.build_lp64 and not os.path.exists(os.path.join(srcDir, l + "-lp64")):
+            copy(os.path.join(srcDir, l), os.path.join(srcDir, l + "-lp64"))
+
+        #
+        # 32 bits build
+        #
+        if os.system("LP64=no " + makeCmd) != 0:
             print sys.argv[0] + ": `" + l + "' build failed"
             os.chdir(cwd)
             sys.exit(1)
+
+        #
+        # 64 bits build on platform supporting it.
+        #
+        if l in platform.build_lp64:
+            os.chdir(os.path.join(srcDir, l + "-lp64"))
+            if os.system("LP64=yes " + makeCmd) != 0:
+                print sys.argv[0] + ": `" + l + "' build failed"
+                os.chdir(cwd)
+                sys.exit(1)
+
     else:
         antCmd = platform.getAntEnv() + " ant " + platform.getAntOptions() + " -Dprefix=" + buildDir
 
@@ -300,14 +207,7 @@ print "Copying distribution files (README, SOURCES, etc)...",
 sys.stdout.flush()
 platform.copyDistributionFiles(distDir, buildDir)
 
-if os.path.exists(os.path.join(buildDir, "doc")):
-    shutil.rmtree(os.path.join(buildDir, "doc"))
-print "ok"
-
-if not os.path.exists("RELEASE_NOTES.txt"):
-    print "warning: couldn't find ./RELEASE_NOTES.txt file"
-else:
-    copy("RELEASE_NOTES.txt", os.path.join(buildDir, "RELEASE_NOTES.txt"))
+copy(os.path.join(distDir, "src", "common","RELEASE_NOTES.txt"), os.path.join(buildDir, "RELEASE_NOTES.txt"))
 
 #
 # Everything should be clean now, we can create the binary distribution archive
@@ -323,9 +223,10 @@ print "ok"
 #
 # Done.
 #
-print "Cleaning up...",
-sys.stdout.flush()
-shutil.rmtree(buildRootDir)
-print "ok"
+if forceclean:
+    print "Cleaning up...",
+    sys.stdout.flush()
+    shutil.rmtree(buildRootDir)
+    print "ok"
 
 os.chdir(cwd)

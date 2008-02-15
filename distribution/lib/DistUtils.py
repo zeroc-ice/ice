@@ -11,12 +11,92 @@
 import os, sys, shutil, glob, fnmatch, string, re
 from stat import *
 
+#
+# Defines which languges are supported on each supported platform
+#
+languages = { \
+    'SunOS' : ['cpp', 'java'], \
+    'HP-UX' : ['cpp', 'java'], \
+    'Darwin' : ['cpp', 'java', 'py'], \
+    'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
+}
+
+#
+# Defines which languages are to also be built in 64bits mode
+#
+# NOTE: makebindist.py doesn't currently support different third party locations
+# for 32 and 64 bits. This is an issue on HP-UX for example where Bzip2 32bits is
+# in /usr/local and in /opt for the 64bits version.
+#
+build_lp64 = { \
+    'SunOS' : ['cpp'], \
+}
+
+#
+# Defines third party dependencies for each supported platform and their default 
+# location.
+#
+bzip2 = { \
+    'HP-UX' : '/usr/local', \
+}
+
+berkeleydb = { \
+    'SunOS' : '/opt/db', \
+    'Darwin' : '/opt/db', \
+    'HP-UX' : '/opt/db', \
+}
+
+berkeleydbjar = { \
+    'Linux' : '/usr/share/java/db46/db.jar', \
+}
+
+expat = { \
+    'SunOS' : '/usr/sfw', \
+    'HP-UX' : '/usr/local', \
+    'Darwin' : '/opt/expat', \
+}
+
+openssl = { \
+    'SunOS' : '/usr/sfw', \
+    'HP-UX' : '/opt/openssl', \
+}
+
+mcpp = { 
+    'SunOS' : '/opt/mcpp', \
+    'HP-UX' : '/opt/mcpp', \
+    'Darwin' : '/opt/mcpp' 
+}
+
+jgoodies_looks = { \
+    'SunOS' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
+    'HP-UX' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
+    'Darwin' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
+    'Linux' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
+}
+
+jgoodies_forms = { \
+    'SunOS' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
+    'HP-UX' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
+    'Darwin' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
+    'Linux' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
+}
+
+proguard = { \
+    'SunOS' : '/share/opt/proguard4.1/lib/proguard.jar', \
+    'HP-UX' : '/share/opt/proguard4.1/lib/proguard.jar', \
+    'Darwin' : '/opt/proguard/lib/proguard.jar', \
+    'Linux' : '/opt/proguard/lib/proguard.jar', \
+}    
+
+#
+# Some utility methods
+# 
 def fixPermission(dest):
 
     if os.path.isdir(dest):
         os.chmod(dest, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
         for f in os.listdir(dest):
-            fixPermission(os.path.join(f, dest))
+            fixPermission(os.path.join(dest, f))
     else:
         if os.stat(dest).st_mode & (S_IXUSR | S_IXGRP | S_IXOTH):
             os.chmod(dest, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
@@ -24,6 +104,10 @@ def fixPermission(dest):
             os.chmod(dest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) # rw-r--r--
 
 def copy(src, dest):
+
+    if not os.path.exists(src):
+        print "warning: can't copy `" + src + "': file doesn't exist"
+        return
 
     # Create the directories if necessary.
     if not os.path.exists(os.path.dirname(dest)):
@@ -44,7 +128,7 @@ def copy(src, dest):
     fixPermission(dest)
 
 #
-# Thidparty helper classes
+# Third-party helper base class
 #
 class ThirdParty :
     def __init__(self, platform, name, locations, languages, buildOption = None, buildEnv = None):
@@ -131,10 +215,14 @@ class ThirdParty :
 # Platform helper classes
 #
 class Platform:
-    def __init__(self, uname, pkgname, languages, shlibExtension):
+    def __init__(self, uname, pkgname, languages, build_lp64, shlibExtension):
         self.uname = uname
         self.pkgname = pkgname
         self.languages = languages
+        if not build_lp64:
+            self.build_lp64 = { }
+        else:
+            self.build_lp64 = build_lp64
         self.shlibExtension = shlibExtension
         self.thirdParties = []
 
@@ -205,8 +293,8 @@ class Platform:
         pass
 
 class Darwin(Platform):
-    def __init__(self, uname, languages):
-        Platform.__init__(self, uname, "macosx", languages, "dylib")
+    def __init__(self, uname, languages, build_lp64):
+        Platform.__init__(self, uname, "macosx", languages, build_lp64, "dylib")
 
     def getSharedLibraryFiles(self, root, path, extension = None) : 
         libraries = Platform.getSharedLibraryFiles(self, root, path, extension)
@@ -261,13 +349,87 @@ class Darwin(Platform):
         print "ok"
 
 class HPUX(Platform):
-    def __init__(self, uname, languages):
-        Platform.__init__(self, uname, "hpux", languages, "sl")
+    def __init__(self, uname, languages, build_lp64):
+        Platform.__init__(self, uname, "hpux", languages, build_lp64, "sl")
 
 class Linux(Platform):
-    def __init__(self, uname, languages):
-        Platform.__init__(self, uname, "linux", languages, "sl")
+    def __init__(self, uname, languages, build_lp64):
+        Platform.__init__(self, uname, "linux", languages, build_lp64, "so")
 
 class SunOS(Platform):
-    def __init__(self, uname, languages):
-        Platform.__init__(self, uname, "solaris", languages, "so")
+    def __init__(self, uname, languages, build_lp64):
+        (sysname, nodename, release, ver, machine) = os.uname();
+        if machine == "i86pc":
+            pkgname = "solaris-x86"
+        else:
+            pkgname = "solaris-sparc"
+        Platform.__init__(self, uname, pkgname, languages, build_lp64, "so")
+
+#
+# Third-party helper classes 
+#
+class BerkeleyDB(ThirdParty):
+    def __init__(self, platform, locations, jarlocations):
+        ThirdParty.__init__(self, platform, "BerkeleyDB", locations, ["cpp", "java"], None, "DB_HOME")
+        if not self.location:
+            self.languages = ["java"]
+            self.location = jarlocations.get(str(platform), None)
+
+    def getJar(self):
+        if self.location:
+            if self.location.endswith(".jar"):
+                return self.location
+            else:
+                return os.path.join(self.location, "lib", "db.jar")
+
+    def getFiles(self, platform):
+        files = [ os.path.join("lib", "db.jar"), os.path.join("bin", "db_*") ]
+        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"), "jnilib")
+        return files
+
+class Bzip2(ThirdParty):
+    def __init__(self, platform, locations):
+        ThirdParty.__init__(self, platform, "Bzip2", locations, ["cpp"])
+
+    def getFiles(self, platform):
+        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+
+class Expat(ThirdParty):
+    def __init__(self, platform, locations):
+        ThirdParty.__init__(self, platform, "Expat", locations, ["cpp"])
+
+    def getFiles(self, platform):
+        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+
+class OpenSSL(ThirdParty):
+    def __init__(self, platform, locations):
+        ThirdParty.__init__(self, platform, "OpenSSL", locations, ["cpp"])
+
+    def getFiles(self, platform):
+        files = [ os.path.join("bin", "openssl") ]
+        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+        return files
+
+platform = None
+def getPlatform():
+
+    global platform
+    if not platform:
+        (sysname, nodename, release, ver, machine) = os.uname();
+        if not languages.has_key(sysname):
+            print sys.argv[0] + ": error: `" + sysname + "' is not a supported system"
+        platform = eval(sysname.replace("-", ""))(sysname, languages[sysname], build_lp64.get(sysname, None))
+
+        thirdParties = [ \
+            Bzip2(platform, bzip2), \
+            BerkeleyDB(platform, berkeleydb, berkeleydbjar), \
+            Expat(platform, expat), \
+            OpenSSL(platform, openssl), \
+            ThirdParty(platform, "Mcpp", mcpp, ["cpp"]), \
+            ThirdParty(platform, "JGoodiesLooks", jgoodies_looks, ["java"], "jgoodies.looks"), \
+            ThirdParty(platform, "JGoodiesForms", jgoodies_forms, ["java"], "jgoodies.forms"), \
+            ThirdParty(platform, "Proguard", proguard, ["java"]), \
+        ]
+
+    return platform
