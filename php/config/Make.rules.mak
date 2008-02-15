@@ -69,8 +69,9 @@ slice_translator = slice2cpp.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
+bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
-install_libdir		= $(prefix)\lib
+install_bindir		= $(prefix)\bin
 
 THIRDPARTY_HOME 	= $(STLPORT_HOME)
 
