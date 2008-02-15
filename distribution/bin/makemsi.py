@@ -12,18 +12,11 @@ import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
 import textwrap
 
+iceVersion = '3.3.0'
+
 resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "src", "windows")
 sys.path.append(resources)
 import components
-
-#
-# Current default third party library versions.
-#
-OpenSSLVer = '0.9.8d'
-Bzip2Ver = '1.0.3'
-STLPortVer = '4.6.2'
-ExpatVer = '2.0.0'
-DBVer = '4.6.21'
 
 DistPrefixes = ["Ice-%s"]
 
@@ -76,11 +69,12 @@ def usage():
 
 def environmentCheck(target):
     """Warning: uses global environment."""
-    required = ["SOURCES", "BUILD_DIR", "DB_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME"]
+    required = ["SOURCES", "BUILD_DIR", "THIRDPARTY_HOME"]
+
     if target == "vc60":
-        required.append("STLPORT_HOME")
-    elif target == "vc80":
-        required.extend(["PHP_BIN_HOME", "PHP_SRC_HOME", "PYTHON_HOME"])
+        required.extend(["PHP_HOME", "PHP_SRC_HOME"])
+    elif target == "vc80" or target == "vc90":
+        required.extend(["PYTHON_HOME"])
 
     fail = False
 
@@ -99,45 +93,24 @@ def environmentCheck(target):
         logging.error("Invalid environment. Please consult error log and repair environment/command line settings.")
         sys.exit(2)
 
-def getIceVersion(file):
-    """Extract the ICE version string from a file."""
-    config = open(file, 'r')
-    return  re.search('ICE_STRING_VERSION \"([0-9\.b]*)\"', config.read()).group(1)
-
 def checkSources(buildDir, sourceDir):
     """Scans a directory for source distributions."""
 
-    if not os.path.exists(os.path.join(sourceDir, "distfiles.tar.gz")):
+    if not os.path.exists(os.path.join(sourceDir, 'distfiles-' + iceVersion + '.tar.gz')):
         print "Unable to locate distfiles.tar.gz"
         sys.exit(1)
 
     installFiles = os.path.join(buildDir, "install")
     if not os.path.exists(installFiles):
         os.mkdir(os.path.join(buildDir, "install"))
+
     command = 'bash -c "gzip -dc `cygpath ' + \
-            os.path.join(os.path.join(sourceDir, "distfiles.tar.gz")).replace("\\", r'/') + \
+            os.path.join(os.path.join(sourceDir, 'distfiles-' + iceVersion + '.tar.gz')).replace("\\", r'/') + \
             "` | tar xf - -C " + installFiles.replace("\\", r'/') + '"'
     result = os.system(command)
     if result != 0:
-        print "Unable to extract distfile.tar.gz"
+        print "Unable to extract distfiles.tar.gz"
         sys.exit(1)
-
-    #
-    # Get current Ice version from Config.h in distfiles.
-    #
-    keyVersion = getIceVersion(os.path.join(installFiles, "Config.h"))
-
-    print keyVersion
-    global DistPrefixes
-    prefixes = list(DistPrefixes)
-    for prefix in prefixes:
-        pkg = prefix % keyVersion + ".zip"
-        if not os.path.exists(os.path.join(sourceDir, pkg)):
-            msg = "Source directory %s does not contain archive for %s." % (sourceDir, pkg)
-            logging.error(msg)
-            raise DistEnvironmentError(msg)
-
-    return keyVersion
 
 def setMakefileOption(filename, optionName, value):
     optre = re.compile("^\#?\s*?%s\s*?=.*" % optionName)
@@ -159,164 +132,71 @@ def setOptimize(filename, optimizeOn):
 def setDebug(filename, debugOn):
     setMakefileOption(filename, "DEBUG", debugOn)
 
-def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
+def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
     """Build all Ice distributions."""
-
-    #
-    # Update PATH, LIB and INCLUDE environment variables required for
-    # building Ice for C++.
-    #
-    path = [
-        os.path.join(stageDir, "berkeley", "dev", "bin"),
-        os.path.join(stageDir, "berkeley", "runtime", "bin"),
-        os.path.join(stageDir, "berkeley", "java", "bin"),
-        os.path.join(stageDir, "expat", "runtime", "bin"),
-        os.path.join(stageDir, "openssl", "runtime", "bin")
-    ]
-    if installVersion == "vc60":
-        path.append(os.path.join(stageDir, "stlport", "dev", "bin"))
-        path.append(os.path.join(stageDir, "stlport", "runtime", "bin"))
-    prependEnvPathList('PATH', path)
-
-    lib = [
-        os.path.join(stageDir, "berkeley", "dev", "lib"),
-        os.path.join(stageDir, "bzip2", "dev", "lib"),
-        os.path.join(stageDir, "expat", "dev", "lib"),
-        os.path.join(stageDir, "openssl", "dev", "lib"),
-    ]
-    if installVersion == "vc60":
-        lib.append(os.path.join(stageDir, "stlport", "dev", "lib"))
-    prependEnvPathList('LIB', lib)
-
-    include = [
-        os.path.join(stageDir, "berkeley", "dev", "include"),
-        os.path.join(stageDir, "bzip2", "dev", "include"),
-        os.path.join(stageDir, "expat", "dev", "include"),
-        os.path.join(stageDir, "openssl", "dev", "include"),
-    ]
-    if installVersion == "vc60":
-        include.append(os.path.join(stageDir, "stlport", "dev", "include", "stlport"))
-    prependEnvPathList('INCLUDE', include)
 
     #
     # Run debug builds first.
     #
-    origPath = os.environ['PATH']
-    origLib = os.environ['LIB']
-    origInclude = os.environ['INCLUDE']
-    iceHome = os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion, "cpp")
-    os.environ['ICE_HOME'] = iceHome
-    prependEnvPath('PATH', os.path.join(iceHome, "bin"))
-    prependEnvPath('LIB', os.path.join(iceHome, "lib"))
-    prependEnvPath('INCLUDE', os.path.join(iceHome, "include"))
+    iceCppHome = os.path.join(sourcesDir, "debug", "Ice-%s" % iceVersion, "cpp")
 
-    os.chdir(iceHome)
+    os.chdir(iceCppHome)
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
-    os.chdir(os.path.join(iceHome, "src"))
+    os.chdir(os.path.join(iceCppHome, "src"))
     runprog("nmake /f Makefile.mak")
     #
     # NOTE: Uncomment to build tests every time.
     #
-    # os.chdir(os.path.join(iceHome, "test"))
+    # os.chdir(os.path.join(iceCppHome, "test"))
     # runprog("nmake /f Makefile.mak")
 
-    if installVersion in ["vc80"]:
+    if installVersion in ["vc80", "vc90"]:
         #
         # Ice for C#
         #
-        os.chdir(os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion, "cs" ))
+        os.chdir(os.path.join(sourcesDir, "debug", "Ice-%s" % iceVersion, "cs" ))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         runprog("nmake /f Makefile.mak")
 
-
-        #
-        # Ice for Visual Basic
-        #
-        os.chdir(os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion, "vb" ))
-        print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), False)
-        #f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
-        #for l in f:
-        #    i = l.find("\\cs\\")
-        ##    if i <> -1:
-        #        print l.rstrip('\n').replace("\\cs\\", "\\Ice-%s\\" % sourcesVersion)
-        #    else:
-        #        print l.rstrip('\n')
-
-        #f.close()
-
-        runprog("nmake /f Makefile.mak")
-
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "cs" ))
-        print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
-        setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
-        runprog("nmake /f Makefile.mak")
-
-        #
-        # Ice for Visual Basic
-        #
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "vb"))
-        print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
-        #f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
-        #for l in f:
-        #    i = l.find("\\cs\\")
-        #    if i <> -1:
-        #        print l.rstrip('\n').replace("\\cs\\", "\\Ice-%s\\" % sourcesVersion)
-        #    else:
-        #        print l.rstrip('\n')
-
-        #f.close()
-
-        runprog("nmake /f Makefile.mak")
-
     #
     # Now run the release mode builds.
     #
-    os.environ['PATH'] = origPath
-    os.environ['LIB'] = origLib
-    os.environ['INCLUDE'] = origInclude
 
-    iceHome = os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "cpp")
-    os.environ['ICE_HOME'] = iceHome
-    prependEnvPath('PATH', os.path.join(iceHome, "bin"))
-    prependEnvPath('LIB', os.path.join(iceHome, "lib"))
-    prependEnvPath('INCLUDE', os.path.join(iceHome, "include"))
-
-    os.chdir(iceHome)
+    iceCppHome = os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cpp")
+  
+    os.chdir(iceCppHome)
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-    os.chdir(os.path.join(iceHome, "src"))
+    os.chdir(os.path.join(iceCppHome, "src"))
     runprog("nmake /f Makefile.mak")
-    #os.chdir(os.path.join(iceHome, "test"))
+    #os.chdir(os.path.join(iceCppHome, "test"))
     #runprog("nmake /f Makefile.mak")
     #
     # Make sure there are no unwanted demo build files kicking around.
     #
-    os.chdir(os.path.join(iceHome, "demo"))
-    runprog("nmake /f Makefile.mak clean")
 
-    #
-    # Ice for Java
-    #
-    os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "java" ))
-    print "Building in " + os.getcwd() + "..."
-    runprog("ant clean && ant -Dice.mapping=java2 jar")
-    if not os.path.exists("java2"):
-        os.mkdir("java2")
-    shutil.copyfile(os.path.join("lib", "Ice.jar"), os.path.join("java2", "Ice.jar"))
-    shutil.copyfile(os.path.join("lib", "IceGridGUI.jar"), os.path.join("java2", "IceGridGUI.jar"))
+    if installVersion == "vc80" or installVersion == "vc90":
+          
+        #
+        # Ice for Java
+        #
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
+        print "Building in " + os.getcwd() + "..."
+        runprog("ant clean && ant -Dice.mapping=java2 jar")
 
-    #
-    # Ice for Java
-    #
-    os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "java" ))
-    print "Building in " + os.getcwd() + "..."
-    runprog("ant clean && ant jar")
+        if not os.path.exists("java2"):
+            os.mkdir("java2")
+            shutil.copyfile(os.path.join("lib", "Ice.jar"), os.path.join("java2", "Ice.jar"))
+            shutil.copyfile(os.path.join("lib", "IceGridGUI.jar"), os.path.join("java2", "IceGridGUI.jar"))
+            
+        #
+        # Ice for Java
+        #
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
+        print "Building in " + os.getcwd() + "..."
+        runprog("ant clean && ant jar")
 
-    if installVersion == "vc80":
         #
         # Ice for Python
         #
@@ -324,7 +204,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         prependEnvPath('LIB', os.path.join(pythonHome, "libs"))
         prependEnvPath('INCLUDE', os.path.join(pythonHome, "include"))
 
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + sourcesVersion, "py"))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + iceVersion, "py"))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak")
@@ -333,7 +213,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         #
         # Ice for PHP
         #
-        phpBinHome = os.environ['PHP_BIN_HOME']
+        phpBinHome = os.environ['PHP_HOME']
         phpLib = [
             os.path.join(phpBinHome, "lib"),
             os.path.join(phpBinHome, "dev")
@@ -349,11 +229,16 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         ]
         prependEnvPathList('INCLUDE', phpInc)
 
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + sourcesVersion, "php"))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + iceVersion, "php"))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak")
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion, "rb" ))
+
+
+        #
+        # Ice for Ruby
+        #
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "rb" ))
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         print "Building in " + os.getcwd() + "..."
         runprog("nmake /f Makefile.mak")
@@ -366,182 +251,10 @@ def list2english(l):
     else:
         return l[0] + ", " + list2english(l[1:])
 
-def convertLicensesToRTF(toolDir, installTarget):
-    openssl = (os.path.join(os.environ["OPENSSL_HOME"], "LICENSE"), "OpenSSL", "OPENSSL_LICENSE.rtf")
-    berkeleydb = (os.path.join(os.environ["DB_HOME"], "LICENSE"), "Berkeley DB", "BERKELEY_DB_LICENSE.rtf")
-    expat = (os.path.join(os.environ["EXPAT_HOME"], "COPYING"), "Expat", "EXPAT_LICENSE.rtf")
-    bzip2 = (os.path.join(os.environ["BZIP2_HOME"], "LICENSE"), "bzip2/libbzip2", "BZIP2_LICENSE.rtf")
 
-    #
-    # The license file isn't quite right for this.
-    #
-    section_header = "License agreement for %s:\n"
-    line_string = "-------------------------------------------------------------------------------------------"
-    rtfhdr = file(os.path.join(toolDir, "docs", "rtf.hdr")).readlines()
-    rtfftr = file(os.path.join(toolDir, "docs", "rtf.footer")).readlines()
+def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
 
-    core = [ berkeleydb, bzip2, openssl, expat ]
-
-    collection = core
-    jgoodies =[(os.path.join(os.environ["JGOODIES_FORMS"], "license.txt"), "JGoodies Forms",
-                            "JGOODIES_FORMS_LICENSE.rtf"),
-               (os.path.join(os.environ["JGOODIES_LOOKS"], "license.txt"), "JGoodies Looks",
-                            "JGOODIES_LOOKS_LICENSE.rtf")]
-    if installTarget == "vc60":
-        collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),
-                           "STLport", "STLPORT_LICENSE.rtf"))
-        collection.extend(jgoodies)
-    elif installTarget in ["vc71", "vc80", "vc80_x64"]:
-        collection.extend(jgoodies)
-
-    third_party_sources_file_hdr = """Source Code
------------
-
-"""
-
-    if not os.path.exists(os.path.join(toolDir, "docs")):
-        os.mkdir(os.path.join(toolDir, "docs"))
-    if not os.path.exists(os.path.join(toolDir, "docs", installTarget)):
-        os.mkdir(os.path.join(toolDir, "docs", installTarget))
-    names = []
-    for e in collection:
-        names.append(e[1])
-
-    text = "The source distributions of " + list2english(names)
-    text = text + " used to build this distribution can be downloaded at no cost from http://www.zeroc.com/download.html."
-    licensefile = file(os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_SOURCES"), "w")
-
-    #
-    # textwrap module has got to be one of the coolest things since
-    # sliced bread.
-    #
-    licensefile.write(third_party_sources_file_hdr)
-    licensefile.write(textwrap.fill(text, 75))
-    licensefile.close()
-
-    #
-    # THIRD_PARTY_SOURCES is the file used by the Ice installer while
-    # SOURCES is used by the third party installer.
-    #
-    shutil.copy(os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_SOURCES"),
-            os.path.join(toolDir, "docs", installTarget, "SOURCES"))
-
-    licensefile = file(os.path.join(toolDir, "docs", installTarget, "LICENSE"), "w")
-    for f in collection:
-        contents = None
-        if f[0].endswith(".html"):
-            #
-            # Here's me wishing the Python standard library had a class
-            # for converting HTML to plain text. In the meantime, we'll
-            # have to leverage 'links' in cygwin.
-            #
-            pipe_stdin, pipe_stdout = os.popen2("cygpath %s" % f[0])
-            lines = pipe_stdout.readlines()
-            pipe_stdin.close()
-            pipe_stdout.close()
-            cygname = lines[0].strip()
-            pipe_stdin, pipe_stdout = os.popen2("links -dump %s" % cygname)
-            lines = pipe_stdout.readlines()
-            contents = lines[2:]
-        else:
-            contents = file(f[0]).readlines()
-        hdr = section_header % f[1]
-
-        licensefile.write(hdr)
-        licensefile.write(line_string[:len(hdr)] + "\n\n")
-        licensefile.writelines(contents)
-        licensefile.write("\n\n")
-        rtffile = file(os.path.join(toolDir, "docs", installTarget, os.path.basename(f[2])), "w")
-        rtffile.writelines(rtfhdr)
-        rtffile.write(hdr + "\\par")
-        rtffile.write(line_string[:len(hdr)] + "\\par\n")
-        for l in contents:
-            rtffile.write(l.rstrip("\n") + "\\par\n")
-        rtffile.writelines(rtfftr)
-        rtffile.close()
-
-    #
-    # Technically, the JGoodies stuff isn't part of the Ice 6.0.0 target
-    # but we include it in our third party installer as a convenience to
-    # IceJ builders.
-    #
-    if installTarget == "vc60":
-        for f in jgoodies:
-            contents = file(f[0]).readlines()
-            hdr = section_header % f[1]
-            rtffile = file(os.path.join(toolDir, "docs", installTarget, os.path.basename(f[2])), "w")
-            rtffile.writelines(rtfhdr)
-            rtffile.write(hdr + "\\par")
-            rtffile.write(line_string[:len(hdr)] + "\\par\n")
-            for l in contents:
-                rtffile.write(l.rstrip("\n") + "\\par\n")
-            rtffile.writelines(rtfftr)
-            rtffile.close()
-
-    licensefile.close()
-    shutil.copyfile(os.path.join(toolDir, "docs", installTarget, "LICENSE"), \
-            os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_LICENSE"))
-    lines = file(os.path.join(toolDir, "docs", installTarget, "LICENSE")).readlines()
-    rtflicense = file(os.path.join(toolDir, "docs", installTarget, "LICENSE.rtf"), "w")
-    rtflicense.writelines(rtfhdr)
-    for l in lines:
-        rtflicense.write(l.rstrip("\n") + "\\par\n")
-    rtflicense.writelines(rtfftr)
-    rtflicense.close()
-
-def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
-    """Build third party merge modules."""
-    modules = [
-        ("BerkeleyDBDevKit", "BERKELEYDB_DEV_KIT"),
-        ("BerkeleyDBRuntime", "BERKELEYDB_RUNTIME"),
-        ("BZip2DevKit", "BZIP2_DEV_KIT"),
-        ("BZip2Runtime", "BZIP2_RUNTIME"),
-        ("ExpatDevKit", "EXPAT_DEV_KIT"),
-        ("ExpatRuntime", "EXPAT_RUNTIME"),
-        ("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
-        ("OpenSSLRuntime", "OPENSSL_RUNTIME"),
-        ("JGoodies", "JGOODIES_RUNTIME"),
-        ("BerkeleyDBJava", "BERKELEYDB_JAVA")
-    ]
-    if installVersion == "vc60":
-        extras = [ ("STLPortDevKit", "STLPORT_DEV_KIT"), ("STLPortRuntime", "STLPORT_RUNTIME") ]
-        modules.extend(extras)
-
-    #
-    # Build modules.
-    #
-    os.chdir(startDir)
-    for project, release in modules:
-        #
-        # The -w -x flags indicate that the build should stop on any
-        # warning or error. This is preferable since it catches staging
-        # errors and forces us to keep our projects clean.
-        #
-        runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
-
-    #
-    # Archive modules in the stage directory root.
-    #
-
-    #
-    # <brent> Were we doing something special with third-party merge
-    # modules at one point, like redistributing them?</brent>
-    #
-
-    zipPath = "ThirdPartyMergeModules-" + sourcesVersion + "-" + installVersion.upper() + ".zip"
-    zip = zipfile.ZipFile(os.path.join(stageDir, zipPath), 'w')
-    for project, release in modules:
-        msm = project + "." + installVersion.upper() + ".msm"
-        msmPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msm)
-        zip.write(msmPath, os.path.basename(msmPath))
-    zip.close()
-
-def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installers):
-
-    if installVersion == "vc80_x64":
-        installVersion = "VC80-x64"
-    else:
-        installVersion = installVersion.upper()
+    installVersion = installVersion.upper()
 
     #
     # Build and copy to the stage directory root.
@@ -550,9 +263,9 @@ def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installe
     for project, release in installers:
         runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
         if project == "Ice":
-            msi = project + "-" + sourcesVersion + "-" + installVersion + ".msi"
+            msi = project + "-" + iceVersion + "-" + installVersion + ".msi"
         else:
-            msi = "Ice-" + sourcesVersion + "-" + project + "-" + installVersion + ".msi"
+            msi = "Ice-" + iceVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
         shutil.copy(msiPath, stageDir)
 
@@ -591,8 +304,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
-                "logfile", "vc60", "vc71", "vc80", "vc80_x64", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
-                "bzip2home=", "thirdparty="])
+                "logfile", "vc60", "vc80", "vc90", "thirdpartyhome=", "sources=", "buildDir="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -625,32 +337,16 @@ def main():
                 debugLevel = logging.INFO
             elif o == '--vc60':
                 target = 'vc60'
-            elif o == '--vc71':
-                target = 'vc71'
             elif o == '--vc80':
                 target = 'vc80'
-            elif o == '--vc80_x64':
-                target = 'vc80_x64'
+            elif o == '--vc90':
+                target = 'vc90'
             elif o == '--sources':
                 os.environ['SOURCES'] = a
             elif o == '--buildDir':
                 os.environ['BUILD_DIR'] = a
-            elif o == '--sslhome':
-                os.environ['OPENSSL_HOME'] = a
-            elif o == '--expathome':
-                os.environ['EXPAT_HOME'] = a
-            elif o == '--dbhome':
-                os.environ['DB_HOME'] = a
-            elif o == '--stlporthome':
-                os.environ['STLPORT_HOME'] = a
-            elif o == '--bzip2home':
-                os.environ['BZIP2_HOME'] = a
-            elif o == '--thirdparty':
-                os.environ['OPENSSL_HOME'] = os.path.join(a, 'openssl-%s' % OpenSSLVer)
-                os.environ['BZIP2_HOME'] = os.path.join(a, 'bzip2-%s' % Bzip2Ver)
-                os.environ['EXPAT_HOME'] = os.path.join(a, 'expat-%s' % ExpatVer)
-                os.environ['DB_HOME'] = os.path.join(a, 'db-%s' % DBVer)
-                os.environ['STLPORT_HOME'] = os.path.join(a, 'STLPort-%s' % STLPortVer)
+            elif o == '--thirdpartyhome':
+                os.environ['THIRDPARTY_HOME'] = a
 
         if debugLevel != logging.NOTSET:
             if a != None:
@@ -663,6 +359,8 @@ def main():
             sys.exit(2)
 
         os.environ['target'] = target
+        os.environ['CPP_COMPILER'] = target.upper()
+        os.environ['PATH'] = os.path.join(os.environ['THIRDPARTY_HOME'], 'bin') + os.pathsep + os.environ['PATH']
 
         #
         # Where all the files will be staged so that the install projects
@@ -695,19 +393,16 @@ def main():
 
         logging.debug(environToString(os.environ))
 
-        sourcesVersion = checkSources(buildDir, os.environ['SOURCES'])
+        checkSources(buildDir, os.environ['SOURCES'])
 
         defaults = os.environ
         defaults['dbver'] = '46'
-        defaults['version'] = sourcesVersion
-        defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
-        if sourcesVersion.find('b') != -1:
+        defaults['version'] = iceVersion
+        defaults['dllversion'] = iceVersion.replace('.', '')[:2]
+        if iceVersion.find('b') != -1:
             defaults['dllversion'] = defaults['dllversion'] + 'b'
 
-        if target == "vc80_x64":
-            defaults['OutDir'] = "x64/"
-        else:
-            defaults['OutDir'] = ''
+        defaults['OutDir'] = ''
 
         if os.path.exists(stageDir):
             try:
@@ -723,23 +418,7 @@ libraries."""
         #
         # Gather and generate license files.
         #
-        convertLicensesToRTF(resources, target)
-
-        #
-        # The third party packages need to be staged before building the
-        # distributions. This ordering is important because it adds an
-        # additional check that the third party packages that are
-        # included in the installer are suitable for use with Ice.
-        #
-        components.stage(os.path.join(os.path.dirname(components.__file__), "components", "components.ini"),
-                os.path.join(os.path.dirname(components.__file__), "components"), stageDir, "packages", defaults)
-
-        #
-        # Build the merge module projects.
-        #
-        if installer:
-            buildMergeModules(targetDir, stageDir, sourcesVersion, target)
-            buildInstallers(targetDir, stageDir, sourcesVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
+        #convertLicensesToRTF(resources, target)
 
         #
         # Screw clean rules, run the ultimate clean!
@@ -762,17 +441,17 @@ libraries."""
             # TODO: See if this can be replaced by ZipFile and native
             # Python code somehow.
             #
-            filename = os.path.join(os.environ['SOURCES'], z % sourcesVersion + ".zip")
-            if not os.path.exists(os.path.join(buildDir, "debug", z %  sourcesVersion)):
+            filename = os.path.join(os.environ['SOURCES'], z % iceVersion + ".zip")
+            if not os.path.exists(os.path.join(buildDir, "debug", z %  iceVersion)):
                 runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug")))
-            if not os.path.exists(os.path.join(buildDir, "release", z %  sourcesVersion)):
+            if not os.path.exists(os.path.join(buildDir, "release", z %  iceVersion)):
                 runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release")))
 
         #
         # Build the Ice distributions.
         #
         if build:
-            buildIceDists(stageDir, buildDir, sourcesVersion, target)
+            buildIceDists(stageDir, buildDir, iceVersion, target)
 
         #
         # Stage Ice!
@@ -784,7 +463,7 @@ libraries."""
         # Build the installer projects.
         #
         if installer:
-            buildInstallers(targetDir, stageDir, sourcesVersion, target, [("Ice", "ICE_MSI")])
+            buildInstallers(targetDir, stageDir, iceVersion, target, [("Ice", "ICE_MSI")])
 
     finally:
         #

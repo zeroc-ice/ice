@@ -1,3 +1,4 @@
+Freeze/BackgroundSaveEvictor
 Freeze/Catalog
 Freeze/CatalogData
 Freeze/Connection
@@ -12,6 +13,7 @@ Freeze/Index
 Freeze/Initialize
 Freeze/Map
 Freeze/Transaction
+Freeze/TransactionalEvictor
 Freeze/TransactionHolder
 Glacier2/Glacier2
 Glacier2/PermissionsVerifier
@@ -33,6 +35,7 @@ Ice/ConnectionIF
 Ice/ConnectionMonitorF
 Ice/Current
 Ice/Direct
+Ice/DispatchInterceptor
 Ice/DynamicLibrary
 Ice/DynamicLibraryF
 Ice/Endpoint
@@ -49,7 +52,6 @@ Ice/GCShared
 Ice/Handle
 Ice/Ice
 Ice/Identity
-Ice/IdentityUtil
 Ice/ImplicitContext
 Ice/ImplicitContextF
 Ice/Incoming
@@ -89,6 +91,7 @@ Ice/ProxyF
 Ice/ProxyFactoryF
 Ice/ProxyHandle
 Ice/ReferenceF
+Ice/RequestHandlerF
 Ice/Router
 Ice/RouterF
 Ice/ServantLocator
@@ -124,9 +127,7 @@ IceSSL/Plugin
 IceStorm/IceStorm
 IceStorm/Service
 IceUtil/AbstractMutex
-IceUtil/Algorithm
 IceUtil/ArgVector
-IceUtil/Base64
 IceUtil/Cache
 IceUtil/Cond
 IceUtil/Config
@@ -140,7 +141,6 @@ IceUtil/IceUtil
 IceUtil/InputUtil
 IceUtil/Iterator
 IceUtil/Lock
-IceUtil/MD5
 IceUtil/Monitor
 IceUtil/Mutex
 IceUtil/Options
@@ -155,6 +155,7 @@ IceUtil/StringUtil
 IceUtil/Thread
 IceUtil/ThreadException
 IceUtil/Time
+IceUtil/Timer
 IceUtil/Unicode
 IceUtil/UUID
 IceXML/Parser
@@ -167,4 +168,3 @@ Slice/Parser
 Slice/Preprocessor
 Slice/PythonUtil
 Slice/RubyUtil
-Slice/VbUtil

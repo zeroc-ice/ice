@@ -250,7 +250,6 @@
 		<col key="yes" def="s72">Name</col>
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
-		<row><td>ISSELFREG.DLL</td><td/><td>&lt;ISProductFolder&gt;\redist\language independent\i386\isregsvr.dll</td></row>
 		<row><td>NewBinary1</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBanner.ibd</td></row>
 		<row><td>NewBinary10</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CompleteSetupIco.ibd</td></row>
 		<row><td>NewBinary11</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CustomSetupIco.ibd</td></row>
@@ -338,20 +337,20 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>BerkeleyDBDebugDLL</td><td>{4AFE3857-AA3D-4C50-AC1D-7E255BFCA13B}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>Bzip2DebugDLL</td><td>{188B2FE5-4BB1-4F53-9688-0D8A6F4C2423}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>DummyComponent</td><td>{7F73549A-1CDC-4CB8-AC1D-3F62E15B37F2}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>ISRegistryComponent</td><td>{55F320C1-D099-4A78-978F-70B93820A653}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCppDemo</td><td>{6A1F9184-8C80-46C0-8835-3CF5AE6290B3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCppDev</td><td>{7BF2EA6B-007C-4C93-8FFF-5621DC754087}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCppRuntime</td><td>{1ADAF629-4ABE-4F59-A64D-DDAC46DFFBE7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceDoc</td><td>{B9A07B17-F6B8-495A-BF29-29495435D957}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IcePHPDemo</td><td>{1F92A480-D22B-4E56-A5E2-CC91B87AA7BA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IcePHPExtension</td><td>{B09443FD-645C-4968-9D8C-3E632E175226}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceRubyDemo</td><td>{49A67285-7045-4AD4-BD78-ECA35F3D23FE}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceRubyDev</td><td>{C2C25314-0A6A-475B-BF3D-5D5292DBDD8E}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceRubyRuntime</td><td>{EBA6A30D-6452-4145-B71A-1EDCEA4AE1CD}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>VisualStudioRuntime</td><td>{AB917D87-9371-49AA-8F41-38AB8E4C2125}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BerkeleyDBDebugDLL</td><td>{4AFE3857-AA3D-4C50-AC1D-7E255BFCA13B}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>Bzip2DebugDLL</td><td>{188B2FE5-4BB1-4F53-9688-0D8A6F4C2423}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>DummyComponent</td><td>{7F73549A-1CDC-4CB8-AC1D-3F62E15B37F2}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISRegistryComponent</td><td>{55F320C1-D099-4A78-978F-70B93820A653}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppDemo</td><td>{6A1F9184-8C80-46C0-8835-3CF5AE6290B3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppDev</td><td>{7BF2EA6B-007C-4C93-8FFF-5621DC754087}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppRuntime</td><td>{1ADAF629-4ABE-4F59-A64D-DDAC46DFFBE7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceDoc</td><td>{B9A07B17-F6B8-495A-BF29-29495435D957}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IcePHPDemo</td><td>{1F92A480-D22B-4E56-A5E2-CC91B87AA7BA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IcePHPExtension</td><td>{B09443FD-645C-4968-9D8C-3E632E175226}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceRubyDemo</td><td>{49A67285-7045-4AD4-BD78-ECA35F3D23FE}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceRubyDev</td><td>{C2C25314-0A6A-475B-BF3D-5D5292DBDD8E}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceRubyRuntime</td><td>{EBA6A30D-6452-4145-B71A-1EDCEA4AE1CD}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>VisualStudioRuntime</td><td>{AB917D87-9371-49AA-8F41-38AB8E4C2125}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -972,10 +971,6 @@
 		<col def="S255">ISComments</col>
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
-		<row><td>ISSelfRegisterCosting</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterCosting</td><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
@@ -2489,10 +2484,6 @@
 		<row><td>DuplicateFiles</td><td/><td>4210</td><td>DuplicateFiles</td><td/></row>
 		<row><td>FileCost</td><td/><td>900</td><td>FileCost</td><td/></row>
 		<row><td>FindRelatedProducts</td><td>NOT ISSETUPDRIVEN</td><td>420</td><td>FindRelatedProducts</td><td/></row>
-		<row><td>ISSelfRegisterCosting</td><td/><td>2201</td><td/><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td/><td>5601</td><td/><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td/><td>6601</td><td/><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td/><td>2202</td><td/><td/></row>
 		<row><td>InstallFiles</td><td/><td>4000</td><td>InstallFiles</td><td/></row>
 		<row><td>InstallFinalize</td><td/><td>6600</td><td>InstallFinalize</td><td/></row>
 		<row><td>InstallInitialize</td><td/><td>1501</td><td>InstallInitialize</td><td/></row>
