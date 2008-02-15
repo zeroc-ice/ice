@@ -76,6 +76,7 @@ $(TOOL): $(TOBJS)
 
 clean::
 	del /q $(TOOL:.exe=.*)
+	del /q $(DLLNAME:.dll=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)
