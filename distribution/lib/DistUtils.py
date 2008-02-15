@@ -16,7 +16,7 @@ from stat import *
 #
 languages = { \
     'SunOS' : ['cpp', 'java'], \
-    'HP-UX' : ['cpp', 'java'], \
+    'HP-UX' : ['cpp'], \
     'Darwin' : ['cpp', 'java', 'py'], \
     'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
 }
@@ -69,21 +69,18 @@ mcpp = {
 
 jgoodies_looks = { \
     'SunOS' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
-    'HP-UX' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
     'Darwin' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
     'Linux' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
 }
 
 jgoodies_forms = { \
     'SunOS' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
-    'HP-UX' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
     'Darwin' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
     'Linux' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
 }
 
 proguard = { \
     'SunOS' : '/share/opt/proguard4.1/lib/proguard.jar', \
-    'HP-UX' : '/share/opt/proguard4.1/lib/proguard.jar', \
     'Darwin' : '/opt/proguard/lib/proguard.jar', \
     'Linux' : '/opt/proguard/lib/proguard.jar', \
 }    
@@ -188,8 +185,16 @@ class ThirdParty :
         if "java" in self.languages and self.location and self.location.endswith(".jar"):
             return self.location
 
-    def getFiles(self, platform):
+    def getFilesFromSubDirs(self, platform, bindir, libdir):
         return []
+
+    def getFiles(self, platform):
+        files = self.getFilesFromSubDirs(platform, "bin", "lib")
+        if platform.lp64subdir:
+            files += self.getFilesFromSubDirs(platform, \
+                                              os.path.join("bin", platform.lp64subdir), \
+                                              os.path.join("lib", platform.lp64subdir))
+        return files
 
     def includeInDistribution(self):
         # Only copy third party files installed in /opt
@@ -215,14 +220,17 @@ class ThirdParty :
 # Platform helper classes
 #
 class Platform:
-    def __init__(self, uname, pkgname, languages, build_lp64, shlibExtension):
+    def __init__(self, uname, pkgname, arch, languages, build_lp64, lp64subdir, shlibExtension):
         self.uname = uname
         self.pkgname = pkgname
+        self.arch = arch
         self.languages = languages
         if not build_lp64:
             self.build_lp64 = { }
+            self.lp64subdir = None
         else:
             self.build_lp64 = build_lp64
+            self.lp64subdir = lp64subdir
         self.shlibExtension = shlibExtension
         self.thirdParties = []
 
@@ -243,7 +251,11 @@ class Platform:
         return found
 
     def getPackageName(self, version):
-        return "Ice-" + version + "-bin-" + self.pkgname
+        if self.arch:
+            return "Ice-" + version + "-bin-" + self.pkgname + "-" + self.arch
+        else:
+            return "Ice-" + version + "-bin-" + self.pkgname
+
 
     def getMakeEnvs(self, version, language):
 
@@ -274,18 +286,22 @@ class Platform:
         libs = []
         for f in glob.glob(os.path.join(root, path)):
             (dirname, basename) = os.path.split(f)
-            if fnmatch.fnmatch(basename, "*" + extension + "*") and not os.path.islink(f):
+            if fnmatch.fnmatch(basename, "*." + extension + "*") and not os.path.islink(f):
                 libs.append(os.path.join(dirname[len(root) + 1::], basename))
         return libs
 
     def copyDistributionFiles(self, distDir, buildDir):
-        for f in [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]:
-            filepath = os.path.join(os.path.join(distDir, "src", "unix"), f + "." + self.uname)
-            if not os.path.exists(filepath):
-                print "warning: " + filepath + " doesn't exist"
-            else:
-                copy(filepath, os.path.join(buildDir, f))
+        docDir = os.path.join(distDir, "src", "unix")
+        for f in [ 'SOURCES', 'THIRD_PARTY_LICENSE' ]:
+            copy(os.path.join(docDir, f + "." + self.uname), os.path.join(buildDir, f))
 
+        if self.arch and os.path.exists(os.path.join(docDir, "README." + self.uname + "-" + self.arch)):
+            copy(os.path.join(docDir, "README." + self.uname + "-" + self.arch), os.path.join(buildDir, "README"))
+        elif os.path.exists(os.path.join(docDir, "README." + self.uname)):
+            copy(os.path.join(docDir, "README." + self.uname), os.path.join(buildDir, "README"))
+        else:
+            print "warning: couldn't find README file for this binary distribution"
+            
     def copyThirdPartyDependencies(self, buildDir):
         for t in filter(ThirdParty.includeInDistribution, self.thirdParties): t.copyToDistribution(self, buildDir)
 
@@ -293,8 +309,8 @@ class Platform:
         pass
 
 class Darwin(Platform):
-    def __init__(self, uname, languages, build_lp64):
-        Platform.__init__(self, uname, "macosx", languages, build_lp64, "dylib")
+    def __init__(self, uname, arch, languages, build_lp64):
+        Platform.__init__(self, uname, "macosx", None, languages, build_lp64, "", "dylib")
 
     def getSharedLibraryFiles(self, root, path, extension = None) : 
         libraries = Platform.getSharedLibraryFiles(self, root, path, extension)
@@ -349,21 +365,19 @@ class Darwin(Platform):
         print "ok"
 
 class HPUX(Platform):
-    def __init__(self, uname, languages, build_lp64):
-        Platform.__init__(self, uname, "hpux", languages, build_lp64, "sl")
+    def __init__(self, uname, arch, languages, build_lp64):
+        Platform.__init__(self, uname, "hpux", None, languages, build_lp64, "", "sl")
 
 class Linux(Platform):
-    def __init__(self, uname, languages, build_lp64):
-        Platform.__init__(self, uname, "linux", languages, build_lp64, "so")
+    def __init__(self, uname, arch, languages, build_lp64):
+        Platform.__init__(self, uname, "linux", arch, languages, build_lp64, "", "so")
 
 class SunOS(Platform):
-    def __init__(self, uname, languages, build_lp64):
-        (sysname, nodename, release, ver, machine) = os.uname();
-        if machine == "i86pc":
-            pkgname = "solaris-x86"
+    def __init__(self, uname, arch, languages, build_lp64):
+        if arch == "i86pc":
+            Platform.__init__(self, uname, "solaris", "x86", languages, build_lp64, "amd64", "so")
         else:
-            pkgname = "solaris-sparc"
-        Platform.__init__(self, uname, pkgname, languages, build_lp64, "so")
+            Platform.__init__(self, uname, "solaris", "sparc", languages, build_lp64, "sparcv9", "so")
 
 #
 # Third-party helper classes 
@@ -382,33 +396,33 @@ class BerkeleyDB(ThirdParty):
             else:
                 return os.path.join(self.location, "lib", "db.jar")
 
-    def getFiles(self, platform):
-        files = [ os.path.join("lib", "db.jar"), os.path.join("bin", "db_*") ]
-        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
-        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"), "jnilib")
+    def getFilesFromSubDirs(self, platform, bindir, libdir):
+        files = [ os.path.join(libdir, "db.jar"), os.path.join(bindir, "db_*") ]
+        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
+        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"), "jnilib")
         return files
 
 class Bzip2(ThirdParty):
     def __init__(self, platform, locations):
         ThirdParty.__init__(self, platform, "Bzip2", locations, ["cpp"])
 
-    def getFiles(self, platform):
-        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+    def getFilesFromSubDirs(self, platform, bindir, libdir):
+        return platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
 
 class Expat(ThirdParty):
     def __init__(self, platform, locations):
         ThirdParty.__init__(self, platform, "Expat", locations, ["cpp"])
 
-    def getFiles(self, platform):
-        return platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+    def getFilesFromSubDirs(self, platform, bindir, libdir):
+        return platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
 
 class OpenSSL(ThirdParty):
     def __init__(self, platform, locations):
         ThirdParty.__init__(self, platform, "OpenSSL", locations, ["cpp"])
 
-    def getFiles(self, platform):
-        files = [ os.path.join("bin", "openssl") ]
-        files += platform.getSharedLibraryFiles(self.location, os.path.join("lib", "*"))
+    def getFilesFromSubDirs(self, platform, bindir, libdir):
+        files = [ os.path.join(bindir, "openssl") ]
+        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
         return files
 
 platform = None
@@ -419,7 +433,7 @@ def getPlatform():
         (sysname, nodename, release, ver, machine) = os.uname();
         if not languages.has_key(sysname):
             print sys.argv[0] + ": error: `" + sysname + "' is not a supported system"
-        platform = eval(sysname.replace("-", ""))(sysname, languages[sysname], build_lp64.get(sysname, None))
+        platform = eval(sysname.replace("-", ""))(sysname, machine, languages[sysname], build_lp64.get(sysname, None))
 
         thirdParties = [ \
             Bzip2(platform, bzip2), \

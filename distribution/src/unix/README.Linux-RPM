@@ -70,12 +70,12 @@ follows:
 
 $ export CLASSPATH=/usr/lib/Ice-@ver@/java2/Ice.jar:$CLASSPATH
 
-If you plan to use Freeze for persistence, it is not necessary to add
-$ICE_HOME/lib/db.jar to your CLASSPATH because Ice.jar contains a
-manifest class path that includes db.jar automatically. However, the
-JVM requires that the directory containing the Berkeley DB libraries
-be listed in java.library.path, therefore you must add this directory
-to LD_LIBRARY_PATH:
+Note that the Freeze component of Ice for Java requires Berkeley DB.
+In order to use Freeze, you must add db.jar to your CLASSPATH. In
+addition, the JVM requires the directory containing the Berkeley DB
+libraries to be listed in java.library.path, therefore you must add
+this directory to your LD_LIBRARY_PATH. Assuming you are using the RPM
+installation of Berkeley DB, the bash command is shown below:
 
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
@@ -173,9 +173,9 @@ PHP
 ---
 
 The Ice extension for PHP is loaded automatically when the interpreter
-loads the contents of the file /etc/php.d/ice.ini (on Red Hat Enterprise
-Linux) or /etc/php5/conf.d/ice.ini (on SuSE Linux Enterprise Server).
-This file contains the line shown below:
+loads the contents of the file /etc/php.d/ice.ini (on Red Hat
+Enterprise Linux) or /etc/php5/conf.d/ice.ini (on SuSE Linux
+Enterprise Server).  This file contains the line shown below:
 
 extension=IcePHP.so
 
@@ -188,8 +188,8 @@ You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
-On SuSE Linux Enterprise Server 10, you need to install php5 version 
-5.1.2-29.22 or greater (as long as the greater version maintains 
+On SuSE Linux Enterprise Server 10, you need to install php5 version
+5.1.2-29.22 or greater (as long as the greater version maintains
 binary compatibility). Note that php5 5.1.2-29.22 is not binary
 compatible with the php5 RPM (version 5.1.2-29.5) included in the
 original SuSE Linux Enterprise Server 10 distribution.

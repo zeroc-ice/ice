@@ -129,8 +129,7 @@ projects from the solution entirely.
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
 
-set ICE_HOME=<Ice installation root directory>
-set PATH=%ICE_HOME%\bin;%PATH%
+set PATH=<Ice installation root directory>\bin;%PATH%
 
 Next, open a Command Prompt, change to the desired demo subdirectory,
 and type 'server' to start the server. In a separate Command Prompt
@@ -233,8 +232,8 @@ The ant bin directory must be added to your PATH, and the following
 environment variables need to be defined:
 
 set JAVA_HOME=<Java SDK installation root directory>
-set ICE_HOME=<Ice installation root directory>
-set PATH=%ICE_HOME%\bin;%PATH%
+set PATH=<Ice installation root directory>\bin;%PATH%
+set CLASSPATH=<Ice installation root directory>\lib\db.jar;%CLASSPATH%
 
 You can build all of the demos by running 'ant' in the demoj
 directory, or you can build individual demos by changing to the
@@ -242,12 +241,12 @@ desired subdirectory and then running 'ant'.
 
 Before running the demos you must modify your CLASSPATH as follows:
 
-set CLASSPATH=%ICE_HOME%\lib\Ice.jar;classes;%CLASSPATH%
+set CLASSPATH=<Ice installation root directory>\lib\Ice.jar;classes;%CLASSPATH%
 
 If you prefer to use Ice for Java with the Java2 mapping, modify your
 CLASSPATH as shown below:
 
-set CLASSPATH=%ICE_HOME%\lib\java2\Ice.jar;classes;%CLASSPATH%
+set CLASSPATH=<Ice installation root directory>\lib\java2\Ice.jar;classes;%CLASSPATH%
 
 In addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore the Ice bin
@@ -280,13 +279,12 @@ can be downloaded from:
 
 You also need to add the Ice bin directory to your PATH, for example:
 
-set ICE_HOME=<Ice installation root directory>
-set PATH=%ICE_HOME%\bin;%PATH%
+set PATH=<Ice installation root directory>\bin;%PATH%
 
 Finally, set PYTHONPATH so that the Python interpreter is able to load
 the Ice extension:
 
-set PYTHONPATH=%ICE_HOME%\python
+set PYTHONPATH=<Ice installation root directory>\python
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'python Server.py' to start the server. In a
