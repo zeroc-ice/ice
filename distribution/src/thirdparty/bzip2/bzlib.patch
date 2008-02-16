@@ -1,14 +1,14 @@
-109,110c109,110
+69,70c69,70
 < #ifndef BZ_IMPORT
 < #define BZ_EXPORT
 ---
 > #ifndef BZ_EXPORT
 > #define BZ_IMPORT
-124c124
+86c86
 < #   define BZ_EXTERN extern
 ---
 > #   define BZ_EXTERN __declspec(dllexport)
-127,128c127,128
+89,90c89,90
 < #   define BZ_API(func) (WINAPI * func)
 < #   define BZ_EXTERN
 ---

@@ -41,7 +41,6 @@ def configurePaths():
         os.environ["SHLIB_PATH"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("SHLIB_PATH", "")
     elif isDarwin():
         os.environ["DYLD_LIBRARY_PATH"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
-        os.environ["DYLD_BIND_AT_LAUNCH"] = "1"
     elif isAIX():
         os.environ["LIBPATH"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("LIBPATH", "")
     else:

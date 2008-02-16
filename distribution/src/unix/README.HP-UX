@@ -27,8 +27,8 @@ PA-RISC and includes the following components:
 - The Ice runtime, including executables for the Ice services and 
   Slice files.
 
-- Run time libraries for C++ and Java. These libraries enable you to
-  execute Ice applications.
+- Run time libraries for C++. These libraries enable you to execute
+  Ice applications.
 
 - Tools and libraries for developing Ice applications.
 
@@ -47,21 +47,12 @@ http://hpux.cs.utah.edu, are required to use this distribution:
 - expat 2.0.0
 
 
-Java
-----
-
-Ice for Java requires J2SE 1.5.0 or later. Java for HP-UX is available
-from HP at
-
-  http://www.hp.com/products1/unix/java
-
-
 ======================================================================
 Berkeley DB and OpenSSL
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.5.20 and the OpenSSL 0.9.8d libraries. The Berkeley DB C++ runtime
+4.6.21 and the OpenSSL 0.9.8g libraries. The Berkeley DB C++ runtime
 was built using HP aC++ version A.03.56. The Berkeley DB and OpenSSL
 licenses are provided in the file THIRD_PARTY_LICENSE.
 
@@ -99,14 +90,11 @@ Setting up your environment to use Ice
 General
 -------
 
-The discussion below assumes you have defined the ICE_HOME variable
-with the directory of your Ice installation.
-
 In order to use Ice services and tools such as Slice translators, you
-need to add $ICE_HOME/bin to your PATH, as show in the bash command
-below:
+need to add the location of the Ice binaries to your PATH, as shown in
+the bash command below:
 
-$ export PATH=$ICE_HOME/bin:$PATH
+$ export PATH=<Ice installation directory>/bin:$PATH
 
 Ice shared libraries and executables in this distribution contain 
 /opt/Ice-@mmver@/lib as the embedded runpath. In order to run Ice
@@ -115,64 +103,27 @@ services and tools, you can do one of the following:
  - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
    installation:
 
-   $ ln -s $ICE_HOME /opt/Ice-@mmver@
+   $ ln -s <Ice installation directory> /opt/Ice-@mmver@
 
- - Add $ICE_HOME/lib to your SHLIB_PATH environment variable:
+ - Add the Ice lib directory to your SHLIB_PATH environment variable:
 
-   $ export SHLIB_PATH=$ICE_HOME/lib:$SHLIB_PATH
+   $ export SHLIB_PATH=<Ice installation directory>/lib:$SHLIB_PATH
 
 
 C++
 ---
 
-When compiling Ice for C++ programs, you must pass $ICE_HOME/include
-to the compiler with the -I option, and $ICE_HOME/lib with the -L
-option. Furthermore, a C++ program needs to link with at least libIce
-and libIceUtil, so a typical link command would look like this:
+When compiling Ice for C++ programs, you must pass the Ice include
+directory to the compiler with the -I option, and the Ice library
+directory with the -L option. Furthermore, a C++ program needs to link
+with at least libIce and libIceUtil, so a typical link command would
+look like this:
 
-$ aCC -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+$ aCC -I <Ice installation directory>/include -o myprogram myprogram.o \
+  -L<Ice installation directory>/lib -lIce -lIceUtil
 
 Additional libraries are necessary if you are using an Ice service
 such as IceGrid or Glacier2.
-
-
-Java
-----
-
-To use Ice for Java with the Java5 mapping, you must add
-$ICE_HOME/lib/Ice.jar to your CLASSPATH, as shown below:
-
-$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
-
-To use Ice for Java with the Java2 mapping, modify your CLASSPATH as
-follows:
-
-$ export CLASSPATH=$ICE_HOME/lib/java2/Ice.jar:$CLASSPATH
-
-If you plan to use Freeze for persistence, it is not necessary to add
-$ICE_HOME/lib/db.jar to your CLASSPATH because Ice.jar contains a
-manifest class path that includes db.jar automatically. However, the
-JVM requires that the directory containing the Berkeley DB libraries
-be listed in java.library.path, therefore you must add this directory
-to SHLIB_PATH:
-
-$ export SHLIB_PATH=$ICE_HOME/lib:$SHLIB_PATH
-
-
-======================================================================
-Using the IceGrid Administrative Console
-======================================================================
-
-A Java-based graphical tool for administering IceGrid applications
-is included in this distribution. The Java archive file is installed
-as
-
-$ICE_HOME/lib/IceGridGUI.jar
-
-With a suitable Java installation, you can execute the application
-using the following command:
-
-$ java -jar IceGridGUI.jar
 
 
 ======================================================================

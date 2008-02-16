@@ -36,13 +36,22 @@ all: debuglib releaselib bzip2
 
 bzip2: releaselib
 	$(CC) $(TOOL_CFLAGS) -o bzip2 bzip2.c libbz2.lib setargv.obj
+	@if exist bzip2.exe.manifest echo ^ ^ ^ Embedding manifest using mt.exe && \
+	    mt.exe -nologo -manifest bzip2.exe.manifest -outputresource:bzip2.exe;#1 && del /q bzip2.exe.manifest
 	$(CC) $(TOOL_CFLAGS) -o bzip2recover bzip2recover.c
+	@if exist bzip2recover.exe.manifest echo ^ ^ ^ Embedding manifest using mt.exe && \
+	    mt.exe -nologo -manifest bzip2recover.exe.manifest -outputresource:bzip2recover.exe;#1 && \
+	    del /q bzip2recover.exe.manifest
 
 debuglib: $(OBJS:DIR=.\Debug)
 	link  /dll /implib:libbz2d.lib /out:bzip2d.dll $**
+	@if exist bzip2d.dll.manifest echo ^ ^ ^ Embedding manifest using mt.exe && \
+	    mt.exe -nologo -manifest bzip2d.dll.manifest -outputresource:bzip2d.dll;#2 && del /q bzip2d.dll.manifest
 
 releaselib: $(OBJS:DIR=.\Release)
 	link  /dll /release /implib:libbz2.lib /out:bzip2.dll $**
+	@if exist bzip2.dll.manifest echo ^ ^ ^ Embedding manifest using mt.exe && \
+	    mt.exe -nologo -manifest bzip2.dll.manifest -outputresource:bzip2.dll;#2 && del /q bzip2.dll.manifest
 
 $(OBJS:DIR=.\Debug): $(SRCS)
 	if not exist .\Debug mkdir .\Debug
@@ -57,6 +66,6 @@ clean:
 	del .\Release\*.obj
 	del .\Debug\*.obj
 	del bzip2*.dll
-	del libbz2*.lib 
+	del libbz*.lib
 	del bzip2.exe
 	del bzip2recover.exe

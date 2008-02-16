@@ -21,53 +21,75 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is a binary release of Ice @ver@ for Mac OS X and
-includes the following components:
+This distribution is a binary release of Ice @ver@ for Solaris 10 on
+SPARC and includes the following components:
 
-- The Ice runtime, including executables for the Ice services, and 
+- The Ice runtime, including executables for the Ice services and 
   Slice files.
 
-- Run time libraries for C++, Java, and Python. These libraries enable
-  you to execute Ice applications.
+- Run time libraries for C++ and Java. These libraries enable you to 
+  execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
+
+This distribution contains executables and libraries in both 32-bit
+and 64-bit format. The 32-bit executables are in the bin directory, 
+the 32-bits libraries are in the lib directory, while the 64-bit
+executables are in the bin/sparcv9 directory and the 64-bit libraries
+and in the lib/sparcv9 directory.
 
 
 ======================================================================
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Mac OS X 10.5.2 using the
-default C++ compiler, GCC 4.0.1. 
+This binary distribution was compiled on Solaris 10 using Sun CC
+version 5.9.
 
-This distribution only includes Intel binaries. If you need PowerPC
-binaries, you can download the Ice source code from the ZeroC web site
-at http://www.zeroc.com/download.html.
+The following Solaris 10 binary packages are required to use 
+this distribution:
+
+- bzip2 (Sun package SUNWbzip)
+- libexpat (Sun package SUNWlexpt)
+- openssl (Sun packages SUNWopenssl-libraries SUNWopenssl-commands)
+
+We also recommend that you install the Solaris 10 Encryption Kit (Sun
+packages SUNWcry and SUNWcryr) available at
+
+  http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
 
 
 Java
 ----
 
-Ice for Java requires J2SE 1.5.0 or later.
+Ice for Java requires J2SE 1.5.0 or later. Java binary packages can be
+obtained from Sun Microsystems at
 
-
-Python
-------
-
-The Ice extension for Python included in this distribution requires
-Python 2.5.1 installed with Mac OS X 10.5. If you prefer to use a
-later version of Python, you can download the Ice for Python source
-code from the ZeroC web site at http://www.zeroc.com/download.html.
+  http://java.sun.com
 
 
 ======================================================================
-Berkeley DB and Expat
+Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.6.21 and the Expat 2.0.0 library. The Berkeley DB C++ runtime was
-built using GCC 4.0.1. The Berkeley DB and Expat licenses are provided
-in the file THIRD_PARTY_LICENSE.
+4.6.21. The C++ runtime was built using Sun CC version 5.9. The
+Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
+
+
+======================================================================
+Ice extension for Python
+======================================================================
+
+Ice for Python is fully supported on Solaris. However it is not 
+included in this distribution because there is no suitable binary
+distribution for Python itself available from Sun or 
+www.sunfreeware.com. 
+
+If you want to use Ice for Python on Solaris, you can build a source
+distribution available at 
+
+  http://www.zeroc.com/download.html
 
 
 ======================================================================
@@ -84,23 +106,28 @@ the bash command below:
 
 $ export PATH=<Ice installation directory>/bin:$PATH
 
-The install name of Ice shared libraries in this distribution contain
-the /opt/Ice-@mmver@/lib path. In order to run Ice services and tools,
-you can do one of the following:
+In you want to use the 64-bit version of these services and tools,
+use 'bin/sparcv9' instead of 'bin': 
+
+$ export PATH=<Ice installation directory>/bin/sparcv9:$PATH
+
+
+Ice shared libraries and executables in this distribution contain 
+/opt/Ice-@mmver@/lib as the embedded runpath (/opt/Ice-@mmver@/lib/sparcv9
+for 64-bit libraries and executables). In order to run Ice
+services and tools, you can do one of the following:
 
  - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
    installation:
 
    $ ln -s <Ice installation directory> /opt/Ice-@mmver@ 
 
- - Add the Ice lib directory to your DYLD_LIBRARY_PATH environment
-   variable:
+ - Add the Ice lib directory to your LD_LIBRARY_PATH and 
+   LD_LIBRARY_PATH_64 environment variables:
 
-   $ export DYLD_LIBRARY_PATH=<Ice installation directory>/lib:$DYLD_LIBRARY_PATH
-
-If you run applications that load the IceSSL plug-in (such as the Ice
-demos) or the IceStorm service, you need to set the DYLD_LIBRARY_PATH
-environment variable as shown above.
+   $ export LD_LIBRARY_PATH=<Ice installation directory>/lib:$LD_LIBRARY_PATH
+   
+   $ export LD_LIBRARY_PATH_64=<Ice installation directory>/lib/sparcv9:$LD_LIBRARY_PATH_64
 
 
 C++
@@ -112,7 +139,7 @@ directory with the -L option. Furthermore, a C++ program needs to link
 with at least libIce and libIceUtil, so a typical link command would
 look like this:
 
-$ c++ -I <Ice installation directory>/include -o myprogram myprogram.o \
+$ CC -I <Ice installation directory>/include -o myprogram myprogram.o \
   -L<Ice installation directory>/lib -lIce -lIceUtil
 
 Additional libraries are necessary if you are using an Ice service
@@ -139,7 +166,8 @@ $ export CLASSPATH=<Ice installation directory>/lib/db.jar:$CLASSPATH
 
 In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
-must add this directory to DYLD_LIBRARY_PATH.
+must add this directory to LD_LIBRARY_PATH (or LD_LIBRARY_PATH_64 if
+you run java in 64-bit mode).
 
 Ice includes ant tasks for translating Slice to Java. The ant tasks
 allow slice2java and slice2freezej to be invoked from the ant build
@@ -159,16 +187,6 @@ system. These tasks require one of the following:
    simply invoke the translator without an absolute path, relying on
    the translators being in a directory in your PATH for successful
    execution.
-
-   
-Python
-------
-
-To use Ice for Python, the PYTHONPATH environment variable must be
-updated so that the interpreter can load the Ice extension and
-supporting Python files:
-
-$ export PYTHONPATH=<Ice installation directory>/python:$PYTHONPATH
 
 
 ======================================================================

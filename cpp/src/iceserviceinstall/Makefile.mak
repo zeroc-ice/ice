@@ -46,6 +46,11 @@ LINKWITH        = $(LIBS) msi.lib
 LINKWITH        = $(LIBS)
 !endif
 TLINKWITH 	= $(LIBS) iceserviceinstaller$(LIBSUFFIX).lib
+!if "$(CPP_COMPILER)" == "VC90"
+TLINKWITH	= /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" $(TLINKWITH)
+!else
+EXTRA_MANIFEST  = security.manifest
+!endif
 
 !ifndef BUILD_UTILS
 
@@ -70,7 +75,7 @@ $(DLLNAME): $(OBJS)
 $(TOOL): $(TOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(TLINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
+	    $(MT) -nologo -manifest $@.manifest $(EXTRA_MANIFEST) -outputresource:$@;#1 && del /q $@.manifest
 
 !ifdef BUILD_UTILS
 

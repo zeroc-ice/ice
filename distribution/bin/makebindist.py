@@ -192,6 +192,9 @@ for l in buildLanguages:
     print "============= Finished buiding " + l + " sources ============="
     print
 
+if os.path.exists(os.path.join(buildDir, "doc")):
+    shutil.rmtree(os.path.join(buildDir, "doc"))
+
 #
 # Copy platform third party dependencies.
 #
@@ -206,8 +209,8 @@ platform.completeDistribution(buildDir, version)
 print "Copying distribution files (README, SOURCES, etc)...",
 sys.stdout.flush()
 platform.copyDistributionFiles(distDir, buildDir)
-
 copy(os.path.join(distDir, "src", "common","RELEASE_NOTES.txt"), os.path.join(buildDir, "RELEASE_NOTES.txt"))
+print "ok"
 
 #
 # Everything should be clean now, we can create the binary distribution archive

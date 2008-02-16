@@ -104,7 +104,10 @@
   <Target Name="CompileSlice"
           Inputs="Session.ice"
           Outputs="generated\Session.cs">
-    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --output-dir generated Session.ice"/>
+    <Exec Condition="Exists('..\..\..\slice')"
+          Command="..\..\..\bin\slice2cs.exe --output-dir generated Session.ice"/>
+    <Exec Condition="Exists('..\..\..\..\slice')"
+          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Session.ice"/>
   </Target>
   <Target Name="AfterClean">
     <Delete Files="generated\Session.cs"/>

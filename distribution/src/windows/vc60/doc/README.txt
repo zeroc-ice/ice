@@ -111,8 +111,7 @@ Active Project, then start the compilation using Build->Build.
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
 
-set ICE_HOME=<Ice installation root directory>
-set PATH=%ICE_HOME%\bin;%PATH%
+set PATH=<Ice installation root directory>\bin;%PATH%
 
 Next, open a Command Prompt, change to the desired demo subdirectory,
 and type 'server' to start the server. In a separate Command Prompt
@@ -139,13 +138,12 @@ can be downloaded from:
 
 You also need to add the Ice bin directory to your PATH, for example:
 
-set ICE_HOME=<Ice installation root directory>
-set PATH=%ICE_HOME%\bin;%PATH%
+set PATH=<Ice installation root directory>\bin;%PATH%
 
 Finally, set RUBYLIB so that the Ruby interpreter is able to load
 the Ice extension:
 
-set RUBYLIB=%ICE_HOME%\ruby;%RUBYLIB%
+set RUBYLIB=<Ice installation root directory>\ruby;%RUBYLIB%
 
 Since Ice for Ruby does not support server-side activities, only 
 clients are provided in the demos. In order to run the demos you must
@@ -154,12 +152,12 @@ use the corresponding C++ server.
 For example, to run the hello application in demo\Ice\hello, we begin
 by starting the C++ server:
 
-> cd %ICE_HOME%\demo\Ice\hello
+> cd <Ice installation root directory>\demo\Ice\hello
 > server
 
 Then in a separate window, start the Ruby client:
 
-> cd %ICE_HOME%\demorb\Ice\hello
+> cd <Ice installation root directory>\demorb\Ice\hello
 > ruby Client.rb
 
 

@@ -55,7 +55,10 @@
     </PostBuildEvent>
   </PropertyGroup>
   <Target Name="CompileSlice" Inputs="Filesystem.ice" Outputs="generated\Filesystem.cs">
-    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --output-dir generated Filesystem.ice" />
+    <Exec Condition="Exists('..\..\..\slice')"
+          Command="..\..\..\bin\slice2cs.exe --output-dir generated Filesystem.ice"/>
+    <Exec Condition="Exists('..\..\..\..\slice')"
+          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Filesystem.ice"/>
   </Target>
   <Target Name="AfterClean">
     <Delete Files="generated\Filesystem.cs" />

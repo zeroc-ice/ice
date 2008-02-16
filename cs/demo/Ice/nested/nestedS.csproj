@@ -107,7 +107,10 @@
   <Target Name="CompileSlice"
           Inputs="Nested.ice"
           Outputs="generated\Nested.cs">
-    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --output-dir generated Nested.ice"/>
+    <Exec Condition="Exists('..\..\..\slice')"
+          Command="..\..\..\bin\slice2cs.exe --output-dir generated Nested.ice"/>
+    <Exec Condition="Exists('..\..\..\..\slice')"
+          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Nested.ice"/>
   </Target>
   <Target Name="AfterClean">
     <Delete Files="generated\Nested.cs"/>
