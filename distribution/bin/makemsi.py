@@ -74,7 +74,7 @@ def environmentCheck(target):
     if target == "vc60":
         required.extend(["PHP_HOME", "PHP_SRC_HOME"])
     elif target == "vc80" or target == "vc90":
-        required.extend(["PYTHON_HOME"])
+        required.extend(["PYTHON_HOME_X86", "PYTHON_HOME_X64"])
 
     fail = False
 
@@ -144,13 +144,29 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
     os.chdir(os.path.join(iceCppHome, "src"))
     runprog("nmake /f Makefile.mak")
+    
     #
-    # NOTE: Uncomment to build tests every time.
+    # Now run the release mode builds.
     #
-    # os.chdir(os.path.join(iceCppHome, "test"))
-    # runprog("nmake /f Makefile.mak")
+    iceCppHome = os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cpp")
+  
+    os.chdir(iceCppHome)
+    setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+    os.chdir(os.path.join(iceCppHome, "src"))
+    runprog("nmake /f Makefile.mak")
+   
+    if installVersion == "vc80" or installVersion == "vc90":
+     
+        #
+        # Ice for Python
+        #
+        os.environ['PYTHON_HOME'] = os.environ['PYTHON_HOME_X86']
+      
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + iceVersion, "py"))
+        print "Building in " + os.getcwd() + "..."
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+        runprog("nmake /f Makefile.mak")
 
-    if installVersion in ["vc80", "vc90"]:
         #
         # Ice for C#
         #
@@ -160,54 +176,71 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         runprog("nmake /f Makefile.mak")
 
-    #
-    # Now run the release mode builds.
-    #
+      #   #
+#         # Ice for Java
+#         #
+#         os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
+#         print "Building in " + os.getcwd() + "..."
+#         runprog("ant clean && ant -Dice.mapping=java2 jar")
 
-    iceCppHome = os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cpp")
-  
-    os.chdir(iceCppHome)
-    setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-    os.chdir(os.path.join(iceCppHome, "src"))
-    runprog("nmake /f Makefile.mak")
-    #os.chdir(os.path.join(iceCppHome, "test"))
-    #runprog("nmake /f Makefile.mak")
-    #
-    # Make sure there are no unwanted demo build files kicking around.
-    #
-
-    if installVersion == "vc80" or installVersion == "vc90":
-          
-        #
-        # Ice for Java
-        #
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
-        print "Building in " + os.getcwd() + "..."
-        runprog("ant clean && ant -Dice.mapping=java2 jar")
-
-        if not os.path.exists("java2"):
-            os.mkdir("java2")
-            shutil.copyfile(os.path.join("lib", "Ice.jar"), os.path.join("java2", "Ice.jar"))
-            shutil.copyfile(os.path.join("lib", "IceGridGUI.jar"), os.path.join("java2", "IceGridGUI.jar"))
+#         if not os.path.exists("java2"):
+#             os.mkdir("java2")
+#         shutil.copyfile(os.path.join("lib", "Ice.jar"), os.path.join("java2", "Ice.jar"))
+#         shutil.copyfile(os.path.join("lib", "IceGridGUI.jar"), os.path.join("java2", "IceGridGUI.jar"))
             
-        #
-        # Ice for Java
-        #
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
-        print "Building in " + os.getcwd() + "..."
-        runprog("ant clean && ant jar")
+#         #
+#         # Ice for Java
+#         #
+#         os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
+#         print "Building in " + os.getcwd() + "..."
+#         runprog("ant clean && ant jar")
 
+
+        #
+        # x64 build
+        #
+        os.environ['PATH'] = os.path.join(os.environ['VCINSTALLDIR'], 'bin','x86_amd64') + os.pathsep + os.environ['PATH']
+
+        x64Lib = [
+            os.path.join(os.environ['VSINSTALLDIR'], 'SDK', 'v2.0', 'lib', 'amd64'),
+            os.path.join(os.environ['VCINSTALLDIR'], 'PlatformSDK', 'lib', 'amd64'),
+            os.path.join(os.environ['VCINSTALLDIR'], 'lib', 'amd64'),
+            os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64')
+        ]
+        prependEnvPathList('LIB', x64Lib)
+
+        os.environ['LIBPATH'] = os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64') + os.pathsep + os.environ['LIBPATH']
+
+        os.environ['XTARGET'] = 'x64'
+
+        #        # Run debug builds first.
+        #
+        iceCppHome = os.path.join(sourcesDir, "debug-x64", "Ice-%s" % iceVersion, "cpp")
+
+        os.chdir(iceCppHome)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
+        os.chdir(os.path.join(iceCppHome, "src"))
+        runprog("nmake /f Makefile.mak")
+    
+        #
+        # Now run the release mode builds.
+        #
+        iceCppHome = os.path.join(sourcesDir, "release-x64", "Ice-%s" % iceVersion, "cpp")
+        
+        os.chdir(iceCppHome)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+        os.chdir(os.path.join(iceCppHome, "src"))
+        runprog("nmake /f Makefile.mak")
+  
         #
         # Ice for Python
         #
-        pythonHome = os.environ['PYTHON_HOME']
-        prependEnvPath('LIB', os.path.join(pythonHome, "libs"))
-        prependEnvPath('INCLUDE', os.path.join(pythonHome, "include"))
-
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + iceVersion, "py"))
+        os.environ['PYTHON_HOME'] = os.environ['PYTHON_HOME_X64']
+        os.chdir(os.path.join(sourcesDir, "release-x64", "Ice-" + iceVersion, "py"))
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak")
+     
 
     if installVersion == "vc60":
         #
@@ -416,8 +449,18 @@ libraries."""
             os.mkdir(stageDir)
 
         #
-        # Gather and generate license files.
+        # Third-party license&source files.
         #
+
+        if not os.path.exists(os.path.join(resources, "docs", target)):
+            os.mkdir(os.path.join(resources, "docs", target))
+
+        shutil.copy(os.path.join(os.environ['THIRDPARTY_HOME'], "SOURCES"),
+            os.path.join(resources, "docs", target, "THIRD_PARTY_SOURCES"))
+
+        shutil.copy(os.path.join(os.environ['THIRDPARTY_HOME'], "LICENSE"),
+            os.path.join(resources, "docs", target, "THIRD_PARTY_LICENSE"))
+
         #convertLicensesToRTF(resources, target)
 
         #
@@ -428,6 +471,10 @@ libraries."""
                shutil.rmtree(os.path.join(buildDir, "debug"))
             if  os.path.exists(os.path.join(buildDir, "release")):
                shutil.rmtree(os.path.join(buildDir, "release"))
+            if os.path.exists(os.path.join(buildDir, "debug-x64")):
+               shutil.rmtree(os.path.join(buildDir, "debug-x64"))
+            if  os.path.exists(os.path.join(buildDir, "release-x64")):
+               shutil.rmtree(os.path.join(buildDir, "release-x64"))
 
         if not os.path.exists(buildDir):
             os.mkdir(buildDir)
@@ -435,6 +482,12 @@ libraries."""
             os.mkdir(os.path.join(buildDir, "debug"))
         if not os.path.exists(os.path.join(buildDir, "release")):
             os.mkdir(os.path.join(buildDir, "release"))
+
+        if target == "vc80" or target == "vc90":
+            if not os.path.exists(os.path.join(buildDir, "debug-x64")):
+                os.mkdir(os.path.join(buildDir, "debug-x64"))
+            if not os.path.exists(os.path.join(buildDir, "release-x64")):
+                os.mkdir(os.path.join(buildDir, "release-x64"))
 
         for z in DistPrefixes:
             #
@@ -446,6 +499,12 @@ libraries."""
                 runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug")))
             if not os.path.exists(os.path.join(buildDir, "release", z %  iceVersion)):
                 runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release")))
+
+            if target == "vc80" or target == "vc90":
+                if not os.path.exists(os.path.join(buildDir, "debug-x64", z %  iceVersion)):
+                    runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug-x64")))
+                if not os.path.exists(os.path.join(buildDir, "release-x64", z %  iceVersion)):
+                    runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release-x64")))
 
         #
         # Build the Ice distributions.
