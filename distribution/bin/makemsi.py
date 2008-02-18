@@ -89,6 +89,14 @@ def environmentCheck(target):
             fail = True
             continue
 
+    if target == "vc80" or target == "vc90":
+        required = ["JGOODIES_LOOKS", "JGOODIES_FORMS"] 
+        for f in required:
+            if not os.environ.has_key(f):
+                logging.error("Environment variable %s is missing" % f)
+                fail = True
+                continue
+
     if fail:
         logging.error("Invalid environment. Please consult error log and repair environment/command line settings.")
         sys.exit(2)
@@ -176,25 +184,21 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         runprog("nmake /f Makefile.mak")
 
-      #   #
-#         # Ice for Java
-#         #
-#         os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
-#         print "Building in " + os.getcwd() + "..."
-#         runprog("ant clean && ant -Dice.mapping=java2 jar")
+        #
+        # Ice for Java
+        #
 
-#         if not os.path.exists("java2"):
-#             os.mkdir("java2")
-#         shutil.copyfile(os.path.join("lib", "Ice.jar"), os.path.join("java2", "Ice.jar"))
-#         shutil.copyfile(os.path.join("lib", "IceGridGUI.jar"), os.path.join("java2", "IceGridGUI.jar"))
-            
-#         #
-#         # Ice for Java
-#         #
-#         os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
-#         print "Building in " + os.getcwd() + "..."
-#         runprog("ant clean && ant jar")
+        jgoodiesLooks = os.environ['JGOODIES_LOOKS']
+        jgoodiesForms = os.environ['JGOODIES_FORMS']        
 
+        os.environ['CLASSPATH'] = jgoodiesLooks + os.pathsep + jgoodiesForms + os.pathsep + os.environ['CLASSPATH']
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
+        print "Building in " + os.getcwd() + "..."
+ 
+        jgoodiesDefines = "-Djgoodies.forms=" + jgoodiesForms + " -Djgoodies.looks=" + jgoodiesLooks
+     
+        runprog("ant -Dice.mapping=java2 -Dbuild.suffix=java2 " + jgoodiesDefines + " jar")
+        runprog("ant -Dice.mapping=java5 -Dbuild.suffix=java5 " + jgoodiesDefines + " jar")
 
         #
         # x64 build

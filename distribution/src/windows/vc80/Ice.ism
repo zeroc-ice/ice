@@ -359,6 +359,7 @@
 		<row><td>IceCppDev</td><td>{F40D5465-8797-479E-ACD2-89216631CF7F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppRuntime</td><td>{218943FB-F791-430F-B27E-9E839F0732C1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceDoc</td><td>{7FBEE10C-DD9F-4525-A1AF-6EDC938DB5FB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceGridGUI</td><td>{7C84CD08-DF80-41F8-9E55-937EB4B8A61F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaDemo</td><td>{76F76C01-E468-46DC-8989-15EE4BC662F8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaDev</td><td>{23924FBE-9F6C-4DDD-BB38-4D6431973B01}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaRuntime</td><td>{3B1D1400-067A-40CE-A243-2CEB8F504FB7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -1335,8 +1336,10 @@
 		<row><td>ice_dev_python</td><td>IcePythonDev</td></row>
 		<row><td>ice_dev_python</td><td>IcePythonRuntime</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceVBasicDemo</td></row>
+		<row><td>ice_runtime</td><td>ISRegistryComponent</td></row>
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
+		<row><td>ice_runtime</td><td>IceGridGUI</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
 		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_glacier2cs</td></row>
@@ -1542,6 +1545,7 @@
 		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceDoc</td><td/><td/><td>_12A3BACF_1B61_45A5_928F_45572487D618_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceGridGUI</td><td/><td/><td>_380A73F0_EB41_46C9_8944_7B1A490E2F4D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDemo</td><td/><td/><td>_CDB69F49_081A_4B76_A0E6_FB3312C328F7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDev</td><td/><td/><td>_109869C1_DCF5_4B8D_A5FE_B1C4DFDFCF56_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaRuntime</td><td/><td/><td>_9DED8A42_54C6_45D9_8CDB_5DD14869E158_FILTER</td><td/><td/><td/><td/></row>
@@ -1578,20 +1582,29 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>BerkeleyDBDebugDLL</td><td>&lt;ISProjectFolder&gt;\install\berkeley\debug\dll</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BerkeleyDBDebugDLL</td><td>&lt;ISProjectFolder&gt;\install\berkeley\debug\dllx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>Bzip2DebugDLL</td><td>&lt;ISProjectFolder&gt;\install\bzip2\debug\dll</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>Bzip2DebugDLL</td><td>&lt;ISProjectFolder&gt;\install\bzip2\debug\dllx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCSharpDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCSharpDev</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCSharpDev</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\devx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCSharpRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\devx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtimex64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceDoc</td><td>&lt;ISProjectFolder&gt;\install\ice\common\doc</td><td>4</td><td/><td/><td>0</td></row>
+		<row><td>IceGridGUI</td><td>&lt;ISProjectFolder&gt;\install\icegrid\gui</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\java\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice\java\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice\java\devx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\java\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePythonDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\python\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePythonDev</td><td>&lt;ISProjectFolder&gt;\install\ice\python\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IcePythonDev</td><td>&lt;ISProjectFolder&gt;\install\ice\python\devx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePythonRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\python\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IcePythonRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\python\runtimex64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceVBasicDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\vbasic\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
