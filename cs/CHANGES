@@ -135,6 +135,12 @@ Changes since version 3.2.1 (binary incompatible)
   in order to run the IceBox service. If no endpoints are specified
   the the ServiceManager interface is not created.
 
+- The property Ice.Plugin.Logger is now reserved to allow setting
+  of the communicator's logger from properties. This plugin must
+  implement a LoggerPlugin. The old mechanism for setting a logger 
+  plugin, including the Ice.LoggerPlugin property, has been deprecated. 
+  See manual for more details.
+
 - The property Ice.Trace.Location has been deprecated and replaced
   by Ice.Trace.Locator.
 
