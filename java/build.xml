@@ -203,10 +203,10 @@
     </target>
 
     <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
-        <condition property="runtime.jar" value="${java.home}/../Classes/classes.jar" else="${java.home}/lib/rt.jar">
+        <condition property="runtime.jar" value="${java.home}/../Classes/classes.jar" else='"${java.home}/lib/rt.jar"'>
             <os family="mac"/>
         </condition>
-        <condition property="jsse.jar" value="${java.home}/../Classes/jsse.jar" else="${java.home}/lib/jsse.jar">
+        <condition property="jsse.jar" value="${java.home}/../Classes/jsse.jar" else="'${java.home}/lib/jsse.jar"'>
             <os family="mac"/>
         </condition>
 
