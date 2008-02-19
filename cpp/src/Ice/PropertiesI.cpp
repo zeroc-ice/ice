@@ -101,7 +101,7 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
         p->second.used = true;
 
         StringSeq result;
-        if(!IceUtilInternal::splitString(p->second.value, ", \t\n", result))
+        if(!IceUtilInternal::splitString(p->second.value, ", \t\r\n", result))
         {
             Warning out(getProcessLogger());
             out << "mismatched quotes in property " << key << "'s value, returning default value";
@@ -486,14 +486,29 @@ Ice::PropertiesI::loadConfig()
         if(s && *s != '\0')
         {
             value = s;
-            setProperty("Ice.Config", value);
         }
     }
 
-    StringSeq files = getPropertyAsList("Ice.Config");
-    for(StringSeq::const_iterator p = files.begin(); p != files.end(); ++p)
+    if(!value.empty())
     {
-        load(*p);
+        const string delim = " \t\r\n";
+        string::size_type beg = value.find_first_not_of(delim);
+        while(beg != string::npos)
+        {
+            string::size_type end = value.find(",", beg);
+            string file;
+            if(end == string::npos)
+            {
+                file = value.substr(beg);
+                beg = end;
+            }
+            else
+            {
+                file = value.substr(beg, end - beg);
+                beg = value.find_first_not_of("," + delim, end);
+            }
+            load(file);
+        }
     }
 
     PropertyValue pv(value, true);

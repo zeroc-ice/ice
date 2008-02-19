@@ -118,7 +118,7 @@ namespace Ice
                 {
                     pv.used = true;
 
-                    string[] result = splitString(pv.val, ", \t\n");
+                    string[] result = splitString(pv.val, ", \t\r\n");
                     if(result == null)
                     {
                         Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key 
@@ -481,13 +481,16 @@ namespace Ice
                 {
                     val = s;
                 }
-                setProperty("Ice.Config", val);
             }
 
-            string[] files = getPropertyAsList("Ice.Config");
-            for(int i = 0; i < files.Length; i++)
+            if(val.Length > 0)
             {
-                load(files[i]);
+                char[] separator = { ',' };
+                string[] files = val.Split(separator);
+                for(int i = 0; i < files.Length; i++)
+                {
+                    load(files[i]);
+                }
             }
             
             _properties["Ice.Config"] = new PropertyValue(val, true);

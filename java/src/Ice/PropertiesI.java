@@ -130,7 +130,7 @@ public final class PropertiesI implements Properties
             result = pv.value;
         }
         
-        String[] arr = splitString(result, ", \t\n");
+        String[] arr = splitString(result, ", \t\r\n");
         if(arr == null)
         {
             Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key 
@@ -493,7 +493,6 @@ public final class PropertiesI implements Properties
                 {
                     value = "";
                 }
-                setProperty("Ice.Config", value);
             }
             catch(SecurityException ex)
             {
@@ -502,10 +501,13 @@ public final class PropertiesI implements Properties
             }
         }
 
-        String[] files = getPropertyAsList("Ice.Config");
-        for(int i = 0; i < files.length; i++)
+        if(value.length() > 0)
         {
-            load(files[i]);
+            String[] files = value.split(",");
+            for(int i = 0; i < files.length; i++)
+            {
+                load(files[i]);
+            }
         }
 
         _properties.put("Ice.Config", new PropertyValue(value, true));
