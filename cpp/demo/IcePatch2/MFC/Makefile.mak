@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-CLIENT		= patch.exe
+CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 

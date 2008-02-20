@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib IcePatch2.lib /nologo /entry:"wWinMainCRTStartup" /subsystem:windows /pdb:none /machine:I386 /out:"patch.exe" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Ice.lib IceUtil.lib IcePatch2.lib /nologo /entry:"wWinMainCRTStartup" /subsystem:windows /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "mfcpatchC - Win32 Debug"
@@ -80,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 Iced.lib IceUtild.lib IcePatch2d.lib /nologo /entry:"wWinMainCRTStartup" /subsystem:windows /debug /machine:I386 /out:"patch.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Iced.lib IceUtild.lib IcePatch2d.lib /nologo /entry:"wWinMainCRTStartup" /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
