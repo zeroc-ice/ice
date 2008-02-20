@@ -72,7 +72,8 @@
   <ItemGroup>
     <Reference Include="iceboxcs">
       <Name>iceboxcs</Name>
-      <HintPath>..\..\..\bin\iceboxcs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\iceboxcs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\iceboxcs.dll</HintPath>
     </Reference>
     <Reference Include="icecs">
       <Name>icecs</Name>

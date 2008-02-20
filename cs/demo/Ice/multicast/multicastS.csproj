@@ -3,7 +3,7 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0B41ADFF-7802-4A36-8374-C32DE33B0290}</ProjectGuid>
+    <ProjectGuid>{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
@@ -110,14 +110,14 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice" Inputs="Hello.ice" Outputs="generated\Hello.cs">
-    <Exec Condition="Exists('..\..\..\slice')"
-          Command="..\..\..\bin\slice2cs.exe --output-dir generated Hello.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')"
-          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Hello.ice"/>
+  <Target Name="CompileSlice" Inputs="Hello.ice" Outputs="generated\Hello.cs generated\Discovery.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Hello.ice" />
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Discovery.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Hello.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Discovery.ice" />
   </Target>
   <Target Name="AfterClean">
-    <Delete Files="generated\Hello.cs"/>
+    <Delete Files="generated\Hello.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

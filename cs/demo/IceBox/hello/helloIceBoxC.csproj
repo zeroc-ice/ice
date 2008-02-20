@@ -83,6 +83,10 @@
       <Name>icecs</Name>
       <HintPath>..\..\..\bin\icecs.dll</HintPath>
     </Reference>
+    <Reference Include="icesslcs, Version=3.3.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\icesslcs.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -105,16 +109,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice"
-          Inputs="Hello.ice"
-          Outputs="generated\Hello.cs">
-    <Exec Condition="Exists('..\..\..\slice')"
-          Command="..\..\..\bin\slice2cs.exe --output-dir generated Hello.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')"
-          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Hello.ice"/>
+  <Target Name="CompileSlice" Inputs="Hello.ice" Outputs="generated\Hello.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Hello.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Hello.ice" />
   </Target>
   <Target Name="AfterClean">
-    <Delete Files="generated\Hello.cs"/>
+    <Delete Files="generated\Hello.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

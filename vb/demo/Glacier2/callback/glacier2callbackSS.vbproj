@@ -73,7 +73,8 @@
   <ItemGroup>
     <Reference Include="glacier2cs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bin\glacier2cs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\glacier2cs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\glacier2cs.dll</HintPath>
     </Reference>
     <Reference Include="icecs">
       <Name>icecs</Name>

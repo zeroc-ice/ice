@@ -77,7 +77,8 @@
     </Reference>
     <Reference Include="icegridcs">
       <Name>icegridcs</Name>
-      <HintPath>..\..\..\bin\icegridcs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\icegridcs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\icegridcs.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

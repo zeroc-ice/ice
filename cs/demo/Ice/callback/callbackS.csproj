@@ -79,6 +79,10 @@
       <Name>icecs</Name>
       <HintPath>..\..\..\bin\icecs.dll</HintPath>
     </Reference>
+    <Reference Include="icesslcs, Version=3.3.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\icesslcs.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -104,16 +108,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice"
-          Inputs="Callback.ice"
-          Outputs="generated\Callback.cs">
-    <Exec Condition="Exists('..\..\..\slice')"
-          Command="..\..\..\bin\slice2cs.exe --output-dir generated Callback.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')"
-          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Callback.ice"/>
+  <Target Name="CompileSlice" Inputs="Callback.ice" Outputs="generated\Callback.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Callback.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Callback.ice" />
   </Target>
   <Target Name="AfterClean">
-    <Delete Files="generated\Callback.cs"/>
+    <Delete Files="generated\Callback.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

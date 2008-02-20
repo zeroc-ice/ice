@@ -128,6 +128,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lifecycleFSC", "book\lifecy
 		{710B7320-A714-4560-BCB0-A50FCA6ECAC5} = {710B7320-A714-4560-BCB0-A50FCA6ECAC5}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "multicastC", "Ice\multicast\multicastC.csproj", "{E8B0F14C-D67D-4A4D-B604-448D7EE048F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "multicastS", "Ice\multicast\multicastS.csproj", "{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -282,6 +286,14 @@ Global
 		{E6B38408-D998-40CE-A018-C53529B270D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6B38408-D998-40CE-A018-C53529B270D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6B38408-D998-40CE-A018-C53529B270D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8B0F14C-D67D-4A4D-B604-448D7EE048F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8B0F14C-D67D-4A4D-B604-448D7EE048F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8B0F14C-D67D-4A4D-B604-448D7EE048F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8B0F14C-D67D-4A4D-B604-448D7EE048F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
