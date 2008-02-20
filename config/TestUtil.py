@@ -20,6 +20,7 @@ debug = 0                       # Set to 1 to enable test suite debugging.
 mono =  0                       # Set to 1 to use Mono as the default .NET CLR.
 keepGoing = 0                   # Set to 1 to have the tests continue on failure.
 ipv6 = 0                        # Default to use IPv4 only
+ice_home = None                 # Binary distribution to use (None to use binaries from source distribution)
 
 javaCmd = "java"                # Default java loader
 phpCmd = "php"                  # Name of default php binary (usually php or php5)
@@ -36,32 +37,31 @@ def configurePaths():
     toplevel = findTopLevel()
 
     if isWin32():
-        os.environ["PATH"] = os.path.join(toplevel, "cpp", "bin") + os.pathsep + os.getenv("PATH", "")
-    elif isHpUx():
-        os.environ["SHLIB_PATH"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("SHLIB_PATH", "")
-    elif isDarwin():
-        os.environ["DYLD_LIBRARY_PATH"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
-    elif isAIX():
-        os.environ["LIBPATH"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("LIBPATH", "")
+        os.environ["PATH"] = os.path.join(getIceDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")
     else:
-        os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
-        os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "cpp", "lib") + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+        libDir = os.path.join(getIceDir("cpp"), "lib")
+        if isHpUx():
+            os.environ["SHLIB_PATH"] = libDir + os.pathsep + os.getenv("SHLIB_PATH", "")
+        elif isDarwin():
+            os.environ["DYLD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
+        elif isAIX():
+            os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
+        else:
+            os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
+            os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+            
+    javaDir = getIceDir("java")
+    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib") + os.pathsep + os.getenv("CLASSPATH", "")
 
-    os.environ["CLASSPATH"] = os.path.join(toplevel, "java", "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
-    os.environ["CLASSPATH"] = os.path.join(toplevel, "java", "lib") + os.pathsep + os.getenv("CLASSPATH", "")
-
-    if isWin32():
-        # This isn't needed, each test executable has a configuration file that specfies the assemblies to use.
-        #os.environ["PATH"] = os.path.join(toplevel, "cs", "bin") + os.pathsep + os.getenv("PATH", "")
-        pass
-    else:
-        os.environ["MONO_PATH"] = os.path.join(toplevel, "cs", "bin") + os.pathsep + os.getenv("MONO_PATH", "")
-    
-    # Not necessary, the tests look for python directly
-    #os.environ["PYTHONPATH"] = os.path.join(toplevel, "py", "python") + os.pathsep + os.getenv("PYTHONPATH", "")
-
-    # Not necessary, the tests look for ruby directly
-    #os.environ["RUBYLIB"] = os.path.join(toplevel, "rb", "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
+    # 
+    # On Windows, C# assemblies are found thanks to the .exe.config files.
+    #
+    if not isWin32():
+        os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
+                                               
+    os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+    os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
  
 def addLdPath(libpath):
     if isWin32():
@@ -129,6 +129,7 @@ def run(tests, root = False):
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
           --mono                  Use mono when running C# tests.
+          --ice-home=<path>       Use the binary distribution from the given path.
         """
         sys.exit(2)
 
@@ -136,7 +137,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug",
                                     "protocol=", "compress", "host=", "threadPerConnection", "continue", "ipv6",
-                                    "mono"])
+                                    "mono", "ice-home="])
     except getopt.GetoptError:
         usage()
 
@@ -173,7 +174,8 @@ def run(tests, root = False):
             if a not in ( "ssl", "tcp"):
                 usage()
 
-        if o in ( "--protocol", "--host", "--debug", "--compress", "--threadPerConnection", "--ipv6", "--mono"):
+        if o in ( "--protocol", "--host", "--debug", "--compress", "--threadPerConnection", "--ipv6", "--mono", \
+                  "--ice-home"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -242,14 +244,20 @@ def findTopLevel():
 
     return toplevel
 
-def getIceCppDir():
-    
+def getIceDir(subdir = None):
     #
-    # TODO: Right now, we simply return the source distribution cpp directory. In 
-    # the future we could allow running the tests against a binary distribution 
-    # specified with ICE_HOME?
-    #
-    return os.path.join(findTopLevel(), "cpp")
+    # If ICE_HOME is set we're running the test against a binary distribution. Otherwise,
+    # we're running the test against a source distribution.
+    # 
+    global ice_home
+    if ice_home:
+        return ice_home
+    if os.environ.has_key("ICE_HOME"):
+        return os.environ["ICE_HOME"]
+    elif subdir:
+        return os.path.join(findTopLevel(), subdir)
+    else: 
+        return findTopLevel()
 
 findTopLevel()
 configurePaths()
@@ -502,11 +510,11 @@ def getIceBox(testdir):
             build = open(os.path.join(testdir, "build.txt"), "r")
             type = build.read().strip()
             if type == "debug":
-                iceBox = os.path.join(getBinDir(testdir), "iceboxd.exe")
+                iceBox = os.path.join(getIceDir("cpp"), "bin", "iceboxd.exe")
             elif type == "release":
-                iceBox = os.path.join(getBinDir(testdir), "icebox.exe")
+                iceBox = os.path.join(getIceDir("cpp"), "bin", "icebox.exe")
         else:
-            iceBox = os.path.join(getBinDir(testdir), "icebox")
+            iceBox = os.path.join(getIceDir("cpp"), "bin", "icebox")
 
         if not os.path.exists(iceBox):
             print "couldn't find icebox executable to run the test"
@@ -514,7 +522,7 @@ def getIceBox(testdir):
     elif lang == "java":
         iceBox = "IceBox.Server"
     elif lang == "cs":
-        iceBox = os.path.join(getBinDir(testdir), "iceboxnet")
+        iceBox = os.path.join(getIceDir("cs"), "bin", "iceboxnet")
                 
     if iceBox == "":
         print "couldn't find icebox executable to run the test"
@@ -1026,7 +1034,7 @@ def getMappingDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), getDefaultMapping(currentDir)))
 
 def getBinDir(currentDir):
-    return os.path.abspath(os.path.join(getMappingDir(currentDir), "bin"))
+    return os.path.join(getIceDir(getMappingDir(currentDir)), "bin")
 
 def getCertsDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), "certs"))
@@ -1041,12 +1049,14 @@ def processCmdLine():
           --threadPerConnection   Run with thread-per-connection concurrency model.
           --ipv6                  Use IPv6 addresses.
           --mono                  Use mono when running C# tests.
+          --ice-home=<path>       Use the binary distribution from the given path.
         """
         sys.exit(2)
 
     try:
         opts, args = getopt.getopt(
-            sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection", "ipv6", "mono"])
+            sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection", "ipv6", "mono", \
+                              "ice-home="])
     except getopt.GetoptError:
         usage()
 
@@ -1057,6 +1067,9 @@ def processCmdLine():
         if o in ["--mono"]:
             global mono
             mono = 1
+        elif o == "--ice-home":
+            global ice_home
+            ice_home = a
         elif o == "--compress":
             global compress
             compress = 1

@@ -24,6 +24,10 @@ OBJEXT			= .obj
 !error ice_language must be defined
 !endif
 
+!if "$(USE_BIN_DIST)" == "yes"
+ice_bin_dist = 1
+!endif
+
 #
 # The following variables might also be defined:
 #
@@ -43,7 +47,7 @@ OBJEXT			= .obj
 # defined to the directory containing the C++ binaries and headers to
 # use to build the sources.
 #
-!if exist ($(top_srcdir)\..\$(ice_language))
+!if "$(ice_bin_dist)" == "" && exist ($(top_srcdir)\..\$(ice_language))
 
 ice_dir = $(top_srcdir)\..
 ice_src_dist = 1
@@ -109,12 +113,12 @@ ice_bin_dist = 1
 #
 !if "$(ice_require_cpp)" == "yes"
 !if "$(ice_src_dist)" != ""
-ice_cpp_header = $(ice_cpp_dir)\include\Ice\Config.h
+ice_cpp_header = $(ice_cpp_dir)\include\Ice\Ice.h
 !else
-ice_cpp_header = $(ice_dir)\include\Ice\Config.h
+ice_cpp_header = $(ice_dir)\include\Ice\Ice.h
 !endif
 !if !exist ($(ice_cpp_header))
-!error Unable to find a valid Ice distribution with the C++ header files, please verify ICE_HOME is properly configured and Ice is correctly installed.
+!error Unable to find the C++ header file $(ice_cpp_header), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 !endif
 

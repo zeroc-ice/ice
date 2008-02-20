@@ -21,15 +21,12 @@ end
 if not rubyDir
     fail "can't find toplevel directory!"
 end
-$:.unshift(rubyDir)
 
 #
 # Find Slice directory.
 #
 slice_dir = ''
-if ENV.has_key?('ICERB_HOME') and Pathname.new(ENV['ICERB_HOME']).join("slice").directory?
-    slice_dir = ENV['ICERB_HOME'] + '/slice'
-elsif ENV.has_key?('ICE_HOME') and Pathname.new(ENV['ICE_HOME']).join("slice").directory?
+if ENV.has_key?('ICE_HOME') and Pathname.new(ENV['ICE_HOME']).join("slice").directory?
     slice_dir = ENV['ICE_HOME'] + '/slice'
 elsif Pathname.new(toplevel + '/../slice').directory?
     slice_dir = toplevel + '/../slice' 

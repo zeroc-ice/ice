@@ -17,9 +17,6 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-sys.path.insert(0, os.path.join(toplevel, "python"))
-sys.path.insert(0, os.path.join(toplevel, "lib"))
-
 import Ice, AllTests
 
 def test(b):

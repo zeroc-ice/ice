@@ -115,9 +115,9 @@ USE_READLINE		?= no
 # Common definitions
 #
 ice_language     = cpp
-ifneq ($(shell test -d $(top_srcdir)/../cpp && echo 0),0)
-    # Don't check for slice2cpp in ICE_HOME if building the source distribution
+ifneq ($(shell test "$(USE_BIN_DIST)" != "yes" -a -d $(top_srcdir)/../$(ice_language) && echo 0),0)
     slice_translator = slice2cpp
+    ice_require_cpp  = 1
 endif
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)

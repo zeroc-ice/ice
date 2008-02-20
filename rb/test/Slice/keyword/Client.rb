@@ -21,7 +21,6 @@ end
 if not rubyDir
     fail "can't find toplevel directory!"
 end
-$:.unshift(rubyDir)
 
 require 'Ice'
 Ice::loadSlice('Key.ice')

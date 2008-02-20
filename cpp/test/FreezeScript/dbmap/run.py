@@ -22,7 +22,7 @@ import TestUtil
 TestUtil.processCmdLine()
 
 directory = os.path.dirname(os.path.abspath(__file__))
-transformdb = os.path.join(toplevel, "cpp", "bin", "transformdb")
+transformdb = os.path.join(TestUtil.getBinDir(directory), "transformdb")
 
 dbdir = os.path.join(directory, "db")
 TestUtil.cleanDbDir(dbdir)

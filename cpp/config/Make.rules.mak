@@ -86,9 +86,9 @@ MT = mt.exe
 # Common definitions
 #
 ice_language     = cpp
-!if !exist ($(top_srcdir)\..\cpp)
-# Don't check for slice2cpp in ICE_HOME if building the source distribution
+!if "$(USE_BIN_DIST)" == "yes" || !exist ($(top_srcdir)\..\cpp)
 slice_translator = slice2cpp.exe
+ice_require_cpp  = 1
 !endif
 
 !if exist ($(top_srcdir)\..\config\Make.common.rules)

@@ -49,7 +49,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
 
-cppcerts = os.path.join(TestUtil.getIceCppDir(), "test", "IceSSL", "certs")
+cppcerts = os.path.join(TestUtil.getIceDir("cpp"), "test", "IceSSL", "certs")
 
 for x in ("cacert1.pem", "cacert2.pem"):
     if force or not os.path.exists(x):

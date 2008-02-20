@@ -30,7 +30,7 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icegridcs) $(call ref,icecs) $(call ref,glacier2cs) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) -r:$(bindir)/glacier2cs.dll $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(call ref,glacier2cs) $(subst /,$(DSEP),$^)
 
 clean::
 	-rm -rf db/node db/registry db/replica-*

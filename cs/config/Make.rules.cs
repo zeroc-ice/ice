@@ -127,7 +127,7 @@ GEN_AMD_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_AMD_SRCS))
 SAMD_GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SAMD_SRCS))))
 
 
-EVERYTHING		= all depend clean install config
+EVERYTHING		= all depend clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
@@ -165,9 +165,6 @@ depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE
 
 clean::
 	-rm -f $(TARGETS) $(patsubst %,%.mdb,$(TARGETS)) *.bak *.dll *.pdb *.mdb
-
-config::
-	$(top_srcdir)/config/makeconfig.py $(top_srcdir) $(TARGETS)
 
 ifneq ($(SLICE_SRCS),)
 clean::

@@ -86,10 +86,20 @@
         </condition>
     </fail>
 
+    <condition property="ice.bin.dist">
+        <or>
+           <equals arg1="${use.bin.dist}" arg2="yes"/>
+           <equals arg1="${env.USE_BIN_DIST}" arg2="yes"/>
+        </or>
+    </condition>
+
     <!-- First, check if we're building a source distribution. -->
 
     <condition property="ice.dir" value="${ice.top.dir}/..">
-        <available file="${ice.top.dir}/../java"/>
+        <and>
+            <available file="${ice.top.dir}/../java"/>
+            <not><isset property="ice.bin.dist"/></not>
+        </and> 
     </condition>
     <!-- When building a source distribution, we allow using either the
          translators from a binary distribution or the local translators, -->

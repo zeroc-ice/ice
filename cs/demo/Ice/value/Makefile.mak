@@ -10,6 +10,7 @@
 top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe
+TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= Client.cs DerivedPrinterI.cs ObjectFactory.cs PrinterI.cs
 S_SRCS		= DerivedPrinterI.cs InitialI.cs PrinterI.cs Server.cs

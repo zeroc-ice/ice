@@ -99,7 +99,7 @@ SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
 SLICE2CS		= "$(ice_dir)\bin\slice2cs.exe"
 !endif
 
-EVERYTHING		= all clean install
+EVERYTHING		= all clean install config
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
@@ -110,10 +110,23 @@ EVERYTHING		= all clean install
 {$(SDIR)\}.ice{$(GDIR)}.cs:
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
-all:: $(TARGETS)
+!if "$(TARGETS_CONFIG)" != ""
+$(TARGETS_CONFIG):
+!if "$(ice_src_dist)" != ""
+	@echo Generating $(TARGETS_CONFIG) ... && \
+        python "$(top_srcdir)/config/makeconfig.py" "$(top_srcdir)" $(TARGETS_CONFIG:.exe.config=.exe)
+!else
+        @echo Generating $(TARGETS_CONFIG) ... && \
+        python "$(top_srcdir)/config/makeconfig.py" "$(ice_dir)" $(TARGETS_CONFIG:.exe.config=.exe)
+!endif
+!endif
+
+all:: $(TARGETS) $(TARGETS_CONFIG)
+
+config:: $(TARGETS_CONFIG)
 
 clean::
-	del /q $(TARGETS) *.pdb
+	del /q $(TARGETS) $(TARGETS_CONFIG) *.pdb
 
 !if "$(GEN_SRCS)" != ""
 clean::

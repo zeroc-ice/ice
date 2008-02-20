@@ -25,7 +25,7 @@ import TestUtil
 TestUtil.processCmdLine()
 
 directory = os.path.dirname(os.path.abspath(__file__))
-slice2cpp = os.path.join(TestUtil.getBinDir(__file__), "slice2cpp")
+slice2cpp = os.path.join(TestUtil.getIceDir("cpp"), "bin", "slice2cpp")
 
 regex1 = re.compile(r"\.ice$", re.IGNORECASE)
 files = []
