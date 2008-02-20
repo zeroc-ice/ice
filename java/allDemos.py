@@ -55,7 +55,7 @@ demos = [
 #
 # These demos are currently disabled on cygwin
 #
-if isCygwin() == 0:
+if DemoUtil.isCygwin() == 0:
     demos += [ ]
 
 DemoUtil.run(demos)
