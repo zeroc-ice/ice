@@ -177,7 +177,7 @@
 	</jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="ice-compile">
+    <target name="icegridadmin-compile" depends="ice-compile" unless="java2">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
 	    source="1.5" debug="${debug}"
 	    includes="IceGridGUI/**"
@@ -189,10 +189,18 @@
             <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
 	    <available file="${jgoodies.looks}" />
 	    <available file="${jgoodies.forms}" />
+            <not><isset property="java2"/></not>
 	</and>	
     </condition>
 
-    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" unless="build-icegridadmin-pro-jar">
+    <condition property="build-icegridadmin-plain-jar">
+	<and>
+            <not><isset property="build-icegridadmin-pro-jar"/></not>
+            <not><isset property="java2"/></not>
+	</and>	
+    </condition>
+
+    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">
 	<manifest file="${lib.dir}/icegridgui.mf">
 	    <attribute name="Class-Path" value="Ice.jar ../resources/"/>
 	</manifest>
