@@ -16,8 +16,8 @@ def run(clientCmd, serverCmd):
     sys.stdout.flush()
 
     server = demoscript.Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
-    server.expect('.* ready')
-    server.expect('.* ready')
+    server.expect('Discover ready')
+    server.expect('Hello ready')
 
     client = demoscript.Util.spawn(clientCmd)
     server.expect('Hello World!')
