@@ -253,7 +253,6 @@
 		<col key="yes" def="s72">Name</col>
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
-		<row><td>ISSELFREG.DLL</td><td/><td>&lt;ISProductFolder&gt;\redist\language independent\i386\isregsvr.dll</td></row>
 		<row><td>NewBinary1</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBanner.ibd</td></row>
 		<row><td>NewBinary10</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CompleteSetupIco.ibd</td></row>
 		<row><td>NewBinary11</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CustomSetupIco.ibd</td></row>
@@ -267,7 +266,7 @@
 		<row><td>NewBinary19</td><td/><td>&lt;ISProjectFolder&gt;\install\ice\common\installer-main.bmp</td></row>
 		<row><td>NewBinary2</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\New.ibd</td></row>
 		<row><td>NewBinary20</td><td/><td>&lt;ISProjectFolder&gt;\install\ice\common\installer-header.bmp</td></row>
-		<row><td>NewBinary21</td><td/><td>&lt;WindowsFolder&gt;\microsoft.net\framework\v1.1.4322\CasPol.exe</td></row>
+		<row><td>NewBinary21</td><td/><td>&lt;WindowsFolder&gt;\microsoft.net\framework\v2.0.50727\CasPol.exe</td></row>
 		<row><td>NewBinary3</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\Up.ibd</td></row>
 		<row><td>NewBinary4</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\WarningIcon.ibd</td></row>
 		<row><td>NewBinary5</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBitmap.ibd</td></row>
@@ -342,9 +341,9 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>BerkeleyDBDebugDLL</td><td>{54612099-D38E-4A37-BC8F-5B09F9DF2276}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>Bzip2DebugDLL</td><td>{B2E79ABA-4D50-479C-AD38-DDD8E1CEE0CD}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>DummyComponent</td><td>{0A8A414C-E74D-471F-AC64-DEEA8E5E4747}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BerkeleyDBDebugDLL</td><td>{54612099-D38E-4A37-BC8F-5B09F9DF2276}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>Bzip2DebugDLL</td><td>{B2E79ABA-4D50-479C-AD38-DDD8E1CEE0CD}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>DummyComponent</td><td>{0A8A414C-E74D-471F-AC64-DEEA8E5E4747}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_glacier2cs</td><td>{53C9CFD7-57A7-4C63-8000-938EE2C0EBF6}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;= "2.0"</td><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_iceboxcs</td><td>{8C3C3EFF-B2EA-4C14-B5E8-108527E8F71D}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>iceboxcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icecs</td><td>{FB8FD85C-EC0E-4A07-BC20-A96EF1F44909}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt; "2.0"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -352,22 +351,20 @@
 		<row><td>GAC_icepatch2cs</td><td>{7F6E4D01-1F91-4D8B-BA25-8A494FEE18C6}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icestormcs</td><td>{E0F3C7F7-AFDD-41CA-B306-EA539739A9CB}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_registry</td><td>{B945C231-EF78-4737-8C8B-97DB5C086FFD}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>ISRegistryComponent</td><td>{44AF097C-4731-4562-B23D-D00E062D674D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCSharpDemo</td><td>{A4BB2878-87EF-462B-B1D0-EF5A859702FA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCSharpDev</td><td>{A7182719-2C34-4246-8C00-C0673BE6EBF4}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCSharpRuntime</td><td>{4CA76E20-D92E-476E-A858-C93C152AC964}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCppDemo</td><td>{C1392163-339E-452B-A401-D0B4E27F0600}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCppDev</td><td>{F40D5465-8797-479E-ACD2-89216631CF7F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceCppRuntime</td><td>{218943FB-F791-430F-B27E-9E839F0732C1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceDoc</td><td>{7FBEE10C-DD9F-4525-A1AF-6EDC938DB5FB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceJavaDemo</td><td>{76F76C01-E468-46DC-8989-15EE4BC662F8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceJavaDev</td><td>{23924FBE-9F6C-4DDD-BB38-4D6431973B01}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceJavaRuntime</td><td>{3B1D1400-067A-40CE-A243-2CEB8F504FB7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IcePythonDemo</td><td>{DC74F8DE-1571-43DA-8E48-2585970FE3D8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IcePythonDev</td><td>{DBEF9446-CEED-4917-B5A1-D8E7A4220A1D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IcePythonRuntime</td><td>{3AD51C61-A673-45A1-89AD-AA473FB32078}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceVBasicDemo</td><td>{AC62A141-A625-471F-8E97-9B3D3608E463}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>VisualStudioRuntime</td><td>{00E5A9B9-3E93-4C0A-8188-9BD486B642E3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISRegistryComponent</td><td>{44AF097C-4731-4562-B23D-D00E062D674D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCSharpDemo</td><td>{A4BB2878-87EF-462B-B1D0-EF5A859702FA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCSharpDev</td><td>{A7182719-2C34-4246-8C00-C0673BE6EBF4}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCSharpRuntime</td><td>{4CA76E20-D92E-476E-A858-C93C152AC964}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppDemo</td><td>{C1392163-339E-452B-A401-D0B4E27F0600}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppDev</td><td>{F40D5465-8797-479E-ACD2-89216631CF7F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppRuntime</td><td>{218943FB-F791-430F-B27E-9E839F0732C1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceDoc</td><td>{7FBEE10C-DD9F-4525-A1AF-6EDC938DB5FB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceGridGUI</td><td>{7C84CD08-DF80-41F8-9E55-937EB4B8A61F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceJavaDemo</td><td>{76F76C01-E468-46DC-8989-15EE4BC662F8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceJavaDev</td><td>{23924FBE-9F6C-4DDD-BB38-4D6431973B01}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceJavaRuntime</td><td>{3B1D1400-067A-40CE-A243-2CEB8F504FB7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceVBasicDemo</td><td>{AC62A141-A625-471F-8E97-9B3D3608E463}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>VisualStudioRuntime</td><td>{00E5A9B9-3E93-4C0A-8188-9BD486B642E3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -1000,10 +997,6 @@
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
 		<row><td>CopyAssemblyPDBs</td><td>1650</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepackcs,icepatch2cs,icestormcs,icegridcs, iceboxcs, icesslcs) DO copy [INSTALLDIR]bin\%f.pdb [WindowsFolder]assembly\GAC_MSIL\%f\3.2.0.0__1f998c50fec78381</td><td/></row>
-		<row><td>ISSelfRegisterCosting</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterCosting</td><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>NewCustomAction1</td><td>1394</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepackcs,icepatch2cs,icestormcs,icegridcs, iceboxcs, icesslcs) DO del /q [WindowsFolder]assembly\GAC_MSIL\%f\3.2.0.0__1f998c50fec78381\%f.pdb</td><td/></row>
 		<row><td>NewCustomAction11</td><td>1650</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepackcs,icepatch2cs,icestormcs,icegridcs, iceboxcs, icesslcs) DO del /q [WindowsFolder]assembly\GAC_MSIL\%f\3.2.0.0__1f998c50fec78381\%f.pdb</td><td/></row>
 		<row><td>NewCustomAction2</td><td>7</td><td>NewCustomAction2</td><td>ALLUSERS=[ALLUSERS] ADDLOCAL=ALL</td><td/></row>
@@ -1081,7 +1074,8 @@
 		<row><td>GAC</td><td>ASSEMBLY</td><td>GAC</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.3.0</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3.0</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.3.0</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0_VC90</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0-VC90</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.3.0_VC90</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISUpdateServiceFolder</td><td>ISCommonFilesFolder</td><td>UPDATE~1|UpdateService</td><td/><td>0</td><td/></row>
@@ -1314,13 +1308,11 @@
 		<row><td>ice_dev_cpp</td><td>ice_runtime_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_csharp</td><td>ice_runtime_dotnet</td><td>##ID_STRING17##</td><td>##ID_STRING22##</td><td>2</td><td>200</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_java</td><td>ice_runtime_java</td><td>##ID_STRING12##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_dev_python</td><td>ice_runtime_python</td><td>##ID_STRING13##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_vbasic</td><td>ice_runtime_dotnet</td><td>##ID_STRING19##</td><td>##ID_STRING22##</td><td>4</td><td>200</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime_cpp</td><td/><td>##ID_STRING34##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime_dotnet</td><td/><td>##ID_STRING27##</td><td>##ID_STRING22##</td><td>22</td><td>200</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime_java</td><td/><td>##ID_STRING6##</td><td/><td>16</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_runtime_python</td><td/><td>##ID_STRING29##</td><td/><td>24</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>packages</td><td>ice_runtime</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>packages_dev_cpp</td><td>ice_dev_cpp</td><td>##ID_STRING25##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>packages_java</td><td>ice_runtime_java</td><td>##ID_STRING26##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
@@ -1336,12 +1328,11 @@
 		<row><td>ice_dev_java</td><td>IceJavaDemo</td></row>
 		<row><td>ice_dev_java</td><td>IceJavaDev</td></row>
 		<row><td>ice_dev_java</td><td>IceJavaRuntime</td></row>
-		<row><td>ice_dev_python</td><td>IcePythonDemo</td></row>
-		<row><td>ice_dev_python</td><td>IcePythonDev</td></row>
-		<row><td>ice_dev_python</td><td>IcePythonRuntime</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceVBasicDemo</td></row>
+		<row><td>ice_runtime</td><td>ISRegistryComponent</td></row>
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
+		<row><td>ice_runtime</td><td>IceGridGUI</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
 		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_glacier2cs</td></row>
@@ -1353,7 +1344,6 @@
 		<row><td>ice_runtime_dotnet</td><td>GAC_registry</td></row>
 		<row><td>ice_runtime_dotnet</td><td>IceCSharpRuntime</td></row>
 		<row><td>ice_runtime_java</td><td>IceJavaRuntime</td></row>
-		<row><td>ice_runtime_python</td><td>IcePythonRuntime</td></row>
 		<row><td>packages</td><td>VisualStudioRuntime</td></row>
 		<row><td>packages_dev_cpp</td><td>BerkeleyDBDebugDLL</td></row>
 		<row><td>packages_dev_cpp</td><td>Bzip2DebugDLL</td></row>
@@ -1547,12 +1537,10 @@
 		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceDoc</td><td/><td/><td>_12A3BACF_1B61_45A5_928F_45572487D618_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceGridGUI</td><td/><td/><td>_380A73F0_EB41_46C9_8944_7B1A490E2F4D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDemo</td><td/><td/><td>_CDB69F49_081A_4B76_A0E6_FB3312C328F7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDev</td><td/><td/><td>_109869C1_DCF5_4B8D_A5FE_B1C4DFDFCF56_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaRuntime</td><td/><td/><td>_9DED8A42_54C6_45D9_8CDB_5DD14869E158_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>IcePythonDemo</td><td/><td/><td>_5F8824EE_DF7F_431F_8E8B_366272B2BB21_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>IcePythonDev</td><td/><td/><td>_37D67ECC_6F7F_43FB_A312_4B2BC92EBA4E_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>IcePythonRuntime</td><td/><td/><td>_EC956E1E_E548_4E9D_A837_18AB200F9E4D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceVBasicDemo</td><td/><td/><td>_955C0399_0F87_4B8F_84C1_607A66776625_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>VisualStudioRuntime</td><td/><td/><td>_30BA3320_69CB_4682_87F9_962EE1BF4FF1_FILTER</td><td/><td/><td/><td/></row>
 	</table>
@@ -1583,20 +1571,24 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>BerkeleyDBDebugDLL</td><td>&lt;ISProjectFolder&gt;\install\berkeley\debug\dll</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BerkeleyDBDebugDLL</td><td>&lt;ISProjectFolder&gt;\install\berkeley\debug\dllx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>Bzip2DebugDLL</td><td>&lt;ISProjectFolder&gt;\install\bzip2\debug\dll</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>Bzip2DebugDLL</td><td>&lt;ISProjectFolder&gt;\install\bzip2\debug\dllx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCSharpDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCSharpDev</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCSharpDev</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\devx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCSharpRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\devx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtimex64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceDoc</td><td>&lt;ISProjectFolder&gt;\install\ice\common\doc</td><td>4</td><td/><td/><td>0</td></row>
+		<row><td>IceGridGUI</td><td>&lt;ISProjectFolder&gt;\install\icegrid\gui</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\java\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice\java\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice\java\devx64</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\java\runtime</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IcePythonDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\python\demo</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IcePythonDev</td><td>&lt;ISProjectFolder&gt;\install\ice\python\dev</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IcePythonRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\python\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceVBasicDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\vbasic\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
@@ -1611,9 +1603,10 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
-		<row><td>ice_runtime</td><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td></row>
 		<row><td>ice_runtime</td><td>ExpatRuntime.VC90.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td></row>
+		<row><td>ice_runtime</td><td>Microsoft_VC90_CRT_x86.0138F525_6C8A_333F_A105_14AE030B9A54</td><td>0</td></row>
 		<row><td>ice_runtime</td><td>OpenSSLRuntime.VC90.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td></row>
+		<row><td>ice_runtime</td><td>policy_9_0_Microsoft_VC90_CRT_x86.52105B6B_A3EF_3A90_882A_947B287C203A</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC90.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td></row>
 		<row><td>packages</td><td>Bzip2Runtime.VC90.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td></row>
@@ -1702,9 +1695,10 @@
 		<row><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC90.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>Bzip2Runtime.VC90.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td><td>Bzip2 Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td><td>Visual C++ 8.0 CRT (x86) WinSXS MSM Beta2</td><td/><td/></row>
 		<row><td>ExpatRuntime.VC90.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>Microsoft_VC90_CRT_x86.0138F525_6C8A_333F_A105_14AE030B9A54</td><td>0</td><td>Visual C++ 9.0 CRT (x86) WinSXS MSM</td><td/><td/></row>
 		<row><td>OpenSSLRuntime.VC90.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>policy_9_0_Microsoft_VC90_CRT_x86.52105B6B_A3EF_3A90_882A_947B287C203A</td><td>0</td><td>Visual C++ 9.0 CRT (x86) WinSXS MSM</td><td/><td/></row>
 	</table>
 
 	<table name="ISMergeModuleCfgValues">
@@ -2582,10 +2576,6 @@
 		<row><td>DuplicateFiles</td><td/><td>4210</td><td>DuplicateFiles</td><td/></row>
 		<row><td>FileCost</td><td/><td>900</td><td>FileCost</td><td/></row>
 		<row><td>FindRelatedProducts</td><td>NOT ISSETUPDRIVEN</td><td>420</td><td>FindRelatedProducts</td><td/></row>
-		<row><td>ISSelfRegisterCosting</td><td/><td>2201</td><td/><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td/><td>5601</td><td/><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td/><td>6601</td><td/><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td/><td>2202</td><td/><td/></row>
 		<row><td>InstallFiles</td><td/><td>4000</td><td>InstallFiles</td><td/></row>
 		<row><td>InstallFinalize</td><td/><td>6600</td><td>InstallFinalize</td><td/></row>
 		<row><td>InstallInitialize</td><td/><td>1501</td><td>InstallInitialize</td><td/></row>

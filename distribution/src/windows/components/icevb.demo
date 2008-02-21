@@ -17,4 +17,10 @@ exclude=**/Makefile.*
 exclude=**/*Makefile*
 exclude=**/Debug/**
 exclude=**/Release/**
-exclude=Freeze/backup/**
+exclude=**/generated/**
+exclude=**/obj/**
+exclude=**/My Project/**
+exclude=_UpgradeReport_Files/**
+exclude=**/Properties/**
+exclude=UpgradeLog.XML
+

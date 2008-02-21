@@ -73,7 +73,7 @@ def environmentCheck(target):
 
     if target == "vc60":
         required.extend(["PHP_HOME", "PHP_SRC_HOME"])
-    elif target == "vc80" or target == "vc90":
+    elif target == "vc80":
         required.extend(["PYTHON_HOME_X86", "PYTHON_HOME_X64"])
 
     fail = False
@@ -163,8 +163,8 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
     os.chdir(os.path.join(iceCppHome, "src"))
     runprog("nmake /f Makefile.mak")
    
-    if installVersion == "vc80" or installVersion == "vc90":
-     
+    if installVersion == "vc80":
+
         #
         # Ice for Python
         #
@@ -175,6 +175,8 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak")
 
+    if installVersion == "vc80" or installVersion == "vc90":
+     
         #
         # Ice for C#
         #
@@ -203,21 +205,42 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
         #
         # x64 build
         #
+
         os.environ['PATH'] = os.path.join(os.environ['VCINSTALLDIR'], 'bin','x86_amd64') + os.pathsep + os.environ['PATH']
-
-        x64Lib = [
-            os.path.join(os.environ['VSINSTALLDIR'], 'SDK', 'v2.0', 'lib', 'amd64'),
-            os.path.join(os.environ['VCINSTALLDIR'], 'PlatformSDK', 'lib', 'amd64'),
-            os.path.join(os.environ['VCINSTALLDIR'], 'lib', 'amd64'),
-            os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64')
-        ]
-        prependEnvPathList('LIB', x64Lib)
-
-        os.environ['LIBPATH'] = os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64') + os.pathsep + os.environ['LIBPATH']
-
         os.environ['XTARGET'] = 'x64'
 
-        #        # Run debug builds first.
+        if installVersion == "vc80":
+            
+            x64Lib = [
+                os.path.join(os.environ['VSINSTALLDIR'], 'SDK', 'v2.0', 'lib', 'amd64'),
+                os.path.join(os.environ['VCINSTALLDIR'], 'PlatformSDK', 'lib', 'amd64'),
+                os.path.join(os.environ['VCINSTALLDIR'], 'lib', 'amd64'),
+                os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64')
+                ]
+            prependEnvPathList('LIB', x64Lib)
+
+            os.environ['LIBPATH'] = os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64') + os.pathsep + os.environ['LIBPATH']
+             
+        if installVersion == "vc90":
+            
+            x64Lib = [
+                os.path.join(os.environ['VCINSTALLDIR'], 'lib', 'amd64'),
+                os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64'),
+                os.path.join(os.environ['WindowsSdkDir'], 'lib', 'x64')
+                ]
+            prependEnvPathList('LIB', x64Lib)
+
+            x64LibPath = [
+                os.path.join(os.environ['VCINSTALLDIR'], 'lib', 'amd64'),
+                os.path.join(os.environ['VCINSTALLDIR'], 'ATLMFC', 'lib', 'amd64'),
+                os.path.join(os.environ['FrameworkDir'] + '64', os.environ['FrameworkVersion']),
+                os.path.join(os.environ['FrameworkDir'] + '64', os.environ['Framework35Version'])
+                ]
+            prependEnvPathList('LIBPATH', x64LibPath)
+       
+
+        #
+        # Run debug builds first.
         #
         iceCppHome = os.path.join(sourcesDir, "debug-x64", "Ice-%s" % iceVersion, "cpp")
 
@@ -236,15 +259,15 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
         os.chdir(os.path.join(iceCppHome, "src"))
         runprog("nmake /f Makefile.mak")
   
-        #
-        # Ice for Python
-        #
-        os.environ['PYTHON_HOME'] = os.environ['PYTHON_HOME_X64']
-        os.chdir(os.path.join(sourcesDir, "release-x64", "Ice-" + iceVersion, "py"))
-        print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-        runprog("nmake /f Makefile.mak")
-     
+        if installVersion == "vc80":
+            #
+            # Ice for Python
+            #
+            os.environ['PYTHON_HOME'] = os.environ['PYTHON_HOME_X64']
+            os.chdir(os.path.join(sourcesDir, "release-x64", "Ice-" + iceVersion, "py"))
+            print "Building in " + os.getcwd() + "..."
+            setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+            runprog("nmake /f Makefile.mak")
 
     if installVersion == "vc60":
         #

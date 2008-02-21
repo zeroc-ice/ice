@@ -17,3 +17,5 @@ exclude=**/Makefile.*
 exclude=**/*Makefile*
 exclude=**/Debug/**
 exclude=**/Release/**
+exclude=**/obj/**
+exclude=_UpgradeReport_Files/**
