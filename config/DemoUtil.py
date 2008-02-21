@@ -163,6 +163,8 @@ def index(l, re):
     return -1
 
 def run(demos):
+    global keepGoing 
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start-after=", "start=", "loop", "fast", "trace", "debug", "host=", "mode=",

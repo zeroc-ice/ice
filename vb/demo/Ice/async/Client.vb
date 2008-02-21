@@ -23,7 +23,7 @@ Module AsyncC
 
             Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
                 If TypeOf ex Is RequestCanceledException Then
-                    Console.Error.WriteLine("Request canceled")
+                    Console.Error.WriteLine("RequestCanceledException")
                 Else
                     Console.Error.WriteLine("sayHello AMI call failed:")
                     Console.Error.WriteLine(ex)
