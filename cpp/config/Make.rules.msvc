@@ -26,12 +26,7 @@ PRELIBS		=
 # If building a source distribution, use THIRDPARTY_HOME for the 3rd party libraries
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
-
-!if "$(AS)" == "ml64" || "$(XTARGET)" == "x64" 
-LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib\x64"
-!else
-LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib"
-!endif
+LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib\$(x64suffix)"
 
 !if "$(CPP_COMPILER)" == "VC60"
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)

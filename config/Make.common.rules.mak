@@ -138,9 +138,9 @@ install-common::
 
 	@if not exist $(install_slicedir) \
 	    @echo "Creating $(install_slicedir)..." && \
-	    mkdir $(install_slicedir) \
-	    @echo "Copying slice files..." && \
-	    cmd /c "xcopy /s /y ..\slice $(install_slicedir)" || exit 1
+	    mkdir $(install_slicedir)
+	@echo "Copying slice files..." && \
+	cmd /c "xcopy /s /y $(top_srcdir)\..\slice $(install_slicedir)" || exit 1
 
 	@copy ..\ICE_LICENSE $(prefix)
 	@copy ..\LICENSE $(prefix)
