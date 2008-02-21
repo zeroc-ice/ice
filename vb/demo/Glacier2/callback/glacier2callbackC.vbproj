@@ -79,6 +79,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\icecs.dll</HintPath>
     </Reference>
+    <Reference Include="icesslcs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\icesslcs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\icesslcs.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>

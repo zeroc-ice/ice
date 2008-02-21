@@ -91,6 +91,10 @@ slice_translator = slice2cpp.exe
 ice_require_cpp  = 1
 !endif
 
+#!if "$(AS)" == "ml64" || "$(XTARGET)" == "x64"
+x64suffix		= \x64
+#!endif
+
 !if exist ($(top_srcdir)\..\config\Make.common.rules)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
 !else
@@ -102,15 +106,15 @@ bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include
 !else
-bindir			= $(ice_dir)\bin
-libdir			= $(ice_dir)\lib
+bindir			= $(ice_dir)\bin$(x64suffix)
+libdir			= $(ice_dir)\lib$(x64suffix)
 includedir		= $(ice_dir)\include
 !endif
 
-install_bindir		= $(prefix)\bin
+install_bindir		= $(prefix)\bin$(x64suffix)
+install_libdir	  	= $(prefix)\lib$(x64suffix)
 install_includedir	= $(prefix)\include
 install_docdir		= $(prefix)\doc
-install_libdir	  	= $(prefix)\lib
 libsubdir	  	= lib
 
 SETARGV			= setargv.obj

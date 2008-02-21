@@ -11,12 +11,84 @@
 import os, sys, getopt, re
 
 keepGoing = False
+ice_home = None
+toplevel = None
 testErrors = []
+
+def configurePaths():
+    os.environ["PATH"] = os.path.join(getIceDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")
+    os.environ["PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("PATH", "")
+
+    if not isCygwin():
+        libDir = os.path.join(getIceDir("cpp"), "lib")
+        if isHpUx():
+            os.environ["SHLIB_PATH"] = libDir + os.pathsep + os.getenv("SHLIB_PATH", "")
+        elif isDarwin():
+            os.environ["DYLD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
+        elif isAIX():
+            os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
+        else:
+            os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
+            os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+
+    javaDir = getIceDir("java")
+    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib") + os.pathsep + os.getenv("CLASSPATH", "")
+    os.environ["CLASSPATH"] = os.path.join("classes") + os.pathsep + os.getenv("CLASSPATH", "")
+
+    # 
+    # On Windows, C# assemblies are found thanks to the .exe.config files.
+    #
+    if not isCygwin():
+        os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
+
+    os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+    os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
+
+def findTopLevel():
+    global toplevel
+
+    if toplevel != None:
+        return toplevel
+
+    for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
+        toplevel = os.path.abspath(toplevel)
+        if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+            break
+    else:
+        toplevel = None
+        raise "can't find toplevel directory!"
+
+    return toplevel
+
+def getIceDir(subdir = None):
+    #
+    # If ICE_HOME is set we're running the test against a binary distribution. Otherwise,
+    # we're running the test against a source distribution.
+    # 
+    global ice_home
+    if ice_home:
+        return ice_home
+    if os.environ.has_key("ICE_HOME"):
+        return os.environ["ICE_HOME"]
+    elif subdir:
+        return os.path.join(findTopLevel(), subdir)
+    else:
+        return findTopLevel()
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
     return sys.platform[:6] == "cygwin"
+
+def isHpUx():
+   return sys.platform == "hp-ux11"
+
+def isAIX():
+   return sys.platform in ['aix4', 'aix5']
+
+def isDarwin():
+   return sys.platform == "darwin"
 
 if sys.platform == "win32":
     print "allDemos.py only supports cygwin python under Windows (use /usr/bin/python allDemos.py)"
@@ -25,6 +97,8 @@ if sys.platform == "win32":
 def runDemos(args, demos, num = 0):
     global testErrors
     global keepGoing
+
+    configurePaths()
 
     rootPath = "demo"
     if not os.path.exists(rootPath):
@@ -78,6 +152,7 @@ def usage():
     print "  --host=host             Set --Ice.Default.Host=<host>."
     print "  --mode=debug|release    Run the demos with debug or release mode builds (win32 only)."
     print "  --continue              Keep running when a demo fails."
+    print "  --ice-home=<path>       Use the binary distribution from the given path."
     sys.exit(2)
 
 def index(l, re):
@@ -88,10 +163,12 @@ def index(l, re):
     return -1
 
 def run(demos):
+    global keepGoing 
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start-after=", "start=", "loop", "fast", "trace", "debug", "host=", "mode=",
-                "continue"])
+                "continue", "ice-home="])
     except getopt.GetoptError:
         usage()
 
@@ -99,19 +176,23 @@ def run(demos):
     if args:
         usage()
 
+    demoFilter = None
+    removeFilter = False
+    start = 0
     loop = False
     arg = ""
     for o, a in opts:
         if o in ("-l", "--loop"):
             loop = True
+        elif o == "--ice-home":
+            global ice_home
+            ice_home = a
         elif o in ("-c", "--continue"):
             keepGoing = True
         elif o in ("-r", "-R", "--filter", '--rfilter'):
-            regexp = re.compile(a)
+            demoFilter = re.compile(a)
             if o in ("--rfilter", "-R"):
-                demos = [ x for x in demos if not regexp.search(x) ]
-            else:
-                demos = [ x for x in demos if regexp.search(x) ]
+                removeFilter = True
         elif o in ("--host", "--fast", "--trace", "--debug", "--mode"):
             if o == "--mode":
                 if a not in ( "debug", "release"):
@@ -127,6 +208,12 @@ def run(demos):
             if o == "--start-after":
                 start += 1
             demos = demos[start:]
+
+    if demoFilter != None:
+        if removeFilter:
+            demos = [ x for x in demos if not demoFilter.search(x) ]
+        else:
+            demos = [ x for x in demos if demoFilter.search(x) ]
             
     if loop:
         num = 1

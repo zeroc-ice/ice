@@ -10,6 +10,7 @@
 top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe
+TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= CallbackReceiverI.vb Client.vb
 S_SRCS		= CallbackSenderI.vb Server.vb
