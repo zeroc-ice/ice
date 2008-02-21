@@ -82,30 +82,34 @@ EVERYTHING		= all clean depend config
 {$(SDIR)\}.ice{$(GDIR)}.cs:
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
-all:: $(TARGETS) $(SLICE_ASSEMBLY)
-
 !if "$(SLICE_ASSEMBLY)" != ""
 $(SLICE_ASSEMBLY): $(GEN_SRCS)
         $(MCS) -target:library -out:$@ -r:$(csbindir)\icecs.dll $(GEN_SRCS)
 !endif
 
-clean::
-	del /q $(TARGETS) $(SLICE_ASSEMBLY) *.pdb
+!if "$(TARGETS_CONFIG)" != ""
+$(TARGETS_CONFIG):
+!if "$(ice_src_dist)" != ""
+        @echo Generating $(TARGETS_CONFIG) ... && \
+        python "$(top_srcdir)/config/makeconfig.py" "$(top_srcdir)\..\cs" $(TARGETS_CONFIG:.exe.config=.exe)
+!else
+        @echo Generating $(TARGETS_CONFIG) ... && \
+        python "$(top_srcdir)/config/makeconfig.py" "$(ice_dir)" $(TARGETS_CONFIG:.exe.config=.exe)
+!endif
+!endif
 
+all:: $(TARGETS) $(TARGETS_CONFIG) $(SLICE_ASSEMBLY)
+
+config:: $(TARGETS_CONFIG)
+
+clean::
+	del /q $(TARGETS) $(TARGETS_CONFIG) $(SLICE_ASSEMBLY) *.pdb
 
 !if "$(SLICE_SRCS)" != ""
 depend::
 	$(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | python $(ice_dir)\config\makedepend.py > .depend
 !else
 depend::
-!endif
-
-
-!if "$(TARGETS)" != ""
-config::
-	python $(top_srcdir)\config\makeconfig.py $(top_srcdir) $(TARGETS)
-!else
-config::
 !endif
 
 !if "$(GEN_SRCS)" != ""

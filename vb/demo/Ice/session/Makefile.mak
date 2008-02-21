@@ -10,6 +10,7 @@
 top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe
+TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= Client.vb
 S_SRCS		= HelloI.vb ReapThread.vb Server.vb SessionFactoryI.vb SessionI.vb

@@ -5,3 +5,4 @@ client
 libTestService.so
 Test.cpp
 Test.h
+build.txt

@@ -56,6 +56,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 clean::
 	del /q Test.cpp Test.h
+	del /q build.txt
 
 !if "$(OPTIMIZE)" == "yes"
 
