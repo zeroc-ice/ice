@@ -182,7 +182,12 @@ ifneq ($(ice_dir), /usr)
 
     ifeq ($(shell uname),SunOS)
         export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
-        export LD_LIBRARY_PATH_64 := $(ice_lib_dir)/sparcv9:$(LD_LIBRARY_PATH_64)
+	ifeq ($(MACHINE_TYPE),sun4u)
+            export LD_LIBRARY_PATH_64 := $(ice_lib_dir)/sparcv9:$(LD_LIBRARY_PATH_64)
+	endif
+	ifeq ($(MACHINE_TYPE),i86pc)
+            export LD_LIBRARY_PATH_64 := $(ice_lib_dir)/amd64:$(LD_LIBRARY_PATH_64)
+	endif
     endif
 
     ifeq ($(shell uname),Darwin)

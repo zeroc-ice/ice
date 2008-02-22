@@ -16,20 +16,63 @@ toplevel = None
 testErrors = []
 
 def configurePaths():
-    os.environ["PATH"] = os.path.join(getIceDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")
-    os.environ["PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("PATH", "")
+    bindist = False
+    if ice_home:
+        bindist = True
+        print "<<< Using Ice installation from " + ice_home + " >>>"
+    elif os.environ.has_key("ICE_HOME"):
+        bindist = True
+        print "<<< Using Ice installation from " + os.environ["ICE_HOME"] + " >>>"
 
-    if not isCygwin():
+    x64 = False
+    if isCygwin():
+        if (os.environ.has_key("AS") and os.environ["AS"] == "ml64") or \
+           (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
+            x64 = True
+    elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
+        x64 = True
+
+    binDir = os.path.join(getIceDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")        
+    if isCygwin():
+        if bindist and x64:
+            binDir = os.path.join(binDir, "x64")
+    else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
-            os.environ["SHLIB_PATH"] = libDir + os.pathsep + os.getenv("SHLIB_PATH", "")
+            if x64:
+                if bindist:
+                    libDir = os.path.join(libDir, "pa20_64")
+                    binDir = os.path.join(binDir, "pa20_64")
+                os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
+            else:
+                os.environ["SHLIB_PATH"] = libDir + os.pathsep + os.getenv("SHLIB_PATH", "")
         elif isDarwin():
             os.environ["DYLD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
         elif isAIX():
             os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
+        elif isSolaris():
+            if x64:
+                if bindist:
+                    if isSparc():
+                        libDir = os.path.join(libDir, "sparcv9")
+                        binDir = os.path.join(binDir, "sparcv9")
+                    else:
+                        libDir = os.path.join(libDir, "amd64")
+                        binDir = os.path.join(binDir, "amd64")
+                os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+            else:
+                os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
         else:
-            os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
-            os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+            if x64:
+                if bindist:
+                    libDir = libDir + "64"
+                    binDir = binDir + "64"
+                os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+            else:
+                os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
+
+    os.environ["PATH"] = binDir + os.pathsep + os.pathsep + os.getenv("PATH", "")
+    os.environ["PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("PATH", "")
 
     javaDir = getIceDir("java")
     os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
@@ -84,6 +127,12 @@ def isCygwin():
 def isHpUx():
    return sys.platform == "hp-ux11"
 
+def isSolaris():
+    return sys.platform == "sunos5"
+
+def isSparc():
+    return os.environ.has_key("HOSTTYPE") and os.environ["HOSTTYPE"] == "sparc"
+
 def isAIX():
    return sys.platform in ['aix4', 'aix5']
 
@@ -97,8 +146,6 @@ if sys.platform == "win32":
 def runDemos(args, demos, num = 0):
     global testErrors
     global keepGoing
-
-    configurePaths()
 
     rootPath = "demo"
     if not os.path.exists(rootPath):
@@ -208,6 +255,8 @@ def run(demos):
             if o == "--start-after":
                 start += 1
             demos = demos[start:]
+
+    configurePaths()
 
     if demoFilter != None:
         if removeFilter:

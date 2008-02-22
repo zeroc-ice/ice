@@ -36,19 +36,57 @@ testErrors = []
 def configurePaths():
     toplevel = findTopLevel()
 
+    bindist = False
+    if ice_home:
+        bindist = True
+        print "(using Ice installation from " + ice_home + ")"
+    elif os.environ.has_key("ICE_HOME"):
+        bindist = True
+        print "(using Ice installation from " + os.environ["ICE_HOME"] + ")"
+
+    x64 = False
     if isWin32():
+        if (os.environ.has_key("AS") and os.environ["AS"] == "ml64") or \
+           (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
+            x64 = True
+    else if os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
+        x64 = True
+
+    if isWin32():
+        binDir = os.path.join(getIceDir("cpp"), "bin")
+        if bindist and x64:
+            binDir = os.path.join(binDir, "x64")
         os.environ["PATH"] = os.path.join(getIceDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
-            os.environ["SHLIB_PATH"] = libDir + os.pathsep + os.getenv("SHLIB_PATH", "")
+            if x64:
+                if bindist:
+                    libDir = os.path.join(libDir, "pa20_64")
+                os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
+            else:
+                os.environ["SHLIB_PATH"] = libDir + os.pathsep + os.getenv("SHLIB_PATH", "")
         elif isDarwin():
             os.environ["DYLD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
         elif isAIX():
             os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
+        elif isSolaris():
+            if x64:
+                if bindist:
+                    if isSparc():
+                        libDir = os.path.join(libDir, "sparcv9")
+                    else:
+                        libDir = os.path.join(libDir, "amd64")
+                os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+            else:
+                os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
         else:
-            os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
-            os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+            if x64:
+                if bindist:
+                    libDir = libDir + "64"
+                os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
+            else:
+                os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
             
     javaDir = getIceDir("java")
     os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
@@ -68,6 +106,7 @@ def addLdPath(libpath):
         os.environ["PATH"] = libpath + os.pathsep + os.getenv("PATH", "")
     elif isHpUx():
         os.environ["SHLIB_PATH"] = libpath + os.pathsep + os.getenv("SHLIB_PATH", "")
+        os.environ["LD_LIBRARY_PATH"] = libpath + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
     elif isDarwin():
         os.environ["DYLD_LIBRARY_PATH"] = libpath + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
     elif isAIX():
@@ -96,6 +135,9 @@ def isWin9x():
 def isSolaris():
     return sys.platform == "sunos5"
        
+def isSparc():
+    return os.environ.has_key("HOSTTYPE") and os.environ["HOSTTYPE"] == "sparc"
+
 def isHpUx():
    return sys.platform == "hp-ux11"
 
@@ -260,7 +302,6 @@ def getIceDir(subdir = None):
         return findTopLevel()
 
 findTopLevel()
-configurePaths()
 
 serverPids = []
 serverThreads = []
@@ -1093,6 +1134,8 @@ def processCmdLine():
 
     if len(args) > 0:
         usage()
+
+    configurePaths()
 
 if os.environ.has_key("ICE_CONFIG"):
     os.unsetenv("ICE_CONFIG")
