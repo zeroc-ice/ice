@@ -25,6 +25,7 @@ INSTALL_DATA		= ${INSTALL}
 OBJEXT			= .o
 
 UNAME			:= $(shell uname)
+MACHINE_TYPE		:= $(shell uname -m)
 
 #
 # Ensure ice_language has been set by the file that includes this one.
@@ -95,8 +96,22 @@ ifndef ice_src_dist
 $(error slice_translator must be defined)
     endif
 
+    lp64bindir = 
+    ifeq ($(shell uname),SunOS)
+	ifeq ($(MACHINE_TYPE),sun4u)
+	    lp64bindir = /sparcv9
+	endif
+	ifeq ($(MACHINE_TYPE),i86pc)
+	    lp64bindir = /amd64
+	endif
+    endif
+
+    ifeq ($(shell uname),HP-UX)
+        lp64bindir = /pa20_64
+    endif
+
     ifneq ($(ICE_HOME),)
-        ifneq ($(shell test -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
+        ifneq ($(shell test -f $(ICE_HOME)/bin/$(slice_translator) -o -f $(ICE_HOME)/bin$(lp64bindir)/$(slice_translator) && echo 0), 0)
 $(error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.)
         endif
         ice_dir = $(ICE_HOME)
@@ -199,8 +214,8 @@ ifneq ($(ice_dir), /usr)
     endif
 
     ifeq ($(shell uname),HP-UX)
-        export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
-        export SHLIB_PATH := $(ice_lib_dir)/pa20_64:$(SHLIB_PATH)
+        export SHLIB_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
+        export LD_LIBRARY_PATH := $(ice_lib_dir)/pa20_64:$(SHLIB_PATH)
     endif
 endif
 

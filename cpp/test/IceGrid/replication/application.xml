@@ -4,7 +4,7 @@
 
     <server-template id="IceGridNode">
       <parameter name="id"/>
-      <server id="${id}" exe="${ice.dir}/bin/icegridnode" activation="manual">
+      <server id="${id}" exe="${ice.bindir}/icegridnode" activation="manual">
         <option>--nowarn</option>
         <dbenv name="data"/>
         <property name="IceGrid.Node.Endpoints" value="default"/>
@@ -25,7 +25,7 @@
       <parameter name="id"/>
       <parameter name="port"/>
       <parameter name="replicaName"/>
-      <server id="${id}" exe="${ice.dir}/bin/icegridregistry" activation="manual">
+      <server id="${id}" exe="${ice.bindir}/icegridregistry" activation="manual">
         <option>--nowarn</option>
         <dbenv name="data">
           <!-- Try to make the test run a bit faster... -->

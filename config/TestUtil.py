@@ -36,6 +36,7 @@ testErrors = []
 def configurePaths():
     toplevel = findTopLevel()
 
+    x64 = isX64()
     bindist = False
     if ice_home:
         bindist = True
@@ -44,19 +45,8 @@ def configurePaths():
         bindist = True
         print "(using Ice installation from " + os.environ["ICE_HOME"] + ")"
 
-    x64 = False
     if isWin32():
-        if (os.environ.has_key("AS") and os.environ["AS"] == "ml64") or \
-           (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
-            x64 = True
-    else if os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
-        x64 = True
-
-    if isWin32():
-        binDir = os.path.join(getIceDir("cpp"), "bin")
-        if bindist and x64:
-            binDir = os.path.join(binDir, "x64")
-        os.environ["PATH"] = os.path.join(getIceDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")
+        os.environ["PATH"] = os.path.join(getCppBinDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
@@ -101,6 +91,18 @@ def configurePaths():
     os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
     os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
  
+def isBinDist():
+    return  (ice_home or os.environ.has_key("ICE_HOME"))
+
+def isX64():
+    if isWin32():
+        if (os.environ.has_key("AS") and os.environ["AS"] == "ml64") or \
+           (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
+            return True
+    elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
+        return True
+    return False
+
 def addLdPath(libpath):
     if isWin32():
         os.environ["PATH"] = libpath + os.pathsep + os.getenv("PATH", "")
@@ -551,11 +553,11 @@ def getIceBox(testdir):
             build = open(os.path.join(testdir, "build.txt"), "r")
             type = build.read().strip()
             if type == "debug":
-                iceBox = os.path.join(getIceDir("cpp"), "bin", "iceboxd.exe")
+                iceBox = os.path.join(getCppBinDir(), "iceboxd.exe")
             elif type == "release":
-                iceBox = os.path.join(getIceDir("cpp"), "bin", "icebox.exe")
+                iceBox = os.path.join(getCppBinDir(), "icebox.exe")
         else:
-            iceBox = os.path.join(getIceDir("cpp"), "bin", "icebox")
+            iceBox = os.path.join(getCppBinDir(), "icebox")
 
         if not os.path.exists(iceBox):
             print "couldn't find icebox executable to run the test"
@@ -1075,7 +1077,30 @@ def getMappingDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), getDefaultMapping(currentDir)))
 
 def getBinDir(currentDir):
-    return os.path.join(getIceDir(getMappingDir(currentDir)), "bin")
+    binDir = os.path.join(getIceDir(getMappingDir(currentDir)), "bin")
+    if isBinDist() and isX64():
+        if isHpUx():
+            binDir = os.path.join(binDir, "pa20_64")
+        elif isSolaris():
+            if isSparc():
+                binDir = os.path.join(binDir, "sparcv9")
+            else:
+                binDir = os.path.join(binDir, "amd64")
+    return binDir
+
+def getCppBinDir():
+    binDir = os.path.join(getIceDir("cpp"), "bin")
+    if isBinDist() and isX64():
+        if isHpUx():
+            binDir = os.path.join(binDir, "pa20_64")
+        elif isSolaris():
+            if isSparc():
+                binDir = os.path.join(binDir, "sparcv9")
+            else:
+                binDir = os.path.join(binDir, "amd64")
+        elif isWin32():
+            binDir = os.path.join(binDir, "x64")
+    return binDir
 
 def getCertsDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), "certs"))
