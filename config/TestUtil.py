@@ -138,7 +138,12 @@ def isSolaris():
     return sys.platform == "sunos5"
        
 def isSparc():
-    return os.environ.has_key("HOSTTYPE") and os.environ["HOSTTYPE"] == "sparc"
+    p = os.popen("uname -m")
+    l = p.readline().strip()
+    if l == "sun4u":
+        return True
+    else:
+        return False
 
 def isHpUx():
    return sys.platform == "hp-ux11"
