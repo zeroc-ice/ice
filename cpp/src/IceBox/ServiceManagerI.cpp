@@ -81,7 +81,8 @@ private:
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) : 
     _communicator(communicator),
-    _traceServiceObserver(0)
+    _traceServiceObserver(0),
+    _pendingStatusChanges(false)
 { 
     _logger = _communicator->getLogger();
 

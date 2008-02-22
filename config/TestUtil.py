@@ -46,7 +46,7 @@ def configurePaths():
         print "(using Ice installation from " + os.environ["ICE_HOME"] + ")"
 
     if isWin32():
-        os.environ["PATH"] = os.path.join(getCppBinDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")
+        os.environ["PATH"] = getCppBinDir() + os.pathsep + os.getenv("PATH", "")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
