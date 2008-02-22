@@ -198,3 +198,17 @@ def cleanDbDir(path):
                 pass
         else:
             os.remove(filename)
+
+def addLdPath(libpath):
+    if sys.platform == "win32":
+        os.environ["PATH"] = libpath + os.pathsep + os.getenv("PATH", "")
+    elif sys.platform == "hp-ux11":
+        os.environ["SHLIB_PATH"] = libpath + os.pathsep + os.getenv("SHLIB_PATH", "")
+        os.environ["LD_LIBRARY_PATH"] = libpath + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
+    elif sys.platform == "darwin":
+        os.environ["DYLD_LIBRARY_PATH"] = libpath + os.pathsep + os.getenv("DYLD_LIBRARY_PATH", "")
+    elif sys.platform in ['aix4', 'aix5']:
+        os.environ["LIBPATH"] = libpath + os.pathsep + os.getenv("LIBPATH", "")
+    else:
+        os.environ["LD_LIBRARY_PATH"] = libpath + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["LD_LIBRARY_PATH_64"] = libpath + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")

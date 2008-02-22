@@ -26,4 +26,7 @@ import demoscript.Util
 demoscript.Util.defaultLanguage = "C++"
 import demoscript.IceGrid.icebox
 
+directory = os.path.dirname(os.path.abspath(__file__))
+demoscript.Util.addLdPath(directory)
+
 demoscript.IceGrid.icebox.run('./client')

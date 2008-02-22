@@ -32,7 +32,7 @@ def configurePaths():
     elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
         x64 = True
 
-    binDir = os.path.join(getIceDir("cpp"), "bin") + os.pathsep + os.getenv("PATH", "")        
+    binDir = os.path.join(getIceDir("cpp"), "bin")        
     if isCygwin():
         if bindist and x64:
             binDir = os.path.join(binDir, "x64")
@@ -71,8 +71,8 @@ def configurePaths():
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
 
-    os.environ["PATH"] = binDir + os.pathsep + os.pathsep + os.getenv("PATH", "")
     os.environ["PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("PATH", "")
+    os.environ["PATH"] = binDir + os.pathsep + os.pathsep + os.getenv("PATH", "")
 
     javaDir = getIceDir("java")
     os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")

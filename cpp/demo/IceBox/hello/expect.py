@@ -31,7 +31,8 @@ if demoscript.Util.defaultHost:
 else:
     args = ''
 
-# TODO: This doesn't setup LD_LIBRARY_PATH
+directory = os.path.dirname(os.path.abspath(__file__))
+demoscript.Util.addLdPath(directory)
 server = demoscript.Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (demoscript.Util.getIceBox(), args))
 server.expect('.* ready')
 client = demoscript.Util.spawn('./client')
