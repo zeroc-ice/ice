@@ -596,7 +596,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         
         IceBoxDescriptorPtr server = new IceBoxDescriptor();
         server->id = "IceBox";
-        server->exe = properties->getProperty("IceDir") + "/bin/icebox";
+        server->exe = properties->getProperty("IceBinDir") + "/icebox";
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->services.resize(3);
         server->services[0].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
@@ -1136,7 +1136,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "node-${index}";
-        server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+        server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
         server->pwd = ".";
         server->options.push_back("--nowarn");
        

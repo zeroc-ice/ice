@@ -37,7 +37,7 @@ if not os.path.exists(node2Dir):
 else:
     IceGridAdmin.cleanDbDir(node2Dir)
 
-nodeOverrideOptions = "--IceDir=\"" + TestUtil.getIceDir("cpp") + "\" --TestDir=\"" + testdir + "\"" + \
+nodeOverrideOptions = "--IceBinDir=\"" + TestUtil.getCppBinDir() + "\" --TestDir=\"" + testdir + "\"" + \
                       ' --NodePropertiesOverride="' + \
                       TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "") + \
                       ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'

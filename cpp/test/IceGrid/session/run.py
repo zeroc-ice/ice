@@ -52,7 +52,7 @@ IceGridAdmin.registryOptions += \
                              r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"'
 
 IceGridAdmin.iceGridTest(testdir, name, "application.xml", \
-                         "--IceDir=\"" + TestUtil.getIceDir("cpp") + "\" --TestDir=\"" + testdir + "\"", \
+                         "--IceBinDir=\"" + TestUtil.getCppBinDir() + "\" --TestDir=\"" + testdir + "\"", \
                          '\\"properties-override=' + \
                          TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "") + '\\"')
 
