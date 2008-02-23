@@ -13,6 +13,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
+#include <climits>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif

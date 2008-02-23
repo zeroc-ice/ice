@@ -12,6 +12,7 @@
 #include <FreezeScript/Util.h>
 #include <FreezeScript/Exception.h>
 #include <IceUtil/InputUtil.h>
+#include <climits>
 
 using namespace std;
 using namespace IceUtil;

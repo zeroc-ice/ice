@@ -15,6 +15,7 @@
 
 #include <Ice/LocalException.h>
 #include <Ice/Selector.h>
+#include <memory>
 
 class Configuration;
 typedef IceUtil::Handle<Configuration> ConfigurationPtr;

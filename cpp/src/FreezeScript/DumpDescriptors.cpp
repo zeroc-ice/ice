@@ -16,6 +16,7 @@
 #include <IceUtil/InputUtil.h>
 #include <db_cxx.h>
 #include <set>
+#include <climits>
 
 using namespace std;
 

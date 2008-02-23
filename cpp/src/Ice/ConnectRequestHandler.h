@@ -19,6 +19,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/BasicStream.h>
 
+#include <memory>
 #include <deque>
 
 namespace IceInternal

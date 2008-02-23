@@ -14,6 +14,7 @@
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>
 #include <Slice/SignalHandler.h>
+#include <cstring>
 
 #include <fstream>
 

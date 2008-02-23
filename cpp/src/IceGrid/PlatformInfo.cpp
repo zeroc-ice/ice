@@ -17,6 +17,7 @@
 #include <IceGrid/TraceLevels.h>
 
 #include <IcePatch2/Util.h>
+#include <climits>
 
 #if defined(_WIN32)
 #   include <direct.h> // For _getcwd

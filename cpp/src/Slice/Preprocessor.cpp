@@ -18,6 +18,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <cstring>
 
 #ifndef _WIN32
 #   include <sys/wait.h>
@@ -113,7 +114,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
         result.replace(pos, 2, "/");
     }
 
-    if(result == "/" || result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/')
+    if(result == "/" || (result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/'))
     {
 	return result;
     }
@@ -144,11 +145,11 @@ Slice::Preprocessor::preprocess(bool keepComments)
     }
     args.push_back(_fileName);
 
-    char** argv = new char*[args.size() + 1];
+    const char** argv = new const char*[args.size() + 1];
     argv[0] = "mcpp";
     for(unsigned int i = 0; i < args.size(); ++i)
     {
-        argv[i + 1] = (char*) args[i].c_str();
+        argv[i + 1] = args[i].c_str();
     }
 
     //
@@ -166,7 +167,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
     // Call mcpp using memory buffer.
     //
     mcpp_use_mem_buffers(1);
-    mcpp_lib_main(static_cast<int>(args.size()) + 1, argv);
+    mcpp_lib_main(static_cast<int>(args.size()) + 1, const_cast<char**>(argv));
     delete[] argv;
 
     //
@@ -226,17 +227,17 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     args.push_back("-M");
     args.push_back(_fileName);
 
-    char** argv = new char*[args.size() + 1];
+    const char** argv = new const char*[args.size() + 1];
     for(unsigned int i = 0; i < args.size(); ++i)
     {
-        argv[i + 1] = (char*) args[i].c_str();
+        argv[i + 1] = args[i].c_str();
     }
     
     //
     // Call mcpp using memory buffer.
     //
     mcpp_use_mem_buffers(1);
-    mcpp_lib_main(static_cast<int>(args.size() + 1), argv);
+    mcpp_lib_main(static_cast<int>(args.size() + 1), const_cast<char**>(argv));
     delete[] argv;
 
     //

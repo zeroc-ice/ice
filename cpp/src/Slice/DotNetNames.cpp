@@ -9,6 +9,7 @@
 
 #include <Slice/DotNetNames.h>
 #include <ctype.h>
+#include <cstring>
 
 using namespace std;
 

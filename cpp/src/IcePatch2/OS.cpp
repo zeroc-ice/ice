@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <OS.h>
 #include <IceUtil/Unicode.h>
+#include <climits>
 
 #ifdef __BCPLUSPLUS__
 #  include <dir.h>

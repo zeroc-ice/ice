@@ -9,6 +9,7 @@
 
 #include <Slice/MD5.h>
 #include <Slice/MD5I.h>
+#include <cstring>
 
 using namespace std;
 

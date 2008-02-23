@@ -13,6 +13,7 @@
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <Slice/SignalHandler.h>
+#include <cstring>
 
 using namespace std;
 using namespace IceUtil;

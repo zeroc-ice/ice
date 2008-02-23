@@ -14,6 +14,7 @@
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
 #include <Slice/Util.h>
+#include <cstring>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif

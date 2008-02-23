@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Slice/SignalHandler.h>
 #include <vector>
+#include <cstdlib>
 
 #ifndef _WIN32
 #    include <signal.h>

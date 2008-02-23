@@ -9,6 +9,7 @@
 
 #include <Slice/Util.h>
 #include <IceUtil/Unicode.h>
+#include <climits>
 
 #ifdef __hpux
 #  include <unistd.h>

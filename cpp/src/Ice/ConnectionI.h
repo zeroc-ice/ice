@@ -29,6 +29,7 @@
 #include <Ice/SelectorThread.h>
 
 #include <deque>
+#include <memory>
 
 namespace IceInternal
 {

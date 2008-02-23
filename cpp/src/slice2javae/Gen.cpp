@@ -11,6 +11,7 @@
 #include <Gen.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
+#include <cstring>
 
 #include <limits>
 

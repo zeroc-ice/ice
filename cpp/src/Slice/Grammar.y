@@ -11,6 +11,7 @@
 
 #include <Slice/GrammarUtil.h>
 #include <IceUtil/UUID.h>
+#include <cstring>
 
 #ifdef _MSC_VER
 // I get these warnings from some bison versions:

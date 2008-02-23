@@ -12,6 +12,7 @@
 #include <Slice/Checksum.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
+#include <cstring>
 
 #include <limits>
 
@@ -2264,7 +2265,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(p->usesClasses())
         {
-            if(!base || base && !base->usesClasses())
+	    if(!base || (base && !base->usesClasses()))
             {
                 out << sp << nl << "public boolean" << nl << "__usesClasses()";
                 out << sb;

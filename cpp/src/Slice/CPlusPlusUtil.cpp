@@ -9,6 +9,7 @@
 
 #include <Slice/CPlusPlusUtil.h>
 #include <Slice/Util.h>
+#include <cstring>
 
 using namespace std;
 using namespace Slice;

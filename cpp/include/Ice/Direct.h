@@ -16,6 +16,8 @@
 #include <Ice/LocalObjectF.h>
 #include <Ice/Current.h>
 
+#include <memory>
+
 namespace IceInternal
 {
 

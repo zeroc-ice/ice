@@ -9,6 +9,7 @@
 
 #include <FreezeScript/AssignVisitor.h>
 #include <FreezeScript/Util.h>
+#include <climits>
 
 using namespace std;
 

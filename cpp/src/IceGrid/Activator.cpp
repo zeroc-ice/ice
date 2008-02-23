@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <climits>
 
 #ifndef _WIN32
 #   include <sys/wait.h>

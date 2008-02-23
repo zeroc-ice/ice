@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/OutputUtil.h>
+#include <cstring>
 
 using namespace std;
 using namespace IceUtil;

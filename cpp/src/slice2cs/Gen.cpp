@@ -2156,7 +2156,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
         }
 
-        if(!base || base && !base->usesClasses())
+        if(!base || (base && !base->usesClasses()))
         {
             _out << sp << nl << "public override bool usesClasses__()";
             _out << sb;
@@ -4632,6 +4632,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 string param = fixId(q->second);
                 StructPtr st = StructPtr::dynamicCast(q->first);
                 if(st)
+		{
                     if(isValueType(st))
                     {
                         _out << nl << param << " = new " << typeToString(q->first) << "();";
@@ -4640,6 +4641,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                     {
                         _out << nl << param << " = null;";
                     }
+		}
                 writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
             }
             if(ret)

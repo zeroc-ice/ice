@@ -20,6 +20,7 @@
 #include <IceXML/Parser.h>
 #include <IceUtil/InputUtil.h>
 #include <db_cxx.h>
+#include <climits>
 
 using namespace std;
 

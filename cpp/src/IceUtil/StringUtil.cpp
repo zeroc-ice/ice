@@ -9,6 +9,7 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Unicode.h>
+#include <cstring>
 
 using namespace std;
 using namespace IceUtil;
