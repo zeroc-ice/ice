@@ -104,10 +104,11 @@ public:
     Ice::Identity createServerIdentity(const std::string&) const;
     std::string getServerAdminCategory() const;
 
+    bool canRemoveServerDirectory(const std::string&);
+
 private:
 
     std::vector<ServerCommandPtr> checkConsistencyNoSync(const Ice::StringSeq&);
-    bool canRemoveServerDirectory(const std::string&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
     
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
@@ -135,6 +136,7 @@ private:
     PropertyDescriptorSeq _propertiesOverride;
 
     unsigned long _serial;
+    bool _consistencyCheckDone;
 
     IceUtil::Mutex _observerMutex;
     std::map<NodeSessionPrx, NodeObserverPrx> _observers;

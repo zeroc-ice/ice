@@ -97,7 +97,7 @@ class CollocatedRegistry : public RegistryI
 {
 public:
 
-    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&);
+    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&, bool);
     virtual void shutdown();
 
 private:
@@ -135,8 +135,8 @@ private:
 } 
 
 
-CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& communicator, const ActivatorPtr& activator) :
-    RegistryI(communicator, new TraceLevels(communicator, "IceGrid.Registry")), 
+CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com, const ActivatorPtr& activator, bool nowarn) :
+    RegistryI(com, new TraceLevels(com, "IceGrid.Registry"), nowarn), 
     _activator(activator)
 {
 }
@@ -300,8 +300,8 @@ NodeService::start(int argc, char* argv[])
     //
     if(properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        _registry = new CollocatedRegistry(communicator(), _activator);
-        if(!_registry->start(nowarn))
+        _registry = new CollocatedRegistry(communicator(), _activator, nowarn);
+        if(!_registry->start())
         {
             return false;
         }

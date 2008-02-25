@@ -425,9 +425,10 @@ LoadCommand::finished(const ServerPrx& proxy, const AdapterPrxDict& adapters, in
     }
 }
 
-DestroyCommand::DestroyCommand(const ServerIPtr& server, bool loadFailure) : 
+DestroyCommand::DestroyCommand(const ServerIPtr& server, bool loadFailure, bool clearDir) : 
     ServerCommand(server),
-    _loadFailure(loadFailure)
+    _loadFailure(loadFailure),
+    _clearDir(clearDir)
 {
 }
 
@@ -468,6 +469,12 @@ bool
 DestroyCommand::loadFailure() const
 {
     return _loadFailure;
+}
+
+bool
+DestroyCommand::clearDir() const
+{
+    return _clearDir;
 }
 
 PatchCommand::PatchCommand(const ServerIPtr& server) : 
@@ -1082,7 +1089,11 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
     }
     if(!_destroy)
     {
-        _destroy = new DestroyCommand(this);
+        //
+        // If uuid is empty, the destroy call comes from the the consistency check. In
+        // this case, we clear the server directory only if it contains non-user data.
+        //
+        _destroy = new DestroyCommand(this, false, !uuid.empty());
     }
     if(amdCB)
     {
@@ -1529,17 +1540,25 @@ ServerI::destroy()
     }
 
     _node->removeServer(this, _desc->application);
-    
-    try
+
+    //
+    // Remove the server directory only if the clear dir flag is set (user
+    // explicitly destroyed the server) or if the server directory doesn't
+    // contain user data).
+    //
+    if(_destroy->clearDir() || _node->canRemoveServerDirectory(_id))
     {
-        IcePatch2::removeRecursive(_serverDir);
-    }
-    catch(const string& msg)
-    {
-        if(!_destroy->loadFailure())
+        try
         {
-            Ice::Warning out(_node->getTraceLevels()->logger);
-            out << "removing server directory `" << _serverDir << "' failed:\n" << msg;
+            IcePatch2::removeRecursive(_serverDir);
+        }
+        catch(const string& msg)
+        {
+            if(!_destroy->loadFailure())
+            {
+                Ice::Warning out(_node->getTraceLevels()->logger);
+                out << "removing server directory `" << _serverDir << "' failed:\n" << msg;
+            }
         }
     }
     
@@ -1752,7 +1771,7 @@ ServerI::update()
             }
             else if(!_destroy)
             {
-                _destroy = new DestroyCommand(this, true);
+                _destroy = new DestroyCommand(this, true, true);
             }
 
             _load->failed(ex);

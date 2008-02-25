@@ -212,7 +212,8 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _userAccountMapper(mapper),
     _platform("IceGrid.Node", _communicator, _traceLevels),
     _fileCache(new FileCache(_communicator)),
-    _serial(1)
+    _serial(1),
+    _consistencyCheckDone(false)
 {
     Ice::PropertiesPtr props = _communicator->getProperties();
 
@@ -790,6 +791,16 @@ void
 NodeI::checkConsistency(const NodeSessionPrx& session)
 {
     //
+    // Only do the consistency check on the startup. This ensures that servers can't
+    // be removed by a bogus master when the master session is re-established.
+    //
+    if(_consistencyCheckDone)
+    {
+        return;
+    }
+    _consistencyCheckDone = true;
+
+    //
     // We use a serial number to keep track of the concurrent changes
     // on the node. When a server is loaded/destroyed the serial is
     // incremented. This allows to ensure that the list of servers
@@ -1085,6 +1096,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                 out << "removing server directory `" << _serversDir << "/" << *p << "' failed:\n" << msg;
             }
 
+            *p = _serversDir + "/" + *p;
             ++p;
         }
     }
@@ -1097,68 +1109,12 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
         return commands;
     }
         
-    if(remove.empty())
-    {
-        return commands;
-    }
-
-    //
-    // If there's server that couldn't be removed we move them to the
-    // temporary backup directory. First, we rotate the temporary
-    // backup directories.
-    //
-    try
-    {
-        contents.clear();
-        contents = readDirectory(_tmpDir);
-    }
-    catch(const string& msg)
-    {
-        Ice::Error out(_traceLevels->logger);
-        out << "couldn't read directory `" << _tmpDir << "':\n" << msg;
-        return commands;
-    }
-
-    if(contents.size() < 10)
-    {
-        ostringstream os;
-        os << "servers-" << contents.size();
-        contents.push_back(os.str());
-        sort(contents.begin(), contents.end(), greater<string>());
-    }
-    else if(contents.size() == 10)
-    {
-        sort(contents.begin(), contents.end(), greater<string>());
-        try
-        {
-            removeRecursive(_tmpDir + "/" + *contents.begin());
-        }
-        catch(const string& msg)
-        {
-            Ice::Warning out(_traceLevels->logger);
-            out << msg;
-        }
-    }
-
-    try
-    {
-        Ice::StringSeq::const_iterator p;
-        for(p = contents.begin(); p != (contents.end() - 1); ++p)
-        {
-            rename(_tmpDir + "/" + *(p + 1), _tmpDir + "/" + *p);
-        }
-        createDirectoryRecursive(_tmpDir + "/servers-0");
-        for(p = remove.begin(); p != remove.end(); ++p)
-        {
-            rename(_serversDir + "/" + *p, _tmpDir + "/servers-0/" + *p);
-        }
-    }
-    catch(const string& msg)
+    if(!remove.empty())
     {
         Ice::Warning out(_traceLevels->logger);
-        out << "rotation failed: " << msg;
+        out << "server directories containing data not created or written by IceGrid were not removed:\n";
+        out << toString(remove);
     }
-
     return commands;
 }
 
@@ -1174,19 +1130,21 @@ NodeI::canRemoveServerDirectory(const string& name)
     //
     // Check if there's files which we didn't create.
     //
-    Ice::StringSeq contents = readDirectory(_serversDir + "/" + name);
-    remove(contents.begin(), contents.end(), "dbs");
-    remove(contents.begin(), contents.end(), "config");
-    remove(contents.begin(), contents.end(), "distrib");
+    Ice::StringSeq c = readDirectory(_serversDir + "/" + name);
+    set<string> contents(c.begin(), c.end());
+    contents.erase("dbs");
+    contents.erase("dbs");
+    contents.erase("config");
+    contents.erase("distrib");
+    contents.erase("revision");
     if(!contents.empty())
     {
         return false;
     }
     
-    contents = readDirectory(_serversDir + "/" + name + "/config");
-    
+    c = readDirectory(_serversDir + "/" + name + "/config");
     Ice::StringSeq::const_iterator p;
-    for(p = contents.begin() ; p != contents.end(); ++p)
+    for(p = c.begin() ; p != c.end(); ++p)
     {
         if(p->find("config") != 0)
         {
@@ -1194,12 +1152,19 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
     
-    contents = readDirectory(_serversDir + "/" + name + "/dbs");
-    for(p = contents.begin() ; p != contents.end(); ++p)
+    c = readDirectory(_serversDir + "/" + name + "/dbs");
+    for(p = c.begin() ; p != c.end(); ++p)
     {
-        Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
-        remove(files.begin(), files.end(), "DB_CONFIG");
-        if(!files.empty())
+        try
+        {
+            Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
+            files.erase(remove(files.begin(), files.end(), "DB_CONFIG"), files.end());
+            if(!files.empty())
+            {
+                return false;
+            }
+        }
+        catch(const string&)
         {
             return false;
         }

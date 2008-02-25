@@ -213,7 +213,7 @@ class DestroyCommand : public ServerCommand
 {
 public:
 
-    DestroyCommand(const ServerIPtr&, bool = false);
+    DestroyCommand(const ServerIPtr&, bool, bool);
 
     bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
@@ -222,10 +222,12 @@ public:
     void addCallback(const AMD_Node_destroyServerPtr&);
     void finished();
     bool loadFailure() const;
+    bool clearDir() const;
 
 private:
 
     const bool _loadFailure;
+    const bool _clearDir;
     std::vector<AMD_Node_destroyServerPtr> _destroyCB;
 };
 

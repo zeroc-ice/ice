@@ -148,9 +148,10 @@ private:
 
 }
 
-RegistryI::RegistryI(const CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) : 
+RegistryI::RegistryI(const CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels, bool nowarn) : 
     _communicator(communicator),
     _traceLevels(traceLevels),
+    _nowarn(nowarn),
     _platform("IceGrid.Registry", communicator, traceLevels)
 {
 }
@@ -160,7 +161,7 @@ RegistryI::~RegistryI()
 }
 
 bool
-RegistryI::start(bool nowarn)
+RegistryI::start()
 {
     assert(_communicator);
     PropertiesPtr properties = _communicator->getProperties();
@@ -214,7 +215,7 @@ RegistryI::start(bool nowarn)
 
     if(!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
-        if(!nowarn)
+        if(!_nowarn)
         {
             Warning out(_communicator->getLogger());
             out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
@@ -227,7 +228,7 @@ RegistryI::start(bool nowarn)
 
     if(!properties->getProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
-        if(!nowarn)
+        if(!_nowarn)
         {
             Warning out(_communicator->getLogger());
             out << "administrative session manager endpoints `IceGrid.Registry.AdminSessionManager.Endpoints' enabled";
@@ -340,10 +341,10 @@ RegistryI::start(bool nowarn)
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     //
-    // Get the saved replica/node proxies and remove them from the database.
+    // Get the saved replica/node proxies.
     //
-    Ice::ObjectProxySeq proxies;
-    Ice::ObjectProxySeq::const_iterator p;
+    ObjectProxySeq proxies;
+    ObjectProxySeq::const_iterator p;
 
     NodePrxSeq nodes;
     proxies = _database->getInternalObjectsByType(Node::ice_staticId());
@@ -361,9 +362,9 @@ RegistryI::start(bool nowarn)
 
     //
     // NOTE: The internal registry object must be added only once the
-    // node/replica proxies are retrieved and removed from the
-    // database. Otherwise, if some replica/node register as soon as
-    // the internal registry is setup we might clear valid proxies.
+    // node/replica proxies are retrieved. Otherwise, if some
+    // replica/node register as soon as the internal registry is setup
+    // we might clear valid proxies.
     //
     InternalRegistryPrx internalRegistry = setupInternalRegistry(registryAdapter);
     if(_master)
@@ -378,8 +379,7 @@ RegistryI::start(bool nowarn)
         registerNodes(internalRegistry, _session.getNodes(nodes));
     }
 
-    Ice::ObjectAdapterPtr serverAdapter = 
-        _communicator->createObjectAdapter("IceGrid.Registry.Server");
+    ObjectAdapterPtr serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
     _clientAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Client");
 
     Ice::Identity dummy;
@@ -413,9 +413,10 @@ RegistryI::start(bool nowarn)
     // accessed by the connection that created the session. The session servant manager
     // also takes care of providing the router servant for server admin objects.
     //
-    Ice::ObjectPtr serverAdminRouter = new RegistryServerAdminRouter(_database);
+    ObjectPtr serverAdminRouter = new RegistryServerAdminRouter(_database);
 
-    _servantManager = new SessionServantManager(_clientAdapter, _instanceName, true, getServerAdminCategory(), serverAdminRouter, adminCallbackRouter);
+    _servantManager = new SessionServantManager(_clientAdapter, _instanceName, true, getServerAdminCategory(), 
+                                                serverAdminRouter, adminCallbackRouter);
     _clientAdapter->addServantLocator(_servantManager, "");
 
 
@@ -425,8 +426,8 @@ RegistryI::start(bool nowarn)
         _adminCallbackRouterAdapter->addServantLocator(new DefaultServantLocator(adminCallbackRouter), "");
     }
     
-    Ice::ObjectAdapterPtr sessionAdpt = setupClientSessionFactory(registryAdapter, internalLocator, nowarn);
-    Ice::ObjectAdapterPtr admSessionAdpt = setupAdminSessionFactory(registryAdapter, serverAdminRouter, internalLocator, nowarn);
+    ObjectAdapterPtr sessionAdpt = setupClientSessionFactory(registryAdapter, internalLocator);
+    ObjectAdapterPtr admSessionAdpt = setupAdminSessionFactory(registryAdapter, serverAdminRouter, internalLocator);
 
     _wellKnownObjects->finish();
     if(_master)
@@ -581,9 +582,7 @@ RegistryI::setupUserAccountMapper(const Ice::ObjectAdapterPtr& registryAdapter)
 }
 
 Ice::ObjectAdapterPtr
-RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter,
-                                     const IceGrid::LocatorPrx& locator,
-                                     bool nowarn)
+RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter, const IceGrid::LocatorPrx& locator)
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -626,12 +625,9 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
     _clientVerifier = getPermissionsVerifier(registryAdapter,
                                              locator,
                                              "IceGrid.Registry.PermissionsVerifier",
-                                             properties->getProperty("IceGrid.Registry.CryptPasswords"), 
-                                             nowarn);
+                                             properties->getProperty("IceGrid.Registry.CryptPasswords"));
 
-    _sslClientVerifier = getSSLPermissionsVerifier(locator, 
-                                                   "IceGrid.Registry.SSLPermissionsVerifier", 
-                                                   nowarn);
+    _sslClientVerifier = getSSLPermissionsVerifier(locator, "IceGrid.Registry.SSLPermissionsVerifier");
 
     return adapter;
 }
@@ -639,8 +635,7 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
 Ice::ObjectAdapterPtr
 RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter, 
                                     const Ice::ObjectPtr& router,
-                                    const IceGrid::LocatorPrx& locator,
-                                    bool nowarn)
+                                    const IceGrid::LocatorPrx& locator)
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -687,12 +682,9 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter
     _adminVerifier = getPermissionsVerifier(registryAdapter,
                                             locator,
                                             "IceGrid.Registry.AdminPermissionsVerifier",
-                                            properties->getProperty("IceGrid.Registry.AdminCryptPasswords"),
-                                            nowarn);
+                                            properties->getProperty("IceGrid.Registry.AdminCryptPasswords"));
 
-    _sslAdminVerifier = getSSLPermissionsVerifier(locator, 
-                                                  "IceGrid.Registry.AdminSSLPermissionsVerifier", 
-                                                  nowarn);
+    _sslAdminVerifier = getSSLPermissionsVerifier(locator, "IceGrid.Registry.AdminSSLPermissionsVerifier");
 
     return adapter;
 }
@@ -1035,8 +1027,7 @@ Glacier2::PermissionsVerifierPrx
 RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter, 
                                   const IceGrid::LocatorPrx& locator,
                                   const string& verifierProperty,
-                                  const string& passwordsProperty,
-                                  bool nowarn)
+                                  const string& passwordsProperty)
 {
     //
     // Get the permissions verifier, or create a default one if no
@@ -1149,7 +1140,7 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
     }
     catch(const LocalException& ex)
     {
-        if(!nowarn)
+        if(!_nowarn)
         {
             Warning out(_communicator->getLogger());
             out << "couldn't contact permissions verifier `" + verifierProperty + "':\n" << ex;
@@ -1160,7 +1151,7 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
 }
 
 Glacier2::SSLPermissionsVerifierPrx
-RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const string& verifierProperty, bool nowarn)
+RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const string& verifierProperty)
 {
     //
     // Get the permissions verifier, or create a default one if no
@@ -1233,7 +1224,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
     }
     catch(const LocalException& ex)
     {
-        if(!nowarn)
+        if(!_nowarn)
         {
             Warning out(_communicator->getLogger());
             out << "couldn't contact ssl permissions verifier `" + verifierProperty + "':\n" << ex; 

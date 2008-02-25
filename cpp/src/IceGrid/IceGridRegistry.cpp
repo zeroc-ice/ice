@@ -117,8 +117,8 @@ RegistryService::start(int argc, char* argv[])
 
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
     
-    _registry = new RegistryI(communicator(), traceLevels);
-    if(!_registry->start(nowarn))
+    _registry = new RegistryI(communicator(), traceLevels, nowarn);
+    if(!_registry->start())
     {
         return false;
     }

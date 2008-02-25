@@ -48,10 +48,10 @@ class RegistryI : public Registry
 {
 public:
 
-    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
+    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, bool);
     ~RegistryI();
 
-    bool start(bool);
+    bool start();
     void stop();
 
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
@@ -82,15 +82,15 @@ private:
     InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&);
     void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);
     bool setupUserAccountMapper(const Ice::ObjectAdapterPtr&);
-    Ice::ObjectAdapterPtr setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const LocatorPrx&, bool);
+    Ice::ObjectAdapterPtr setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const LocatorPrx&);
     Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectPtr&, 
-                                                   const LocatorPrx&, bool);
+                                                   const LocatorPrx&);
 
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const LocatorPrx&,
-                                                            const std::string&, const std::string&, bool);
+                                                            const std::string&, const std::string&);
 
-    Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&, bool);
+    Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
     NodePrxSeq registerReplicas(const InternalRegistryPrx&, const InternalRegistryPrxSeq&, const NodePrxSeq&);
@@ -98,6 +98,7 @@ private:
     
     const Ice::CommunicatorPtr _communicator;
     const TraceLevelsPtr _traceLevels;
+    const bool _nowarn;
 
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;

@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Changed the IceGrid node to be more conservative when removing a
+  server directory. It's now only removed when the server is
+  explicitly removed from a deployed application or if the directory
+  only contains files and directories created by the node.
+
 - The use of sequences (and structs containing sequences) as valid
   dictionary keys has been deprecated and will be removed in a future
   release.
