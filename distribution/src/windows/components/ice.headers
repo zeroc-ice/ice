@@ -51,6 +51,7 @@ Ice/GCCountMap
 Ice/GCShared
 Ice/Handle
 Ice/Ice
+Ice/IconvStringConverter
 Ice/Identity
 Ice/ImplicitContext
 Ice/ImplicitContextF
