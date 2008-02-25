@@ -12,34 +12,32 @@ import os, sys, getopt, re
 
 keepGoing = False
 ice_home = None
+x64 = False
 toplevel = None
 testErrors = []
 
 def configurePaths():
-    bindist = False
-    if ice_home:
-        bindist = True
-        print "<<< Using Ice installation from " + ice_home + " >>>"
-    elif os.environ.has_key("ICE_HOME"):
-        bindist = True
-        print "<<< Using Ice installation from " + os.environ["ICE_HOME"] + " >>>"
+    bindist = isBinDist()
 
-    x64 = False
-    if isCygwin():
-        if (os.environ.has_key("AS") and os.environ["AS"] == "ml64") or \
-           (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
-            x64 = True
-    elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
-        x64 = True
+    if ice_home:
+        print "[ using Ice installation from " + ice_home,
+        if isX64():
+            print "(64bit)",
+        print "]"
+    elif os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
+        print "[ using Ice installation from " + os.environ["ICE_HOME"],
+        if isX64():
+            print "(64bit)",
+        print "]"
 
     binDir = os.path.join(getIceDir("cpp"), "bin")        
     if isCygwin():
-        if bindist and x64:
+        if bindist and isX64():
             binDir = os.path.join(binDir, "x64")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
-            if x64:
+            if isX64():
                 if bindist:
                     libDir = os.path.join(libDir, "pa20_64")
                     binDir = os.path.join(binDir, "pa20_64")
@@ -51,7 +49,7 @@ def configurePaths():
         elif isAIX():
             os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
         elif isSolaris():
-            if x64:
+            if isX64():
                 if bindist:
                     if isSparc():
                         libDir = os.path.join(libDir, "sparcv9")
@@ -63,7 +61,7 @@ def configurePaths():
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
         else:
-            if x64:
+            if isX64():
                 if bindist:
                     libDir = libDir + "64"
                     binDir = binDir + "64"
@@ -104,6 +102,19 @@ def findTopLevel():
 
     return toplevel
 
+def isBinDist():
+    return  (ice_home or (os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0))
+
+def isX64():
+    if x64:
+        return True
+    elif isCygwin():
+        if (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
+            return True
+    elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
+        return True
+    return False
+
 def getIceDir(subdir = None):
     #
     # If ICE_HOME is set we're running the test against a binary distribution. Otherwise,
@@ -112,7 +123,7 @@ def getIceDir(subdir = None):
     global ice_home
     if ice_home:
         return ice_home
-    if os.environ.has_key("ICE_HOME"):
+    if os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
         return os.environ["ICE_HOME"]
     elif subdir:
         return os.path.join(findTopLevel(), subdir)
@@ -205,6 +216,7 @@ def usage():
     print "  --mode=debug|release    Run the demos with debug or release mode builds (win32 only)."
     print "  --continue              Keep running when a demo fails."
     print "  --ice-home=<path>       Use the binary distribution from the given path."
+    print "  --x64                   Binary distribution is 64-bit."
     sys.exit(2)
 
 def index(l, re):
@@ -220,7 +232,7 @@ def run(demos):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start-after=", "start=", "loop", "fast", "trace", "debug", "host=", "mode=",
-                "continue", "ice-home="])
+                "continue", "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
 
@@ -239,6 +251,9 @@ def run(demos):
         elif o == "--ice-home":
             global ice_home
             ice_home = a
+        elif o == "--x64":
+            global x64
+            x64 = True
         elif o in ("-c", "--continue"):
             keepGoing = True
         elif o in ("-r", "-R", "--filter", '--rfilter'):

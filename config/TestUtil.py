@@ -21,6 +21,7 @@ mono =  0                       # Set to 1 to use Mono as the default .NET CLR.
 keepGoing = 0                   # Set to 1 to have the tests continue on failure.
 ipv6 = 0                        # Default to use IPv4 only
 ice_home = None                 # Binary distribution to use (None to use binaries from source distribution)
+x64 = False                     # Binary distribution is 64-bit
 
 javaCmd = "java"                # Default java loader
 phpCmd = "php"                  # Name of default php binary (usually php or php5)
@@ -35,22 +36,25 @@ testErrors = []
 
 def configurePaths():
     toplevel = findTopLevel()
+    bindist = isBinDist()
 
-    x64 = isX64()
-    bindist = False
     if ice_home:
-        bindist = True
-        print "(using Ice installation from " + ice_home + ")"
-    elif os.environ.has_key("ICE_HOME"):
-        bindist = True
-        print "(using Ice installation from " + os.environ["ICE_HOME"] + ")"
+        print "[ using Ice installation from " + ice_home,
+        if isX64():
+            print "(64bit)",
+        print "]"
+    elif os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
+        print "[ using Ice installation from " + os.environ["ICE_HOME"],
+        if isX64():
+            print "(64bit)",
+        print "]"
 
     if isWin32():
         os.environ["PATH"] = getCppBinDir() + os.pathsep + os.getenv("PATH", "")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
-            if x64:
+            if isX64():
                 if bindist:
                     libDir = os.path.join(libDir, "pa20_64")
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
@@ -61,7 +65,7 @@ def configurePaths():
         elif isAIX():
             os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
         elif isSolaris():
-            if x64:
+            if isX64():
                 if bindist:
                     if isSparc():
                         libDir = os.path.join(libDir, "sparcv9")
@@ -71,7 +75,7 @@ def configurePaths():
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
         else:
-            if x64:
+            if isX64():
                 if bindist:
                     libDir = libDir + "64"
                 os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
@@ -92,12 +96,13 @@ def configurePaths():
     os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
  
 def isBinDist():
-    return  (ice_home or os.environ.has_key("ICE_HOME"))
+    return  (ice_home or (os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0))
 
 def isX64():
-    if isWin32():
-        if (os.environ.has_key("AS") and os.environ["AS"] == "ml64") or \
-           (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
+    if x64:
+       return True
+    elif isWin32():
+        if (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
             return True
     elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
         return True
@@ -179,6 +184,7 @@ def run(tests, root = False):
           --ipv6                  Use IPv6 addresses.
           --mono                  Use mono when running C# tests.
           --ice-home=<path>       Use the binary distribution from the given path.
+          --x64                   Binary distribution is 64-bit.
         """
         sys.exit(2)
 
@@ -186,7 +192,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug",
                                     "protocol=", "compress", "host=", "threadPerConnection", "continue", "ipv6",
-                                    "mono", "ice-home="])
+                                    "mono", "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
 
@@ -224,7 +230,7 @@ def run(tests, root = False):
                 usage()
 
         if o in ( "--protocol", "--host", "--debug", "--compress", "--threadPerConnection", "--ipv6", "--mono", \
-                  "--ice-home"):
+                  "--ice-home", "--x64"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -301,7 +307,8 @@ def getIceDir(subdir = None):
     global ice_home
     if ice_home:
         return ice_home
-    if os.environ.has_key("ICE_HOME"):
+    if os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
+        print "Len = " + len(os.environ["ICE_HOME"])
         return os.environ["ICE_HOME"]
     elif subdir:
         return os.path.join(findTopLevel(), subdir)
@@ -1121,13 +1128,14 @@ def processCmdLine():
           --ipv6                  Use IPv6 addresses.
           --mono                  Use mono when running C# tests.
           --ice-home=<path>       Use the binary distribution from the given path.
+          --x64                   Binary distribution is 64-bit.
         """
         sys.exit(2)
 
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection", "ipv6", "mono", \
-                              "ice-home="])
+                              "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
 
@@ -1141,6 +1149,9 @@ def processCmdLine():
         elif o == "--ice-home":
             global ice_home
             ice_home = a
+        elif o == "--x64":
+            global x64
+            x64 = True
         elif o == "--compress":
             global compress
             compress = 1
