@@ -428,8 +428,10 @@ print "Creating " + version + " source distributions in " + distDir
 demoscriptDistDir = os.path.join(distDir, "Ice-" + version + "-demo-scripts")
 demoDistDir = os.path.join(distDir, "Ice-" + version + "-demos")
 srcDistDir = os.path.join(distDir, "Ice-" + version)
+rpmBuildDistDir = os.path.join(distDir, "Ice-rpmbuild-" + version)
 os.mkdir(demoscriptDistDir)
 os.mkdir(demoDistDir)
+os.mkdir(rpmBuildDistDir)
 os.mkdir(os.path.join(demoDistDir, "config"))
 os.mkdir(os.path.join(demoDistDir, "certs"))
 
@@ -542,8 +544,20 @@ for root, dirnames, filesnames in os.walk(demoDistDir):
         for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config"]:
             if fnmatch.fnmatch(f, m):
                 os.remove(os.path.join(root, f))
-
 print "ok"
+
+#
+# Create the Ice-rpmbuild archive
+#
+rpmBuildFiles = [ \
+    os.path.join("src", "rpm", "*.conf"), \
+    os.path.join("src", "rpm", "*.suse"), \
+    os.path.join("src", "rpm", "*.redhat"), \
+    os.path.join("src", "common", "RELEASE_NOTES.txt"), \
+    os.path.join("src", "unix", "*Linux*"), \
+    os.path.join("src", "thirdparty", "php", "ice.ini"), \
+]
+copyMatchingFiles(os.path.join(distDir, "distribution"), rpmBuildDistDir, rpmBuildFiles)
 
 #
 # Copy CHANGES and RELEASE_NOTES.txt
@@ -558,7 +572,7 @@ print "Archiving..."
 sys.stdout.flush()
 os.chdir(distDir)
 os.rename("distribution", "distfiles-" + version)
-for d in [srcDistDir, demoDistDir, demoscriptDistDir, "distfiles-" + version]:
+for d in [srcDistDir, demoDistDir, demoscriptDistDir, "distfiles-" + version, rpmBuildDistDir]:
     dist = os.path.basename(d)
     print "   creating " + dist + ".tar.gz ...",
     sys.stdout.flush()
