@@ -176,6 +176,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     //
     properties->setProperty("Glacier2Internal.Verifiers.AdapterId", IceUtil::generateUUID());
     ObjectAdapterPtr verifierAdapter = communicator()->createObjectAdapter("Glacier2Internal.Verifiers");
+    verifierAdapter->setLocator(0);
 
     //
     // Check for a permissions verifier or a password file.

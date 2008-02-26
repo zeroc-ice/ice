@@ -12,6 +12,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <Ice/SliceChecksums.h>
 #include <IceGrid/Parser.h>
@@ -87,6 +88,42 @@ private:
     bool _destroy;
 };
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
+
+class ReuseConnectionRouter : public Ice::Router
+{
+public:
+    
+    ReuseConnectionRouter(const Ice::ObjectPrx& proxy) : _clientProxy(proxy)
+    {
+    }
+
+    virtual Ice::ObjectPrx 
+    getClientProxy(const Ice::Current&) const
+    {
+        return _clientProxy;
+    }
+
+    virtual Ice::ObjectPrx 
+    getServerProxy(const Ice::Current&) const
+    {
+        return 0;
+    }
+
+    virtual void
+    addProxy(const Ice::ObjectPrx&, const Ice::Current&)
+    {
+    }
+
+    virtual Ice::ObjectProxySeq 
+    addProxies(const Ice::ObjectProxySeq&, const Ice::Current&)
+    {
+        return Ice::ObjectProxySeq();
+    }
+    
+private:
+
+    const Ice::ObjectPrx _clientProxy;
+};
 
 class Client : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -294,7 +331,7 @@ Client::run(int argc, char* argv[])
     if(opts.isSet("server"))
     {
         Ice::ObjectAdapterPtr adapter = 
-	    communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
+            communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
         adapter->activate();
         Ice::ObjectPrx proxy = adapter->add(new FileParserI, communicator()->stringToIdentity("FileParser"));
         cout << proxy << endl;
@@ -348,7 +385,8 @@ Client::run(int argc, char* argv[])
         {
             try
             {
-                router = Glacier2::RouterPrx::checkedCast(communicator()->getDefaultRouter());
+                // Use SSL if available.
+                router = Glacier2::RouterPrx::checkedCast(communicator()->getDefaultRouter()->ice_preferSecure(true));
                 if(!router)
                 {
                     cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
@@ -360,8 +398,6 @@ Client::run(int argc, char* argv[])
                 cerr << argv[0] << ": could not contact the default router:" << endl << ex << endl;
                 return EXIT_FAILURE;                
             }
-            
-            router = router->ice_preferSecure(true); // Use SSL if available.
 
             if(ssl)
             {
@@ -402,6 +438,9 @@ Client::run(int argc, char* argv[])
         }
         else if(communicator()->getDefaultLocator())
         {
+            //
+            // Create the identity of the registry to connect to.
+            //
             Ice::Identity registryId;
             registryId.category = communicator()->getDefaultLocator()->ice_getIdentity().category;
             registryId.name = "Registry";
@@ -412,9 +451,11 @@ Client::run(int argc, char* argv[])
 
             //
             // First try to contact the locator. If we can't talk to the locator,
-            // no need to go further.
+            // no need to go further. Otherwise, we get the proxy of local registry 
+            // proxy.
             //
             IceGrid::LocatorPrx locator;
+            RegistryPrx localRegistry;
             try
             {
                 locator = IceGrid::LocatorPrx::checkedCast(communicator()->getDefaultLocator());
@@ -423,58 +464,82 @@ Client::run(int argc, char* argv[])
                     cerr << argv[0] << ": configured locator is not an IceGrid locator" << endl;
                     return EXIT_FAILURE;
                 }
+                localRegistry = locator->getLocalRegistry();
             }
             catch(const Ice::LocalException& ex)
             {
                 cerr << argv[0] << ": could not contact the default locator:" << endl << ex << endl;
                 return EXIT_FAILURE;                    
             }
+            
+            IceGrid::RegistryPrx registry;
+            if(localRegistry->ice_getIdentity() == registryId)
+            {
+                registry = localRegistry;
+            }
+            else
+            {
+                //
+                // The locator local registry isn't the registry we want to connect to.
+                //
 
-            //
-            // Then we try to connect to the Master or the given replica.
-            //
-            RegistryPrx registry;
-            try
-            {
-                registry = RegistryPrx::checkedCast(
-                        communicator()->stringToProxy("\"" + communicator()->identityToString(registryId) + "\""));
-                if(!registry)
+                try
                 {
-                    cerr << argv[0] << ": could not contact an IceGrid registry" << endl;
+                    const string strId = "\"" + communicator()->identityToString(registryId) + "\"";
+                    registry = RegistryPrx::checkedCast(communicator()->stringToProxy(strId));
+                    if(!registry)
+                    {
+                        cerr << argv[0] << ": could not contact an IceGrid registry" << endl;
+                    }
                 }
-            }
-            catch(const Ice::NotRegisteredException&)
-            {
-                cerr << argv[0] << ": no active registry replica named `" << replica << "'" << endl;
-                return EXIT_FAILURE;            
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                if(!replica.empty())
+                catch(const Ice::NotRegisteredException&)
                 {
-                    cerr << argv[0] << ": could not contact the registry replica named `" << replica << "':" << endl;
-                    cerr << ex << endl;
+                    cerr << argv[0] << ": no active registry replica named `" << replica << "'" << endl;
                     return EXIT_FAILURE;            
                 }
-                else
+                catch(const Ice::LocalException& ex)
                 {
-                    //
-                    // If we can't contact the master, connect to a replica.
-                    //
-                    registry = locator->getLocalRegistry();
-
-                    string name = registry->ice_getIdentity().name;
-                    const string prefix("Registry-");
-                    string::size_type pos = name.find(prefix);
-                    if(pos != string::npos)
+                    if(!replica.empty())
                     {
-                        name = name.substr(prefix.size());
+                        cerr << argv[0] << ": could not contact the registry replica named `" << replica << "':\n";
+                        cerr << ex << endl;
+                        return EXIT_FAILURE;            
                     }
-                    cerr << argv[0] << ": warning: could not contact master, using slave `" << name << "'" << endl;
+                    else
+                    {
+                        //
+                        // If we can't contact the master, use to the local registry.
+                        //
+                        registry = localRegistry;
+                        string name = registry->ice_getIdentity().name;
+                        const string prefix("Registry-");
+                        string::size_type pos = name.find(prefix);
+                        if(pos != string::npos)
+                        {
+                            name = name.substr(prefix.size());
+                        }
+                        cerr << argv[0] << ": warning: could not contact master, using slave `" << name << "'" << endl;
+                    }
                 }
             }
 
-            registry = registry->ice_preferSecure(true); // Use SSL if available.
+            //
+            // If the registry to use is the locator local registry, we install a default router
+            // to ensure we'll use a single connection regardless of the endpoints returned in the
+            // proxies of the various session/admin methods (useful if used over an ssh tunnel).
+            //
+            if(registry->ice_getIdentity() == localRegistry->ice_getIdentity())
+            {
+                properties->setProperty("CollocInternal.AdapterId", IceUtil::generateUUID());
+                Ice::ObjectAdapterPtr colloc = communicator()->createObjectAdapter("CollocInternal");
+                colloc->setLocator(0);
+                Ice::ObjectPrx router = colloc->addWithUUID(new ReuseConnectionRouter(locator));
+                communicator()->setDefaultRouter(Ice::RouterPrx::uncheckedCast(router));
+                registry = registry->ice_router(communicator()->getDefaultRouter());
+            }
+
+            // Prefer SSL.
+            registry = registry->ice_preferSecure(true);
 
             if(ssl)
             {
@@ -497,7 +562,7 @@ Client::run(int argc, char* argv[])
                 session = registry->createAdminSession(id, password);
                 password = "";
             }
-            assert(session);
+
             timeout = registry->getSessionTimeout();
         }
         else // No default locator or router set.
@@ -509,7 +574,7 @@ Client::run(int argc, char* argv[])
 
         keepAlive = new SessionKeepAliveThread(session, timeout / 2);
         keepAlive->start();
-
+ 
         AdminPrx admin = session->getAdmin();
 
         Ice::SliceChecksumDict serverChecksums = admin->getSliceChecksums();
