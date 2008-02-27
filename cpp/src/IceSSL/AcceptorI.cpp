@@ -17,6 +17,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
+#include <Ice/Properties.h>
 
 using namespace std;
 using namespace Ice;
@@ -142,13 +143,13 @@ IceSSL::AcceptorI::effectivePort() const
 IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterName, const string& host, int port) :
     _instance(instance),
     _adapterName(adapterName),
-    _logger(instance->communicator()->getLogger()),
-    _backlog(0)
+    _logger(instance->communicator()->getLogger())
 {
-    if(_backlog <= 0)
-    {
-        _backlog = 5;
-    }
+#ifdef SOMAXCONN
+    _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
+#else
+    _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+#endif
 
     try
     {

@@ -170,7 +170,7 @@ namespace IceSSL
             _instance = instance;
             _adapterName = adapterName;
             _logger = instance.communicator().getLogger();
-            _backlog = 0;
+            _backlog = instance.communicator().getProperties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
             //
             // .NET requires that a certificate be supplied.
@@ -181,11 +181,6 @@ namespace IceSSL
                 Ice.SecurityException ex = new Ice.SecurityException();
                 ex.reason = "IceSSL: certificate required for server endpoint";
                 throw ex;
-            }
-
-            if(_backlog <= 0)
-            {
-                _backlog = 5;
             }
 
             try
