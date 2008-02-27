@@ -107,7 +107,6 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
 #else
     _backlog = instance->initializationData()->properties.getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
-    cout << "backlog = " << _backlog << endl;
 
     try
     {
