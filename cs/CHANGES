@@ -1,6 +1,9 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- Added a new property, Ice.TCP.Backlog, which can be used to configure
+  the backlog for TCP/IP sockets. The default value is 511.
+
 - Changed Ice.Exception to derive from System.Exception rather than
   System.ApplicationException in accordance with Microsoft's
   recommendations for writing custom exceptions.

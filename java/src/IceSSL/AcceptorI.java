@@ -204,12 +204,7 @@ final class AcceptorI implements IceInternal.Acceptor
         _instance = instance;
         _adapterName = adapterName;
         _logger = instance.communicator().getLogger();
-        _backlog = 0;
-
-        if(_backlog <= 0)
-        {
-            _backlog = 5;
-        }
+        _backlog = instance.communicator().getProperties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
         try
         {
@@ -239,7 +234,7 @@ final class AcceptorI implements IceInternal.Acceptor
                 String s = "attempting to bind to ssl socket " + toString();
                 _logger.trace(_instance.networkTraceCategory(), s);
             }
-            _addr = IceInternal.Network.doBind(_fd, _addr);
+            _addr = IceInternal.Network.doBind(_fd, _addr, _backlog);
         }
         catch(RuntimeException ex)
         {

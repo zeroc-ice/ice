@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added a new property, Ice.TCP.Backlog, which can be used to configure
+  the backlog for TCP/IP sockets. The default value is 511.
+
 - The use of sequences (and structs containing sequences) as valid 
   dictionary keys has been deprecated and will be removed in a future
   release.
