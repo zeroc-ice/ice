@@ -105,9 +105,8 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
 #ifdef SOMAXCONN
     _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
 #else
-    _backlog = instance->initializationData()->properties.getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+    _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
-    cout << "backlog = " << _backlog << endl;
 
     try
     {
