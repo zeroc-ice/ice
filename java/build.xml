@@ -259,7 +259,6 @@
         <mkdir dir="${prefix}"/>
         <mkdir dir="${prefix}/lib"/>
         <mkdir dir="${prefix}/ant"/>
-        <mkdir dir="${prefix}/help"/>
         <copy file="${ice.dir}/LICENSE" todir="${prefix}"/>
         <copy file="${ice.dir}/ICE_LICENSE" todir="${prefix}"/>
         <copy todir="${prefix}/ant">
@@ -267,12 +266,29 @@
                <include name="*.class"/>
             </fileset>
         </copy>
+    </target>
+
+    <condition property="slice-installed">
+	<and>
+            <available file="${prefix}/slice/Ice/Communicator.ice"/>
+	</and>	
+    </condition>
+
+    <target name="install-slice" unless="slice-installed">
+        <mkdir dir="${prefix}/slice"/>
+        <copy todir="${prefix}/slice">
+            <fileset dir="../slice" includes="**"/>
+        </copy>
+    </target>
+    
+    <target name="install-icegridgui-jar" unless="java2">
+        <mkdir dir="${prefix}/help"/>
         <copy file="${lib.dir}/IceGridGUI.jar" todir="${prefix}/lib"/>
         <copy todir="${prefix}/help">
             <fileset dir="resources" includes="IceGridAdmin/**"/>
         </copy>
     </target>
-    
+
     <target name="install-jar" unless="java2">
         <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib"/>
     </target>
@@ -282,7 +298,7 @@
         <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib/java2"/>
     </target>
 
-    <target name="install" depends="jar, install-common, install-jar, install-java2-jar">
+    <target name="install" depends="jar, install-common, install-jar, install-java2-jar, install-icegridgui-jar, install-slice">
     </target>
 
     <target name="clean" depends="config-init">
