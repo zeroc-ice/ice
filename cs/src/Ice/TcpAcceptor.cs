@@ -148,12 +148,7 @@ namespace IceInternal
             instance_ = instance;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
-            _backlog = 0;
-
-            if(_backlog <= 0)
-            {
-                _backlog = 5;
-            }
+            _backlog = instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
             try
             {

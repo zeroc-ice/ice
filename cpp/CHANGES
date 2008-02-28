@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added a new property, Ice.TCP.Backlog, which can be used to configure
+  the backlog for TCP/IP sockets. The default is set to the value of
+  SOMAXCONN or 511 if SOMAXCONN is not defined.
+
 - Changed the IceGrid node to be more conservative when removing a
   server directory. It's now only removed when the server is
   explicitly removed from a deployed application or if the directory

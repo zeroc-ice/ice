@@ -244,12 +244,12 @@ public final class Network
     }
 
     public static java.net.InetSocketAddress
-    doBind(java.nio.channels.ServerSocketChannel fd, java.net.InetSocketAddress addr)
+    doBind(java.nio.channels.ServerSocketChannel fd, java.net.InetSocketAddress addr, int backlog)
     {
         try
         {
             java.net.ServerSocket sock = fd.socket();
-            sock.bind(addr);
+            sock.bind(addr, backlog);
             return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
         }
         catch(java.io.IOException ex)
@@ -973,7 +973,7 @@ public final class Network
         
         java.net.InetSocketAddress addr = new java.net.InetSocketAddress("127.0.0.1", 0);
         
-        addr = doBind(fd, addr);
+        addr = doBind(fd, addr, 0);
         
         try
         {

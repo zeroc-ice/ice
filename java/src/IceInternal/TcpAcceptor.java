@@ -189,12 +189,7 @@ class TcpAcceptor implements Acceptor
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
-        _backlog = 0;
-
-        if(_backlog <= 0)
-        {
-            _backlog = 5;
-        }
+        _backlog = instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
         try
         {
@@ -224,7 +219,7 @@ class TcpAcceptor implements Acceptor
                 String s = "attempting to bind to tcp socket " + toString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            _addr = Network.doBind(_fd, _addr);
+            _addr = Network.doBind(_fd, _addr, _backlog);
         }
         catch(RuntimeException ex)
         {

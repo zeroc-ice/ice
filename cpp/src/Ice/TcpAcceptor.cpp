@@ -14,6 +14,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
+#include <Ice/Properties.h>
 
 using namespace std;
 using namespace Ice;
@@ -99,13 +100,13 @@ IceInternal::TcpAcceptor::effectivePort() const
 IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->initializationData().logger),
-    _backlog(0)
+    _logger(instance->initializationData().logger)
 {
-    if(_backlog <= 0)
-    {
-        _backlog = 5;
-    }
+#ifdef SOMAXCONN
+    _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
+#else
+    _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+#endif
 
     try
     {
