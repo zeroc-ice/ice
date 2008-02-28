@@ -10,20 +10,29 @@
 #ifndef ICE_PHP_CONFIG_H
 #define ICE_PHP_CONFIG_H
 
-#if defined(_MSC_VER)
-  #   define _WIN32_WINNT 0x0400
-  #   include <winsock2.h>
+//
+// We need to define WIN32_LEAN_AND_MEAN to avoid redefinition errors in
+// winsock2.h. However, we can't define the macro in the Makefile because
+// a PHP header defines it without a surrounding #ifndef, so we have to
+// undefine it before including the PHP header files.
+//
+#ifdef _WIN32
+#   define WIN32_LEAN_AND_MEAN
 #endif
 
 #include <Ice/Ice.h>
 #include <Slice/Parser.h>
 
-#ifdef WIN32
+#ifdef _WIN32
+#   undef WIN32_LEAN_AND_MEAN
+#endif
+
+#ifdef _WIN32
 #include <crtdbg.h>
 #include <math.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 {
 #endif
@@ -34,7 +43,7 @@ extern "C"
 #include "zend_interfaces.h"
 #include "zend_exceptions.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 }
 #endif
 

@@ -605,7 +605,7 @@ ZEND_FUNCTION(Ice_identityToString)
     }
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static zend_object_value
@@ -622,7 +622,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static zend_object_value
@@ -634,7 +634,7 @@ handleClone(zval* zv TSRMLS_DC)
     return result;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static void
@@ -660,7 +660,7 @@ handleFreeStorage(void* p TSRMLS_DC)
     zend_objects_free_object_storage(reinterpret_cast<zend_object*>(p) TSRMLS_CC);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static union _zend_function*

@@ -33,14 +33,14 @@ CPP_COMPILER            = VC60
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.2.1
+PHP_HOME		= C:\php-5.2.5
 !endif
 
 #
 # Set PHP_BIN_HOME to your PHP binary installation directory.
 #
 !if "$(PHP_BIN_HOME)" == ""
-PHP_BIN_HOME		= C:\php-5.2.1-Win32
+PHP_BIN_HOME		= C:\php-5.2.5-Win32
 !endif
 
 #
@@ -97,9 +97,17 @@ ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib"
 
 slicedir                = $(ice_dir)\slice
 
-PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=0 -DZTS
+!if "$(OPTIMIZE)" != "yes"
+PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)"
+PHP_LIBS		= php5ts_debug.lib
+PHP_ZEND_DEBUG		= 1
+!else
 PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)\dev"
 PHP_LIBS		= php5ts.lib
+PHP_ZEND_DEBUG		= 0
+!endif
+
+PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=$(PHP_ZEND_DEBUG) -DZTS -DWIN32
 
 ICECPPFLAGS		= -I$(slicedir)
 
