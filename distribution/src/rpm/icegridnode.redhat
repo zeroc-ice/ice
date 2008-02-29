@@ -5,7 +5,7 @@
 # icegridnode   This shell script takes care of starting and 
 #               stopping the icegridnode daemon.
 #
-# chkconfig: 235 61 75
+# chkconfig: - 61 75
 # description: The IceGrid node daemon. \
 # IceGrid is the server deployment and monitoring for the Internet \
 # Communications Engine (Ice). An IceGrid domain consists of one master \
@@ -20,7 +20,7 @@
 # The IceGrid node user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=iceuser
+user=ice
 
 #
 # Ask for a password at startup?

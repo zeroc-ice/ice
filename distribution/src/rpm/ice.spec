@@ -16,6 +16,7 @@
 %endif
 
 %define buildall 1
+%define makeopts "-j 2"
 
 %define core_arches %{ix86} x86_64
 
@@ -228,18 +229,18 @@ The Ice runtime for PHP.
 # We build C++ all the time since we need slice2xxx
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src
-make OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
 %ifarch %{core_arches}
 cd $RPM_BUILD_DIR/Ice-%{version}/py
-make OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
 cd $RPM_BUILD_DIR/Ice-%{version}/php
-make OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
 %if %{ruby}
 cd $RPM_BUILD_DIR/Ice-%{version}/rb
-make OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 %endif
@@ -258,7 +259,7 @@ ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Djgoodies.forms=$JGOODIES_FORMS -D
 ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
 %if %{mono}
 cd $RPM_BUILD_DIR/Ice-%{version}/cs/src
-make OPTIMIZE=yes
+make %{makeopts} OPTIMIZE=yes
 %endif
 %endif
 
@@ -332,7 +333,7 @@ rm -f $RPM_BUILD_ROOT/bin/slice2rb
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/libjava5/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI-%{version}.jar
 ln -s IceGridGUI-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar 
-#cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui $RPM_BUILD_ROOT%{_bindir}
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
 mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
 cp -Rp $RPM_BUILD_DIR/Ice-%{version}/java/resources/IceGridAdmin $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
 
@@ -536,7 +537,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/slice2docbook
 %{_bindir}/slice2html
 %{_bindir}/icegridadmin
-#%{_bindir}/icegridgui
+%{_bindir}/icegridgui
 %{_bindir}/iceca
 %{_javadir}/IceGridGUI-%{version}.jar
 %{_javadir}/IceGridGUI.jar
@@ -575,7 +576,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre servers
 getent group ice > /dev/null || groupadd -r iceu
 getent passwd ice > /dev/null || \
-        useradd -r -g ice -d %{_localstatedir}/lib/icegrid \
+        useradd -r -g ice -d %{_localstatedir}/lib/ice \
         -s /sbin/nologin -c "Ice Service account" ice
 exit 0
 
