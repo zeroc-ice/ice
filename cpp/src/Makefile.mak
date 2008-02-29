@@ -33,6 +33,7 @@ SUBDIRS		= IceUtil \
 		  Glacier2 \
 		  Freeze \
 		  FreezeScript \
+		  IceGridLib \
 		  IceStorm \
 		  IceGrid \
                   iceserviceinstall \

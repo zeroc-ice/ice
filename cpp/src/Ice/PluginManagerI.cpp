@@ -167,8 +167,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     {
         string name = *p;
 
-        map<string, PluginPtr>::iterator q = _plugins.find(name);
-        if(q != _plugins.end())
+        if(_plugins.find(name) != _plugins.end())
         {
             PluginInitializationException ex(__FILE__, __LINE__);
             ex.reason = "plugin `" + name + "' already loaded";

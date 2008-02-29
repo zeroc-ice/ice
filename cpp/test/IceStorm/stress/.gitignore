@@ -8,3 +8,9 @@ Event.h
 build.txt
 db/*
 db2/*
+0.db/*
+0.db2/*
+1.db/*
+1.db2/*
+2.db/*
+2.db2/*

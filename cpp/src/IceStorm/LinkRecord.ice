@@ -11,12 +11,10 @@
 #define LINK_RECORD_ICE
 
 #include <Ice/Identity.ice>
+#include <IceStorm/IceStormInternal.ice>
 
 module IceStorm
 {
-
-interface TopicLink;
-interface Topic;
 
 /**
  *

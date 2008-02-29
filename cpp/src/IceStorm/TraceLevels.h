@@ -31,14 +31,14 @@ public:
     const int topic;
     const char* topicCat;
 
-    const int flush;
-    const char* flushCat;
-
-    const int subscriberPool;
-    const char* subscriberPoolCat;
-
     const int subscriber;
     const char* subscriberCat;
+
+    const int election;
+    const char* electionCat;
+
+    const int replication;
+    const char* replicationCat;
 
     const Ice::LoggerPtr logger;
 };

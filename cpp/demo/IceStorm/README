@@ -12,3 +12,7 @@ Demos in this directory:
 - replicated
 
   Shows how to replicate IceStorm services using IceGrid.
+
+- replicated2
+
+  Shows how to replicate IceStorm services without using IceGrid.

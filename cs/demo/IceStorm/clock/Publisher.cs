@@ -25,33 +25,24 @@ public class Publisher
     {
         public override int run(string[] args)
         {
-            IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
-                communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
-            if(manager == null)
-            {
-                Console.WriteLine("invalid proxy");
-                return 1;
-            }
-
+            string option = "None";
             string topicName = "time";
-            bool datagram = false;
-            bool twoway = false;
-            int optsSet = 0;
-            for(int i = 0; i < args.Length; ++i)
+            int i;
+
+            for(i = 0; i < args.Length; ++i)
             {
+                String oldoption = option;
                 if(args[i].Equals("--datagram"))
                 {
-                    datagram = true;
-                    ++optsSet;
+                    option = "Datagram";
                 }
                 else if(args[i].Equals("--twoway"))
                 {
-                    twoway = true;
-                    ++optsSet;
+                    option = "Twoway";
                 }
                 else if(args[i].Equals("--oneway"))
                 {
-                    ++optsSet;
+                    option = "Oneway";
                 }
                 else if(args[i].StartsWith("--"))
                 {
@@ -60,14 +51,28 @@ public class Publisher
                 }
                 else
                 {
-                    topicName = args[i];
+                    topicName = args[i++];
                     break;
+                }
+
+                if(!oldoption.Equals(option) && !oldoption.Equals("None"))
+                {
+                    usage();
+                    return 1;
                 }
             }
 
-            if(optsSet > 1)
+            if(i != args.Length)
             {
                 usage();
+                return 1;
+            }
+
+            IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
+                communicator().propertyToProxy("TopicManager.Proxy"));
+            if(manager == null)
+            {
+                Console.WriteLine("invalid proxy");
                 return 1;
             }
 
@@ -97,15 +102,15 @@ public class Publisher
             // the mode specified as an argument of this application.
             //
             Ice.ObjectPrx publisher = topic.getPublisher();
-            if(datagram)
+            if(option.Equals("Datagram"))
             {
                 publisher = publisher.ice_datagram();
             }
-            else if(twoway)
+            else if(option.Equals("Twoway"))
             {
                 // Do nothing.
             }
-            else //if(oneway)
+            else // if(oneway)
             {
                 publisher = publisher.ice_oneway();
             }
@@ -117,7 +122,6 @@ public class Publisher
                 while(true)
                 {
                     clock.tick(System.DateTime.Now.ToString("G", DateTimeFormatInfo.InvariantInfo));
-
                     System.Threading.Thread.Sleep(1000);
                 }
             }

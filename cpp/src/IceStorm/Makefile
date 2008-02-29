@@ -18,37 +18,58 @@ SVCSONAME       = $(call mksoname,IceStormService,$(SOVERSION))
 SVCLIBNAME	= $(call mklibname,IceStormService)
 
 ADMIN		= $(top_srcdir)/bin/icestormadmin
+MIGRATE		= $(top_srcdir)/bin/icestormmigrate
 
 LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 SVCLIBTARGETS   = $(call mklibtargets,$(libdir)/$(SVCLIBFILENAME),$(libdir)/$(SVCSONAME),$(libdir)/$(SVCLIBNAME))
-TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN)
+TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN) $(MIGRATE)
 
 OBJS		= IceStorm.o
 
-SERVICE_OBJS	= IceStorm.o \
+SERVICE_OBJS	= LoggerI.o \
+		  NodeI.o \
+		  Observers.o \
+		  LLUMap.o \
+		  Election.o \
+		  IceStorm.o \
 		  Instance.o \
 		  TraceLevels.o \
-		  BatchFlusher.o \
-		  SubscriberPool.o \
 		  Subscriber.o \
 		  TopicI.o \
 		  TopicManagerI.o \
-                  PersistentTopicMap.o \
-		  LinkRecord.o \
+		  TransientTopicI.o \
+		  TransientTopicManagerI.o \
+                  SubscriberMap.o \
+		  SubscriberRecord.o \
 		  IceStormInternal.o \
 		  Service.o
 
 AOBJS		= Admin.o \
 		  Grammar.o \
 		  Scanner.o \
-		  Parser.o
+		  Parser.o \
+		  Election.o \
+		  SubscriberRecord.o \
+		  IceStormInternal.o
+
+MOBJS		= Migrate.o \
+		  SubscriberRecord.o \
+                  SubscriberMap.o \
+                  LLUMap.o \
+		  LinkRecord.o \
+		  PersistentTopicMap.o \
+		  IceStormInternal.o \
+		  Election.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(SERVICE_OBJS:.o=.cpp) \
-		  $(AOBJS:.o=.cpp)
+		  $(AOBJS:.o=.cpp) \
+		  $(MOBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/IceStorm.ice \
+		  ../IceStorm/Election.ice \
 		  ../IceStorm/IceStormInternal.ice \
+		  ../IceStorm/SubscriberRecord.ice \
 		  ../IceStorm/LinkRecord.ice
 
 HDIR		= $(includedir)/IceStorm
@@ -62,7 +83,7 @@ CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_STORM_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
-SVCLINKWITH	:= $(DB_RPATH_LINK) -lFreeze -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
+SVCLINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lFreeze -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
@@ -88,11 +109,26 @@ $(libdir)/$(SVCLIBNAME): $(libdir)/$(SVCSONAME)
 	rm -f $@
 	ln -s $(SVCSONAME) $@
 
-
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(EXPAT_RPATH_LINK) -lIceXML $(READLINE_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(READLINE_LIBS) $(LIBS)
 
+$(MIGRATE): $(MOBJS) $(LIBTARGETS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) -lIceStorm -lFreeze $(LIBS)
+
+LLUMap.h LLUMap.cpp: $(SLICE2FREEZE) ../IceStorm/Election.ice
+	rm -f LLUMap.h LLUMap.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::LLUMap,string,IceStormElection::LogUpdate \
+	LLUMap ../IceStorm/Election.ice
+
+SubscriberMap.h SubscriberMap.cpp: ../IceStorm/SubscriberRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
+	rm -f SubscriberMap.h SubscriberMap.cpp
+	$(SLICE2FREEZECMD) \
+	--dict IceStorm::SubscriberMap,IceStorm::SubscriberRecordKey,IceStorm::SubscriberRecord,sort \
+	SubscriberMap ../IceStorm/SubscriberRecord.ice
+
+# Needed for migration.
 PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
 	rm -f PersistentTopicMap.h PersistentTopicMap.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,Ice::Identity,IceStorm::LinkRecordSeq \
@@ -102,7 +138,9 @@ PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(sliced
 ../IceStorm/Grammar.y: Grammar.h
 
 clean::
+	-rm -f SubscriberMap.h SubscriberMap.cpp
 	-rm -f PersistentTopicMap.h PersistentTopicMap.cpp
+	-rm -f LLUMap.h LLUMap.cpp
 	-rm -f Grammar.cpp Grammar.h
 	-rm -f Scanner.cpp
 
@@ -110,5 +148,6 @@ install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installlib,$(install_libdir),$(libdir),$(SVCLIBFILENAME),$(SVCSONAME),$(SVCLIBNAME))
 	$(call installprogram,$(ADMIN),$(install_bindir))
+	$(call installprogram,$(MIGRATE),$(install_bindir))
 
 include .depend

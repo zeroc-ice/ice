@@ -19,20 +19,19 @@ TraceLevels::TraceLevels(const string name, const Ice::PropertiesPtr& properties
     topicMgrCat("TopicManager"),
     topic(0),
     topicCat("Topic"),
-    flush(0),
-    flushCat("Flush"),
-    subscriberPool(0),
-    subscriberPoolCat("SubscriberPool"),
     subscriber(0),
     subscriberCat("Subscriber"),
+    election(0),
+    electionCat("Election"),
+    replication(0),
+    replicationCat("Replication"),
     logger(theLogger)
 {
     const string keyBase = name + ".Trace.";
     const_cast<int&>(topicMgr) = properties->getPropertyAsInt(keyBase + topicMgrCat);
     const_cast<int&>(topic) = properties->getPropertyAsInt(keyBase + topicCat);
-    const_cast<int&>(flush) = properties->getPropertyAsInt(keyBase + flushCat);
-    const_cast<int&>(subscriberPool) = properties->getPropertyAsInt(keyBase + subscriberPoolCat);
     const_cast<int&>(subscriber) = properties->getPropertyAsInt(keyBase + subscriberCat);
+    const_cast<int&>(election) = properties->getPropertyAsInt(keyBase + electionCat);
 }
 
 TraceLevels::~TraceLevels()

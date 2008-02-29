@@ -11,8 +11,12 @@
 #define ICE_STORM_INTERNAL_ICE
 
 #include <IceStorm/IceStorm.ice>
+#include <IceStorm/Election.ice>
 #include <Ice/Current.ice>
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Identity.ice>
+
+[["cpp:include:deque"]]
 
 module IceStorm
 {
@@ -35,7 +39,7 @@ module IceStorm
 };
 
 /** A sequence of EventData. */
-sequence<EventData> EventDataSeq;
+["cpp:type:std::deque< ::IceStorm::EventDataPtr>"] sequence<EventData> EventDataSeq;
 
 /**
  *
@@ -57,6 +61,11 @@ interface TopicLink
     ["ami"] void forward(EventDataSeq events);
 };
 
+/** Thrown if the reap call would block. */
+exception ReapWouldBlock
+{
+};
+
 /**
  *
  * Internal operations for a topic.
@@ -74,6 +83,37 @@ interface TopicInternal extends Topic
      *
      **/
     idempotent TopicLink* getLinkProxy();
+
+    /**
+     *
+     * Reap the given identities.
+     *
+     * @param id The sequence of identities.
+     *
+     * @throws ReapWouldBlock Raised if the reap call would block.
+     *
+     **/
+    ["ami"] void reap(Ice::IdentitySeq id) throws ReapWouldBlock;
+};
+
+/**
+ *
+ * Internal operations for a topic manager.
+ *
+ * @see TopicManager
+ *
+ **/
+interface TopicManagerInternal extends TopicManager
+{
+    /**
+     *
+     * Return the replica node proxy for this topic manager.
+     *
+     * @return The replica proxy, or null if this instance is not
+     * replicated.
+     *
+     **/
+    ["cpp:const"] idempotent IceStormElection::Node* getReplicaNode();
 };
 
 }; // End module IceStorm

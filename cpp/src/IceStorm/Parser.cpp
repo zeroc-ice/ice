@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
+#include <IceStorm/IceStormInternal.h>
 #include <algorithm>
 
 #ifdef HAVE_READLINE
@@ -94,6 +95,7 @@ Parser::usage()
         "                         manager, or in the given INSTANCE-NAME.\n"
         "current [INSTANCE-NAME]  Display the current topic manager, or change it to\n"
         "                         INSTANCE-NAME.\n"
+        "replica [INSTANCE-NAME]  Display replication information for the given INSTANCE-NAME.\n"
         ;
 }
 
@@ -254,6 +256,85 @@ Parser::topics(const list<string>& args)
         for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
         {
             cout << i->first << endl;
+        }
+    }
+    catch(const Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
+Parser::replica(const list<string>& args)
+{
+    if(args.size() > 1)
+    {
+        error("`replica' requires at most one argument (type `help' for more info)");
+        return;
+    }
+
+    try
+    {
+        TopicManagerPrx m;
+        if(args.size() == 0)
+        {
+            m = _defaultManager;
+        }
+        else
+        {
+            m = findManagerByCategory(args.front());
+        }
+        TopicManagerInternalPrx manager = TopicManagerInternalPrx::uncheckedCast(m);
+        IceStormElection::NodePrx node = manager->getReplicaNode();
+        if(!node)
+        {
+            error("This topic is not replicated");
+        }
+        IceStormElection::NodeInfoSeq nodes = node->nodes();
+        cout << "replica count: " << nodes.size() << endl;
+        for(IceStormElection::NodeInfoSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+        {
+            try
+            {
+                IceStormElection::QueryInfo info = p->n->query();
+                cout << p->id << ": id:         " << info.id << endl;
+                cout << p->id << ": coord:      " << info.coord << endl;
+                cout << p->id << ": group name: " << info.group << endl;
+                cout << p->id << ": state:      ";
+                switch(info.state)
+                {
+                case IceStormElection::NodeStateInactive:
+                    cout << "inactive";
+                    break;
+                case IceStormElection::NodeStateElection:
+                    cout << "election";
+                    break;
+                case IceStormElection::NodeStateReorganization:
+                    cout << "reorganization";
+                    break;
+                case IceStormElection::NodeStateNormal:
+                    cout << "normal";
+                    break;
+                default:
+                    cout << "unknown";
+                }
+                cout << endl;
+                cout << p->id << ": group:      ";
+                for(IceStormElection::GroupInfoSeq::const_iterator q = info.up.begin(); q != info.up.end(); ++q)
+                {
+                    if(q != info.up.begin())
+                    {
+                        cout << ",";
+                    }
+                    cout << q->id;
+                }
+                cout << endl;
+                cout << p->id << ": max:        " << info.max << endl;
+            }
+            catch(const Exception& ex)
+            {
+                cout << p->id << ": " << ex.ice_name() << endl;
+            }
         }
     }
     catch(const Exception& ex)

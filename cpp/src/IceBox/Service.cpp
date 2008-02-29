@@ -45,14 +45,34 @@ IceBox::IceBoxService::IceBoxService()
 bool
 IceBox::IceBoxService::start(int argc, char* argv[])
 {
+    // Run through the command line arguments removing all the service
+    // properties.
+    vector<string> args = Ice::argsToStringSeq(argc, argv);
+    PropertiesPtr properties = communicator()->getProperties();
+    const string prefix = "IceBox.Service.";
+    PropertyDict services = properties->getPropertiesForPrefix(prefix);
+    for(PropertyDict::const_iterator p = services.begin(); p != services.end(); ++p)
+    {
+        string name = p->first.substr(prefix.size());
+        StringSeq::iterator q = args.begin();
+        while(q != args.end())
+        {
+            if(q->find("--" + name + ".") == 0)
+            {
+                q = args.erase(q);
+                continue;
+            }
+            ++q;
+        }
+    }
+
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
 
-    vector<string> args;
     try
     {
-        args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(args);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {

@@ -10,6 +10,63 @@ Changes since version 3.2.X (binary incompatible)
   explicitly removed from a deployed application or if the directory
   only contains files and directories created by the node.
 
+- It is now possible to set IceBox service properties on the command
+  line.
+
+- Changes related to HA IceStorm
+
+  - IceStorm now supports master/slave replication with automatic
+    failover. See the documentation below for full instructions on how
+    to configure the replication.
+
+  - IceStorm now supports a fully transient version. Configure the
+    property <service-name>.Transient=1 to enable this. The transient
+    version does not support replication.
+
+  - Subscribers are always persisted in the database whether or not
+    replication is enabled.
+
+  - Added a new QoS to control when subscribers are removed:
+    retryCount. After retryCount unsuccessful event deliveries, the
+    subscriber is removed from the database. The default value of
+    retryCount is 0 (meaning upon any failure the subscriber is
+    immediately removed). A subscriber is always removed on a hard
+    failure (that is Ice::ObjectNotExistException or
+    Ice::NotRegisteredException).
+
+  - The IceStorm database format has changed. Use the utility
+    icestormmigrate to migrate from the Ice 3.2.1 database format.
+
+  - Added new demo demo/IceStorm/replication2 to demonstrate manually
+    configured IceStorm replication.
+
+  - Added new "replica" command to icestormadmin to get debugging
+    information on the IceStorm replication.
+
+  - The TopicManager object adapter now uses its own thread pool in
+    the replicated case. This ensures that ordering is guaranteed by
+    default even if a publisher publishes using a oneway proxy.
+
+  - Upon shutdown it is now guaranteed that received events will be
+    delivered to all subscribers.
+
+  - Added Topic::getNonReplicatedPublisher which always return a
+    non-replicated publisher proxy.
+
+  - All IceStorm properties must be prefixed with the service
+    name. For example, if the following IceBox service configuration
+    is used:
+
+    IceBox.Service.Foo=IceStormService,32:createIceStorm --Ice.Config=config.service
+
+    then IceStorm configuration properties must use the
+    Foo. prefix. For example.  Foo.Discard.Interval=10 would set a 10
+    second discard interval.
+
+  - Removed the icestormadmin slice checksum check. This avoids
+    warnings when using icestormadmin against an older version of
+    IceStorm.
+
 - The use of sequences (and structs containing sequences) as valid
   dictionary keys has been deprecated and will be removed in a future
   release.

@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= clock counter replicated
+SUBDIRS		= clock counter replicated replicated2
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

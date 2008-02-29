@@ -21,44 +21,57 @@ displayed in the subscriber window.
 Both the subscriber and publisher take an optional topic name as a
 final argument. The default value for this topic is "time".
 
-Through the use of command-line options, both the subscriber and
+Through the use of command-line options both the subscriber and
 publisher can use different QoS for sending and receiving messages.
 
 For the subscriber:
 
-java Subscriber --oneway
+subscriber --oneway
 
   The subscriber receives events as oneway messages. This is the
   default.
 
-java Subscriber --datagram
+subscriber --datagram
 
   The subscriber receives events as datagrams.
 
-java Subscriber --twoway
+subscriber --twoway
 
   The subscriber receives events as twoway messages.
 
-java Subscriber --ordered
+subscriber --ordered
 
   The subscriber receives events as twoway messages with guaranteed
   ordering.
 
-java Subscriber --batch
+subscriber --batch
 
   This is an additional flag that forwards datagram and oneway events
   to the subscriber in batches.
 
+subscriber --id <id>
+
+  This is flag sets the unique for the given subscriber.  If this
+  option is used it you should run the subscriber on a static port.
+  Use --Clock.Subscriber.Endpoints="tcp -p <x> -h <h>:udp -p <x> -h
+  <h>"
+
+subscriber --retryCount <count>
+
+  This flag sets the retry count for a subscriber. This option should
+  be used in conjunction with the --id option. Setting retryCount
+  changes the default subscriber QoS to twoway.
+
 For the publisher:
 
-java Publisher --oneway
+publisher --oneway
 
   The publisher sends events as oneway messages. This is the default.
 
-java Publisher --datagram
+publisher --datagram
 
   The publisher sends events as datagrams.
 
-java Publisher --twoway
+publisher --twoway
 
   The publisher sends events as twoway messages.

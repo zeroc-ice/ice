@@ -1069,21 +1069,21 @@ def startClient(exe, args, config=None, env=getTestEnv()):
         tmpini.write("extension=%s\n" % phpExtension)
         tmpini.close()
 
-    return os.popen(getCommandLine(exe, config, env) + args)
+    return os.popen(getCommandLine(exe, config, env) + args + " 2>&1")
 
 def startServer(exe, args, config=None, env=getTestEnv()):
     if config == None:
         config = DriverConfig("server")
     if debug:
         print "(" + getCommandLine(exe, config, env) + args + ")",
-    return os.popen(getCommandLine(exe, config, env) + args)
+    return os.popen(getCommandLine(exe, config, env) + args + " 2>&1")
 
 def startColloc(exe, args, config=None, env=getTestEnv()):
     if config == None:
         config = DriverConfig("colloc")
     if debug:
         print "(" + getCommandLine(exe, config, env) + args + ")",
-    return os.popen(getCommandLine(exe, config, env) + args)
+    return os.popen(getCommandLine(exe, config, env) + args + " 2>&1")
 
 def getMappingDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), getDefaultMapping(currentDir)))

@@ -15,49 +15,86 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/PropertiesF.h>
 #include <IceUtil/Time.h>
+#include <IceStorm/Election.h>
+
+namespace IceUtil
+{
+
+class Timer;
+typedef IceUtil::Handle<Timer> TimerPtr;
+
+}
+
+namespace IceStormElection
+{
+
+class Observers;
+typedef IceUtil::Handle<Observers> ObserversPtr;
+
+class NodeI;
+typedef IceUtil::Handle<NodeI> NodeIPtr;
+
+}
 
 namespace IceStorm
 {
 
-class BatchFlusher;
-typedef IceUtil::Handle<BatchFlusher> BatchFlusherPtr;
-
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
-class SubscriberPool;
-typedef IceUtil::Handle<SubscriberPool> SubscriberPoolPtr;
 
 class Instance : public IceUtil::Shared
 {
 public:
 
-    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&);
+    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&,
+             const Ice::ObjectAdapterPtr&, bool = false, const Ice::ObjectAdapterPtr& = 0,
+             const IceStormElection::NodePrx& = 0);
     ~Instance();
 
+    void setNode(const IceStormElection::NodeIPtr&);
+
     std::string instanceName() const;
+    std::string serviceName() const;
     Ice::CommunicatorPtr communicator() const;
     Ice::PropertiesPtr properties() const;
-    Ice::ObjectAdapterPtr objectAdapter() const;
+    Ice::ObjectAdapterPtr publishAdapter() const;
+    Ice::ObjectAdapterPtr topicAdapter() const;
+    Ice::ObjectAdapterPtr nodeAdapter() const;
+    IceStormElection::ObserversPtr observers() const;
+    IceStormElection::NodeIPtr node() const;
+    IceStormElection::NodePrx nodeProxy() const;
     TraceLevelsPtr traceLevels() const;
-    BatchFlusherPtr batchFlusher() const;
-    SubscriberPoolPtr subscriberPool() const;
+    IceUtil::TimerPtr batchFlusher() const;
+    IceUtil::TimerPtr timer() const;
+    Ice::ObjectPrx topicReplicaProxy() const;
+    Ice::ObjectPrx publisherReplicaProxy() const;
 
     IceUtil::Time discardInterval() const;
+    IceUtil::Time flushInterval() const;
     int sendTimeout() const;
 
     void shutdown();
+    void destroy();
 
 private:
 
     const std::string _instanceName;
+    const std::string _serviceName;
     const Ice::CommunicatorPtr _communicator;
-    const Ice::ObjectAdapterPtr _adapter;
+    const Ice::ObjectAdapterPtr _publishAdapter;
+    const Ice::ObjectAdapterPtr _topicAdapter;
+    const Ice::ObjectAdapterPtr _nodeAdapter;
+    const IceStormElection::NodePrx _nodeProxy;
     const TraceLevelsPtr _traceLevels;
     const IceUtil::Time _discardInterval;
+    const IceUtil::Time _flushInterval;
     const int _sendTimeout;
-    BatchFlusherPtr _batchFlusher;
-    SubscriberPoolPtr _subscriberPool;
+    const Ice::ObjectPrx _topicReplicaProxy;
+    const Ice::ObjectPrx _publisherReplicaProxy;
+    IceStormElection::NodeIPtr _node;;
+    IceStormElection::ObserversPtr _observers;
+    IceUtil::TimerPtr _batchFlusher;
+    IceUtil::TimerPtr _timer;
 };
 typedef IceUtil::Handle<Instance> InstancePtr;
 

@@ -9,32 +9,11 @@
 
 top_srcdir	= ..\..
 
-LIBNAME		= $(top_srcdir)\lib\icegrid$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icegrid$(SOVERSION)$(LIBSUFFIX).dll
-
 ADMIN		= $(top_srcdir)\bin\icegridadmin.exe
 NODE_SERVER	= $(top_srcdir)\bin\icegridnode.exe
 REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry.exe
 
-!ifdef BUILD_UTILS
-
 TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER)
-
-!else
-
-TARGETS         = $(LIBNAME) $(DLLNAME)
-
-!endif
-
-LIB_OBJS	= Admin.obj \
-		  Query.obj \
-		  Locator.obj \
-		  Exception.obj \
-		  Descriptor.obj \
-		  Observer.obj \
-		  Session.obj \
-		  Registry.obj \
-		  UserAccountMapper.obj
 
 ADMIN_OBJS	= Grammar.obj \
 		  Scanner.obj \
@@ -42,7 +21,6 @@ ADMIN_OBJS	= Grammar.obj \
 		  DescriptorParser.obj \
 		  DescriptorBuilder.obj \
 		  DescriptorHelper.obj \
-		  FileParser.obj \
 		  FileParserI.obj \
 		  Util.obj \
 		  Internal.obj \
@@ -104,16 +82,12 @@ REGISTRY_SVR_OBJS = \
 		  $(REGISTRY_OBJS) \
 		  IceGridRegistry.obj
 
-!ifdef BUILD_UTILS
 SRCS            = $(ADMIN_OBJS:.obj=.cpp) \
 		  $(COMMON_OBJS:.obj=.cpp) \
 		  $(NODE_OBJS:.obj=.cpp) \
 		  $(REGISTRY_OBJS:.obj=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
-!else
-SRCS		= $(LIB_OBJS:.obj=.cpp)
-!endif
 
 HDIR		= $(includedir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
@@ -131,36 +105,17 @@ NLINKWITH	= $(ALINKWITH) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$
 NLINKWITH	= $(NLINKWITH) pdh.lib ws2_32.lib
 !endif
 
-!ifdef BUILD_UTILS
-
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 !if "$(CPP_COMPILER)" != "BCC2006"
 CPPFLAGS 	= $(CPPFLAGS) -Zm200
 !endif
 
-!else
-
-SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
-CPPFLAGS        = -I.. -DICE_GRID_API_EXPORTS $(CPPFLAGS)
-
-!endif
-
 !if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
-PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
 NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)
 !endif
-
-$(LIBNAME): $(DLLNAME)
-
-$(DLLNAME): $(LIB_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
-	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
-	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(ADMIN): $(ADMIN_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
@@ -207,26 +162,13 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-!ifdef BUILD_UTILS
-
 clean::
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 
 clean::
-	del /q Admin.cpp $(HDIR)\Admin.h
-	del /q Exception.cpp $(HDIR)\Exception.h
-	del /q FileParser.cpp $(HDIR)\FileParser.h
-	del /q Locator.cpp $(HDIR)\Locator.h
-	del /q Query.cpp $(HDIR)\Query.h
-	del /q Session.cpp $(HDIR)\Session.h
-	del /q Observer.cpp $(HDIR)\Observer.h
-	del /q Descriptor.cpp $(HDIR)\Descriptor.h
-	del /q UserAccountMapper.cpp $(HDIR)\UserAccountMapper.h
-	del /q Registry.cpp $(HDIR)\Registry.h
 	del /q Internal.cpp Internal.h
-	del /q $(DLLNAME:.dll=.*)
 	del /q $(ADMIN:.exe=.*)
 	del /q $(NODE_SERVER:.exe=.*)
 	del /q $(REGISTRY_SERVER:.exe=.*)
@@ -236,8 +178,6 @@ clean::
 	del /q Scanner.cpp
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
 	copy $(ADMIN) $(install_bindir)
 	copy $(NODE_SERVER) $(install_bindir)
 	copy $(REGISTRY_SERVER) $(install_bindir)
@@ -247,7 +187,6 @@ install:: all
 !if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 	copy $(ADMIN:.exe=.tds) $(install_bindir)
 	copy $(NODE_SERVER:.exe=.tds) $(install_bindir)
 	copy $(REGISTRY_SERVER:.exe=.tds) $(install_bindir)
@@ -255,21 +194,11 @@ install:: all
 !else
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 	copy $(ADMIN:.exe=.pdb) $(install_bindir)
 	copy $(NODE_SERVER:.exe=.pdb) $(install_bindir)
 	copy $(REGISTRY_SERVER:.exe=.pdb) $(install_bindir)
 
 !endif
-
-!endif
-
-!else
-
-install:: all
-
-$(EVERYTHING)::
-	@$(MAKE) -nologo /f Makefile.mak BUILD_UTILS=1 $@
 
 !endif
 

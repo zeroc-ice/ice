@@ -60,6 +60,12 @@ clean::
 	del /q build.txt
 	del /q Event.cpp Event.h
 	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	for %f in (0.db\*) do if not %f == 0.db\.gitignore del /q %f
+	for %f in (1.db\*) do if not %f == 1.db\.gitignore del /q %f
+	for %f in (2.db\*) do if not %f == 2.db\.gitignore del /q %f
 	for %f in (db2\*) do if not %f == db2\.gitignore del /q %f
+	for %f in (0.db2\*) do if not %f == 0.db2\.gitignore del /q %f
+	for %f in (1.db2\*) do if not %f == 1.db2\.gitignore del /q %f
+	for %f in (2.db2\*) do if not %f == 2.db2\.gitignore del /q %f
 
 !include .depend

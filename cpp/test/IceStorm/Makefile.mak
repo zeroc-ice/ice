@@ -14,7 +14,10 @@ top_srcdir	= ..\..
 SUBDIRS		= single \
 		  federation \
 		  federation2 \
-		  stress
+		  stress \
+		  rep1 \
+		  repstress \
+		  repgrid
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

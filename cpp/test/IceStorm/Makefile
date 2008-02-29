@@ -14,7 +14,10 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= single \
 		  federation \
 		  federation2 \
-		  stress
+		  stress \
+		  rep1 \
+		  repstress \
+		  repgrid
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
