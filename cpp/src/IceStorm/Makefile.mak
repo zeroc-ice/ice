@@ -30,8 +30,7 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 OBJS		= IceStorm.obj
 
-SERVICE_OBJS	= LoggerI.obj \
-		  NodeI.obj \
+SERVICE_OBJS	= NodeI.obj \
 		  Observers.obj \
 		  LLUMap.obj \
 		  Election.obj \

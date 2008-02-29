@@ -26,8 +26,7 @@ TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN) $(MIGRATE)
 
 OBJS		= IceStorm.o
 
-SERVICE_OBJS	= LoggerI.o \
-		  NodeI.o \
+SERVICE_OBJS	= NodeI.o \
 		  Observers.o \
 		  LLUMap.o \
 		  Election.o \

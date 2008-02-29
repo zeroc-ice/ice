@@ -15,7 +15,6 @@
 #include <IceStorm/Service.h>
 #include <IceStorm/Observers.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceStorm/LoggerI.h>
 #include <IceUtil/StringUtil.h>
 
 #include <IceStorm/NodeI.h>
@@ -167,17 +166,6 @@ IceStorm::ServiceI::start(
     }
     else
     {
-        // Add a instance/node prefix to the IceStorm logger if so
-        // installed.
-        IceStorm::LoggerIPtr logger = IceStorm::LoggerIPtr::dynamicCast(
-            communicator->getLogger());
-        if(logger)
-        {
-            ostringstream os;
-            os << id << "/" << instanceName;
-            logger->setPrefix(os.str());
-        }
-
         // Here we want to create a map of id -> election node
         // proxies.
         map<int, NodePrx> nodes;
