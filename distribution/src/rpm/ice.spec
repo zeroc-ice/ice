@@ -15,8 +15,8 @@
 %define mono 1
 %endif
 
-%define buildall 1
-%define makeopts "-j 2"
+%define buildall 0
+%define makeopts "-j2"
 
 %define core_arches %{ix86} x86_64
 
@@ -218,7 +218,7 @@ The Ice runtime for PHP.
 
 %prep
 
-%if !%{buildall}
+%if %{buildall}
 %setup -n Ice-%{version} -q
 %setup -q -n Ice-rpmbuild-%{version} -T -b 1
 %endif
@@ -560,6 +560,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/icegridnode
 %{_bindir}/icegridregistry
 %{_bindir}/icepatch2server
+%{_bindir}/icestormmigrate
 %{_libdir}/libIceStormService.so.%{version}
 %{_libdir}/libIceStormService.so.%{soversion}
 %dir %{_datadir}/Ice-%{version}
