@@ -48,9 +48,38 @@ Supported Windows versions
 --------------------------
 
 This distribution is supported on the following Windows versions:
+
  - Windows XP with Service Pack 2 (x86)
- - Windows Server 2003 Standard (x86)
- - Windows Vista (x86)
+ - Windows Server 2003 Standard (x86 & x64)
+ - Windows Vista (x86 & x64)
+
+Note that this installer does not include the Visual C++ 9.0 run time
+for 64-bit platforms. If you are installing this distribution on a
+64-bit platform without Visual Studio, you must also install the
+Visual C++ run time. You can download the "redistributable" package
+using the link below:
+
+  http://www.microsoft.com/downloads/details.aspx?FamilyID=bd2a6171-e2d6-4230-b809-9a8d7548c1b6&DisplayLang=en
+
+
+Monotonic clock
+---------------
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
+
+
+Running IceGrid and Glacier2 components as services
+---------------------------------------------------
+
+An appendix in the Ice manual provides information on installing and
+running the IceGrid registry, IceGrid node, and Glacier2 router as
+Windows services.
 
 
 Setting up Visual Studio 2008 to build Ice applications in C++
@@ -73,26 +102,6 @@ libraries, and executables.
 - Select "Executable files"
 
 - Add <Ice installation root directory>\bin
-
-
-Monotonic clock
----------------
-
-Ice uses the QueryPerformanceCounter Windows API function to measure
-time with a monotonic clock. If you are experiencing timing or
-performance issues, there are two knowledgebase articles that may be
-relevant for your system:
-
-  http://support.microsoft.com/?id=896256
-  http://support.microsoft.com/?id=895980
-
-
-Running IceGrid and Glacier2 components as services
----------------------------------------------------
-
-The WINDOWS_SERVICES.txt file included in this distribution contains
-information on how to install and run the IceGrid registry, IceGrid
-node, and Glacier2 router as Windows services.
 
 
 Setting up Visual C++ 2008 Express Edition
