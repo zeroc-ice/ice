@@ -1050,7 +1050,12 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args)
                 //
                 // Unmarshal a user exception.
                 //
-                const pair<const Ice::Byte*, const Ice::Byte*> rb(&result[0], &result[0] + result.size());
+                pair<const Ice::Byte*, const Ice::Byte*> rb(0, 0);
+                if(!result.empty())
+                {
+                    rb.first = &result[0];
+                    rb.second = &result[0] + result.size();
+                }
                 PyObjectHandle ex = unmarshalException(rb);
 
                 //
@@ -1065,7 +1070,12 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args)
                 // Unmarshal the results. If there is more than one value to be returned, then return them
                 // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
                 //
-                const pair<const Ice::Byte*, const Ice::Byte*> rb(&result[0], &result[0] + result.size());
+                pair<const Ice::Byte*, const Ice::Byte*> rb(0, 0);
+                if(!result.empty())
+                {
+                    rb.first = &result[0];
+                    rb.second = &result[0] + result.size();
+                }
                 PyObjectHandle results = unmarshalResults(rb);
                 if(!results.get())
                 {
@@ -1137,7 +1147,12 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args)
     try
     {
         checkTwowayOnly(_prx);
-        pair<const Ice::Byte*, const Ice::Byte*> pparams(&params[0], &params[0] + params.size());
+        pair<const Ice::Byte*, const Ice::Byte*> pparams(0, 0);
+        if(!params.empty())
+        {
+            pparams.first = &params[0];
+            pparams.second = &params[0] + params.size();
+        }
 
         //
         // Invoke the operation asynchronously.
@@ -1314,7 +1329,12 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args)
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
         inParams, 0, reinterpret_cast<char**>(&mem));
 #endif
-    const pair<const ::Ice::Byte*, const ::Ice::Byte*> in(mem, mem + sz);
+    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(0, 0);
+    if(sz > 0)
+    {
+        in.first = mem;
+        in.second = mem + sz;
+    }
 
     try
     {
@@ -1360,13 +1380,16 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args)
         {
             throwPythonException();
         }
-        void* buf;
-        Py_ssize_t sz;
-        if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
+        if(!out.empty())
         {
-            throwPythonException();
+            void* buf;
+            Py_ssize_t sz;
+            if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
+            {
+                throwPythonException();
+            }
+            memcpy(buf, &out[0], sz);
         }
-        memcpy(buf, &out[0], sz);
         
         if(PyTuple_SET_ITEM(result.get(), 1, ip.get()) < 0)
         {
@@ -1430,7 +1453,12 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args)
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
         inParams, 0, reinterpret_cast<char**>(&mem));
 #endif
-    const pair<const ::Ice::Byte*, const ::Ice::Byte*> in(mem, mem + sz);
+    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(0, 0);
+    if(sz > 0)
+    {
+        in.first = mem;
+        in.second = mem + sz;
+    }
 
     try
     {
@@ -1776,7 +1804,12 @@ IcePy::TypedUpcall::response(PyObject* args)
 
             Ice::ByteSeq bytes;
             os->finished(bytes);
-            pair<const Ice::Byte*, const Ice::Byte*> ob(&bytes[0], &bytes[0] + bytes.size());
+            pair<const Ice::Byte*, const Ice::Byte*> ob(0, 0);
+            if(!bytes.empty())
+            {
+                ob.first = &bytes[0];
+                ob.second = &bytes[0] + bytes.size();
+            }
 
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
             _callback->ice_response(true, ob);
@@ -1839,7 +1872,12 @@ IcePy::TypedUpcall::exception(PyException& ex)
 
                     Ice::ByteSeq bytes;
                     os->finished(bytes);
-                    pair<const Ice::Byte*, const Ice::Byte*> ob(&bytes[0], &bytes[0] + bytes.size());
+                    pair<const Ice::Byte*, const Ice::Byte*> ob(0, 0);
+                    if(!bytes.empty())
+                    {
+                        ob.first = &bytes[0];
+                        ob.second = &bytes[0] + bytes.size();
+                    }
 
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
                     _callback->ice_response(false, ob);
