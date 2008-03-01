@@ -55,6 +55,17 @@ The Python interpreter is readily available on Windows platforms. You
 can build it yourself using Microsoft Visual C++, or obtain a binary
 distribution from the Python web site (http://www.python.org).
 
+Note that the binary distribution for Python 2.5.x available from
+www.python.org is compiled with Visual C++ 7.1, which is not a
+compiler that Ice supports. Although the Python developers do not
+support the use of Python extensions that are compiled with other
+versions of Visual C++, we have tested the Ice extension built with
+Visual C++ 8.0 and experienced no issues in combination with Python's
+binary distribution. It should also be possible to use the Ice
+extension when compiled with Visual C++ 6.0, however the extension
+cannot be compiled with Visual C++ 9.0. The optimal solution is to
+compile both Python and Ice using Visual C++ 8.0.
+
 Follow these steps to build the Ice extension for Python:
 
 1) Open a command prompt that supports command-line compilation with
