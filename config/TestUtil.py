@@ -617,14 +617,7 @@ class InvalidSelectorString(Exception):
 
 sslConfigTree = { 
         "cpp" : { 
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL  --Ice.Default.Protocol=ssl --IceSSL.DefaultDir=%(certsdir)s " +  
-            "--IceSSL.CertAuthFile=cacert.pem",
-            "client" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem",
-            "server" : " --IceSSL.CertFile=s_rsa1024_pub.pem --IceSSL.KeyFile=s_rsa1024_priv.pem",
-            "colloc" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem"
-            },
-        "rb" : { 
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL  --Ice.Default.Protocol=ssl --IceSSL.DefaultDir=%(certsdir)s " +  
+            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --Ice.Default.Protocol=ssl --IceSSL.DefaultDir=%(certsdir)s " +  
             "--IceSSL.CertAuthFile=cacert.pem",
             "client" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem",
             "server" : " --IceSSL.CertFile=s_rsa1024_pub.pem --IceSSL.KeyFile=s_rsa1024_priv.pem",
@@ -645,6 +638,8 @@ sslConfigTree = {
             "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem --IceSSL.CheckCertName=0"
             },
         }
+sslConfigTree["py"] = sslConfigTree["cpp"]
+sslConfigTree["rb"] = sslConfigTree["cpp"]
 
 def getDefaultMapping(currentDir = ""):
     """Try and guess the language mapping out of the current path"""

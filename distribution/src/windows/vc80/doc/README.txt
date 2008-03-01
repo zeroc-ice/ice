@@ -27,7 +27,7 @@ development tools to build Ice applications:
  - in Visual Basic, using Visual Studio 2005 or Visual Basic 2005 
    Express Edition
  - in Java, using Java 2, Java 5 or Java 6
- - in Python, using Python 2.5
+ - in Python, using Python 2.5.2
 
 If you want to develop Ice applications in Ruby or in PHP, or with
 another C++ compiler, please download the appropriate Ice binary 
@@ -49,9 +49,57 @@ Supported Windows versions
 --------------------------
 
 This distribution is supported on the following Windows versions:
+
  - Windows XP with Service Pack 2 (x86)
- - Windows Server 2003 Standard (x86)
- - Windows Vista (x86)
+ - Windows Server 2003 Standard (x86 and x64)
+ - Windows Vista (x86 and x64)
+
+Note that this installer does not include the Visual C++ 8.0 run time
+for 64-bit platforms. If you are installing this distribution on a
+64-bit platform without Visual Studio, you must also install the
+Visual C++ run time. You can download the "redistributable" package
+using the link below:
+
+  http://www.microsoft.com/downloads/details.aspx?familyid=90548130-4468-4bbc-9673-d6acabd5d13b&displaylang=en
+
+
+Monotonic clock
+---------------
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
+
+
+Running IceGrid and Glacier2 components as services
+---------------------------------------------------
+
+An appendix in the Ice manual provides information on installing and
+running the IceGrid registry, IceGrid node, and Glacier2 router as
+Windows services.
+
+
+Python Compatibility
+--------------------
+
+The binary distributions of Python 2.5.x for Windows available from
+www.python.org are compiled with Visual C++ 7.1, and the Ice extension
+for Python included in this installer is compiled with Visual C++ 8.0.
+Python's developers do not support extensions built with another
+compiler, however we have tested the Ice extension extensively and
+have not encountered any compatibility issues.
+
+If you distribute an Ice for Python application, you must include the
+DLLs for the extension, the Ice run time, and the Visual C++ 8.0 run
+time. An appendix in the Ice manual provides more information on
+distributing Ice applications. The link below describes the process
+of deploying the Visual C++ 8.0 run time:
+
+http://msdn2.microsoft.com/en-us/library/ms235291(VS.80).aspx
 
 
 Setting up Visual Studio 2005 to build Ice applications in C++
@@ -74,26 +122,6 @@ libraries, and executables.
 - Select "Executable files"
 
 - Add <Ice installation root directory>\bin
-
-
-Monotonic clock
----------------
-
-Ice uses the QueryPerformanceCounter Windows API function to measure
-time with a monotonic clock. If you are experiencing timing or
-performance issues, there are two knowledgebase articles that may be
-relevant for your system:
-
-  http://support.microsoft.com/?id=896256
-  http://support.microsoft.com/?id=895980
-
-
-Running IceGrid and Glacier2 components as services
----------------------------------------------------
-
-The WINDOWS_SERVICES.txt file included in this distribution contains
-information on how to install and run the IceGrid registry, IceGrid
-node, and Glacier2 router as Windows services.
 
 
 Setting up Visual C++ 2005 Express Edition
