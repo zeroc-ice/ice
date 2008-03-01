@@ -28,7 +28,5 @@ TestUtil.processCmdLine()
 
 name = os.path.join("Ice", "blobject")
 
-
-print "tests with regular server."
 TestUtil.clientServerTest(name)
 sys.exit(0)

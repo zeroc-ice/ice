@@ -144,7 +144,7 @@ class ServantLocatorI(Ice.ServantLocator):
 
 class RouterI(Ice.Router):
     def __init__(self, communicator, sync):
-        self._adapter = communicator.createObjectAdapterWithEndpoints("forward", "tcp -h 127.0.0.1")
+        self._adapter = communicator.createObjectAdapterWithEndpoints("forward", "default -h 127.0.0.1")
         if sync:
             self._blobject = BlobjectI()
         else:
