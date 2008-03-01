@@ -16,7 +16,7 @@
 %endif
 
 %define buildall 0
-%define makeopts "-j2"
+%define makeopts -j2
 
 %define core_arches %{ix86} x86_64
 
@@ -51,12 +51,11 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define dotnetversion 3.3.0
 %define dotnetmainversion 3.3
 
-BuildRequires: python >= 2.3.4, python-devel >= 2.3.4
-BuildRequires: expat >= 1.95.7
 BuildRequires: openssl >= 0.9.7a, openssl-devel >= 0.9.7a
 BuildRequires: db46 >= 4.6.21, db46-devel >= 4.6.21, db46-java >= 4.6.21
 BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.6.4
+BuildRequires: j2sdk >= 1.5.0
 
 %if %{ruby}
 BuildRequires: ruby, ruby-devel
@@ -70,15 +69,18 @@ BuildRequires: mono-core >= 1.2.6
 BuildRequires: nptl-devel
 BuildRequires: bzip2-devel >= 1.0.2
 BuildRequires: expat-devel >= 1.95.7
-BuildRequires: php >= 5.1.4, php-devel >= 5.1.4
+BuildRequires: php-devel >= 5.1.4
+BuildRequires: python-devel >= 2.3.4
 %endif
 %if "%{dist}" == ".rhel5"
 BuildRequires: bzip2-devel >= 1.0.3
 BuildRequires: expat-devel >= 1.95.8
-BuildRequires: php >= 5.1.6, php-devel >= 5.1.6
+BuildRequires: php-devel >= 5.1.6
+BuildRequires: python-devel >= 2.4.3
 %endif
 %if "%{dist}" == ".sles10"
-BuildRequires: php5 >= 5.1.2, php5-devel >= 5.1.2
+BuildRequires: php5-devel >= 5.1.2
+BuildRequires: python-devel >= 2.4.2
 %endif
 
 %description
@@ -99,7 +101,7 @@ firewall solution, and much more.
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db46-java
+Requires: ice = %{version}-%{release}, jre >= 1.5.0, db46-java,
 %description java
 The Ice runtime for Java
 
@@ -127,7 +129,7 @@ The Ice runtime for C++
 %package utils
 Summary: Ice utilities and admin tools.
 Group: Applications/System
-Requires: ice-libs = %{version}-%{release}
+Requires: ice-libs = %{version}-%{release}, jre > = 1.5.0
 %description utils
 Admin tools to manage Ice servers (IceGrid, IceStorm, IceBox etc.),
 plus various Ice-related utilities.
@@ -146,13 +148,8 @@ Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
 %description servers
-%if %{mono}
 Ice servers: glacier2router, icebox, icegridnode, icegridregistry, 
 icebox, iceboxnet, icepatch2server and related files.
-%else
-Ice servers: glacier2router, icebox, icegridnode, icegridregistry, 
-icebox, icepatch2server and related files.
-%endif
 
 %package c++-devel
 Summary: Tools, libraries and headers for developing Ice applications in C++
@@ -172,7 +169,7 @@ Tools for developing Ice applications in Java.
 %package csharp-devel
 Summary: Tools for developing Ice applications in C#
 Group: Development/Tools
-Requires: ice-dotnet = %{version}-%{release}, pkgconfig
+Requires: ice-dotnet = %{version}-%{release}, ice-libs = %{version}-%{release}, pkgconfig
 %description csharp-devel
 Tools for developing Ice applications in C#.
 %endif
@@ -196,7 +193,7 @@ Tools for developing Ice applications in Ruby.
 %package python
 Summary: The Ice runtime for Python
 Group: System Environment/Libraries
-Requires: ice-libs = %{version}-%{release}, python >= 2.3.4
+Requires: ice-libs = %{version}-%{release}
 %description python
 The Ice runtime for Python.
 
@@ -253,20 +250,24 @@ export CLASSPATH=`build-classpath db-4.6.21 jgoodies-forms-1.1.0 jgoodies-looks-
 JGOODIES_FORMS=`find-jar jgoodies-forms-1.1.0`
 JGOODIES_LOOKS=`find-jar jgoodies-looks-2.1.4`
 
-ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
+#ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
 
 %ifarch noarch
 ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
+%endif
+
+# 
+# We build mono all the time since we include iceboxnet.exe in a non-arch package
+#
 %if %{mono}
 cd $RPM_BUILD_DIR/Ice-%{version}/cs/src
 make %{makeopts} OPTIMIZE=yes
 %endif
-%endif
+
 
 %install
 
 rm -rf $RPM_BUILD_ROOT
-
 
 #
 # Arch-specific packages
@@ -310,7 +311,7 @@ mv $RPM_BUILD_ROOT/lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
 
 %if "%{dist}" == ".sles10"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
-mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
 mv $RPM_BUILD_ROOT/lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
 %endif
@@ -324,7 +325,7 @@ make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 mkdir -p $RPM_BUILD_ROOT%{ruby_sitearch}
 mv $RPM_BUILD_ROOT/ruby/* $RPM_BUILD_ROOT%{ruby_sitearch}
 %else
-rm -f $RPM_BUILD_ROOT/bin/slice2rb
+rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
 %endif
 
 #
@@ -338,6 +339,12 @@ mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
 cp -Rp $RPM_BUILD_DIR/Ice-%{version}/java/resources/IceGridAdmin $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
 
 %if %{mono}
+
+#
+# iceboxnet.exe
+#
+cp -p $RPM_BUILD_DIR/Ice-%{version}/cs/bin/iceboxnet.exe $RPM_BUILD_ROOT%{_bindir}/iceboxnet.exe
+
 #
 # .NET spec files (for csharp-devel)
 #
@@ -377,6 +384,7 @@ rm -f $RPM_BUILD_ROOT/ICE_LICENSE
 rm -f $RPM_BUILD_ROOT/LICENSE
 rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 
 #temporary
 rm -f $RPM_BUILD_ROOT%{_bindir}/ImportKey.class
@@ -416,12 +424,19 @@ mv $RPM_BUILD_ROOT/lib/java2/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2-%{vers
 ln -s Ice-java2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2.jar
 
 
+%if %{mono}
+#
+# DotNet
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/cs
+make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_libdir} install
+%endif
+
 #
 # License files
 #
 mv $RPM_BUILD_ROOT/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
-
 
 #
 # Slice  files
@@ -429,24 +444,20 @@ mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 
-%if %{mono}
-#
-# DotNet
-#
-cd $RPM_BUILD_DIR/Ice-%{version}/cs
-make NOGAC=yes prefix=$RPM_BUILD_ROOT install
-%endif
-%endif
-
 #
 # Cleanup extra files
 #
 
 rm -fr $RPM_BUILD_ROOT/help
 rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar
+rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
+
+%endif
+
 
 #temporary
 rm -fr $RPM_BUILD_ROOT/ant
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -459,7 +470,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/slice
-%dir %{_defaultdocdir}/Ice-%{version}
+# %dir %{_defaultdocdir}/Ice-%{version}
 %{_defaultdocdir}/Ice-%{version}
 
 %files java
@@ -567,18 +578,22 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/Ice-%{version}/templates.xml
 %attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicegrid.py*
 %attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicestorm.py*
-%{_initrddir}/icegridregistry
-%{_initrddir}/icegridnode
-%{_initrddir}/glacier2router
+%attr(755,root,root) %{_initrddir}/icegridregistry
+%attr(755,root,root) %{_initrddir}/icegridnode
+%attr(755,root,root) %{_initrddir}/glacier2router
 %config(noreplace) %{_sysconfdir}/icegridregistry.conf
 %config(noreplace) %{_sysconfdir}/icegridnode.conf
 %config(noreplace) %{_sysconfdir}/glacier2router.conf
 
 %pre servers
-getent group ice > /dev/null || groupadd -r iceu
+getent group ice > /dev/null || groupadd -r ice
 getent passwd ice > /dev/null || \
-        useradd -r -g ice -d %{_localstatedir}/lib/ice \
-        -s /sbin/nologin -c "Ice Service account" ice
+       useradd -r -g ice -d %{_localstatedir}/lib/ice \
+       -s /sbin/nologin -c "Ice Service account" ice
+test -d %{_localstatedir}/lib/ice/icegrid/registry || \
+       mkdir -p %{_localstatedir}/lib/ice/icegrid/registry; chown -R ice.ice %{_localstatedir}/lib/ice
+test -d %{_localstatedir}/lib/ice/icegrid/node1 || \
+       mkdir -p %{_localstatedir}/lib/ice/icegrid/node1; chown -R ice.ice %{_localstatedir}/lib/ice
 exit 0
 
 %post servers
@@ -682,7 +697,7 @@ fi
 
 %if "%{dist}" == ".sles10"
 %{_libdir}/php5/extensions
-%config(noreplace) %{_sysconfdir}/php.d/ice.ini
+%config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif
 %endif
 
