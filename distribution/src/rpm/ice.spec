@@ -55,8 +55,8 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define looksversion 2.1.4
 %define dbversion 4.6.21
 
-BuildRequires: openssl >= 0.9.7a, openssl-devel >= 0.9.7a
-BuildRequires: db46 >= 4.6.21, db46-devel >= 4.6.21, db46-java >= 4.6.21
+BuildRequires: openssl-devel >= 0.9.7a
+BuildRequires: db46-devel >= 4.6.21, db46-java >= 4.6.21
 BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.6.4
 BuildRequires: j2sdk >= 1.5.0
@@ -67,7 +67,7 @@ BuildRequires: j2sdk >= 1.5.0
 #
 
 %if %{ruby}
-BuildRequires: ruby, ruby-devel
+BuildRequires: ruby-devel
 %endif
 
 %if %{mono}
@@ -112,7 +112,7 @@ Summary: The Ice runtime for Java
 Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, jre >= 1.5.0, db46-java,
 %description java
-The Ice runtime for Java
+The Ice runtime for Java.
 
 %if %{mono}
 %package dotnet
@@ -151,7 +151,12 @@ Requires: ice-utils = %{version}-%{release}
 Requires: ice-dotnet = %{version}-%{release}
 %endif
 # Requirements for the users
+%if "%{dist}" == ".sles10"
+Requires(pre): pwdutils
+%endif
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
 Requires(pre): shadow-utils
+%endif
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
@@ -438,7 +443,7 @@ ln -s Ice-java2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2.jar
 # DotNet
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cs
-make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_libdir} install
+make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 %endif
 
 #
@@ -479,7 +484,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/slice
-# %dir %{_defaultdocdir}/Ice-%{version}
 %{_defaultdocdir}/Ice-%{version}
 
 %files java
@@ -492,27 +496,20 @@ rm -rf $RPM_BUILD_ROOT
 %if %{mono}
 %files dotnet
 %defattr(-, root, root, -)
-%dir %{_libdir}/mono/gac/glacier2cs
-%{_libdir}/mono/gac/glacier2cs/%{version}.*/
-%{_libdir}/mono/glacier2cs/
-%dir %{_libdir}/mono/gac/icecs
-%{_libdir}/mono/gac/icecs/%{version}.*/
-%{_libdir}/mono/icecs/
-%dir %{_libdir}/mono/gac/iceboxcs
-%{_libdir}/mono/gac/iceboxcs/%{version}.*/
-%{_libdir}/mono/iceboxcs/
-%dir %{_libdir}/mono/gac/icegridcs
-%{_libdir}/mono/gac/icegridcs/%{version}.*/
-%{_libdir}/mono/icegridcs/
-%dir %{_libdir}/mono/gac/icepatch2cs
-%{_libdir}/mono/gac/icepatch2cs/%{version}.*/
-%{_libdir}/mono/icepatch2cs/
-%dir %{_libdir}/mono/gac/icestormcs
-%{_libdir}/mono/gac/icestormcs/%{version}.*/
-%{_libdir}/mono/icestormcs/
+%dir %{_prefix}/lib/mono/gac/glacier2cs
+%{_prefix}/lib/mono/gac/glacier2cs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icecs
+%{_prefix}/lib/mono/gac/icecs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/iceboxcs
+%{_prefix}/lib/mono/gac/iceboxcs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icegridcs
+%{_prefix}/lib/mono/gac/icegridcs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icepatch2cs
+%{_prefix}/lib/mono/gac/icepatch2cs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icestormcs
+%{_prefix}/lib/mono/gac/icestormcs/%{version}.*/
 %endif
 %endif
-
 
 #
 # arch-specific packages
@@ -668,6 +665,12 @@ fi
 %{_libdir}/pkgconfig/icegridcs.pc
 %{_libdir}/pkgconfig/icepatch2cs.pc
 %{_libdir}/pkgconfig/icestormcs.pc
+%{_prefix}/lib/mono/glacier2cs/
+%{_prefix}/lib/mono/icecs/
+%{_prefix}/lib/mono/iceboxcs/
+%{_prefix}/lib/mono/icegridcs/
+%{_prefix}/lib/mono/icepatch2cs/
+%{_prefix}/lib/mono/icestormcs/
 %endif
 
 %files java-devel
@@ -712,16 +715,30 @@ fi
 
 
 %changelog
-* Wed Feb 27 2008 Bernard Normier
-- Updates for Ice 3.3.0 release
 
-* Fri Jul 27 2007 Bernard Normier
+* Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3.0-1
+- Updates for Ice 3.3.0 release:
+ - Split main ice rpm into ice noarch (license and Slice files), ice-libs 
+   (C++ runtime libraries), ice-utils (admin tools & utilities), ice-servers
+   (icegridregistry, icebox etc.). This way, ice-libs 3.3.0 can coexist with
+    ice-libs 3.4.0. The same is true for ice-dotnet, and to a lesser extent 
+    other ice runtime packages
+- Many updates derived from Mary Ellen Foster's Fedora RPM spec for Ice.
+ - The Ice jar files are now installed in %{_javalibdir}, with 
+   jpackage-compliant names
+ - New icegridgui shell script to launch the IceGrid GUI
+ - The .NET files are now packaged using gacutil with the -root option.
+ - ice-servers creates a new user (ice) and installs three init.d services:
+   icegridregistry, icegridnode and glacier2router.
+ - Python, Ruby and PHP files are now installed in the correct directories.
+
+* Fri Jul 27 2007 Bernard Normier <bernard@zeroc.com> 3.2.1-1
 - Updated for Ice 3.2.1 release
 
-* Wed Jun 13 2007 Bernard Normier
+* Wed Jun 13 2007 Bernard Normier <bernard@zeroc.com>
 - Added patch with new IceGrid.Node.AllowRunningServersAsRoot property.
 
-* Fri Dec 6 2006 ZeroC Staff
+* Fri Dec 6 2006 ZeroC Staff <support@zeroc.com>
 - See source distributions or the ZeroC website for more information
   about the changes in this release
 
