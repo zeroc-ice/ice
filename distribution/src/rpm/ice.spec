@@ -15,7 +15,7 @@
 %define mono 1
 %endif
 
-%define buildall 0
+%define buildall 1
 %define makeopts -j2
 
 %define core_arches %{ix86} x86_64
@@ -51,11 +51,20 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define dotnetversion 3.3.0
 %define dotnetmainversion 3.3
 
+%define formsversion 1.2.0
+%define looksversion 2.1.4
+%define dbversion 4.6.21
+
 BuildRequires: openssl >= 0.9.7a, openssl-devel >= 0.9.7a
 BuildRequires: db46 >= 4.6.21, db46-devel >= 4.6.21, db46-java >= 4.6.21
 BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.6.4
 BuildRequires: j2sdk >= 1.5.0
+
+#
+# We also need a recent version of ant, %{_javadir}/jgoodies-forms-%{formsversion}.jar,
+#  %{_javadir}/jgoodies-forms-%{looksversion}.jar and  %{_javadir}/proguard.jar
+#
 
 %if %{ruby}
 BuildRequires: ruby, ruby-devel
@@ -246,11 +255,11 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 # We build java5 all the time, since we include the GUI in a non-noarch package.
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-export CLASSPATH=`build-classpath db-4.6.21 jgoodies-forms-1.1.0 jgoodies-looks-2.1.4 proguard`
-JGOODIES_FORMS=`find-jar jgoodies-forms-1.1.0`
-JGOODIES_LOOKS=`find-jar jgoodies-looks-2.1.4`
+export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
+JGOODIES_FORMS=`find-jar jgoodies-forms-%{formsversion}`
+JGOODIES_LOOKS=`find-jar jgoodies-looks-%{looksversion}`
 
-#ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
+ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
 
 %ifarch noarch
 ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
