@@ -15,7 +15,7 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
 
     public final void __invoke(Ice.ObjectPrx prx)
     {
-        __acquire(prx);
+        __acquireCallback(prx);
         try
         {
             //
@@ -37,7 +37,7 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
         }
         catch(Ice.LocalException ex)
         {
-            __release(ex);
+            __releaseCallback(ex);
         }
     }
 }

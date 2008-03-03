@@ -4565,7 +4565,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << sp << nl << "public void invoke__" << spar << "Ice.ObjectPrx prx__"
              << paramsInvoke << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
-        _out << nl << "acquire__(prx__);";
+        _out << nl << "acquireCallback__(prx__);";
         _out << nl << "try";
         _out << sb;
         if(p->returnsData())
@@ -4587,7 +4587,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";
         _out << sb;
-        _out << nl << "release__(ex__);";
+        _out << nl << "releaseCallback__(ex__);";
         _out << eb;
         _out << eb;
 
@@ -4696,7 +4696,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "return;";
         _out << eb;
         _out << nl << "ice_response" << spar << args << epar << ';';
-        _out << nl << "release__();";
+        _out << nl << "releaseCallback__();";
         _out << eb;
         _out << eb;
     }

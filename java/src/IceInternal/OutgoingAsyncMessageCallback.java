@@ -34,7 +34,7 @@ abstract public class OutgoingAsyncMessageCallback
         }
         finally
         {
-            __release();
+            __releaseCallback();
         }
     }
 
@@ -47,7 +47,7 @@ abstract public class OutgoingAsyncMessageCallback
     }
 
     protected void
-    __acquire(Ice.ObjectPrx proxy)
+    __acquireCallback(Ice.ObjectPrx proxy)
     {
         synchronized(__monitor)
         {
@@ -74,7 +74,7 @@ abstract public class OutgoingAsyncMessageCallback
     }
 
     protected void
-    __release(final Ice.LocalException ex)
+    __releaseCallback(final Ice.LocalException ex)
     {
         synchronized(__monitor)
         {
@@ -101,14 +101,14 @@ abstract public class OutgoingAsyncMessageCallback
             }
             catch(Ice.CommunicatorDestroyedException exc)
             {
-                __release();
+                __releaseCallback();
                 throw exc; // CommunicatorDestroyedException is the only exception that can propagate directly.
             }
         }
     }
 
     protected void
-    __release()
+    __releaseCallback()
     {
         synchronized(__monitor)
         {
