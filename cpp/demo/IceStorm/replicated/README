@@ -1,5 +1,5 @@
-This demo demonstrates how to configure and deploy IceStorm in a
-replicated fashion using IceGrid replica groups.
+This demo demonstrates how to configure and deploy HA IceStorm using
+IceGrid.
 
 To run the demo, start the IceGrid service:
 
@@ -19,21 +19,13 @@ While the publisher continues to run, "tick" messages should be
 displayed in the subscriber window.
 
 The IceGrid application described in `application.xml' deploys three
-IceStorm service instances. The three IceStorm service instances share
-the same instance name and their object adapters are configured to be
-members of IceGrid replica groups.
+IceStorm service replicas. The IceStorm topic manager must be members
+of a replica group and, if publishing is to be replicated, the
+publisher endpoints must be part of another replica group. The node
+endpoints, used for election of the coordinator, must not be members
+of any replica group.
 
-When the subscriber starts, it retrieves all the topic manager object
-replicas. It then retrieves (or creates if it doesn't already exist)
-the topic named `time' on each topic manager. Finally, it subscribes
-to the `time' topic of each IceStorm service instance.
-
-The publisher just retrieves the publisher proxy of the `time' topic
-from a randomly selected IceStorm service instance. This publisher
-proxy is configured to use per-request load balancing so that each
-invocation is sent to a random replica.
-
-Note that the subscriptions are not persistent and the subscriber
-makes no attempt to re-establish dropped subscriptions. So if an
-IceStorm service instance is restarted, its subscriptions are lost and
-need to be re-established by restarting the subscribers.
+Other than configuration, the subscribers and publishers do not have
+to do anything special to take advantage of the replication. The
+subscriber and publisher are identical to those contained in the clock
+demo. See ../clock/README for instructions on running them.

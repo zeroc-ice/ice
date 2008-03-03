@@ -19,7 +19,7 @@ $ publisher
 While the publisher continues to run, "tick" messages should be
 displayed in the subscriber window.
 
-The subscribers and publishers do not have to do anything special to
-take advantage of the replication. The subscriber and publisher are
-identical to the publisher and subscriber in the clock directory. See
-../clock/README for instructions on running them.
+Other than configuration, the subscribers and publishers do not have
+to do anything special to take advantage of the replication. The
+subscriber and publisher are identical to those contained in the clock
+demo. See ../clock/README for instructions on running them.

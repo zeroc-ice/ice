@@ -47,14 +47,6 @@ IceStorm.Trace.Topic=1
 IceStorm.Trace.Subscriber=1
 
 #
-# Flush Tracing (for batch mode transfer flushing)
-#
-# 0 = no tracing
-# 1 = trace activity of flusher thread
-#
-IceStorm.Trace.Flush=1
-
-#
 # Amount of time in milliseconds between flushes for batch mode
 # transfer. The minimum allowable value is 100ms.
 #

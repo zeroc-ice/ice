@@ -84,19 +84,11 @@ Publisher::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    IceStorm::TopicManagerPrx manager;
-    try
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+        communicator()->propertyToProxy("TopicManager.Proxy"));
+    if(!manager)
     {
-        manager = IceStorm::TopicManagerPrx::checkedCast(communicator()->stringToProxy("DemoIceStorm/TopicManager"));
-        if(!manager)
-        {
-            cerr << appName() << ": invalid proxy" << endl;
-            return EXIT_FAILURE;
-        }
-    }
-    catch(const Ice::NotRegisteredException&)
-    {
-        cerr << appName() << ": no topic manager found, make sure application was deployed." << endl;
+        cerr << appName() << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
 

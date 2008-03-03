@@ -42,6 +42,7 @@ demos = [
     "IceStorm/clock",
     "IceStorm/counter",
     "IceStorm/replicated",
+    "IceStorm/replicated2",
     "IceGrid/simple",
     "IceGrid/allocate",
     "IceGrid/sessionActivation",
