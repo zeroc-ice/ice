@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC71, VC80, VC80_EXPRESS, VC90, BCC2006 
+# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC80

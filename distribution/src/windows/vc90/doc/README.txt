@@ -4,11 +4,11 @@ The Internet Communications Engine
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
+object-oriented specification language, easy to use C++, .NET, Java,
+Python, Ruby, and PHP mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
 
 Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
@@ -28,7 +28,7 @@ development tools to build Ice applications:
    Express Edition
  - in Java, using Java 5 or Java 6
 
-If you want to develop Ice applications in Ruby or in PHP, or with
+If you want to develop Ice applications in Python, Ruby or PHP, or with
 another C++ compiler, please download the appropriate Ice binary 
 distribution from the ZeroC web site at
 
@@ -52,14 +52,6 @@ This distribution is supported on the following Windows versions:
  - Windows XP with Service Pack 2 (x86)
  - Windows Server 2003 Standard (x86 & x64)
  - Windows Vista (x86 & x64)
-
-Note that this installer does not include the Visual C++ 9.0 run time
-for 64-bit platforms. If you are installing this distribution on a
-64-bit platform without Visual Studio, you must also install the
-Visual C++ run time. You can download the "redistributable" package
-using the link below:
-
-  http://www.microsoft.com/downloads/details.aspx?FamilyID=bd2a6171-e2d6-4230-b809-9a8d7548c1b6&DisplayLang=en
 
 
 Monotonic clock
@@ -97,11 +89,19 @@ libraries, and executables.
 
 - Select "Library files"
 
-- Add <Ice installation root directory>\lib
+- For x86 libraries add <Ice installation root directory>\lib
+
+  or
+
+  For x64 libraries add <Ice installation root directory>\lib\x64
 
 - Select "Executable files"
 
-- Add <Ice installation root directory>\bin
+- For x86 binaries add <Ice installation root directory>\bin
+
+  or
+
+  For x64 binaries add <Ice installation root directory>\bin\x64
 
 
 Setting up Visual C++ 2008 Express Edition
@@ -112,11 +112,11 @@ Visual C++ 2008 Express is available for download from:
   http://msdn.microsoft.com/vstudio/express/visualc/
 
 In addition to the steps listed above for setting up Visual Studio
-2008, users of Visual C++ 2008 Express Edition must also follow the
-instructions at the link below for installing and configuring the
-Platform SDK:
+2008, users of Visual C++ 2008 Express Edition must also install
+the Platform SDK in order to obtain the Microsoft Message Compiler
+(MC.EXE). The Platform SDK is available at the following link:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=F26B1AA4-741A-433A-9BE5-FA919850BDBF&displaylang=en
 
 
 Building and running the C++ demos
@@ -273,31 +273,6 @@ java Client
 
 Some demo directories contain README files if additional requirements
 are necessary.
-
-
-Running the Python demos
-------------------------
-
-The Python demos are in the demopy directory.
-
-You need Python 2.5 to run the demos. A binary installer for Python
-can be downloaded from:
-
-  http://www.python.org/download
-
-You also need to add the Ice bin directory to your PATH, for example:
-
-set PATH=<Ice installation root directory>\bin;%PATH%
-
-Finally, set PYTHONPATH so that the Python interpreter is able to load
-the Ice extension:
-
-set PYTHONPATH=<Ice installation root directory>\python
-
-To run a demo, open a Command Prompt, change to the desired demo
-directory, and type 'python Server.py' to start the server. In a
-separate Command Prompt window, type 'python Client.py' to run the
-client.
 
 
 Binary compatibility

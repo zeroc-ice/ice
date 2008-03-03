@@ -25,7 +25,7 @@ SUBDIRS		= minimal \
 		  async \
 		  multicast
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(CPP_COMPILER)" != "VC80_EXPRESS" &&  "$(CPP_COMPILER)" != "VC90_EXPRESS"
 SUBDIRS		= $(SUBDIRS) MFC
 !endif
 

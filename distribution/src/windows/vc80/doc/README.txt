@@ -4,11 +4,11 @@ The Internet Communications Engine
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
+object-oriented specification language, easy to use C++, .NET, Java,
+Python, Ruby, and PHP mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport 
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
 
 Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
@@ -26,7 +26,7 @@ development tools to build Ice applications:
  - in C#, using Visual Studio 2005 or Visual C# 2005 Express Edition
  - in Visual Basic, using Visual Studio 2005 or Visual Basic 2005 
    Express Edition
- - in Java, using Java 2, Java 5 or Java 6
+ - in Java, using Java 5 or Java 6
  - in Python, using Python 2.5.2
 
 If you want to develop Ice applications in Ruby or in PHP, or with
@@ -53,14 +53,6 @@ This distribution is supported on the following Windows versions:
  - Windows XP with Service Pack 2 (x86)
  - Windows Server 2003 Standard (x86 and x64)
  - Windows Vista (x86 and x64)
-
-Note that this installer does not include the Visual C++ 8.0 run time
-for 64-bit platforms. If you are installing this distribution on a
-64-bit platform without Visual Studio, you must also install the
-Visual C++ run time. You can download the "redistributable" package
-using the link below:
-
-  http://www.microsoft.com/downloads/details.aspx?familyid=90548130-4468-4bbc-9673-d6acabd5d13b&displaylang=en
 
 
 Monotonic clock
@@ -117,11 +109,19 @@ libraries, and executables.
 
 - Select "Library files"
 
-- Add <Ice installation root directory>\lib
+- For x86 libraries add <Ice installation root directory>\lib
+
+  or
+
+  For x64 libraries add <Ice installation root directory>\lib\x64
 
 - Select "Executable files"
 
-- Add <Ice installation root directory>\bin
+- For x86 binaries add <Ice installation root directory>\bin
+
+  or
+
+  For x64 binaries add <Ice installation root directory>\bin\x64
 
 
 Setting up Visual C++ 2005 Express Edition
@@ -129,14 +129,14 @@ Setting up Visual C++ 2005 Express Edition
 
 Visual C++ 2005 Express is available for download from:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/
+  http://www.microsoft.com/express/2005/
 
 In addition to the steps listed above for setting up Visual Studio
 2005, users of Visual C++ 2005 Express Edition must also follow the
 instructions at the link below for installing and configuring the
 Platform SDK:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+  http://msdn2.microsoft.com/en-us/express/aa700755.aspx
 
 
 Building and running the C++ demos
