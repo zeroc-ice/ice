@@ -48,14 +48,14 @@ public:
 
 protected:
 
-    void __acquire(const Ice::ObjectPrx&);
-    void __release(const Ice::LocalException&);
-    void __release()
+    void __acquireCallback(const Ice::ObjectPrx&);
+    void __releaseCallback(const Ice::LocalException&);
+    void __releaseCallback()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(__monitor);
-        __releaseNoSync();
+        __releaseCallbackNoSync();
     }
-    void __releaseNoSync();
+    void __releaseCallbackNoSync();
 
     void __warning(const std::exception&) const;
     void __warning() const;

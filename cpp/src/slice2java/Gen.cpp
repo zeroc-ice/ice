@@ -5070,7 +5070,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << sp << nl << "public final void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
             << paramsInvoke << contextParam << epar;
         out << sb;
-        out << nl << "__acquire(__prx);";
+        out << nl << "__acquireCallback(__prx);";
         out << nl << "try";
         out << sb;
         if(p->returnsData())
@@ -5095,7 +5095,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "__release(__ex);";
+        out << nl << "__releaseCallback(__ex);";
         out << eb;
         out << eb;
 
@@ -5205,7 +5205,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << eb;
             out << nl << "finally";
             out << sb;
-            out << nl << "__release();";
+            out << nl << "__releaseCallback();";
             out << eb;
             out << nl << "return;";
             out << eb;
@@ -5216,7 +5216,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << nl << "return;";
         out << eb;
         out << nl << "ice_response" << spar << args << epar << ';';
-        out << nl << "__release();";
+        out << nl << "__releaseCallback();";
         out << eb;
         out << eb;
 

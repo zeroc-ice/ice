@@ -14,7 +14,7 @@ public abstract class BatchOutgoingAsync extends OutgoingAsyncMessageCallback
     public final void
     __sent(final Ice.ConnectionI connection)
     {
-        __release();
+        __releaseCallback();
     }
     
     public final void
