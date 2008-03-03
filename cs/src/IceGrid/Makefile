@@ -39,16 +39,7 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,glacier2cs) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
-ifeq ($(NOGAC),)
-
 install:: all
-	$(GACUTIL) -i $(bindir)/$(LIBNAME)
-
-else
-
-install:: all
-	$(call installlibrary,$(bindir)/icegridcs.dll,$(install_bindir))
-
-endif
+	$(call installassembly,$(TARGETS),$(PKG))
 
 include .depend

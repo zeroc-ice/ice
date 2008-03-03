@@ -12,7 +12,6 @@ top_srcdir	= ../..
 PKG		= iceboxcs
 LIBNAME		= $(bindir)/$(PKG).dll
 ICEBOXNET	= $(bindir)/iceboxnet.exe
-ICEBOXADMINNET	= $(bindir)/iceboxadminnet.exe
 TARGETS		= $(ICEBOXNET) $(LIBNAME)
 
 L_SRCS		= AssemblyInfo.cs
@@ -38,17 +37,8 @@ $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) $(call ref,glacier2cs) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
-ifeq ($(NOGAC),)
-
 install:: all
-	$(GACUTIL) -i $(LIBNAME)
-
-else
-
-install:: all
-	$(call installlibrary,$(LIBNAME),$(install_bindir))
-
-endif
+	$(call installassembly,$(LIBNAME),$(PKG))
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))
