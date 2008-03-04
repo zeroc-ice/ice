@@ -213,7 +213,7 @@ InputPath=.\Library.ice
 BuildCmds= \
 	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
 	..\..\..\bin\slice2cpp.exe --ice Library.ice \
-	..\..\..\bin\slice2freeze.exe --ice -I../../../../slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ../../../../slice/Ice/BuiltinSequences.ice Library.ice \
+	..\..\..\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice \
 	
 
 "LibraryTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -238,7 +238,7 @@ InputPath=.\Library.ice
 BuildCmds= \
 	if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice \
 	..\..\..\bin\slice2cpp.exe --ice Library.ice \
-	..\..\..\bin\slice2freeze.exe --ice -I../../../../slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ../../../../slice/Ice/BuiltinSequences.ice Library.ice \
+	..\..\..\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice \
 	
 
 "LibraryTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
