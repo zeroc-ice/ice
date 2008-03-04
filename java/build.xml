@@ -255,6 +255,29 @@
         <taskdef resource="proguard/ant/task.properties"/>
 
         <proguard>
+             -keep public class * {
+                 public protected *;
+             }
+             -keep public class Ice.DispatchStatus {
+                 int __value;
+                 Ice.DispatchStatus[] __values;
+                 int value();
+             }
+             -keep public class javax.swing.plaf.metal.MetalLookAndFeel {
+                 javax.swing.plaf.metal.MetalTheme getCurrentTheme();
+             }
+             -keep public class IceGridGUI.BareBonesBrowserLaunch {
+                 void openURL(java.lang.String);
+             }
+             -keep public class java.net.DatagramSocketImpl {
+                 java.io.FileDescriptor fd;
+             }
+             -keep class com.jgoodies.looks.plastic.PlasticFieldCaret {
+                 *;
+             }
+             -keep class com.jgoodies.looks.windows.WindowsFieldCaret {
+                 *;
+             }
              -injars ${lib.dir}/IceGridGUItemp.jar
              -injars ${lib.dir}/Ice.jar(!META-INF/**,!Freeze/**)
              -injars ${jgoodies.looks}(!META-INF/**)
