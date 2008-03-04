@@ -468,6 +468,8 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
             op = argv[idx];
             name = argv[idx + 1];
 
+            warning("the " + op + " option is deprecated");
+
             for(int i = idx ; i + 2 < argc ; ++i)
             {
                 argv[i] = argv[i + 2];
