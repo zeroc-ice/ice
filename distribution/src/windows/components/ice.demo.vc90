@@ -18,3 +18,4 @@ exclude=**/*.vcproj.*
 exclude=**/*Makefile*
 exclude=**/Debug/**
 exclude=**/Release/**
+exclude=Database/**
