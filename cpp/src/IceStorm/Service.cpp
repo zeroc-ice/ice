@@ -282,7 +282,7 @@ IceStorm::ServiceI::start(
 
             _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, iceGridDeployment,
                                      nodeAdapter, nodes[id]);
-            _instance->observers()->setMajority(nodes.size()/2);
+            _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
             
             // Trace replication information.
             TraceLevelsPtr traceLevels = _instance->traceLevels();

@@ -535,7 +535,7 @@ NodeI::mergeContinue()
         // in the election. If we're running a subsequent election then we
         // need a majority of the nodes to be active in order to start
         // running.
-        unsigned int ingroup = tmpSet.size();
+        unsigned int ingroup = static_cast<unsigned int>(tmpSet.size());
         if(_max != _nodes.size() && ingroup != _nodes.size() -1 || ingroup < _nodes.size()/2)
         {
             if(_traceLevels->election > 0)
@@ -619,7 +619,7 @@ NodeI::mergeContinue()
 
     // At this point we've ensured that we have the latest database
     // state, as such we can set our _max flag.
-    unsigned int max = tmpSet.size() + 1;
+    unsigned int max = static_cast<unsigned int>(tmpSet.size()) + 1;
     {
         Lock sync(*this);
         if(max > _max)
