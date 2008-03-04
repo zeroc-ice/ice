@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -25,25 +25,9 @@ TestUtil.processCmdLine()
 name = os.path.join("IceStorm", "federation")
 testdir = os.path.dirname(os.path.abspath(__file__))
 
-iceBox = TestUtil.getIceBox(testdir)
-iceBoxAdmin = os.path.join(TestUtil.getBinDir(__file__), "iceboxadmin")
-iceStormAdmin = os.path.join(TestUtil.getBinDir(__file__), "icestormadmin")
+import IceStormUtil
 
-iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
-                  ' --IceStorm.TopicManager.Endpoints="default -p 12011"' + \
-                  ' --IceStorm.Publish.Endpoints="default"' + \
-                  " --IceBox.PrintServicesReady=IceStorm" + \
-                  " --IceBox.InheritProperties=1" + \
-                  ' --Ice.Admin.Endpoints="default -p 12010"' + \
-                  " --Ice.Admin.InstanceName=IceBox"
-
-serviceManagerProxy = ' --IceBoxAdmin.ServiceManager.Proxy="IceBox/admin -f IceBox.ServiceManager:default -p 12010"'
-
-iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager:default -p 12011"'
-
-def doTest(batch):
-    global testdir
-    global iceStormReference
+def doTest(icestorm, batch):
 
     publisher = os.path.join(testdir, "publisher")
     subscriber = os.path.join(testdir, "subscriber")
@@ -55,7 +39,7 @@ def doTest(batch):
         name = "subscriber"
         batchOptions = ""
 
-    subscriberPipe = TestUtil.startServer(subscriber, batchOptions + iceStormReference + " 2>&1")
+    subscriberPipe = TestUtil.startServer(subscriber, batchOptions + icestorm.reference() + " 2>&1")
     TestUtil.getServerPid(subscriberPipe)
     TestUtil.getAdapterReady(subscriberPipe)
 
@@ -63,7 +47,7 @@ def doTest(batch):
     # Start the publisher. This should publish events which eventually
     # causes subscriber to terminate.
     #
-    publisherPipe = TestUtil.startClient(publisher, iceStormReference + " 2>&1")
+    publisherPipe = TestUtil.startClient(publisher, icestorm.reference() + " 2>&1")
 
     TestUtil.printOutputFromPipe(publisherPipe)
 
@@ -72,65 +56,51 @@ def doTest(batch):
 
     return subscriberStatus or publisherStatus
 
-dbHome = os.path.join(testdir, "db")
-TestUtil.cleanDbDir(dbHome)
-iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
+def runtest(type, **args):
+    icestorm = IceStormUtil.init(toplevel, testdir, type, **args)
 
-print "starting icestorm service...",
-iceBoxPipe = TestUtil.startServer(iceBox, iceStormService + iceStormDBEnv + " 2>&1")
-TestUtil.getServerPid(iceBoxPipe)
-TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
-print "ok"
+    icestorm.start()
 
-print "setting up topics...",
-iceStormAdminPipe = TestUtil.startClient(iceStormAdmin, iceStormReference + \
-        r' -e "create fed1 fed2 fed3; link fed1 fed2 10; link fed2 fed3 5" 2>&1')
-iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
+    print "setting up topics...",
+    sys.stdout.flush()
+    icestorm.admin("create fed1 fed2 fed3; link fed1 fed2 10; link fed2 fed3 5")
+    print "ok"
 
-#
-# Test oneway subscribers.
-#
-print "testing oneway subscribers...",
-sys.stdout.flush()
-onewayStatus = doTest(0)
-print "ok"
+    #
+    # Test oneway subscribers.
+    #
+    print "testing oneway subscribers...",
+    sys.stdout.flush()
+    onewayStatus = doTest(icestorm, 0)
+    print "ok"
 
-#
-# Test batch oneway subscribers.
-#
-print "testing batch subscribers...",
-sys.stdout.flush()
-batchStatus = doTest(1)
-print "ok"
+    #
+    # Test batch oneway subscribers.
+    #
+    print "testing batch subscribers...",
+    sys.stdout.flush()
+    batchStatus = doTest(icestorm, 1)
+    print "ok"
 
-#
-# Destroy the topics.
-#
-print "destroying topics...",
-iceStormAdminPipe = TestUtil.startClient(iceStormAdmin, iceStormReference + r' -e "destroy fed1 fed2 fed3" 2>&1')
-iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
+    #
+    # Destroy the topics.
+    #
+    print "destroying topics...",
+    icestorm.admin("destroy fed1 fed2 fed3")
+    print "ok"
 
-#
-# Shutdown icestorm.
-#
-print "shutting down icestorm service...",
-iceBoxAdminPipe = TestUtil.startClient(iceBoxAdmin,  serviceManagerProxy + r' shutdown 2>&1')
-iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
-if iceBoxAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
+    #
+    # Shutdown icestorm.
+    #
+    icestorm.stop()
 
-if TestUtil.serverStatus() or onewayStatus or batchStatus:
-    TestUtil.killServers()
-    sys.exit(1)
+    if TestUtil.serverStatus() or onewayStatus or batchStatus:
+	TestUtil.killServers()
+	sys.exit(1)
+
+runtest("persistent")
+runtest("transient")
+runtest("replicated", replicatedPublisher = False)
+runtest("replicated", replicatedPublisher = True)
 
 sys.exit(0)

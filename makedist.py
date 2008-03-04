@@ -617,6 +617,7 @@ rmtree(os.path.join(distDir, "distfiles-" + version))
 rmtree(srcDistDir)
 rmtree(demoDistDir)
 rmtree(demoscriptDistDir)
+rmtree(rpmBuildDistDir)
 print "ok"
 
 os.chdir(cwd)

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
+#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
@@ -19,8 +21,21 @@ using namespace Test;
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
+    IceUtilInternal::Options opts;
+    opts.addOpt("", "count", IceUtilInternal::Options::NeedArg);
+
+    try
+    {
+        opts.parse(argc, (const char**)argv);
+    }
+    catch(const IceUtilInternal::BadOptException& e)
+    {
+        cerr << argv[0] << ": " << e.reason << endl;
+        return EXIT_FAILURE;
+    }
+
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
+    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
     {
@@ -50,16 +65,32 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     EventPrx eventFed1 = EventPrx::uncheckedCast(fed1->getPublisher()->ice_oneway());
 
-    for(int i = 0; i < 10; ++i)
+    string arg = opts.optArg("count");
+    int count = 1;
+    if(arg.empty())
     {
-        eventFed1->pub("fed1");
+        count = atoi(arg.c_str());
     }
+    
+    while(true)
+    {
+        for(int i = 0; i < 10; ++i)
+        {
+            eventFed1->pub("fed1");
+        }
+        //
+        // Before we exit, we ping all proxies as twoway, to make sure
+        // that all oneways are delivered.
+        //
+        EventPrx::uncheckedCast(eventFed1->ice_twoway())->ice_ping();
 
-    //
-    // Before we exit, we ping all proxies as twoway, to make sure
-    // that all oneways are delivered.
-    //
-    EventPrx::uncheckedCast(eventFed1->ice_twoway())->ice_ping();
+        if(count == 0)
+        {
+            break;
+        }
+        --count;
+        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+    }
 
     return EXIT_SUCCESS;
 }

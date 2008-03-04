@@ -92,11 +92,11 @@ IceInternal::OutgoingAsyncMessageCallback::__exception(const Ice::Exception& exc
         __warning();
     }
 
-    __release();
+    __releaseCallback();
 }
 
 void
-IceInternal::OutgoingAsyncMessageCallback::__acquire(const Ice::ObjectPrx& proxy)
+IceInternal::OutgoingAsyncMessageCallback::__acquireCallback(const Ice::ObjectPrx& proxy)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(__monitor);
 
@@ -116,7 +116,7 @@ IceInternal::OutgoingAsyncMessageCallback::__acquire(const Ice::ObjectPrx& proxy
 }
 
 void
-IceInternal::OutgoingAsyncMessageCallback::__release(const Ice::LocalException& exc)
+IceInternal::OutgoingAsyncMessageCallback::__releaseCallback(const Ice::LocalException& exc)
 {
     assert(__os);
 
@@ -133,13 +133,13 @@ IceInternal::OutgoingAsyncMessageCallback::__release(const Ice::LocalException& 
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
-        __release();
+        __releaseCallback();
         throw; // CommunicatorDestroyedException is the only exception that can propagate directly.
     }
 }
 
 void
-IceInternal::OutgoingAsyncMessageCallback::__releaseNoSync()
+IceInternal::OutgoingAsyncMessageCallback::__releaseCallbackNoSync()
 {
     assert(__is);
     delete __is;
@@ -196,7 +196,7 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
     
     if(!_proxy->ice_isTwoway())
     {
-        __releaseNoSync(); // No response expected, we're done with the OutgoingAsync.
+        __releaseCallbackNoSync(); // No response expected, we're done with the OutgoingAsync.
     }
     else if(_response) 
     {
@@ -363,12 +363,12 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     catch(const std::exception& ex)
     {
         __warning(ex);
-        __release();
+        __releaseCallback();
     }
     catch(...)
     {
         __warning();
-        __release();
+        __releaseCallback();
     }
 }
 
@@ -613,7 +613,7 @@ IceInternal::OutgoingAsync::runTimerTask() // Implementation of TimerTask::runTi
 void
 IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* connection)
 {
-    __release();
+    __releaseCallback();
 }
 
 void
@@ -626,7 +626,7 @@ void
 Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
                                      const vector<Byte>& inParams, const Context* context)
 {
-    __acquire(prx);
+    __acquireCallback(prx);
     try
     {
         __prepare(prx, operation, mode, context);
@@ -636,7 +636,7 @@ Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operati
     }
     catch(const Ice::LocalException& ex)
     {
-        __release(ex);
+        __releaseCallback(ex);
     }
 }
 
@@ -657,14 +657,14 @@ Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exce
         return;
     }
     ice_response(ok, outParams);
-    __release();
+    __releaseCallback();
 }
 
 void
 Ice::AMI_Array_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
                                            const pair<const Byte*, const Byte*>& inParams, const Context* context)
 {
-    __acquire(prx);
+    __acquireCallback(prx);
     try
     {
         __prepare(prx, operation, mode, context);
@@ -674,7 +674,7 @@ Ice::AMI_Array_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& o
     }
     catch(const Ice::LocalException& ex)
     {
-        __release(ex);
+        __releaseCallback(ex);
     }
 }
 
@@ -696,13 +696,13 @@ Ice::AMI_Array_Object_ice_invoke::__response(bool ok) // ok == true means no use
         return;
     }
     ice_response(ok, outParams);
-    __release();
+    __releaseCallback();
 }
 
 void
 Ice::AMI_Object_ice_flushBatchRequests::__invoke(const ObjectPrx& prx)
 {
-    __acquire(prx);
+    __acquireCallback(prx);
     try
     {
         //
@@ -723,7 +723,7 @@ Ice::AMI_Object_ice_flushBatchRequests::__invoke(const ObjectPrx& prx)
     }
     catch(const Ice::LocalException& ex)
     {
-        __release(ex);
+        __releaseCallback(ex);
     }
 }
 

@@ -103,7 +103,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
+    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
     {

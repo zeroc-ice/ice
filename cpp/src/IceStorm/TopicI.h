@@ -10,60 +10,80 @@
 #ifndef TOPIC_I_H
 #define TOPIC_I_H
 
-#include <IceUtil/RecMutex.h>
 #include <IceStorm/IceStormInternal.h>
-#include <IceStorm/PersistentTopicMap.h>
+#include <IceStorm/SubscriberMap.h>
+#include <IceStorm/Election.h>
+#include <IceStorm/LLUMap.h>
 #include <list>
 
 namespace IceStorm
 {
 
+// Forward declarations
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
 class Subscriber;
 typedef IceUtil::Handle<Subscriber> SubscriberPtr;
 
-class TopicI : public TopicInternal
+class TopicImpl : public IceUtil::Shared
 {
 public:
 
-    TopicI(const InstancePtr&, const std::string&, const Ice::Identity&, const LinkRecordSeq&, const std::string&,
-           const std::string&);
-    ~TopicI();
+    TopicImpl(const InstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
+    ~TopicImpl();
 
-    virtual std::string getName(const Ice::Current&) const;
-    virtual Ice::ObjectPrx getPublisher(const Ice::Current&) const;
-    virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual Ice::ObjectPrx subscribeAndGetPublisher(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
-    virtual TopicLinkPrx getLinkProxy(const Ice::Current&);
-    virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
-    virtual void unlink(const TopicPrx&, const Ice::Current&);
-    virtual LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const;
-    virtual void destroy(const Ice::Current&);
+    std::string getName() const;
+    Ice::ObjectPrx getPublisher() const;
+    Ice::ObjectPrx getNonReplicatedPublisher() const;
+    void subscribe(const QoS&, const Ice::ObjectPrx&);
+    Ice::ObjectPrx subscribeAndGetPublisher(const QoS&, const Ice::ObjectPrx&);
+    void unsubscribe(const Ice::ObjectPrx&);
+    TopicLinkPrx getLinkProxy();
+    void link(const TopicPrx&, Ice::Int);
+    void unlink(const TopicPrx&);
+    LinkInfoSeq getLinkInfoSeq() const;
+    void reap(const Ice::IdentitySeq&);
+    void destroy();
 
+    IceStormElection::TopicContent getContent() const;
+
+    void update(const SubscriberRecordSeq&);
 
     // Internal methods
     bool destroyed() const;
     Ice::Identity id() const;
-    void reap();
+    TopicPrx proxy() const;
+    void shutdown();
     void publish(bool, const EventDataSeq&);
+
+    // Observer methods.
+    void observerAddSubscriber(const IceStormElection::LogUpdate&, const SubscriberRecord&);
+    void observerRemoveSubscriber(const IceStormElection::LogUpdate&, const Ice::IdentitySeq&);
+    void observerDestroyTopic(const IceStormElection::LogUpdate&);
+
+    Ice::ObjectPtr getServant() const;
 
 private:
 
-    void removeSubscriber(const Ice::ObjectPrx&);
+    IceStormElection::LogUpdate destroyInternal(const IceStormElection::LogUpdate&, bool);
+    void removeSubscribers(const Ice::IdentitySeq&);
+
     //
     // Immutable members.
     //
+    const Ice::ObjectPrx _publisherReplicaProxy;
     const InstancePtr _instance;
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
+    const std::string _envName;
 
-    /*const*/ Ice::ObjectPrx _publisherPrx;
-    /*const*/ TopicLinkPrx _linkPrx;
+    /*const*/ Ice::ObjectPrx _publisherPrx; // The actual publisher proxy.
+    /*const*/ TopicLinkPrx _linkPrx; // The link proxy.
 
-    // Set of subscribers.
+    Ice::ObjectPtr _servant; // The topic implementation servant.
+
+    // Mutex protecting the subscribers.
     IceUtil::Mutex _subscribersMutex;
 
     //
@@ -75,21 +95,15 @@ private:
     //
     std::vector<SubscriberPtr> _subscribers;
 
-    // Set of subscribers that have encountered an error.
-    IceUtil::Mutex _errorMutex;
-    std::list<SubscriberPtr> _error;
+    const Freeze::ConnectionPtr _connection; // The database connection.
 
-    const Freeze::ConnectionPtr _connection;
-
-    // The set of downstream topics.
-    IceUtil::RecMutex _topicRecordMutex;
-    PersistentTopicMap _topics;
-    IceStorm::LinkRecordSeq _topicRecord;
+    SubscriberMap _subscriberMap; // The subscribers.
+    LLUMap _llumap; // The LLU map.
 
     bool _destroyed; // Has this Topic been destroyed?
 };
 
-typedef IceUtil::Handle<TopicI> TopicIPtr;
+typedef IceUtil::Handle<TopicImpl> TopicImplPtr;
 
 } // End namespace IceStorm
 

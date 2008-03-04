@@ -97,6 +97,24 @@ INSTALL_DATA		= ${INSTALL}
 
 GACUTIL			= gacutil
 
+
+ifeq ($(installlibrary),)
+    installlibrary	= $(INSTALL_LIBRARY) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(NOGAC),)
+
+   ifeq ($(GAC_ROOT),)
+      installassembly = $(GACUTIL) -i $(1) -f -package $(2)
+   else
+      installassembly = $(GACUTIL) -i $(1) -f -package $(2) -root $(GAC_ROOT)
+   endif
+else
+   installassembly = $(call installlibrary,$(1),$(install_bindir))
+endif
+
+
 ifeq ($(MONO),yes)
 MCS			= gmcs
 else
@@ -131,11 +149,6 @@ EVERYTHING		= all depend clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
-
-ifeq ($(installlibrary),)
-    installlibrary	= $(INSTALL_LIBRARY) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
-endif
 
 %.cs: %.ice
 	$(SLICE2CS) $(SLICE2CSFLAGS) $<

@@ -499,22 +499,6 @@ generated from the section label.
         <property name="TopicManager.[any]" />
     </section>
 
-    <section name="IceStorm">
-        <property name="Flush.Timeout" />
-        <property name="InstanceName" />
-        <property name="Publish" class="objectadapter" />
-        <property name="TopicManager" class="objectadapter" />
-        <property name="TopicManager.Proxy" class="proxy" />
-        <property name="SubscriberPool" class="threadpool" />
-        <property name="Trace.Flush" />
-        <property name="Trace.Subscriber" />
-        <property name="Trace.SubscriberPool" />
-        <property name="Trace.Topic" />
-        <property name="Trace.TopicManager" />
-        <property name="Send.Timeout" />
-        <property name="Discard.Interval" />
-    </section>
-
     <section name="Glacier2">
         <property name="AddSSLContext" />
         <property name="AddUserToAllowCategories" deprecated="true"

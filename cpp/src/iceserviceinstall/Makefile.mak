@@ -46,7 +46,7 @@ LINKWITH        = $(LIBS) msi.lib
 LINKWITH        = $(LIBS)
 !endif
 TLINKWITH 	= $(LIBS) iceserviceinstaller$(LIBSUFFIX).lib
-!if "$(CPP_COMPILER)" == "VC90"
+!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
 TLINKWITH	= /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" $(TLINKWITH)
 !else
 EXTRA_MANIFEST  = security.manifest

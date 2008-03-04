@@ -5,7 +5,7 @@
 # icegridregistry   This shell script takes care of starting and 
 #                   stopping the icegridregistry daemon.
 #
-# chkconfig: 235 60 76
+# chkconfig: - 60 76
 # description: The IceGrid registry daemon. \
 # IceGrid is the server deployment and monitoring for the Internet \
 # Communications Engine (Ice). An IceGrid domain consists of one master \
@@ -20,7 +20,7 @@
 # The IceGrid registry user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=iceuser
+user=ice
 
 #
 # Ask for a password at startup?

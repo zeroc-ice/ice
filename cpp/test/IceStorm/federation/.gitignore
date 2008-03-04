@@ -7,3 +7,6 @@ Event.cpp
 Event.h
 build.txt
 db/*
+0.db/*
+1.db/*
+2.db/*

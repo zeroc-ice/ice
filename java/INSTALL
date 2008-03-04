@@ -265,9 +265,10 @@ $ ant
 Installation
 ======================================================================
 
-No automatic installation for Ice for Java is supported. Simply copy
-the Ice.jar file from the lib directory to the directory of your
-choice, and then add Ice.jar to your CLASSPATH.
+Simply run "ant install". This will install Ice in the directory
+specified by the "prefix" variable in config/build.properties.
+
+After installation add Ice.jar to your CLASSPATH.
 
 
 ======================================================================

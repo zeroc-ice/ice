@@ -50,8 +50,6 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 #
 !if "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS"
 ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc8" oraocci10$(LIBSUFFIX).lib
-!elseif "$(CPP_COMPILER)" == "VC71"
-ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc71" oraocci10$(LIBSUFFIX).lib
 !else
 !error "$(CPP_COMPILER) is not supported by this demo"
 !endif

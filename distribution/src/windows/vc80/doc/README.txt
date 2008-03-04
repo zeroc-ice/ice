@@ -4,11 +4,11 @@ The Internet Communications Engine
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
+object-oriented specification language, easy to use C++, .NET, Java,
+Python, Ruby, and PHP mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport 
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
 
 Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
@@ -26,8 +26,8 @@ development tools to build Ice applications:
  - in C#, using Visual Studio 2005 or Visual C# 2005 Express Edition
  - in Visual Basic, using Visual Studio 2005 or Visual Basic 2005 
    Express Edition
- - in Java, using Java 2, Java 5 or Java 6
- - in Python, using Python 2.5
+ - in Java, using Java 5 or Java 6
+ - in Python, using Python 2.5.2
 
 If you want to develop Ice applications in Ruby or in PHP, or with
 another C++ compiler, please download the appropriate Ice binary 
@@ -49,31 +49,10 @@ Supported Windows versions
 --------------------------
 
 This distribution is supported on the following Windows versions:
+
  - Windows XP with Service Pack 2 (x86)
- - Windows Server 2003 Standard (x86)
- - Windows Vista (x86)
-
-
-Setting up Visual Studio 2005 to build Ice applications in C++
---------------------------------------------------------------
-
-Before you can use Ice in your C++ applications, you first need to
-configure Visual Studio with the locations of the Ice header files,
-libraries, and executables.
-
-- In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
-
-- Select "Include files"
-
-- Add <Ice installation root directory>\include
-
-- Select "Library files"
-
-- Add <Ice installation root directory>\lib
-
-- Select "Executable files"
-
-- Add <Ice installation root directory>\bin
+ - Windows Server 2003 Standard (x86 and x64)
+ - Windows Vista (x86 and x64)
 
 
 Monotonic clock
@@ -91,9 +70,58 @@ relevant for your system:
 Running IceGrid and Glacier2 components as services
 ---------------------------------------------------
 
-The WINDOWS_SERVICES.txt file included in this distribution contains
-information on how to install and run the IceGrid registry, IceGrid
-node, and Glacier2 router as Windows services.
+An appendix in the Ice manual provides information on installing and
+running the IceGrid registry, IceGrid node, and Glacier2 router as
+Windows services.
+
+
+Python Compatibility
+--------------------
+
+The binary distributions of Python 2.5.x for Windows available from
+www.python.org are compiled with Visual C++ 7.1, and the Ice extension
+for Python included in this installer is compiled with Visual C++ 8.0.
+Python's developers do not support extensions built with another
+compiler, however we have tested the Ice extension extensively and
+have not encountered any compatibility issues.
+
+If you distribute an Ice for Python application, you must include the
+DLLs for the extension, the Ice run time, and the Visual C++ 8.0 run
+time. An appendix in the Ice manual provides more information on
+distributing Ice applications. The link below describes the process
+of deploying the Visual C++ 8.0 run time:
+
+http://msdn2.microsoft.com/en-us/library/ms235291(VS.80).aspx
+
+
+Setting up Visual Studio 2005 to build Ice applications in C++
+--------------------------------------------------------------
+
+Before you can use Ice in your C++ applications, you first need to
+configure Visual Studio with the locations of the Ice header files,
+libraries, and executables.
+
+- In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
+
+- Select "Include files"
+
+- Add <Ice installation root directory>\include
+
+- Select "Library files"
+
+- For x86 libraries add <Ice installation root directory>\lib
+
+  or
+
+  For x64 libraries add <Ice installation root directory>\lib\x64
+
+- Select "Executable files"
+
+- For x86 binaries add <Ice installation root directory>\bin
+
+  or
+
+  For x64 binaries add <Ice installation root directory>\bin\x64
 
 
 Setting up Visual C++ 2005 Express Edition
@@ -101,14 +129,14 @@ Setting up Visual C++ 2005 Express Edition
 
 Visual C++ 2005 Express is available for download from:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/
+  http://www.microsoft.com/express/2005/
 
 In addition to the steps listed above for setting up Visual Studio
 2005, users of Visual C++ 2005 Express Edition must also follow the
 instructions at the link below for installing and configuring the
 Platform SDK:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+  http://msdn2.microsoft.com/en-us/express/aa700755.aspx
 
 
 Building and running the C++ demos

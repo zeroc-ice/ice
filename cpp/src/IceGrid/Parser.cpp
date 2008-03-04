@@ -130,10 +130,10 @@ static const char* _commandsHelp[][3] = {
 "server describe ID        Describe server ID.\n" 
 },
 { "server", "properties",
-"server properties ID      Get the runtime properties of server ID.\n" 
+"server properties ID      Get the run-time properties of server ID.\n"
 },
 { "server", "property",
-"server property ID NAME   Get the runtime property NAME of server ID.\n" 
+"server property ID NAME   Get the run-time property NAME of server ID.\n"
 },
 { "server", "state",
 "server state ID           Get the state of server ID.\n" 
@@ -176,26 +176,26 @@ static const char* _commandsHelp[][3] = {
 },
 
 { "service", "start",
-"service start ID NAME     Starts service NAME from IceBox server ID.\n"
+"service start ID NAME     Starts service NAME in IceBox server ID.\n"
 },
 { "service", "stop",
-"service stop ID NAME      Stops service NAME from IceBox server ID.\n"
+"service stop ID NAME      Stops service NAME in IceBox server ID.\n"
 },
 { "service", "describe",
-"service describe ID NAME  Describes service NAME from IceBox server ID.\n"
+"service describe ID NAME  Describes service NAME in IceBox server ID.\n"
 },
 { "service", "properties",
 "service properties ID NAME\n"
-"                          Get runtime properties of service NAME from\n"
+"                          Get the run-time properties of service NAME in\n"
 "                          IceBox server ID.\n"
 },
 { "service", "property",
 "service property ID NAME PROPERTY\n"
-"                          Get runtime property PROPERTY of service NAME\n"
+"                          Get the run-time property PROPERTY of service NAME\n"
 "                          from IceBox server ID.\n"
 },
 { "service", "list",
-"service list ID NAME      Stops service NAME from IceBox server ID.\n"
+"service list ID           List the services in IceBox server ID.\n"
 },
 
 { "adapter", "list",

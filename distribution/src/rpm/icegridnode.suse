@@ -29,7 +29,7 @@ rc_reset
 # The IceGrid node user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=iceuser
+user=ice
 
 #
 # The IceGrid node configuration file

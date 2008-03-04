@@ -2609,7 +2609,7 @@ IcePHP::Proxy::toString() const
     return _communicator->proxyToString(_proxy);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static zend_object_value
@@ -2627,7 +2627,7 @@ handleProxyAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static void
@@ -2641,7 +2641,7 @@ handleProxyFreeStorage(void* p TSRMLS_DC)
     zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static zend_object_value
@@ -2683,7 +2683,7 @@ handleProxyClone(zval* zv TSRMLS_DC)
     return result;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static union _zend_function*
@@ -2725,7 +2725,7 @@ handleProxyGetMethod(zval** zv, char* method, int len TSRMLS_DC)
     return result;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static int
@@ -2771,7 +2771,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_call)
     op->invoke(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static zend_object_value
@@ -2789,7 +2789,7 @@ handleEndpointAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static void
@@ -2803,7 +2803,7 @@ handleEndpointFreeStorage(void* p TSRMLS_DC)
     zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static zend_object_value
@@ -2821,7 +2821,7 @@ handleConnectionAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static void
@@ -2835,7 +2835,7 @@ handleConnectionFreeStorage(void* p TSRMLS_DC)
     zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static int

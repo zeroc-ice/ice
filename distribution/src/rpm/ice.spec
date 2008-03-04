@@ -1,79 +1,96 @@
-%if "%{_target_cpu}" != "noarch" && "%{dist}" != ".sles10"
-%define ruby_included 1
+# **********************************************************************
+#
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+%if "%{dist}" != ".sles10"
+%define ruby 1
+%define mono 0
 %else
-%define ruby_included 0
+%define ruby 0
+%define mono 1
 %endif
 
+%define buildall 1
+%define makeopts -j2
+
 %define core_arches %{ix86} x86_64
-Summary: The Ice base runtime and services
+
+#
+# See http://fedoraproject.org/wiki/Packaging/Python
+# Since we build a single ice-python arch-specific package, we put everything in sitearch
+#
+%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+
+%if %{ruby}
+#
+# See http://fedoraproject.org/wiki/Packaging/Ruby
+# Since we build a single ice-ruby arch-specific package, we put everything in sitearch
+#
+%{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
+%endif
+
 Name: ice
 Version: 3.3.0
+Summary: Files common to all Ice packages 
 Release: 1%{?dist}
-License: GPL
-Group:System Environment/Libraries
+License: GPL with exceptions
+Group: System Environment/Libraries
 Vendor: ZeroC, Inc.
 URL: http://www.zeroc.com/
 Source0: Ice-%{version}.tar.gz
-Source1: IceJ-%{version}-java2.tar.gz
-Source2: IcePy-%{version}.tar.gz
-Source3: IceNET-%{version}.tar.gz
-Source4: IceJ-%{version}-java5.tar.gz
-Source5: IcePHP-%{version}.tar.gz
-Source6: Ice-rpmbuild-%{version}.tar.gz
-%if %{ruby_included}
-Source7:IceRuby-%{version}.tar.gz
-%endif
+Source1: Ice-rpmbuild-%{version}.tar.gz
 
-BuildRoot: /var/tmp/Ice-%{version}-1-buildroot
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 33
 %define dotnetversion 3.3.0
-%define dotnetmainversion 3.2
+%define dotnetmainversion 3.3
 
-%ifarch x86_64
-%define icelibdir lib64
-%else
-%define icelibdir lib
+%define formsversion 1.2.0
+%define looksversion 2.1.4
+%define dbversion 4.6.21
+
+BuildRequires: openssl-devel >= 0.9.7a
+BuildRequires: db46-devel >= 4.6.21, db46-java >= 4.6.21
+BuildRequires: jpackage-utils
+BuildRequires: mcpp-devel >= 2.6.4
+BuildRequires: j2sdk >= 1.5.0
+
+#
+# We also need a recent version of ant, %{_javadir}/jgoodies-forms-%{formsversion}.jar,
+#  %{_javadir}/jgoodies-forms-%{looksversion}.jar and  %{_javadir}/proguard.jar
+#
+
+%if %{ruby}
+BuildRequires: ruby-devel
 %endif
 
-BuildRequires: mono-core >= 1.2.2
-BuildRequires: python >= 2.3.4
-BuildRequires: python-devel >= 2.3.4
-BuildRequires: expat >= 1.95.7
-BuildRequires: libstdc++ >= 3.4.4
-BuildRequires: gcc >= 3.4.4
-BuildRequires: gcc-c++ >= 3.4.4
-BuildRequires: tar
-BuildRequires: sed
-BuildRequires: binutils >= 2.15
-BuildRequires: openssl >= 0.9.7a
-BuildRequires: openssl-devel >= 0.9.7a
-BuildRequires: bzip2 >= 1.0.2
-BuildRequires: expat >= 1.95.7
-BuildRequires: db45 >= 4.5.20
-BuildRequires: db45-devel >= 4.5.20
+%if %{mono}
+BuildRequires: mono-core >= 1.2.6
+%endif
+
 %if "%{dist}" == ".rhel4"
+BuildRequires: nptl-devel
 BuildRequires: bzip2-devel >= 1.0.2
 BuildRequires: expat-devel >= 1.95.7
-BuildRequires: ruby >= 1.8.1
-BuildRequires: ruby-devel >= 1.8.1
-BuildRequires: php >= 5.1.4
 BuildRequires: php-devel >= 5.1.4
+BuildRequires: python-devel >= 2.3.4
 %endif
 %if "%{dist}" == ".rhel5"
 BuildRequires: bzip2-devel >= 1.0.3
 BuildRequires: expat-devel >= 1.95.8
-BuildRequires: ruby >= 1.8.5
-BuildRequires: ruby-devel >= 1.8.5
-BuildRequires: php >= 5.1.6
 BuildRequires: php-devel >= 5.1.6
+BuildRequires: python-devel >= 2.4.3
 %endif
 %if "%{dist}" == ".sles10"
-BuildRequires: php5 >= 5.1.2
 BuildRequires: php5-devel >= 5.1.2
+BuildRequires: python-devel >= 2.4.2
 %endif
-
-Provides: ice-%{_target_cpu}
 
 %description
 Ice is a modern alternative to object middleware such as CORBA or
@@ -84,751 +101,646 @@ Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
 protocol, asynchronous method invocation and dispatch, dynamic
 transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
 firewall solution, and much more.
-%prep
 
 
 #
-# C++, Java2 and C# are needed for any arch
+# Arch-independent packages
 #
-%setup -n Ice-%{version} -q -T -D -b 0
-%setup -q -n IceJ-%{version}-java2 -T -D -b 1
-%setup -q -n IceNET-%{version} -T -D -b 3
-
-%ifarch noarch
-#
-# Since we also have Java2 for IceGridGUI.jar and the demos, Java5 is purely noarch
-#
-%setup -q -n IceJ-%{version}-java5 -T -D -b 4
-%endif
-
-%ifarch %{core_arches}
-#
-# There is no noarch python, php or ruby RPM
-#
-%setup -q -n IcePy-%{version} -T -D -b 2
-%setup -q -n IcePHP-%{version} -T -D -b 5 
-%setup -c -q -n Ice-rpmbuild-%{version} -T -D -b 6
-%endif
-
-%if %{ruby_included}
-%setup -q -n IceRuby-%{version} -T -D -b 7
-%endif
-
-
-%build
-
-#
-# We need the slice2xxx translators all the time
-#
-cd $RPM_BUILD_DIR/Ice-%{version}/src
-make OPTIMIZE=yes embedded_runpath_prefix=""
-
-#
-# Required by non-C++ builds
-#
-export ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} 
-export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
-
-%ifarch %{core_arches}
-cd $RPM_BUILD_DIR/IcePy-%{version}
-make OPTIMIZE=yes embedded_runpath_prefix=""
-
-cd $RPM_BUILD_DIR/IcePHP-%{version}
-make OPTIMIZE=yes embedded_runpath_prefix=""
-%endif
-
-%if %{ruby_included}
-cd $RPM_BUILD_DIR/IceRuby-%{version}
-make OPTIMIZE=yes embedded_runpath_prefix=""
-%endif
-
-%ifarch noarch
-#
-# We only build C# for noarch
-#
-cd $RPM_BUILD_DIR/IceNET-%{version}/src
-export PATH=$ICE_HOME/bin:$PATH
-make OPTIMIZE=yes
-%endif
-
-%install
-
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/lib
-if test ! -d $RPM_BUILD_ROOT/%{icelibdir};
-then
-    mkdir -p $RPM_BUILD_ROOT/%{icelibdir}
-fi
-
-%ifarch %{core_arches}
-cd $RPM_BUILD_DIR/Ice-%{version}
-make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
-rm $RPM_BUILD_ROOT/bin/slice2vb
-
-cd $RPM_BUILD_DIR/IcePy-%{version}
-make ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
-
-cd $RPM_BUILD_DIR/IcePHP-%{version}
-make ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
-
-cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
-cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/help
-cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/resources/IceGridAdmin $RPM_BUILD_ROOT/help
-
-#
-# .NET spec files (for csharp-devel)
-#
-if test ! -d $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig ; 
-then 
-    mkdir $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig
-fi
-
-for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
-do 
-    cp $RPM_BUILD_DIR/IceNET-%{version}/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig 
-done
-
-#
-# RPM-support files
-#
-cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT
-cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT/README
-cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE
-cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT/SOURCES
-cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT/ice.ini
-
-mkdir -p $RPM_BUILD_ROOT/etc
-cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/*.conf $RPM_BUILD_ROOT/etc
-mkdir -p $RPM_BUILD_ROOT/etc/init.d
-for i in icegridregistry icegridnode glacier2router
-do
-    cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.%{_vendor} $RPM_BUILD_ROOT/etc/init.d/$i
-done
-%endif
-
-%if %{ruby_included}
-cd $RPM_BUILD_DIR/IceRuby-%{version}
-make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
-%else
-rm -f  $RPM_BUILD_ROOT/bin/slice2rb
-%endif
-
-
-%ifarch noarch
-cp -p $RPM_BUILD_DIR/IceJ-%{version}-java5/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
-mkdir -p $RPM_BUILD_ROOT/lib/java2
-cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/Ice.jar $RPM_BUILD_ROOT/lib/java2/Ice.jar
-
-cd $RPM_BUILD_DIR/IceNET-%{version}
-export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
-export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-make NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
-
-for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
-do 
-    cp $RPM_BUILD_DIR/IceNET-%{version}/bin/$f.dll $RPM_BUILD_ROOT/bin
-    cp $RPM_BUILD_DIR/IceNET-%{version}/bin/policy.%{dotnetmainversion}.$f $RPM_BUILD_DIR/IceNET-%{version}/bin/policy.%{dotnetmainversion}.$f.dll  $RPM_BUILD_ROOT/bin
-done
-%endif
-
-#
-# The following commands transform a standard Ice installation directory
-# structure to a directory structure more suited to integrating into a
-# Linux system.
-#
-
-mkdir -p $RPM_BUILD_ROOT/usr
-mv $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/usr/lib
-
-if test -d $RPM_BUILD_ROOT/%{icelibdir}
-then
-    mv $RPM_BUILD_ROOT/%{icelibdir} ${RPM_BUILD_ROOT}%{_libdir}
-fi
-
-%ifarch %{core_arches}
-
-#
-# Move ice.ini and IcePHP.so to distribution-dependent directories
-#
-
-%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
-mkdir -p $RPM_BUILD_ROOT/etc/php.d
-mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php.d
-mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/php/modules
-mv ${RPM_BUILD_ROOT}%{_libdir}/IcePHP.so ${RPM_BUILD_ROOT}%{_libdir}/php/modules
-%endif
-
-%if "%{dist}" == ".sles10"
-mkdir -p $RPM_BUILD_ROOT/etc/php5/conf.d
-mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php5/conf.d
-mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/php5/extensions
-mv ${RPM_BUILD_ROOT}%{_libdir}/IcePHP.so ${RPM_BUILD_ROOT}%{_libdir}/php5/extensions
-%endif
-
-mkdir -p ${RPM_BUILD_ROOT}%{_datadir}
-mv $RPM_BUILD_ROOT/config ${RPM_BUILD_ROOT}%{_datadir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/slice ${RPM_BUILD_ROOT}%{_datadir}/Ice-%{version}
-
-mkdir -p $RPM_BUILD_ROOT/usr
-mv $RPM_BUILD_ROOT/include ${RPM_BUILD_ROOT}%{_includedir}
-
-mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/python ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/python
-
-mkdir -p ${RPM_BUILD_ROOT}%{_defaultdocdir}
-mv $RPM_BUILD_ROOT/help ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/RELEASE_NOTES.txt ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-
-mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
-mv $RPM_BUILD_ROOT/ant $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/ant
-mv $RPM_BUILD_ROOT/usr/lib/IceGridGUI.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/IceGridGUI.jar
-%endif
-
-%if %{ruby_included}
-mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/ruby ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/ruby
-%endif
-
-%ifarch noarch
-mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
-mv $RPM_BUILD_ROOT/usr/lib/Ice.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/Ice.jar
-mv $RPM_BUILD_ROOT/usr/lib/java2 $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/java2
-
-for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
-do 
-   mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/$f/%{dotnetversion}.0__1f998c50fec78381
-   mv $RPM_BUILD_ROOT/bin/$f.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/$f/%{dotnetversion}.0__1f998c50fec78381
-   mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/policy.%{dotnetmainversion}.$f/0.0.0.0__1f998c50fec78381
-   mv $RPM_BUILD_ROOT/bin/policy.%{dotnetmainversion}.$f $RPM_BUILD_ROOT/bin/policy.%{dotnetmainversion}.$f.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/policy.%{dotnetmainversion}.$f/0.0.0.0__1f998c50fec78381
-done
-
-#
-# Cleanup extra files
-#
-rm -r $RPM_BUILD_ROOT/slice
-rm    $RPM_BUILD_ROOT/config/Make.rules.cs
-%endif
-
-mkdir -p $RPM_BUILD_ROOT/usr
-mv $RPM_BUILD_ROOT/bin $RPM_BUILD_ROOT/usr/bin
-
-%clean
-rm -rf ${RPM_BUILD_ROOT}
-
-%changelog
-* Fri Jul 27 2007 Bernard Normier
-- Updated for Ice 3.2.1 release
-
-* Wed Jun 13 2007 Bernard Normier
-- Added patch with new IceGrid.Node.AllowRunningServersAsRoot property.
-
-* Fri Dec 6 2006 ZeroC Staff
-- See source distributions or the ZeroC website for more information
-  about the changes in this release
-
-
-%ifarch %{core_arches}
-%package c++-devel
-Summary: Tools for developing Ice applications in C++
-Group: Development/Tools
-Requires: ice = %{version}
-Requires: ice-%{_target_cpu}
-%description c++-devel
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-
-
-%ifarch %{core_arches}
-%package csharp-devel
-Summary: Tools for developing Ice applications in C#
-Group: Development/Tools
-Requires: ice-dotnet = %{version}
-Requires: ice-%{_target_cpu}
-%description csharp-devel
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-
-
-%ifarch %{core_arches}
-%package java-devel
-Summary: Tools for developing Ice applications in Java
-Group: Development/Tools
-Requires: ice-java = %{version}
-Requires: ice-%{_target_cpu}
-%description java-devel
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-
-
-%ifarch %{core_arches}
-%package python
-Summary: The Ice runtime for Python applications
-Group: System Environment/Libraries
-Provides: ice-python-%{_target_cpu}
-Requires: ice = %{version}, python >= 2.3.4
-Requires: ice-%{_target_cpu}
-%description python
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-%ifarch %{core_arches}
-%package python-devel
-Summary: Tools for developing Ice applications in Python
-Group: Development/Tools
-Requires: ice-python = %{version}
-Requires: ice-python-%{_target_cpu}
-%description python-devel
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-
-
-%if %{ruby_included}
-%package ruby
-Summary: The Ice runtime for Ruby applications
-Group: System Environment/Libraries
-Provides: ice-ruby-%{_target_cpu}
-Requires: ice = %{version}, ruby >= 1.8.1
-Requires: ice-%{_target_cpu}
-%description ruby
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-
-
-%if %{ruby_included}
-%package ruby-devel
-Summary: Tools for developing Ice applications in Ruby
-Group: Development/Tools
-Requires: ice-ruby = %{version}
-Requires: ice-ruby-%{_target_cpu}
-%description ruby-devel
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-
-
-%ifarch %{core_arches}
-%package php
-Summary: The Ice runtime for PHP applications
-Group: System Environment/Libraries
-%if "%{dist}" == ".rhel4"
-Requires: ice = %{version}, php >= 5.1.4
-%endif
-%if "%{dist}" == ".rhel5"
-Requires: ice = %{version}, php >= 5.1.6
-%endif
-%if "%{dist}" == ".sles10"
-Requires: ice-%{_target_cpu}, php5 >= 5.1.2
-%endif
-%description php
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
-%endif
-
-
-
-
 %ifarch noarch
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
-Requires: ice = %{version}, db45-java >= 4.5.20
+Requires: ice = %{version}-%{release}, jre >= 1.5.0, db46-java,
 %description java
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
+The Ice runtime for Java.
+
+%if %{mono}
+%package dotnet
+Summary: The Ice runtime for .NET (mono)
+Group: System Environment/Libraries
+Requires: ice = %{version}-%{release}, mono-core >= 1.2.6
+%description dotnet
+The Ice runtime for .NET (mono).
+%endif
+%endif
+
+#
+# Arch-dependent packages
+#
+%ifarch %{core_arches}
+%package libs
+Summary: The Ice runtime for C++
+Group: System Environment/Libraries
+Requires: ice = %{version}-%{release}, db46
+%description libs
+The Ice runtime for C++
+
+%package utils
+Summary: Ice utilities and admin tools.
+Group: Applications/System
+Requires: ice-libs = %{version}-%{release}, jre > = 1.5.0
+%description utils
+Admin tools to manage Ice servers (IceGrid, IceStorm, IceBox etc.),
+plus various Ice-related utilities.
+
+%package servers
+Summary: Ice servers and related files.
+Group: System Environment/Daemons
+Requires: ice-utils = %{version}-%{release}
+%if %{mono}
+Requires: ice-dotnet = %{version}-%{release}
+%endif
+# Requirements for the users
+%if "%{dist}" == ".sles10"
+Requires(pre): pwdutils
+%endif
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+Requires(pre): shadow-utils
+%endif
+# Requirements for the init.d services
+Requires(post): /sbin/chkconfig
+Requires(preun): /sbin/chkconfig
+Requires(preun): /sbin/service
+%description servers
+Ice servers: glacier2router, icebox, icegridnode, icegridregistry, 
+icebox, iceboxnet, icepatch2server and related files.
+
+%package c++-devel
+Summary: Tools, libraries and headers for developing Ice applications in C++
+Group: Development/Tools
+Requires: ice-libs = %{version}-%{release}
+%description c++-devel
+Tools, libraries and headers for developing Ice applications in C++.
+
+%package java-devel
+Summary: Tools for developing Ice applications in Java
+Group: Development/Tools
+Requires: ice-java = %{version}-%{release}, ice-libs = %{version}-%{release}
+%description java-devel
+Tools for developing Ice applications in Java.
+
+%if %{mono}
+%package csharp-devel
+Summary: Tools for developing Ice applications in C#
+Group: Development/Tools
+Requires: ice-dotnet = %{version}-%{release}, ice-libs = %{version}-%{release}, pkgconfig
+%description csharp-devel
+Tools for developing Ice applications in C#.
+%endif
+
+%if %{ruby}
+%package ruby
+Summary: The Ice runtime for Ruby
+Group: System Environment/Libraries
+Requires: ice-libs = %{version}-%{release}, ruby
+%description ruby
+The Ice runtime for Ruby.
+
+%package ruby-devel
+Summary: Tools for developing Ice applications in Ruby
+Group: Development/Tools
+Requires: ice-ruby = %{version}-%{release}
+%description ruby-devel
+Tools for developing Ice applications in Ruby.
+%endif
+
+%package python
+Summary: The Ice runtime for Python
+Group: System Environment/Libraries
+Requires: ice-libs = %{version}-%{release}
+%description python
+The Ice runtime for Python.
+
+%package python-devel
+Summary: Tools for developing Ice applications in Python
+Group: Development/Tools
+Requires: ice-python = %{version}-%{release}
+%description python-devel
+Tools for developing Ice applications in Python.
+
+%package php
+Summary: The Ice runtime for PHP
+Group: System Environment/Libraries
+Requires: ice = %{version}-%{release}
+%description php
+The Ice runtime for PHP.
 %endif
 
 
+%prep
 
+%if %{buildall}
+%setup -n Ice-%{version} -q
+%setup -q -n Ice-rpmbuild-%{version} -T -b 1
+%endif
+
+%build
+
+#
+# We build C++ all the time since we need slice2xxx
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+%ifarch %{core_arches}
+cd $RPM_BUILD_DIR/Ice-%{version}/py
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+cd $RPM_BUILD_DIR/Ice-%{version}/php
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+%if %{ruby}
+cd $RPM_BUILD_DIR/Ice-%{version}/rb
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+%endif
+
+%endif
+
+#
+# We build java5 all the time, since we include the GUI in a non-noarch package.
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/java
+export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
+JGOODIES_FORMS=`find-jar jgoodies-forms-%{formsversion}`
+JGOODIES_LOOKS=`find-jar jgoodies-looks-%{looksversion}`
+
+ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
 
 %ifarch noarch
-%package dotnet
-Summary: The Ice runtime for .NET applications
-Group: System Environment/Libraries
-Requires: ice = %{version}, mono-core >= 1.2.2
-%description dotnet
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
+ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
+%endif
+
+# 
+# We build mono all the time since we include iceboxnet.exe in a non-arch package
+#
+%if %{mono}
+cd $RPM_BUILD_DIR/Ice-%{version}/cs/src
+make %{makeopts} OPTIMIZE=yes
 %endif
 
 
+%install
 
+rm -rf $RPM_BUILD_ROOT
 
+#
+# Arch-specific packages
+#
 %ifarch %{core_arches}
-%files
-%defattr(644, root, root, 755)
 
-%{_defaultdocdir}/Ice-%{version}
-%attr(755, root, root) /usr/bin/dumpdb
-%attr(755, root, root) /usr/bin/transformdb
-%attr(755, root, root) /usr/bin/glacier2router
-%attr(755, root, root) /usr/bin/icebox
-%attr(755, root, root) /usr/bin/iceboxadmin
-%attr(755, root, root) /usr/bin/icecpp
-%attr(755, root, root) /usr/bin/icepatch2calc
-%attr(755, root, root) /usr/bin/icepatch2client
-%attr(755, root, root) /usr/bin/icepatch2server
-%attr(755, root, root) /usr/bin/icestormadmin
-%attr(755, root, root) /usr/bin/slice2docbook
-%attr(755, root, root) /usr/bin/slice2html
-%attr(755, root, root) /usr/bin/icegridadmin
-%attr(755, root, root) /usr/bin/icegridnode
-%attr(755, root, root) /usr/bin/icegridregistry
-%attr(755, root, root) /usr/bin/iceca
-/usr/bin/ImportKey.class
-%attr(755, root, root) %{_libdir}/libFreeze.so.%{version}
-%attr(755, root, root) %{_libdir}/libFreeze.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libGlacier2.so.%{version}
-%attr(755, root, root) %{_libdir}/libGlacier2.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIceBox.so.%{version}
-%attr(755, root, root) %{_libdir}/libIceBox.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIcePatch2.so.%{version}
-%attr(755, root, root) %{_libdir}/libIcePatch2.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIce.so.%{version}
-%attr(755, root, root) %{_libdir}/libIce.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIceSSL.so.%{version}
-%attr(755, root, root) %{_libdir}/libIceSSL.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIceStormService.so.%{version}
-%attr(755, root, root) %{_libdir}/libIceStormService.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIceStorm.so.%{version}
-%attr(755, root, root) %{_libdir}/libIceStorm.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIceUtil.so.%{version}
-%attr(755, root, root) %{_libdir}/libIceUtil.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIceXML.so.%{version}
-%attr(755, root, root) %{_libdir}/libIceXML.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libSlice.so.%{version}
-%attr(755, root, root) %{_libdir}/libSlice.so.%{soversion}
-%attr(755, root, root) %{_libdir}/libIceGrid.so.%{version}
-%attr(755, root, root) %{_libdir}/libIceGrid.so.%{soversion}
-%dir /usr/lib/Ice-%{version}
-/usr/lib/Ice-%{version}/IceGridGUI.jar
+#
+# C++
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp
+make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
+mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
+mkdir -p $RPM_BUILD_ROOT%{_libdir}
+mv $RPM_BUILD_ROOT/lib/* $RPM_BUILD_ROOT%{_libdir}
+mkdir -p $RPM_BUILD_ROOT%{_includedir}
+mv $RPM_BUILD_ROOT/include/* $RPM_BUILD_ROOT%{_includedir}
+
+#
+# Python
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/py
+make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+
+mkdir -p $RPM_BUILD_ROOT%{python_sitearch}/Ice
+mv $RPM_BUILD_ROOT/python/* $RPM_BUILD_ROOT%{python_sitearch}/Ice
+
+#
+# PHP
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/php
+make prefix=$RPM_BUILD_ROOT install
+
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
+mv $RPM_BUILD_ROOT/lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
+%endif
+
+%if "%{dist}" == ".sles10"
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
+mv $RPM_BUILD_ROOT/lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
+%endif
+
+#
+# Ruby
+# 
+%if %{ruby}
+cd $RPM_BUILD_DIR/Ice-%{version}/rb
+make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+mkdir -p $RPM_BUILD_ROOT%{ruby_sitearch}
+mv $RPM_BUILD_ROOT/ruby/* $RPM_BUILD_ROOT%{ruby_sitearch}
+%else
+rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
+%endif
+
+#
+# IceGridGUI
+#
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/libjava5/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI-%{version}.jar
+ln -s IceGridGUI-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar 
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
+mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
+cp -Rp $RPM_BUILD_DIR/Ice-%{version}/java/resources/IceGridAdmin $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
+
+%if %{mono}
+
+#
+# iceboxnet.exe
+#
+cp -p $RPM_BUILD_DIR/Ice-%{version}/cs/bin/iceboxnet.exe $RPM_BUILD_ROOT%{_bindir}/iceboxnet.exe
+
+#
+# .NET spec files (for csharp-devel)
+#
+if test ! -d $RPM_BUILD_ROOT%{_libdir}/pkgconfig
+then 
+    mkdir $RPM_BUILD_ROOT%{_libdir}/pkgconfig
+fi
+
+for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs
+do 
+    cp $RPM_BUILD_DIR/Ice-%{version}/cs/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig 
+done
+%endif
+
+#
+# initrd files (for servers)
+#
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
+cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/*.conf $RPM_BUILD_ROOT%{_sysconfdir}
+mkdir -p $RPM_BUILD_ROOT%{_initrddir}
+for i in icegridregistry icegridnode glacier2router
+do
+    cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.%{_vendor} $RPM_BUILD_ROOT%{_initrddir}/$i
+done
+
+#
+# Some python scripts and related files
+#
+mkdir -p $RPM_BUILD_ROOT%{_datadir}
+mv $RPM_BUILD_ROOT/config $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+
+#
+# Cleanup extra files
+#
+
+rm -f $RPM_BUILD_ROOT/ICE_LICENSE
+rm -f $RPM_BUILD_ROOT/LICENSE
+rm -fr $RPM_BUILD_ROOT/doc/reference
+rm -fr $RPM_BUILD_ROOT/slice
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
+
+#temporary
+rm -f $RPM_BUILD_ROOT%{_bindir}/ImportKey.class
+rm -f $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
+
+%if !%{mono}
+rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
+%endif
+
+%endif
+
+#
+# Arch-independent packages
+#
+%ifarch noarch
+
+#
+# Doc
+#
+mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/RELEASE_NOTES
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/README
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/THIRD_PARTY_LICENSE
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/SOURCES
+
+#
+# Java install (using jpackage conventions)
+# 
+cd $RPM_BUILD_DIR/Ice-%{version}/java
+ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Dprefix=$RPM_BUILD_ROOT install
+ant -Dice.mapping=java2 -Dbuild.suffix=java2 -Dprefix=$RPM_BUILD_ROOT install
+
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
+mv $RPM_BUILD_ROOT/lib/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{version}.jar
+ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice.jar 
+mv $RPM_BUILD_ROOT/lib/java2/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2-%{version}.jar
+ln -s Ice-java2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2.jar
+
+
+%if %{mono}
+#
+# DotNet
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/cs
+make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
+%endif
+
+#
+# License files
+#
+mv $RPM_BUILD_ROOT/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
+
+#
+# Slice  files
+#
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+
+#
+# Cleanup extra files
+#
+
+rm -fr $RPM_BUILD_ROOT/help
+rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar
+rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
+
+%endif
+
+
+#temporary
+rm -fr $RPM_BUILD_ROOT/ant
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+#
+# noarch file packages
+# 
+%ifarch noarch
+%files
+%defattr(-, root, root, -)
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/slice
+%{_defaultdocdir}/Ice-%{version}
+
+%files java
+%defattr(-, root, root, -)
+%{_javadir}/Ice-%{version}.jar
+%{_javadir}/Ice.jar
+%{_javadir}/Ice-java2-%{version}.jar
+%{_javadir}/Ice-java2.jar
+
+%if %{mono}
+%files dotnet
+%defattr(-, root, root, -)
+%dir %{_prefix}/lib/mono/gac/glacier2cs
+%{_prefix}/lib/mono/gac/glacier2cs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icecs
+%{_prefix}/lib/mono/gac/icecs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/iceboxcs
+%{_prefix}/lib/mono/gac/iceboxcs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icegridcs
+%{_prefix}/lib/mono/gac/icegridcs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icepatch2cs
+%{_prefix}/lib/mono/gac/icepatch2cs/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/icestormcs
+%{_prefix}/lib/mono/gac/icestormcs/%{version}.*/
+%endif
+%endif
+
+#
+# arch-specific packages
+#
+%ifarch %{core_arches}
+%files libs
+%defattr(-, root, root, -)
+%{_libdir}/libFreeze.so.%{version}
+%{_libdir}/libFreeze.so.%{soversion}
+%{_libdir}/libGlacier2.so.%{version}
+%{_libdir}/libGlacier2.so.%{soversion}
+%{_libdir}/libIceBox.so.%{version}
+%{_libdir}/libIceBox.so.%{soversion}
+%{_libdir}/libIcePatch2.so.%{version}
+%{_libdir}/libIcePatch2.so.%{soversion}
+%{_libdir}/libIce.so.%{version}
+%{_libdir}/libIce.so.%{soversion}
+%{_libdir}/libIceSSL.so.%{version}
+%{_libdir}/libIceSSL.so.%{soversion}
+%{_libdir}/libIceStorm.so.%{version}
+%{_libdir}/libIceStorm.so.%{soversion}
+%{_libdir}/libIceUtil.so.%{version}
+%{_libdir}/libIceUtil.so.%{soversion}
+%{_libdir}/libSlice.so.%{version}
+%{_libdir}/libSlice.so.%{soversion}
+%{_libdir}/libIceGrid.so.%{version}
+%{_libdir}/libIceGrid.so.%{soversion}
+
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
+
+%files utils
+%defattr(-, root, root, -)
+%{_libdir}/libIceXML.so.%{version}
+%{_libdir}/libIceXML.so.%{soversion}
+%{_bindir}/dumpdb
+%{_bindir}/transformdb
+%{_bindir}/iceboxadmin
+%{_bindir}/icepatch2calc
+%{_bindir}/icepatch2client
+%{_bindir}/icestormadmin
+%{_bindir}/slice2docbook
+%{_bindir}/slice2html
+%{_bindir}/icegridadmin
+%{_bindir}/icegridgui
+%{_bindir}/iceca
+%{_javadir}/IceGridGUI-%{version}.jar
+%{_javadir}/IceGridGUI.jar
+%dir %{_defaultdocdir}/Ice-%{version}
+%{_defaultdocdir}/Ice-%{version}/help
+%dir %{_datadir}/Ice-%{version}
+#%{_datadir}/Ice-%{version}/ImportKey.class
+%attr(755,root,root) %{_datadir}/Ice-%{version}/convertssl.py*
+
+%post utils -p /sbin/ldconfig
+%postun utils -p /sbin/ldconfig
+
+%files servers
+%defattr(-, root, root, -)
+%{_bindir}/glacier2router
+%{_bindir}/icebox
+%if %{mono}
+%{_bindir}/iceboxnet.exe
+%endif
+%{_bindir}/icegridnode
+%{_bindir}/icegridregistry
+%{_bindir}/icepatch2server
+%{_bindir}/icestormmigrate
+%{_libdir}/libIceStormService.so.%{version}
+%{_libdir}/libIceStormService.so.%{soversion}
+%dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/templates.xml
-%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.py
-%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.py
-%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.py
-%if "%{dist}" == ".rhel5"
-%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.pyc
-%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.pyc
-%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.pyc
-%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.pyo
-%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.pyo
-%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.pyo
-%endif
-%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
-%config %attr(755, root, root) /etc/init.d/icegridregistry
-%config %attr(755, root, root) /etc/init.d/icegridnode
-%config %attr(755, root, root) /etc/init.d/glacier2router
-%config /etc/icegridregistry.conf
-%config /etc/icegridnode.conf
-%config /etc/glacier2router.conf
+%attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicegrid.py*
+%attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicestorm.py*
+%attr(755,root,root) %{_initrddir}/icegridregistry
+%attr(755,root,root) %{_initrddir}/icegridnode
+%attr(755,root,root) %{_initrddir}/glacier2router
+%config(noreplace) %{_sysconfdir}/icegridregistry.conf
+%config(noreplace) %{_sysconfdir}/icegridnode.conf
+%config(noreplace) %{_sysconfdir}/glacier2router.conf
 
-%post
-%postun
+%pre servers
+getent group ice > /dev/null || groupadd -r ice
+getent passwd ice > /dev/null || \
+       useradd -r -g ice -d %{_localstatedir}/lib/ice \
+       -s /sbin/nologin -c "Ice Service account" ice
+test -d %{_localstatedir}/lib/ice/icegrid/registry || \
+       mkdir -p %{_localstatedir}/lib/ice/icegrid/registry; chown -R ice.ice %{_localstatedir}/lib/ice
+test -d %{_localstatedir}/lib/ice/icegrid/node1 || \
+       mkdir -p %{_localstatedir}/lib/ice/icegrid/node1; chown -R ice.ice %{_localstatedir}/lib/ice
+exit 0
 
+%post servers
+/sbin/ldconfig
+/sbin/chkconfig --add icegridregistry
+/sbin/chkconfig --add icegridnode
+/sbin/chkconfig --add glacier2router
 
-%else
-%files
+%preun servers
+if [ $1 = 0 ]; then
+        /sbin/service icegridregistry stop >/dev/null 2>&1 || :
+        /sbin/chkconfig --del icegridregistry
+        /sbin/service icegridnode stop >/dev/null 2>&1 || :
+        /sbin/chkconfig --del icegridnode
+        /sbin/service glacier2router stop >/dev/null 2>&1 || :
+        /sbin/chkconfig --del glacier2router
+fi
 
-%endif
+%postun servers
+if [ "$1" -ge "1" ]; then
+        /sbin/service icegridregistry condrestart >/dev/null 2>&1 || :
+        /sbin/service icegridnode condrestart >/dev/null 2>&1 || :
+        /sbin/service glacier2router condrestart >/dev/null 2>&1 || :
+fi
+/sbin/ldconfig
 
-
-%ifarch %{core_arches}
 %files c++-devel
-%defattr(644, root, root, 755)
+%defattr(-, root, root, -)
 
-%attr(755, root, root) /usr/bin/slice2cpp
-%attr(755, root, root) /usr/bin/slice2freeze
-%{_includedir}
-%attr(755, root, root) %{_libdir}/libFreeze.so
-%attr(755, root, root) %{_libdir}/libGlacier2.so
-%attr(755, root, root) %{_libdir}/libIceBox.so
-%attr(755, root, root) %{_libdir}/libIceGrid.so
-%attr(755, root, root) %{_libdir}/libIcePatch2.so
-%attr(755, root, root) %{_libdir}/libIce.so
-%attr(755, root, root) %{_libdir}/libIceSSL.so
-%attr(755, root, root) %{_libdir}/libIceStormService.so
-%attr(755, root, root) %{_libdir}/libIceStorm.so
-%attr(755, root, root) %{_libdir}/libIceUtil.so
-%attr(755, root, root) %{_libdir}/libIceXML.so
-%attr(755, root, root) %{_libdir}/libSlice.so
+%{_bindir}/slice2cpp
+%{_bindir}/slice2freeze
+%{_includedir}/Freeze
+%{_includedir}/Glacier2
+%{_includedir}/Ice
+%{_includedir}/IceBox
+%{_includedir}/IceGrid
+%{_includedir}/IcePatch2
+%{_includedir}/IceSSL
+%{_includedir}/IceStorm
+%{_includedir}/IceUtil
+%{_includedir}/IceXML
+%{_includedir}/Slice
+%{_libdir}/libFreeze.so
+%{_libdir}/libGlacier2.so
+%{_libdir}/libIceBox.so
+%{_libdir}/libIceGrid.so
+%{_libdir}/libIcePatch2.so
+%{_libdir}/libIce.so
+%{_libdir}/libIceSSL.so
+%{_libdir}/libIceStorm.so
+%{_libdir}/libIceUtil.so
+%{_libdir}/libIceXML.so
+%{_libdir}/libSlice.so
 
 
-%post c++-devel
-%postun c++-devel
-
-
-%endif
-
-
-%ifarch %{core_arches}
+%if %{mono}
 %files csharp-devel
-%defattr(644, root, root, 755)
-
-%attr(755, root, root) /usr/bin/slice2cs
-%dir %{_libdir}/pkgconfig
+%defattr(-, root, root, -)
+%{_bindir}/slice2cs
 %{_libdir}/pkgconfig/icecs.pc
 %{_libdir}/pkgconfig/glacier2cs.pc
 %{_libdir}/pkgconfig/iceboxcs.pc
 %{_libdir}/pkgconfig/icegridcs.pc
 %{_libdir}/pkgconfig/icepatch2cs.pc
 %{_libdir}/pkgconfig/icestormcs.pc
-
-
-%post csharp-devel
-
-%ifnarch noarch
-
-pklibdir="lib"
-
-%ifarch x86_64
-pklibdir="lib64"
-%endif
-        
-%endif
-%postun csharp-devel
-
-
+%{_prefix}/lib/mono/glacier2cs/
+%{_prefix}/lib/mono/icecs/
+%{_prefix}/lib/mono/iceboxcs/
+%{_prefix}/lib/mono/icegridcs/
+%{_prefix}/lib/mono/icepatch2cs/
+%{_prefix}/lib/mono/icestormcs/
 %endif
 
-
-%ifarch %{core_arches}
 %files java-devel
-%defattr(644, root, root, 755)
+%defattr(-, root, root, -)
+%{_bindir}/slice2java
+%{_bindir}/slice2freezej
+#%{_javadir}/ant-ice-%{version}.jar
+#%{_javadir}/ant-ice.jar
 
-%attr(755, root, root) /usr/bin/slice2java
-%attr(755, root, root) /usr/bin/slice2freezej
-%dir /usr/lib/Ice-%{version}
-/usr/lib/Ice-%{version}/ant
-
-
-%post java-devel
-%postun java-devel
-
-
-%endif
-
-
-%ifarch %{core_arches}
 %files python
-%defattr(644, root, root, 755)
+%defattr(-, root, root, -)
+%{python_sitearch}/Ice
+#%{python_sitearch}/ice.pth
 
-%dir %{_libdir}/Ice-%{version}
-%{_libdir}/Ice-%{version}/python
-
-
-%post python
-%postun python
-
-
-%endif
-
-
-%ifarch %{core_arches}
 %files python-devel
-%defattr(644, root, root, 755)
+%defattr(-, root, root, -)
+%{_bindir}/slice2py
 
-%attr(755, root, root) /usr/bin/slice2py
-
-
-%post python-devel
-%postun python-devel
-
-
-%endif
-
-
-%if %{ruby_included}
+%if %{ruby}
 %files ruby
-%defattr(644, root, root, 755)
+%defattr(-, root, root, -)
+%{ruby_sitearch}/*
 
-%dir %{_libdir}/Ice-%{version}
-%{_libdir}/Ice-%{version}/ruby
-
-
-%post ruby
-%postun ruby
-
-
-%endif
-
-
-%if %{ruby_included}
 %files ruby-devel
-%defattr(644, root, root, 755)
-
-%attr(755, root, root) /usr/bin/slice2rb
-
-
-%post ruby-devel
-%postun ruby-devel
-
-
+%defattr(-, root, root, -)
+%{_bindir}/slice2rb
 %endif
 
-
-%ifarch %{core_arches}
 %files php
-%defattr(644, root, root, 755)
+%defattr(-, root, root, -)
 
 %if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
-%attr(755, root, root) %{_libdir}/php/modules
-/etc/php.d/ice.ini
+%{_libdir}/php/modules/IcePHP.so
+%config(noreplace) %{_sysconfdir}/php.d/ice.ini
 %endif
 
 %if "%{dist}" == ".sles10"
-%attr(755, root, root) %{_libdir}/php5/extensions
-/etc/php5/conf.d/ice.ini
+%{_libdir}/php5/extensions
+%config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif
-
-%post php
-%postun php
-
-
 %endif
 
 
-%ifarch noarch
-%files java
-%defattr(644, root, root, 755)
+%changelog
 
-%dir /usr/lib/Ice-%{version}
-/usr/lib/Ice-%{version}/Ice.jar
-%dir /usr/lib/Ice-%{version}/java2
-/usr/lib/Ice-%{version}/java2/Ice.jar
+* Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3.0-1
+- Updates for Ice 3.3.0 release:
+ - Split main ice rpm into ice noarch (license and Slice files), ice-libs 
+   (C++ runtime libraries), ice-utils (admin tools & utilities), ice-servers
+   (icegridregistry, icebox etc.). This way, ice-libs 3.3.0 can coexist with
+    ice-libs 3.4.0. The same is true for ice-dotnet, and to a lesser extent 
+    other ice runtime packages
+- Many updates derived from Mary Ellen Foster's Fedora RPM spec for Ice.
+ - The Ice jar files are now installed in %{_javalibdir}, with 
+   jpackage-compliant names
+ - New icegridgui shell script to launch the IceGrid GUI
+ - The .NET files are now packaged using gacutil with the -root option.
+ - ice-servers creates a new user (ice) and installs three init.d services:
+   icegridregistry, icegridnode and glacier2router.
+ - Python, Ruby and PHP files are now installed in the correct directories.
 
+* Fri Jul 27 2007 Bernard Normier <bernard@zeroc.com> 3.2.1-1
+- Updated for Ice 3.2.1 release
 
-%post java
-%postun java
+* Wed Jun 13 2007 Bernard Normier <bernard@zeroc.com>
+- Added patch with new IceGrid.Node.AllowRunningServersAsRoot property.
 
-
-%endif
-
-
-%ifarch noarch
-%files dotnet
-%defattr(644, root, root, 755)
-
-%dir /usr/lib/mono/gac/glacier2cs
-/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381
-%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.glacier2cs
-/usr/lib/mono/gac/policy.%{dotnetmainversion}.glacier2cs/0.0.0.0__1f998c50fec78381
-
-%dir /usr/lib/mono/gac/icecs
-/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381
-%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icecs
-/usr/lib/mono/gac/policy.%{dotnetmainversion}.icecs/0.0.0.0__1f998c50fec78381
-
-%dir /usr/lib/mono/gac/iceboxcs
-/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381
-%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.iceboxcs
-/usr/lib/mono/gac/policy.%{dotnetmainversion}.iceboxcs/0.0.0.0__1f998c50fec78381
-
-%dir /usr/lib/mono/gac/icegridcs
-/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381
-%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icegridcs
-/usr/lib/mono/gac/policy.%{dotnetmainversion}.icegridcs/0.0.0.0__1f998c50fec78381
-
-%dir /usr/lib/mono/gac/icepatch2cs
-/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381
-%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icepatch2cs
-/usr/lib/mono/gac/policy.%{dotnetmainversion}.icepatch2cs/0.0.0.0__1f998c50fec78381
-
-%dir /usr/lib/mono/gac/icestormcs
-/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381
-%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icestormcs
-/usr/lib/mono/gac/policy.%{dotnetmainversion}.icestormcs/0.0.0.0__1f998c50fec78381
-
-%attr(755, root, root) /usr/bin/iceboxnet.exe
+* Fri Dec 6 2006 ZeroC Staff <support@zeroc.com>
+- See source distributions or the ZeroC website for more information
+  about the changes in this release
 
 
-%post dotnet
-%postun dotnet
 
-
-%endif

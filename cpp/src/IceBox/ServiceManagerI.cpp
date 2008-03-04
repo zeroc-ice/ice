@@ -81,8 +81,8 @@ private:
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) : 
     _communicator(communicator),
-    _traceServiceObserver(0),
-    _pendingStatusChanges(false)
+    _pendingStatusChanges(false),
+    _traceServiceObserver(0)
 { 
     _logger = _communicator->getLogger();
 
@@ -118,13 +118,13 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
         vector<ServiceInfo>::iterator p;
         for(p = _services.begin(); p != _services.end(); ++p)
         {
-            if((*p).name == name)
+            if(p->name == name)
             {
-                if((*p).status != Stopped)
+                if(p->status != Stopped)
                 {
                     throw AlreadyStartedException();
                 }
-                (*p).status = Starting;
+                p->status = Starting;
                 info = *p;
                 break;
             }
@@ -161,16 +161,16 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
         vector<ServiceInfo>::iterator p;
         for(p = _services.begin(); p != _services.end(); ++p)
         {
-            if((*p).name == name)
+            if(p->name == name)
             {
                 if(started)
                 {
-                    (*p).status = Started;
+                    p->status = Started;
                     observers = _observers;
                 }
                 else
                 {
-                    (*p).status = Stopped;
+                    p->status = Stopped;
                 }
                 break;
             }
@@ -201,13 +201,13 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
         vector<ServiceInfo>::iterator p;
         for(p = _services.begin(); p != _services.end(); ++p)
         {
-            if((*p).name == name)
+            if(p->name == name)
             {
-                if((*p).status != Started)
+                if(p->status != Started)
                 {
                     throw AlreadyStoppedException();
                 }
-                (*p).status = Stopping;
+                p->status = Stopping;
                 info = *p;
                 break;
             }
@@ -244,16 +244,16 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
         vector<ServiceInfo>::iterator p;
         for(p = _services.begin(); p != _services.end(); ++p)
         {
-            if((*p).name == name)
+            if(p->name == name)
             {
                 if(stopped)
                 {
-                    (*p).status = Stopped;
+                    p->status = Stopped;
                     observers = _observers;
                 }
                 else
                 {
-                    (*p).status = Started;
+                    p->status = Started;
                 }
                 break;
             }

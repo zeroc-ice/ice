@@ -13,7 +13,7 @@
 
     <property environment="env"/>
 
-    <target name="init" depends="config-init">
+    <target name="init" depends="config-init, task-init">
       <!-- Create the time stamp -->
       <tstamp/>
     </target>
@@ -34,12 +34,12 @@
       </condition>
     </fail>
     <condition property="java2">
-	<equals arg1="${ice.mapping}" arg2="java2"/>
+        <equals arg1="${ice.mapping}" arg2="java2"/>
     </condition>
 
     <!-- Use the global metadata "java:java2" when using java2 mapping -->
     <condition property="java2metadata" value="java:java2" else="">
-	<isset property="java2"/>
+        <isset property="java2"/>
     </condition>
 
     <!-- Use -Xlint when requested -->
@@ -51,7 +51,7 @@
          scripts to build the jars and classes file in other
          directories than the default one. This is useful to build
          both the Java2 and Java5 mapping with the same source tree.
-      --> 
+      -->
     <property name="build.suffix" value=""/>
 
     <!-- Commonly needed properties -->
@@ -99,7 +99,7 @@
         <and>
             <available file="${ice.top.dir}/../java"/>
             <not><isset property="ice.bin.dist"/></not>
-        </and> 
+        </and>
     </condition>
     <!-- When building a source distribution, we allow using either the
          translators from a binary distribution or the local translators, -->
@@ -200,58 +200,79 @@
     <target name="config-init" depends="config-init-warn">
 
         <!-- Set slice.dir to the directory containing the Slice files. -->
-	<condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">
-	    <equals arg1="${ice.dir}" arg2="/usr"/>
-	</condition>
+        <condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">
+            <equals arg1="${ice.dir}" arg2="/usr"/>
+        </condition>
 
-        <!-- Set ant.task.dir to the directory containing the Slice ant tasks. -->
-	<condition property="ant.task.dir" value="${ice.dir}/java/ant">
-	    <isset property="ice.src.dist"/>
-	</condition>
-	<condition property="ant.task.dir" value="${ice.dir}/ant">
+        <!-- Set ice.classpath with the distribution Ice.jar file -->
+        <condition property="dist.lib.dir" value="${ice.dir}/java/lib">
+            <isset property="ice.src.dist"/>
+        </condition>
+        <condition property="dist.lib.dir" value="${ice.dir}/lib">
             <and>
-	        <isset property="ice.bin.dist"/>
+                <isset property="ice.bin.dist"/>
                 <not><equals arg1="${ice.dir}" arg2="/usr"/></not>
             </and>
-	</condition>
-	<condition property="ant.task.dir" value="/usr/lib/Ice-${ice.version}/ant">
+        </condition>
+        <condition property="dist.lib.dir" value="/usr/share/java">
             <and>
-	        <isset property="ice.bin.dist"/>
+                <isset property="ice.bin.dist"/>
                 <equals arg1="${ice.dir}" arg2="/usr"/>
             </and>
-	</condition>
+        </condition>
 
-	<taskdef name="slice2java" classpath="${ant.task.dir}" classname="Slice2JavaTask"/>
-	<taskdef name="slice2freezej" classpath="${ant.task.dir}" classname="Slice2FreezeJTask" />
-
-	<!-- Set ice.classpath with the distribution Ice.jar file -->
-	<condition property="dist.lib.dir" value="${ice.dir}/java/lib">
-	    <isset property="ice.src.dist"/>
-	</condition>
-	<condition property="dist.lib.dir" value="${ice.dir}/lib">
+        <condition property="dist.jar.file" value="${dist.lib.dir}/Ice-java2-${ice.version}.jar">
             <and>
-	        <isset property="ice.bin.dist"/>
-                <not><equals arg1="${ice.dir}" arg2="/usr"/></not>
+                <available file="${dist.lib.dir}/Ice-java2-${ice.version}.jar"/>
+                <isset property="java2"/>
             </and>
-	</condition>
-	<condition property="dist.lib.dir" value="/usr/lib/Ice-${ice.version}">
+        </condition>
+
+        <condition property="dist.jar.file" value="${dist.lib.dir}/java2/Ice.jar">
             <and>
-	        <isset property="ice.bin.dist"/>
-                <equals arg1="${ice.dir}" arg2="/usr"/>
+                <not><isset property="dist.jar.file"/></not>
+                <available file="${dist.lib.dir}/java2/Ice.jar"/>
+                <isset property="java2"/>
             </and>
-	</condition>
+        </condition>
 
-	<condition property="dist.jar.file" value="${dist.lib.dir}/java2/Ice.jar" else="${dist.lib.dir}/Ice.jar">
-	    <and>
-		<available file="${dist.lib.dir}/java2/Ice.jar"/>
-		<isset property="java2"/>
-	    </and>
-	</condition>
+        <condition property="dist.jar.file" value="${dist.lib.dir}/Ice-${ice.version}.jar">
+            <and>
+                <not><isset property="dist.jar.file"/></not>
+                <available file="${dist.lib.dir}/Ice-${ice.version}.jar"/>
+            </and>
+        </condition>
 
-	<path id="ice.classpath">
-	    <fileset file="${dist.jar.file}"/>
-	</path>
-        
+        <condition property="dist.jar.file" value="${dist.lib.dir}/Ice.jar">
+            <and>
+                <not><isset property="dist.jar.file"/></not>
+                <available file="${dist.lib.dir}/Ice.jar"/>
+            </and>
+        </condition>
+
+        <path id="ice.classpath">
+            <fileset file="${dist.jar.file}"/>
+        </path>
+
     </target>
-    
+
+    <!-- Install the Slice ant tasks. -->
+    <target name="task-init">
+
+        <condition property="task.jar.file" value="${dist.lib.dir}/ant-ice-${ice.version}.jar">
+            <available file="${dist.lib.dir}/ant-ice-${ice.version}.jar"/>
+        </condition>
+
+        <condition property="task.jar.file" value="${dist.lib.dir}/ant-ice.jar">
+            <and>
+                <not><isset property="task.jar.file"/></not>
+                <available file="${dist.lib.dir}/ant-ice.jar"/>
+            </and>
+        </condition>
+
+        <taskdef name="slice2java" classpath="${task.jar.file}" classname="Slice2JavaTask"/>
+        <taskdef name="slice2freezej" classpath="${task.jar.file}" classname="Slice2FreezeJTask" />
+
+    </target>
+
 </project>

@@ -23,7 +23,7 @@ OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC71, VC80, VC80_EXPRESS
+# VC60, VC71, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER            = VC80
@@ -33,7 +33,7 @@ CPP_COMPILER            = VC80
 # Set PYTHON_HOME to your Python installation directory.
 #
 !if "$(PYTHON_HOME)" == ""
-PYTHON_HOME		= C:\Python24
+PYTHON_HOME		= C:\Python25
 !endif
 
 #
@@ -85,7 +85,8 @@ install_libdir		= $(prefix)\python
 THIRDPARTY_HOME 	= $(STLPORT_HOME)
 
 !if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC71" && \
-    "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
+    "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS" && \
+    "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 

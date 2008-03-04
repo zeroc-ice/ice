@@ -128,6 +128,8 @@ class spawn(pexpect.spawn):
         if self.expectFirst and timeout == defaultTimeout:
             timeout = initialTimeout
             self.expectFirst = False
+        if trace:
+           print "(expect: %s timeout=%d)" % (pattern, defaultTimeout)
         return pexpect.spawn.expect(self, pattern, timeout, searchwindowsize)
 
     def wait(self):

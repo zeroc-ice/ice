@@ -10,7 +10,6 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
-#include <IceGrid/Query.h>
 
 #include <Clock.h>
 
@@ -31,31 +30,71 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.pub");
 }
 
+void
+usage(const string& n)
+{
+    cerr << "Usage: " << n << " [--datagram|--twoway|--oneway] [topic]" << endl;
+}
+
 int
 Publisher::run(int argc, char* argv[])
 {
-    if(argc > 2)
-    {
-        cerr << appName() << ": too many arguments" << endl;
-        return EXIT_FAILURE;
-    }
-
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-
-    IceStorm::TopicManagerPrx manager = 
-        IceStorm::TopicManagerPrx::checkedCast(communicator()->stringToProxy("DemoIceStorm/TopicManager"));
-    if(manager == 0)
-    {
-        cerr << appName() << ": no topic manager found, make sure application was deployed." << endl;
-        return EXIT_FAILURE;
-    }
-
+    enum Option { None, Datagram, Twoway, Oneway };
+    Option option = None;
     string topicName = "time";
-    if(argc != 1)
+    int i;
+
+    for(i = 1; i < argc; ++i)
     {
-        topicName = argv[1];
+        string optionString = argv[i];
+        Option oldoption = option;
+        if(optionString == "--datagram")
+        {
+            option = Datagram;
+        }
+        else if(optionString == "--twoway")
+        {
+            option = Twoway;
+        }
+        else if(optionString == "--oneway")
+        {
+            option = Oneway;
+        }
+        else if(optionString.substr(0, 2) == "--")
+        {
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
+        else
+        {
+            topicName = argv[i++];
+            break;
+        }
+
+        if(oldoption != option && oldoption != None)
+        {
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
     }
 
+    if(i != argc)
+    {
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+        communicator()->propertyToProxy("TopicManager.Proxy"));
+    if(!manager)
+    {
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
+    }
+
+    //
+    // Retrieve the topic.
+    //
     IceStorm::TopicPrx topic;
     try
     {
@@ -63,16 +102,38 @@ Publisher::run(int argc, char* argv[])
     }
     catch(const IceStorm::NoSuchTopic&)
     {
-        cerr << appName() << ": topics not created yet, run subscriber." << endl;
-        return EXIT_FAILURE;
+        try
+        {
+            topic = manager->create(topicName);
+        }
+        catch(const IceStorm::TopicExists&)
+        {
+            cerr << appName() << ": temporary failure. try again." << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     //
-    // Get the topic's publisher object, and configure a Clock proxy
-    // with per-request load balancing.
+    // Get the topic's publisher object, and create a Clock proxy with
+    // the mode specified as an argument of this application.
     //
-    ClockPrx clock = ClockPrx::uncheckedCast(topic->getPublisher()->ice_oneway()->ice_connectionCached(false));
+    Ice::ObjectPrx publisher = topic->getPublisher();
+    if(option == Datagram)
+    {
+        publisher = publisher->ice_datagram();
+    }
+    else if(option == Twoway)
+    {
+        // Do nothing.
+    }
+    else if(option == Oneway || option == None)
+    {
+        publisher = publisher->ice_oneway();
+    }
+    
+    ClockPrx clock = ClockPrx::uncheckedCast(publisher);
 
+    cout << "publishing tick events. Press ^C to terminate the application." << endl;
     try
     {
         while(true)

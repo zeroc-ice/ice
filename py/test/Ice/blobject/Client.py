@@ -53,13 +53,15 @@ def run(args, communicator, sync):
         hello.shutdown()
     return True
 
+argv = sys.argv[:]  # Clone the arguments to use again later
+
 try:
     initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
+    initData.properties = Ice.createProperties(argv)
     initData.properties.setProperty('Ice.Warn.Dispatch', '0')
-    communicator = Ice.initialize(sys.argv, initData)
+    communicator = Ice.initialize(argv, initData)
     router = RouterI.RouterI(communicator, False)
-    print "testing async blobject... ",
+    print "testing async blobject...",
     sys.stdout.flush()
     status = run(sys.argv, communicator, False)
     print "ok"
@@ -82,7 +84,7 @@ if status:
         initData.properties.setProperty('Ice.Warn.Dispatch', '0')
         communicator = Ice.initialize(sys.argv, initData)
         router = RouterI.RouterI(communicator, True)
-        print "testing sync blobject... ",
+        print "testing sync blobject...",
         sys.stdout.flush()
         status = run(sys.argv, communicator, True)
         print "ok"

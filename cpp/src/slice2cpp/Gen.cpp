@@ -5293,7 +5293,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
           << paramsDeclInvoke << epar;
         C << sb;
-        C << nl << "__acquire(__prx);";
+        C << nl << "__acquireCallback(__prx);";
         C << nl << "try";
         C << sb;
         if(p->returnsData())
@@ -5311,7 +5311,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
         C << sb;
-        C << nl << "__release(__ex);";
+        C << nl << "__releaseCallback(__ex);";
         C << eb;
         C << eb;
 
@@ -5378,7 +5378,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << nl << "return;";
         C << eb;
         C << nl << "ice_response" << spar << args << epar << ';';
-        C << nl << "__release();";
+        C << nl << "__releaseCallback();";
         C << eb;
     }
 

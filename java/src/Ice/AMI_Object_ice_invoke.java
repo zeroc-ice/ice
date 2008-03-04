@@ -17,7 +17,7 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
     public final void __invoke(Ice.ObjectPrx prx, String operation, OperationMode mode,
                                byte[] inParams, java.util.Map context)
     {
-        __acquire(prx);
+        __acquireCallback(prx);
         try
         {
             __prepare(prx, operation, mode, context);
@@ -27,7 +27,7 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
         }
         catch(LocalException ex)
         {
-            __release(ex);
+            __releaseCallback(ex);
         }
     }
 
@@ -46,6 +46,6 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
             return;
         }
         ice_response(ok, outParams);
-        __release();
+        __releaseCallback();
     }
 }

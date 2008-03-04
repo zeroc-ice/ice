@@ -37,13 +37,17 @@ def run(clientStr, serverStr):
     print "gambling...",
     sys.stdout.flush()
     client1.expect('All chips accounted for\? yes\r{1,2}\nEach player buys 3,000 chips... ok\r{1,2}\nAll chips accounted for\? yes');
+    server.expect('The bank has [0-9]+ outstanding chips')
     client2.expect('All chips accounted for\? yes\r{1,2}\nEach player buys 3,000 chips... ok\r{1,2}\nAll chips accounted for\? yes');
+    server.expect('The bank has [0-9]+ outstanding chips')
 
-    client1.expect('All chips accounted for\? yes\r{1,2}\nSleep for 2 seconds', timeout=200)
-    client2.expect('All chips accounted for\? yes\r{1,2}\nSleep for 2 seconds', timeout=200)
+    client1.expect('All chips accounted for\? yes\r{1,2}\nSleep for 2 seconds', timeout=400)
+    server.expect('The bank has [0-9]+ outstanding chips')
+    client2.expect('All chips accounted for\? yes\r{1,2}\nSleep for 2 seconds', timeout=400)
+    server.expect('The bank has [0-9]+ outstanding chips')
 
-    client1.expect('All chips accounted for\? yes', timeout=200)
-    client2.expect('All chips accounted for\? yes', timeout=200)
+    client1.expect('All chips accounted for\? yes', timeout=400)
+    client2.expect('All chips accounted for\? yes', timeout=400)
     print "ok"
 
     print "shutting down...",

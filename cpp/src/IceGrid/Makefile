@@ -9,27 +9,11 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IceGrid,$(VERSION))
-SONAME          = $(call mksoname,IceGrid,$(SOVERSION))  
-LIBNAME		= $(call mklibname,IceGrid)
-
 ADMIN		= $(top_srcdir)/bin/icegridadmin
 NODE_SERVER	= $(top_srcdir)/bin/icegridnode
 REGISTRY_SERVER	= $(top_srcdir)/bin/icegridregistry
 
-LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
-TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
-
-LIB_OBJS	= Admin.o \
-		  Locator.o \
-		  Query.o \
-	 	  Exception.o \
-		  Descriptor.o \
-                  FileParser.o \
-		  Observer.o \
-		  Session.o \
-		  Registry.o \
-		  UserAccountMapper.o
+TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
@@ -98,29 +82,17 @@ REGISTRY_SVR_OBJS = \
 		  $(REGISTRY_OBJS) \
 		  IceGridRegistry.o
 
-SRCS		= $(LIB_OBJS:.o=.cpp) \
-		  $(ADMIN_OBJS:.o=.cpp) \
+SRCS		= $(ADMIN_OBJS:.o=.cpp) \
 		  $(COMMON_OBJS:.o=.cpp) \
 		  $(NODE_OBJS:.o=.cpp) \
 		  $(REGISTRY_OBJS:.o=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
 
-SLICE_SRCS	= $(SDIR)/Admin.ice \
-                  $(SDIR)/Exception.ice \
-                  $(SDIR)/FileParser.ice \
-                  $(SDIR)/Locator.ice \
-                  $(SDIR)/Query.ice \
-		  $(SDIR)/Registry.ice \
-		  $(SDIR)/Session.ice \
-		  $(SDIR)/Observer.ice \
-		  $(SDIR)/Descriptor.ice \
-		  $(SDIR)/UserAccountMapper.ice \
-		  ../IceGrid/Internal.ice
+SLICE_SRCS	= ../IceGrid/Internal.ice
 
 HDIR		= $(includedir)/IceGrid
 LOCAL_HDIR	= ../IceGrid
-SDIR		= $(slicedir)/IceGrid
 LOCAL_SDIR	= ../IceGrid
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
@@ -131,18 +103,6 @@ CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_GRID_API_EXPORTS $(OPENSSL_FLAGS) $(READLINE_
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
 LINKWITH        := -lGlacier2 $(BZIP2_RPATH_LINK) -lIce -lIceUtil
-
-$(libdir)/$(LIBFILENAME): $(LIB_OBJS)
-	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(LIB_OBJS),$(LINKWITH))
-
-$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
-	rm -f $@
-	ln -s $(LIBFILENAME) $@
-
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
-	rm -f $@
-	ln -s $(SONAME) $@
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
@@ -158,10 +118,6 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 -lIcePatch2 \
 	$(DB_RPATH_LINK) -lFreeze $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
-
-$(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
-	rm -f $(HDIR)/$(*F).h $(*F).cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)/$(*F).ice
 
 $(LOCAL_HDIR)/StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE2FREEZE)
 	rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
@@ -183,7 +139,7 @@ clean::
 $(LOCAL_HDIR)/StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SLICE2FREEZE)
 	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
-	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)/Admin.ice
+	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(slicedir)/IceGrid/Admin.ice
 
 clean::
 	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
@@ -196,7 +152,6 @@ clean::
 	rm -f Scanner.cpp
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installprogram,$(ADMIN),$(install_bindir))
 	$(call installprogram,$(NODE_SERVER),$(install_bindir))
 	$(call installprogram,$(REGISTRY_SERVER),$(install_bindir))

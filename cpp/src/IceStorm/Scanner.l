@@ -246,6 +246,7 @@ initScanner()
     keywordMap["unlink"] = ICE_STORM_UNLINK;
     keywordMap["links"] = ICE_STORM_LINKS;
     keywordMap["topics"] = ICE_STORM_TOPICS;
+    keywordMap["replica"] = ICE_STORM_REPLICA;
 }
 
 }

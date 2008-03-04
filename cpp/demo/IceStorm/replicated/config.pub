@@ -4,6 +4,11 @@
 Ice.Default.Locator=DemoIceGrid/Locator:default -p 4061
 
 #
+# This property is used by the clients to connect to IceStorm.
+#
+TopicManager.Proxy=DemoIceStorm/TopicManager
+
+#
 # Locator Tracing
 #
 #Ice.Trace.Locator=1

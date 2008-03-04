@@ -66,9 +66,25 @@ print "ok"
 print "testing pub/sub...",
 sys.stdout.flush()
 sub = demoscript.Util.spawn('./subscriber --Ice.PrintAdapterReady')
-sub.expect('.* ready')
 
-node.expect('Subscribe:.*Subscribe:.*Subscribe:')
+# Match each of the patterns once.
+def matchpat(e, pat, timeout=60):
+    matched = []
+    for i in pat:
+        m = e.expect(pat, timeout=timeout)
+        assert not m in matched
+        matched.append(m)
+    assert len(matched) == len(pat)
+
+matchpat(node, [ 'Election: node 1: reporting for duty in group 3:[-0-9A-F]+ with coordinator 3',
+                 'Election: node 2: reporting for duty in group 3:[-0-9A-F]+ with coordinator 3',
+                 'Election: node 3: reporting for duty in group 3:[-0-9A-F]+ as coordinator' ])
+         
+matchpat(node, ['DemoIceStorm-3: Topic: time: subscribeAndGetPublisher: [-0-9A-F]+',
+                'DemoIceStorm-1: Topic: time: add replica observer: [-0-9A-F]+',
+                'DemoIceStorm-2: Topic: time: add replica observer: [-0-9A-F]+' ])
+
+sub.expect('.* ready')
 
 pub = demoscript.Util.spawn('./publisher')
 
@@ -76,38 +92,14 @@ time.sleep(3)
 sub.expect('[0-9][0-9]/[0-9][0-9].*\r{1,2}\n[0-9][0-9]/[0-9][0-9]')
 print "ok"
 
-print "testing replication...",
-sys.stdout.flush()
-# Start killing off the servers
-admin.sendline('server disable DemoIceStorm-1')
-admin.expect('>>>')
-admin.sendline('server stop DemoIceStorm-1')
-admin.expect('>>>')
-
-time.sleep(3)
-sub.expect('[0-9][0-9]/[0-9][0-9].*\r{1,2}\n[0-9][0-9]/[0-9][0-9]')
-
-admin.sendline('server disable DemoIceStorm-2')
-admin.expect('>>>')
-admin.sendline('server stop DemoIceStorm-2')
-admin.expect('>>>')
-
-time.sleep(3)
-sub.expect('[0-9][0-9]/[0-9][0-9].*\r{1,2}\n[0-9][0-9]/[0-9][0-9]')
-
-admin.sendline('server disable DemoIceStorm-3')
-admin.expect('>>>')
-admin.sendline('server stop DemoIceStorm-3')
-admin.expect('>>>')
-
-pub.expect('Ice::NoEndpointException')
-pub.waitTestSuccess(1)
-
 sub.kill(signal.SIGINT)
-if not demoscript.Util.isCygwin():
-    sub.expect('NoEndpointException')
-pub.waitTestSuccess(1)
-print "ok"
+sub.waitTestSuccess()
+pub.kill(signal.SIGINT)
+pub.waitTestSuccess()
+
+matchpat(node, [ 'DemoIceStorm-1: Topic: time: remove replica observer: [-0-9A-F]+',
+                 'DemoIceStorm-2: Topic: time: remove replica observer: [-0-9A-F]+' ,
+                 'DemoIceStorm-3: Topic: time: unsubscribe: [-0-9A-F]+' ]) 
 
 admin.sendline('registry shutdown Master')
 admin.sendline('exit')

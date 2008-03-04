@@ -38,11 +38,11 @@ namespace IceInternal
             }
             finally
             {
-                release__();
+                releaseCallback__();
             }
         }
 
-        protected void acquire__(Ice.ObjectPrx proxy)
+        protected void acquireCallback__(Ice.ObjectPrx proxy)
         {
             lock(monitor__)
             {
@@ -62,7 +62,7 @@ namespace IceInternal
             }
         }
 
-        protected void release__(Ice.LocalException ex)
+        protected void releaseCallback__(Ice.LocalException ex)
         {
             Debug.Assert(os__ != null);
             
@@ -82,12 +82,12 @@ namespace IceInternal
             }
             catch(Ice.CommunicatorDestroyedException)
             {
-                release__();
+                releaseCallback__();
                 throw; // CommunicatorDestroyedException is the only exception that can propagate directly.
             }
         }
 
-        protected  void release__()
+        protected  void releaseCallback__()
         {
             lock(monitor__)
             {
@@ -145,7 +145,7 @@ namespace IceInternal
 
                 if(!_proxy.ice_isTwoway())
                 {
-                    release__();
+                    releaseCallback__();
                 }
                 else if(_response)
                 {
@@ -313,7 +313,7 @@ namespace IceInternal
             catch(System.Exception ex)
             {
                 warning__(ex);
-                release__();
+                releaseCallback__();
             }
         }
 
@@ -557,7 +557,7 @@ namespace IceInternal
     {
         public override void sent__(Ice.ConnectionI connection)
         {
-            release__();
+            releaseCallback__();
         }
 
         public override void finished__(Ice.LocalException exc)
@@ -580,7 +580,7 @@ namespace Ice
         public void invoke__(Ice.ObjectPrx prx, string operation, OperationMode mode,
             byte[] inParams, Dictionary<string, string> context)
         {
-            acquire__(prx);
+            acquireCallback__(prx);
             try
             {
                 prepare__(prx, operation, mode, context);
@@ -590,7 +590,7 @@ namespace Ice
             }
             catch(LocalException ex)
             {
-                release__(ex);
+                releaseCallback__(ex);
             }
         }
 
@@ -610,7 +610,7 @@ namespace Ice
                 return;
             }
             ice_response(ok, outParams);
-            release__();
+            releaseCallback__();
         }
     }
 
@@ -620,7 +620,7 @@ namespace Ice
 
         public void invoke__(Ice.ObjectPrx prx)
         {
-            acquire__(prx);
+            acquireCallback__(prx);
             try
             {
                 //
@@ -642,7 +642,7 @@ namespace Ice
             }
             catch(Ice.LocalException ex)
             {
-                release__(ex);
+                releaseCallback__(ex);
             }
         }
     }

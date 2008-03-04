@@ -6,7 +6,7 @@ Counter.Endpoints=tcp -p 12000
 #
 # This property is used by the counter server to connect with IceStorm.
 #
-IceStorm.TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
+TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
 
 #
 # Network Tracing

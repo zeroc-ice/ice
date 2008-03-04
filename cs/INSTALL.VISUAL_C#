@@ -169,8 +169,8 @@ directory:
 > copy <path_to_icecs.pdb> .
 
 
-Binary compatibility
---------------------
+Binary compatibility of patch releases
+--------------------------------------
 
 Patch releases of Ice are binary compatible. For example, version
 <x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
@@ -179,103 +179,52 @@ having to recompile.
 
 If you want to run already deployed <x>.<y>.0 applications with the
 <x>.<y>.1 run time (or later patch release) on a machine, follow the
-steps under (1) or (2) below:
+steps below:
 
-1) On a machine with the Ice source tree and Visual Studio installed:
+1) Start a command shell.
 
-   - Start a command shell.
+2) Run the following commands:
 
-   - Run the following commands:
+      gacutil /u policy.<x>.<y>.icecs
+      gacutil /u policy.<x>.<y>.iceboxcs
+      gacutil /u policy.<x>.<y>.icegridcs
+      gacutil /u policy.<x>.<y>.icepatch2cs
+      gacutil /u policy.<x>.<y>.icesslcs
+      gacutil /u policy.<x>.<y>.icestormcs
+      gacutil /u policy.<x>.<y>.glacier2cs
 
-	gacutil /u policy.<x>.<y>.icecs
-	gacutil /u policy.<x>.<y>.iceboxcs
-	gacutil /u policy.<x>.<y>.icegridcs
-	gacutil /u policy.<x>.<y>.icepatch2cs
-	gacutil /u policy.<x>.<y>.icesslcs
-	gacutil /u policy.<x>.<y>.icestormcs
-	gacutil /u policy.<x>.<y>.glacier2cs
+   Substitute the major and minor version for <x> and <y> in these
+   commands, for example: gacutil /u policy.3.2.icecs
 
-     Substitute the major and minor version for <x> and <y> in these
-     commands, for example: gacutil /u policy.3.1.icecs
+   These commands uninstall the <x>.<y> Ice run time.
 
-     These commands uninstall the <x>.<y> Ice run time.
+3) Either change directory to the cs\bin directory of the Ice source tree
+   or copy all the files beginning with "policy", and all files ending in 
+   ".dll" from the cs\bin directory of the machine on which you compiled 
+   Ice for .NET into a single directory on the target machine and change
+   directory to that directory.
 
-   - Build the solution.
+4) Run the following commands:
 
-   - In a command shell, change directory to the bin directory of the
-     icecs source tree.
+      gacutil /i policy.<x>.<y>.icecs.dll
+      gacutil /i policy.<x>.<y>.iceboxcs.dll
+      gacutil /i policy.<x>.<y>.icegridcs.dll
+      gacutil /i policy.<x>.<y>.icepatch2.dll
+      gacutil /i policy.<x>.<y>.icesslcs.dll
+      gacutil /i policy.<x>.<y>.icestormcs.dll
+      gacutil /i policy.<x>.<y>.glacier2cs.dll
 
-   - Run the following commands:
+   These commands cause applications requesting the <x>.<y>.0 run
+   time to load the <x>.<y>.1 (or later patch version) run time instead.
 
-	gacutil.exe /i policy.<x>.<y>.icecs.dll
-	gacutil.exe /i policy.<x>.<y>.iceboxcs.dll
-	gacutil.exe /i policy.<x>.<y>.icegridcs.dll
-	gacutil.exe /i policy.<x>.<y>.icepatch2.dll
-	gacutil.exe /i policy.<x>.<y>.icesslcs.dll
-	gacutil.exe /i policy.<x>.<y>.icestormcs.dll
-	gacutil.exe /i policy.<x>.<y>.glacier2cs.dll
+5) Run the following commands:
 
-     These commands cause applications requesting the <x>.<y>.<z> run
-     time to load the <x>.<y>.<z or z+n> run time instead.
+      gacutil /i icecs.dll
+      gacutil /i iceboxcs.dll
+      gacutil /i icegridcs.dll
+      gacutil /i icepatch2cs.dll
+      gacutil /i icesslcs.dll
+      gacutil /i icestormcs.dll
+      gacutil /i glacier2cs.dll
 
-   - From the bin directory, run the commands:
-
-	gacutil /i icecs.dll
-	gacutil /i iceboxcs.dll
-	gacutil /i icegridcs.dll
-	gacutil /i icepatch2cs.dll
-	gacutil /i icesslcs.dll
-	gacutil /i icestormcs.dll
-	gacutil /i glacier2cs.dll
-
-     These commands install the newer patch version DLLs into the GAC.
-
-2) On a machine without the Ice source tree and without Visual Studio:
-
-   - Copy all the files beginning with "policy", and all files ending
-     in ".dll" from the bin directory of the machine on which you
-     compiled Ice for .NET into a single directory on the target
-     machine.
-
-   - Start a command shell.
-
-   - Run the following commands:
-
-	gacutil /u policy.<x>.<y>.icecs
-	gacutil /u policy.<x>.<y>.iceboxcs
-	gacutil /u policy.<x>.<y>.icegridcs
-	gacutil /u policy.<x>.<y>.icepatch2cs
-	gacutil /u policy.<x>.<y>.icesslcs
-	gacutil /u policy.<x>.<y>.icestormcs
-	gacutil /u policy.<x>.<y>.glacier2cs
-
-     Substitute the major and minor version for <x> and <y> in these
-     commands, for example: gacutil /u policy.3.1.icecs
-
-     These commands uninstall the <x>.<y>.0 Ice run time.
-
-   - Change to the directory containing the policy and .dll files you
-     copied previously and run the following commands:
-
-	gacutil.exe /i policy.<x>.<y>.icecs.dll
-	gacutil.exe /i policy.<x>.<y>.iceboxcs.dll
-	gacutil.exe /i policy.<x>.<y>.icegridcs.dll
-	gacutil.exe /i policy.<x>.<y>.icepatch2.dll
-	gacutil.exe /i policy.<x>.<y>.icesslcs.dll
-	gacutil.exe /i policy.<x>.<y>.icestormcs.dll
-	gacutil.exe /i policy.<x>.<y>.glacier2cs.dll
-
-     These commands cause applications requesting the <x>.<y>.<z> run
-     time to load the <x>.<y>.<z or z+n> run time instead.
-
-   - Then run the commands:
-
-	gacutil /i icecs.dll
-	gacutil /i iceboxcs.dll
-	gacutil /i icegridcs.dll
-	gacutil /i icepatch2cs.dll
-	gacutil /i icesslcs.dll
-	gacutil /i icestormcs.dll
-	gacutil /i glacier2cs.dll
-
-     These commands install the newer patch version DLLs into the GAC.
+   These commands install the newer patch version DLLs into the GAC.

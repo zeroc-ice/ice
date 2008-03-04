@@ -36,16 +36,7 @@ MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
-ifeq ($(NOGAC),)
-
 install:: all
-	$(GACUTIL) -i $(bindir)/$(LIBNAME)
-
-else
-
-install:: all
-	$(call installlibrary,$(bindir)/icesslcs.dll,$(install_bindir))
-
-endif
+	$(call installassembly,$(TARGETS),$(PKG))
 
 include .depend

@@ -21,11 +21,28 @@
     <property name="lib.dir" value="lib${build.suffix}"/>
     <property name="cache.dir" value="depcache${build.suffix}"/>
 
-    <target name="generate" depends="init">
+    <!-- This target cannot depend on init because the tasks may not be compiled yet -->
+    <target name="tasks" depends="config-init">
+        <mkdir dir="${lib.dir}/ant"/>
+        <javac srcdir="${src.dir}/ant" destdir="${lib.dir}/ant"
+            source="1.5"
+            includes="**"
+            deprecation="on">
+            <compilerarg value="${javac.lint}"/>
+        </javac>
+        <jar jarfile="${lib.dir}/ant-ice.jar" basedir="${lib.dir}/ant">
+            <include name="*.class"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="generate" depends="tasks, task-init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java ice="on" stream="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -34,7 +51,7 @@
             </fileset>
         </slice2java>
         <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -43,7 +60,7 @@
                 <include name="Current.ice" />
                 <include name="Endpoint.ice" />
                 <include name="FacetMap.ice" />
-		<include name="ImplicitContext.ice" />
+                <include name="ImplicitContext.ice" />
                 <include name="Identity.ice" />
                 <include name="LocalException.ice" />
                 <include name="Locator.ice" />
@@ -76,7 +93,7 @@
         </slice2java>
 
         <slice2freezej outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -85,7 +102,7 @@
         </slice2freezej>
 
         <slice2freezej ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -97,7 +114,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.Glacier2">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -111,7 +128,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceBox">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -122,7 +139,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceGrid.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceGrid">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -142,7 +159,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceStorm">
-	    <meta value="${java2metadata}"/>
+            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -155,58 +172,60 @@
     <target name="ice-compile" depends="generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-	<depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
-	<javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
-	    source="1.5" debug="${debug}"
-	    excludes="IceGridGUI/**"
-	    includes="**"
-	    deprecation="on">
-	    <compilerarg value="${javac.lint}"/>
-	</javac>
+        <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
+        <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
+            source="1.5" debug="${debug}"
+            excludes="IceGridGUI/**"
+            includes="**"
+            deprecation="on">
+            <compilerarg value="${javac.lint}"/>
+        </javac>
     </target>
 
     <target name="ice-jar" depends="ice-compile">
-	<jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
-	    <include name="**/*.class"/>
+        <jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
+            <include name="**/*.class"/>
             <exclude name="IceGridGUI/**"/>
-	    <exclude name="*.jar"/>
+            <exclude name="ant/**"/>
+            <exclude name="*.jar"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
-                <attribute name="Class-Path" value="db.jar /usr/share/java/db46/db.jar ../db.jar"/>
+                <attribute name="Class-Path" value="db.jar /usr/share/java/db-${db.version}.jar ../db.jar"/>
             </manifest>
-	</jar>
+        </jar>
     </target>
 
     <target name="icegridadmin-compile" depends="ice-compile" unless="java2">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
-	    source="1.5" debug="${debug}"
-	    includes="IceGridGUI/**"
-	    deprecation="on"/>
+            source="1.5" debug="${debug}"
+            includes="IceGridGUI/**"
+            classpath="${jgoodies.looks}:${jgoodies.forms}"
+            deprecation="on"/>
     </target>
 
     <condition property="build-icegridadmin-pro-jar">
-	<and>
+        <and>
             <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
-	    <available file="${jgoodies.looks}" />
-	    <available file="${jgoodies.forms}" />
+            <available file="${jgoodies.looks}" />
+            <available file="${jgoodies.forms}" />
             <not><isset property="java2"/></not>
-	</and>	
+        </and>
     </condition>
 
     <condition property="build-icegridadmin-plain-jar">
-	<and>
+        <and>
             <not><isset property="build-icegridadmin-pro-jar"/></not>
             <not><isset property="java2"/></not>
-	</and>	
+        </and>
     </condition>
 
     <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">
-	<manifest file="${lib.dir}/icegridgui.mf">
-	    <attribute name="Class-Path" value="Ice.jar ../resources/"/>
-	</manifest>
+        <manifest file="${lib.dir}/icegridgui.mf">
+            <attribute name="Class-Path" value="Ice.jar ../resources/"/>
+        </manifest>
         <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
-	    <include name="IceGridGUI/**"/>
-	</jar>
+            <include name="IceGridGUI/**"/>
+        </jar>
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
@@ -218,18 +237,18 @@
             <os family="mac"/>
         </condition>
 
-	<manifest file="${lib.dir}/icegridgui.mf">
-	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
-	    <attribute name="Class-Path" value="../help/ ../resources/ ../../share/doc/Ice-${ice.version}/ ../../share/doc/packages/Ice-${ice.version}/"/>
-	</manifest>
-	<jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
-	    <include name="IceGridGUI/**"/>
-	</jar>
-	<jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="resources"
-	    update="true">
-	    <include name="icons/**"/>
-	</jar>
-	<delete file="${lib.dir}/icegridgui.mf" />
+        <manifest file="${lib.dir}/icegridgui.mf">
+            <attribute name="Main-Class" value="IceGridGUI.Main"/>
+            <attribute name="Class-Path" value="../help/ ../resources/ ../../share/doc/Ice-${ice.version}/ ../../share/doc/packages/Ice-${ice.version}/"/>
+        </manifest>
+        <jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
+            <include name="IceGridGUI/**"/>
+        </jar>
+        <jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="resources"
+            update="true">
+            <include name="icons/**"/>
+        </jar>
+        <delete file="${lib.dir}/icegridgui.mf" />
         <taskdef resource="proguard/ant/task.properties"/>
 
         <proguard>
@@ -242,7 +261,7 @@
              -libraryjars ${jsse.jar}
              -include config/icegridgui.pro
         </proguard>
-	<delete file="${lib.dir}/IceGridGUItemp.jar" />
+        <delete file="${lib.dir}/IceGridGUItemp.jar" />
     </target>
 
     <target name="compile" depends="ice-compile, icegridadmin-compile">
@@ -258,21 +277,31 @@
     <target name="install-common">
         <mkdir dir="${prefix}"/>
         <mkdir dir="${prefix}/lib"/>
-        <mkdir dir="${prefix}/ant"/>
-        <mkdir dir="${prefix}/help"/>
         <copy file="${ice.dir}/LICENSE" todir="${prefix}"/>
         <copy file="${ice.dir}/ICE_LICENSE" todir="${prefix}"/>
-        <copy todir="${prefix}/ant">
-            <fileset dir="${ant.task.dir}">
-               <include name="*.class"/>
-            </fileset>
+    </target>
+
+    <condition property="slice-installed">
+        <and>
+            <available file="${prefix}/slice/Ice/Communicator.ice"/>
+        </and>
+    </condition>
+
+    <target name="install-slice" unless="slice-installed">
+        <mkdir dir="${prefix}/slice"/>
+        <copy todir="${prefix}/slice">
+            <fileset dir="../slice" includes="**"/>
         </copy>
+    </target>
+
+    <target name="install-icegridgui-jar" unless="java2">
+        <mkdir dir="${prefix}/help"/>
         <copy file="${lib.dir}/IceGridGUI.jar" todir="${prefix}/lib"/>
         <copy todir="${prefix}/help">
             <fileset dir="resources" includes="IceGridAdmin/**"/>
         </copy>
     </target>
-    
+
     <target name="install-jar" unless="java2">
         <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib"/>
     </target>
@@ -282,7 +311,11 @@
         <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib/java2"/>
     </target>
 
-    <target name="install" depends="jar, install-common, install-jar, install-java2-jar">
+    <target name="install-tasks">
+        <copy file="${lib.dir}/ant-ice.jar" todir="${prefix}/lib"/>
+    </target>
+
+    <target name="install" depends="jar, install-common, install-jar, install-java2-jar, install-icegridgui-jar, install-tasks, install-slice">
     </target>
 
     <target name="clean" depends="config-init">

@@ -20,35 +20,24 @@ public class Publisher extends Ice.Application
     public int
     run(String[] args)
     {
-        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
-            communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
-        if(manager == null)
-        {
-            System.err.println("invalid proxy");
-            return 1;
-        }
-
+        String option = "None";
         String topicName = "time";
-        boolean datagram = false;
-        boolean twoway = false;
-        boolean oneway = false;
-        int optsSet = 0;
-        for(int i = 0; i < args.length; ++i)
+        int i;
+
+        for(i = 0; i < args.length; ++i)
         {
+            String oldoption = option;
             if(args[i].equals("--datagram"))
             {
-                datagram = true;
-                ++optsSet;
+                option = "Datagram";
             }
             else if(args[i].equals("--twoway"))
             {
-                twoway = true;
-                ++optsSet;
+                option = "Twoway";
             }
             else if(args[i].equals("--oneway"))
             {
-                oneway = true;
-                ++optsSet;
+                option = "Oneway";
             }
             else if(args[i].startsWith("--"))
             {
@@ -57,14 +46,28 @@ public class Publisher extends Ice.Application
             }
             else
             {
-                topicName = args[i];
+                topicName = args[i++];
                 break;
+            }
+
+            if(!oldoption.equals(option) && !oldoption.equals("None"))
+            {
+                usage();
+                return 1;
             }
         }
 
-        if(optsSet > 1)
+        if(i != args.length)
         {
             usage();
+            return 1;
+        }
+
+        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
+            communicator().propertyToProxy("TopicManager.Proxy"));
+        if(manager == null)
+        {
+            System.err.println("invalid proxy");
             return 1;
         }
 
@@ -94,11 +97,11 @@ public class Publisher extends Ice.Application
         // the mode specified as an argument of this application.
         //
         Ice.ObjectPrx publisher = topic.getPublisher();
-        if(datagram)
+        if(option.equals("Datagram"))
         {
             publisher = publisher.ice_datagram();
         }
-        else if(twoway)
+        else if(option.equals("Twoway"))
         {
             // Do nothing.
         }

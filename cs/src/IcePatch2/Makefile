@@ -31,16 +31,7 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
-ifeq ($(NOGAC),)
-
 install:: all
-	$(GACUTIL) -i $(bindir)/$(LIBNAME)
-
-else
-
-install:: all
-	$(call installlibrary,$(bindir)/icepatch2cs.dll,$(install_bindir))
-
-endif
+	$(call installassembly,$(TARGETS),$(PKG))
 
 include .depend

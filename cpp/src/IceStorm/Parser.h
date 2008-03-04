@@ -64,6 +64,7 @@ public:
     void unlink(const std::list<std::string>&);
     void links(const std::list<std::string>&);
     void topics(const std::list<std::string>&);
+    void replica(const std::list<std::string>&);
     void current(const std::list<std::string>&);
 
     void showBanner();

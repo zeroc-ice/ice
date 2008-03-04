@@ -5,7 +5,7 @@
 # glacier2router    This shell script takes care of starting and 
 #                   stopping the glacier2router daemon.
 #
-# chkconfig: 235 62 74
+# chkconfig: - 62 74
 # description: The Glacier2 router daemon. \
 # Glacier2 is the firewall traversal service for the Internet \ 
 # Communications Engine (Ice).
@@ -19,7 +19,7 @@
 # The Glacier2 router user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=iceuser
+user=ice
 
 #
 # Ask for a password at startup?

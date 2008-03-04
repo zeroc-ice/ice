@@ -64,14 +64,13 @@ ice_src_dist = 1
 !if !exist ($(ICE_HOME)\bin\$(slice_translator))
 !error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
+!if exist ($(ice_dir)\cpp\bin\$(slice_translator))
+!message Found $(slice_translator) in both ICE_HOME\bin and $(ice_dir)\cpp\bin, ICE_HOME\bin\$(slice_translator) will be used!
+!endif
 ice_cpp_dir = $(ICE_HOME)
 !else
 !message Ignoring ICE_HOME environment variable to build current source tree.
 ice_cpp_dir = $(ice_dir)/cpp
-!endif
-
-!if exist ($(ice_dir)\cpp\bin\$(slice_translator))
-!message Found $(slice_translator) in both ICE_HOME\bin and $(ice_dir)\cpp\bin, ICE_HOME\bin\$(slice_translator) will be used!
 !endif
 
 !else

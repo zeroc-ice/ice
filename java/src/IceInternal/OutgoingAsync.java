@@ -20,7 +20,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
 
             if(!_proxy.ice_isTwoway())
             {
-                __release();
+                __releaseCallback();
             }
             else if(_response)
             {
@@ -203,7 +203,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         catch(java.lang.Exception ex)
         {
             __warning(ex);
-            __release();
+            __releaseCallback();
         }
     }
 

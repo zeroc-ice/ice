@@ -17,7 +17,7 @@ def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
     sub = demoscript.Util.spawn('%s --Ice.PrintAdapterReady %s' %(subCmd, subargs))
     sub.expect('.* ready')
 
-    icestorm.expect('Subscribe:')
+    icestorm.expect('subscribeAndGetPublisher:')
 
     pub = demoscript.Util.spawn('%s %s' %(pubCmd, pubargs))
 
@@ -31,7 +31,7 @@ def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
     sub.kill(signal.SIGINT)
     sub.waitTestSuccess()
     try:
-        icestorm.expect('Unsubscribe:')
+        icestorm.expect('unsubscribe:')
     except pexpect.TIMEOUT:
         print "(Wait for Unsubscribe failed, expected for Mono)",
     print "ok"

@@ -31,9 +31,10 @@ SUBDIRS		= IceUtil \
 		  Freeze \
 		  FreezeScript \
 		  IceBox \
-		  IceStorm \
 		  Glacier2 \
 		  IcePatch2 \
+		  IceGridLib \
+		  IceStorm \
 		  IceGrid \
 		  ca
 

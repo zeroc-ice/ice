@@ -28,7 +28,7 @@ rc_reset
 # The Glacier2 router user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=iceuser
+user=ice
 
 #
 # The Glacier2 router configuration file

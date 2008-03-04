@@ -216,7 +216,7 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     return true;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 extern "C"
 #endif
 static void

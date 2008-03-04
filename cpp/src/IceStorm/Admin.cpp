@@ -104,27 +104,9 @@ Client::run(int argc, char* argv[])
 
     // The complete set of Ice::Identity -> manager proxies.
     map<Ice::Identity, IceStorm::TopicManagerPrx> managers;
-    
-    // IceStorm.TopicManager.Proxy is the "default" manager.
     PropertiesPtr properties = communicator()->getProperties();
-    const char* managerProxy= "IceStorm.TopicManager.Proxy";
-    string managerProxyValue = properties->getProperty(managerProxy);
     IceStorm::TopicManagerPrx defaultManager;
-    if(!managerProxyValue.empty())
-    {
-        defaultManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy(managerProxy));
-        if(!defaultManager)
-        {
-            cerr << appName() << ": `" << managerProxyValue << "' is not running" << endl;
-            return EXIT_FAILURE;
-        }
-        managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
-                            defaultManager->ice_getIdentity(), defaultManager));
-    }
 
-    //
-    // Get remaining managers.
-    //
     Ice::PropertyDict props = communicator()->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
     {
         for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
@@ -148,58 +130,25 @@ Client::run(int argc, char* argv[])
                 }
             }
         }
-        if(props.empty() && !defaultManager)
-        {
-            cerr << appName() << ": no manager proxies configured" << endl;
-            return EXIT_FAILURE;
-        }
 
-        if(!defaultManager)
+        string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+        if(!managerProxy.empty())
         {
-            string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-            if(!managerProxy.empty())
-            {
-                defaultManager = IceStorm::TopicManagerPrx::uncheckedCast(
-                    communicator()->stringToProxy(managerProxy));
-            }
-            else
-            {
-                defaultManager = managers.begin()->second;
-            }
+            defaultManager = IceStorm::TopicManagerPrx::uncheckedCast(
+                communicator()->stringToProxy(managerProxy));
+        }
+        else if(!managers.empty())
+        {
+            defaultManager = managers.begin()->second;
         }
     }
 
-    // Check slice checksums for each manager.
+    if(!defaultManager)
     {
-        for(map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = managers.begin(); p != managers.end();
-            ++p)
-        {
-            try
-            {
-                Ice::SliceChecksumDict serverChecksums = p->second->getSliceChecksums();
-                Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
-                for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
-                {
-                    Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
-                    if(r == serverChecksums.end())
-                    {
-                        cerr << appName() << ": " << communicator()->identityToString(p->first)
-                             << " is using unknown Slice type `" << q->first << "'" << endl;
-                    }
-                    else if(q->second != r->second)
-                    {
-                        cerr << appName() << ": " << communicator()->identityToString(p->first)
-                             << " is using a different Slice definition of `" << q->first << "'" << endl;
-                    }
-                }
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cerr << communicator()->identityToString(p->first) << ": " << ex << endl;
-            }
-        }
+        cerr << appName() << ": no manager proxies configured" << endl;
+        return EXIT_FAILURE;
     }
-        
+
     ParserPtr p = Parser::createParser(communicator(), defaultManager, managers);
     int status = EXIT_SUCCESS;
 

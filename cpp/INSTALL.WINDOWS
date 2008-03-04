@@ -26,7 +26,7 @@ Ice has been extensively tested on:
 
 - Windows XP x86
 - Windows 2003 Server x86 and x64
-- Windows Vista x86
+- Windows Vista x86 and x64
 
 Ice does not work on Windows 2000; however porting Ice to Windows 2000
 should be fairly simple if you do not require UDP multicast or IPv6.
@@ -47,13 +47,17 @@ C++ compiler
 
 The following C++ compilers are supported:
 
-- Microsoft Visual C++ 2008
+- Microsoft Visual C++ 2008 (both Professional and Express editions)
+
+  Visual C++ 2008 Express is available for download from:
+
+  http://msdn.microsoft.com/vstudio/express/visualc/
 
 - Microsoft Visual C++ 2005 (both Professional and Express editions)
  
   Visual C++ 2005 Express is available for download from:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/
+  http://www.microsoft.com/express/2005/
 
 - Microsoft Visual C++ 6.0 SP5 with the Windows Server 2003 PSDK
   (February 2003) and STLport 4.6.2 (or later)
@@ -122,11 +126,11 @@ NMAKE and Message Compiler (MC.EXE)
 -----------------------------------
 
 In order to build Ice you need the Microsoft NMAKE and Message Compiler 
-utilities. These are included in all Microsoft C++ compiler distributions. If
-you are using the Borland C++ compiler, you can download them as part of the 
-Windows Platform SDK:
+utilities. These are included in all full Microsoft C++ compiler distributions.
+If you are using the Borland C++ compiler or Visual C++ 2008 Express, you can 
+download them as part of the Windows Platform SDK:
  
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
 
 
 Third-party libraries
@@ -251,10 +255,10 @@ Ice DLLs and executables.
 x64 Platform
 ======================================================================
 
-Building Ice on x64 with the Visual Studio 2005 C++ compiler is like
-building Ice on x86. You just need need to perform the build in a 
+Building Ice on x64 with the Visual Studio 2005/2008 C++ compiler is 
+like building Ice on x86. You just need need to perform the build in a 
 "Visual Studio x64 Win64 Command Prompt", and not in a regular "Visual
-Studio 2005 Command Prompt".
+Studio 2005/2008 Command Prompt".
 
 
 ======================================================================
@@ -270,11 +274,5 @@ directory to the Visual C++ "Include files", the lib directory to the
 
   * Visual C++ 6.0: Tools->Options->Directories
 
-  * Visual C++ .NET 2003: Tools->Options->Projects->VC++ Directories
-
-  * Visual C++ 2005: Tools->Options->Projects and Solutions->
+  * Visual C++ 2005/2008: Tools->Options->Projects and Solutions->
                                                     VC++ Directories
-
-See the WINDOWS_SERVICES.txt file included in this distribution for
-information on how to install and run the IceGrid registry, IceGrid
-node, and Glacier2 router as Windows services.

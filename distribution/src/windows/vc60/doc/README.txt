@@ -4,11 +4,11 @@ The Internet Communications Engine
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
-Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
-firewall solution, and much more.
+object-oriented specification language, easy to use C++, .NET, Java,
+Python, Ruby, and PHP mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
 
 Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
@@ -23,8 +23,8 @@ This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
 
  - in C++, using Visual Studio 6.0
- - in Ruby, using Ruby 1.8.5
- - in PHP, using PHP 5.2.1
+ - in Ruby, using Ruby 1.8.6
+ - in PHP, using PHP 5.2.5
 
 If you want to develop Ice applications in another programming 
 language, or with another C++ compiler, please download the 
@@ -46,6 +46,26 @@ Supported Windows versions
 --------------------------
 
 This distribution is supported on Windows XP with Service Pack 2.
+
+
+Monotonic clock
+---------------
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
+
+
+Running IceGrid and Glacier2 components as services
+---------------------------------------------------
+
+An appendix in the Ice manual provides information on installing and
+running the IceGrid registry, IceGrid node, and Glacier2 router as
+Windows services.
 
 
 Setting up Visual Studio 6.0 to build Ice applications in C++
@@ -79,26 +99,6 @@ libraries, and executables.
 - Add <Ice installation root directory>\bin
 
 
-Monotonic clock
----------------
-
-Ice uses the QueryPerformanceCounter Windows API function to measure
-time with a monotonic clock. If you are experiencing timing or
-performance issues, there are two knowledgebase articles that may be
-relevant for your system:
-
-  http://support.microsoft.com/?id=896256
-  http://support.microsoft.com/?id=895980
-
-
-Running IceGrid and Glacier2 components as services
----------------------------------------------------
-
-The WINDOWS_SERVICES.txt file included in this distribution contains
-information on how to install and run the IceGrid registry, IceGrid
-node, and Glacier2 router as Windows services.
-
-
 Building and running the C++ demos
 ----------------------------------
 
@@ -121,7 +121,7 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 The Ice demo source code archive and Windows installers for Visual
-Studio .NET 2003 and Visual Studio 2005 include examples for integrating
+Studio 2005 and Visual Studio 2008 include examples for integrating
 Ice with databases other than BerkeleyDB. These demos are not supported
 for Visual C++ 6.0 and are not included in this distribution.
 
@@ -131,7 +131,7 @@ Running the Ruby demos
 
 The Ruby demos are in the demorb directory.
 
-You need Ruby 1.8.5 to run the demos. A binary installer for Ruby
+You need Ruby 1.8.6 to run the demos. A binary installer for Ruby
 can be downloaded from:
 
   http://rubyforge.org/projects/rubyinstaller/
@@ -186,7 +186,7 @@ Running the PHP demos
 
 Two PHP demos are provided in the demophp directory.
 
-To run the PHP demos, you need PHP 5.2.1. It can be downloaded from:
+To run the PHP demos, you need PHP 5.2.5. It can be downloaded from:
 
   http://www.php.net/downloads.php
 
