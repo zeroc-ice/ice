@@ -168,15 +168,19 @@ are necessary.
 
 This distribution includes examples for intergrating Ice with databases
 other than BerkeleyDB. These examples are not included in the demo.sln
-file mentioned above and must be built using the Microsoft Makefile
-processor, NMAKE. Under the "Microsoft Visual Studio 2005" entry in your
-"Start" menu, click on the "Visual Studio Tools" submenu and select
-"Visual Studio 2005 Command Prompt". In this command prompt window,
-change to the appropriate demo directory and run "nmake /f
-Makefile.mak". For example:
+file mentioned above. If you want to build these demos you must either
 
-cd <Ice installation root directory>\demo\Database
-nmake /f Makefile.mak.
+1. Add the demo project files located in the demo\Database subdirectoris
+   to the demo solution and build from there.
+
+2. Build demos using the Microsoft Makefile processor, NMAKE. Under the
+   "Microsoft Visual Studio 2005" entry in your "Start" menu, click on the
+   "Visual Studio Tools" submenu and select "Visual Studio 2005 Command
+   Prompt". In this command prompt window, change to the appropriate demo
+   directory and run "nmake /f Makefile.mak". For example:
+
+   cd <Ice installation root directory>\demo\Database
+   nmake /f Makefile.mak.
 
 The current examples are for the Oracle, and require the appropriate
 Oracle development environment. 
