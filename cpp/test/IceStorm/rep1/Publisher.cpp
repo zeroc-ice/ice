@@ -100,7 +100,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         for(int i = 0; i < 1000; ++i)
         {
             single[which]->event(i);
-            which = (which + 1) % single.size();
+            which = (which + 1) % static_cast<int>(single.size());
         }
     }
     else
