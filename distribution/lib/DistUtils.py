@@ -74,9 +74,9 @@ jgoodies_looks = { \
 }
 
 jgoodies_forms = { \
-    'SunOS' : '/share/opt/forms-1.1.0/forms-1.1.0.jar', \
-    'Darwin' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
-    'Linux' : '/opt/forms-1.1.0/forms-1.1.0.jar', \
+    'SunOS' : '/share/opt/forms-1.2.0/forms-1.2.0.jar', \
+    'Darwin' : '/opt/forms-1.2.0/forms-1.2.0.jar', \
+    'Linux' : '/opt/forms-1.2.0/forms-1.2.0.jar', \
 }
 
 proguard = { \

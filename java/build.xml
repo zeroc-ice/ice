@@ -230,11 +230,14 @@
     </target>
 
     <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
-        <condition property="runtime.jar" value="${java.home}/../Classes/classes.jar" else='"${java.home}/lib/rt.jar"'>
+        <condition property="library.jars" value="${java.home}/../Classes/classes.jar:${java.home}/../Classes/jsse.jar">
             <os family="mac"/>
         </condition>
-        <condition property="jsse.jar" value="${java.home}/../Classes/jsse.jar" else='"${java.home}/lib/jsse.jar"'>
-            <os family="mac"/>
+        <condition property="library.jars" value="${java.home}/lib/rt.jar:${java.home}/lib/jsse.jar">
+            <available file="${java.home}/lib/rt.jar"/>
+        </condition>
+       <condition property="library.jars" value="${java.home}/lib/vm.jar:${java.home}/lib/core.jar:${java.home}/lib/graphics.jar:${java.home}/lib/security.jar">
+            <available file="${java.home}/lib/vm.jar"/>
         </condition>
 
         <manifest file="${lib.dir}/icegridgui.mf">
@@ -257,8 +260,7 @@
              -injars ${jgoodies.looks}(!META-INF/**)
              -injars ${jgoodies.forms}(!META-INF/**)
              -outjars ${lib.dir}/IceGridGUI.jar
-             -libraryjars ${runtime.jar}
-             -libraryjars ${jsse.jar}
+             -libraryjars ${library.jars}
              -include config/icegridgui.pro
         </proguard>
         <delete file="${lib.dir}/IceGridGUItemp.jar" />
