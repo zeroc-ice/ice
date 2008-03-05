@@ -3,11 +3,14 @@ Build instructions
 
 The code has been built and tested with:
 
-- Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
-  Version 2.0.50727.
+- Microsoft Visual Studio 2005 Version 8.0.50727.762 and .NET Framework
+  Version 2.0.50727 SP1.
 
-Unpack the archive. The VB sources will be contained in the Ice-@ver@\vb
-subdirectory.
+- Microsoft Visual Studio 2008 Version 9.0.21022.8 RTM and .NET Framework
+  Version 3.5.
+
+Unpack the archive. The VB demo sources will be contained in the 
+Ice-@ver@\vb subdirectory.
 
 Add the directory containing slice2cs to the list of "Executable
 files" directories in Visual Studio:
@@ -17,9 +20,6 @@ files" directories in Visual Studio:
 - Select "Executable files"
 
 - Add <Ice installation root directory>\bin
-
-Alternatively, you can set the environment variable ICE_HOME to the
-location of your Ice installation root directory.
 
 To use Visual Basic (or other .NET languages) with Ice, you need
 the run-time support provided by the Ice for .NET assembly
@@ -39,8 +39,8 @@ See the Ice Manual and the makefiles and Visual Studio projects included
 with the demos for more information.
 
 
-Building with Visual Basic 2005
--------------------------------
+Building demos with Visual Basic
+--------------------------------
 
-Open All.sln in Visual Basic and build the solution. (Both release
+Open demo\demo.sln in Visual Basic and build the solution. (Both release
 and debug builds are supported.)

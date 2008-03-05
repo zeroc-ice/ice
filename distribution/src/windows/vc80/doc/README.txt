@@ -24,8 +24,7 @@ development tools to build Ice applications:
 
  - in C++, using Visual Studio 2005 or Visual C++ 2005 Express Edition
  - in C#, using Visual Studio 2005 or Visual C# 2005 Express Edition
- - in Visual Basic, using Visual Studio 2005 or Visual Basic 2005 
-   Express Edition
+ - in Visual Basic, using Visual Studio 2005
  - in Java, using Java 5 or Java 6
  - in Python, using Python 2.5.2
 
@@ -230,12 +229,6 @@ Building and running the Visual Basic demos
 -------------------------------------------
 
 The Visual Basic demos are in the demovb directory.
-
-If you are using Visual Basic 2005 Express, you must execute a
-command-line tool before building any of the demos. Change to the
-demovb directory and run this command:
-
-..\bin\generatevb . build
 
 To build a Visual Basic demo, start Visual Studio 2005 and open the
 solution demovb\demo.sln. Right click on the desired demo in the
