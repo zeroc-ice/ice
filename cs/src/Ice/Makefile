@@ -142,5 +142,6 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 install:: all
 	$(call installassembly,$(TARGETS),$(PKG))
+	$(call installdata,$(bindir)/Ice.dll.config,$(install_bindir))
 
 include .depend
