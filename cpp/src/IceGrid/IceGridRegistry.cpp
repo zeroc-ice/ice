@@ -170,30 +170,7 @@ RegistryService::usage(const string& appName)
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
         "--nowarn             Don't print any security warnings.";
-#ifdef _WIN32
-    if(checkSystem())
-    {
-        options.append(
-        "\n"
-        "\n"
-        "--service NAME       Run as the Windows service NAME.\n"
-        "\n"
-        "--install NAME [--display DISP] [--executable EXEC] [args]\n"
-        "                     Install as Windows service NAME. If DISP is\n"
-        "                     provided, use it as the display name,\n"
-        "                     otherwise NAME is used. If EXEC is provided,\n"
-        "                     use it as the service executable, otherwise\n"
-        "                     this executable is used. Any additional\n"
-        "                     arguments are passed unchanged to the\n"
-        "                     service at startup.\n"
-        "--uninstall NAME     Uninstall Windows service NAME.\n"
-        "--start NAME [args]  Start Windows service NAME. Any additional\n"
-        "                     arguments are passed unchanged to the\n"
-        "                     service.\n"
-        "--stop NAME          Stop Windows service NAME."
-        );
-    }
-#else
+#ifndef _WIN32
     options.append(
         "\n"
         "\n"

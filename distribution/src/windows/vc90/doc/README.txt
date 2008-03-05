@@ -146,20 +146,10 @@ window, type 'client' to start the client.
 Some demo directories contain README files if additional requirements
 are necessary.
 
-This distribution includes examples for intergrating Ice with databases
-other than BerkeleyDB. These examples are not included in the demo.sln
-file mentioned above and must be built using the Microsoft Makefile
-processor, NMAKE. Under the "Microsoft Visual Studio 2008" entry in your
-"Start" menu, click on the "Visual Studio Tools" submenu and select
-"Visual Studio 2008 Command Prompt". In this command prompt window,
-change to the appropriate demo directory and run "nmake /f
-Makefile.mak". For example:
-
-cd <Ice installation root directory>\demo\Database
-nmake /f Makefile.mak.
-
-The current examples are for the Oracle, and require the appropriate
-Oracle development environment. 
+The Ice demo source code archive and Windows installer for Visual
+Studio 2005 include examples for integrating Ice with databases other 
+than BerkeleyDB. These demos are not supported for Visual C++ 9.0 and 
+are not included in this distribution.
 
 
 Building and running the C# demos
@@ -273,6 +263,20 @@ java Client
 
 Some demo directories contain README files if additional requirements
 are necessary.
+
+
+Protocol compression with 64-bit Windows
+----------------------------------------
+
+Ice for .NET attempts to dynamically load bzip2.dll to support
+protocol compression. On 64-bit Windows, you have to make sure
+that the 64-bit version of bzip2.dll is found instead of the
+32-bit version. The bzip2 libraries are installed in
+<prefix>/bin/x64 and <prefix>/bin, respectively. For 64-bit
+Windows, you need to make sure that <prefix>/bin/x64 appears
+in the application's PATH instead of <prefix>/bin. (The Ice
+run time prints a warning to the console if it detects a
+bzip2.dll format mismatch during start-up.)
 
 
 Binary compatibility

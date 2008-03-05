@@ -36,21 +36,24 @@ namespace IceInternal
             //
             // Simple trick to find out whether bzip2 is
             // installed: Call the BZ2_bzlibVersion() function in the
-            // library. If we get a DllNotFoundException, the library is
+            // library. If we get an exception, the library is
             // not available.
             //
-            _bzlibInstalled = true;
+            _bzlibInstalled = false;
             try
             {
                 BZ2_bzlibVersion();
+                _bzlibInstalled = true;
             }
             catch(DllNotFoundException)
             {
-                _bzlibInstalled = false;
             }
             catch(EntryPointNotFoundException)
             {
-                _bzlibInstalled = false;
+            }
+            catch(BadImageFormatException)
+            {
+                Console.Error.WriteLine("warning: libbz2 could not be loaded (likely due to 32/64-bit mismatch).");
             }
 #endif
         }

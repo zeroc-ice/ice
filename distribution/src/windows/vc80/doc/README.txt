@@ -168,15 +168,19 @@ are necessary.
 
 This distribution includes examples for intergrating Ice with databases
 other than BerkeleyDB. These examples are not included in the demo.sln
-file mentioned above and must be built using the Microsoft Makefile
-processor, NMAKE. Under the "Microsoft Visual Studio 2005" entry in your
-"Start" menu, click on the "Visual Studio Tools" submenu and select
-"Visual Studio 2005 Command Prompt". In this command prompt window,
-change to the appropriate demo directory and run "nmake /f
-Makefile.mak". For example:
+file mentioned above. If you want to build these demos you must either
 
-cd <Ice installation root directory>\demo\Database
-nmake /f Makefile.mak.
+1. Add the demo project files located in the demo\Database subdirectoris
+   to the demo solution and build from there.
+
+2. Build demos using the Microsoft Makefile processor, NMAKE. Under the
+   "Microsoft Visual Studio 2005" entry in your "Start" menu, click on the
+   "Visual Studio Tools" submenu and select "Visual Studio 2005 Command
+   Prompt". In this command prompt window, change to the appropriate demo
+   directory and run "nmake /f Makefile.mak". For example:
+
+   cd <Ice installation root directory>\demo\Database
+   nmake /f Makefile.mak.
 
 The current examples are for the Oracle, and require the appropriate
 Oracle development environment. 
@@ -318,6 +322,20 @@ To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'python Server.py' to start the server. In a
 separate Command Prompt window, type 'python Client.py' to run the
 client.
+
+
+Protocol compression with 64-bit Windows
+----------------------------------------
+
+Ice for .NET attempts to dynamically load bzip2.dll to support
+protocol compression. On 64-bit Windows, you have to make sure
+that the 64-bit version of bzip2.dll is found instead of the
+32-bit version. The bzip2 libraries are installed in
+<prefix>/bin/x64 and <prefix>/bin, respectively. For 64-bit
+Windows, you need to make sure that <prefix>/bin/x64 appears
+in the application's PATH instead of <prefix>/bin. (The Ice
+run time prints a warning to the console if it detects a
+bzip2.dll format mismatch during start-up.)
 
 
 Binary compatibility

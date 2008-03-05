@@ -58,18 +58,6 @@ platform and C++ compiler supported by both Ice and OCCI.
 
     $(ORACLE_HOME)\oci\lib\msvc\vc8;$(ORACLE_HOME)\bin
 
-- On Windows with Visual Studio .NET 2003 Project Files, add the 
-  following directories to your Visual C++ environment: 
-
- - Include files: $(ORACLE_HOME)\oci\include
-
- - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc71
-                  $(ORACLE_HOME)\oci\lib\msvc
-
- - Executable files: 
-
-    $(ORACLE_HOME)\oci\lib\msvc\vc71;$(ORACLE_HOME)\bin
-
 - On Windows, when using nmake Makefiles, please review 
   Makefile.mak.
 

@@ -205,7 +205,7 @@
         </condition>
 
         <!-- Set ice.classpath with the distribution Ice.jar file -->
-        <condition property="dist.lib.dir" value="${ice.dir}/java/lib">
+        <condition property="dist.lib.dir" value="${ice.dir}/java/lib${build.suffix}">
             <isset property="ice.src.dist"/>
         </condition>
         <condition property="dist.lib.dir" value="${ice.dir}/lib">
