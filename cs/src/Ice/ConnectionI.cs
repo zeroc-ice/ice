@@ -2457,8 +2457,11 @@ namespace Ice
             // Validate the message header.
             //
 
+            //
+            // The stream's current position can be larger than Protocol.headerSize in the case of datagrams.
+            //
             int pos = stream.pos();
-            Debug.Assert(pos == IceInternal.Protocol.headerSize);
+            Debug.Assert(pos >= IceInternal.Protocol.headerSize);
 
             byte[] bytes = stream.getBuffer().b.rawBytes();
             if(bytes[0] != IceInternal.Protocol.magic[0] || bytes[1] != IceInternal.Protocol.magic[1] ||
