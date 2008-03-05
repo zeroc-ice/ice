@@ -34,13 +34,13 @@ public class AllTests
         //
         // TODO:
         //
-        // When an application loads icesslcs.dll directly, as this one does, we
+        // When an application loads IceSSL.dll directly, as this one does, we
         // must ensure that it uses the same DLL as the one loaded dynamically
         // by Ice.
         //
         // When Mono supports .NET 2.0, we'll need to fix this.
         //
-        result.properties.setProperty("Ice.Plugin.IceSSL", testDir + "/../../../bin/icesslcs.dll:IceSSL.PluginFactory");
+        result.properties.setProperty("Ice.Plugin.IceSSL", testDir + "/../../../bin/IceSSL.dll:IceSSL.PluginFactory");
         if(!threadPool)
         {
             result.properties.setProperty("Ice.ThreadPerConnection", "1");
@@ -61,7 +61,7 @@ public class AllTests
     createServerProps(Ice.Properties defaultProperties, string testDir, string defaultHost, bool threadPool)
     {
         Dictionary<string, string> result = new Dictionary<string, string>();
-        result["Ice.Plugin.IceSSL"] = testDir + "/../../../bin/icesslcs.dll:IceSSL.PluginFactory";
+        result["Ice.Plugin.IceSSL"] = testDir + "/../../../bin/IceSSL.dll:IceSSL.PluginFactory";
         if(!threadPool)
         {
             result["Ice.ThreadPerConnection"] = "1";

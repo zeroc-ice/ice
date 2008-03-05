@@ -121,8 +121,6 @@ else
 MCS			= csc -nologo
 endif
 
-LIBS		= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
-
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 ifeq ($(DEBUG),yes)
     MCSFLAGS := $(MCSFLAGS) -debug -define:DEBUG

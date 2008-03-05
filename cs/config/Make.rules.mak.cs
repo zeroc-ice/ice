@@ -82,8 +82,6 @@ GACUTIL			= gacutil
 
 MCS			= csc -nologo
 
-LIBS			= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
-
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 !if "$(DEBUG)" == "yes"
 MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG

@@ -84,7 +84,7 @@ EVERYTHING		= all clean depend config
 
 !if "$(SLICE_ASSEMBLY)" != ""
 $(SLICE_ASSEMBLY): $(GEN_SRCS)
-        $(MCS) -target:library -out:$@ -r:$(csbindir)\icecs.dll $(GEN_SRCS)
+        $(MCS) -target:library -out:$@ -r:$(csbindir)\Ice.dll $(GEN_SRCS)
 !endif
 
 !if "$(TARGETS_CONFIG)" != ""

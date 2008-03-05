@@ -31,12 +31,12 @@ GDIR		= generated
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:Glacier2Demo
 
 client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) -r:$(csbindir)\glacier2cs.dll $(C_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) -r:$(csbindir)\Glacier2.dll $(C_SRCS)
 
 server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 sessionserver.exe: $(SS_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(csbindir)\glacier2cs.dll $(SS_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(csbindir)\Glacier2.dll $(SS_SRCS)
 
 !include .depend

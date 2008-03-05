@@ -1,9 +1,10 @@
 version = 3.3.0
 mono_root = /usr
 
-name = icecs
+name = IceBox
 
 Name: ${name}
-Description: Ice core run-time support
+Description: IceBox run-time support
 Version: ${version}
 Libs: -r:${mono_root}/lib/mono/gac/${name}/${version}.0__1f998c50fec78381/${name}.dll
+Requires: Ice = ${version}

@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..
 
-PKG		= iceboxcs
+PKG		= IceBox
 LIBNAME		= $(bindir)\$(PKG).dll
 ICEBOXNET	= $(bindir)\iceboxnet.exe
 TARGETS		= $(LIBNAME) $(ICEBOXNET)
@@ -32,10 +32,10 @@ LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
 $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
-	$(MCS) $(EXE_MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\icecs.dll $(I_SRCS)
+	$(MCS) $(EXE_MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\Ice.dll $(I_SRCS)
 
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
-	$(MCS) $(LIB_MCSFLAGS) -r:$(bindir)\icecs.dll $(L_SRCS) $(GEN_SRCS)
+	$(MCS) $(LIB_MCSFLAGS) -r:$(bindir)\Ice.dll $(L_SRCS) $(GEN_SRCS)
 
 !if "$(NOGAC)" == ""
 

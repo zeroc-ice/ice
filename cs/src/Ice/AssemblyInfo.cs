@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("icecs")]
+[assembly: AssemblyTitle("Ice")]
 [assembly: AssemblyDescription("Ice core run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]

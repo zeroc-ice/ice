@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-PKG		= glacier2cs
+PKG		= Glacier2
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 
@@ -31,7 +31,7 @@ MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,icecs) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
 	$(call installassembly,$(TARGETS),$(PKG))

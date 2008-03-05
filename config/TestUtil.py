@@ -308,7 +308,6 @@ def getIceDir(subdir = None):
     if ice_home:
         return ice_home
     if os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
-        print "Len = " + len(os.environ["ICE_HOME"])
         return os.environ["ICE_HOME"]
     elif subdir:
         return os.path.join(findTopLevel(), subdir)

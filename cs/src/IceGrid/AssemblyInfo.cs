@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("icegridcs")]
+[assembly: AssemblyTitle("IceGrid")]
 [assembly: AssemblyDescription("IceGrid run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]

@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("icestormcs")]
+[assembly: AssemblyTitle("IceStorm")]
 [assembly: AssemblyDescription("IceStorm run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]

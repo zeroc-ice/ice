@@ -186,6 +186,10 @@ Changes since version 3.2.1 (binary incompatible)
 - Ice.LocalException and Ice.UserException now implement
   System.ICloneable.
 
+- Ice for C# has been renamed Ice for .NET and the assemblies have been
+  renamed as well. For example icecs.dll is now just Ice.dll.
+  
+
 Changes since version 3.2.0
 ---------------------------
 

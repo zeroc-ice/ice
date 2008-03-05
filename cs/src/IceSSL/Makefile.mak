@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..
 
-PKG		= icesslcs
+PKG		= IceSSL
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
 
@@ -34,7 +34,7 @@ MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
 
 $(TARGETS):: $(SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(bindir)\icecs.dll $(SRCS)
+	$(MCS) $(MCSFLAGS) -r:$(bindir)\Ice.dll $(SRCS)
 
 !if "$(NOGAC)" == ""
 
@@ -44,7 +44,7 @@ install:: all
 !else
 
 install:: all
-	copy $(bindir)\icesslcs.dll $(install_bindir)
+	copy $(bindir)\$(LIBNAME) $(install_bindir)
 
 !endif
 
