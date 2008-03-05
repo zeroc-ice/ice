@@ -61,6 +61,7 @@ def fixVersion(file, argsHash):
 
     version = argsHash['version']
     libversion = argsHash['dllversion']
+    installdir = argsHash['installdir']
 
     origfile = file + ".orig"
     os.rename(file, origfile)
@@ -69,6 +70,8 @@ def fixVersion(file, argsHash):
     line = oldFile.read();
     line = re.sub("@ver@", version, line)
     line = re.sub("@libver@", libversion, line)
+    line = re.sub("@installdir@", installdir, line)
+
     newFile.write(line)
     newFile.close()
     oldFile.close()

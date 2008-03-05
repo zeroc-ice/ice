@@ -13,6 +13,8 @@ import logging, cStringIO, glob
 import textwrap
 
 iceVersion = '3.3.0'
+looksVersion = '2.1.4'
+formsVersion = '1.2.0'
 
 resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "src", "windows")
 sys.path.append(resources)
@@ -88,14 +90,6 @@ def environmentCheck(target):
             logging.error("Value %s for env var %s is not a valid directory." % (os.environ[f], f))
             fail = True
             continue
-
-    if target == "vc80" or target == "vc90":
-        required = ["JGOODIES_LOOKS", "JGOODIES_FORMS"] 
-        for f in required:
-            if not os.environ.has_key(f):
-                logging.error("Environment variable %s is missing" % f)
-                fail = True
-                continue
 
     if fail:
         logging.error("Invalid environment. Please consult error log and repair environment/command line settings.")
@@ -190,16 +184,17 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
         # Ice for Java
         #
 
-        jgoodiesLooks = os.environ['JGOODIES_LOOKS']
-        jgoodiesForms = os.environ['JGOODIES_FORMS']        
+        jgoodiesLooks = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', "looks-%s.jar" % looksVersion) 
+        jgoodiesForms = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', "forms-%s.jar" % formsVersion) 
+        dbJar = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', 'db.jar') 
 
-        os.environ['CLASSPATH'] = jgoodiesLooks + os.pathsep + jgoodiesForms + os.pathsep + os.environ['CLASSPATH']
+        os.environ['CLASSPATH'] = jgoodiesLooks + os.pathsep + jgoodiesForms + os.pathsep + dbJar + os.pathsep + os.environ['CLASSPATH']
         os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "java" ))
         print "Building in " + os.getcwd() + "..."
  
         jgoodiesDefines = "-Djgoodies.forms=" + jgoodiesForms + " -Djgoodies.looks=" + jgoodiesLooks
      
-        runprog("ant -Dice.mapping=java2 -Dbuild.suffix=java2 " + jgoodiesDefines + " jar")
+        runprog("ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar")
         runprog("ant -Dice.mapping=java5 -Dbuild.suffix=java5 " + jgoodiesDefines + " jar")
 
         #
@@ -461,6 +456,11 @@ def main():
         defaults['dllversion'] = iceVersion.replace('.', '')[:2]
         if iceVersion.find('b') != -1:
             defaults['dllversion'] = defaults['dllversion'] + 'b'
+
+        if target == 'vc80':
+            defaults['installdir'] = "C:\\Ice-%s" % iceVersion
+        else:
+            defaults['installdir'] = "C:\\Ice-%s-%s" % (iceVersion, target.upper())
 
         defaults['OutDir'] = ''
 
