@@ -324,6 +324,20 @@ separate Command Prompt window, type 'python Client.py' to run the
 client.
 
 
+Protocol compression with 64-bit Windows
+----------------------------------------
+
+Ice for .NET attempts to dynamically load bzip2.dll to support
+protocol compression. On 64-bit Windows, you have to make sure
+that the 64-bit version of bzip2.dll is found instead of the
+32-bit version. The bzip2 libraries are installed in
+<prefix>/bin/x64 and <prefix>/bin, respectively. For 64-bit
+Windows, you need to make sure that <prefix>/bin/x64 appears
+in the application's PATH instead of <prefix>/bin. (The Ice
+run time prints a warning to the console if it detects a
+bzip2.dll format mismatch during start-up.)
+
+
 Binary compatibility
 --------------------
 
