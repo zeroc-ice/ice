@@ -154,8 +154,8 @@ class AMI_MyClass_opMyClassI(CallbackBase):
         test(c1.ice_getIdentity() == self._communicator.stringToIdentity("test"))
         test(c2.ice_getIdentity() == self._communicator.stringToIdentity("noSuchIdentity"))
         test(r.ice_getIdentity() == self._communicator.stringToIdentity("test"))
-        # We can't do the callbacks below in thread per connection mode.
-        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+        # We can't do the callbacks below in serialize mode
+        if self._communicator.getProperties().getPropertyAsInt("Ice.Client.ThreadPool.Serialize") == 0:
             r.opVoid()
             c1.opVoid()
             try:
@@ -180,8 +180,8 @@ class AMI_MyClass_opStructI(CallbackBase):
         test(rso.s.s == "def")
         test(so.e == Test.MyEnum.enum3)
         test(so.s.s == "a new string")
-        # We can't do the callbacks below in thread per connection mode.
-        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+        # We can't do the callbacks below in serialize mode.
+        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0:
             so.p.opVoid()
         self.called()
 

@@ -29,29 +29,6 @@ namespace IceInternal
             return true;
         }
 
-        public void initialize(int timeout)
-        {
-            if(_state != StateConnected)
-            {
-                try
-                {
-                    Debug.Assert(_state == StateNeedBeginConnect);
-                    Network.doConnect(_fd, _addr, timeout);
-                    _state = StateConnected;
-                    _desc = Network.fdToString(_fd);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    if(_traceLevels.network >= 2)
-                    {
-                        string s = "failed to establish tcp connection\n" + Network.fdToString(_fd) + "\n" + ex;
-                        _logger.trace(_traceLevels.networkCat, s);
-                    }
-                    throw;
-                }
-            }
-        }
-
         public bool initialize(AsyncCallback callback)
         {
             try
@@ -64,11 +41,7 @@ namespace IceInternal
                     _state = StateNeedEndConnect;
                     _result = Network.doBeginConnectAsync(_fd, _addr, callback);
 
-                    if(_result.CompletedSynchronously)
-                    {
-                        endConnect();
-                    }
-                    else
+                    if(!_result.CompletedSynchronously)
                     {
                         //
                         // Return now if the I/O request needs an asynchronous callback.
@@ -76,10 +49,20 @@ namespace IceInternal
                         return false;
                     }
                 }
-                else if(_state == StateNeedEndConnect)
+
+                if(_state == StateNeedEndConnect)
                 {
-                    endConnect();
+                    Debug.Assert(_result != null);
+                    Network.doEndConnectAsync(_result);
+                    _state = StateConnected;
+                    _desc = Network.fdToString(_fd);
+                    if(_traceLevels.network >= 1)
+                    {
+                        string s = "tcp connection established\n" + _desc;
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
                 }
+
                 Debug.Assert(_state == StateConnected);
                 return true;
             }
@@ -121,86 +104,85 @@ namespace IceInternal
             }
         }
 
-        public void shutdownWrite()
+        public bool write(Buffer buf)
         {
-            if(_state < StateConnected)
+            int size = buf.b.limit();
+            int packetSize = size - buf.b.position();
+            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
             {
-                return;
+                packetSize = _maxPacketSize;
+                buf.b.limit(buf.b.position() + packetSize);
             }
 
-            if(_traceLevels.network >= 2)
+            while(buf.b.hasRemaining())
             {
-                string s = "shutting down tcp connection for writing\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
-            }
-
-            Debug.Assert(_fd != null);
-            try
-            {
-                _fd.Shutdown(SocketShutdown.Send);
-            }
-            catch(SocketException ex)
-            {
-                if(Network.notConnected(ex))
+                try
                 {
-                    return;
+                    Debug.Assert(_fd != null);
+
+                    int ret;
+                    try
+                    {
+                        ret = _fd.Send(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), SocketFlags.None);
+                    }
+                    catch(Win32Exception e)
+                    {
+                        if(Network.wouldBlock(e))
+                        {
+                            //
+                            // Writing would block, so we reset the limit (if necessary) and return true to indicate
+                            // that more data must be sent.
+                            //
+                            if(packetSize == _maxPacketSize)
+                            {
+                                buf.b.limit(size);
+                            }
+                            return false;
+                        }
+                        throw;
+                    }
+
+                    Debug.Assert(ret > 0);
+
+                    if(_traceLevels.network >= 3)
+                    {
+                        string s = "sent " + ret + " of " + buf.b.remaining() + " bytes via tcp\n" + ToString();
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
+
+                    if(_stats != null)
+                    {
+                        _stats.bytesSent(type(), ret);
+                    }
+
+                    buf.b.position(buf.b.position() + ret);
+
+                    if(packetSize == _maxPacketSize)
+                    {
+                        Debug.Assert(buf.b.position() == buf.b.limit());
+                        packetSize = size - buf.b.position();
+                        if(packetSize > _maxPacketSize)
+                        {
+                            packetSize = _maxPacketSize;
+                        }
+                        buf.b.limit(buf.b.position() + packetSize);
+                    }
                 }
-                throw new Ice.SocketException(ex);
+                catch(SocketException ex)
+                {
+                    if(Network.connectionLost(ex))
+                    {
+                        throw new Ice.ConnectionLostException(ex);
+                    }
+
+                    throw new Ice.SocketException(ex);
+                }
             }
+
+            return true; // No more data to send.
         }
 
-        public void shutdownReadWrite()
-        {
-            if(_state < StateConnected)
-            {
-                return;
-            }
-
-            if(_traceLevels.network >= 2)
-            {
-                string s = "shutting down tcp connection for reading and writing\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
-            }
-
-            Debug.Assert(_fd != null);
-            try
-            {
-                _fd.Shutdown(SocketShutdown.Both);
-            }
-            catch(SocketException ex)
-            {
-                if(Network.notConnected(ex))
-                {
-                    return;
-                }
-                throw new Ice.SocketException(ex);
-            }
-        }
-
-        public bool write(Buffer buf, int timeout)
-        {
-            while(writeBuffer(buf.b))
-            {
-                //
-                // There is more data to write but the socket would block; now we
-                // must deal with timeouts.
-                //
-                Debug.Assert(buf.b.hasRemaining());
-
-                if(timeout == 0)
-                {
-                    return false;
-                }
-
-                if(!Network.doPoll(_fd, timeout, Network.PollMode.Write))
-                {
-                    throw new Ice.TimeoutException();
-                }
-            }
-            return true;
-        }
-
-        public bool read(Buffer buf, int timeout)
+        public bool read(Buffer buf)
         {
             int remaining = buf.b.remaining();
             int position = buf.b.position();
@@ -228,17 +210,7 @@ namespace IceInternal
                     {
                         if(Network.wouldBlock(e))
                         {
-                            if(timeout == 0)
-                            {
-                                return false;
-                            }
-
-                            if(!Network.doPoll(_fd, timeout, Network.PollMode.Read))
-                            {
-                                throw new Ice.TimeoutException();
-                            }
-
-                            continue;
+                            return false;
                         }
                         throw;
                     }
@@ -465,97 +437,6 @@ namespace IceInternal
                 {
                     _maxPacketSize = 0;
                 }
-            }
-        }
-
-        private bool writeBuffer(ByteBuffer buf)
-        {
-            int size = buf.limit();
-            int packetSize = size - buf.position();
-            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
-            {
-                packetSize = _maxPacketSize;
-                buf.limit(buf.position() + packetSize);
-            }
-
-            while(buf.hasRemaining())
-            {
-                try
-                {
-                    Debug.Assert(_fd != null);
-
-                    int ret;
-                    try
-                    {
-                        ret = _fd.Send(buf.rawBytes(), buf.position(), buf.remaining(), SocketFlags.None);
-                    }
-                    catch(Win32Exception e)
-                    {
-                        if(Network.wouldBlock(e))
-                        {
-                            //
-                            // Writing would block, so we reset the limit (if necessary) and return true to indicate
-                            // that more data must be sent.
-                            //
-                            if(packetSize == _maxPacketSize)
-                            {
-                                buf.limit(size);
-                            }
-                            return true;
-                        }
-                        throw;
-                    }
-
-                    Debug.Assert(ret > 0);
-
-                    if(_traceLevels.network >= 3)
-                    {
-                        string s = "sent " + ret + " of " + buf.remaining() + " bytes via tcp\n" + ToString();
-                        _logger.trace(_traceLevels.networkCat, s);
-                    }
-
-                    if(_stats != null)
-                    {
-                        _stats.bytesSent(type(), ret);
-                    }
-
-                    buf.position(buf.position() + ret);
-
-                    if(packetSize == _maxPacketSize)
-                    {
-                        Debug.Assert(buf.position() == buf.limit());
-                        packetSize = size - buf.position();
-                        if(packetSize > _maxPacketSize)
-                        {
-                            packetSize = _maxPacketSize;
-                        }
-                        buf.limit(buf.position() + packetSize);
-                    }
-                }
-                catch(SocketException ex)
-                {
-                    if(Network.connectionLost(ex))
-                    {
-                        throw new Ice.ConnectionLostException(ex);
-                    }
-
-                    throw new Ice.SocketException(ex);
-                }
-            }
-
-            return false; // No more data to send.
-        }
-
-        private void endConnect()
-        {
-            Debug.Assert(_result != null);
-            Network.doEndConnectAsync(_result);
-            _state = StateConnected;
-            _desc = Network.fdToString(_fd);
-            if(_traceLevels.network >= 1)
-            {
-                string s = "tcp connection established\n" + _desc;
-                _logger.trace(_traceLevels.networkCat, s);
             }
         }
 

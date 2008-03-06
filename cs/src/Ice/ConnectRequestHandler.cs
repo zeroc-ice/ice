@@ -134,18 +134,17 @@ namespace IceInternal
             }
         }
 
-        public void sendAsyncRequest(OutgoingAsync @out)
+        public bool sendAsyncRequest(OutgoingAsync @out)
         {
             lock(this)
             {
                 if(!initialized())
                 {
                     _requests.AddLast(new Request(@out));
-                    return;
+                    return false;
                 }
-            }
-            
-            _connection.sendAsyncRequest(@out, _compress, _response);
+            }            
+            return _connection.sendAsyncRequest(@out, _compress, _response);
         }
 
         public bool flushBatchRequests(BatchOutgoing @out)
@@ -153,17 +152,17 @@ namespace IceInternal
             return getConnection(true).flushBatchRequests(@out);
         }
 
-        public void flushAsyncBatchRequests(BatchOutgoingAsync @out)
+        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out)
         {
             lock(this)
             {
                 if(!initialized())
                 {
                     _requests.AddLast(new Request(@out));
-                    return;
+                    return false;
                 }
             }
-            _connection.flushAsyncBatchRequests(@out);
+            return _connection.flushAsyncBatchRequests(@out);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
@@ -351,6 +350,8 @@ namespace IceInternal
                 _flushing = true;
             }
 
+            LinkedList<OutgoingAsyncMessageCallback> sentCallbacks = 
+                new LinkedList<OutgoingAsyncMessageCallback>();
             try
             {
                 LinkedListNode<Request> p = _requests.First; // _requests is immutable when _flushing = true
@@ -359,11 +360,23 @@ namespace IceInternal
                     Request request = p.Value;
                     if(request.@out != null)
                     {
-                        _connection.sendAsyncRequest(request.@out, _compress, _response);
+                        if(_connection.sendAsyncRequest(request.@out, _compress, _response))
+                        {
+                            if(request.@out is Ice.AMISentCallback)
+                            {
+                                sentCallbacks.AddLast(request.@out);
+                            }
+                        }
                     }
                     else if(request.batchOut != null)
                     {
-                        _connection.flushAsyncBatchRequests(request.batchOut);
+                        if(_connection.flushAsyncBatchRequests(request.batchOut))
+                        {
+                            if(request.batchOut is Ice.AMISentCallback)
+                            {
+                                sentCallbacks.AddLast(request.batchOut);
+                            }
+                        }
                     }
                     else
                     {
@@ -396,7 +409,6 @@ namespace IceInternal
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
-                    Monitor.PulseAll(this);
                 }
             }
             catch(Ice.LocalException ex)
@@ -409,8 +421,19 @@ namespace IceInternal
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
-                    Monitor.PulseAll(this);
                 }
+            }
+
+            if(sentCallbacks.Count > 0)
+            {
+                Instance instance = _reference.getInstance();
+                instance.clientThreadPool().execute(delegate(bool unsused)
+                                                    {
+                                                        foreach(OutgoingAsyncMessageCallback callback in sentCallbacks)
+                                                        {
+                                                            callback.sent__(instance);
+                                                        }
+                                                    });
             }
 
             //
@@ -430,8 +453,11 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(!_initialized);
-                _initialized = true;
-                _flushing = false;
+                if(_exception == null)
+                {
+                    _initialized = true;
+                    _flushing = false;
+                }
                 _proxy = null; // Break cyclic reference count.
                 _delegate = null; // Break cyclic reference count.
                 Monitor.PulseAll(this);

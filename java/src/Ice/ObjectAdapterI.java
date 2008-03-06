@@ -725,15 +725,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager;
     }
 
-    public boolean
-    getThreadPerConnection()
-    {   
-        //
-        // No mutex lock necessary, _threadPerConnection is immutable.
-        //
-        return _threadPerConnection;
-    }
-
     //
     // Only for use by IceInternal.ObjectAdapterFactory
     //
@@ -821,23 +812,12 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         try
         {
-            _threadPerConnection = properties.getPropertyAsInt(_name + ".ThreadPerConnection") > 0;
-
             int threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
             int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-            if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
-            {
-                InitializationException ex = new InitializationException();
-                ex.reason = "object adapter `" + _name + "' cannot be configured for both\n" +
-                    "thread pool and thread per connection";
-                throw ex;
-            }
 
-            if(!_threadPerConnection && threadPoolSize == 0 && threadPoolSizeMax == 0)
-            {
-                _threadPerConnection = _instance.threadPerConnection();
-            }
-
+            //
+            // Create the per-adapter thread pool, if necessary.
+            //
             if(threadPoolSize > 0 || threadPoolSizeMax > 0)
             {
                 _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
@@ -1372,8 +1352,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         "ReplicaGroupId",
         "Router",
         "ProxyOptions",
-        "ThreadPerConnection",
-        "ThreadPerConnection.StackSize",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
@@ -1447,6 +1425,5 @@ public final class ObjectAdapterI implements ObjectAdapter
     private boolean _destroying;
     private boolean _destroyed;
     private boolean _noConfig;
-    private boolean _threadPerConnection;
     private Identity _processId = null;
 }

@@ -116,10 +116,6 @@ createClientProps(const Ice::PropertiesPtr& defaultProperties, const string& def
     PropertiesPtr result = createProperties();
     result->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     result->setProperty("IceSSL.DefaultDir", defaultDir);
-    if(defaultProperties->getPropertyAsInt("Ice.ThreadPerConnection") > 0)
-    {
-        result->setProperty("Ice.ThreadPerConnection", "1");
-    }
     if(!defaultProperties->getProperty("Ice.IPv6").empty())
     {
         result->setProperty("Ice.IPv6", defaultProperties->getProperty("Ice.IPv6"));
@@ -137,10 +133,6 @@ createServerProps(const Ice::PropertiesPtr& defaultProperties, const string& def
     Test::Properties result;
     result["Ice.Plugin.IceSSL"] = "IceSSL:createIceSSL";
     result["IceSSL.DefaultDir"] = defaultDir;
-    if(defaultProperties->getPropertyAsInt("Ice.ThreadPerConnection") > 0)
-    {
-        result["Ice.ThreadPerConnection"] = "1";
-    }
     if(!defaultProperties->getProperty("Ice.IPv6").empty())
     {
         result["Ice.IPv6"] = defaultProperties->getProperty("Ice.IPv6");

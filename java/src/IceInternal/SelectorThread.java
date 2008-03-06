@@ -11,48 +11,27 @@ package IceInternal;
 
 public class SelectorThread
 {
-    public interface SocketReadyCallback
+    static public abstract class SocketReadyCallback extends SelectorHandler implements TimerTask
     {
-        //
-        // The selector thread unregisters the callback when socketReady returns SocketStatus.Finished.
-        //
-        SocketStatus socketReady(boolean finished);
+        abstract public SocketStatus socketReady();
+        abstract public void socketFinished();
 
         //
         // The selector thread doesn't unregister the callback when sockectTimeout is called; socketTimeout
         // must unregister the callback either explicitly with unregister() or by shutting down the socket 
         // (if necessary).
         //
-        void socketTimeout();
+        //abstract void socketTimeout();
+
+        protected int _timeout;
+        protected SocketStatus _status;
     }
 
     SelectorThread(Instance instance)
     {
         _instance = instance;
         _destroyed = false;
-
-        Network.SocketPair pair = Network.createPipe();
-        _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
-        _fdIntrWrite = pair.sink;
-
-        try
-        {
-            _selector = java.nio.channels.Selector.open();
-            pair.source.configureBlocking(false);
-            _fdIntrReadKey = pair.source.register(_selector, java.nio.channels.SelectionKey.OP_READ);
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SyscallException sys = new Ice.SyscallException();
-            sys.initCause(ex);
-            throw sys;
-        }
-
-        //
-        // The Selector holds a Set representing the selected keys. The
-        // Set reference doesn't change, so we obtain it once here.
-        //
-        _keys = _selector.selectedKeys();
+        _selector = new Selector(instance, 0);
 
         _thread = new HelperThread();
         _thread.start();
@@ -72,34 +51,44 @@ public class SelectorThread
     {
         assert(!_destroyed);
         _destroyed = true;
-        setInterrupt();
+        _selector.setInterrupt();
     }
 
     public synchronized void
-    _register(java.nio.channels.SelectableChannel fd, SocketReadyCallback cb, SocketStatus status, int timeout)
+    _register(SocketReadyCallback cb, SocketStatus status, int timeout)
     {
         assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
         assert(status != SocketStatus.Finished);
 
-        SocketInfo info = new SocketInfo(fd, cb, status, timeout);
-        _changes.add(info);
-        if(info.timeout >= 0)
+        cb._timeout = timeout;
+        cb._status = status;
+        if(cb._timeout >= 0)
         {
-            _timer.schedule(info, info.timeout);
+            _timer.schedule(cb, cb._timeout);
         }
-        setInterrupt();
+
+        _selector.add(cb, status);
     }
 
-    //
-    // Unregister the given file descriptor. The registered callback will be notified with socketReady()
-    // upon registration to allow some cleanup to be done.
-    //
     public synchronized void
-    unregister(java.nio.channels.SelectableChannel fd)
+    unregister(SocketReadyCallback cb)
+    {
+        // Note: unregister should only be called from the socketReady() call-back.
+        assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
+
+        _selector.remove(cb);
+        cb._status = SocketStatus.Finished;
+    }
+
+    public synchronized void
+    finish(SocketReadyCallback cb)
     {
         assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
-        _changes.add(new SocketInfo(fd, null, SocketStatus.Finished, 0));
-        setInterrupt();
+
+        _selector.remove(cb);
+
+        _finished.add(cb);
+        _selector.setInterrupt();
     }
 
     public void
@@ -117,110 +106,48 @@ public class SelectorThread
         }
     }
 
-    private void
-    clearInterrupt()
+    public void
+    run()
     {
-        byte b = 0;
-
-        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
-        try
-        {
-            while(true)
-            {
-                buf.rewind();
-                if(_fdIntrRead.read(buf) != 1)
-                {
-                    break;
-                }
-
-                b = buf.get(0);
-                break;
-            }
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
-    private void
-    setInterrupt()
-    {
-        java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
-        buf.put(0, (byte)0);
-        while(buf.hasRemaining())
+        while(true)
         {
             try
             {
-                _fdIntrWrite.write(buf);
+                _selector.select();
             }
             catch(java.io.IOException ex)
             {
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
-                throw se;
+                //throw se;
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                se.printStackTrace(pw);
+                pw.flush();
+                String s = "exception in selector thread:\n" + sw.toString();
+                _instance.initializationData().logger.error(s);
+                continue;
             }
-        }
-    }
+            
+            java.util.LinkedList<SocketReadyCallback> readyList = new java.util.LinkedList<SocketReadyCallback>();
+            boolean finished = false;
 
-    public void
-    run()
-    {
-        java.util.Map<java.nio.channels.SelectableChannel, SocketInfo> socketMap =
-            new java.util.HashMap<java.nio.channels.SelectableChannel, SocketInfo>();
-        java.util.LinkedList<SocketInfo> readyList = new java.util.LinkedList<SocketInfo>();
-        java.util.LinkedList<SocketInfo> finishedList = new java.util.LinkedList<SocketInfo>();
-        while(true)
-        {
-            int ret = 0;
-
-            while(true)
+            synchronized(this)
             {
-                try
+                _selector.checkTimeout();
+
+                if(_selector.isInterrupted())
                 {
-                    ret = _selector.select();
-                }
-                catch(java.io.IOException ex)
-                {
-                    //
-                    // Pressing Ctrl-C causes select() to raise an
-                    // IOException, which seems like a JDK bug. We trap
-                    // for that special case here and ignore it.
-                    // Hopefully we're not masking something important!
-                    //
-                    if(Network.interrupted(ex))
+                    if(_selector.processInterrupt())
                     {
                         continue;
                     }
 
-                    Ice.SocketException se = new Ice.SocketException();
-                    se.initCause(ex);
-                    //throw se;
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    se.printStackTrace(pw);
-                    pw.flush();
-                    String s = "exception in selector thread:\n" + sw.toString();
-                    _instance.initializationData().logger.error(s);
-                    continue;
-                }
-
-                break;
-            }
-
-            assert(readyList.isEmpty() && finishedList.isEmpty());
-            
-            if(_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
-            {
-                synchronized(this)
-                {
                     //
                     // There are two possiblities for an interrupt:
                     //
                     // 1. The selector thread has been destroyed.
-                    // 2. A socket was registered or unregistered.
+                    // 2. A callback is being finished
                     //
 
                     //
@@ -231,82 +158,45 @@ public class SelectorThread
                         break;
                     }
 
-                    //
-                    // Remove the interrupt channel from the selected key set.
-                    //
-                    _keys.remove(_fdIntrReadKey);
-
-                    clearInterrupt();
-                    SocketInfo info = _changes.removeFirst();
-                    if(info.cb != null) // Registration
+                    do
                     {
-                        try
-                        {
-                            info.key = info.fd.register(_selector, convertStatus(info.status), info);
-                        }
-                        catch(java.nio.channels.ClosedChannelException ex)
-                        {
-                            assert(false);
-                        }
-                        assert(!socketMap.containsKey(info.fd));
-                        socketMap.put(info.fd, info);
+                        SocketReadyCallback cb = _finished.removeFirst();
+                        cb._status = SocketStatus.Finished;
+                        readyList.add(cb);
                     }
-                    else // Unregistration
-                    {
-                        info = socketMap.get(info.fd);
-                        if(info != null && info.status != SocketStatus.Finished)
-                        {
-                            if(info.timeout >= 0)
-                            {
-                                _timer.cancel(info);
-                            }
-                            
-                            try
-                            {
-                                info.key.cancel();
-                            }
-                            catch(java.nio.channels.CancelledKeyException ex)
-                            {
-                                assert(false);
-                            }
-                            info.status = SocketStatus.Finished;
-                            readyList.add(info);
-                        }
-                    }
+                    while(_selector.clearInterrupt()); // As long as there are interrupts
+                    finished = true;
                 }
-            }
-            else
-            {
-                //
-                // Examine the selection key set.
-                //
-                java.util.Iterator<java.nio.channels.SelectionKey> iter = _keys.iterator();
-                while(iter.hasNext())
+                else
                 {
-                    //
-                    // Ignore selection keys that have been cancelled or timed out.
-                    //
-                    java.nio.channels.SelectionKey key = iter.next();
-                    iter.remove();
-                    assert(key != _fdIntrReadKey);
-                    SocketInfo info = (SocketInfo)key.attachment();
-                    if(info.timeout >= 0)
+                    SocketReadyCallback cb;
+                    while((cb = (SocketReadyCallback)_selector.getNextSelected()) != null)
                     {
-                        _timer.cancel(info);
+                        readyList.add(cb);
                     }
-                    assert(key.isValid());
-                    readyList.add(info);
                 }
             }
 
-            java.util.Iterator<SocketInfo> iter = readyList.iterator();
+            java.util.Iterator<SocketReadyCallback> iter = readyList.iterator();
             while(iter.hasNext())
             {
-                SocketInfo info = iter.next();
-                SocketStatus status;
+                SocketStatus status = SocketStatus.Finished;
+                SocketReadyCallback cb = iter.next();
                 try
                 {
-                    status = info.cb.socketReady(info.status == SocketStatus.Finished);
+                    if(cb._timeout >= 0)
+                    {
+                        _timer.cancel(cb);
+                    }
+                    
+                    if(finished)
+                    {
+                        cb.socketFinished();
+                    }
+                    else
+                    {
+                        status = cb.socketReady();
+                    }
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -320,142 +210,39 @@ public class SelectorThread
                     status = SocketStatus.Finished;
                 }
 
-                if(status == SocketStatus.Finished)
+                if(status != SocketStatus.Finished)
                 {
-                    finishedList.add(info);
-                }
-                else
-                {
-                    assert(info.status != SocketStatus.Finished);
-                    try
+                    if(cb.hasMoreData())
                     {
-                        info.status = status;
-                        info.key.interestOps(convertStatus(status));
-                        if(info.timeout >= 0)
+                        _selector.hasMoreData(cb);
+                    }
+
+                    if(status != cb._status)
+                    {
+                        synchronized(this)
                         {
-                            _timer.schedule(info, info.timeout);
+                            _selector.update(cb, status);
+                            cb._status = status;
                         }
                     }
-                    catch(java.nio.channels.CancelledKeyException ex)
+
+                    if(cb._timeout >= 0)
                     {
-                        assert(false);
+                        _timer.schedule(cb, cb._timeout);
                     }
                 }
             }
-            readyList.clear();
-
-            if(finishedList.isEmpty())
-            {
-                continue;
-            }
-
-            iter = finishedList.iterator();
-            while(iter.hasNext())
-            {
-                SocketInfo info = iter.next();
-                if(info.status != SocketStatus.Finished)
-                {
-                    try
-                    {
-                        info.key.cancel();
-                    }
-                    catch(java.nio.channels.CancelledKeyException ex)
-                    {
-                        //assert(false); // The channel might already be closed at this point so we can't assert.
-                    }
-                }
-                socketMap.remove(info.fd);
-            }
-            finishedList.clear();
         }
 
         assert(_destroyed);
 
-        try
-        {
-            _selector.close();
-        }
-        catch(java.io.IOException ex)
-        {
-            // Ignore.
-        }
-
-        try
-        {
-            _fdIntrWrite.close();
-        }
-        catch(java.io.IOException ex)
-        {
-            //
-            // BUGFIX:
-            //
-            // Ignore this exception. This shouldn't happen
-            // but for some reasons the close() call raises
-            // "java.io.IOException: No such file or
-            // directory" under Linux with JDK 1.4.2.
-            //
-        }
-        _fdIntrWrite = null;
-        
-        try
-        {
-            _fdIntrRead.close();
-        }
-        catch(java.io.IOException ex)
-        {
-        }
-        _fdIntrRead = null;
-    }
-
-    private int
-    convertStatus(SocketStatus status)
-    {
-        if(status == SocketStatus.NeedConnect)
-        {
-            return java.nio.channels.SelectionKey.OP_CONNECT;
-        }
-        else if(status == SocketStatus.NeedRead)
-        {
-            return java.nio.channels.SelectionKey.OP_READ;
-        }
-        else
-        {
-            assert(status == SocketStatus.NeedWrite);
-            return java.nio.channels.SelectionKey.OP_WRITE;
-        }
+        _selector.destroy();
     }
 
     private Instance _instance;
     private boolean _destroyed;
-    private java.nio.channels.ReadableByteChannel _fdIntrRead;
-    private java.nio.channels.SelectionKey _fdIntrReadKey;
-    private java.nio.channels.WritableByteChannel _fdIntrWrite;
-    private java.nio.channels.Selector _selector;
-    private java.util.Set<java.nio.channels.SelectionKey> _keys;
-    private java.util.LinkedList<SocketInfo> _changes = new java.util.LinkedList<SocketInfo>();
-
-    private final class SocketInfo implements TimerTask
-    {
-        java.nio.channels.SelectableChannel fd;
-        SocketReadyCallback cb;
-        SocketStatus status;
-        int timeout;
-        java.nio.channels.SelectionKey key;
-
-        public void
-        runTimerTask()
-        {
-            this.cb.socketTimeout(); // Exceptions will be reported by the timer thread.
-        }
-
-        SocketInfo(java.nio.channels.SelectableChannel fd, SocketReadyCallback cb, SocketStatus status, int timeout)
-        {
-            this.fd = fd;
-            this.cb = cb;
-            this.status = status;
-            this.timeout = timeout;
-        }
-    }
+    private Selector _selector;
+    private java.util.LinkedList<SocketReadyCallback> _finished = new java.util.LinkedList<SocketReadyCallback>();
 
     private final class HelperThread extends Thread
     {

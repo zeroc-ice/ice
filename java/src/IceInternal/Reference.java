@@ -83,7 +83,6 @@ public abstract class Reference implements Cloneable
     public abstract boolean getCacheConnection();
     public abstract boolean getPreferSecure();
     public abstract Ice.EndpointSelectionType getEndpointSelection();
-    public abstract boolean getThreadPerConnection();
     public abstract int getLocatorCacheTimeout();
 
     //
@@ -179,7 +178,6 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeCacheConnection(boolean newCache);
     public abstract Reference changePreferSecure(boolean newPreferSecure);
     public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
-    public abstract Reference changeThreadPerConnection(boolean newTpc);
     public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 
     public abstract Reference changeTimeout(int newTimeout);

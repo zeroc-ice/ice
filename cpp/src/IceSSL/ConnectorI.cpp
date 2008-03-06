@@ -22,7 +22,7 @@ using namespace Ice;
 using namespace IceSSL;
 
 IceInternal::TransceiverPtr
-IceSSL::ConnectorI::connect(int timeout)
+IceSSL::ConnectorI::connect()
 {
     //
     // The plugin may not be initialized.
@@ -45,7 +45,7 @@ IceSSL::ConnectorI::connect(int timeout)
         SOCKET fd = IceInternal::createSocket(false, _addr.ss_family);
         IceInternal::setBlock(fd, false);
         IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
-        bool connected = IceInternal::doConnect(fd, _addr, timeout);
+        bool connected = IceInternal::doConnect(fd, _addr);
 
         // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
         BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);

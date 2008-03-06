@@ -1385,63 +1385,6 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-proxyIceIsThreadPerConnection(ProxyObject* self)
-{
-    assert(self->proxy);
-
-    PyObject* b;
-    try
-    {
-        b = (*self->proxy)->ice_isThreadPerConnection() ? getTrue() : getFalse();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    Py_INCREF(b);
-    return b;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-proxyIceThreadPerConnection(ProxyObject* self, PyObject* args)
-{
-    PyObject* flag;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
-    {
-        return 0;
-    }
-
-    int n = PyObject_IsTrue(flag);
-    if(n < 0)
-    {
-        return 0;
-    }
-
-    assert(self->proxy);
-
-    Ice::ObjectPrx newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_threadPerConnection(n == 1);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(self->ob_type));
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 proxyIceGetConnection(ProxyObject* self)
 {
     assert(self->proxy);
@@ -1877,10 +1820,6 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_timeout(int) -> Ice.ObjectPrx")) },
     { STRCAST("ice_connectionId"), reinterpret_cast<PyCFunction>(proxyIceConnectionId), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
-    { STRCAST("ice_isThreadPerConnection"), reinterpret_cast<PyCFunction>(proxyIceIsThreadPerConnection), METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_isThreadPerConnection() -> bool")) },
-    { STRCAST("ice_threadPerConnection"), reinterpret_cast<PyCFunction>(proxyIceThreadPerConnection), METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_threadPerConnection(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getConnection"), reinterpret_cast<PyCFunction>(proxyIceGetConnection), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
     { STRCAST("ice_getCachedConnection"), reinterpret_cast<PyCFunction>(proxyIceGetCachedConnection), METH_NOARGS,

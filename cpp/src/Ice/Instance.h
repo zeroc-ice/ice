@@ -72,8 +72,6 @@ public:
     SelectorThreadPtr selectorThread();
     EndpointHostResolverPtr endpointHostResolver();
     IceUtil::TimerPtr timer();
-    bool threadPerConnection() const;
-    size_t threadPerConnectionStackSize() const;
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
@@ -133,8 +131,6 @@ private:
     SelectorThreadPtr _selectorThread;
     EndpointHostResolverPtr _endpointHostResolver;
     IceUtil::TimerPtr _timer;
-    const bool _threadPerConnection;
-    const size_t _threadPerConnectionStackSize;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;

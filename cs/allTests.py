@@ -48,7 +48,6 @@ tests = [ \
     "Ice/dictMapping", \
     "Ice/seqMapping", \
     "Ice/background", \
-    "Ice/threads", \
     "IceBox/configuration", \
     "Glacier2/router", \
     "Glacier2/attack", \

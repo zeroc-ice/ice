@@ -14,7 +14,6 @@ public interface Acceptor
     java.nio.channels.ServerSocketChannel fd();
     void close();
     void listen();
-    Transceiver accept(int timeout);
-    void connectToSelf();
+    Transceiver accept();
     String toString();
 }

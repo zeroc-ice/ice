@@ -98,9 +98,9 @@ ICE_API void setReuseAddress(SOCKET, bool);
 
 ICE_API void doBind(SOCKET, struct sockaddr_storage&);
 ICE_API void doListen(SOCKET, int);
-ICE_API bool doConnect(SOCKET, struct sockaddr_storage&, int);
-ICE_API void doFinishConnect(SOCKET, int);
-ICE_API SOCKET doAccept(SOCKET, int);
+ICE_API bool doConnect(SOCKET, struct sockaddr_storage&);
+ICE_API void doFinishConnect(SOCKET);
+ICE_API SOCKET doAccept(SOCKET);
 
 ICE_API void getAddressForServer(const std::string&, int, struct sockaddr_storage&, ProtocolSupport);
 ICE_API void getAddress(const std::string&, int, struct sockaddr_storage&, ProtocolSupport);

@@ -10,10 +10,10 @@
 final class Connector implements IceInternal.Connector, java.lang.Comparable
 {
     public IceInternal.Transceiver
-    connect(int timeout)
+    connect()
     {
         _configuration.checkConnectException();
-        return new Transceiver(_connector.connect(timeout));
+        return new Transceiver(_connector.connect());
     }
 
     public short

@@ -306,15 +306,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!b1->ice_isCollocationOptimized());
     prop->setProperty(property, "");
 
-    property = propertyPrefix + ".ThreadPerConnection";
-    prop->setProperty(property, "0");
-    b1 = communicator->propertyToProxy(propertyPrefix);
-    test(!b1->ice_isThreadPerConnection());
-    prop->setProperty(property, "1");
-    b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_isThreadPerConnection());
-    prop->setProperty(property, "");
-
     cout << "ok" << endl;
 
     cout << "testing ice_getCommunicator... " << flush;
@@ -337,8 +328,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!base->ice_collocationOptimized(false)->ice_isCollocationOptimized());
     test(base->ice_preferSecure(true)->ice_isPreferSecure());
     test(!base->ice_preferSecure(false)->ice_isPreferSecure());
-    test(base->ice_threadPerConnection(true)->ice_isThreadPerConnection());
-    test(!base->ice_threadPerConnection(false)->ice_isThreadPerConnection());
     cout << "ok" << endl;
 
     cout << "testing proxy comparison... " << flush;
@@ -435,11 +424,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_preferSecure(true) != compObj->ice_preferSecure(false));
     test(compObj->ice_preferSecure(false) < compObj->ice_preferSecure(true));
     test(!(compObj->ice_preferSecure(true) < compObj->ice_preferSecure(false)));
-    
-    test(compObj->ice_threadPerConnection(true) == compObj->ice_threadPerConnection(true));
-    test(compObj->ice_threadPerConnection(true) != compObj->ice_threadPerConnection(false));
-    test(compObj->ice_threadPerConnection(false) < compObj->ice_threadPerConnection(true));
-    test(!(compObj->ice_threadPerConnection(true) < compObj->ice_threadPerConnection(false)));
     
     Ice::ObjectPrx compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
     Ice::ObjectPrx compObj2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");

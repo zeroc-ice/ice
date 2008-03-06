@@ -28,15 +28,9 @@ class Acceptor implements IceInternal.Acceptor
     }
 
     public IceInternal.Transceiver
-    accept(int timeout)
+    accept()
     {
-        return new Transceiver(_acceptor.accept(timeout));
-    }
-
-    public void
-    connectToSelf()
-    {
-        _acceptor.connectToSelf();
+        return new Transceiver(_acceptor.accept());
     }
 
     public String

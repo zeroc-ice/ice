@@ -77,6 +77,23 @@ IceInternal::OutgoingAsyncMessageCallback::~OutgoingAsyncMessageCallback()
 }
 
 void
+IceInternal::OutgoingAsyncMessageCallback::__sent(const InstancePtr& instance)
+{
+    try
+    {
+        dynamic_cast<Ice::AMISentCallback*>(this)->ice_sent();
+    }
+    catch(const std::exception& ex)
+    {
+        __warning(instance, ex);
+    }
+    catch(...)
+    {
+        __warning(instance);
+    }
+}
+
+void
 IceInternal::OutgoingAsyncMessageCallback::__exception(const Ice::Exception& exc)
 {    
     try
@@ -109,8 +126,6 @@ IceInternal::OutgoingAsyncMessageCallback::__acquireCallback(const Ice::ObjectPr
     }
 
     Instance* instance = proxy->__reference()->getInstance().get();
-    assert(!__is);
-    __is = new BasicStream(instance);
     assert(!__os);
     __os = new BasicStream(instance);
 }
@@ -141,9 +156,11 @@ IceInternal::OutgoingAsyncMessageCallback::__releaseCallback(const Ice::LocalExc
 void
 IceInternal::OutgoingAsyncMessageCallback::__releaseCallbackNoSync()
 {
-    assert(__is);
-    delete __is;
-    __is = 0;
+    if(__is)
+    {
+        delete __is;
+        __is = 0;
+    }
 
     assert(__os);
     delete __os;
@@ -157,19 +174,24 @@ IceInternal::OutgoingAsyncMessageCallback::__warning(const std::exception& exc) 
 {
     if(__os) // Don't print anything if release() was already called.
     {
-        InstancePtr instance = __os->instance();
-        if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+        __warning(__os->instance());
+    }
+}
+
+void
+IceInternal::OutgoingAsyncMessageCallback::__warning(const InstancePtr& instance, const std::exception& exc) const
+{
+    if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    {
+        Warning out(instance->initializationData().logger);
+        const Exception* ex = dynamic_cast<const ObjectNotExistException*>(&exc);
+        if(ex)
         {
-            Warning out(instance->initializationData().logger);
-            const Exception* ex = dynamic_cast<const ObjectNotExistException*>(&exc);
-            if(ex)
-            {
-                out << "Ice::Exception raised by AMI callback:\n" << ex;
-            }
-            else
-            {
-                out << "std::exception raised by AMI callback:\n" << exc.what();
-            }
+            out << "Ice::Exception raised by AMI callback:\n" << ex;
+        }
+        else
+        {
+            out << "std::exception raised by AMI callback:\n" << exc.what();
         }
     }
 }
@@ -179,12 +201,17 @@ IceInternal::OutgoingAsyncMessageCallback::__warning() const
 {
     if(__os) // Don't print anything if release() was already called.
     {
-        InstancePtr instance = __os->instance();
-        if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-        {
-            Warning out(instance->initializationData().logger);
-            out << "unknown exception raised by AMI callback";
-        }
+        __warning(__os->instance());
+    }
+}
+
+void
+IceInternal::OutgoingAsyncMessageCallback::__warning(const InstancePtr& instance) const
+{
+    if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    {
+        Warning out(instance->initializationData().logger);
+        out << "unknown exception raised by AMI callback";
     }
 }
 
@@ -233,6 +260,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
             __monitor.wait();
         }
 
+        __is = new BasicStream(__os->instance());
         __is->swap(is);  
         __is->read(replyStatus);
         
@@ -426,7 +454,7 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& ex)
     }
 }
 
-void
+bool
 IceInternal::OutgoingAsync::__send()
 {
     try
@@ -434,8 +462,7 @@ IceInternal::OutgoingAsync::__send()
         _sent = false;
         _response = false;
         _delegate = _proxy->__getDelegate(true);
-        _delegate->__getRequestHandler()->sendAsyncRequest(this);
-        return;
+        _sentSynchronously = _delegate->__getRequestHandler()->sendAsyncRequest(this);
     }
     catch(const LocalExceptionWrapper& ex)
     {
@@ -445,6 +472,7 @@ IceInternal::OutgoingAsync::__send()
     {
         handleException(ex);
     }
+    return _sentSynchronously;
 }
 
 void
@@ -519,6 +547,7 @@ IceInternal::OutgoingAsync::__throwUserException()
 {
     try
     {
+        assert(__is);
         __is->startReadEncaps();
         __is->throwException();
     }
@@ -622,7 +651,7 @@ IceInternal::BatchOutgoingAsync::__finished(const Ice::LocalException& exc)
     __exception(exc);
 }
 
-void
+bool
 Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
                                      const vector<Byte>& inParams, const Context* context)
 {
@@ -632,11 +661,12 @@ Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operati
         __prepare(prx, operation, mode, context);
         __os->writeBlob(inParams);
         __os->endWriteEncaps();
-        __send();
+        return __send();
     }
     catch(const Ice::LocalException& ex)
     {
         __releaseCallback(ex);
+        return false;
     }
 }
 
@@ -660,7 +690,7 @@ Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exce
     __releaseCallback();
 }
 
-void
+bool
 Ice::AMI_Array_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
                                            const pair<const Byte*, const Byte*>& inParams, const Context* context)
 {
@@ -670,11 +700,12 @@ Ice::AMI_Array_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& o
         __prepare(prx, operation, mode, context);
         __os->writeBlob(inParams.first, static_cast<Int>(inParams.second - inParams.first));
         __os->endWriteEncaps();
-        __send();
+        return __send();
     }
     catch(const Ice::LocalException& ex)
     {
         __releaseCallback(ex);
+        return false;
     }
 }
 
@@ -699,7 +730,7 @@ Ice::AMI_Array_Object_ice_invoke::__response(bool ok) // ok == true means no use
     __releaseCallback();
 }
 
-void
+bool
 Ice::AMI_Object_ice_flushBatchRequests::__invoke(const ObjectPrx& prx)
 {
     __acquireCallback(prx);
@@ -714,7 +745,7 @@ Ice::AMI_Object_ice_flushBatchRequests::__invoke(const ObjectPrx& prx)
         try
         {
             delegate = prx->__getDelegate(true);
-            delegate->__getRequestHandler()->flushAsyncBatchRequests(this);
+            return delegate->__getRequestHandler()->flushAsyncBatchRequests(this);
         }
         catch(const Ice::LocalException& ex)
         {
@@ -725,5 +756,5 @@ Ice::AMI_Object_ice_flushBatchRequests::__invoke(const ObjectPrx& prx)
     {
         __releaseCallback(ex);
     }
+    return false;
 }
-

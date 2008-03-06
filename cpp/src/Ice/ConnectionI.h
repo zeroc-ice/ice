@@ -13,7 +13,6 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
-#include <IceUtil/Thread.h> // For ThreadPerConnection.
 #include <Ice/Connection.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ConnectionFactoryF.h>
@@ -26,7 +25,8 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
-#include <Ice/SelectorThread.h>
+#include <Ice/SocketReadyCallback.h>
+#include <Ice/SelectorThreadF.h>
 
 #include <deque>
 #include <memory>
@@ -37,7 +37,7 @@ namespace IceInternal
 class Outgoing;
 class BatchOutgoing;
 class OutgoingMessageCallback;
-
+class FlushSentCallbacks;
 }
 
 namespace Ice
@@ -84,7 +84,7 @@ public:
     void monitor();
 
     bool sendRequest(IceInternal::Outgoing*, bool, bool);
-    void sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);
+    bool sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);
 
     void prepareBatchRequest(IceInternal::BasicStream*);
     void finishBatchRequest(IceInternal::BasicStream*, bool);
@@ -93,13 +93,12 @@ public:
     virtual void flushBatchRequests(); // From Connection.
 
     bool flushBatchRequests(IceInternal::BatchOutgoing*);
-    void flushAsyncBatchRequests(const IceInternal::BatchOutgoingAsyncPtr&);
+    bool flushAsyncBatchRequests(const IceInternal::BatchOutgoingAsyncPtr&);
 
     void sendResponse(IceInternal::BasicStream*, Byte);
     void sendNoResponse();
 
     IceInternal::EndpointIPtr endpoint() const;
-    bool threadPerConnection() const;
 
     virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
     virtual ObjectAdapterPtr getAdapter() const; // From Connection.
@@ -122,7 +121,8 @@ public:
     //
     // Operations from SocketReadyCallback
     //
-    virtual IceInternal::SocketStatus socketReady(bool);
+    virtual IceInternal::SocketStatus socketReady();
+    virtual void socketFinished();
     virtual void socketTimeout();
 
     // SSL plug-in needs to be able to get the transceiver.
@@ -130,8 +130,8 @@ public:
 
 private:
 
-    ConnectionI(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
-                const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&, bool, size_t);
+    ConnectionI(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, const IceInternal::EndpointIPtr&, 
+                const ObjectAdapterPtr&);
     virtual ~ConnectionI();
 
     friend class IceInternal::IncomingConnectionFactory;
@@ -186,16 +186,12 @@ private:
         bool adopted;
     };
 
-    IceInternal::SocketStatus initialize(int);
-    IceInternal::SocketStatus validate(int);
-    bool send(int);
+    IceInternal::SocketStatus initialize();
+    IceInternal::SocketStatus validate();
+    bool send();
+    friend class IceInternal::FlushSentCallbacks;
+    void flushSentCallbacks();
     bool sendMessage(OutgoingMessage&);
-
-    void finishStart();
-    void finishStart(const Ice::LocalException&);
-
-    void registerWithPool();
-    void unregisterWithPool();
 
     void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
@@ -204,25 +200,6 @@ private:
                       IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, IceInternal::OutgoingAsyncPtr&);
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
-
-    void run(); // For thread per connection.
-
-    class ThreadPerConnection : public IceUtil::Thread
-    {
-    public:
-        
-        ThreadPerConnection(const ConnectionIPtr&);
-        virtual void run();
-
-    private:
-        
-        ConnectionIPtr _connection;
-    };
-    friend class ThreadPerConnection;
-    // Defined as mutable because "isFinished() const" sets this to 0.
-    mutable IceUtil::ThreadPtr _thread;
-    const bool _threadPerConnection;
-    const size_t _threadPerConnectionStackSize;
 
     IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;
@@ -234,17 +211,12 @@ private:
 
     const LoggerPtr _logger;
     const IceInternal::TraceLevelsPtr _traceLevels;
-
-    bool _registeredWithPool;
-    int _finishedCount;
     const IceInternal::ThreadPoolPtr _threadPool;
-
     const IceInternal::SelectorThreadPtr _selectorThread;
 
     StartCallbackPtr _startCallback;
 
     const bool _warn;
-
     const int _acmTimeout;
     IceUtil::Time _acmAbsoluteTimeout;
 
@@ -267,9 +239,11 @@ private:
     bool _batchRequestCompress;
     size_t _batchMarker;
 
-    std::deque<OutgoingMessage> _queuedStreams;
     std::deque<OutgoingMessage> _sendStreams;
     bool _sendInProgress;
+
+    std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr> _sentCallbacks;
+    IceInternal::ThreadPoolWorkItemPtr _flushSentCallbacks;
     
     int _dispatchCount;
 

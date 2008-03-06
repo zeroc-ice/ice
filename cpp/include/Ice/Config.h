@@ -71,8 +71,4 @@ inline int getSystemErrno() { return GetLastError(); }
 inline int getSystemErrno() { return errno; }
 #endif
 
-#if defined(__linux) && !defined(ICE_NO_EPOLL)
-#   define ICE_USE_EPOLL 1
-#endif
-
 #endif

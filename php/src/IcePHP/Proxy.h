@@ -63,8 +63,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_compress);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_isThreadPerConnection);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_threadPerConnection);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
@@ -130,8 +128,6 @@ ZEND_FUNCTION(Ice_Connection_toString);
     ZEND_FE(Ice_ObjectPrx_ice_compress,                 NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_timeout,                  NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_connectionId,             NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_isThreadPerConnection,    NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_threadPerConnection,      NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getConnection,            NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getCachedConnection,      NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,            NULL) \

@@ -71,7 +71,6 @@ public:
     virtual bool getCacheConnection() const = 0;
     virtual bool getPreferSecure() const = 0;
     virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
-    virtual bool getThreadPerConnection() const = 0;
     virtual int getLocatorCacheTimeout() const = 0;
 
     //
@@ -95,7 +94,6 @@ public:
     virtual ReferencePtr changeCacheConnection(bool) const = 0;
     virtual ReferencePtr changePreferSecure(bool) const = 0;
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const = 0;
-    virtual ReferencePtr changeThreadPerConnection(bool) const = 0;
 
     virtual ReferencePtr changeTimeout(int) const = 0;
     virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
@@ -172,7 +170,6 @@ public:
     virtual bool getCacheConnection() const;
     virtual bool getPreferSecure() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
-    virtual bool getThreadPerConnection() const;
     virtual int getLocatorCacheTimeout() const;
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
@@ -183,7 +180,6 @@ public:
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
-    virtual ReferencePtr changeThreadPerConnection(bool) const;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const;
 
     virtual ReferencePtr changeTimeout(int) const;
@@ -217,8 +213,7 @@ public:
 
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
                       const std::string&, Mode, bool, const std::vector<EndpointIPtr>&, const std::string&,
-                      const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool, Ice::EndpointSelectionType, bool, 
-                      int);
+                      const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool, Ice::EndpointSelectionType, int);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;
@@ -228,7 +223,6 @@ public:
     virtual bool getCacheConnection() const;
     virtual bool getPreferSecure() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
-    virtual bool getThreadPerConnection() const;
     virtual int getLocatorCacheTimeout() const;
 
     virtual ReferencePtr changeCompress(bool) const;
@@ -240,7 +234,6 @@ public:
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
-    virtual ReferencePtr changeThreadPerConnection(bool) const;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const;
 
     virtual ReferencePtr changeTimeout(int) const;
@@ -285,7 +278,6 @@ private:
     bool _cacheConnection;
     bool _preferSecure;
     Ice::EndpointSelectionType _endpointSelection;
-    bool _threadPerConnection;
     int _locatorCacheTimeout;
 
     bool _overrideTimeout;

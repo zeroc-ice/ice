@@ -14,7 +14,7 @@ from threading import Thread
 # Global flags and their default values.
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp" or "ssl".
 compress = 0                    # Set to 1 to enable bzip2 compression.
-threadPerConnection = 0         # Set to 1 to have tests use thread per connection concurrency model.
+serialize = 0                   # Set to 1 to have tests use connection serialization
 host = "127.0.0.1"              # Default to loopback.
 debug = 0                       # Set to 1 to enable test suite debugging.
 mono =  0                       # Set to 1 to use Mono as the default .NET CLR.
@@ -179,7 +179,7 @@ def run(tests, root = False):
           --protocol=tcp|ssl      Run with the given protocol.
           --compress              Run the tests with protocol compression.
           --host=host             Set --Ice.Default.Host=<host>.
-          --threadPerConnection   Run with thread-per-connection concurrency model.
+          --serialize             Run with connection serialization.
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
           --mono                  Use mono when running C# tests.
@@ -191,7 +191,7 @@ def run(tests, root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug",
-                                    "protocol=", "compress", "host=", "threadPerConnection", "continue", "ipv6",
+                                    "protocol=", "compress", "host=", "serialize", "continue", "ipv6",
                                     "mono", "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
@@ -229,7 +229,7 @@ def run(tests, root = False):
             if a not in ( "ssl", "tcp"):
                 usage()
 
-        if o in ( "--protocol", "--host", "--debug", "--compress", "--threadPerConnection", "--ipv6", "--mono", \
+        if o in ( "--protocol", "--host", "--debug", "--compress", "--serialize", "--ipv6", "--mono", \
                   "--ice-home", "--x64"):
             arg += " " + o
             if len(a) > 0:
@@ -248,12 +248,12 @@ def run(tests, root = False):
     if all:
         for proto in ["ssl", "tcp"]:
             for compress in [0, 1]:
-                for threadPerConnection in [0, 1]:
+                for serialize in [0, 1]:
                     testarg = ""
                     if compress:
                         testarg += "--compress"
-                    if threadPerConnection:
-                        testarg += " --threadPerConnection"
+                    if serialize:
+                        testarg += " --serialize"
                     testarg += " --protocol %s" % (proto)
                     args.append(testarg)
     else:
@@ -682,7 +682,7 @@ class DriverConfig:
     lang = None
     protocol = None 
     compress = 0
-    threadPerConnection = 0
+    serialize = 0
     host = None 
     mono = False
     type = None
@@ -692,14 +692,14 @@ class DriverConfig:
     def __init__(self, type = None):
         global protocol
         global compress
-        global threadPerConnection
+        global serialize
         global host 
         global mono
         global ipv6
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
-        self.threadPerConnection = threadPerConnection
+        self.serialize = serialize
         self.host = host
         self.mono = mono
         self.type = type
@@ -749,9 +749,10 @@ def getCommandLine(exe, config, env = getTestEnv()):
     if config.compress:
         components.append("--Ice.Override.Compress=1")
 
-    if config.threadPerConnection:
-        components.append("--Ice.ThreadPerConnection")
-    elif config.type == "server" or config.type == "colloc" and config.lang == "py":
+    if config.serialize:
+        components.append("--Ice.ThreadPool.Server.Serialize=1")
+        
+    if config.type == "server" or config.type == "colloc" and config.lang == "py":
         components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
 
     if config.type == "server":
@@ -1118,7 +1119,7 @@ def processCmdLine():
           --protocol=tcp|ssl      Run with the given protocol.
           --compress              Run the tests with protocol compression.
           --host=host             Set --Ice.Default.Host=<host>.
-          --threadPerConnection   Run with thread-per-connection concurrency model.
+          --serialize   Run with thread-per-connection concurrency model.
           --ipv6                  Use IPv6 addresses.
           --mono                  Use mono when running C# tests.
           --ice-home=<path>       Use the binary distribution from the given path.
@@ -1128,7 +1129,7 @@ def processCmdLine():
 
     try:
         opts, args = getopt.getopt(
-            sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection", "ipv6", "mono", \
+            sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "serialize", "ipv6", "mono", \
                               "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
@@ -1149,9 +1150,9 @@ def processCmdLine():
         elif o == "--compress":
             global compress
             compress = 1
-        elif o == "--threadPerConnection":
-            global threadPerConnection
-            threadPerConnection = 1
+        elif o == "--serialize":
+            global serialize
+            serialize = 1
         elif o == "--host":
             global host
             host = a

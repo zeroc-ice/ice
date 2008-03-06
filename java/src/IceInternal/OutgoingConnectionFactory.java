@@ -106,8 +106,7 @@ public final class OutgoingConnectionFactory
     }
 
     public Ice.ConnectionI
-    create(EndpointI[] endpts, boolean hasMore, boolean tpc, Ice.EndpointSelectionType selType, 
-           Ice.BooleanHolder compress)
+    create(EndpointI[] endpts, boolean hasMore, Ice.EndpointSelectionType selType, Ice.BooleanHolder compress)
     {
         assert(endpts.length > 0);
 
@@ -119,7 +118,7 @@ public final class OutgoingConnectionFactory
         //
         // Try to find a connection to one of the given endpoints.
         //
-        Ice.ConnectionI connection = findConnection(endpoints, tpc, compress);
+        Ice.ConnectionI connection = findConnectionByEndpoint(endpoints, compress);
         if(connection != null)
         {
             return connection;
@@ -156,7 +155,7 @@ public final class OutgoingConnectionFactory
                 java.util.Iterator<Connector> q = cons.iterator();
                 while(q.hasNext())
                 {
-                    connectors.add(new ConnectorInfo(q.next(), endpoint, tpc));
+                    connectors.add(new ConnectorInfo(q.next(), endpoint));
                 }
             }
             catch(Ice.LocalException ex)
@@ -194,21 +193,7 @@ public final class OutgoingConnectionFactory
             ConnectorInfo ci = q.next();
             try
             {
-                int timeout;
-                if(defaultsAndOverrides.overrideConnectTimeout)
-                {
-                    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-                }
-                else
-                {
-                    //
-                    // It is not necessary to check for overrideTimeout, the endpoint has already 
-                    // been modified with this override, if set.
-                    //
-                    timeout = ci.endpoint.timeout();
-                }
-
-                connection = createConnection(ci.connector.connect(timeout), ci);
+                connection = createConnection(ci.connector.connect(), ci);
                 connection.start(null);
 
                 if(defaultsAndOverrides.overrideCompress)
@@ -253,7 +238,7 @@ public final class OutgoingConnectionFactory
     }
 
     public void
-    create(EndpointI[] endpts, boolean hasMore, boolean tpc, Ice.EndpointSelectionType selType,
+    create(EndpointI[] endpts, boolean hasMore, Ice.EndpointSelectionType selType,
            CreateConnectionCallback callback)
     {
         assert(endpts.length > 0);
@@ -269,7 +254,7 @@ public final class OutgoingConnectionFactory
         try
         {
             Ice.BooleanHolder compress = new Ice.BooleanHolder();
-            Ice.ConnectionI connection = findConnection(endpoints, tpc, compress);
+            Ice.ConnectionI connection = findConnectionByEndpoint(endpoints, compress);
             if(connection != null)
             {
                 callback.setConnection(connection, compress.value);
@@ -282,7 +267,7 @@ public final class OutgoingConnectionFactory
             return;
         }
 
-        ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType, tpc);
+        ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType);
         cb.getConnectors();
     }
 
@@ -469,7 +454,7 @@ public final class OutgoingConnectionFactory
     }
 
     synchronized private Ice.ConnectionI
-    findConnection(java.util.List<EndpointI> endpoints, boolean tpc, Ice.BooleanHolder compress)
+    findConnectionByEndpoint(java.util.List<EndpointI> endpoints, Ice.BooleanHolder compress)
     {
         if(_destroyed)
         {
@@ -493,8 +478,7 @@ public final class OutgoingConnectionFactory
             while(q.hasNext())
             {
                 Ice.ConnectionI connection = q.next();
-                if(connection.isActiveOrHolding() &&
-                   connection.threadPerConnection() == tpc) // Don't return destroyed or un-validated connections
+                if(connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
                     if(defaultsAndOverrides.overrideCompress)
                     {
@@ -787,8 +771,7 @@ public final class OutgoingConnectionFactory
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-	    Ice.ConnectionI connection = new Ice.ConnectionI(_instance, transceiver, ci.endpoint.compress(false),
-                                                             null, ci.threadPerConnection);
+	    Ice.ConnectionI connection = new Ice.ConnectionI(_instance, transceiver, ci.endpoint.compress(false),null);
 
             java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci);
             if(connectionList == null)
@@ -897,10 +880,7 @@ public final class OutgoingConnectionFactory
             // If the connection is finished, we remove it right away instead of
             // waiting for the reaping.
             //
-            // NOTE: it's possible for the connection to not be finished yet. That's
-            // for instance the case when using thread per connection and if it's the
-            // thread which is calling back the outgoing connection factory to notify
-            // it of the failure.
+            // NOTE: it's possible for the connection to not be finished yet.
             //
             synchronized(this)
             {
@@ -957,46 +937,39 @@ public final class OutgoingConnectionFactory
 
     private static class ConnectorInfo
     {
-        public ConnectorInfo(Connector c, EndpointI e, boolean t)
+        public ConnectorInfo(Connector c, EndpointI e)
         {
             connector = c;
             endpoint = e;
-            threadPerConnection = t;
         }
 
         public boolean 
         equals(Object obj)
         {
             ConnectorInfo r = (ConnectorInfo)obj;
-            if(threadPerConnection != r.threadPerConnection)
-            {
-                return false;
-            }
             return connector.equals(r.connector);
         }
 
         public int
         hashCode()
         {
-            return 2 * connector.hashCode() + (threadPerConnection ? 0 : 1);
+            return connector.hashCode();
         }
 
         public Connector connector;
         public EndpointI endpoint;
-        public boolean threadPerConnection;
     }
 
     private static class ConnectCallback implements Ice.ConnectionI.StartCallback, EndpointI_connectors
     {
         ConnectCallback(OutgoingConnectionFactory f, java.util.List<EndpointI> endpoints, boolean more, 
-                        CreateConnectionCallback cb, Ice.EndpointSelectionType selType, boolean threadPerConnection)
+                        CreateConnectionCallback cb, Ice.EndpointSelectionType selType)
         {
             _factory = f;
             _endpoints = endpoints;
             _hasMore = more;
             _callback = cb;
             _selType = selType;
-            _threadPerConnection = threadPerConnection;
             _endpointsIter = _endpoints.iterator();
         }
 
@@ -1063,7 +1036,7 @@ public final class OutgoingConnectionFactory
             java.util.Iterator<Connector> q = cons.iterator();
             while(q.hasNext())
             {
-                _connectors.add(new ConnectorInfo(q.next(), _currentEndpoint, _threadPerConnection));
+                _connectors.add(new ConnectorInfo(q.next(), _currentEndpoint));
             }
 
             if(_endpointsIter.hasNext())
@@ -1183,7 +1156,7 @@ public final class OutgoingConnectionFactory
             {
                 assert(_iter.hasNext());
                 _current = _iter.next();
-                connection = _factory.createConnection(_current.connector.connect(0), _current);
+                connection = _factory.createConnection(_current.connector.connect(), _current);
                 connection.start(this);
             }
             catch(Ice.LocalException ex)
@@ -1197,7 +1170,6 @@ public final class OutgoingConnectionFactory
         private final CreateConnectionCallback _callback;
         private final java.util.List<EndpointI> _endpoints;
         private final Ice.EndpointSelectionType _selType;
-        private final boolean _threadPerConnection;
         private java.util.Iterator<EndpointI> _endpointsIter;
         private EndpointI _currentEndpoint;
         private java.util.List<ConnectorInfo> _connectors = new java.util.ArrayList<ConnectorInfo>();

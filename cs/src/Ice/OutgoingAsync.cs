@@ -26,6 +26,18 @@ namespace IceInternal
             return os__;
         }
 
+        public void sent__(Instance instance)
+        {
+            try
+            {
+                ((Ice.AMISentCallback)this).ice_sent();
+            }
+            catch(System.Exception ex)
+            {
+                warning__(instance, ex);
+            }
+        }
+        
         public void exception__(Ice.Exception exc)
         {
             try
@@ -100,16 +112,20 @@ namespace IceInternal
                 Monitor.Pulse(monitor__);
             }
         }
-        
+
         protected void warning__(System.Exception ex)
         {
             if(os__ != null) // Don't print anything if cleanup() was already called.
             {
-                Instance instance = os__.instance();
-                if(instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-                {
-                    instance.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
-                }
+                warning__(os__.instance(), ex);
+            }
+        }
+
+        protected void warning__(Instance instance, System.Exception ex)
+        {
+            if(instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+            {
+                instance.initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
             }
         }
 
@@ -364,14 +380,14 @@ namespace IceInternal
             }
         }
 
-        public void send__()
+        public bool send__()
         {
             try
             {
                 _sent = false;
                 _response = false;
                 _delegate = _proxy.getDelegate__(true);
-                _delegate.getRequestHandler__().sendAsyncRequest(this);
+                _sentSynchronously = _delegate.getRequestHandler__().sendAsyncRequest(this);
             }
             catch(LocalExceptionWrapper ex)
             {
@@ -381,6 +397,7 @@ namespace IceInternal
             {
                 handleException(ex);
             }
+            return _sentSynchronously;
         }
 
         protected void prepare__(Ice.ObjectPrx prx, string operation, Ice.OperationMode mode,
@@ -545,6 +562,7 @@ namespace IceInternal
         }
 
         private bool _sent;
+        private bool _sentSynchronously;
         private bool _response;
         private Ice.ObjectPrxHelperBase _proxy;
         private Ice.ObjectDel_ _delegate;
@@ -572,12 +590,17 @@ namespace Ice
 {
     using System.Collections.Generic;
 
+    public interface AMISentCallback
+    {
+        void ice_sent();
+    };
+
     public abstract class AMI_Object_ice_invoke : IceInternal.OutgoingAsync
     {
         public abstract void ice_response(bool ok, byte[] outParams);
         public abstract override void ice_exception(Ice.Exception ex);
 
-        public void invoke__(Ice.ObjectPrx prx, string operation, OperationMode mode,
+        public bool invoke__(Ice.ObjectPrx prx, string operation, OperationMode mode,
             byte[] inParams, Dictionary<string, string> context)
         {
             acquireCallback__(prx);
@@ -586,11 +609,12 @@ namespace Ice
                 prepare__(prx, operation, mode, context);
                 os__.writeBlob(inParams);
                 os__.endWriteEncaps();
-                send__();
+                return send__();
             }
             catch(LocalException ex)
             {
                 releaseCallback__(ex);
+                return false;
             }
         }
 
@@ -618,7 +642,7 @@ namespace Ice
     {
         public abstract override void ice_exception(Ice.Exception ex);
 
-        public void invoke__(Ice.ObjectPrx prx)
+        public bool invoke__(Ice.ObjectPrx prx)
         {
             acquireCallback__(prx);
             try
@@ -633,7 +657,7 @@ namespace Ice
                 try
                 {
                     @delegate = proxy.getDelegate__(true);
-                    @delegate.getRequestHandler__().flushAsyncBatchRequests(this);
+                    return @delegate.getRequestHandler__().flushAsyncBatchRequests(this);
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -644,6 +668,7 @@ namespace Ice
             {
                 releaseCallback__(ex);
             }
+            return false;
         }
     }
 }

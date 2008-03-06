@@ -44,6 +44,7 @@ public:
         return __os;
     }
 
+    void __sent(const InstancePtr&);
     void __exception(const Ice::Exception&);
 
 protected:
@@ -56,6 +57,9 @@ protected:
         __releaseCallbackNoSync();
     }
     void __releaseCallbackNoSync();
+
+    void __warning(const InstancePtr&, const std::exception&) const;
+    void __warning(const InstancePtr&) const;
 
     void __warning(const std::exception&) const;
     void __warning() const;
@@ -79,7 +83,7 @@ public:
     void __finished(const Ice::LocalException&);
     void __finished(const LocalExceptionWrapper&);
 
-    void __send();
+    bool __send();
 
 protected:
 
@@ -97,6 +101,7 @@ private:
     Ice::ConnectionIPtr _timerTaskConnection;
 
     bool _sent;
+    bool _sentSynchronously;
     bool _response;
     ::Ice::ObjectPrx _proxy;
     Handle< ::IceDelegate::Ice::Object> _delegate;
@@ -121,6 +126,15 @@ protected:
 namespace Ice
 {
 
+class ICE_API AMISentCallback 
+{
+public:
+
+    virtual ~AMISentCallback() { }
+
+    virtual void ice_sent() = 0;
+};
+
 class ICE_API AMI_Object_ice_invoke : public IceInternal::OutgoingAsync
 {
 public:
@@ -128,7 +142,7 @@ public:
     virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
     virtual void ice_exception(const Ice::Exception&) = 0;
 
-    void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
+    bool __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
                   const std::vector<Ice::Byte>&, const Context*);
 
 protected:
@@ -143,7 +157,7 @@ public:
     virtual void ice_response(bool, const std::pair<const Byte*, const Byte*>&) = 0;
     virtual void ice_exception(const Ice::Exception&) = 0;
 
-    void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
+    bool __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
                   const std::pair<const Byte*, const Byte*>&, const Context*);
 
 protected:
@@ -155,7 +169,7 @@ class ICE_API AMI_Object_ice_flushBatchRequests : public IceInternal::BatchOutgo
 {
 public:
 
-    void __invoke(const Ice::ObjectPrx&);
+    bool __invoke(const Ice::ObjectPrx&);
 
     virtual void ice_exception(const Ice::Exception&) = 0;
 };

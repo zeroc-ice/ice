@@ -31,8 +31,7 @@ public:
     virtual SOCKET fd() = 0;
     virtual void close() = 0;
     virtual void listen() = 0;
-    virtual TransceiverPtr accept(int) = 0;
-    virtual void connectToSelf() = 0;
+    virtual TransceiverPtr accept() = 0;
     virtual std::string toString() const = 0;
 };
 

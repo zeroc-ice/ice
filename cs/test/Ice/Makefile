@@ -30,7 +30,6 @@ SUBDIRS		= application \
 		  timeout \
 		  servantLocator \
                   interceptor \
-		  threads \
                   dictMapping \
                   seqMapping \
                   background

@@ -534,7 +534,7 @@ namespace IceInternal
             }
         }
 
-        public static void doConnect(Socket fd, EndPoint addr, int timeout)
+        public static bool doConnect(Socket fd, EndPoint addr)
         {
         repeatConnect:
             try
@@ -550,10 +550,7 @@ namespace IceInternal
                 IAsyncResult result = fd.BeginConnect(addr, null, null);
                 if(!result.CompletedSynchronously)
                 {
-                    if(!result.AsyncWaitHandle.WaitOne(timeout, false))
-                    {
-                        throw new Ice.ConnectTimeoutException();
-                    }
+                    return false;
                 }
                 fd.EndConnect(result);
             }
@@ -587,6 +584,8 @@ namespace IceInternal
                 closeSocketNoThrow(fd);
                 throw new Ice.ConnectionRefusedException();
             }
+
+            return true;
         }
 
         public static IAsyncResult doBeginConnectAsync(Socket fd, EndPoint addr, AsyncCallback callback)
@@ -676,191 +675,6 @@ namespace IceInternal
             }
 
             return fd;
-        }
-
-        public static Socket doAccept(Socket socket, int timeout)
-        {
-            Socket ret = null;
-
-        repeatAccept:
-            try
-            {
-                ret = socket.Accept();
-            }
-            catch(SocketException ex)
-            {
-                if(acceptInterrupted(ex))
-                {
-                    goto repeatAccept;
-                }
-                if(wouldBlock(ex))
-                {
-                    if(!doPoll(socket, timeout, PollMode.Read))
-                    {
-                        throw new Ice.TimeoutException();
-                    }
-
-                    goto repeatAccept;
-                }
-            }
-
-            setTcpNoDelay(ret);
-            setKeepAlive(ret);
-            return ret;
-        }
-        
-        private static ArrayList copyList(IList list)
-        {
-            if(list == null)
-            {
-                return null;
-            }
-            return new ArrayList(list);
-        }
-
-        private static void overwriteList(ArrayList from, IList to)
-        {
-            if(from != null && to != null)
-            {
-                to.Clear();
-                foreach(object o in from)
-                {
-                    to.Add(o);
-                }
-            }
-        }
-
-        public enum PollMode { Read, Write, Error };
-
-        public static bool doPoll(Socket s, int timeout, PollMode mode)
-        {
-            //
-            // Poll() wants microseconds, so we need to deal with overflow.
-            //
-            while((timeout > System.Int32.MaxValue / 1000))
-            {
-                try
-                {
-                    if(s.Poll((System.Int32.MaxValue / 1000) * 1000, (SelectMode)mode))
-                    {
-                        return true;
-                    }
-                }
-                catch(SocketException ex)
-                {
-                    if(interrupted(ex))
-                    {
-                        continue;
-                    }
-                    throw new Ice.SocketException(ex);
-                }
-                timeout -= System.Int32.MaxValue / 1000;
-            }
-            while(true)
-            {
-                try
-                {
-                    return s.Poll(timeout * 1000, (SelectMode)mode);
-                }
-                catch(SocketException ex)
-                {
-                    if(interrupted(ex))
-                    {
-                        continue;
-                    }
-                    throw new Ice.SocketException(ex);
-                }
-            }
-        }
-
-        public static void doSelect(IList checkRead, IList checkWrite, IList checkError, int milliSeconds)
-        {
-            ArrayList cr = null;
-            ArrayList cw = null;
-            ArrayList ce = null;
-
-            if(milliSeconds < 0)
-            {
-                //
-                // Socket.Select() returns immediately if the timeout is < 0 (instead
-                // of blocking indefinitely), so we have to emulate a blocking select here.
-                // (Using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
-                //
-                // According to the .NET 2.0 API docs, Select() should block when given a timeout
-                // value of -1, but that doesn't appear to be the case, at least not on Windows.
-                //
-                do {
-                    cr = copyList(checkRead);
-                    cw = copyList(checkWrite);
-                    ce = copyList(checkError);
-                    try
-                    {
-                        Socket.Select(cr, cw, ce, System.Int32.MaxValue);
-                    }
-                    catch(SocketException e)
-                    {
-                        if(interrupted(e))
-                        {
-                            continue;
-                        }
-                        throw new Ice.SocketException(e);
-                    }
-                }
-                while((cr == null || cr.Count == 0) &&
-                      (cw == null || cw.Count == 0) &&
-                      (ce == null || ce.Count == 0));
-            }
-            else
-            {
-                //
-                // Select() wants microseconds, so we need to deal with overflow.
-                //
-                while((milliSeconds > System.Int32.MaxValue / 1000) &&
-                      (cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
-                {
-                    cr = copyList(checkRead);
-                    cw = copyList(checkWrite);
-                    ce = copyList(checkError);
-                    try
-                    {
-                        Socket.Select(cr, cw, ce, (System.Int32.MaxValue / 1000) * 1000);
-                    }
-                    catch(SocketException e)
-                    {
-                        if(interrupted(e))
-                        {
-                            continue;
-                        }
-                        throw new Ice.SocketException(e);
-                    }
-                    milliSeconds -= System.Int32.MaxValue / 1000;
-                }
-                if((cr == null || cr.Count == 0) && (cw == null || cw.Count == 0) && (ce == null || ce.Count == 0))
-                {
-                    while(true)
-                    {
-                        cr = copyList(checkRead);
-                        cw = copyList(checkWrite);
-                        ce = copyList(checkError);
-                        try
-                        {
-                            Socket.Select(cr, cw, ce, milliSeconds * 1000);
-                            break;
-                        }
-                        catch(SocketException e)
-                        {
-                            if(interrupted(e))
-                            {
-                                continue;
-                            }
-                            throw new Ice.SocketException(e);
-                        }
-                    }
-                }
-            }
-            overwriteList(cr, checkRead);
-            overwriteList(cw, checkWrite);
-            overwriteList(ce, checkError);
         }
 
         public static IPEndPoint getAddress(string host, int port, int protocol)
@@ -1065,48 +879,6 @@ namespace IceInternal
             return (IPAddress[])addresses.ToArray(typeof(IPAddress));
         }
 
-        public sealed class SocketPair
-        {
-            public Socket source;
-            public Socket sink;
-
-            public SocketPair()
-            {
-                sink = createSocket(false, AddressFamily.InterNetwork);
-                Socket listener = createSocket(false, AddressFamily.InterNetwork);
-
-                doBind(listener, new IPEndPoint(IPAddress.Loopback, 0));
-                doListen(listener, 1);
-                doConnect(sink, listener.LocalEndPoint, 1000);
-                try
-                {
-                    source = doAccept(listener, -1);
-                }
-                catch(Ice.SocketException)
-                {
-                    try
-                    {
-                        sink.Close();
-                    }
-                    catch(System.Exception)
-                    {
-                        // ignore
-                    }
-                    throw;
-                }
-                finally
-                {
-                    try
-                    {
-                        listener.Close();
-                    }
-                    catch(System.Exception)
-                    {
-                    }
-                }
-            }
-        }
-
         public static void
         setTcpBufSize(Socket socket, Ice.Properties properties, Ice.Logger logger)
         {
@@ -1194,11 +966,6 @@ namespace IceInternal
                 }
             }
             return hosts;
-        }
-
-        public static SocketPair createPipe()
-        {
-            return new SocketPair();
         }
 
         public static string fdToString(Socket socket)

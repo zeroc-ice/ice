@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/Random.h>
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -59,14 +60,14 @@ private:
     bool _called;
 };
 
-class OpAMICallback : public Test::AMI_Background_op
+class OpAMICallback : public Test::AMI_Background_op, public Ice::AMISentCallback
 {
 public:
     
     virtual void 
     ice_response()
     {
-        callback.called();
+        _response.called();
     }
 
     virtual void
@@ -76,15 +77,35 @@ public:
         test(false);
     }
 
+    virtual void
+    ice_sent()
+    {
+        _sent.called();
+    }
+
     bool
     response(bool wait)
     {
-        return callback.check(wait);
+        return _response.check(wait);
+    }
+
+    bool
+    responseAndSent(bool wait)
+    {
+        if(_sent.check(wait))
+        {
+            return _response.check(wait);
+        }
+        else
+        {
+            return false;
+        }
     }
 
 private:
 
-    Callback callback;
+    Callback _response;
+    Callback _sent;
 };
 typedef IceUtil::Handle<OpAMICallback> OpAMICallbackPtr; 
 
@@ -101,7 +122,7 @@ public:
 };
 typedef IceUtil::Handle<FlushBatchRequestsCallback> FlushBatchRequestsCallbackPtr; 
 
-class OpExAMICallback : public Test::AMI_Background_op
+class OpExAMICallback : public Test::AMI_Background_op, public Ice::AMISentCallback
 {
 public:
     
@@ -114,18 +135,31 @@ public:
     virtual void
     ice_exception(const Ice::Exception& ex)
     {
-        callback.called();
+        _exception.called();
     }
     
+    virtual void
+    ice_sent()
+    {
+        _sent.called();
+    }
+
     bool
     exception(bool wait)
     {
-        return callback.check(wait);
+        return _exception.check(wait);
+    }
+
+    bool
+    sent(bool wait)
+    {
+        return _sent.check(wait);
     }
 
 private:
 
-    Callback callback;
+    Callback _exception;
+    Callback _sent;
 };
 typedef IceUtil::Handle<OpExAMICallback> OpExAMICallbackPtr; 
 
@@ -258,28 +292,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         locator = Ice::LocatorPrx::uncheckedCast(obj);
         obj = communicator->stringToProxy("background@Test")->ice_locator(locator)->ice_oneway();
 
-        //
-        // TODO: The following test doesn't work on Windows because of a bug 
-        // in thread per connection mode where the thread per connection read
-        // call doesn't return when the transceiver is shutdown.
-        //
-#ifdef _WIN32
-        if(communicator->getProperties()->getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+        backgroundController->pauseCall("findAdapterById");
+        try
         {
-#endif
-            backgroundController->pauseCall("findAdapterById");
-            try
-            {
-                obj->ice_ping();
-                test(false);
-            }
-            catch(const Ice::TimeoutException&)
-            {
-            }
-            backgroundController->resumeCall("findAdapterById");
-#ifdef _WIN32
+            obj->ice_ping();
+            test(false);
         }
-#endif
+        catch(const Ice::TimeoutException&)
+        {
+        }
+        backgroundController->resumeCall("findAdapterById");
 
         obj = communicator->stringToProxy("locator:default -p 12010 -t 10000");
         locator = Ice::LocatorPrx::uncheckedCast(obj);
@@ -310,28 +332,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         router = Ice::RouterPrx::uncheckedCast(obj);
         obj = communicator->stringToProxy("background@Test")->ice_router(router)->ice_oneway();
 
-        //
-        // TODO: The following test doesn't work on Windows because of a bug 
-        // in thread per connection mode where the thread per connection read
-        // call doesn't return when the transceiver is shutdown.
-        //
-#ifdef _WIN32
-        if(communicator->getProperties()->getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+        backgroundController->pauseCall("getClientProxy");
+        try
         {
-#endif
-            backgroundController->pauseCall("getClientProxy");
-            try
-            {
-                obj->ice_ping();
-                test(false);
-            }
-            catch(const Ice::TimeoutException&)
-            {
-            }
-            backgroundController->resumeCall("getClientProxy");
-#ifdef _WIN32
+            obj->ice_ping();
+            test(false);
         }
-#endif
+        catch(const Ice::TimeoutException&)
+        {
+        }
+        backgroundController->resumeCall("getClientProxy");
 
         obj = communicator->stringToProxy("router:default -p 12010 -t 10000");
         router = Ice::RouterPrx::uncheckedCast(obj);
@@ -382,12 +392,12 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
     OpExAMICallbackPtr cbEx = new OpExAMICallback();
 
     configuration->connectorsException(new Ice::DNSException(__FILE__, __LINE__));
-    background->op_async(cbEx);
+    test(!background->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->connectorsException(0);
 
     configuration->connectorsException(new Ice::DNSException(__FILE__, __LINE__));
-    background->ice_oneway()->op_async(cbEx);
+    test(!background->ice_oneway()->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->connectorsException(0);
 
@@ -403,12 +413,12 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
     }
 
     configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
+    test(!background->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->connectException(0);
 
     configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
-    background->ice_oneway()->op_async(cbEx);
+    test(!background->ice_oneway()->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->connectException(0);
 
@@ -476,12 +486,12 @@ initializeTests(const ConfigurationPtr& configuration,
     OpExAMICallbackPtr cbEx = new OpExAMICallback();
 
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
+    test(!background->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->initializeException(0);
 
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->ice_oneway()->op_async(cbEx);
+    test(!background->ice_oneway()->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->initializeException(0);
 
@@ -524,14 +534,14 @@ initializeTests(const ConfigurationPtr& configuration,
 
     configuration->initializeSocketStatus(IceInternal::NeedWrite);
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
+    test(!background->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->initializeException(0);
     configuration->initializeSocketStatus(IceInternal::Finished);
 
     configuration->initializeSocketStatus(IceInternal::NeedWrite);
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->ice_oneway()->op_async(cbEx);
+    test(!background->ice_oneway()->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->initializeException(0);
     configuration->initializeSocketStatus(IceInternal::Finished);
@@ -695,12 +705,12 @@ validationTests(const ConfigurationPtr& configuration,
     OpExAMICallbackPtr cbEx = new OpExAMICallback();
 
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
+    test(!background->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->readException(0);
 
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-    background->ice_oneway()->op_async(cbEx);
+    test(!background->ice_oneway()->op_async(cbEx));
     test(cbEx->exception(true));
     configuration->readException(0);
 
@@ -736,14 +746,14 @@ validationTests(const ConfigurationPtr& configuration,
 
         configuration->readReady(false);
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-        background->op_async(cbEx);
+        test(!background->op_async(cbEx));
         test(cbEx->exception(true));
         configuration->readException(0);
         configuration->readReady(true);
 
         configuration->readReady(false);
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-        background->ice_oneway()->op_async(cbEx);
+        test(!background->ice_oneway()->op_async(cbEx));
         test(cbEx->exception(true));
         configuration->readException(0);
         configuration->readReady(true);
@@ -751,14 +761,14 @@ validationTests(const ConfigurationPtr& configuration,
 
     ctl->holdAdapter(); // Hold to block in connection validation
     OpAMICallbackPtr cb = new OpAMICallback();
-    background->op_async(cb);
+    test(!background->op_async(cb));
     OpAMICallbackPtr cb2 = new OpAMICallback();
-    background->op_async(cb2);
+    test(!background->op_async(cb2));
     test(!cb->response(false));
     test(!cb2->response(false));
     ctl->resumeAdapter();
-    test(cb->response(true));
-    test(cb2->response(true));
+    test(cb->responseAndSent(true));
+    test(cb2->responseAndSent(true));
 
     try
     {
@@ -927,14 +937,14 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     background->ice_ping();
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
-    test(cbEx->exception(true));
+    test(!background->op_async(cbEx));
+    test(cbEx->exception(true) && !cbEx->sent(false));
     configuration->writeException(0);
 
     background->ice_ping();
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->ice_oneway()->op_async(cbEx);
-    test(cbEx->exception(true));
+    test(!background->ice_oneway()->op_async(cbEx));
+    test(cbEx->exception(true) && !cbEx->sent(false));
     configuration->writeException(0);
 
     try
@@ -951,7 +961,10 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     background->ice_ping();
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
+    if(!background->op_async(cbEx))
+    {
+        test(cbEx->sent(true));
+    }
     test(cbEx->exception(true));
     configuration->readException(0);
 
@@ -996,16 +1009,16 @@ readWriteTests(const ConfigurationPtr& configuration,
     background->ice_ping();
     configuration->writeReady(false);
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
-    test(cbEx->exception(true));
+    test(!background->op_async(cbEx));
+    test(cbEx->exception(true) && !cbEx->sent(false));
     configuration->writeReady(true);
     configuration->writeException(0);
 
     background->ice_ping();
     configuration->writeReady(false);
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
-    background->ice_oneway()->op_async(cbEx);
-    test(cbEx->exception(true));
+    test(!background->ice_oneway()->op_async(cbEx));
+    test(cbEx->exception(true) && !cbEx->sent(false));
     configuration->writeReady(true);
     configuration->writeException(0);
 
@@ -1026,8 +1039,22 @@ readWriteTests(const ConfigurationPtr& configuration,
     background->ice_ping();
     configuration->readReady(false);
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-    background->op_async(cbEx);
+    if(!background->op_async(cbEx))
+    {
+        test(cbEx->sent(true));
+    }
     test(cbEx->exception(true));
+    configuration->readReady(true);
+    configuration->readException(0);
+
+    background->ice_ping();
+    configuration->readReady(false);
+    configuration->writeReady(false);
+    configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
+    test(!background->op_async(cbEx));
+    test(cbEx->sent(true));
+    test(cbEx->exception(true));
+    configuration->writeReady(true);
     configuration->readReady(true);
     configuration->readException(0);
 
@@ -1039,19 +1066,25 @@ readWriteTests(const ConfigurationPtr& configuration,
     ctl->holdAdapter(); // Hold to block in request send.
     
     Ice::ByteSeq seq;
-    seq.resize(512 * 1024);
-    backgroundOneway->opWithPayload_async(new OpWithPayloadOnewayAMICallback(), seq);
+    seq.resize(512 * 1024); // Make sure the request doesn't compress too well.
+    for(Ice::ByteSeq::iterator p = seq.begin(); p != seq.end(); ++p)
+    {
+        *p = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+    }
+    while(backgroundOneway->opWithPayload_async(new OpWithPayloadOnewayAMICallback(), seq))
+    {
+    }
     OpAMICallbackPtr cb = new OpAMICallback();
-    background->op_async(cb);
+    test(!background->op_async(cb));
     OpAMICallbackPtr cb2 = new OpAMICallback();
-    background->op_async(cb2);
-    backgroundOneway->opWithPayload_async(new OpWithPayloadOnewayAMICallback(), seq);
-    backgroundOneway->opWithPayload_async(new OpWithPayloadOnewayAMICallback(), seq);
+    test(!background->op_async(cb2));
+    test(!backgroundOneway->opWithPayload_async(new OpWithPayloadOnewayAMICallback(), seq));
+    test(!backgroundOneway->opWithPayload_async(new OpWithPayloadOnewayAMICallback(), seq));
     test(!cb->response(false));
     test(!cb2->response(false));
     ctl->resumeAdapter();
-    test(cb->response(true));
-    test(cb2->response(true));
+    test(cb->responseAndSent(true));
+    test(cb2->responseAndSent(true));
     
     try
     {

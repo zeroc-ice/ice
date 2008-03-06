@@ -61,9 +61,9 @@ IceInternal::TcpAcceptor::listen()
 }
 
 TransceiverPtr
-IceInternal::TcpAcceptor::accept(int timeout)
+IceInternal::TcpAcceptor::accept()
 {
-    SOCKET fd = doAccept(_fd, timeout);
+    SOCKET fd = doAccept(_fd);
     setBlock(fd, false);
     setTcpBufSize(fd, _instance->initializationData().properties, _logger);
 
@@ -74,15 +74,6 @@ IceInternal::TcpAcceptor::accept(int timeout)
     }
 
     return new TcpTransceiver(_instance, fd, true);
-}
-
-void
-IceInternal::TcpAcceptor::connectToSelf()
-{
-    SOCKET fd = createSocket(false, _addr.ss_family);
-    setBlock(fd, false);
-    doConnect(fd, _addr, -1);
-    closeSocket(fd);
 }
 
 string

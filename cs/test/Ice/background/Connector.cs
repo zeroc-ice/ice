@@ -18,12 +18,6 @@ internal class Connector : IceInternal.Connector
         return new Transceiver(_connector.connect());
     }
 
-    public IceInternal.Transceiver connect(int timeout)
-    {
-        _configuration.checkConnectException();
-        return new Transceiver(_connector.connect(timeout));
-    }
-
     public short type()
     {
         return (short)(EndpointI.TYPE_BASE + _connector.type());

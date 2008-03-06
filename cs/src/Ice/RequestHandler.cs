@@ -19,10 +19,10 @@ namespace IceInternal
 
         Ice.ConnectionI sendRequest(Outgoing @out);
 
-        void sendAsyncRequest(OutgoingAsync @out);
+        bool sendAsyncRequest(OutgoingAsync @out);
 
         bool flushBatchRequests(BatchOutgoing @out);
-        void flushAsyncBatchRequests(BatchOutgoingAsync @out);
+        bool flushAsyncBatchRequests(BatchOutgoingAsync @out);
 
         Reference getReference();
 

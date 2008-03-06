@@ -60,7 +60,6 @@ classes:
         <suffix name="CollocationOptimization" deprecated="true"
             deprecatedBy="CollocationOptimized" />
         <suffix name="CollocationOptimized" />
-        <suffix name="ThreadPerConnection" />
     </class>
     .
     .
@@ -82,7 +81,6 @@ This definition is equivalent to the following:
         <property name="Default.Locator.CollocationOptimization"
             deprecatedBy="Ice.Default.Locator.CollocationOptimized" />
         <property name="Default.Locator.CollocationOptimized" />
-        <property name="Default.Locator.ThreadPerConnection" />
     </section>
 
 The benefit is that several categories have the same properties because
@@ -210,7 +208,6 @@ const IceInternal::Property IceInternal::Properties::IcePropsData[] =
     IceInternal::Property("Ice.Default.Locator.Locator", false, 0),
     IceInternal::Property("Ice.Default.Locator.Router", false, 0),
     IceInternal::Property("Ice.Default.Locator.CollocationOptimization", false, 0),
-    IceInternal::Property("Ice.Default.Locator.ThreadPerConnection", false, 0),
     IceInternal::Property("Ice.ThreadPool.Client.Size", false, 0),
     IceInternal::Property("Ice.ThreadPool.Client.SizeMax", false, 0),
     IceInternal::Property("Ice.ThreadPool.Client.SizeWarn", false, 0),
@@ -252,7 +249,6 @@ generated from the section label.
         <suffix name="Router"  />
         <suffix name="CollocationOptimization" deprecated="true" deprecatedBy="CollocationOptimized" />
         <suffix name="CollocationOptimized" />
-        <suffix name="ThreadPerConnection" />
     </class>
 
     <class name="threadpool" prefix-only="true">
@@ -260,6 +256,7 @@ generated from the section label.
         <suffix name="SizeMax" />
         <suffix name="SizeWarn" />
         <suffix name="StackSize" />
+        <suffix name="Serialize" />
     </class>
 
     <class name="objectadapter" prefix-only="true">
@@ -271,8 +268,6 @@ generated from the section label.
         <suffix name="ReplicaGroupId" />
         <suffix name="Router" />
         <suffix name="ProxyOptions" />
-        <suffix name="ThreadPerConnection" />
-        <suffix name="ThreadPerConnection.StackSize" />
         <suffix name="ThreadPool" class="threadpool" />
     </class>
 
@@ -291,8 +286,6 @@ generated from the section label.
         <suffix name="RegisterProcess" deprecated="true" />
         <suffix name="ReplicaGroupId" deprecated="true" />
         <suffix name="Router" deprecated="true" />
-        <suffix name="ThreadPerConnection" deprecated="true" />
-        <suffix name="ThreadPerConnection.StackSize" deprecated="true"/>
         <suffix name="ThreadPool" class="deprecatedthreadpool"/>
     </class>
 
@@ -345,8 +338,6 @@ generated from the section label.
         <property name="ServerIdleTime" />
         <property name="StdErr" />
         <property name="StdOut" />
-        <property name="ThreadPerConnection" />
-        <property name="ThreadPerConnection.StackSize" />
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="Trace.GC" />

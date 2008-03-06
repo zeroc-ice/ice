@@ -269,8 +269,8 @@ public class TwowaysAMI
             test(c1.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
             test(c2.ice_getIdentity().Equals(_communicator.stringToIdentity("noSuchIdentity")));
             test(r.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
-            // We can't do the callbacks below in thread per connection mode.
-            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+            // We can't do the callbacks below in serialize mode.
+            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 r.opVoid();
                 c1.opVoid();
@@ -314,8 +314,8 @@ public class TwowaysAMI
             test(rso.s.s.Equals("def"));
             test(so.e == Test.MyEnum.enum3);
             test(so.s.s.Equals("a new string"));
-            // We can't do the callbacks below in thread per connection mode.
-            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+            // We can't do the callbacks below in serialize mode.
+            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 so.p.opVoid();
             }

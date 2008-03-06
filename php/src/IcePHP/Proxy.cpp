@@ -202,8 +202,6 @@ static function_entry _proxyMethods[] =
     {"ice_compress",               PHP_FN(Ice_ObjectPrx_ice_compress),               0},
     {"ice_timeout",                PHP_FN(Ice_ObjectPrx_ice_timeout),                0},
     {"ice_connectionId",           PHP_FN(Ice_ObjectPrx_ice_connectionId),           0},
-    {"ice_isThreadPerConnection",  PHP_FN(Ice_ObjectPrx_ice_isThreadPerConnection),  0},
-    {"ice_threadPerConnection",    PHP_FN(Ice_ObjectPrx_ice_threadPerConnection),    0},
     {"ice_getConnection",          PHP_FN(Ice_ObjectPrx_ice_getConnection),          0},
     {"ice_getCachedConnection",    PHP_FN(Ice_ObjectPrx_ice_getCachedConnection),    0},
     {"ice_uncheckedCast",          PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),          0},
@@ -1750,61 +1748,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId)
             RETURN_NULL();
         }
         Ice::ObjectPrx prx = _this->getProxy()->ice_connectionId(id);
-        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_ObjectPrx_ice_isThreadPerConnection)
-{
-    if(ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    try
-    {
-        bool b = _this->getProxy()->ice_isThreadPerConnection();
-        RETURN_BOOL(b ? 1 : 0);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_FALSE;
-    }
-}
-
-ZEND_FUNCTION(Ice_ObjectPrx_ice_threadPerConnection)
-{
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    try
-    {
-        Ice::ObjectPrx prx = _this->getProxy()->ice_threadPerConnection(b ? true : false);
         if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();

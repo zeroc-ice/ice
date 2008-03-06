@@ -168,7 +168,7 @@ private:
     const SubscriberPtr _subscriber;
 };
 
-class OnewayIceInvokeI : public Ice::AMI_Object_ice_invoke
+class OnewayIceInvokeI : public Ice::AMI_Object_ice_invoke, public Ice::AMISentCallback
 {
 public:
 
@@ -183,9 +183,9 @@ public:
         assert(false);
     }
 
-    virtual void __sent(Ice::ConnectionI* c)
+    virtual void
+    ice_sent()
     {
-        AMI_Object_ice_invoke::__sent(c);
         _subscriber->sent();
     }
 
@@ -365,17 +365,23 @@ SubscriberOneway::flush()
         //
         EventDataPtr e = _events.front();
         _events.erase(_events.begin());
-        ++_outstanding;
-          
         try
         {
-            _obj->ice_invoke_async(new OnewayIceInvokeI(this), e->op, e->mode, e->data, e->context);
+            if(!_obj->ice_invoke_async(new OnewayIceInvokeI(this), e->op, e->mode, e->data, e->context))
+            {
+                ++_outstanding;
+            }
         }
         catch(const Ice::Exception& ex)
         {
             error(true, ex);
             return;
         }
+    }
+
+    if(_events.empty() && _outstanding == 0 && _shutdown)
+    {
+        _lock.notify();
     }
 }
 
