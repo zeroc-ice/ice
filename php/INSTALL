@@ -185,7 +185,7 @@ must be copied to
 
   \Program Files\Apache Software Foundation\Apache2.2
 
-Once you've copied the extension to PHP's extension directory, you
+Once you've copied the extension to the appropriate directory, you
 will need to enable the extension in your PHP configuration. First you
 must discover the location of PHP's configuration file (php.ini),
 which is also displayed by the -i option. Look for the following
@@ -270,6 +270,39 @@ On Linux, Apache typically runs in the "apache" account, so you will
 either need to change the owner or group of the libraries and other
 resources, or modify their permissions to make them sufficiently
 accessible.
+
+
+======================================================================
+Apache Notes (Windows)
+======================================================================
+
+Apache's executable has a relatively small default stack size. You can
+determine its current stack size with the following commands:
+
+  cd \Program Files\Apache Software Foundation\Apache2.2\bin
+  dumpbin /all httpd.exe | find "stack"
+
+The relevant output line is shown below:
+
+  40000 size of stack reserve
+
+The default size is 0x40000 bytes, which is too small to effectively
+use the Ice extension. Attempting to load even a trivial Slice file
+causes Apache to fail during startup with a stack overflow error.
+
+To increase the stack size, use the editbin utility. Note that the
+new stack size is given in decimal:
+
+  editbin /stack:1048576 httpd.exe
+
+Now execute dumpbin again to verify that the change was made:
+
+  dumpbin /all httpd.exe | find "stack"
+
+The new output line is shown below:
+
+  100000 size of stack reserve
+
 
 
 ======================================================================
