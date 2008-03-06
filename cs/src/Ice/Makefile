@@ -142,5 +142,6 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 install:: all
 	$(call installassembly,$(TARGETS),$(PKG))
+	@$(call installfile,$(bindir)/$(LIBNAME).config)
 
 include .depend

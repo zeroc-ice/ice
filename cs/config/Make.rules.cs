@@ -80,10 +80,16 @@ endif
 
 install_bindir		= $(prefix)/bin
 
+#
+# Create install dirs if necessary
+#
+$(shell [ ! -d $(prefix) ] && (mkdir $(prefix); chmod a+rx $(prefix)))
+$(shell [ ! -d $(install_bindir) ] && (mkdir $(install_bindir); chmod a+rx $(install_bindir)))
+
 ifneq ($(ice_dir),/usr)
-ref = -r:$(bindir)/$(1).dll
+    ref = -r:$(bindir)/$(1).dll
 else
-ref = -pkg:$(1)
+    ref = -pkg:$(1)
 endif
 
 ifdef no_gac
@@ -103,17 +109,39 @@ ifeq ($(installlibrary),)
 			  chmod a+rx $(2)/$(notdir $(1))
 endif
 
-ifeq ($(NOGAC),)
 
-   ifeq ($(GAC_ROOT),)
-      installassembly = $(GACUTIL) -i $(1) -f -package $(2)
-   else
-      installassembly = $(GACUTIL) -i $(1) -f -package $(2) -root $(GAC_ROOT)
-   endif
+ifeq ($(NOGAC),)
+    ifeq ($(GAC_ROOT),)
+        installassembly = $(GACUTIL) -i $(1) -f -package $(2)
+    else
+        installassembly = $(GACUTIL) -i $(1) -f -package $(2) -root $(GAC_ROOT)
+    endif
 else
-   installassembly = $(call installlibrary,$(1),$(install_bindir))
+    installassembly = $(call installlibrary,$(1),$(install_bindir))
 endif
 
+
+#
+# Install a file either in the Mono GAC or in the installation bin directory,
+# depending on the setting of no_gac above.
+#
+ifeq ($(NOGAC),)
+    installfile =   path=`which $(GACUTIL)`; \
+                    if [ -z "$$path" ]; \
+                    then \
+                        echo "cannot find Mono installation directory" >&2; exit 1; \
+                    fi; \
+                    echo $$path | grep -q '/bin/mono$$'; \
+                    if [ $$? -ne 0 ]; \
+                    then \
+                        echo "strange Mono path" >&2; exit 1; \
+                    fi; \
+                    prefix=`echo $$path | sed -e 's/\/bin\/mono$$//'`; \
+                    gacdir=$${prefix}/lib/mono/gac; \
+                    $(call installlibrary,$(1),$$gacdir)
+else
+    installfile =   $(call installlibrary,$(1),$(install_bindir))
+endif
 
 ifeq ($(MONO),yes)
 MCS			= gmcs
