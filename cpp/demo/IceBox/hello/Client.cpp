@@ -17,8 +17,9 @@ class HelloClient : public Ice::Application
 {
 public:
 
+    HelloClient();
+
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 
 private:
 
@@ -32,20 +33,13 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
-void
-HelloClient::menu()
+HelloClient::HelloClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
 {
-    cout <<
-        "usage:\n"
-        "t: send greeting as twoway\n"
-        "o: send greeting as oneway\n"
-        "O: send greeting as batch oneway\n"
-        "d: send greeting as datagram\n"
-        "D: send greeting as batch datagram\n"
-        "f: flush all batch requests\n"
-        "S: switch secure mode on/off\n"
-        "x: exit\n"
-        "?: help\n";
 }
 
 int
@@ -56,12 +50,6 @@ HelloClient::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
-
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
 
     HelloPrx twoway = HelloPrx::checkedCast(
         communicator()->propertyToProxy("Hello.Proxy")->ice_twoway()->ice_timeout(-1)->ice_secure(false));
@@ -168,19 +156,17 @@ HelloClient::run(int argc, char* argv[])
 }
 
 void
-HelloClient::interruptCallback(int)
+HelloClient::menu()
 {
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
+    cout <<
+        "usage:\n"
+        "t: send greeting as twoway\n"
+        "o: send greeting as oneway\n"
+        "O: send greeting as batch oneway\n"
+        "d: send greeting as datagram\n"
+        "D: send greeting as batch datagram\n"
+        "f: flush all batch requests\n"
+        "S: switch secure mode on/off\n"
+        "x: exit\n"
+        "?: help\n";
 }

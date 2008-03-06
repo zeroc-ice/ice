@@ -1,9 +1,9 @@
 #
 # The server creates one single object adapter with the name
-# "helloadapater". The following line sets the endpoints for this
-# adapter
+# "Printer". The following line sets the endpoints for this
+# adapter.
 #
-Printer.Endpoints=tcp -p 10000:udp -p 10000
+Printer.Endpoints=default -p 10000
 
 #
 # Warn about connection exceptions

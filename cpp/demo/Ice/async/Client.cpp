@@ -31,13 +31,23 @@ class AsyncClient : public Ice::Application
 {
 public:
 
+    AsyncClient();
+
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 
 private:
 
     void menu();
 };
+
+AsyncClient::AsyncClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
+}
 
 int
 main(int argc, char* argv[])
@@ -54,8 +64,6 @@ AsyncClient::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
-
-    callbackOnInterrupt();
 
     HelloPrx hello = HelloPrx::checkedCast(communicator()->propertyToProxy("Hello.Proxy"));
     if(!hello)
@@ -107,24 +115,6 @@ AsyncClient::run(int argc, char* argv[])
     while(cin.good() && c != 'x');
 
     return EXIT_SUCCESS;
-}
-
-void
-AsyncClient::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }
 
 void

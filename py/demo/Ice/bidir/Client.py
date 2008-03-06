@@ -35,7 +35,7 @@ class Client(Ice.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        server = Demo.CallbackSenderPrx.checkedCast(self.communicator().propertyToProxy('Callback.Client.CallbackServer'))
+        server = Demo.CallbackSenderPrx.checkedCast(self.communicator().propertyToProxy('CallbackSender.Proxy'))
         if not server:
             print self.appName() + ": invalid proxy"
             return 1

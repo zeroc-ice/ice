@@ -41,7 +41,7 @@ class Client(Ice.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        throughput = Demo.ThroughputPrx.checkedCast(self.communicator().propertyToProxy('Throughput.Throughput'))
+        throughput = Demo.ThroughputPrx.checkedCast(self.communicator().propertyToProxy('Throughput.Proxy'))
         if not throughput:
             print args[0] + ": invalid proxy"
             return 1

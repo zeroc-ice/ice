@@ -1,14 +1,14 @@
+#
+# The server creates one single object adapter with the name
+# "Callback.Server". The following line sets the endpoints for this
+# adapter.
+#
 Callback.Server.Endpoints=tcp -p 10000
 
 #
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1
-
-#
-# ACM must be disabled for bidirectional connections
-#
-Ice.ACM.Client=0
 
 #
 # Network Tracing

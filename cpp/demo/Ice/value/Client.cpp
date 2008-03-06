@@ -18,8 +18,8 @@ class ValueClient : public Ice::Application
 {
 public:
 
+    ValueClient();
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 };
 
 int
@@ -27,6 +27,15 @@ main(int argc, char* argv[])
 {
     ValueClient app;
     return app.main(argc, argv, "config.client");
+}
+
+ValueClient::ValueClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
 }
 
 int
@@ -38,14 +47,7 @@ ValueClient::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
-
-    Ice::ObjectPrx base = communicator()->propertyToProxy("Value.Initial");
-    InitialPrx initial = InitialPrx::checkedCast(base);
+    InitialPrx initial = InitialPrx::checkedCast(communicator()->propertyToProxy("Initial.Proxy"));
     if(!initial)
     {
         cerr << argv[0] << ": invalid object reference" << endl;
@@ -186,22 +188,4 @@ ValueClient::run(int argc, char* argv[])
     initial->shutdown();
 
     return EXIT_SUCCESS;
-}
-
-void
-ValueClient::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }

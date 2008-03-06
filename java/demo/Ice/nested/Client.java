@@ -49,8 +49,7 @@ public class Client extends Ice.Application
         //
         setInterruptHook(new ShutdownHook());
 
-        NestedPrx nested = NestedPrxHelper.checkedCast(
-            communicator().propertyToProxy("Nested.NestedServer"));
+        NestedPrx nested = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.Proxy"));
         if(nested == null)
         {
             System.err.println("invalid proxy");

@@ -57,7 +57,7 @@ public class Client
             }
 
             CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(
-                communicator().propertyToProxy("Callback.CallbackServer").
+                communicator().propertyToProxy("CallbackSender.Proxy").
                     ice_twoway().ice_timeout(-1).ice_secure(false));
             if(twoway == null)
             {

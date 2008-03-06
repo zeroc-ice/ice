@@ -38,8 +38,9 @@ class Client(Ice.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        base = self.communicator().propertyToProxy('Callback.CallbackServer')
-        twoway = Demo.CallbackSenderPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
+        twoway = Demo.CallbackSenderPrx.checkedCast(
+            self.communicator().propertyToProxy('CallbackSender.Proxy').
+            ice_twoway().ice_timeout(-1).ice_secure(False))
         if not twoway:
             print self.appName() + ": invalid proxy"
             return 1

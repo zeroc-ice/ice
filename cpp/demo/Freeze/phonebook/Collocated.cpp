@@ -18,13 +18,8 @@ class PhoneBookCollocated : public Ice::Application
 {
 public:
     
-    PhoneBookCollocated(const string& envName) :
-        _envName(envName)
-    {
-    }
-
+    PhoneBookCollocated(const string&);
     virtual int run(int argc, char* argv[]);
-    virtual void interruptCallback(int);
 
 private:
 
@@ -38,15 +33,19 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.collocated");
 }
 
+PhoneBookCollocated::PhoneBookCollocated(const string& envName) :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling),
+    _envName(envName)
+{
+}
+
 int
 PhoneBookCollocated::run(int argc, char* argv[])
 {
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
-
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     //
@@ -106,22 +105,4 @@ PhoneBookCollocated::run(int argc, char* argv[])
     adapter->destroy();
 
     return status;
-}
-
-void
-PhoneBookCollocated::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }

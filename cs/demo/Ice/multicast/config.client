@@ -1,6 +1,6 @@
 #
 # The client reads this property to create the reference to the
-# "discovery" object in the server.
+# "Discover" object in the server.
 #
 Discover.Proxy=discover:udp -h 224.0.0.5 -p 10000
 
@@ -8,7 +8,7 @@ Discover.Proxy=discover:udp -h 224.0.0.5 -p 10000
 # Alternative IPv6 configuration
 #
 #Ice.IPv6=1
-#Discover.Proxy=discover:udp -h "ff01::1:1" --ttl 5 -p 10000
+#Discover.Proxy=discover:udp -h "ff01::1:1" -p 10000
 
 #
 # The client creates an object adapter with the name
@@ -20,12 +20,7 @@ DiscoverReply.Endpoints=tcp
 #
 # Warn about connection exceptions
 #
-#Ice.Warn.Connections=1
-
-#
-# We want a faster ACM for this demo.
-#
-Ice.ACM.Client=10
+Ice.Warn.Connections=1
 
 #
 # Network Tracing

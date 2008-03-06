@@ -9,7 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <Glacier2/Router.h>
+#include <Glacier2/Glacier2.h>
 #include <Chat.h>
 
 using namespace std;
@@ -91,6 +91,15 @@ class ChatClient : public Ice::Application
 {
 public:
 
+    ChatClient() :
+        //
+        // Since this is an interactive demo we don't want any signal
+        // handling.
+        //
+        Application(Ice::NoSignalHandling)
+    {
+    }
+
     virtual int
     run(int argc, char* argv[])
     {
@@ -99,12 +108,6 @@ public:
             cerr << appName() << ": too many arguments" << endl;
             return EXIT_FAILURE;
         }
-
-        //
-        // Since this is an interactive demo we want the custom interrupt
-        // callback to be called when the process is interrupted.
-        //
-        callbackOnInterrupt();
 
         {
             IceUtil::Mutex::Lock sync(_mutex);
@@ -204,24 +207,6 @@ public:
             return EXIT_FAILURE;
         }
         return EXIT_SUCCESS;
-    }
-
-    virtual void
-    interruptCallback(int)
-    {
-        try
-        {
-            communicator()->destroy();
-        }
-        catch(const IceUtil::Exception& ex)
-        {
-            cerr << appName() << ": " << ex << endl;
-        }
-        catch(...)
-        {
-            cerr << appName() << ": unknown exception" << endl;
-        }
-        exit(EXIT_SUCCESS);
     }
 
 private:

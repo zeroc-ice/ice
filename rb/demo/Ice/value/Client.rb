@@ -67,8 +67,7 @@ class Ice::Application
         #
         Ice::Application::callbackOnInterrupt
 
-        base = Ice::Application::communicator().propertyToProxy('Value.Initial')
-        initial = Demo::InitialPrx::checkedCast(base)
+        initial = Demo::InitialPrx::checkedCast(Ice::Application::communicator().propertyToProxy('Initial.Proxy'))
         if not initial
             puts $0 + ": invalid proxy"
             return 1

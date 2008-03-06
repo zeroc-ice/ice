@@ -48,8 +48,7 @@ CallbackClient::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    CallbackSenderPrx server = 
-        CallbackSenderPrx::checkedCast(communicator()->propertyToProxy("Callback.Client.CallbackServer"));
+    CallbackSenderPrx server = CallbackSenderPrx::checkedCast(communicator()->propertyToProxy("CallbackSender.Proxy"));
     if(!server)
     {
         cerr << appName() << ": invalid proxy" << endl;

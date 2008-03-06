@@ -1,3 +1,6 @@
+#
+# Set the Glacier2 instance name.
+#
 Glacier2.InstanceName=DemoGlacier2
 
 #

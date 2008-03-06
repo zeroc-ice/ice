@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceUtil/Time.h>
+#include <IceUtil/IceUtil.h>
 
 #include <Hello.h>
 #include <Discovery.h>
