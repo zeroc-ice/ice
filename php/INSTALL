@@ -53,9 +53,9 @@ Building PHP with the Ice extension (Windows)
 ======================================================================
 
 Compiling PHP from source code on Windows is a tedious process,
-therefore we recommend that you download the precompiled dynamic
-Ice extension from the ZeroC web site (included in the Ice installer
-for Visual C++ 6.0) and use the binary PHP distribution if possible.
+therefore we recommend that you download the binary distribution
+for PHP and use it along with the precompiled dynamic Ice extension
+included in the Ice installer for Visual C++ 6.0.
 
 If you prefer to build the Ice extension yourself, you must first
 understand the C run time dependency issues. Specifically, the Ice
@@ -63,10 +63,10 @@ extension must use the same C run time as PHP5. Since the binary
 distribution of PHP5 available from php.net depends on the Visual C++
 6.0 run time DLL (MSVCRT), you must also build the Ice extension using
 Visual C++ 6.0 if you want to use Ice with this PHP distribution. This
-is the reason why the precompiled Ice extension is included in the Ice
-installer for Visual C++ 6.0, as attempting to use an Ice extension
-that was built with a newer compiler together with the binary PHP
-distribution results in undefined behavior.
+is why the precompiled Ice extension is included in the Ice installer
+for Visual C++ 6.0, as attempting to use an Ice extension that was
+built with a newer compiler together with the binary PHP distribution
+results in undefined behavior.
 
 To use a later version of Visual C++, you must obtain (or build) PHP5
 with the desired compiler, and use the same compiler to build the Ice
@@ -96,18 +96,19 @@ Follow these instructions to build the Ice extension:
 6) Open config\Make.rules.mak, review the comments, and make any
    necessary changes. In particular, you may need to change the values
    of PHP_HOME and PHP_BIN_HOME to refer to your PHP source and binary
-   installations, respectively.
+   installations, respectively. If you compiled PHP from source, you
+   should also review the setting of PHP_LIBDIR.
 
 7) Start NMAKE:
 
-   > nmake /f Makefile.mak
+   nmake /f Makefile.mak
 
 8) Upon successful completion, the Ice for PHP extension is created as
    bin\php_ice.dll (Release) or bin\php_iced.dll (Debug).
 
 
 ======================================================================
-Installing the Extension
+Installing the Extension (Linux)
 ======================================================================
 
 To install the Ice extension, you must move the extension's shared
@@ -116,32 +117,97 @@ by the PHP configuration directive "extension_dir". You can determine
 the default value for this directive by running the command-line
 version of PHP with the -i option:
 
-> php -i
-...
-extension_dir => C:\php5 => C:\php5
-...
+  php -i
 
-After successfully building the extension on Linux, the shared library
-is created as lib/IcePHP.so. On Windows, the DLL is created as
-bin/php_ice.dll (release) or bin/php_iced.dll (debug).
+Review the output for a line like this:
+
+  extension_dir => /usr/lib/php/modules => /usr/lib/php/modules
 
 Once you've copied the extension to PHP's extension directory, you
-will need to enable the extension in your PHP configuration. In the
-php.ini file, use the following directive on Linux:
+will need to enable the extension in your PHP configuration. Your
+PHP installation likely supports the /etc/php.d configuration
+directory, which you can verify by examining the output of "php -i"
+and looking for the presence of --with-config-file-scan-dir in the
+"Configure Command" entry. If present, you can create a file in
+/etc/php.d that contains the directive to load the Ice extension.
+For example, create the file /etc/php.d/ice.ini containing the
+following line:
 
-extension = IcePHP.so
+  extension = IcePHP.so
 
-On Windows, use this directive:
+If PHP does not support the /etc/php.d directory, determine the path
+name of PHP's configuration file as reported by the "php -i" command:
 
-extension = php_ice.dll
+  Configuration File (php.ini) Path => /etc/php.ini
 
-You can use the "php -i" command to determine the proper directory in
-which to place the php.ini file:
+Open the configuration file and append the following line:
 
-> php -i
-...
-Configuration File (php.ini) Path => C:\WINDOWS
-...
+  extension = IcePHP.so
+
+You can verify that PHP is loading the Ice extension by running the
+command shown below:
+
+  php -m
+
+Look for "ice" among the installed modules. Note that your library
+search path (LD_LIBRARY_PATH) must include the directory containing
+the Ice shared libraries. See the section "Dependencies" below for
+more information.
+
+
+======================================================================
+Installing the Extension (Windows)
+======================================================================
+
+To install the Ice extension, you must move the extension's shared
+library into PHP's extension directory. This directory is determined
+by the PHP configuration directive "extension_dir". You can determine
+the default value for this directive by running the command-line
+version of PHP with the -i option:
+
+  php -i
+
+Review the output for a line like this:
+
+  extension_dir => C:\php5 => C:\php5
+
+The directive may also be set to a relative path, such as:
+
+  extension_dir => ./ => ./
+
+In the case of a relative path, the value is relative to the current
+working directory of the process. As a result, the working directory
+when running the command-line version of PHP will likely differ from
+the working directory when PHP is running as a Web server module.
+Using a typical installation of Apache as an example, the working
+directory is Apache's installation directory, therefore the extension
+must be copied to
+
+  \Program Files\Apache Software Foundation\Apache2.2
+
+Once you've copied the extension to PHP's extension directory, you
+will need to enable the extension in your PHP configuration. First you
+must discover the location of PHP's configuration file (php.ini),
+which is also displayed by the -i option. Look for the following
+line:
+
+  Loaded Configuration File => C:\Program Files\PHP\php.ini
+
+If you used the Windows installer for PHP, your Web server's
+configuration may have already been modified to load PHP. You can also
+review your Web server's settings to discover the location of php.ini.
+For example, the Windows installer modifies Apache's configuration to
+add the following directives:
+
+  PHPIniDir "C:/Program Files/PHP/"
+  LoadModule php5_module "C:/Program Files/PHP/php5apache2_2.dll"
+
+The PHPIniDir directive specifies the directory containing the php.ini
+file.
+
+Open php.ini and append this directive:
+
+  extension = php_ice.dll
 
 
 ======================================================================
@@ -149,9 +215,9 @@ Dependencies
 ======================================================================
 
 PHP will need to be able to locate the Ice run-time libraries "Ice",
-"Slice", "IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). In
-general, these libraries must reside in a directory of the user's
-PATH.
+"Slice", "IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). On
+Windows, the STLport library is also necessary. In general, these
+libraries must reside in a directory of the user's PATH.
 
 For Web servers, the libraries may need to reside in a system
 directory. For example, on Linux you can add the directory containing
@@ -161,10 +227,49 @@ or to the Apache installation directory.
 
 You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
-phpinfo() function from a script.
+phpInfo() function from a script. For example, you can create a file
+in the Web server's document directory containing the following PHP
+script:
+
+  <?php
+  phpInfo();
+  ?>
+
+Then start a browser window and open the URL corresponding to this
+script. If the Ice extension is successfully installed, you will see
+an "ice" section among the configuration information.
 
 Note that if you want to use IceSSL from the Ice extension, then PHP
 will also need access to the shared libraries for IceSSL and OpenSSL.
+
+
+======================================================================
+Permissions
+======================================================================
+
+The Web server normally runs in a special user account that may not
+necessarily have access to the Ice extension, its dependent libraries,
+and other resources such as Ice configuration files, Slice files, and
+PHP scripts. It is very important that you review the permissions of
+these files and verify that the Web server has sufficient access.
+
+For example, on Windows the Apache server typically runs as a service
+in the "Local System" account. You will need to modify the access
+rights of the aforementioned files to grant access to this account.
+In a command window, you can use the "cacls" utility to establish the
+appropriate access rights. Assuming that you have copied the Ice
+extension and dependent DLLs to Apache's installation directory, you
+can modify the access rights as shown below:
+
+  cd \Program Files\Apache Software Foundation\Apache2.2
+  cacls php_ice.dll /G SYSTEM:F Administrators:F
+  cacls bzip2.dll /G SYSTEM:F Administrators:F
+  ...
+
+On Linux, Apache typically runs in the "apache" account, so you will
+either need to change the owner or group of the libraries and other
+resources, or modify their permissions to make them sufficiently
+accessible.
 
 
 ======================================================================
