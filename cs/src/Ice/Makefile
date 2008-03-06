@@ -141,7 +141,6 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
 
 install:: all
-	$(call installassembly,$(TARGETS),$(PKG))
-	@$(call installfile,$(bindir)/$(LIBNAME).config)
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)))
 
 include .depend
