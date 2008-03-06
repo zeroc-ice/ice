@@ -1,6 +1,6 @@
 #
-# The client reads this property to create the reference to the
-# "library" object in the server.
+# The client reads this property to create the reference to the root
+# "directory" object in the server.
 #
 RootDir.Proxy=RootDir:default -p 10000
 

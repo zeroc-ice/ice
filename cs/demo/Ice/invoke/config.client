@@ -1,8 +1,8 @@
 #
 # The client reads this property to create the reference to the
-# "hello" object in the server.
+# "Printer" object in the server.
 #
-Printer.Proxy=printer:tcp -p 10000:udp -p 10000
+Printer.Proxy=printer:default -p 10000
 
 #
 # Warn about connection exceptions

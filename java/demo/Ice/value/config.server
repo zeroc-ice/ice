@@ -1,4 +1,14 @@
+#
+# The server creates one single object adapter with the name
+# "Value". The following line sets the endpoints for this
+# adapter.
+#
 Value.Endpoints=default -p 10000
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
 
 #
 # SSL Configuration

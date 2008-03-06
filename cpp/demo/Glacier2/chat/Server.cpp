@@ -8,8 +8,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Glacier2/Glacier2.h>
 #include <ChatSessionI.h>
-#include <Glacier2/PermissionsVerifier.h>
 
 using namespace std;
 using namespace Demo;

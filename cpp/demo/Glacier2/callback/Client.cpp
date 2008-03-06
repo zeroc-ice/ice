@@ -18,8 +18,9 @@ class CallbackClient : public Ice::Application
 {
 public:
 
+    CallbackClient();
+
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 };
 
 int
@@ -45,6 +46,15 @@ menu()
         "?: help\n";
 }
 
+CallbackClient::CallbackClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
+}
+
 int
 CallbackClient::run(int argc, char* argv[])
 {
@@ -53,12 +63,6 @@ CallbackClient::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
-
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
 
     Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
     if(!defaultRouter)
@@ -235,22 +239,4 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     return EXIT_SUCCESS;
-}
-
-void
-CallbackClient::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }

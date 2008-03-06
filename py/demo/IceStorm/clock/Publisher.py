@@ -45,8 +45,7 @@ class Publisher(Ice.Application):
         if len(args) > 0:
             topicName = args[0]
 
-        manager = IceStorm.TopicManagerPrx.checkedCast(\
-            self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
+        manager = IceStorm.TopicManagerPrx.checkedCast(self.communicator().propertyToProxy('TopicManager.Proxy'))
         if not manager:
             print args[0] + ": invalid proxy"
             return 1

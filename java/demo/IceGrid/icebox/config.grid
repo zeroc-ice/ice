@@ -1,3 +1,6 @@
+#
+# The IceGrid instance name.
+#
 IceGrid.InstanceName=DemoIceGrid
 
 #
@@ -33,7 +36,6 @@ IceGrid.Node.CollocateRegistry=1
 # Trace properties.
 #
 IceGrid.Node.Trace.Activator=1
-IceGrid.Node.Trace.Patch=1
 #IceGrid.Node.Trace.Adapter=2
 #IceGrid.Node.Trace.Server=3
 

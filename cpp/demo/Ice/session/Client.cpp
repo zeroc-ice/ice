@@ -77,8 +77,8 @@ class SessionClient : public Ice::Application
 {
 public:
 
+    SessionClient();
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 
 private:
 
@@ -101,6 +101,15 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
+SessionClient::SessionClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
+}
+
 int
 SessionClient::run(int argc, char* argv[])
 {
@@ -109,12 +118,6 @@ SessionClient::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
-
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
 
     string name;
     cout << "Please enter your name ==> ";
@@ -223,42 +226,6 @@ SessionClient::run(int argc, char* argv[])
     }
 
     return EXIT_SUCCESS;
-}
-
-void
-SessionClient::interruptCallback(int sig)
-{
-    //
-    // Workaround for older Linux platforms where SIGHUP is received
-    // when the process has a controlling terminal (such as under
-    // expect).
-    //
-    if(sig == SIGHUP)
-    {
-        return;
-    }
-
-    //
-    // Terminate the refresh thread, destroy the session and then
-    // destroy the communicator, followed by an exit. We have to call
-    // exit because main may be blocked in a cin >> s call which
-    // cannot be interrupted portably.
-    //
-    cleanup(true);
-
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }
 
 void

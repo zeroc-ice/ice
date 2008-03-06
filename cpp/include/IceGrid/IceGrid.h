@@ -7,17 +7,18 @@
 //
 // **********************************************************************
 
-#ifndef SERVANT_FACTORY_H
-#define SERVANT_FACTORY_H
+#ifndef ICEGRID_H
+#define ICEGRID_H
 
-#include <Ice/Ice.h>
-
-class ObjectFactory : public Ice::ObjectFactory
-{
-public:
-
-    virtual Ice::ObjectPtr create(const std::string&);
-    virtual void destroy();
-};
+#include <IceGrid/Admin.h>
+#include <IceGrid/Descriptor.h>
+#include <IceGrid/Exception.h>
+#include <IceGrid/FileParser.h>
+#include <IceGrid/Locator.h>
+#include <IceGrid/Observer.h>
+#include <IceGrid/Query.h>
+#include <IceGrid/Registry.h>
+#include <IceGrid/Session.h>
+#include <IceGrid/UserAccountMapper.h>
 
 #endif

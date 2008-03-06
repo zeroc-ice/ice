@@ -19,7 +19,7 @@ class Client < Ice::Application
             return 1
         end
 
-        ping = Demo::PingPrx::checkedCast(Ice::Application::communicator().propertyToProxy('Latency.Ping'))
+        ping = Demo::PingPrx::checkedCast(Ice::Application::communicator().propertyToProxy('Ping.Proxy'))
         if not ping
             puts "invalid proxy"
             return 1

@@ -30,7 +30,8 @@ class DiscoverI : public Discover
 {
 public:
 
-    DiscoverI(const Ice::ObjectPrx& obj) : _obj(obj)
+    DiscoverI(const Ice::ObjectPrx& obj) :
+        _obj(obj)
     {
     }
 

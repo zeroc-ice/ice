@@ -29,8 +29,8 @@ public class Client
                 return 1;
             }
 
-            CallbackSenderPrx server =
-                CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
+            CallbackSenderPrx server = CallbackSenderPrxHelper.checkedCast(
+                communicator().propertyToProxy("CallbackSender.Proxy"));
             if(server == null)
             {
                 System.Console.Error.WriteLine("invalid proxy");

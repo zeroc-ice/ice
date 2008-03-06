@@ -1,6 +1,6 @@
 #
 # The client reads this property to create the reference to the
-# "hello" object in the server.
+# "Printer" object in the server.
 #
 Printer.Proxy=printer:default -p 10000
 

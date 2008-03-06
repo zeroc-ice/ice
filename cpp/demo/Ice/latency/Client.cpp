@@ -36,8 +36,7 @@ LatencyClient::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator()->propertyToProxy("Latency.Ping");
-    PingPrx ping = PingPrx::checkedCast(base);
+    PingPrx ping = PingPrx::checkedCast(communicator()->propertyToProxy("Ping.Proxy"));
     if(!ping)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
