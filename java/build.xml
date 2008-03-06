@@ -278,6 +278,9 @@
              -keep class com.jgoodies.looks.windows.WindowsFieldCaret {
                  *;
              }
+             -keep class IceInternal.SelectorHandler {
+                 *;
+             }
              -injars ${lib.dir}/IceGridGUItemp.jar
              -injars ${lib.dir}/Ice.jar(!META-INF/**,!Freeze/**)
              -injars ${jgoodies.looks}(!META-INF/**)
