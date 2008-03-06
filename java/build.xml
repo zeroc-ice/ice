@@ -230,15 +230,27 @@
     </target>
 
     <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
-        <condition property="library.jars" value="${java.home}/../Classes/classes.jar:${java.home}/../Classes/jsse.jar">
+        <condition property="library.jarfiles" value="classes.jar,jsse.jar">
             <os family="mac"/>
         </condition>
-        <condition property="library.jars" value="${java.home}/lib/rt.jar:${java.home}/lib/jsse.jar">
+        <condition property="library.jarfiles" value="rt.jar,jsse.jar">
+            <!-- Library jar files for Sun JDK -->
             <available file="${java.home}/lib/rt.jar"/>
         </condition>
-       <condition property="library.jars" value="${java.home}/lib/vm.jar:${java.home}/lib/core.jar:${java.home}/lib/graphics.jar:${java.home}/lib/security.jar">
+        <condition property="library.jarfiles" value="vm.jar,core.jar,graphics.jar,security.jar">
+            <!-- Library jar files for IBM J9 (from Linux SuSE) -->
             <available file="${java.home}/lib/vm.jar"/>
         </condition>
+        <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">
+            <os family="mac"/>
+        </condition>
+        <pathconvert property="library.jars">
+           <filelist dir="${library.jarpath}" files="${library.jarfiles}"/>
+           <mapper>
+              <!-- Add quotes around the patch of each Jar file (necessary for Windows) -->
+              <globmapper from="*" to="&quot;*&quot;"/>   
+           </mapper>
+        </pathconvert>
 
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
