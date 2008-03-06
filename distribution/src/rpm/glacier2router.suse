@@ -8,10 +8,10 @@
 
 ### BEGIN INIT INFO
 # Provides:          glacier2router
-# Required-Start:    $network icegridregistry icegridnode
-# Required-Stop:     $network icegridregistry
-# Default-Start:     2 3 5
-# Default-Stop:      0 1 6
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
 # Short-Description: Start the Glacier2 router daemon.
 # Description:       The Glacier2 router daemon.
 #	Glacier2 is the firewall traversal service for the Internet
