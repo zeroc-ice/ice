@@ -98,6 +98,10 @@ before building Berkeley DB:
 
 - Add the lib directory for STLport.
 
+Users of Visual Studio 2008 must remove bufferoverflowU.lib from the 
+linker input "Additional Dependencies" in most projects when building
+on x64.
+
 For installation instructions, please refer to
 
   http://www.oracle.com/technology/documentation/berkeley-db/db/ref/build_win/intro.html
@@ -115,8 +119,10 @@ OpenSSL
 -------
 
 After extracting the OpenSSL source archive, refer to the file
-INSTALL.W32 for build instructions.
+INSTALL.W32 or INSTALL.W64 for build instructions.
 
+When building with Visual Studio 2008 for a x64 target, you also 
+need to edit ms\ntdll.mak to remove all occurences of bufferoverflowU.lib.
 
 bzip2
 -----
@@ -147,12 +153,12 @@ Follow these instructions for building mcpp:
 - Apply the patch for noconfig.H appropriate for your compiler from
   the noconfig directory. For example, for VS2005 you would run:
 
-  > patch -p0 < ..\noconfig\vc2005.def
+  > patch -p0 < ..\noconfig\vc2005.dif
 
 - Build the mcpp release library:
 
-  > nmake MCPP_LIB=1 /f ..\nonconfig\visualc.mak mcpplib
+  > nmake MCPP_LIB=1 /f ..\noconfig\visualc.mak mcpplib
 
   To build the debug version of the library:
 
-  > nmake MCPP_LIB=1 DEBUG=1 /f ..\nonconfig\visualc.mak mcpplib
+  > nmake MCPP_LIB=1 DEBUG=1 /f ..\noconfig\visualc.mak mcpplib

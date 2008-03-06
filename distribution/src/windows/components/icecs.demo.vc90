@@ -5,6 +5,7 @@ exclude=**/*.ncb
 exclude=**/*.suo
 exclude=**/*.exe
 exclude=**/*.exe.config
+exclude=**/*.exe.manifest
 exclude=**/*.bat
 exclude=**/*.obj
 exclude=**/*.pdb

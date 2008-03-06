@@ -58,7 +58,7 @@
 		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{76FF897B-18AF-49F0-8ED3-9ADFA1FB78E5}</revnumber>
+		<revnumber>{479F2CFA-61A7-47CC-A729-6E8E305F7E02}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -169,10 +169,12 @@
 		<col def="S255">ISComments</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>AdminWelcome</td><td/><td>1010</td><td>AdminWelcome</td><td/></row>
+		<row><td>ClearAllUsers</td><td>NOT AdminUser</td><td>425</td><td/><td/></row>
 		<row><td>CostFinalize</td><td/><td>1000</td><td>CostFinalize</td><td/></row>
 		<row><td>CostInitialize</td><td/><td>800</td><td>CostInitialize</td><td/></row>
 		<row><td>ExecuteAction</td><td/><td>1300</td><td>ExecuteAction</td><td/></row>
 		<row><td>FileCost</td><td/><td>900</td><td>FileCost</td><td/></row>
+		<row><td>SetInstallLevel</td><td>AdminUser</td><td>612</td><td/><td/></row>
 		<row><td>SetupCompleteError</td><td/><td>-3</td><td>SetupCompleteError</td><td/></row>
 		<row><td>SetupCompleteSuccess</td><td/><td>-1</td><td>SetupCompleteSuccess</td><td/></row>
 		<row><td>SetupInitialization</td><td/><td>50</td><td>SetupInitialization</td><td/></row>
@@ -340,7 +342,6 @@
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
 		<row><td>CommonDoc</td><td>{4DE2986F-6C94-45A2-B7C0-FB91A2F27F09}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISRegistryComponent</td><td>{9BBA7847-6A9F-4D81-B36E-53E146970C7A}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>VisualStudioRuntime</td><td>{D7F73B3F-43B0-459D-9740-3D8CCF271161}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -1078,12 +1079,14 @@
 		<col def="S255">ISComments</col>
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
+		<row><td>ClearAllUsers</td><td>51</td><td>ALLUSERS</td><td>{}</td><td/></row>
 		<row><td>ISSelfRegisterCosting</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterCosting</td><td/></row>
 		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
 		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
 		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
+		<row><td>SetInstallLevel</td><td>51</td><td>INSTALLLEVEL</td><td>200</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
 		<row><td>setUserProfileNT</td><td>51</td><td>USERPROFILE</td><td>[%USERPROFILE]</td><td/></row>
 	</table>
@@ -1388,15 +1391,15 @@
 		<col def="S255">ISComments</col>
 		<col def="S255">ISFeatureCabName</col>
 		<col def="S255">ISProFeatureName</col>
+		<row><td>MS.CRT.x86</td><td/><td>##ID_STRING9##</td><td/><td>4</td><td>200</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>packages</td><td/><td>##IDS_FEATURE_DISPLAY_NAME4##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="FeatureComponents">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
+		<row><td>MS.CRT.x86</td><td>ISRegistryComponent</td></row>
 		<row><td>packages</td><td>CommonDoc</td></row>
-		<row><td>packages</td><td>ISRegistryComponent</td></row>
-		<row><td>packages</td><td>VisualStudioRuntime</td></row>
 	</table>
 
 	<table name="File">
@@ -1565,7 +1568,6 @@
 		<col def="S0">Miscellaneous</col>
 		<row><td>CommonDoc</td><td/><td/><td>_B053A960_5DAC_427F_98DD_CB66761F11C7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISRegistryComponent</td><td/><td/><td>_79E9B7F3_FB93_44F9_9EF9_A66A8EE137B8_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>VisualStudioRuntime</td><td/><td/><td>_30BA3320_69CB_4682_87F9_962EE1BF4FF1_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -1594,7 +1596,6 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>CommonDoc</td><td>&lt;ISProjectFolder&gt;\install\packages\common\doc</td><td>4</td><td/><td>*.rtf</td><td>0</td></row>
-		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
@@ -1607,6 +1608,7 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
+		<row><td>MS.CRT.x86</td><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td></row>
 		<row><td>packages</td><td>BZip2DevKit.VC90.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBDevKit.VC90.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td></row>
@@ -1616,8 +1618,6 @@
 		<row><td>packages</td><td>ExpatRuntime.VC90.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td></row>
 		<row><td>packages</td><td>JGoodies.VC90.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td></row>
 		<row><td>packages</td><td>MCPPDevKit.VC90.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>0</td></row>
-		<row><td>packages</td><td>Microsoft_VC90_CRT_x64.50FC30FE_9758_3B08_B886_7BAABC047B61</td><td>0</td></row>
-		<row><td>packages</td><td>Microsoft_VC90_CRT_x86.0138F525_6C8A_333F_A105_14AE030B9A54</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLDevKit.VC90.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC90.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td></row>
 	</table>
@@ -1702,19 +1702,18 @@
 		<col def="s255">Name</col>
 		<col def="S255">Destination</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>BZip2DevKit.VC90.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>0</td><td>BZip2 Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBDevKit.VC90.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBRuntime.VC90.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>Bzip2Runtime.VC90.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td><td>Bzip2 Runtime for Visual Studio .Net 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>ExpatDevKit.VC90.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>ExpatRuntime.VC90.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>JGoodies.VC90.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td><td>JGoodies Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BZip2DevKit.VC90.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>0</td><td>BZip2 Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBDevKit.VC90.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBRuntime.VC90.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>Bzip2Runtime.VC90.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td><td>Bzip2 Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td><td>Visual C++ 8.0 CRT (x86) WinSXS MSM</td><td/><td/></row>
+		<row><td>ExpatDevKit.VC90.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>0</td><td>Expat Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>ExpatRuntime.VC90.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>JGoodies.VC90.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td><td>JGoodies Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>MCPPDevKit.VC90.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>0</td><td>MCPP Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>Microsoft_VC90_CRT_x64.50FC30FE_9758_3B08_B886_7BAABC047B61</td><td>0</td><td>Visual C++ 9.0 CRT (x86) WinSXS MSM</td><td/><td/></row>
-		<row><td>Microsoft_VC90_CRT_x86.0138F525_6C8A_333F_A105_14AE030B9A54</td><td>0</td><td>Visual C++ 9.0 CRT (x86) WinSXS MSM</td><td/><td/></row>
-		<row><td>OpenSSLDevKit.VC90.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>OpenSSLRuntime.VC90.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>OpenSSLDevKit.VC90.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>OpenSSLRuntime.VC90.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
 
 	<table name="ISMergeModuleCfgValues">
@@ -2493,6 +2492,7 @@
 		<row><td>ID_STRING6</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING7</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING8</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033470955</td></row>
+		<row><td>ID_STRING9</td><td>1033</td><td>Microsoft C/C++ runtime (shared installation)</td><td>0</td><td/><td>563928778</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>NEW_STRING1</td><td>1033</td><td>Please read the following license agreement carefully.</td><td>0</td><td/><td>1033487371</td></row>
 		<row><td>NEW_STRING10</td><td>1033</td><td>{&amp;MSSansBold8}License Agreement</td><td>0</td><td/><td>1033456747</td></row>
@@ -2706,6 +2706,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<col def="I4">ISAttributes</col>
 		<row><td>AppSearch</td><td/><td>400</td><td>AppSearch</td><td/></row>
 		<row><td>CCPSearch</td><td>CCP_TEST</td><td>500</td><td>CCPSearch</td><td/></row>
+		<row><td>ClearAllUsers</td><td>NOT AdminUser</td><td>985</td><td/><td/></row>
 		<row><td>CostFinalize</td><td/><td>1000</td><td>CostFinalize</td><td/></row>
 		<row><td>CostInitialize</td><td/><td>800</td><td>CostInitialize</td><td/></row>
 		<row><td>ExecuteAction</td><td/><td>1300</td><td>ExecuteAction</td><td/></row>
@@ -2719,7 +2720,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>PatchWelcome</td><td>PATCH And Not IS_MAJOR_UPGRADE</td><td>1205</td><td>Patch Panel</td><td/></row>
 		<row><td>RMCCPSearch</td><td>Not CCP_SUCCESS And CCP_TEST</td><td>600</td><td>RMCCPSearch</td><td/></row>
 		<row><td>ResolveSource</td><td>Not Installed And Not PATCH</td><td>990</td><td>ResolveSource</td><td/></row>
-		<row><td>SetAllUsersProfileNT</td><td>VersionNT = 400</td><td>970</td><td/><td/></row>
+		<row><td>SetInstallLevel</td><td>AdminUser</td><td>987</td><td/><td/></row>
 		<row><td>SetupCompleteError</td><td/><td>-3</td><td>SetupCompleteError</td><td/></row>
 		<row><td>SetupCompleteSuccess</td><td/><td>-1</td><td>SetupCompleteSuccess</td><td/></row>
 		<row><td>SetupInitialization</td><td/><td>420</td><td>SetupInitialization</td><td/></row>
@@ -2728,7 +2729,6 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>SetupResume</td><td>Installed And (RESUME Or Preselected) And Not PATCH</td><td>1220</td><td>SetupResume</td><td/></row>
 		<row><td>ValidateProductID</td><td/><td>700</td><td>ValidateProductID</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>VersionNT &gt;= 500</td><td>980</td><td/><td/></row>
-		<row><td>setUserProfileNT</td><td>VersionNT</td><td>960</td><td/><td/></row>
 	</table>
 
 	<table name="IsolatedComponent">
@@ -2926,7 +2926,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{FE3790FE-55AD-476C-B680-A340533E8676}</td><td/></row>
+		<row><td>ProductCode</td><td>{5C58447A-6FF5-475E-9E02-CA9E7339DFD7}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
 		<row><td>ProductName</td><td>Ice 3.3.0 Third Party Packages for Visual Studio 2008</td><td/></row>
@@ -2939,7 +2939,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{A606858F-CA35-4CEB-A84D-3068CC6401FE}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{8004CC8B-80BE-4D3E-B427-E04A0BE8F697}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
