@@ -75,17 +75,17 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="glacier2cs">
-      <Name>glacier2cs</Name>
-      <HintPath>..\..\..\bin\glacier2cs.dll</HintPath>
+    <Reference Include="Glacier2">
+      <Name>Glacier2</Name>
+      <HintPath>..\..\..\bin\Glacier2.dll</HintPath>
     </Reference>
-    <Reference Include="icecs">
-      <Name>icecs</Name>
-      <HintPath>..\..\..\bin\icecs.dll</HintPath>
+    <Reference Include="Ice">
+      <Name>Ice</Name>
+      <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
-    <Reference Include="icesslcs, Version=3.3.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="IceSSL, Version=3.3.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bin\icesslcs.dll</HintPath>
+      <HintPath>..\..\..\bin\IceSSL.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

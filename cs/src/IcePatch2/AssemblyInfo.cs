@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("icepatch2cs")]
+[assembly: AssemblyTitle("IcePatch2")]
 [assembly: AssemblyDescription("IcePatch2 run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]

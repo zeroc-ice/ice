@@ -31,6 +31,6 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
 server.exe: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icecs.dll $(SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
 !include .depend

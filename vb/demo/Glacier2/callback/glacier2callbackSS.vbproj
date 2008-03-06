@@ -71,14 +71,14 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="glacier2cs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="Glacier2, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\glacier2cs.dll</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\glacier2cs.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\Glacier2.dll</HintPath>
+      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\Glacier2.dll</HintPath>
     </Reference>
-    <Reference Include="icecs">
-      <Name>icecs</Name>
-      <HintPath>..\..\..\bin\icecs.dll</HintPath>
+    <Reference Include="Ice">
+      <Name>Ice</Name>
+      <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

@@ -17,7 +17,7 @@ if len(sys.argv) < 2:
     usage()
     sys.exit(1)
 
-assemblies = ['glacier2cs', 'icecs', 'icepatch2cs', 'icestormcs', 'iceboxcs', 'icegridcs', 'icesslcs']
+assemblies = ['Glacier2', 'Ice', 'IcePatch2', 'IceStorm', 'IceBox', 'IceGrid', 'IceSSL']
 
 top_srcdir = os.path.normpath(sys.argv[1])
 for s in sys.argv[2:]:

@@ -32,9 +32,9 @@ SLICE2CSFLAGS 	= -I$(slicedir) $(SLICECSBFLAGS)
 VBCFLAGS	= $(VBCFLAGS) -target:exe
 
 client.exe: $(C_SRCS) $(GEN_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 !include .depend

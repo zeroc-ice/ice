@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..
 
-PKG		= icestormcs
+PKG		= IceStorm
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
 
@@ -28,7 +28,7 @@ MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(bindir)\icecs.dll $(SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -r:$(bindir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
 !if "$(NOGAC)" == ""
 
@@ -38,7 +38,7 @@ install:: all
 !else
 
 install:: all
-	copy $(bindir)\icestormcs.dll $(install_bindir)
+	copy $(bindir)\$(LIBNAME) $(install_bindir)
 
 !endif
 

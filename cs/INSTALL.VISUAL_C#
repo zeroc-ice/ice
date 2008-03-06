@@ -3,11 +3,17 @@ Build instructions
 
 Ice for .NET has been built and tested with:
 
-- Visual C# Express Version 8.0.50727.42 and .NET Framework Version
-  2.0.50727.
+- Visual C# Express Version 8.0.50727.762 and .NET Framework Version
+  2.0.50727 SP1.
 
-- Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
-  Version 2.0.50727.
+- Microsoft Visual Studio 2005 Version 8.0.50727.762 and .NET Framework
+  Version 2.0.50727 SP1.
+
+- Visual C# Express Version 9.0.21022.8 RTM and .NET Framework Version
+  3.5.
+
+- Microsoft Visual Studio 2008 Version 9.0.21022.8 RTMand .NET Framework
+  Version 3.5.
 
 Unpack the archive. The .NET sources will be contained in the
 Ice-@ver@\cs subdirectory.
@@ -154,7 +160,7 @@ into the same directory as an executable.
 If you want line numbers for stack traces, you must also install the
 PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
-shell window and navigate to C:\WINDOWS\assembly\GAC\icecs. (Assuming
+shell window and navigate to C:\WINDOWS\assembly\GAC\Ice. (Assuming
 C:\WINDOWS is your system root.) Doing a directory listing there, you
 will find a directory named @dotnetver@__<UUID>, for example:
 
@@ -162,11 +168,11 @@ will find a directory named @dotnetver@__<UUID>, for example:
 
 Change to that directory (making sure that you use the correct version
 number for this release of Ice). In this directory, you will see a
-file called __AssemblyInfo__.ini and the icecs.dll you installed into
-the GAC in the preceding step. Now copy the icecs.pdb file into this
+file called __AssemblyInfo__.ini and the Ice.dll you installed into
+the GAC in the preceding step. Now copy the Ice.pdb file into this
 directory:
 
-> copy <path_to_icecs.pdb> .
+> copy <path_to_ice.pdb> .
 
 
 Protocol compression with 64-bit Windows
@@ -199,16 +205,16 @@ steps below:
 
 2) Run the following commands:
 
-      gacutil /u policy.<x>.<y>.icecs
-      gacutil /u policy.<x>.<y>.iceboxcs
-      gacutil /u policy.<x>.<y>.icegridcs
-      gacutil /u policy.<x>.<y>.icepatch2cs
-      gacutil /u policy.<x>.<y>.icesslcs
-      gacutil /u policy.<x>.<y>.icestormcs
-      gacutil /u policy.<x>.<y>.glacier2cs
+      gacutil /u policy.<x>.<y>.Icecs
+      gacutil /u policy.<x>.<y>.Icebox
+      gacutil /u policy.<x>.<y>.IceGrid
+      gacutil /u policy.<x>.<y>.IcePatch2
+      gacutil /u policy.<x>.<y>.IceSSL
+      gacutil /u policy.<x>.<y>.IceStorm
+      gacutil /u policy.<x>.<y>.Glacier2
 
    Substitute the major and minor version for <x> and <y> in these
-   commands, for example: gacutil /u policy.3.2.icecs
+   commands, for example: gacutil /u policy.3.2.Ice
 
    These commands uninstall the <x>.<y> Ice run time.
 
@@ -220,25 +226,25 @@ steps below:
 
 4) Run the following commands:
 
-      gacutil /i policy.<x>.<y>.icecs.dll
-      gacutil /i policy.<x>.<y>.iceboxcs.dll
-      gacutil /i policy.<x>.<y>.icegridcs.dll
-      gacutil /i policy.<x>.<y>.icepatch2.dll
-      gacutil /i policy.<x>.<y>.icesslcs.dll
-      gacutil /i policy.<x>.<y>.icestormcs.dll
-      gacutil /i policy.<x>.<y>.glacier2cs.dll
+      gacutil /i policy.<x>.<y>.Ice.dll
+      gacutil /i policy.<x>.<y>.IceBox.dll
+      gacutil /i policy.<x>.<y>.IceGrid.dll
+      gacutil /i policy.<x>.<y>.IcePatch2.dll
+      gacutil /i policy.<x>.<y>.IceSSL.dll
+      gacutil /i policy.<x>.<y>.IceStorm.dll
+      gacutil /i policy.<x>.<y>.Glacier2.dll
 
    These commands cause applications requesting the <x>.<y>.0 run
    time to load the <x>.<y>.1 (or later patch version) run time instead.
 
 5) Run the following commands:
 
-      gacutil /i icecs.dll
-      gacutil /i iceboxcs.dll
-      gacutil /i icegridcs.dll
-      gacutil /i icepatch2cs.dll
-      gacutil /i icesslcs.dll
-      gacutil /i icestormcs.dll
-      gacutil /i glacier2cs.dll
+      gacutil /i Icecs.dll
+      gacutil /i IceBox.dll
+      gacutil /i IceGrid.dll
+      gacutil /i IcePatch2.dll
+      gacutil /i IceSSL.dll
+      gacutil /i IceStorm.dll
+      gacutil /i Glacier2.dll
 
    These commands install the newer patch version DLLs into the GAC.

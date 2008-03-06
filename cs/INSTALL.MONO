@@ -31,7 +31,7 @@ directory that contains slice2cs.)
 Configuring the bzip library
 ----------------------------
 
-The bin directory contains a file icecs.dll.config that specifies
+The bin directory contains a file Ice.dll.config that specifies
 the bzip2 library. You need to check that the library name specified
 for the target attribute matches the name of the bzip2 library on your
 machine. If the target attribute does not specify the correct name
@@ -101,7 +101,7 @@ MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
 directory) in the Global Assembly Cache (GAC), using gacutil -i
 <name>. For example:
 
-$ gacutil -i icecs.dll
+$ gacutil -i Ice.dll
 
 Python is required to run the test suite:
 

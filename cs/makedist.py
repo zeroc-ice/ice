@@ -101,7 +101,7 @@ os.mkdir(distdir)
 config = open(os.path.join("config", "Make.rules.cs"), "r")
 version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 
-pcfg = open(os.path.join("lib", "pkgconfig", "icecs.pc"), "r")
+pcfg = open(os.path.join("lib", "pkgconfig", "Ice.pc"), "r")
 dotnetversion = re.search("version[= \t]*([0-9\.]+)", pcfg.read()).group(1)
 
 icever = "IceNET-" + version
@@ -144,7 +144,7 @@ for file in find(os.path.join(icever, "slice"), "Makefile.mak"):
 config = open(os.path.join(icever, "config", "Make.rules.cs"), "r")
 version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 
-pcfg = open(os.path.join(icever, "lib", "pkgconfig", "icecs.pc"), "r")
+pcfg = open(os.path.join(icever, "lib", "pkgconfig", "Ice.pc"), "r")
 dotnetversion = re.search("version[= \t]*([0-9\.]+)", pcfg.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."

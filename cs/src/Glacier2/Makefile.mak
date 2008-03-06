@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..
 
-PKG		= glacier2cs
+PKG		= Glacier2
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
 
@@ -31,7 +31,7 @@ MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(bindir)\icecs.dll $(SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -r:$(bindir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
 !if "$(NOGAC)" == ""
 
@@ -41,7 +41,7 @@ install:: all
 !else
 
 install:: all
-	copy $(bindir)\glacier2cs.dll $(install_bindir)
+	copy $(bindir)\$(LIBNAME) $(install_bindir)
 
 !endif
 

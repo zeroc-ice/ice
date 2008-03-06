@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-PKG		= iceboxcs
+PKG		= IceBox
 LIBNAME		= $(bindir)/$(PKG).dll
 ICEBOXNET	= $(bindir)/iceboxnet.exe
 TARGETS		= $(ICEBOXNET) $(LIBNAME)
@@ -32,10 +32,10 @@ LIB_MCSFLAGS	:= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
 $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
-	$(MCS) $(EXE_MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,icecs) $(I_SRCS)
+	$(MCS) $(EXE_MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,Ice) $(I_SRCS)
 
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
-	$(MCS) $(LIB_MCSFLAGS) $(call ref,glacier2cs) $(call ref,icecs) $(subst /,$(DSEP),$^)
+	$(MCS) $(LIB_MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
 	$(call installassembly,$(LIBNAME),$(PKG))

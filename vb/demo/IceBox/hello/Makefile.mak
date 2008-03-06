@@ -30,10 +30,10 @@ GDIR		= generated
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:HelloIceBox
 
 client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
 
 helloservice.dll: $(S_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -target:library -out:$@ -r:$(csbindir)\iceboxcs.dll -r:$(csbindir)\icecs.dll \
+	$(VBC) $(VBCFLAGS) -target:library -out:$@ -r:$(csbindir)\IceBox.dll -r:$(csbindir)\Ice.dll \
 		-r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 !include .depend

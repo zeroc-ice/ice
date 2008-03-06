@@ -75,13 +75,13 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="glacier2cs">
-      <Name>glacier2cs</Name>
-      <HintPath>..\..\..\bin\glacier2cs.dll</HintPath>
+    <Reference Include="Glacier2">
+      <Name>Glacier2</Name>
+      <HintPath>..\..\..\bin\Glacier2.dll</HintPath>
     </Reference>
-    <Reference Include="icecs">
-      <Name>icecs</Name>
-      <HintPath>..\..\..\bin\icecs.dll</HintPath>
+    <Reference Include="Ice">
+      <Name>Ice</Name>
+      <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

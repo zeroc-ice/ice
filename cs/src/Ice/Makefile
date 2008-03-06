@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-PKG		= icecs
+PKG		= Ice
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 
@@ -139,6 +139,11 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
+
+ifneq ($(NOGAC),)
+install:: all
+	$(call installdata,$(bindir)/Ice.dll.config,$(install_bindir))
+endif
 
 install:: all
 	$(call installassembly,$(TARGETS),$(PKG))

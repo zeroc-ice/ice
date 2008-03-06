@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..
 
-PKG		= icecs
+PKG		= Ice
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
 
@@ -148,7 +148,7 @@ install:: all
 !else
 
 install:: all
-	copy $(bindir)\icecs.dll $(install_bindir)
+	copy $(bindir)\$(LIBNAME) $(install_bindir)
 
 !endif
 

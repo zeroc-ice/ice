@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-PKG		= icegridcs
+PKG		= IceGrid
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 
@@ -37,7 +37,7 @@ MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,glacier2cs) $(call ref,icecs) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
 	$(call installassembly,$(TARGETS),$(PKG))
