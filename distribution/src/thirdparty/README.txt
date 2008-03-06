@@ -147,7 +147,7 @@ Follow these instructions for building mcpp:
 - Apply the patch for noconfig.H appropriate for your compiler from
   the noconfig directory. For example, for VS2005 you would run:
 
-  > patch -p0 < ..\noconfig\vc2005.def
+  > patch -p0 < ..\noconfig\vc2005.dif
 
 - Build the mcpp release library:
 
