@@ -80,12 +80,6 @@ endif
 
 install_bindir		= $(prefix)/bin
 
-#
-# Create install dirs if necessary
-#
-$(shell [ ! -d $(prefix) ] && (mkdir $(prefix); chmod a+rx $(prefix)))
-$(shell [ ! -d $(install_bindir) ] && (mkdir $(install_bindir); chmod a+rx $(install_bindir)))
-
 ifneq ($(ice_dir),/usr)
     ref = -r:$(bindir)/$(1).dll
 else
@@ -227,3 +221,5 @@ clean::
 endif
 
 install::
+	$(shell [ ! -d $(prefix) ] && (mkdir $(prefix); chmod a+rx $(prefix)))
+	$(shell [ ! -d $(install_bindir) ] && (mkdir $(install_bindir); chmod a+rx $(install_bindir)))
