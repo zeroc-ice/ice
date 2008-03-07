@@ -73,12 +73,11 @@
   <ItemGroup>
     <Reference Include="Glacier2, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\Glacier2.dll</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\Glacier2.dll</HintPath>
+      <HintPath>..\..\..\..\cs\bin\Glacier2.dll</HintPath>
     </Reference>
     <Reference Include="Ice">
       <Name>Ice</Name>
-      <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

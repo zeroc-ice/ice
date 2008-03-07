@@ -565,8 +565,9 @@ for root, dirnames, filesnames in os.walk(demoDistDir):
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-        if fnmatch.fnmatch(f, "*.exe.config"):
-            substitute(os.path.join(root, f), exeConfigSubstituteExprs)
+        for m in [ "*.csproj", "*.vbproj", "*.exe.config"]:
+            if fnmatch.fnmatch(f, m):
+                substitute(os.path.join(root, f), exeConfigSubstituteExprs)
 
         for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config"]:
             if fnmatch.fnmatch(f, m):
