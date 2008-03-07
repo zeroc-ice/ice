@@ -980,25 +980,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void
     finished(IceInternal.ThreadPool threadPool)
     {
-        threadPool.promoteFollower(null);
-        
-        Ice.LocalException localEx = null;
-
         synchronized(this)
         {
             assert(threadPool == _threadPool && _state == StateClosed && !_sendInProgress);
-
-            try
-            {
-                _transceiver.close();
-            }
-            catch(LocalException ex)
-            {
-                localEx = ex;
-            }
-            
-            _transceiver = null;
-            notifyAll();
+            threadPool.promoteFollower(null);
         }
 
         if(_startCallback != null)
@@ -1010,32 +995,39 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         java.util.Iterator<OutgoingMessage> p = _sendStreams.iterator();
         while(p.hasNext())
         {
-            OutgoingMessage message = p.next();
-            message.finished(_exception);
+            p.next().finished(_exception);
         }
         _sendStreams.clear();
         
-        java.util.Iterator<IceInternal.Outgoing> q =
-            _requests.values().iterator(); // _requests is immutable at this point.
+        java.util.Iterator<IceInternal.Outgoing> q = _requests.values().iterator();
         while(q.hasNext())
         {
-            IceInternal.Outgoing out = q.next();
-            out.finished(_exception); // The exception is immutable at this point.
+            q.next().finished(_exception);
         }
         _requests.clear();
 
-        java.util.Iterator<IceInternal.OutgoingAsync> r =
-            _asyncRequests.values().iterator(); // _asyncRequests is immutable at this point.
+        java.util.Iterator<IceInternal.OutgoingAsync> r = _asyncRequests.values().iterator();
         while(r.hasNext())
         {
-            IceInternal.OutgoingAsync out = r.next();
-            out.__finished(_exception); // The exception is immutable at this point.
+            r.next().__finished(_exception);
         }
         _asyncRequests.clear();
         
-        if(localEx != null)
+        //
+        // This must be done last as this will cause waitUntilFinished() to return (and communicator
+        // objects such as the timer might be destroyed too).
+        //
+        synchronized(this)
         {
-            throw localEx;
+            try
+            {
+                _transceiver.close();
+            }
+            finally
+            {
+                _transceiver = null;
+                notifyAll();
+            }
         }
     }
 

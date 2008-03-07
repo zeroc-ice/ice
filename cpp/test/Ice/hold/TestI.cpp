@@ -8,25 +8,68 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
-void
-HoldI::putOnHold(Ice::Int seconds, const Ice::Current& current)
+HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter) :
+    _last(0), _timer(timer), _adapter(adapter)
 {
-    if(seconds <= 0)
-    {
-        current.adapter->hold();
-        current.adapter->activate();
-    }
-    else
-    {
-        assert(false); // TODO
-    }
 }
 
 void
-HoldI::shutdown(const Ice::Current& current)
+HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
 {
-    current.adapter->hold();
-    current.adapter->getCommunicator()->shutdown();
+    if(milliSeconds <= 0)
+    {
+        _adapter->hold();
+        _adapter->activate();
+    }
+    else
+    {
+        try
+        {
+            _timer->schedule(this, IceUtil::Time::milliSeconds(milliSeconds));
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+}
+
+Ice::Int
+HoldI::set(Ice::Int value, const Ice::Current&)
+{
+    Lock sync(*this);
+    Ice::Int tmp = _last;
+    _last = value;
+    return tmp;
+}
+
+void
+HoldI::setOneway(Ice::Int value, Ice::Int expected, const Ice::Current&)
+{
+    Lock sync(*this);
+    test(_last == expected);
+    _last = value;
+}
+
+void
+HoldI::shutdown(const Ice::Current&)
+{
+    _adapter->hold();
+    _adapter->getCommunicator()->shutdown();
+}
+
+void
+HoldI::runTimerTask()
+{
+    try
+    {
+        _adapter->hold();
+        _adapter->activate();
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+    }
 }

@@ -15,12 +15,30 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new HoldI;
-    adapter->add(object, communicator->stringToIdentity("hold"));
-    adapter->activate();
+    IceUtil::TimerPtr timer = new IceUtil::Timer();
+
+    communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default -p 12010 -t 10000:udp");
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Size", "5"); 
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeMax", "5"); 
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0"); 
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
+    Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
+    adapter1->add(new HoldI(timer, adapter1), communicator->stringToIdentity("hold"));
+    adapter1->activate();
+
+    communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -p 12011 -t 10000:udp");
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5"); 
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeMax", "5"); 
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0"); 
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
+    Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
+    adapter2->add(new HoldI(timer, adapter2), communicator->stringToIdentity("hold"));
+    adapter2->activate();
+
     communicator->waitForShutdown();
+
+    timer->destroy();
+
     return EXIT_SUCCESS;
 }
 

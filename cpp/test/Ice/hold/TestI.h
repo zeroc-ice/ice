@@ -12,10 +12,24 @@
 
 #include <Test.h>
 
-class HoldI : public Test::Hold
+class HoldI : public Test::Hold, public IceUtil::Mutex, public IceUtil::TimerTask
 {
+public:
+    
+    HoldI(const IceUtil::TimerPtr&, const Ice::ObjectAdapterPtr&);
+
     virtual void putOnHold(Ice::Int, const Ice::Current&);
+    virtual Ice::Int set(Ice::Int, const Ice::Current&);
+    virtual void setOneway(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
+
+    virtual void runTimerTask();
+    
+private:
+
+    int _last;
+    const IceUtil::TimerPtr _timer;
+    const Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

@@ -2485,22 +2485,9 @@ namespace Ice
 
         public void finished(IceInternal.ThreadPool unused)
         {
-            LocalException localEx = null;
-
             lock(this)
             {
                 Debug.Assert(_state == StateClosed && !_sendInProgress);
-
-                try
-                {
-                    _transceiver.close();
-                }
-                catch(LocalException ex)
-                {
-                    localEx = ex;
-                }
-                _transceiver = null;
-                Monitor.PulseAll(this);
             }
 
             if(_startCallback != null)
@@ -2515,21 +2502,33 @@ namespace Ice
             }
             _sendStreams.Clear();
 
-            foreach(IceInternal.Outgoing o in _requests.Values) // _requests is immutable at this point.
+            foreach(IceInternal.Outgoing o in _requests.Values)
             {
-                o.finished(_exception); // The exception is immutable at this point.
+                o.finished(_exception);
             }
             _requests.Clear();
 
-            foreach(IceInternal.OutgoingAsync o in _asyncRequests.Values) // _asyncRequests is immutable at this point.
+            foreach(IceInternal.OutgoingAsync o in _asyncRequests.Values)
             {
-                o.finished__(_exception); // The exception is immutable at this point.
+                o.finished__(_exception);
             }
             _asyncRequests.Clear();
 
-            if(localEx != null)
+            //
+            // This must be done last as this will cause waitUntilFinished() to return (and communicator
+            // objects such as the timer might be destroyed too).
+            //
+            lock(this)
             {
-                throw localEx;
+                try
+                {
+                    _transceiver.close();
+                }
+                finally
+                {
+                    _transceiver = null;
+                    Monitor.PulseAll(this);
+                }
             }
         }
 

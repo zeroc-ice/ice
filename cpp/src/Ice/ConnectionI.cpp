@@ -1113,29 +1113,14 @@ Ice::ConnectionI::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 void
 Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 {
-    threadPool->promoteFollower();
-
-    auto_ptr<LocalException> localEx;
-
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
         assert(threadPool.get() == _threadPool.get() && _state == StateClosed && !_sendInProgress);
+
+        threadPool->promoteFollower();
 
         _threadPool->decFdsInUse();
         _selectorThread->decFdsInUse();
-
-        try
-        {
-            _transceiver->close();
-        }
-        catch(const LocalException& ex)
-        {
-            localEx.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
-        }
-
-        _transceiver = 0;
-        notifyAll();
 
         _flushSentCallbacks = 0; // Clear cyclic reference count.
     }
@@ -1146,28 +1131,42 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
         _startCallback = 0;
     }
 
-    // Note: the streams must be cleared first because they expect the Outgoing objects to still be valid.
     for(deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
     {
         o->finished(*_exception.get());
     }
-    _sendStreams.clear();
+    _sendStreams.clear(); // Must be cleared before _requests because of Outgoing* references in OutgoingMessage
 
     for(map<Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
-        p->second->finished(*_exception.get()); // The exception is immutable at this point.
+        p->second->finished(*_exception.get());
     }
     _requests.clear();
 
     for(map<Int, OutgoingAsyncPtr>::iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
     {
-        q->second->__finished(*_exception.get()); // The exception is immutable at this point.
+        q->second->__finished(*_exception.get());
     }
     _asyncRequests.clear();
 
-    if(localEx.get())
+    //
+    // This must be done last as this will cause waitUntilFinished() to return (and communicator
+    // objects such as the timer might be destroyed too).
+    //
     {
-        localEx->ice_throw();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        try
+        {
+            _transceiver->close();
+            _transceiver = 0;
+            notifyAll();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            _transceiver = 0;
+            notifyAll();
+            throw;
+        }
     }
 }
 
