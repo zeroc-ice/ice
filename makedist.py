@@ -378,10 +378,22 @@ def generateFlexFile(file):
 
     os.chdir(srcDistDir)
 
-def substitute(file, exp, text):
-    expr = re.compile(exp)
+def regexpEscape(expr):
+    escaped = ""
+    for c in expr:
+        # TODO: escape more characters?
+        if c in ".\\/":
+            escaped += "\\" + c
+        else:
+            escaped += c
+    return escaped
+            
+
+def substitute(file, regexps):
     for line in fileinput.input(file, True):
-        print expr.sub(text, line),
+        for (expr, text) in regexps:
+            line = expr.sub(text, line)
+        print line,
 
 #
 # Check arguments
@@ -545,12 +557,17 @@ for d in os.listdir('.'):
 
 rmFilesForUnix = []
 rmFilesForMsi = [ "README.DEMOS", "ICE_LICENSE" ]
+configSubstituteExprs = [(re.compile(regexpEscape("../../../../certs")), "../../../certs")]
+exeConfigSubstituteExprs = [(re.compile(regexpEscape("..\\..\\..\\..\\cs")), "..\\..\\..")]
 for root, dirnames, filesnames in os.walk(demoDistDir):
     for f in filesnames:
 
         if fnmatch.fnmatch(f, "config*"):
-            substitute(os.path.join(root, f), "..\/..\/..\/..\/certs", "../../../certs")
-        
+            substitute(os.path.join(root, f), configSubstituteExprs)
+
+        if fnmatch.fnmatch(f, "*.exe.config"):
+            substitute(os.path.join(root, f), exeConfigSubstituteExprs)
+
         for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config"]:
             if fnmatch.fnmatch(f, m):
                 rmFilesForUnix.append(os.path.join(root[len(demoDistDir) + 1:], f))

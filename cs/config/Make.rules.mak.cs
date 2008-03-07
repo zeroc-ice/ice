@@ -150,7 +150,7 @@ clean::
 install::
 
 !if "$(TARGETS_CONFIG)" != ""
-$(TARGETS_CONFIG):
+$(TARGETS_CONFIG): $(TARGETS_CONFIG:.exe.config=.exe)
         @echo "Generating" <<$@ "..."
 <?xml version="1.0"?>
   <configuration>
