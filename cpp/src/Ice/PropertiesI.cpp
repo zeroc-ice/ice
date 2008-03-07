@@ -141,7 +141,13 @@ Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
 void
 Ice::PropertiesI::setProperty(const string& key, const string& value)
 {
-    if(key.empty())
+    //
+    // Trim whitespace
+    //
+    string currentKey = IceUtilInternal::trim(key);
+    string currentValue = IceUtilInternal::trim(value);
+
+    if(currentKey.empty())
     {
         return;
     }
@@ -150,8 +156,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     // Check if the property is legal.
     //
     LoggerPtr logger = getProcessLogger();
-    string::size_type dotPos = key.find('.');
-    string currentKey = key;
+    string::size_type dotPos = currentKey.find('.');
     if(dotPos != string::npos)
     {
         string prefix = currentKey.substr(0, dotPos);
@@ -203,9 +208,9 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     //
     // Set or clear the property.
     //
-    if(!value.empty())
+    if(!currentValue.empty())
     {
-        PropertyValue pv(value, false);
+        PropertyValue pv(currentValue, false);
         map<string, PropertyValue>::const_iterator p = _properties.find(currentKey);
         if(p != _properties.end())
         {

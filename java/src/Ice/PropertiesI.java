@@ -167,6 +167,18 @@ public final class PropertiesI implements Properties
     setProperty(String key, String value)
     {
         //
+        // Trim whitespace
+        //
+        if(key != null)
+        {
+            key = key.trim();
+        }
+        if(value != null)
+        {
+            value = value.trim();
+        }
+
+        //
         // Check if the property is legal.
         //
         Logger logger = Ice.Util.getProcessLogger();

@@ -155,6 +155,18 @@ namespace Ice
         
         public void setProperty(string key, string val)
         {
+            //
+            // Trim whitespace
+            //
+            if(key != null)
+            {
+                key = key.Trim();
+            }
+            if(val != null)
+            {
+                val = val.Trim();
+            }
+
             if(key == null || key.Length == 0)
             {
                 return;
