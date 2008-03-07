@@ -146,14 +146,7 @@ implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
         return 0;
     }
 
-    if(containsKey)
-    {
-        PyRETURN_TRUE;
-    }
-    else
-    {
-        PyRETURN_FALSE;
-    }
+    PyRETURN_BOOL(containsKey);
 }
 
 #ifdef WIN32

@@ -1507,9 +1507,8 @@ IceInternal::createPipe(SOCKET fds[2])
         bool connected = doConnect(fds[0], addr);
         assert(connected);
 #else
-        doConnect(fds[0], addr)
+        doConnect(fds[0], addr);
 #endif
-
     }
     catch(...)
     {

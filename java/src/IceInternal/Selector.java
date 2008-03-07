@@ -11,7 +11,6 @@ package IceInternal;
 
 public final class Selector
 {
-
     public 
     Selector(Instance instance, int timeout)
     {

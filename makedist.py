@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re, glob, time
+import os, sys, shutil, fnmatch, re, glob, time, fileinput
 from stat import *
 from shutil import copytree, rmtree
 
@@ -378,6 +378,11 @@ def generateFlexFile(file):
 
     os.chdir(srcDistDir)
 
+def substitute(file, exp, text):
+    expr = re.compile(exp)
+    for line in fileinput.input(file, True):
+        print expr.sub(text, line),
+
 #
 # Check arguments
 #
@@ -538,12 +543,31 @@ for d in os.listdir('.'):
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copytree(os.path.join(d, "demo"), os.path.join(demoDistDir, getMappingDir("demo", d)))
 
-# Remove Windows project files and configuration files from the demo distribution
+rmFilesForUnix = []
+rmFilesForMsi = [ "README.DEMOS", "ICE_LICENSE" ]
 for root, dirnames, filesnames in os.walk(demoDistDir):
     for f in filesnames:
+
+        if fnmatch.fnmatch(f, "config*"):
+            substitute(os.path.join(root, f), "..\/..\/..\/..\/certs", "../../../certs")
+        
         for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config"]:
             if fnmatch.fnmatch(f, m):
-                os.remove(os.path.join(root, f))
+                rmFilesForUnix.append(os.path.join(root[len(demoDistDir) + 1:], f))
+
+        for m in [ "Make*"]:
+            if fnmatch.fnmatch(f, m):
+                rmFilesForMsi.append(os.path.join(root[len(demoDistDir) + 1:], f))
+
+#
+# Copy Ice-x.y.z-demos to Ice-x.y.z-demos-for-msi
+#
+demoMsiDistDir = os.path.join(distDir, "Ice-" + version + "-demos-for-msi")
+copytree(demoDistDir, demoMsiDistDir)
+
+# Remove files from Msi and Unix demo distributions.
+for f in rmFilesForUnix: os.remove(os.path.join(demoDistDir, f))
+for f in rmFilesForMsi: os.remove(os.path.join(demoMsiDistDir, f))
 print "ok"
 
 #
@@ -579,7 +603,7 @@ for d in [srcDistDir, demoDistDir, demoscriptDistDir, "distfiles-" + version, rp
     os.system("tar c" + quiet + "f - " + dist + " | gzip -9 - > " + dist + ".tar.gz")
     print "ok"
 
-for d in [srcDistDir, demoDistDir]:
+for d in [srcDistDir, demoDistDir, demoMsiDistDir]:
     dist = os.path.basename(d)
     print "   creating " + dist + ".zip ...",
     sys.stdout.flush()
@@ -616,6 +640,7 @@ sys.stdout.flush()
 rmtree(os.path.join(distDir, "distfiles-" + version))
 rmtree(srcDistDir)
 rmtree(demoDistDir)
+rmtree(demoMsiDistDir)
 rmtree(demoscriptDistDir)
 rmtree(rpmBuildDistDir)
 print "ok"

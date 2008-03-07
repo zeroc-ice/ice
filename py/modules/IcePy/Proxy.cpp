@@ -1445,6 +1445,158 @@ proxyIceGetCachedConnection(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
+proxyIceFlushBatchRequests(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    try
+    {
+        (*self->proxy)->ice_flushBatchRequests();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+namespace IcePy
+{
+class AMI_Object_ice_flushBatchRequestsI : public Ice::AMI_Object_ice_flushBatchRequests
+{
+public:
+
+    AMI_Object_ice_flushBatchRequestsI(PyObject*);
+    ~AMI_Object_ice_flushBatchRequestsI();
+
+    virtual void ice_exception(const Ice::Exception&);
+
+protected:
+
+    PyObject* _callback;
+};
+
+class AMI_Object_ice_flushBatchRequestsSentI : public AMI_Object_ice_flushBatchRequestsI, public Ice::AMISentCallback
+{
+public:
+
+    AMI_Object_ice_flushBatchRequestsSentI(PyObject*);
+
+    virtual void ice_sent();
+};
+
+AMI_Object_ice_flushBatchRequestsI::AMI_Object_ice_flushBatchRequestsI(PyObject* callback) :
+    _callback(callback)
+{
+    Py_INCREF(callback);
+}
+
+AMI_Object_ice_flushBatchRequestsI::~AMI_Object_ice_flushBatchRequestsI()
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    Py_DECREF(_callback);
+}
+
+void
+AMI_Object_ice_flushBatchRequestsI::ice_exception(const Ice::Exception& ex)
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    PyObjectHandle method = PyObject_GetAttrString(_callback, STRCAST("ice_exception"));
+    if(!method.get())
+    {
+        ostringstream ostr;
+        ostr << "AMI callback object for ice_flushBatchRequests_async does not define ice_exception()";
+        string str = ostr.str();
+        PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+    }
+    else
+    {
+        PyObjectHandle exh = convertException(ex);
+        assert(exh.get());
+
+        PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), exh.get());
+        PyObjectHandle tmp = PyObject_Call(method.get(), args.get(), 0);
+        if(PyErr_Occurred())
+        {
+            PyErr_Print();
+        }
+    }
+}
+
+AMI_Object_ice_flushBatchRequestsSentI::AMI_Object_ice_flushBatchRequestsSentI(PyObject* callback) :
+    AMI_Object_ice_flushBatchRequestsI(callback)
+{
+}
+
+void
+AMI_Object_ice_flushBatchRequestsSentI::ice_sent()
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    PyObjectHandle method = PyObject_GetAttrString(_callback, STRCAST("ice_sent"));
+    if(!method.get())
+    {
+        ostringstream ostr;
+        ostr << "AMI callback object for ice_flushBatchRequests_async does not define ice_sent()";
+        string str = ostr.str();
+        PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+    }
+    else
+    {
+        PyObjectHandle args = PyTuple_New(0);
+        PyObjectHandle tmp = PyObject_Call(method.get(), args.get(), 0);
+        if(PyErr_Occurred())
+        {
+            PyErr_Print();
+        }
+    }
+}
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* args)
+{
+    assert(self->proxy);
+
+    PyObject* cb;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &cb))
+    {
+        return 0;
+    }
+
+    bool result = false;
+    try
+    {
+        if(PyObject_HasAttrString(cb, STRCAST("ice_sent")))
+        {
+            result = (*self->proxy)->ice_flushBatchRequests_async(new AMI_Object_ice_flushBatchRequestsSentI(cb));
+        }
+        else
+        {
+            result = (*self->proxy)->ice_flushBatchRequests_async(new AMI_Object_ice_flushBatchRequestsI(cb));
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyRETURN_BOOL(result);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceInvoke(ProxyObject* self, PyObject* args)
 {
     return iceInvoke(*self->proxy, args);
@@ -1824,10 +1976,14 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
     { STRCAST("ice_getCachedConnection"), reinterpret_cast<PyCFunction>(proxyIceGetCachedConnection), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getCachedConnection() -> Ice.Connection")) },
+    { STRCAST("ice_flushBatchRequests"), reinterpret_cast<PyCFunction>(proxyIceFlushBatchRequests), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_flushBatchRequests() -> void")) },
+    { STRCAST("ice_flushBatchRequests_async"), reinterpret_cast<PyCFunction>(proxyIceFlushBatchRequestsAsync),
+        METH_VARARGS, PyDoc_STR(STRCAST("ice_flushBatchRequests_async(cb) -> bool")) },
     { STRCAST("ice_invoke"), reinterpret_cast<PyCFunction>(proxyIceInvoke), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_invoke(operation, mode, inParams) -> bool, outParams")) },
     { STRCAST("ice_invoke_async"), reinterpret_cast<PyCFunction>(proxyIceInvokeAsync), METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_invoke_async(cb, operation, mode, inParams) -> void")) },
+        PyDoc_STR(STRCAST("ice_invoke_async(cb, operation, mode, inParams) -> bool")) },
     { STRCAST("ice_checkedCast"), reinterpret_cast<PyCFunction>(proxyIceCheckedCast), METH_VARARGS | METH_CLASS,
         PyDoc_STR(STRCAST("ice_checkedCast(proxy, id[, facetOrCtx[, ctx]]) -> proxy")) },
     { STRCAST("ice_uncheckedCast"), reinterpret_cast<PyCFunction>(proxyIceUncheckedCast), METH_VARARGS | METH_CLASS,
