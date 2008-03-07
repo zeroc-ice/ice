@@ -557,8 +557,8 @@ for d in os.listdir('.'):
 
 rmFilesForUnix = []
 rmFilesForMsi = [ "README.DEMOS", "ICE_LICENSE" ]
-configSubstituteExprs = [(re.compile(regexpEscape("../../../../certs")), "../../../certs")]
-exeConfigSubstituteExprs = [(re.compile(regexpEscape("..\\..\\..\\..\\cs")), "..\\..\\..")]
+configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
+exeConfigSubstituteExprs = [(re.compile(regexpEscape("\\..\\cs")), "")]
 for root, dirnames, filesnames in os.walk(demoDistDir):
     for f in filesnames:
 
