@@ -592,7 +592,7 @@ private:
         }
 #else
         struct pollfd pollFd;
-        pollFd.fd = fd;
+        pollFd.fd = handler->_fd;
         pollFd.events = status == NeedRead ? POLLIN : POLLOUT;
         _pollFdSet.push_back(pollFd);
 #endif
