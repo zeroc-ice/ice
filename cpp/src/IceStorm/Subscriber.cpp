@@ -398,9 +398,9 @@ SubscriberOneway::sent()
     {
         _lock.notify();
     }
-    else if(_outstanding == 0 && !_events.empty())
+    else if(_outstanding < _maxOutstanding && !_events.empty())
     {
-        _instance->batchFlusher()->schedule(new ResponseTimerTask(this), IceUtil::Time::seconds(0));
+        flush();
     }
 }
 
