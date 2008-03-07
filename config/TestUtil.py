@@ -630,7 +630,7 @@ sslConfigTree = {
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
         "cs" : {
-            "plugin" : " --Ice.Plugin.IceSSL=%(bindir)s\\icesslcs.dll:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
+            "plugin" : " --Ice.Plugin.IceSSL=%(bindir)s\\IceSSL.dll:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
             " --IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s",
             "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
             "server" : " --IceSSL.CertFile=s_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem",
