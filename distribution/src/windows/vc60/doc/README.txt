@@ -304,11 +304,39 @@ appropriate changes as you follow the instructions.
    presence of this section indicates that the extension was loaded.
 
    If Apache does not start, check the Windows Event Viewer as well as
-   Apache's log files for more information. The most likely reasons for
-   Apache to fail at startup are missing DLLs (see step 4) or
+   Apache's log files for more information. The most likely reasons
+   for Apache to fail at startup are missing DLLs (see step 4) or
    insufficient access rights (see step 5).
 
-7) In order to load Slice definitions for a PHP script, you must
+7) Apache's executable has a relatively small default stack size. You
+   can determine its current stack size with the following commands:
+
+   cd \Program Files\Apache Software Foundation\Apache2.2\bin
+   dumpbin /all httpd.exe | find "stack"
+
+   The relevant output line is shown below:
+
+     40000 size of stack reserve
+
+   The default size is 0x40000 (262,144) bytes, which is too small to
+   effectively use the Ice extension. Attempting to load even a
+   trivial Slice file causes Apache to fail during startup with a
+   stack overflow error.
+
+   To increase the stack size, use the editbin utility. Note that the
+   new stack size is given in decimal:
+
+   editbin /stack:1048576 httpd.exe
+
+   Now execute dumpbin again to verify that the change was made:
+
+   dumpbin /all httpd.exe | find "stack"
+
+   The new output line is shown below:
+
+     100000 size of stack reserve
+
+8) In order to load Slice definitions for a PHP script, you must
    modify php.ini and then restart Apache. For example, the "hello"
    demo in C:\Ice\demophp\Ice\hello requires the following addition to
    php.ini:
