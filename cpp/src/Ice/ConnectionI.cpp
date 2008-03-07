@@ -1161,7 +1161,7 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
             _transceiver = 0;
             notifyAll();
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
             _transceiver = 0;
             notifyAll();
