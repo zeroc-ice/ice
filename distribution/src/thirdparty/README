@@ -255,4 +255,4 @@ below:
 
 On 64-bit platforms, after installation it is necessary to rename the
 library installation directory from $(prefix)/lib to
-$(prefix)/lib/sparcv9.
+$(prefix)/lib/sparcv9 for SPARC or $(prefix)/lib/amd64 for x86.
