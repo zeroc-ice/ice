@@ -727,24 +727,6 @@ Ice::ObjectAdapterI::getServantManager() const
     return _servantManager;
 }
 
-bool
-Ice::ObjectAdapterI::getThreadPerConnection() const
-{
-    //
-    // No mutex lock necessary, _threadPerConnection is immutable.
-    //
-    return _threadPerConnection;
-}
-
-size_t
-Ice::ObjectAdapterI::getThreadPerConnectionStackSize() const
-{
-    //
-    // No mutex lock necessary, _threadPerConnectionStackSize is immutable.
-    //
-    return _threadPerConnectionStackSize;
-}
-
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
                                     const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
                                     const string& endpointInfo, const RouterPrx& router, bool noConfig) :
@@ -759,9 +741,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _waitForActivate(false),
     _destroying(false),
     _destroyed(false),
-    _noConfig(noConfig),
-    _threadPerConnection(false),
-    _threadPerConnectionStackSize(0)
+    _noConfig(noConfig)
 {
     if(_noConfig)
     {
@@ -818,34 +798,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     __setNoDelete(true);
     try
     {
-        _threadPerConnection = properties->getPropertyAsInt(_name + ".ThreadPerConnection") > 0;
-
         int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
         int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-        if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
-        {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "object adapter `" + _name + "' cannot be configured for both\n"
-                "thread pool and thread per connection";
-            throw ex;
-        }
-
-        if(!_threadPerConnection && threadPoolSize == 0 && threadPoolSizeMax == 0)
-        {
-            _threadPerConnection = _instance->threadPerConnection();
-        }
-
-        if(_threadPerConnection)
-        {
-            int stackSize = 
-                properties->getPropertyAsIntWithDefault(_name + ".ThreadPerConnection.StackSize",
-                                                        static_cast<Int>(_instance->threadPerConnectionStackSize()));
-            if(stackSize < 0)
-            {
-                stackSize = 0;
-            }
-            _threadPerConnectionStackSize = stackSize;
-        }
 
         //
         // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
@@ -1347,12 +1301,11 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "ReplicaGroupId",
         "Router",
         "ProxyOptions",
-        "ThreadPerConnection",
-        "ThreadPerConnection.StackSize",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
-        "ThreadPool.StackSize"
+        "ThreadPool.StackSize",
+        "ThreadPool.Serialize"
     };
 
     //

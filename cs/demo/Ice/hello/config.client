@@ -7,10 +7,13 @@ Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 #
 # Warn about connection exceptions.
 #
-#Ice.Warn.Connections=1
+Ice.Warn.Connections=1
 
 #
-# We want a faster ACM for this demo.
+# Client-side ACM is enabled by default, with an interval of 60
+# seconds. For this demo, we want to use a short timeout of 10
+# seconds. By enabling network tracing below, you can see ACM
+# automatically close idle connections.
 #
 Ice.ACM.Client=10
 

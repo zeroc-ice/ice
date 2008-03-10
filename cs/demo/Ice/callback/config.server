@@ -1,5 +1,7 @@
 #
-# The server listens at the following endpoints.
+# The server creates one single object adapter with the name
+# "Callback.Server". The following line sets the endpoints for this
+# adapter.
 #
 Callback.Server.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 

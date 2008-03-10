@@ -59,53 +59,6 @@ namespace IceSSL
             }
         }
 
-        public IceInternal.Transceiver connect(int timeout)
-        {
-            //
-            // The plugin may not be fully initialized.
-            //
-            if(!_instance.initialized())
-            {
-                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: plugin is not initialized";
-                throw ex;
-            }
-
-            if(_instance.networkTraceLevel() >= 2)
-            {
-                string s = "trying to establish ssl connection to " + ToString();
-                _logger.trace(_instance.networkTraceCategory(), s);
-            }
-
-            try
-            {
-                Socket fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
-                IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
-                IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
-                
-                //
-                // doConnect either completes the connection within the given timeout, or
-                // raises ConnectTimeoutException.
-                //
-                IceInternal.Network.doConnect(fd, _addr, timeout);
-                
-                //
-                // At this point we've successfully established the underlying TCP connection.
-                // SSL validation is performed by the transceiver during its initialization.
-                //
-                return new TransceiverI(_instance, fd, _addr, true, _host, null);
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(_instance.networkTraceLevel() >= 2)
-                {
-                    string s = "failed to establish ssl connection to " + ToString() + "\n" + ex;
-                    _logger.trace(_instance.networkTraceCategory(), s);
-                }
-                throw;
-            }
-        }
-
         public short type()
         {
             return TYPE;

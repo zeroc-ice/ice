@@ -1094,7 +1094,7 @@ repeatListen:
 }
 
 bool
-IceInternal::doConnect(SOCKET fd, struct sockaddr_storage& addr, int timeout)
+IceInternal::doConnect(SOCKET fd, struct sockaddr_storage& addr)
 {
 repeatConnect:
     int size;
@@ -1121,21 +1121,7 @@ repeatConnect:
 
         if(connectInProgress())
         {
-            if(timeout == 0)
-            {
-                return false;
-            }
-
-            try
-            {
-                doFinishConnect(fd, timeout);
-            }
-            catch(const Ice::LocalException&)
-            {
-                closeSocketNoThrow(fd);
-                throw;
-            }
-            return true;
+            return false;
         }
 
         closeSocketNoThrow(fd);
@@ -1178,60 +1164,12 @@ repeatConnect:
 }
 
 void
-IceInternal::doFinishConnect(SOCKET fd, int timeout)
+IceInternal::doFinishConnect(SOCKET fd)
 {
     //
     // Note: we don't close the socket if there's an exception. It's the responsability
     // of the caller to do so.
     //
-
-    if(timeout != 0)
-    {
-    repeatSelect:
-#ifdef _WIN32
-        fd_set wFdSet;
-        fd_set eFdSet;
-        FD_ZERO(&wFdSet);
-        FD_ZERO(&eFdSet);
-        FD_SET(fd, &wFdSet);
-        FD_SET(fd, &eFdSet);
-
-        int ret;
-        if(timeout >= 0)
-        {
-            struct timeval tv;
-            tv.tv_sec = timeout / 1000;
-            tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-            ret = ::select(static_cast<int>(fd + 1), 0, &wFdSet, &eFdSet, &tv);
-        }
-        else
-        {
-            ret = ::select(static_cast<int>(fd + 1), 0, &wFdSet, &eFdSet, 0);
-        }
-#else
-        struct pollfd pollFd[1];
-        pollFd[0].fd = fd;
-        pollFd[0].events = POLLOUT;
-        int ret = ::poll(pollFd, 1, timeout);
-#endif
-        if(ret == 0)
-        {
-            throw ConnectTimeoutException(__FILE__, __LINE__);
-        }
-        else if(ret == SOCKET_ERROR)
-        {
-            if(interrupted())
-            {
-                goto repeatSelect;
-            }
-
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
-        }
-    }
-
-    int val;
 
     //
     // Strange windows bug: The following call to Sleep() is
@@ -1241,6 +1179,8 @@ IceInternal::doFinishConnect(SOCKET fd, int timeout)
 #ifdef _WIN32
     Sleep(0);
 #endif
+
+    int val;
     socklen_t len = static_cast<socklen_t>(sizeof(int));
     if(getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
     {
@@ -1295,7 +1235,7 @@ IceInternal::doFinishConnect(SOCKET fd, int timeout)
 }
 
 SOCKET
-IceInternal::doAccept(SOCKET fd, int timeout)
+IceInternal::doAccept(SOCKET fd)
 {
 #ifdef _WIN32
     SOCKET ret;
@@ -1308,52 +1248,6 @@ repeatAccept:
     {
         if(acceptInterrupted())
         {
-            goto repeatAccept;
-        }
-
-        if(wouldBlock())
-        {
-        repeatSelect:
-            int rs;
-#ifdef _WIN32
-            fd_set fdSet;
-            FD_ZERO(&fdSet);
-            FD_SET(fd, &fdSet);
-            if(timeout >= 0)
-            {
-                struct timeval tv;
-                tv.tv_sec = timeout / 1000;
-                tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-                rs = ::select(static_cast<int>(fd + 1), &fdSet, 0, 0, &tv);
-            }
-            else
-            {
-                rs = ::select(static_cast<int>(fd + 1), &fdSet, 0, 0, 0);
-            }
-#else
-            struct pollfd pollFd[1];
-            pollFd[0].fd = fd;
-            pollFd[0].events = POLLIN;
-            rs = ::poll(pollFd, 1, timeout);
-#endif
-
-            if(rs == SOCKET_ERROR)
-            {
-                if(interrupted())
-                {
-                    goto repeatSelect;
-                }
-
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            if(rs == 0)
-            {
-                throw TimeoutException(__FILE__, __LINE__);
-            }
-
             goto repeatAccept;
         }
 
@@ -1609,7 +1503,12 @@ IceInternal::createPipe(SOCKET fds[2])
     try
     {
         setBlock(fds[0], true);
-        doConnect(fds[0], addr, -1);
+#ifndef NDEBUG
+        bool connected = doConnect(fds[0], addr);
+        assert(connected);
+#else
+        doConnect(fds[0], addr);
+#endif
     }
     catch(...)
     {
@@ -1619,7 +1518,7 @@ IceInternal::createPipe(SOCKET fds[2])
 
     try
     {
-        fds[1] = doAccept(fd, -1);
+        fds[1] = doAccept(fd);
     }
     catch(...)
     {
@@ -1763,7 +1662,7 @@ IceInternal::fdToRemoteAddress(SOCKET fd, struct sockaddr_storage& addr)
 string
 IceInternal::inetAddrToString(const struct sockaddr_storage& ss)
 {
-    int size;
+    int size = 0;
     if(ss.ss_family == AF_INET)
     {
         size = sizeof(sockaddr_in);

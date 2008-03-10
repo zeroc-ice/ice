@@ -40,13 +40,11 @@ public:
 
     virtual SOCKET fd();
     virtual void close();
-    virtual void shutdownWrite();
-    virtual void shutdownReadWrite();
-    virtual bool write(IceInternal::Buffer&, int);
-    virtual bool read(IceInternal::Buffer&, int);
+    virtual bool write(IceInternal::Buffer&);
+    virtual bool read(IceInternal::Buffer&);
     virtual std::string type() const;
     virtual std::string toString() const;
-    virtual IceInternal::SocketStatus initialize(int);
+    virtual IceInternal::SocketStatus initialize();
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
     ConnectionInfo getConnectionInfo() const;
@@ -57,8 +55,6 @@ private:
     virtual ~TransceiverI();
     friend class ConnectorI;
     friend class AcceptorI;
-
-    void shutdown();
 
     const InstancePtr _instance;
     const Ice::LoggerPtr _logger;

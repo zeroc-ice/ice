@@ -73,12 +73,6 @@ public class FixedReference extends Reference
         return Ice.EndpointSelectionType.Random;
     }
 
-    public boolean
-    getThreadPerConnection()
-    {
-        return false;
-    }
-
     public int
     getLocatorCacheTimeout()
     {
@@ -129,12 +123,6 @@ public class FixedReference extends Reference
 
     public final Reference
     changeEndpointSelection(Ice.EndpointSelectionType newType)
-    {
-        throw new Ice.FixedProxyException();
-    }
-
-    public final Reference
-    changeThreadPerConnection(boolean newTpc)
     {
         throw new Ice.FixedProxyException();
     }

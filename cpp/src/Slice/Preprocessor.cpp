@@ -153,34 +153,11 @@ Slice::Preprocessor::preprocess(bool keepComments)
     }
 
     //
-    // Mcpp redirects stdin which causes problems for Python
-    // and Ruby applications which use loadSlice. Therefore
-    // we need to save handle to stdin so we can restore it
-    // after mcpp has finished its processing.
-    //
-#ifndef _WIN32
-    int stdin_save;
-    stdin_save = dup(0);
-#endif
-
-    //
     // Call mcpp using memory buffer.
     //
     mcpp_use_mem_buffers(1);
     mcpp_lib_main(static_cast<int>(args.size()) + 1, const_cast<char**>(argv));
     delete[] argv;
-
-    //
-    // Restore stdin.
-    //
-#ifdef _WIN32
-    freopen("CON", "rt", stdin);
-#else
-    fflush(stdin);
-    ::close(0);
-    dup2(stdin_save, 0);
-    ::close(stdin_save);
-#endif
 
     //
     // Write output to temporary file. Print errors to stderr.

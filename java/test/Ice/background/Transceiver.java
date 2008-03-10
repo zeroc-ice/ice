@@ -16,33 +16,31 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     public IceInternal.SocketStatus
-    initialize(int timeout)
+    initialize()
     {
-        if(timeout == 0)
+        IceInternal.SocketStatus status = _configuration.initializeSocketStatus();
+        if(status == IceInternal.SocketStatus.NeedConnect || status == IceInternal.SocketStatus.NeedWrite)
         {
-            IceInternal.SocketStatus status = _configuration.initializeSocketStatus();
-            if(status == IceInternal.SocketStatus.NeedConnect || status == IceInternal.SocketStatus.NeedWrite)
+            if(!_initialized)
             {
-                if(!_initialized)
+                status = _transceiver.initialize();
+                if(status != IceInternal.SocketStatus.Finished)
                 {
-                    status = _transceiver.initialize(timeout);
-                    if(status != IceInternal.SocketStatus.Finished)
-                    {
-                        return status;
-                    }
-                    _initialized = true;
+                    return status;
                 }
-                return IceInternal.SocketStatus.NeedWrite;
+                _initialized = true;
             }
-            else if(status == IceInternal.SocketStatus.NeedRead)
-            {
-                return status;
-            }
+            return IceInternal.SocketStatus.NeedWrite;
         }
+        else if(status == IceInternal.SocketStatus.NeedRead)
+        {
+            return status;
+        }
+
         _configuration.checkInitializeException();
         if(!_initialized)
         {
-            IceInternal.SocketStatus status = _transceiver.initialize(timeout);
+            status = _transceiver.initialize();
             if(status != IceInternal.SocketStatus.Finished)
             {
                 return status;
@@ -58,46 +56,31 @@ final class Transceiver implements IceInternal.Transceiver
         _transceiver.close();
     }
 
-    public void
-    shutdownWrite()
-    {
-        _transceiver.shutdownWrite();
-    }
-
-    public void
-    shutdownReadWrite()
-    {
-        _transceiver.shutdownReadWrite();
-    }
-
     public boolean
-    write(IceInternal.Buffer buf, int timeout)
+    write(IceInternal.Buffer buf)
     {
         if(!_initialized)
         {
             throw new Ice.SocketException();
         }
 
-        if(timeout == 0)
+        if(!_configuration.writeReady())
         {
-            if(!_configuration.writeReady())
-            {
                 return false;
-            }
         }
         _configuration.checkWriteException();
-        return _transceiver.write(buf, timeout);
+        return _transceiver.write(buf);
     }
 
     public boolean
-    read(IceInternal.Buffer buf, int timeout, Ice.BooleanHolder moreData)
+    read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
         if(!_initialized)
         {
             throw new Ice.SocketException();
         }
 
-        if(timeout == 0 && !moreData.value)
+        if(!moreData.value)
         {
             if(!_configuration.readReady())
             {
@@ -105,7 +88,7 @@ final class Transceiver implements IceInternal.Transceiver
             }
         }
         _configuration.checkReadException();
-        return _transceiver.read(buf, timeout, moreData);
+        return _transceiver.read(buf, moreData);
     }
 
     public String

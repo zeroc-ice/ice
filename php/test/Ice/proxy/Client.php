@@ -322,15 +322,6 @@ function allTests()
     //test(!$b1->ice_isCollocationOptimized());
     //$ICE->setProperty($property, "");
 
-    $property = $propertyPrefix . ".ThreadPerConnection";
-    $ICE->setProperty($property, "0");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
-    test(!$b1->ice_isThreadPerConnection());
-    $ICE->setProperty($property, "1");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
-    test($b1->ice_isThreadPerConnection());
-    $ICE->setProperty($property, "");
-
     echo "ok\n";
 
     echo "testing proxy methods... ";

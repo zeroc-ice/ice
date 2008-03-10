@@ -94,7 +94,7 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !if "$(ice_src_dist)" != ""
 SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
 !else
-SLICE2CS		= "$(ice_dir)\bin\slice2cs.exe"
+SLICE2CS		= "$(ice_dir)\bin$(x64suffix)\slice2cs.exe"
 !endif
 
 EVERYTHING		= all clean install config
@@ -108,23 +108,23 @@ EVERYTHING		= all clean install config
 {$(SDIR)\}.ice{$(GDIR)}.cs:
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
-!if "$(TARGETS_CONFIG)" != ""
-$(TARGETS_CONFIG):
-!if "$(ice_src_dist)" != ""
-	@echo Generating $(TARGETS_CONFIG) ... && \
-        python "$(top_srcdir)/config/makeconfig.py" "$(top_srcdir)" $(TARGETS_CONFIG:.exe.config=.exe)
-!else
-        @echo Generating $(TARGETS_CONFIG) ... && \
-        python "$(top_srcdir)/config/makeconfig.py" "$(ice_dir)" $(TARGETS_CONFIG:.exe.config=.exe)
-!endif
-!endif
-
+#
+# The .exe.config files are only generated if we're not building the 
+# source distribution.
+#
+!if "$(ice_src_dist)" == ""
 all:: $(TARGETS) $(TARGETS_CONFIG)
-
-config:: $(TARGETS_CONFIG)
 
 clean::
 	del /q $(TARGETS) $(TARGETS_CONFIG) *.pdb
+!else
+all:: $(TARGETS)
+
+clean::
+	del /q $(TARGETS) *.pdb
+!endif
+
+config:: $(TARGETS_CONFIG)
 
 !if "$(GEN_SRCS)" != ""
 clean::
@@ -148,3 +148,45 @@ clean::
 !endif
 
 install::
+
+!if "$(TARGETS_CONFIG)" != ""
+$(TARGETS_CONFIG): $(TARGETS_CONFIG:.exe.config=.exe)
+        @echo "Generating" <<$@ "..."
+<?xml version="1.0"?>
+  <configuration>
+    <runtime>
+      <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+        <dependentAssembly>
+          <assemblyIdentity name="Glacier2" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <codeBase version="$(VERSION).0" href="$(bindir)\Glacier2.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="Ice" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <codeBase version="$(VERSION).0" href="$(bindir)\Ice.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IcePatch2" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <codeBase version="$(VERSION).0" href="$(bindir)\IcePatch2.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceStorm" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <codeBase version="$(VERSION).0" href="$(bindir)\IceStorm.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceBox" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <codeBase version="$(VERSION).0" href="$(bindir)\IceBox.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceGrid" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <codeBase version="$(VERSION).0" href="$(bindir)\IceGrid.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceSSL" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <codeBase version="$(VERSION).0" href="$(bindir)\IceSSL.dll"/>
+        </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+</configuration>
+<<KEEP
+!endif
+

@@ -2,9 +2,3 @@
 # The IceGrid locator proxy.
 #
 Ice.Default.Locator=DemoIceGrid/Locator:default -p 4061
-
-#
-# Dummy username and password for icegridadmin.
-#
-IceGridAdmin.Username=benoit
-IceGridAdmin.Password=dummy

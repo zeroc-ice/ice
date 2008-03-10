@@ -24,40 +24,28 @@ public interface Transceiver
     // socket is ready for reading or writing and until it returns 
     // SocketStatus.Finished.
     //
-    SocketStatus initialize(int timeout);
+    SocketStatus initialize();
 
     void close();
-    void shutdownWrite();
-    void shutdownReadWrite();
 
     //
     // Write data.
     //
-    // Returns true if all the data was written, false otherwise. If
-    // timeout is -1, this operation will block until all the data is
-    // written. If timeout is 0, it will return when the write can't
-    // be completed without blocking. If the timeout is > 0, it will
-    // block until all the data is written or the specified timeout
-    // expires.
+    // Returns true if all the data was written, false otherwise.
     //
-    boolean write(Buffer buf, int timeout);
+    boolean write(Buffer buf);
 
     //
     // Read data.
     //
     // Returns true if all the requested data was read, false otherwise.
-    // If timeout is -1, this operation will block until all the data
-    // is read. If timeout is 0, it will return when the read can't be
-    // completed without blocking. If the timeout is > 0, it will
-    // block until all the data is read or the specified timeout
-    // expires.
     //
     // NOTE: In Java, read() returns a boolean in moreData to indicate
     //       whether the transceiver has read more data than requested.
     //       If moreData is true, read should be called again without
     //       calling select on the FD.
     //
-    boolean read(Buffer buf, int timeout, Ice.BooleanHolder moreData);
+    boolean read(Buffer buf, Ice.BooleanHolder moreData);
 
     String type();
     String toString();

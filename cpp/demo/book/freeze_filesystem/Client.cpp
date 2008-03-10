@@ -15,8 +15,10 @@ using namespace Filesystem;
 
 class FilesystemClient : public Ice::Application
 {
+public:
+
+    FilesystemClient();
     virtual int run(int argc, char* argv[]);
-    virtual void interruptCallback(int);
 };
 
 int
@@ -26,15 +28,18 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
+FilesystemClient::FilesystemClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
+}
+
 int
 FilesystemClient::run(int argc, char* argv[])
 {
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
-
     //
     // Create a proxy for the root directory.
     //
@@ -130,22 +135,4 @@ FilesystemClient::run(int argc, char* argv[])
     }
 
     return EXIT_SUCCESS;
-}
-
-void
-FilesystemClient::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }

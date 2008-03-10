@@ -647,8 +647,7 @@ public final class ReferenceFactory
         "LocatorCacheTimeout",
         "Locator",
         "Router",
-        "CollocationOptimized",
-        "ThreadPerConnection"
+        "CollocationOptimized"
     };
 
     private void
@@ -717,7 +716,6 @@ public final class ReferenceFactory
         boolean cacheConnection = true;
         boolean preferSecure = defaultsAndOverrides.defaultPreferSecure;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
-        boolean threadPerConnection = _instance.threadPerConnection();
         int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         
         //
@@ -787,9 +785,6 @@ public final class ReferenceFactory
                 }
             }
         
-            property = propertyPrefix + ".ThreadPerConnection";
-            threadPerConnection = properties.getPropertyAsIntWithDefault(property, threadPerConnection ? 1 : 0) > 0;
-        
             property = propertyPrefix + ".LocatorCacheTimeout";
             locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
         }
@@ -812,7 +807,6 @@ public final class ReferenceFactory
                                                  cacheConnection,
                                                  preferSecure,
                                                  endpointSelection,
-                                                 threadPerConnection,
                                                  locatorCacheTimeout));
     }
 

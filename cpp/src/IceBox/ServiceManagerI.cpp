@@ -154,7 +154,6 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
         out << "ServiceManager: unknown exception in start for service " << info.name;
     }
     
-    set<ServiceObserverPrx> observers;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -166,7 +165,10 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
                 if(started)
                 {
                     p->status = Started;
-                    observers = _observers;
+
+                    vector<string> services;
+                    services.push_back(name);
+                    servicesStarted(services, _observers);
                 }
                 else
                 {
@@ -177,13 +179,6 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
         }
         _pendingStatusChanges = false;
         notifyAll();
-    }
-
-    if(observers.size() != 0)
-    {
-        vector<string> services;
-        services.push_back(name);
-        servicesStarted(services, observers);
     }
 }
 
@@ -237,7 +232,6 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
         out << "ServiceManager: unknown exception in stop for service " << info.name;
     }
 
-    set<ServiceObserverPrx> observers;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -249,7 +243,10 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
                 if(stopped)
                 {
                     p->status = Stopped;
-                    observers = _observers;
+
+                    vector<string> services;
+                    services.push_back(name);
+                    servicesStopped(services, _observers);
                 }
                 else
                 {
@@ -260,13 +257,6 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
         }
         _pendingStatusChanges = false;
         notifyAll();
-    }
-
-    if(observers.size() != 0)
-    {
-        vector<string> services;
-        services.push_back(name);
-        servicesStopped(services, observers);
     }
 }
 
@@ -299,7 +289,6 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
        
         if(activeServices.size() > 0)
         {
-            lock.release();
             observer->servicesStarted_async(new AMICallback<AMI_ServiceObserver_servicesStarted>(this, observer),
                                             activeServices);
         }
@@ -857,19 +846,13 @@ IceBox::ServiceManagerI::stopAll()
 
     _services.clear();
 
-    set<ServiceObserverPrx> observers = _observers;
-    lock.release();
-    servicesStopped(stoppedServices, observers);
+    servicesStopped(stoppedServices, _observers);
 }
 
 
 void
 IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers)
 {
-    //
-    // Must be called with 'this' unlocked
-    //
-
     if(services.size() > 0)
     {
         for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
@@ -884,10 +867,6 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
 void
 IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers)
 {
-    //
-    // Must be called with 'this' unlocked
-    //
-
     if(services.size() > 0)
     {
         for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)

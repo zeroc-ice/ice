@@ -91,10 +91,6 @@ slice_translator = slice2cpp.exe
 ice_require_cpp  = 1
 !endif
 
-!if "$(AS)" == "ml64" || "$(XTARGET)" == "x64"
-x64suffix		= \x64
-!endif
-
 !if exist ($(top_srcdir)\..\config\Make.common.rules)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
 !else

@@ -35,10 +35,10 @@ public:
     virtual void abortBatchRequest() = 0;
 
     virtual Ice::ConnectionI* sendRequest(Outgoing*) = 0;
-    virtual void sendAsyncRequest(const OutgoingAsyncPtr&) = 0;
+    virtual bool sendAsyncRequest(const OutgoingAsyncPtr&) = 0;
 
     virtual bool flushBatchRequests(BatchOutgoing*) = 0;
-    virtual void flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&) = 0;
+    virtual bool flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&) = 0;
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 

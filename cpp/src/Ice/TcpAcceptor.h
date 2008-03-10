@@ -32,8 +32,7 @@ public:
     virtual SOCKET fd();
     virtual void close();
     virtual void listen();
-    virtual TransceiverPtr accept(int);
-    virtual void connectToSelf();
+    virtual TransceiverPtr accept();
     virtual std::string toString() const;
 
     int effectivePort() const;

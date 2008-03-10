@@ -42,10 +42,10 @@ public:
     virtual void abortBatchRequest();
 
     virtual Ice::ConnectionI* sendRequest(Outgoing*);
-    virtual void sendAsyncRequest(const OutgoingAsyncPtr&);
+    virtual bool sendAsyncRequest(const OutgoingAsyncPtr&);
 
     virtual bool flushBatchRequests(BatchOutgoing*);
-    virtual void flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&);
+    virtual bool flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&);
 
     virtual Ice::ConnectionIPtr getConnection(bool);
 

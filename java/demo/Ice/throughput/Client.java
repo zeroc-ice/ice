@@ -67,8 +67,7 @@ public class Client extends Ice.Application
         //
         setInterruptHook(new ShutdownHook());
 
-        Ice.ObjectPrx base = communicator().propertyToProxy("Throughput.Throughput");
-        ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(base);
+        ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(communicator().propertyToProxy("Throughput.Proxy"));
         if(throughput == null)
         {
             System.err.println("invalid proxy");

@@ -19,7 +19,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     public SocketStatus
-    initialize(int timeout)
+    initialize()
     {
         //
         // Nothing to do.
@@ -27,73 +27,29 @@ final class UdpTransceiver implements Transceiver
         return SocketStatus.Finished;
     }
 
-    public synchronized void
+    public void
     close()
     {
-        //
-        // NOTE: closeSocket() may have already been invoked by shutdownReadWrite().
-        //
-        closeSocket();
-
-        if(_readSelector != null)
+        assert(_fd != null);
+        
+        if(_traceLevels.network >= 1)
         {
-            try
-            {
-                _readSelector.close();
-            }
-            catch(java.io.IOException ex)
-            {
-                // Ignore.
-            }
-            _readSelector = null;
+            String s = "closing udp connection\n" + toString();
+            _logger.trace(_traceLevels.networkCat, s);
         }
-
-        if(_writeSelector != null)
+        
+        try
         {
-            try
-            {
-                _writeSelector.close();
-            }
-            catch(java.io.IOException ex)
-            {
-                // Ignore.
-            }
-            _writeSelector = null;
+            _fd.close();
         }
-    }
-
-    public void
-    shutdownWrite()
-    {
-        //
-        // NOTE: DatagramSocket does not support shutdownOutput.
-        //
-    }
-
-    public synchronized void
-    shutdownReadWrite()
-    {
-        //
-        // NOTE: DatagramSocket does not support shutdownInput, and we
-        // cannot use the C++ technique of sending a "wakeup" packet to
-        // this socket because the Java implementation deadlocks when we
-        // call disconnect() while receive() is in progress. Therefore
-        // we close the socket here and wake up the selector.
-        //
-        closeSocket();
-
-        if(_readSelector != null)
+        catch(java.io.IOException ex)
         {
-            _readSelector.wakeup();
         }
-        if(_writeSelector != null)
-        {
-            _writeSelector.wakeup();
-        }
+        _fd = null;
     }
 
     public boolean
-    write(Buffer buf, int timeout)
+    write(Buffer buf)
     {
         assert(buf.b.position() == 0);
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
@@ -115,41 +71,7 @@ final class UdpTransceiver implements Transceiver
                 
                 if(ret == 0)
                 {
-                    if(timeout == 0)
-                    {
-                        return false;
-                    }
-
-                    synchronized(this)
-                    {
-                        if(_writeSelector == null)
-                        {
-                            _writeSelector = java.nio.channels.Selector.open();
-                            _fd.register(_writeSelector, java.nio.channels.SelectionKey.OP_WRITE, null);
-                        }
-                    }
-                    
-                    try
-                    {
-                        if(timeout > 0)
-                        {
-                            long start = IceInternal.Time.currentMonotonicTimeMillis();
-                            int n = _writeSelector.select(timeout);
-                            if(n == 0 && IceInternal.Time.currentMonotonicTimeMillis() >= start + timeout)
-                            {
-                                throw new Ice.TimeoutException();
-                            }
-                        }
-                        else
-                        {
-                            _writeSelector.select();
-                        }
-                    }
-                    catch(java.io.InterruptedIOException ex)
-                    {
-                        // Ignore.
-                    }
-                    continue;
+                    return false;
                 }
 
                 if(_traceLevels.network >= 3)
@@ -194,7 +116,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     public boolean
-    read(Buffer buf, int timeout, Ice.BooleanHolder moreData)
+    read(Buffer buf, Ice.BooleanHolder moreData)
     {
         assert(buf.b.position() == 0);
         moreData.value = false;
@@ -218,60 +140,13 @@ final class UdpTransceiver implements Transceiver
         int ret = 0;
         while(true)
         {
-            //
-            // Check for shutdown.
-            //
-            java.nio.channels.DatagramChannel fd = null;
-            synchronized(this)
-            {
-                if(_fd == null)
-                {
-                    throw new Ice.ConnectionLostException();
-                }
-                fd = _fd;
-            }
-
             try
             {
-                java.net.InetSocketAddress sender = (java.net.InetSocketAddress)fd.receive(buf.b);
+                java.net.InetSocketAddress sender = (java.net.InetSocketAddress)_fd.receive(buf.b);
 
                 if(sender == null || buf.b.position() == 0)
                 {
-                    if(timeout == 0)
-                    {
-                        return false;
-                    }
-
-                    synchronized(this)
-                    {
-                        if(_readSelector == null)
-                        {
-                            _readSelector = java.nio.channels.Selector.open();
-                            _fd.register(_readSelector, java.nio.channels.SelectionKey.OP_READ, null);
-                        }
-                    }
-
-                    try
-                    {
-                        if(timeout > 0)
-                        {
-                            long start = IceInternal.Time.currentMonotonicTimeMillis();
-                            int n = _readSelector.select(timeout);
-                            if(n == 0 && IceInternal.Time.currentMonotonicTimeMillis() >= start + timeout)
-                            {
-                                throw new Ice.TimeoutException();
-                            }
-                        }
-                        else
-                        {
-                            _readSelector.select();
-                        }
-                    }
-                    catch(java.io.InterruptedIOException ex)
-                    {
-                        // Ignore.
-                    }
-                    continue;
+                    return false;
                 }
 
                 ret = buf.b.position();
@@ -282,7 +157,7 @@ final class UdpTransceiver implements Transceiver
                     // If we must connect, then we connect to the first peer that
                     // sends us a packet.
                     //
-                    Network.doConnect(fd, sender, -1);
+                    Network.doConnect(_fd, sender);
                     _connect = false; // We're connected now
 
                     if(_traceLevels.network >= 1)
@@ -400,7 +275,7 @@ final class UdpTransceiver implements Transceiver
             _fd = Network.createUdpSocket();
             setBufSize(instance);
             Network.setBlock(_fd, false);
-            Network.doConnect(_fd, _addr, -1);
+            Network.doConnect(_fd, _addr);
             _connect = false; // We're connected now
             if(_addr.getAddress().isMulticastAddress())
             {
@@ -633,23 +508,6 @@ final class UdpTransceiver implements Transceiver
     private void
     closeSocket()
     {
-        if(_fd != null)
-        {
-            if(_traceLevels.network >= 1)
-            {
-                String s = "closing udp connection\n" + toString();
-                _logger.trace(_traceLevels.networkCat, s);
-            }
-
-            try
-            {
-                _fd.close();
-            }
-            catch(java.io.IOException ex)
-            {
-            }
-            _fd = null;
-        }
     }
 
     protected synchronized void
@@ -671,8 +529,6 @@ final class UdpTransceiver implements Transceiver
     private int _sndSize;
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
-    private java.nio.channels.Selector _readSelector;
-    private java.nio.channels.Selector _writeSelector;
     private boolean mcastServer = false;
 
     //

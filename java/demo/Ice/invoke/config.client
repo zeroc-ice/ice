@@ -1,6 +1,6 @@
 #
 # The client reads this property to create the reference to the
-# "hello" object in the server.
+# "Printer" object in the server.
 #
 Printer.Proxy=printer:default -p 10000
 
@@ -39,7 +39,6 @@ Ice.Warn.Connections=1
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
-Ice.ThreadPerConnection=1
 IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=client.jks
 IceSSL.Password=password

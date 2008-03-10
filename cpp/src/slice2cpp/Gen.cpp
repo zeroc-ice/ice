@@ -2135,22 +2135,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.inc();
     H << eb;
 
-    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_threadPerConnection(bool __tpc) const";
-    H << sb;
-    H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-    H.inc();
-    H << nl << "typedef ::IceProxy::Ice::Object _Base;";
-    H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_threadPerConnection(__tpc).get());";
-    H.dec();
-    H << nl << "#else";
-    H.inc();
-    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_threadPerConnection(__tpc).get());";
-    H.dec();
-    H << nl << "#endif";
-    H.inc();
-    H << eb;
-
     H << nl << nl << _dllExport << "static const ::std::string& ice_staticId();";
 
     H.dec();
@@ -2329,25 +2313,25 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         string classScope = fixKwd(cl->scope());
         string classScopedAMI = classScope + classNameAMI;
 
-        H << nl << _dllExport << "void " << name << "_async" << spar
+        H << nl << _dllExport << "bool " << name << "_async" << spar
           << ("const " + classScopedAMI + '_' + p->name() + "Ptr&")
           << paramsAMI << epar << ';';
-        H << nl << _dllExport << "void " << name << "_async" << spar
+        H << nl << _dllExport << "bool " << name << "_async" << spar
           << ("const " + classScopedAMI + '_' + p->name() + "Ptr&")
           << paramsAMI << "const ::Ice::Context&" << epar << ';';
 
-        C << sp << nl << "void" << nl << "IceProxy" << scope << name << "_async" << spar
+        C << sp << nl << "bool" << nl << "IceProxy" << scope << name << "_async" << spar
           << ("const " + classScopedAMI + '_' + p->name() + "Ptr& __cb") << paramsDeclAMI << epar;
         C << sb;
-        C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "0" << epar << ';';
+        C << nl << "return __cb->__invoke" << spar << "this" << argsAMI << "0" << epar << ';';
         C << eb;
 
-        C << sp << nl << "void" << nl << "IceProxy" << scope << name << "_async" << spar
+        C << sp << nl << "bool" << nl << "IceProxy" << scope << name << "_async" << spar
           << ("const " + classScopedAMI + '_' + p->name() + "Ptr& __cb")
           << paramsDeclAMI << "const ::Ice::Context& __ctx"
           << epar;
         C << sb;
-        C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "&__ctx" << epar << ';';
+        C << nl << "return __cb->__invoke" << spar << "this" << argsAMI << "&__ctx" << epar << ';';
         C << eb;
     }
 
@@ -5277,7 +5261,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H << nl << "virtual void ice_response" << spar << params << epar << " = 0;";
         H << nl << "virtual void ice_exception(const ::Ice::Exception&) = 0;";
         H << sp;
-        H << nl << "void __invoke" << spar << paramsInvoke << epar << ';';
+        H << nl << "bool __invoke" << spar << paramsInvoke << epar << ';';
         H << sp;
         H.dec();
         H << nl << "protected:";
@@ -5290,7 +5274,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         string flatName = p->flattenedScope() + name + "_name";
 
-        C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
+        C << sp << nl << "bool" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
           << paramsDeclInvoke << epar;
         C << sb;
         C << nl << "__acquireCallback(__prx);";
@@ -5307,11 +5291,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             C << nl << "__os->writePendingObjects();";
         }
         C << nl << "__os->endWriteEncaps();";
-        C << nl << "__send();";
+        C << nl << "return __send();";
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
         C << sb;
         C << nl << "__releaseCallback(__ex);";
+        C << nl << "return false;";
         C << eb;
         C << eb;
 

@@ -280,27 +280,13 @@ public final class Network
     }
 
     public static boolean
-    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr, int timeout)
+    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr)
     {
         try
         {
             if(!fd.connect(addr))
             {
-                if(timeout == 0)
-                {
-                    return false;
-                }
-
-                try
-                {
-                    doFinishConnect(fd, timeout);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    closeSocketNoThrow(fd);
-                    throw ex;
-                }
-                return true;
+                return false;
             }
         }
         catch(java.net.ConnectException ex)
@@ -336,74 +322,12 @@ public final class Network
     }
 
     public static void
-    doFinishConnect(java.nio.channels.SocketChannel fd, int timeout)
+    doFinishConnect(java.nio.channels.SocketChannel fd)
     {
         //
         // Note: we don't close the socket if there's an exception. It's the responsibility
         // of the caller to do so.
         //
-
-        if(timeout != 0)
-        {
-            try
-            {
-                java.nio.channels.Selector selector = java.nio.channels.Selector.open();
-                try
-                {
-                    while(true)
-                    {
-                        try
-                        {
-                            java.nio.channels.SelectionKey key = 
-                                fd.register(selector, java.nio.channels.SelectionKey.OP_CONNECT);
-                            int n;
-                            if(timeout > 0)
-                            {
-                                n = selector.select(timeout);
-                            }
-                            else
-                            {
-                                n = selector.select();
-                            }
-                            
-                            if(n == 0)
-                            {
-                                throw new Ice.ConnectTimeoutException();
-                            }
-                            
-                            break;
-                        }
-                        catch(java.io.IOException ex)
-                        {
-                            if(interrupted(ex))
-                            {
-                                continue;
-                            }
-                            Ice.SocketException se = new Ice.SocketException();
-                            se.initCause(ex);
-                            throw se;
-                        }
-                    }
-                }
-                finally
-                {
-                    try
-                    {
-                        selector.close();
-                    }
-                    catch(java.io.IOException ex)
-                    {
-                        // Ignore
-                    }
-                }
-            }
-            catch(java.io.IOException ex)
-            {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
-        }
 
         try
         {
@@ -446,7 +370,7 @@ public final class Network
     }
 
     public static void
-    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr, int timeout)
+    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr)
     {
         try
         {
@@ -949,58 +873,18 @@ public final class Network
     createPipe()
     {
         SocketPair fds = new SocketPair();
-
-        //
-        // BUGFIX: This method should really be very simple.
-        // Unfortunately, using a pipe causes a kernel crash under
-        // MacOS 10.3.9.
-        //
-        //try
-        //{
-        //   java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
-        //   fds.sink = pipe.sink();
-        //   fds.source = pipe.source();
-        //}
-        //catch(java.io.IOException ex)
-        //{
-        //   Ice.SocketException se = new Ice.SocketException();
-        //   se.initCause(ex);
-        //   throw se;
-        //}
-        //
-        
-        java.nio.channels.ServerSocketChannel fd = createTcpServerSocket();
-        
-        java.net.InetSocketAddress addr = new java.net.InetSocketAddress("127.0.0.1", 0);
-        
-        addr = doBind(fd, addr, 0);
-        
         try
         {
-            java.nio.channels.SocketChannel sink = createTcpSocket();
-            fds.sink = sink;
-            doConnect(sink, addr, -1);
-            try
-            {
-                fds.source = doAccept(fd, -1);
-            }
-            catch(Ice.LocalException ex)
-            {
-                try
-                {
-                    fds.sink.close();
-                }
-                catch(java.io.IOException e)
-                {
-                }
-                throw ex;
-            }
+          java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
+          fds.sink = pipe.sink();
+          fds.source = pipe.source();
         }
-        finally
+        catch(java.io.IOException ex)
         {
-            closeSocketNoThrow(fd);
+          Ice.SocketException se = new Ice.SocketException();
+          se.initCause(ex);
+          throw se;
         }
-        
         return fds;
     }
 

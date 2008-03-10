@@ -11,8 +11,7 @@
 #define SESSION_I_H
 
 #include <Ice/Ice.h>
-#include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/Session.h>
+#include <Glacier2/Glacier2.h>
 
 class DummyPermissionsVerifierI : public Glacier2::PermissionsVerifier
 {

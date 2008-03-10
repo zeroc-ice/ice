@@ -71,7 +71,6 @@ Ice.RetryIntervals=-1
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
-Ice.ThreadPerConnection=1
 IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=client.jks
 IceSSL.Password=password

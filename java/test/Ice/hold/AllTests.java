@@ -20,6 +20,78 @@ public class AllTests
         }
     }
 
+    static class Condition
+    {
+        public Condition(boolean value)
+        {
+            _value = value;
+        }
+        
+        synchronized public void
+        set(boolean value)
+        {
+            _value = value;
+        }
+
+        synchronized boolean
+        value()
+        {
+            return _value;
+        }
+    
+        private boolean _value;
+    };
+
+    static class AMICheckSetValue extends AMI_Hold_set implements Ice.AMISentCallback
+    {
+        public
+        AMICheckSetValue(Condition condition, int expected)
+        {
+            _condition = condition;
+            _expected = expected;
+        }
+
+        public void
+        ice_response(int value)
+        {
+            if(value != _expected)
+            {
+                _condition.set(false);
+            }
+        }
+
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+        }
+
+        synchronized public void
+        ice_sent()
+        {
+            _sent = true;
+            notify();
+        }
+    
+        synchronized void
+        waitForSent()
+        {
+            while(!_sent)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
+        }
+
+        private boolean _sent = false;
+        private Condition _condition;
+        private int _expected;
+    };
+
     public static void
     allTests(Ice.Communicator communicator)
     {
@@ -28,13 +100,21 @@ public class AllTests
         String ref = "hold:default -p 12010 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
+        String refSerialized = "hold:default -p 12011 -t 10000";
+        Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
+        test(baseSerialized != null);
         System.out.println("ok");
         
         System.out.print("testing checked cast... ");
         System.out.flush();
         HoldPrx hold = HoldPrxHelper.checkedCast(base);
+        HoldPrx holdOneway = HoldPrxHelper.uncheckedCast(base.ice_oneway());
         test(hold != null);
         test(hold.equals(base));
+        HoldPrx holdSerialized = HoldPrxHelper.checkedCast(baseSerialized);
+        HoldPrx holdSerializedOneway = HoldPrxHelper.uncheckedCast(baseSerialized.ice_oneway());
+        test(holdSerialized != null);
+        test(holdSerialized.equals(baseSerialized));
         System.out.println("ok");
         
         System.out.print("changing state between active and hold rapidly... ");
@@ -43,8 +123,81 @@ public class AllTests
         {
             hold.putOnHold(0);
         }
+        for(int i = 0; i < 100; ++i)
+        {
+            holdOneway.putOnHold(0);
+        }
+        for(int i = 0; i < 100; ++i)
+        {
+            holdSerialized.putOnHold(0);
+        }
+        for(int i = 0; i < 100; ++i)
+        {
+            holdSerializedOneway.putOnHold(0);
+        }
         System.out.println("ok");
         
+        System.out.print("testing without serialize mode... ");
+        System.out.flush();
+        {
+            Condition cond = new Condition(true);
+            int value = 0;
+            AMICheckSetValue cb = null;
+            while(cond.value())
+            {
+                cb = new AMICheckSetValue(cond, value);
+                if(!hold.set_async(cb, ++value))
+                {
+                    cb.waitForSent();
+                }
+                else
+                {
+                    cb = null;
+                }
+            }
+            if(cb != null)
+            {
+                cb.waitForSent();
+            }
+        }
+        System.out.println("ok");
+
+        System.out.print("testing with serialize mode... ");
+        System.out.flush();
+        {
+            Condition cond = new Condition(true);
+            int value = 0;
+            AMICheckSetValue cb = null;
+            while(value < 10000 && cond.value())
+            {
+                cb = new AMICheckSetValue(cond, value);
+                if(!holdSerialized.set_async(cb, ++value))
+                {
+                    cb.waitForSent();
+                }
+                else
+                {
+                    cb = null;
+                }
+            }
+            if(cb != null)
+            {
+                cb.waitForSent();
+            }
+            test(cond.value());
+
+            for(int i = 0; i < 20000; ++i)
+            {
+                holdSerializedOneway.setOneway(value + 1, value);
+                ++value;
+                if((i % 100) == 0)
+                {
+                    holdSerializedOneway.putOnHold(1);
+                }
+            }
+        }
+        System.out.println("ok");
+
         System.out.print("changing state to hold and shutting down server... ");
         System.out.flush();
         hold.shutdown();

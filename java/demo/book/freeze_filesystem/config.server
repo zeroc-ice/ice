@@ -1,6 +1,28 @@
+#
+# Configure the server endpoints.
+#
 FreezeFilesystem.Endpoints=default -p 10000
 
+#
+# Freeze Map Tracing.
+#
+# 0 = No map activity trace (default). 
+# 1 = Trace database open and close. 
+# 2 = Also trace iterator and transaction operations, and reference
+# counting of the underlying database.
+#
 Freeze.Trace.Map=1
+
+#
+# Freeze Evictor Tracing.
+#
+# 0 = No evictor activity trace (default). 
+# 1 = Trace Ice object and facet creation and destruction, facet
+#     streaming time, facet saving time, object eviction (every 50
+#     objects) and evictor deactivation.
+# 2 = Also trace object lookups, and all object evictions. 
+# 3 = Also trace object retrieval from the database.
+#
 Freeze.Trace.Evictor=2
 
 #

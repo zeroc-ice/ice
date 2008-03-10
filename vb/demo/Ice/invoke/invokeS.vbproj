@@ -73,7 +73,7 @@
   <ItemGroup>
     <Reference Include="Ice, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="invokeSlice, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System">

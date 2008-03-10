@@ -155,6 +155,13 @@ namespace Ice
         
         public void setProperty(string key, string val)
         {
+            //
+            // Trim whitespace
+            //
+            if(key != null)
+            {
+                key = key.Trim();
+            }
             if(key == null || key.Length == 0)
             {
                 return;
@@ -461,11 +468,66 @@ namespace Ice
                 return;
             }
 
-            string key = s.Substring(0, split).Trim();
-            string val = s.Substring(split + 1, s.Length - split - 1).Trim();
-
+            string key = s.Substring(0, split);
             key = key.Replace("\\=", "=");
+            key = key.Replace("\\ ", " ");
+            key = key.Trim();
+
+            string val = s.Substring(split + 1, s.Length - split - 1);
             val = val.Replace("\\=", "=");
+
+            idx = 0;
+            string whitespace = "";
+            while(idx < val.Length)
+            {
+                if(val[idx] == '\\')
+                {
+                    if(idx + 1 != val.Length && System.Char.IsWhiteSpace(val[idx + 1]))
+                    {
+                        whitespace += val[idx + 1];
+                        idx += 2;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else if(System.Char.IsWhiteSpace(val[idx]))
+                {
+                    ++idx;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            val = whitespace + val.Substring(idx, val.Length - idx);
+            if(idx != val.Length)
+            {
+                idx = val.Length - 1;
+                whitespace = "";
+                while(idx > 0)
+                {
+                    if(System.Char.IsWhiteSpace(val[idx]))
+                    {
+                       if(val[idx - 1] == '\\')
+                       {
+                           whitespace += val[idx];
+                           idx -= 2;
+                       }
+                       else
+                       {
+                           --idx;
+                       }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                val = val.Substring(0, idx + 1) + whitespace;
+            }
+            val = val.Replace("\\ ", " ");
             
             setProperty(key, val);
         }

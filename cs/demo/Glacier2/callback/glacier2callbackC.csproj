@@ -83,10 +83,6 @@
       <Name>Ice</Name>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
-    <Reference Include="IceSSL, Version=3.3.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bin\IceSSL.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>

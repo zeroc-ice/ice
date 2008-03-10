@@ -30,7 +30,7 @@ class ConnectorI : public IceInternal::Connector
 {
 public:
     
-    virtual IceInternal::TransceiverPtr connect(int);
+    virtual IceInternal::TransceiverPtr connect();
 
     virtual Ice::Short type() const;
     virtual std::string toString() const;

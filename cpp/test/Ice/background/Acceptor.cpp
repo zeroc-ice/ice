@@ -31,15 +31,9 @@ Acceptor::listen()
 }
 
 IceInternal::TransceiverPtr
-Acceptor::accept(int timeout)
+Acceptor::accept()
 {
-    return new Transceiver(_acceptor->accept(timeout));
-}
-
-void
-Acceptor::connectToSelf()
-{
-    _acceptor->connectToSelf();
+    return new Transceiver(_acceptor->accept());
 }
 
 string

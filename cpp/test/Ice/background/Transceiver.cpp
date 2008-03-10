@@ -18,37 +18,35 @@ Transceiver::fd()
 }
 
 IceInternal::SocketStatus
-Transceiver::initialize(int timeout)
+Transceiver::initialize()
 {
-    if(timeout == 0)
+    IceInternal::SocketStatus status = _configuration->initializeSocketStatus();
+    if(status == IceInternal::NeedConnect)
     {
-        IceInternal::SocketStatus status = _configuration->initializeSocketStatus();
-        if(status == IceInternal::NeedConnect)
-        {
-            return status;
-        }
-        else if(status == IceInternal::NeedWrite)
-        {
-            if(!_initialized)
-            {
-                status = _transceiver->initialize(timeout);
-                if(status != IceInternal::Finished)
-                {
-                    return status;
-                }
-                _initialized = true;
-            }
-            return IceInternal::NeedWrite;
-        }
-        else if(status == IceInternal::NeedRead)
-        {
-            return status;
-        }
+        return status;
     }
+    else if(status == IceInternal::NeedWrite)
+    {
+        if(!_initialized)
+        {
+            status = _transceiver->initialize();
+            if(status != IceInternal::Finished)
+            {
+                return status;
+            }
+            _initialized = true;
+        }
+        return IceInternal::NeedWrite;
+    }
+    else if(status == IceInternal::NeedRead)
+    {
+        return status;
+    }
+
     _configuration->checkInitializeException();
     if(!_initialized)
     {
-        IceInternal::SocketStatus status = _transceiver->initialize(timeout);
+        IceInternal::SocketStatus status = _transceiver->initialize();
         if(status != IceInternal::Finished)
         {
             return status;
@@ -64,54 +62,38 @@ Transceiver::close()
     _transceiver->close();
 }
 
-void
-Transceiver::shutdownWrite()
-{
-    _transceiver->shutdownWrite();
-}
-
-void
-Transceiver::shutdownReadWrite()
-{
-    _transceiver->shutdownReadWrite();
-}
-
 bool
-Transceiver::write(IceInternal::Buffer& buf, int timeout)
+Transceiver::write(IceInternal::Buffer& buf)
 {
     if(!_initialized)
     {
         throw Ice::SocketException(__FILE__, __LINE__);
     }
 
-    if(timeout == 0)
+    if(!_configuration->writeReady())
     {
-        if(!_configuration->writeReady())
-        {
             return false;
-        }
     }
+
     _configuration->checkWriteException();
-    return _transceiver->write(buf, timeout);
+    return _transceiver->write(buf);
 }
 
 bool
-Transceiver::read(IceInternal::Buffer& buf, int timeout)
+Transceiver::read(IceInternal::Buffer& buf)
 {
     if(!_initialized)
     {
         throw Ice::SocketException(__FILE__, __LINE__);
     }
 
-    if(timeout == 0)
+    if(!_configuration->readReady())
     {
-        if(!_configuration->readReady())
-        {
-            return false;
-        }
+        return false;
     }
+
     _configuration->checkReadException();
-    return _transceiver->read(buf, timeout);
+    return _transceiver->read(buf);
 }
 
 string

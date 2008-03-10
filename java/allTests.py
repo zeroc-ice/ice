@@ -47,7 +47,6 @@ tests = [
     "Ice/timeout",
     "Ice/background",
     "Ice/servantLocator",
-    "Ice/threads",
     "Ice/interceptor",
     "IceBox/configuration",
     "Freeze/dbmap",

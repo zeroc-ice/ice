@@ -17,8 +17,9 @@ class HelloClient : public Ice::Application
 {
 public:
 
+    HelloClient();
+
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 
 private:
 
@@ -32,6 +33,15 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
+HelloClient::HelloClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
+}
+
 int
 HelloClient::run(int argc, char* argv[])
 {
@@ -40,12 +50,6 @@ HelloClient::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
-
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
 
     HelloPrx twoway = HelloPrx::checkedCast(
         communicator()->propertyToProxy("Hello.Proxy")->ice_twoway()->ice_timeout(-1)->ice_secure(false));
@@ -199,24 +203,6 @@ HelloClient::run(int argc, char* argv[])
     while(cin.good() && c != 'x');
 
     return EXIT_SUCCESS;
-}
-
-void
-HelloClient::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }
 
 void

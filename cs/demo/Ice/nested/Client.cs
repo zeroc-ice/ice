@@ -29,7 +29,7 @@ public class Client
                 return 1;
             }
 
-            NestedPrx nested = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.NestedServer"));
+            NestedPrx nested = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.Proxy"));
             if(nested == null)
             {
                 Console.Error.WriteLine("invalid proxy");

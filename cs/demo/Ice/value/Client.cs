@@ -30,8 +30,7 @@ public class Client
                 return 1;
             }
 
-            Ice.ObjectPrx @base = communicator().propertyToProxy("Value.Initial");
-            InitialPrx initial = InitialPrxHelper.checkedCast(@base);
+            InitialPrx initial = InitialPrxHelper.checkedCast(communicator().propertyToProxy("Initial.Proxy"));
             if(initial == null)
             {
                 Console.Error.WriteLine("invalid object reference");

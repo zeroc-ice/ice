@@ -275,15 +275,6 @@ def allTests(communicator, collocated):
     #test(not b1.ice_isCollocationOptimized())
     #prop.setProperty(property, "")
 
-    property = propertyPrefix + ".ThreadPerConnection"
-    prop.setProperty(property, "0")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(not b1.ice_isThreadPerConnection())
-    prop.setProperty(property, "1")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(b1.ice_isThreadPerConnection())
-    prop.setProperty(property, "")
-
     print "ok"
 
     print "testing ice_getCommunicator...",
@@ -306,8 +297,6 @@ def allTests(communicator, collocated):
     #test(!base.ice_collocationOptimized(false)->ice_isCollocationOptimized());
     test(base.ice_preferSecure(True).ice_isPreferSecure())
     test(not base.ice_preferSecure(False).ice_isPreferSecure())
-    test(base.ice_threadPerConnection(True).ice_isThreadPerConnection())
-    test(not base.ice_threadPerConnection(False).ice_isThreadPerConnection())
     print "ok"
 
     print "testing proxy comparison... ",
@@ -408,11 +397,6 @@ def allTests(communicator, collocated):
     test(compObj.ice_preferSecure(True) != compObj.ice_preferSecure(False))
     test(compObj.ice_preferSecure(False) < compObj.ice_preferSecure(True))
     test(not (compObj.ice_preferSecure(True) < compObj.ice_preferSecure(False)))
-    
-    test(compObj.ice_threadPerConnection(True) == compObj.ice_threadPerConnection(True))
-    test(compObj.ice_threadPerConnection(True) != compObj.ice_threadPerConnection(False))
-    test(compObj.ice_threadPerConnection(False) < compObj.ice_threadPerConnection(True))
-    test(not (compObj.ice_threadPerConnection(True) < compObj.ice_threadPerConnection(False)))
     
     compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
     compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")

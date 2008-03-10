@@ -59,12 +59,6 @@ public class RoutableReference extends Reference
         return _endpointSelection;
     }
 
-    public final boolean
-    getThreadPerConnection()
-    {
-        return _threadPerConnection;
-    }
-
     public final int
     getLocatorCacheTimeout()
     {
@@ -186,18 +180,6 @@ public class RoutableReference extends Reference
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._endpointSelection = newType;
         return r;
-    }
-
-    public Reference
-    changeThreadPerConnection(boolean newTpc)
-    {
-        if(newTpc == _threadPerConnection)
-        {
-            return this;
-        }
-        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._threadPerConnection = newTpc;
-        return r;       
     }
 
     public Reference
@@ -387,10 +369,6 @@ public class RoutableReference extends Reference
             return false;
         }
         if(_endpointSelection != rhs._endpointSelection)
-        {
-            return false;
-        }
-        if(_threadPerConnection != rhs._threadPerConnection)
         {
             return false;
         }
@@ -618,7 +596,6 @@ public class RoutableReference extends Reference
                       boolean cacheConnection,
                       boolean prefereSecure,
                       Ice.EndpointSelectionType endpointSelection,
-                      boolean threadPerConnection,
                       int locatorCacheTimeout)
     {
         super(instance, communicator, identity, context, facet, mode, secure);
@@ -630,7 +607,6 @@ public class RoutableReference extends Reference
         _cacheConnection = cacheConnection;
         _preferSecure = prefereSecure;
         _endpointSelection = endpointSelection;
-        _threadPerConnection = threadPerConnection;
         _locatorCacheTimeout = locatorCacheTimeout;
         _overrideTimeout = false;
         _timeout = -1;
@@ -798,7 +774,7 @@ public class RoutableReference extends Reference
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            connection = factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(), compress);
+            connection = factory.create(endpoints, false, getEndpointSelection(), compress);
         }
         else
         {
@@ -818,8 +794,7 @@ public class RoutableReference extends Reference
                 {
                     endpoint[0] = endpoints[i];
                     final boolean more = i != endpoints.length - 1;
-                    connection = factory.create(endpoint, more, _threadPerConnection, getEndpointSelection(),
-                                                compress);
+                    connection = factory.create(endpoint, more, getEndpointSelection(), compress);
                     break;
                 }
                 catch(Ice.LocalException ex)
@@ -870,7 +845,7 @@ public class RoutableReference extends Reference
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(), 
+            factory.create(endpoints, false, getEndpointSelection(), 
                            new OutgoingConnectionFactory.CreateConnectionCallback()
                            {
                                public void
@@ -905,7 +880,7 @@ public class RoutableReference extends Reference
             // connection for one of the endpoints.
             //
             
-            factory.create(new EndpointI[]{ endpoints[0] }, true, _threadPerConnection, getEndpointSelection(), 
+            factory.create(new EndpointI[]{ endpoints[0] }, true, getEndpointSelection(), 
                            new OutgoingConnectionFactory.CreateConnectionCallback()
                            {
                                public void
@@ -939,7 +914,7 @@ public class RoutableReference extends Reference
                                    
                                    final boolean more = _i != endpoints.length - 1;
                                    final EndpointI[] endpoint = new EndpointI[]{ endpoints[_i] };
-                                   factory.create(endpoint, more, _threadPerConnection, getEndpointSelection(), this);
+                                   factory.create(endpoint, more, getEndpointSelection(), this);
                                }
 
                                private int _i = 0;
@@ -1003,7 +978,6 @@ public class RoutableReference extends Reference
     private boolean _cacheConnection;
     private boolean _preferSecure;
     private Ice.EndpointSelectionType _endpointSelection;
-    private boolean _threadPerConnection;
     private int _locatorCacheTimeout;
 
     private boolean _overrideTimeout;

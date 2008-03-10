@@ -303,20 +303,6 @@ IceInternal::Instance::timer()
     return _timer;
 }
 
-bool
-IceInternal::Instance::threadPerConnection() const
-{
-    // No mutex lock, immutable.
-    return _threadPerConnection;
-}
-
-size_t
-IceInternal::Instance::threadPerConnectionStackSize() const
-{
-    // No mutex lock, immutable.
-    return _threadPerConnectionStackSize;
-}
-
 EndpointFactoryManagerPtr
 IceInternal::Instance::endpointFactoryManager() const
 {
@@ -760,8 +746,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _messageSizeMax(0),
     _clientACM(0),
     _serverACM(0),
-    _threadPerConnection(false),
-    _threadPerConnectionStackSize(0),
     _defaultContext(new SharedContext),
     _implicitContext(0)
 {
@@ -937,18 +921,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         //
         const_cast<Int&>(_clientACM) = _initData.properties->getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
         const_cast<Int&>(_serverACM) = _initData.properties->getPropertyAsInt("Ice.ACM.Server");
-
-        const_cast<bool&>(_threadPerConnection) = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
-
-        {
-            Int stackSize = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
-            if(stackSize < 0)
-            {
-                stackSize = 0;
-            }
-            const_cast<size_t&>(_threadPerConnectionStackSize) = static_cast<size_t>(stackSize);
-        }
-
         const_cast<ImplicitContextIPtr&>(_implicitContext) = 
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
 

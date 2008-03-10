@@ -84,7 +84,6 @@ OBJS		= Acceptor.obj \
 		  RequestHandler.obj \
 		  RouterInfo.obj \
 		  Router.obj \
-		  Selector.obj \
 		  SelectorThread.obj \
 		  ServantLocator.obj \
 		  ServantManager.obj \

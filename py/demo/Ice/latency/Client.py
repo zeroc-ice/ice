@@ -19,7 +19,7 @@ class Client(Ice.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        ping = Demo.PingPrx.checkedCast(self.communicator().propertyToProxy('Latency.Ping'))
+        ping = Demo.PingPrx.checkedCast(self.communicator().propertyToProxy('Ping.Proxy'))
         if not ping:
             print "invalid proxy"
             return 1

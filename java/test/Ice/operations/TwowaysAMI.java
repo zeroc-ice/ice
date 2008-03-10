@@ -297,8 +297,8 @@ class TwowaysAMI
             test(c1.ice_getIdentity().equals(_communicator.stringToIdentity("test")));
             test(c2.ice_getIdentity().equals(_communicator.stringToIdentity("noSuchIdentity")));
             test(r.ice_getIdentity().equals(_communicator.stringToIdentity("test")));
-            // We can't do the callbacks below in thread per connection mode.
-            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+            // We can't do the callbacks below in connection serialization mode.
+            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 r.opVoid();
                 c1.opVoid();
@@ -345,8 +345,8 @@ class TwowaysAMI
             test(rso.s.s.equals("def"));
             test(so.e == Test.MyEnum.enum3);
             test(so.s.s.equals("a new string"));
-            // We can't do the callbacks below in thread per connection mode.
-            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+            // We can't do the callbacks below in connection serialization mode.
+            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 so.p.opVoid();
             }
@@ -1099,7 +1099,7 @@ class TwowaysAMI
             AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
             try
             {
-                indirect.opVoid_async(cb);
+                test(!indirect.opVoid_async(cb));
             }
             catch(java.lang.Exception ex)
             {
@@ -1115,7 +1115,7 @@ class TwowaysAMI
             AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
             try
             {
-                indirect.opByte_async(cb, (byte)0, (byte)0);
+                test(!(indirect.opByte_async(cb, (byte)0, (byte)0)));
             }
             catch(java.lang.Exception ex)
             {
@@ -1146,7 +1146,7 @@ class TwowaysAMI
             AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
             try
             {
-                p2.opVoid_async(cb);
+                test(!p2.opVoid_async(cb));
                 test(false);
             }
             catch(Ice.CommunicatorDestroyedException ex)

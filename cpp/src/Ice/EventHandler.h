@@ -15,6 +15,8 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/BasicStream.h>
+#include <Ice/Network.h>
+#include <Ice/SelectorF.h>
 
 namespace Ice
 {
@@ -72,7 +74,7 @@ public:
 
 protected:
     
-    EventHandler(const InstancePtr&);
+    EventHandler(const InstancePtr&, SOCKET = INVALID_SOCKET);
     ICE_API virtual ~EventHandler();
 
     const InstancePtr _instance;
@@ -82,7 +84,11 @@ protected:
     // connection for connection validation only.
     //
     BasicStream _stream;
+    SOCKET _fd;
+    bool _serializing;
+    bool _registered;
     friend class ThreadPool;
+    friend class Selector<EventHandler>;
 };
 
 class ThreadPoolWorkItem : virtual public IceUtil::Shared

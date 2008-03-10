@@ -22,42 +22,29 @@ final class TransceiverI implements IceInternal.Transceiver
         return _fd;
     }
 
-    //
-    // All methods that can write to the socket are synchronized.
-    //
-    public synchronized IceInternal.SocketStatus
-    initialize(int timeout)
+    public IceInternal.SocketStatus
+    initialize()
     {
         try
         {
-            if(_state == StateNeedConnect && timeout == 0)
+            if(_state == StateNeedConnect)
             {
                 _state = StateConnectPending;
                 return IceInternal.SocketStatus.NeedConnect;
             }
             else if(_state <= StateConnectPending)
             {
-                IceInternal.Network.doFinishConnect(_fd, timeout);
+                IceInternal.Network.doFinishConnect(_fd);
                 _state = StateConnected;
                 _desc = IceInternal.Network.fdToString(_fd);
             }
             assert(_state == StateConnected);
 
-            IceInternal.SocketStatus status;
-            do
+            IceInternal.SocketStatus status = handshakeNonBlocking();
+            if(status != IceInternal.SocketStatus.Finished)
             {
-                status = handshakeNonBlocking();
-                if(timeout == 0)
-                {
-                    return status;
-                }
-
-                if(status != IceInternal.SocketStatus.Finished)
-                {
-                    handleSocketStatus(status, timeout);
-                }
+                return status;
             }
-            while(status != IceInternal.SocketStatus.Finished);
         }
         catch(Ice.LocalException ex)
         {
@@ -72,10 +59,6 @@ final class TransceiverI implements IceInternal.Transceiver
         return IceInternal.SocketStatus.Finished;
     }
 
-    //
-    // All methods that can write to the socket are synchronized.
-    //
-
     public void
     close()
     {
@@ -87,47 +70,60 @@ final class TransceiverI implements IceInternal.Transceiver
 
         assert(_fd != null);
 
-        if(_readSelector != null)
+        if(_state >= StateConnected)
         {
             try
             {
-                _readSelector.close();
+                //
+                // Send the close_notify message.
+                //
+                _engine.closeOutbound();
+                _netOutput.clear();
+                while(!_engine.isOutboundDone())
+                {
+                    _engine.wrap(_emptyBuffer, _netOutput);
+                    try
+                    {
+                        //
+                        // Note: we can't block to send the close_notify message. In some cases, the 
+                        // close_notify message might therefore not be receieved by the peer. This is 
+                        // not a big issue since the Ice protocol isn't subject to truncation attacks.
+                        //
+                        flushNonBlocking();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        // Ignore.
+                    }
+                }
             }
-            catch(java.io.IOException ex)
+            catch(SSLException ex)
             {
-                // Ignore.
+                //
+                // We can't throw in close.
+                //
+                // Ice.SecurityException se = new Ice.SecurityException();
+                // se.reason = "IceSSL: SSL failure while shutting down socket";
+                // se.initCause(ex);
+                // throw se;
             }
-            _readSelector = null;
-        }
 
-        if(_writeSelector != null)
-        {
             try
             {
-                _writeSelector.close();
+                _engine.closeInbound();
             }
-            catch(java.io.IOException ex)
+            catch(SSLException ex)
             {
-                // Ignore.
+                //
+                // SSLEngine always raises an exception with this message:
+                //
+                // Inbound closed before receiving peer's close_notify: possible truncation attack?
+                //
+                // We would probably need to wait for a response in shutdown() to avoid this.
+                // For now, we'll ignore this exception.
+                //
+                //_logger.error("IceSSL: error during close\n" + ex.getMessage());
             }
-            _writeSelector = null;
-        }
-
-        try
-        {
-            _engine.closeInbound();
-        }
-        catch(SSLException ex)
-        {
-            //
-            // SSLEngine always raises an exception with this message:
-            //
-            // Inbound closed before receiving peer's close_notify: possible truncation attack?
-            //
-            // We would probably need to wait for a response in shutdown() to avoid this.
-            // For now, we'll ignore this exception.
-            //
-            //_logger.error("IceSSL: error during close\n" + ex.getMessage());
         }
 
         try
@@ -140,104 +136,8 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    //
-    // All methods that can write to the socket are synchronized.
-    //
-    public synchronized void
-    shutdownWrite()
-    {
-        if(_state < StateConnected)
-        {
-            return;
-        }
-
-        if(_instance.networkTraceLevel() >= 2)
-        {
-            String s = "shutting down ssl connection for writing\n" + toString();
-            _logger.trace(_instance.networkTraceCategory(), s);
-        }
-
-        shutdown();
-
-        assert(_fd != null);
-        java.net.Socket socket = _fd.socket();
-        try
-        {
-            socket.shutdownOutput(); // Shutdown socket for writing.
-        }
-        catch(java.net.SocketException ex)
-        {
-            //
-            // Ignore. We can't reliably figure out if the socket
-            // exception is because the socket is not connected.
-            //
-            // if(!IceInternal.Network.notConnected(ex))
-            // {
-            //     Ice.SocketException se = new Ice.SocketException();
-            //     se.initCause(ex);
-            //     throw se;
-            // }
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
-    //
-    // All methods that can write to the socket are synchronized.
-    //
-    public synchronized void
-    shutdownReadWrite()
-    {
-        if(_state < StateConnected)
-        {
-            return;
-        }
-
-        if(_instance.networkTraceLevel() >= 2)
-        {
-            String s = "shutting down ssl connection for reading and writing\n" + toString();
-            _logger.trace(_instance.networkTraceCategory(), s);
-        }
-
-        shutdown();
-
-        assert(_fd != null);
-        java.net.Socket socket = _fd.socket();
-        try
-        {
-            socket.shutdownInput(); // Shutdown socket for reading
-            socket.shutdownOutput(); // Shutdown socket for writing
-        }
-        catch(java.net.SocketException ex)
-        {
-            //
-            // Ignore. We can't reliably figure out if the socket
-            // exception is because the socket is not connected.
-            //
-            // if(!IceInternal.Network.notConnected(ex))
-            // {
-            //     Ice.SocketException se = new Ice.SocketException();
-            //     se.initCause(ex);
-            //     throw se;
-            // }
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
-    //
-    // All methods that can write to the socket are synchronized.
-    //
-    public synchronized boolean
-    write(IceInternal.Buffer buf, int timeout)
+    public boolean
+    write(IceInternal.Buffer buf)
     {
         //
         // If the handshake isn't completed yet, we shouldn't be writing.
@@ -247,28 +147,17 @@ final class TransceiverI implements IceInternal.Transceiver
             throw new Ice.ConnectionLostException();
         }
 
-        IceInternal.SocketStatus status;
-        do
+        IceInternal.SocketStatus status = writeNonBlocking(buf.b);
+        if(status != IceInternal.SocketStatus.Finished)
         {
-            status = writeNonBlocking(buf.b);
-            if(status != IceInternal.SocketStatus.Finished)
-            {
-                if(timeout == 0)
-                {
-                    assert(status == IceInternal.SocketStatus.NeedWrite);
-                    return false;
-                }
-
-                handleSocketStatus(status, timeout);
-            }
-        } 
-        while(status != IceInternal.SocketStatus.Finished);
-
+            assert(status == IceInternal.SocketStatus.NeedWrite);
+            return false;
+        }
         return true;
     }
 
     public boolean
-    read(IceInternal.Buffer buf, int timeout, Ice.BooleanHolder moreData)
+    read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
         //
         // If the handshake isn't completed yet, we shouldn't be reading (read can be 
@@ -324,23 +213,13 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 case BUFFER_UNDERFLOW:
                 {
-                    IceInternal.SocketStatus status;
-                    do
+                    IceInternal.SocketStatus status = readNonBlocking();
+                    if(status != IceInternal.SocketStatus.Finished)
                     {
-                        status = readNonBlocking();
-                        if(status != IceInternal.SocketStatus.Finished)
-                        {
-                            if(timeout == 0)
-                            {
-                                assert(status == IceInternal.SocketStatus.NeedRead);
-                                moreData.value = false;
-                                return false;
-                            }
-                            
-                            handleSocketStatus(status, timeout);
-                        }
-                    } 
-                    while(status != IceInternal.SocketStatus.Finished);
+                        assert(status == IceInternal.SocketStatus.NeedRead);
+                        moreData.value = false;
+                        return false;
+                    }
                     continue;
                 }
                 case CLOSED:
@@ -639,50 +518,6 @@ final class TransceiverI implements IceInternal.Transceiver
     private void
     shutdown()
     {
-        //
-        // Send the close_notify message.
-        //
-        _engine.closeOutbound();
-        try
-        {
-            _netOutput.clear();
-            while(!_engine.isOutboundDone())
-            {
-                _engine.wrap(_emptyBuffer, _netOutput);
-                try
-                {
-                    //
-                    // We can't block to send the close_notify message as this is called from 
-                    // shutdownWrite and shutdownReadWrite which aren't suppose to block. In
-                    // some cases, the close_notify message might therefore not be receieved 
-                    // by the peer. This is not a big issue since the Ice protocol isn't 
-                    // subject to truncation attacks.
-                    //
-//                     IceInternal.SocketStatus status;
-//                     do
-//                     {
-//                         status = flushNonBlocking();
-//                         if(status != IceInternal.SocketStatus.Finished)
-//                         {
-//                             handleSocketStatus(status, -1); // TODO: Is waiting indefinitely really correct?
-//                         }
-//                     } 
-//                     while(status != IceInternal.SocketStatus.Finished);
-                    flushNonBlocking();
-                }
-                catch(Ice.ConnectionLostException ex)
-                {
-                    // Ignore.
-                }
-            }
-        }
-        catch(SSLException ex)
-        {
-            Ice.SecurityException se = new Ice.SecurityException();
-            se.reason = "IceSSL: SSL failure while shutting down socket";
-            se.initCause(ex);
-            throw se;
-        }
     }
 
     private IceInternal.SocketStatus
@@ -932,74 +767,6 @@ final class TransceiverI implements IceInternal.Transceiver
         _appInput.compact();
     }
 
-    private void
-    handleSocketStatus(IceInternal.SocketStatus status, int timeout)
-    {
-        assert(timeout != 0);
-        try
-        {
-            java.nio.channels.Selector selector;
-            if(status == IceInternal.SocketStatus.NeedRead)
-            {
-                if(_readSelector == null)
-                {
-                    _readSelector = java.nio.channels.Selector.open();
-                    _fd.register(_readSelector, java.nio.channels.SelectionKey.OP_READ, null);
-                }
-                selector = _readSelector;
-            }
-            else
-            {
-                assert(status == IceInternal.SocketStatus.NeedWrite);
-                if(_writeSelector == null)
-                {
-                    _writeSelector = java.nio.channels.Selector.open();
-                    _fd.register(_writeSelector, java.nio.channels.SelectionKey.OP_WRITE, null);
-                }
-                selector = _writeSelector;
-            }
-
-            while(true)
-            {
-                try
-                {
-                    if(timeout > 0)
-                    {
-                        long start = System.currentTimeMillis();
-                        int n = selector.select(timeout);
-                        if(n == 0 && System.currentTimeMillis() >= start + timeout)
-                        {
-                            throw new Ice.TimeoutException();
-                        }
-                    }
-                    else
-                    {
-                        selector.select();
-                    }
-
-                    break;
-                }
-                catch(java.io.InterruptedIOException ex)
-                {
-                    // Ignore.
-                }
-            }
-        }
-        catch(java.io.IOException ex)
-        {
-            if(IceInternal.Network.connectionLost(ex))
-            {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
-            }
-
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
     private Instance _instance;
     private java.nio.channels.SocketChannel _fd;
     private javax.net.ssl.SSLEngine _engine;
@@ -1015,8 +782,6 @@ final class TransceiverI implements IceInternal.Transceiver
     private ByteBuffer _netInput; // Holds encrypted data read from the socket.
     private ByteBuffer _netOutput; // Holds encrypted data to be written to the socket.
     private static ByteBuffer _emptyBuffer = ByteBuffer.allocate(0); // Used during handshaking.
-    private java.nio.channels.Selector _readSelector;
-    private java.nio.channels.Selector _writeSelector;
     private ConnectionInfo _info;
 
     private static final int StateNeedConnect = 0;

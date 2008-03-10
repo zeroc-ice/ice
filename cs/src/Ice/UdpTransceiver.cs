@@ -29,13 +29,6 @@ namespace IceInternal
             return true;
         }
 
-        public void initialize(int timeout)
-        {
-            //
-            // Nothing to do.
-            //
-        }
-
         public bool initialize(AsyncCallback callback)
         {
             //
@@ -68,48 +61,7 @@ namespace IceInternal
             }
         }
 
-        public void shutdownWrite()
-        {
-        }
-
-        public void shutdownReadWrite()
-        {
-            if(_traceLevels.network >= 2)
-            {
-                string s = "shutting down udp connection for reading and writing\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
-            }
-
-            //
-            // Set a flag and then shutdown the socket in order to wake a thread that is
-            // blocked in read().
-            //
-            lock(_shutdownReadWriteMutex)
-            {
-                _shutdownReadWrite = true;
-
-                Debug.Assert(_fd != null);
-                try
-                {
-                    _fd.Shutdown(SocketShutdown.Both);
-                }
-                catch(SocketException ex)
-                {
-                    if(!Network.notConnected(ex))
-                    {
-                        throw new Ice.SocketException(ex);
-                    }
-                }
-
-                //
-                // On Windows and Mac OS X, shutting down the socket doesn't unblock a call to
-                // receive or select. Setting an event wakes up the thread in read().
-                //
-                _shutdownReadWriteEvent.Set();
-            }
-        }
-
-        public bool write(Buffer buf, int timeout)
+        public bool write(Buffer buf)
         {
             Debug.Assert(buf.b.position() == 0);
             int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
@@ -136,29 +88,7 @@ namespace IceInternal
                     {
                         if(Network.wouldBlock(e))
                         {
-                            if(timeout == 0)
-                            {
-                                return false;
-                            }
-
-                        repeatPoll:
-                            try
-                            {
-                                if(!Network.doPoll(_fd, timeout, Network.PollMode.Write))
-                                {
-                                    throw new Ice.TimeoutException();
-                                }
-                            }
-                            catch(Win32Exception ex)
-                            {
-                                if(Network.interrupted(ex))
-                                {
-                                    goto repeatPoll;
-                                }
-                                throw new Ice.SocketException(ex);
-                            }
-
-                            continue;
+                            return false;
                         }
                         throw;
                     }
@@ -193,7 +123,7 @@ namespace IceInternal
             return true;
         }
 
-        public bool read(Buffer buf, int timeout)
+        public bool read(Buffer buf)
         {
             Debug.Assert(buf.b.position() == 0);
 
@@ -227,92 +157,32 @@ namespace IceInternal
 
             try
             {
-                //
-                // Special case for a nonblocking read.
-                //
-                if(timeout == 0)
-                {
                 repeat:
-
-                    //
-                    // Check the shutdown flag.
-                    //
-                    lock(_shutdownReadWriteMutex)
-                    {
-                        if(_shutdownReadWrite)
-                        {
-                            throw new Ice.ConnectionLostException();
-                        }
-                    }
-
-                    try
-                    {
-                        Debug.Assert(_fd != null);
-                        if(_connect)
-                        {
-                            ret = _fd.ReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, ref peerAddr);
-                        }
-                        else
-                        {
-                            ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
-                        }
-                    }
-                    catch(Win32Exception e)
-                    {
-                        if(Network.interrupted(e))
-                        {
-                            goto repeat;
-                        }
-
-                        if(Network.wouldBlock(e))
-                        {
-                            return false;
-                        }
-
-                        throw;
-                    }
-                }
-                else
+                try
                 {
-                    //
-                    // For a blocking read, we use asynchronous I/O to properly handle a call to
-                    // shutdownReadWrite. After calling BeginReceiveFrom, we wait for the receive to
-                    // complete or for the _shutdownReadWriteEvent to be signaled.
-                    //
-
-                    WaitHandle[] handles = new WaitHandle[2];
-                    handles[0] = _shutdownReadWriteEvent;
-
-                    //
-                    // Check the shutdown flag.
-                    //
-                    lock(_shutdownReadWriteMutex)
+                    Debug.Assert(_fd != null);
+                    if(_connect)
                     {
-                        if(_shutdownReadWrite)
-                        {
-                            throw new Ice.ConnectionLostException();
-                        }
-                    }
-
-                    IAsyncResult ar = _fd.BeginReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None,
-                                                           ref peerAddr, null, null);
-                    handles[1] = ar.AsyncWaitHandle;
-                    int num = WaitHandle.WaitAny(handles, timeout, true);
-                    if(num == 0)
-                    {
-                        //
-                        // shutdownReadWrite was called.
-                        //
-                        throw new Ice.ConnectionLostException();
-                    }
-                    else if(num == WaitHandle.WaitTimeout)
-                    {
-                        throw new Ice.TimeoutException();
+                        ret = _fd.ReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, ref peerAddr);
                     }
                     else
                     {
-                        ret = _fd.EndReceiveFrom(ar, ref peerAddr);
+                        ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
                     }
+                }
+                catch(Win32Exception e)
+                {
+                    if(Network.interrupted(e))
+                    {
+                        goto repeat;
+                    }
+
+                    if(Network.wouldBlock(e))
+                    {
+                        return false;
+                    }
+
+                    throw;
                 }
             }
             catch(Win32Exception e)
@@ -355,10 +225,10 @@ namespace IceInternal
             if(_connect)
             {
                 //
-                // If we must connect, then we connect to the first peer that
-                // sends us a packet.
+                // If we must connect, then we connect to the first peer that sends us a packet.
                 //
-                Network.doConnect(_fd, peerAddr, -1);
+                bool connected = Network.doConnect(_fd, peerAddr);
+                Debug.Assert(connected);
                 _connect = false; // We're connected now
 
                 if(_traceLevels.network >= 1)
@@ -405,17 +275,6 @@ namespace IceInternal
             buf.resize(packetSize, true);
             buf.b.position(0);
 
-            //
-            // Check the shutdown flag.
-            //
-            lock(_shutdownReadWriteMutex)
-            {
-                if(_shutdownReadWrite)
-                {
-                    throw new Ice.ConnectionLostException();
-                }
-            }
-
             try
             {
                 EndPoint peerAddr = new IPEndPoint(IPAddress.Any, 0);
@@ -440,18 +299,6 @@ namespace IceInternal
         public void endRead(Buffer buf, IAsyncResult result)
         {
             int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
-
-            //
-            // Check the shutdown flag.
-            //
-            lock(_shutdownReadWriteMutex)
-            {
-                if(_shutdownReadWrite)
-                {
-                    throw new Ice.ConnectionLostException();
-                }
-            }
-
             try
             {
                 EndPoint peerAddr = new IPEndPoint(IPAddress.Any, 0);
@@ -469,7 +316,8 @@ namespace IceInternal
                     // If we must connect, then we connect to the first peer that
                     // sends us a packet.
                     //
-                    Network.doConnect(_fd, peerAddr, -1);
+                    bool connected = Network.doConnect(_fd, peerAddr);
+                    Debug.Assert(connected);
                     _connect = false; // We're connected now
 
                     if(_traceLevels.network >= 1)
@@ -656,7 +504,8 @@ namespace IceInternal
                 _fd = Network.createSocket(true, _addr.AddressFamily);
                 setBufSize(instance);
                 Network.setBlock(_fd, false);
-                Network.doConnect(_fd, _addr, -1); // We're assuming this doesn't block.
+                bool connected = Network.doConnect(_fd, _addr);
+                Debug.Assert(connected);
                 if(Network.isMulticast(_addr))
                 {
                     Network.setMcastGroup(_fd, _addr.Address, mcastInterface);
@@ -690,7 +539,6 @@ namespace IceInternal
             _stats = instance.initializationData().stats;
             _connect = connect;
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
-            _shutdownReadWrite = false;
 
             try
             {
@@ -837,9 +685,5 @@ namespace IceInternal
         //
         private const int _udpOverhead = 20 + 8;
         private static readonly int _maxPacketSize = 65535 - _udpOverhead;
-
-        private bool _shutdownReadWrite;
-        private object _shutdownReadWriteMutex = new object();
-        private AutoResetEvent _shutdownReadWriteEvent = new AutoResetEvent(false);
     }
 }

@@ -1798,8 +1798,6 @@ public class Coordinator
         //
         properties.setProperty("Ice.Override.ConnectTimeout", "5000");
         
-        properties.setProperty("Ice.ThreadPerConnection", "1");
-
         //
         // For Glacier
         //

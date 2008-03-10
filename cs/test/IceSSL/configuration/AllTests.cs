@@ -41,10 +41,6 @@ public class AllTests
         // When Mono supports .NET 2.0, we'll need to fix this.
         //
         result.properties.setProperty("Ice.Plugin.IceSSL", testDir + "/../../../bin/IceSSL.dll:IceSSL.PluginFactory");
-        if(!threadPool)
-        {
-            result.properties.setProperty("Ice.ThreadPerConnection", "1");
-        }
         if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
             result.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
@@ -62,10 +58,6 @@ public class AllTests
     {
         Dictionary<string, string> result = new Dictionary<string, string>();
         result["Ice.Plugin.IceSSL"] = testDir + "/../../../bin/IceSSL.dll:IceSSL.PluginFactory";
-        if(!threadPool)
-        {
-            result["Ice.ThreadPerConnection"] = "1";
-        }
         if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
             result["Ice.IPv6"] = defaultProperties.getProperty("Ice.IPv6");

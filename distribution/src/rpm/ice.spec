@@ -15,7 +15,7 @@
 %define mono 1
 %endif
 
-%define buildall 1
+%define buildall 0
 %define makeopts -j2
 
 %define core_arches %{ix86} x86_64
@@ -48,8 +48,6 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 33
-%define dotnetversion 3.3.0
-%define dotnetmainversion 3.3
 
 %define formsversion 1.2.0
 %define looksversion 2.1.4
@@ -102,6 +100,20 @@ protocol, asynchronous method invocation and dispatch, dynamic
 transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
 firewall solution, and much more.
 
+#
+# We create both noarch and arch-specific packages for these
+# GAC files. Please delete the arch-specific packages after the build:
+# we create them only to keep rpmbuild happy ... it does not want
+# to create dangling symbolic links (the GAC symlinks used for development) 
+#
+%if %{mono}
+%package dotnet
+Summary: The Ice runtime for .NET (mono)
+Group: System Environment/Libraries
+Requires: ice = %{version}-%{release}, mono-core >= 1.2.6
+%description dotnet
+The Ice runtime for .NET (mono).
+%endif
 
 #
 # Arch-independent packages
@@ -113,15 +125,6 @@ Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, jre >= 1.5.0, db46-java,
 %description java
 The Ice runtime for Java.
-
-%if %{mono}
-%package dotnet
-Summary: The Ice runtime for .NET (mono)
-Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, mono-core >= 1.2.6
-%description dotnet
-The Ice runtime for .NET (mono).
-%endif
 %endif
 
 #
@@ -138,7 +141,7 @@ The Ice runtime for C++
 %package utils
 Summary: Ice utilities and admin tools.
 Group: Applications/System
-Requires: ice-libs = %{version}-%{release}, jre > = 1.5.0
+Requires: ice-libs = %{version}-%{release}, jre >= 1.5.0
 %description utils
 Admin tools to manage Ice servers (IceGrid, IceStorm, IceBox etc.),
 plus various Ice-related utilities.
@@ -257,7 +260,7 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 #
-# We build java5 all the time, since we include the GUI in a non-noarch package.
+# We build java5 all the time, since we include the GUI and ant-ice.jar in a non-noarch package.
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
@@ -271,7 +274,8 @@ ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
 %endif
 
 # 
-# We build mono all the time since we include iceboxnet.exe in a non-arch package
+# We build mono all the time because we include iceboxnet.exe in a arch-specific package;
+# we also include GAC symlinks is another arch-specific package
 #
 %if %{mono}
 cd $RPM_BUILD_DIR/Ice-%{version}/cs/src
@@ -349,15 +353,24 @@ mkdir -p $RPM_BUILD_ROOT%{_javadir}
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/libjava5/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI-%{version}.jar
 ln -s IceGridGUI-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar 
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
-mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
-cp -Rp $RPM_BUILD_DIR/Ice-%{version}/java/resources/IceGridAdmin $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/help
+mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/help
+cp -Rp $RPM_BUILD_DIR/Ice-%{version}/java/resources/IceGridAdmin $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/help
+
+#
+# ant-ice.jar
+#
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/libjava5/ant-ice.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice-%{version}.jar
+ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar 
+
 
 %if %{mono}
 
 #
-# iceboxnet.exe
+# DotNet: for iceboxnet.exe and GAC symlinks
 #
-cp -p $RPM_BUILD_DIR/Ice-%{version}/cs/bin/iceboxnet.exe $RPM_BUILD_ROOT%{_bindir}/iceboxnet.exe
+cd $RPM_BUILD_DIR/Ice-%{version}/cs
+make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
+mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 #
 # .NET spec files (for csharp-devel)
@@ -367,7 +380,7 @@ then
     mkdir $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 fi
 
-for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs
+for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do 
     cp $RPM_BUILD_DIR/Ice-%{version}/cs/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig 
 done
@@ -393,12 +406,14 @@ mv $RPM_BUILD_ROOT/config $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 #
 # Cleanup extra files
 #
-
 rm -f $RPM_BUILD_ROOT/ICE_LICENSE
 rm -f $RPM_BUILD_ROOT/LICENSE
 rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
+%if %{mono}
+#rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac
+%endif
 
 #temporary
 rm -f $RPM_BUILD_ROOT%{_bindir}/ImportKey.class
@@ -418,11 +433,11 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
 #
 # Doc
 #
-mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/RELEASE_NOTES
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/README
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/THIRD_PARTY_LICENSE
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}/SOURCES
+mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/README
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/THIRD_PARTY_LICENSE
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/SOURCES
 
 #
 # Java install (using jpackage conventions)
@@ -449,8 +464,8 @@ make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 #
 # License files
 #
-mv $RPM_BUILD_ROOT/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/ICE_LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
+mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
 
 #
 # Slice  files
@@ -463,18 +478,43 @@ mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 #
 
 rm -fr $RPM_BUILD_ROOT/help
-rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar
+rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/ant-ice.jar
+%if %{mono}
 rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
+
+for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
+do 
+     rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f 
+done
+
+%endif
 
 %endif
 
 
-#temporary
-rm -fr $RPM_BUILD_ROOT/ant
-
-
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+#
+# dotnet package; see comment above about why we create
+# "useless" arch-specific packages
+#
+%if %{mono}
+%files dotnet
+%defattr(-, root, root, -)
+%dir %{_prefix}/lib/mono/gac/Glacier2
+%{_prefix}/lib/mono/gac/Glacier2/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/Ice
+%{_prefix}/lib/mono/gac/Ice/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/IceBox
+%{_prefix}/lib/mono/gac/IceBox/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/IceGrid
+%{_prefix}/lib/mono/gac/IceGrid/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/IcePatch2
+%{_prefix}/lib/mono/gac/IcePatch2/%{version}.*/
+%dir %{_prefix}/lib/mono/gac/IceStorm
+%{_prefix}/lib/mono/gac/IceStorm/%{version}.*/
+%endif
 
 #
 # noarch file packages
@@ -484,7 +524,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/slice
-%{_defaultdocdir}/Ice-%{version}
+%{_defaultdocdir}/%{name}-%{version}
 
 %files java
 %defattr(-, root, root, -)
@@ -492,23 +532,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/Ice.jar
 %{_javadir}/Ice-java2-%{version}.jar
 %{_javadir}/Ice-java2.jar
-
-%if %{mono}
-%files dotnet
-%defattr(-, root, root, -)
-%dir %{_prefix}/lib/mono/gac/glacier2cs
-%{_prefix}/lib/mono/gac/glacier2cs/%{version}.*/
-%dir %{_prefix}/lib/mono/gac/icecs
-%{_prefix}/lib/mono/gac/icecs/%{version}.*/
-%dir %{_prefix}/lib/mono/gac/iceboxcs
-%{_prefix}/lib/mono/gac/iceboxcs/%{version}.*/
-%dir %{_prefix}/lib/mono/gac/icegridcs
-%{_prefix}/lib/mono/gac/icegridcs/%{version}.*/
-%dir %{_prefix}/lib/mono/gac/icepatch2cs
-%{_prefix}/lib/mono/gac/icepatch2cs/%{version}.*/
-%dir %{_prefix}/lib/mono/gac/icestormcs
-%{_prefix}/lib/mono/gac/icestormcs/%{version}.*/
-%endif
 %endif
 
 #
@@ -558,8 +581,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/iceca
 %{_javadir}/IceGridGUI-%{version}.jar
 %{_javadir}/IceGridGUI.jar
-%dir %{_defaultdocdir}/Ice-%{version}
-%{_defaultdocdir}/Ice-%{version}/help
+%dir %{_defaultdocdir}/%{name}-%{version}
+%{_defaultdocdir}/%{name}-%{version}/help
 %dir %{_datadir}/Ice-%{version}
 #%{_datadir}/Ice-%{version}/ImportKey.class
 %attr(755,root,root) %{_datadir}/Ice-%{version}/convertssl.py*
@@ -604,24 +627,35 @@ exit 0
 
 %post servers
 /sbin/ldconfig
+%if "%{dist}" != ".sles10"
 /sbin/chkconfig --add icegridregistry
 /sbin/chkconfig --add icegridnode
 /sbin/chkconfig --add glacier2router
+%endif
 
 %preun servers
 if [ $1 = 0 ]; then
-        /sbin/service icegridregistry stop >/dev/null 2>&1 || :
-        /sbin/chkconfig --del icegridregistry
+%if "%{dist}" == ".sles10"
+        /sbin/service icegridnode stop >/dev/null 2>&1 || :
+        /sbin/insserv -r icegridnode
+	/sbin/service icegridregistry stop >/dev/null 2>&1 || :
+        /sbin/insserv -r icegridregistry
+        /sbin/service glacier2router stop >/dev/null 2>&1 || :
+        /sbin/insserv -r glacier2router
+%else
         /sbin/service icegridnode stop >/dev/null 2>&1 || :
         /sbin/chkconfig --del icegridnode
+	/sbin/service icegridregistry stop >/dev/null 2>&1 || :
+        /sbin/chkconfig --del icegridregistry
         /sbin/service glacier2router stop >/dev/null 2>&1 || :
         /sbin/chkconfig --del glacier2router
+%endif
 fi
 
 %postun servers
 if [ "$1" -ge "1" ]; then
-        /sbin/service icegridregistry condrestart >/dev/null 2>&1 || :
         /sbin/service icegridnode condrestart >/dev/null 2>&1 || :
+	/sbin/service icegridregistry condrestart >/dev/null 2>&1 || :
         /sbin/service glacier2router condrestart >/dev/null 2>&1 || :
 fi
 /sbin/ldconfig
@@ -659,26 +693,26 @@ fi
 %files csharp-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2cs
-%{_libdir}/pkgconfig/icecs.pc
-%{_libdir}/pkgconfig/glacier2cs.pc
-%{_libdir}/pkgconfig/iceboxcs.pc
-%{_libdir}/pkgconfig/icegridcs.pc
-%{_libdir}/pkgconfig/icepatch2cs.pc
-%{_libdir}/pkgconfig/icestormcs.pc
-%{_prefix}/lib/mono/glacier2cs/
-%{_prefix}/lib/mono/icecs/
-%{_prefix}/lib/mono/iceboxcs/
-%{_prefix}/lib/mono/icegridcs/
-%{_prefix}/lib/mono/icepatch2cs/
-%{_prefix}/lib/mono/icestormcs/
+%{_libdir}/pkgconfig/Ice.pc
+%{_libdir}/pkgconfig/Glacier2.pc
+%{_libdir}/pkgconfig/IceBox.pc
+%{_libdir}/pkgconfig/IceGrid.pc
+%{_libdir}/pkgconfig/IcePatch2.pc
+%{_libdir}/pkgconfig/IceStorm.pc
+%{_prefix}/lib/mono/Glacier2/
+%{_prefix}/lib/mono/Ice/
+%{_prefix}/lib/mono/IceBox/
+%{_prefix}/lib/mono/IceGrid/
+%{_prefix}/lib/mono/IcePatch2/
+%{_prefix}/lib/mono/IceStorm/
 %endif
 
 %files java-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2java
 %{_bindir}/slice2freezej
-#%{_javadir}/ant-ice-%{version}.jar
-#%{_javadir}/ant-ice.jar
+%{_javadir}/ant-ice-%{version}.jar
+%{_javadir}/ant-ice.jar
 
 %files python
 %defattr(-, root, root, -)

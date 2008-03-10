@@ -29,7 +29,7 @@ public class Client
                 return 1;
             }
 
-            PingPrx ping = PingPrxHelper.checkedCast(communicator().propertyToProxy("Latency.Ping"));
+            PingPrx ping = PingPrxHelper.checkedCast(communicator().propertyToProxy("Ping.Proxy"));
             if(ping == null)
             {
                 Console.Error.WriteLine("invalid proxy");

@@ -12,7 +12,7 @@ package IceInternal;
 final class UdpConnector implements Connector, java.lang.Comparable
 {
     public Transceiver
-    connect(int timeout)
+    connect()
     {
         return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
     }

@@ -1,7 +1,7 @@
 #
 # The server creates one single object adapter with the name
-# "helloadapater". The following line sets the endpoints for this
-# adapter
+# "Printer". The following line sets the endpoints for this
+# adapter.
 #
 Printer.Endpoints=default -p 10000
 
@@ -40,7 +40,6 @@ Ice.Warn.Connections=1
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
-Ice.ThreadPerConnection=1
 IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=server.jks
 IceSSL.Password=password

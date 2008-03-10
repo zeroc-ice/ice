@@ -12,7 +12,7 @@ package IceInternal;
 final class TcpConnector implements Connector, java.lang.Comparable
 {
     public Transceiver
-    connect(int timeout)
+    connect()
     {
         if(_traceLevels.network >= 2)
         {
@@ -25,7 +25,7 @@ final class TcpConnector implements Connector, java.lang.Comparable
             java.nio.channels.SocketChannel fd = Network.createTcpSocket();
             Network.setBlock(fd, false);
             Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
-            boolean connected = Network.doConnect(fd, _addr, timeout);
+            boolean connected = Network.doConnect(fd, _addr);
             if(connected)
             {
                 if(_traceLevels.network >= 1)
