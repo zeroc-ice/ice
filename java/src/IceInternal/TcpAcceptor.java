@@ -46,40 +46,9 @@ class TcpAcceptor implements Acceptor
     public Transceiver
     accept()
     {
-        java.nio.channels.SocketChannel fd = null;
-        while(true)
-        {
-            try
-            {
-                fd = _fd.accept();
-                break;
-            }
-            catch(java.io.IOException ex)
-            {
-                if(Network.interrupted(ex))
-                {
-                    continue;
-                }
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
-        }
-
+        java.nio.channels.SocketChannel fd = Network.doAccept(_fd);
         Network.setBlock(fd, false);
         Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
-        try
-        {
-            java.net.Socket socket = fd.socket();
-            socket.setTcpNoDelay(true);
-            socket.setKeepAlive(true);
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
 
         if(_traceLevels.network >= 1)
         {

@@ -56,41 +56,11 @@ final class AcceptorI implements IceInternal.Acceptor
             throw ex;
         }
 
-        java.nio.channels.SocketChannel fd = null;
-        while(fd == null)
-        {
-            try
-            {
-                fd = _fd.accept();
-            }
-            catch(java.io.IOException ex)
-            {
-                if(IceInternal.Network.interrupted(ex))
-                {
-                    continue;
-                }
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
-        }
+        java.nio.channels.SocketChannel fd = IceInternal.Network.doAccept(_fd);
 
         javax.net.ssl.SSLEngine engine = null;
         try
         {
-            try
-            {
-                java.net.Socket socket = fd.socket();
-                socket.setTcpNoDelay(true);
-                socket.setKeepAlive(true);
-            }
-            catch(java.io.IOException ex)
-            {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
-
             IceInternal.Network.setBlock(fd, false);
             IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
 

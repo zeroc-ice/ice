@@ -1498,8 +1498,13 @@ namespace IceInternal
                     {
                         transceiver = _acceptor.endAccept(result); // Does not block.
                     }
-                    catch(Ice.SocketException)
+                    catch(Ice.SocketException ex)
                     {
+                        if(Network.noMoreFds(ex.InnerException))
+                        {
+                            fatalError(ex.InnerException);
+                        }
+
                         // Ignore socket exceptions.
                     }
                     catch(Ice.LocalException ex)
@@ -1600,8 +1605,12 @@ namespace IceInternal
                             Debug.Assert(_pendingTransceiver == null);
                             _pendingTransceiver = _acceptor.endAccept(result); // Does not block.
                         }
-                        catch(Ice.SocketException)
+                        catch(Ice.SocketException ex)
                         {
+                            if(Network.noMoreFds(ex.InnerException))
+                            {
+                                fatalError(ex.InnerException);
+                            }                
                             // Ignore socket exceptions.
                         }
                         catch(Ice.LocalException ex)
@@ -1617,8 +1626,13 @@ namespace IceInternal
                         Debug.Assert(b);
                     }
                 }
-                catch(Ice.SocketException)
+                catch(Ice.SocketException ex)
                 {
+                    if(Network.noMoreFds(ex.InnerException))
+                    {
+                        fatalError(ex.InnerException);
+                    }
+
                     //
                     // Ignore socket exceptions and start another accept.
                     //
@@ -1745,6 +1759,13 @@ namespace IceInternal
         {
             _instance.initializationData().logger.warning("connection exception:\n" + ex + '\n' +
                                                           _acceptor.ToString());
+        }
+
+        private void fatalError(System.Exception ex)
+        {
+            string s = "fatal error: can't accept more connections:\n" + ex +'\n' + _acceptor.ToString();
+            _instance.initializationData().logger.error(s);
+            System.Environment.FailFast(s);
         }
 
         private Instance _instance;

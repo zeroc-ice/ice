@@ -631,6 +631,16 @@ IceInternal::recvTruncated()
 #endif
 }
 
+bool
+IceInternal::noMoreFds(int error)
+{
+#ifdef _WIN32
+    return error == WSAEMFILE;
+#else
+    return error == EMFILE || error == ENFILE;
+#endif
+}
+
 SOCKET
 IceInternal::createSocket(bool udp, int family)
 {
