@@ -252,6 +252,20 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
                 catch(Ice.SocketException ex)
                 {
+                    if(Network.noMoreFds(ex.getCause()))
+                    {
+                        try
+                        {
+                            String s = "fatal error: can't accept more connections:\n" + ex.getCause().getMessage();
+                            s += '\n' + _acceptor.toString();
+                            _instance.initializationData().logger.error(s);
+                        }
+                        finally
+                        {
+                            Runtime.getRuntime().halt(1);
+                        }
+                    }                        
+
                     // Ignore socket exceptions.
                     return;
                 }

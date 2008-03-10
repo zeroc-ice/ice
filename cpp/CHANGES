@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- An Ice server will now abort() if there are no more file descriptors
+  available to accept incoming connections.
+
 - AMI requests now return a boolean to indicate if the request is
   sent synchronously. If not sent synchrnously and the AMI callback
   implements the Ice::AMISentCallback interface, the Ice runtime 

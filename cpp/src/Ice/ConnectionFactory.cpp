@@ -1276,8 +1276,15 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
         {
             transceiver = _acceptor->accept();
         }
-        catch(const SocketException&)
+        catch(const SocketException& ex)
         {
+            if(noMoreFds(ex.error))
+            {
+                Error out(_instance->initializationData().logger);
+                out << "fatal error: can't accept more connections:\n" << ex << '\n' << _acceptor->toString();
+                abort();
+            }
+
             // Ignore socket exceptions.
             return;
         }
