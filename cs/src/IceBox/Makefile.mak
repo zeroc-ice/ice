@@ -27,7 +27,7 @@ GDIR		= generated
 EXE_MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 LIB_MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(LIBNAME) -unsafe
-LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
+LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(KEYFILE)
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
