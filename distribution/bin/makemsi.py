@@ -16,11 +16,13 @@ iceVersion = '3.3.0'
 looksVersion = '2.1.4'
 formsVersion = '1.2.0'
 
+timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
+
 resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "src", "windows")
 sys.path.append(resources)
 import components
 
-DistPrefixes = ["Ice-%s"]
+DistPrefixes = ["Ice-%s", "Ice-%s-demos-for-msi"]
 
 class DistEnvironmentError:
     def __init__(self, msg = None):
@@ -312,7 +314,7 @@ def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
     installVersion = installVersion.upper()
 
     #
-    # Build and copy to the stage directory root.
+    # Build msi
     #
     os.chdir(startDir)
     for project, release in installers:
@@ -322,7 +324,7 @@ def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
         else:
             msi = "Ice-" + iceVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
-        shutil.copy(msiPath, stageDir)
+        runprog('signtool sign /f ' + os.environ['PFX_FILE'] + ' /p ' + os.environ['PFX_PASSWORD'] + ' /t ' + timeStampingURL + ' ' + msiPath)
 
 def environToString(tbl):
     '''Convert an environment hashtable to the typical k=v format'''
@@ -359,7 +361,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
-                "logfile", "vc60", "vc80", "vc90", "thirdpartyhome=", "sources=", "buildDir="])
+                "logfile", "vc60", "vc80", "vc90", "thirdpartyhome=", "sources=", "buildDir=", "pfxfile=", "pfxpassword="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -396,6 +398,10 @@ def main():
                 target = 'vc80'
             elif o == '--vc90':
                 target = 'vc90'
+            elif o == '--pfxfile':
+                os.environ['PFX_FILE'] = a
+            elif o == '--pfxpassword':
+                os.environ['PFX_PASSWORD'] = a
             elif o == '--sources':
                 os.environ['SOURCES'] = a
             elif o == '--buildDir':
@@ -463,6 +469,7 @@ def main():
             defaults['installdir'] = "C:\\Ice-%s-%s" % (iceVersion, target.upper())
 
         defaults['OutDir'] = ''
+        defaults['timeStampingURL'] = timeStampingURL
 
         if os.path.exists(stageDir):
             try:
