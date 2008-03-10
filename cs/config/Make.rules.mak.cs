@@ -49,6 +49,13 @@ DEBUG			= yes
 
 #OPTIMIZE		= yes
 
+#
+# Set the key file used to sign assemblies.
+#
+!if "$(KEYFILE)" == ""
+KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
+!endif
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------

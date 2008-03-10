@@ -129,7 +129,7 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
-MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
+MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 !if "$(MANAGED)" == "yes"
 MCSFLAGS	= $(MCSFLAGS) -define:MANAGED
