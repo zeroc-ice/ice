@@ -609,7 +609,7 @@ if sys.argv[script] == "request":
 	os.write(temp, "emailAddress=" + email + "\n")
     os.close(temp)
 
-    cmd = "openssl req -config " + tempname + " -new -keyout '" + keyfile + "' -out '" + reqfile + "'"
+    cmd = "openssl req -config " + tempname + ' -new -keyout "' + keyfile + '" -out "' + reqfile + '"'
     if nopassphrase:
 	cmd += " -nodes"
 
