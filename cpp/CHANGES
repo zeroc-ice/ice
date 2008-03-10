@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The iceca ImportKey.class utility is now installed in
+  /usr/share/Ice-3.3.0 for an RPM install or ${prefix}/lib otherwise.
+
 - AMI requests now return a boolean to indicate if the request is
   sent synchronously. If not sent synchrnously and the AMI callback
   implements the Ice::AMISentCallback interface, the Ice runtime 
