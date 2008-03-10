@@ -151,8 +151,8 @@ Follow these instructions for building mcpp:
 
 - Build the mcpp release library:
 
-  > nmake MCPP_LIB=1 /f ..\nonconfig\visualc.mak mcpplib
+  > nmake MCPP_LIB=1 /f ..\noconfig\visualc.mak mcpplib
 
   To build the debug version of the library:
 
-  > nmake MCPP_LIB=1 DEBUG=1 /f ..\nonconfig\visualc.mak mcpplib
+  > nmake MCPP_LIB=1 DEBUG=1 /f ..\noconfig\visualc.mak mcpplib
