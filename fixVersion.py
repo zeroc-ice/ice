@@ -206,6 +206,7 @@ if not patchIceE:
     
     fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules.mak"),
                         [("VERSION[\t\s]*= " + vpatMatch, version),
+                         ("INTVERSION[\t\s]*= " + vpatMatch, majorVersion(version) + "." + minorVersion(version) + \                                                                 "." + patchVersion(version))),
                          ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
     fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "ice.spec"),
