@@ -34,6 +34,7 @@ prefix			= C:\Ice-$(VERSION)
 # Enable MANAGED below if you do not require these features and prefer that
 # the Ice run time use only managed code.
 #
+
 #MANAGED		= yes
 
 #
@@ -44,14 +45,15 @@ prefix			= C:\Ice-$(VERSION)
 DEBUG			= yes
 
 #
-# Define OPTIMIZE as yes if you want to build with optimized.
+# Define OPTIMIZE as yes if you want to build with optimization.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 #
 # Set the key file used to sign assemblies.
 #
+
 !if "$(KEYFILE)" == ""
 KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 !endif
