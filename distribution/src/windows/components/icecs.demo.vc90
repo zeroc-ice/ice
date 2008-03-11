@@ -4,7 +4,6 @@ exclude=**/generated/**
 exclude=**/*.ncb
 exclude=**/*.suo
 exclude=**/*.exe
-exclude=**/*.exe.config
 exclude=**/*.bat
 exclude=**/*.obj
 exclude=**/*.pdb

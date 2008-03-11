@@ -145,8 +145,6 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     // Trim whitespace
     //
     string currentKey = IceUtilInternal::trim(key);
-    string currentValue = IceUtilInternal::trim(value);
-
     if(currentKey.empty())
     {
         return;
@@ -208,9 +206,9 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     //
     // Set or clear the property.
     //
-    if(!currentValue.empty())
+    if(!value.empty())
     {
-        PropertyValue pv(currentValue, false);
+        PropertyValue pv(value, false);
         map<string, PropertyValue>::const_iterator p = _properties.find(currentKey);
         if(p != _properties.end())
         {
@@ -459,8 +457,74 @@ Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& conver
         return;
     }
 
-    string key = IceUtilInternal::trim(s.substr(0, split));
-    string value = IceUtilInternal::trim(s.substr(split + 1, s.length() - split - 1));
+    //
+    // Deal with espaced spaces. For key we just unescape and trim but
+    // for values any esaped spaces must be kept.
+    // 
+    string key = s.substr(0, split);
+    while((idx = key.find("\\ ")) != string::npos)
+    {
+        key.replace(idx, 2, " ");
+    }
+    key = IceUtilInternal::trim(key);
+
+    string value = s.substr(split + 1, s.length() - split - 1);
+    idx = 0;
+    string whitespace = "";
+    while(idx < value.length())
+    {
+        if(value[idx] == '\\')
+        {
+            if(idx + 1 != value.length() && 
+               (value[idx + 1] == ' ' || value[idx + 1] == '\t' || value[idx + 1] == '\r' || value[idx + 1] == '\n'))
+            {
+                whitespace += value[idx + 1];
+                idx += 2;
+            }
+            else
+            {
+                break;
+            }
+        }
+        else if(value[idx] == ' ' || value[idx] == '\t' || value[idx] == '\r' || value[idx] == '\n')
+        {
+            ++idx;
+        }
+        else
+        {
+            break;
+        }
+    }
+    value = whitespace + value.substr(idx, value.length() - idx);
+    if(idx != value.length())
+    {
+        idx = value.length() - 1;
+        whitespace = "";
+        while(idx > 0)
+        {
+            if(value[idx] == ' ' || value[idx] == '\t' || value[idx] == '\r' || value[idx] == '\n')
+            {
+               if(value[idx - 1] == '\\')
+               {
+                   whitespace += value[idx];
+                   idx -= 2;
+               }
+               else
+               {
+                   --idx;
+               }
+            }
+            else
+            {
+                break;
+            }
+        }
+        value = value.substr(0, idx + 1) + whitespace;
+    }
+    while((idx = value.find("\\ ")) != string::npos)
+    {
+        value.replace(idx, 2, " ");
+    }
 
     if(converter)
     {

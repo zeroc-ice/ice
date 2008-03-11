@@ -33,6 +33,7 @@ namespace IceInternal
         const int WSAEINTR        = 10004;
         const int WSAEFAULT       = 10014;
         const int WSAEINVAL       = 10022;
+        const int WSAEMFILE       = 10024;
         const int WSAEWOULDBLOCK  = 10035;
         const int WSAEINPROGRESS  = 10036; // Deprecated in winsock2, but still used by Mono Beta 1
         const int WSAEMSGSIZE     = 10040;
@@ -224,6 +225,18 @@ namespace IceInternal
         public static bool timeout(System.IO.IOException ex)
         {
             return ex.Message.IndexOf("period of time") >= 0;
+        }
+
+        public static bool noMoreFds(System.Exception ex)
+        {
+            try
+            {
+                return ex != null && ((Win32Exception)ex).NativeErrorCode == WSAEMFILE;
+            }
+            catch(InvalidCastException)
+            {
+                return false;
+            }
         }
 
         public static bool isMulticast(IPEndPoint addr)

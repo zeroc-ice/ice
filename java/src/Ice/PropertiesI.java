@@ -173,10 +173,6 @@ public final class PropertiesI implements Properties
         {
             key = key.trim();
         }
-        if(value != null)
-        {
-            value = value.trim();
-        }
 
         //
         // Check if the property is legal.
@@ -482,11 +478,70 @@ public final class PropertiesI implements Properties
             return;
         }
 
-        String key = s.substring(0, split).trim();
-        String value = s.substring(split + 1, s.length()).trim();
-
+        //
+        // Deal with espaced spaces. For key we just unescape and trim but
+        // for values any esaped spaces must be kept.
+        //
+        String key = s.substring(0, split);
         key = key.replace("\\=", "=");
+        key = key.replace("\\ ", " ");
+        key = key.trim();
+        
+        String value = s.substring(split + 1, s.length());
         value = value.replace("\\=", "=");
+
+        idx = 0;
+        String whitespace = "";
+        while(idx < value.length())
+        {
+            if(value.charAt(idx) == '\\')
+            {
+                if(idx + 1 != value.length() && java.lang.Character.isWhitespace(value.charAt(idx + 1)))
+                {
+                    whitespace += value.charAt(idx + 1);
+                    idx += 2;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else if(java.lang.Character.isWhitespace(value.charAt(idx)))
+            {
+                ++idx;
+            }
+            else
+            {
+                break;
+            }
+        }
+        value = whitespace + value.substring(idx, value.length());
+        if(idx != value.length())
+        {
+            idx = value.length() - 1;
+            whitespace = "";
+            while(idx > 0)
+            {
+                if(java.lang.Character.isWhitespace(value.charAt(idx)))
+                {
+                   if(value.charAt(idx - 1) == '\\')
+                   {
+                       whitespace += value.charAt(idx);
+                       idx -= 2;
+                   }
+                   else
+                   {
+                       --idx;
+                   }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            value = value.substring(0, idx + 1) + whitespace;
+        }
+        value = value.replace("\\ ", " ");
 
         setProperty(key, value);
     }

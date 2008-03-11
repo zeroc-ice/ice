@@ -87,28 +87,32 @@ public final class Network
         return false;
     }
 
-    //
-    // This method is not used anymore. See comments in
-    // TcpTransceiverI.java.
-    //
-//     public static boolean
-//     notConnected(java.net.SocketException ex)
-//     {
-//         String msg = ex.getMessage().toLowerCase();
-//         if(msg.indexOf("transport endpoint is not connected") != -1)
-//         {
-//             return true;
-//         }
-//         //
-//         // BUGFIX: We check for EINVAL because shutdown() under Mac OS
-//         // X returns EINVAL if the server side is gone.
-//         //
-//         else if(msg.indexOf("invalid argument") != -1)
-//         {
-//             return true;
-//         }
-//         return false;
-//     }
+    public static boolean
+    noMoreFds(java.lang.Throwable ex)
+    {
+        String msg = ex.getMessage();
+        if(msg != null)
+        {
+            msg = msg.toLowerCase();
+
+            final String[] msgs =
+            {
+                "too many open files", // EMFILE
+                "file table overflow", // ENFILE
+                "too many open files in system" // ENFILE
+            };
+
+            for(int i = 0; i < msgs.length; i++)
+            {
+                if(msg.indexOf(msgs[i]) != -1)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     public static java.nio.channels.SocketChannel
     createTcpSocket()
@@ -277,6 +281,46 @@ public final class Network
             se.initCause(ex);
             throw se;
         }
+    }
+
+    public static java.nio.channels.SocketChannel
+    doAccept(java.nio.channels.ServerSocketChannel afd)
+    {
+        java.nio.channels.SocketChannel fd = null;
+        while(true)
+        {
+            try
+            {
+                fd = afd.accept();
+                break;
+            }
+            catch(java.io.IOException ex)
+            {
+                if(interrupted(ex))
+                {
+                    continue;
+                }
+
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+        }
+
+        try
+        {
+            java.net.Socket socket = fd.socket();
+            socket.setTcpNoDelay(true);
+            socket.setKeepAlive(true);
+        }
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+
+        return fd;
     }
 
     public static boolean

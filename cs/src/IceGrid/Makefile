@@ -32,7 +32,7 @@ GDIR		= generated
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe -warnaserror-
-MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
+MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 

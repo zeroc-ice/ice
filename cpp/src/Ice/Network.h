@@ -77,6 +77,7 @@ ICE_API bool connectInProgress();
 ICE_API bool connectionLost();
 ICE_API bool notConnected();
 ICE_API bool recvTruncated();
+ICE_API bool noMoreFds(int);
 
 ICE_API SOCKET createSocket(bool, int);
 ICE_API void closeSocket(SOCKET);
