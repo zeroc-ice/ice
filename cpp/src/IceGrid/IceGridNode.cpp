@@ -750,10 +750,8 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     initData.properties = createProperties(argc, argv, initData.properties);
 
     //
-    // Make sure that IceGridNode doesn't use thread-per-connection or
-    // collocation optimization
+    // Make sure that IceGridNode doesn't use collocation optimization
     //
-    initData.properties->setProperty("Ice.ThreadPerConnection", "");
     initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
     //

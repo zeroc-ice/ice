@@ -635,8 +635,7 @@ namespace IceInternal
             "LocatorCacheTimeout",
             "Locator",
             "Router",
-            "CollocationOptimized",
-            "ThreadPerConnection"
+            "CollocationOptimized"
         };
 
         private void
@@ -704,7 +703,6 @@ namespace IceInternal
             bool cacheConnection = true;
             bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
             Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
-            bool threadPerConnection = instance_.threadPerConnection();
             int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         
             //
@@ -774,9 +772,6 @@ namespace IceInternal
                     }
                 }
         
-                property = propertyPrefix + ".ThreadPerConnection";
-                threadPerConnection = properties.getPropertyAsIntWithDefault(property, threadPerConnection ? 1 : 0) > 0;
-        
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
             }
@@ -799,7 +794,6 @@ namespace IceInternal
                                                      cacheConnection,
                                                      preferSecure,
                                                      endpointSelection,
-                                                     threadPerConnection,
                                                      locatorCacheTimeout));
         }
 

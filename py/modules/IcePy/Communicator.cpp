@@ -141,6 +141,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
         PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
         PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
+        PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
 
         if(properties.get() && properties.get() != Py_None)
         {
@@ -426,14 +427,7 @@ communicatorIsShutdown(CommunicatorObject* self)
         return 0;
     }
 
-    if(isShutdown)
-    {
-        PyRETURN_TRUE;
-    }
-    else
-    {
-        PyRETURN_FALSE;
-    }
+    PyRETURN_BOOL(isShutdown);
 }
 
 #ifdef WIN32

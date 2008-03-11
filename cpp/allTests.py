@@ -52,7 +52,6 @@ tests = [
     "Ice/timeout",
     "Ice/background",
     "Ice/servantLocator",
-    "Ice/threads",
     "Ice/interceptor",
     "Ice/stringConverter",
     "IceSSL/configuration",

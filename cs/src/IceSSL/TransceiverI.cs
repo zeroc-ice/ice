@@ -33,50 +33,6 @@ namespace IceSSL
             return false;
         }
 
-        public void initialize(int timeout)
-        {
-            try
-            {
-                if(_state == StateNeedBeginConnect)
-                {
-                    Debug.Assert(_state == StateNeedBeginConnect);
-                    IceInternal.Network.doConnect(_fd, _addr, timeout);
-                    _state = StateNeedBeginAuthenticate;
-                }
-
-                //
-                // At this point the underlying TCP connection is established; now we need to
-                // complete the SSL authentication process.
-                //
-
-                Debug.Assert(_state == StateNeedBeginAuthenticate);
-                _state = StateNeedEndAuthenticate;
-
-                //
-                // Begin authentication asynchronously. If authentication does
-                // not complete synchronously, we wait for the given timeout.
-                //
-                if(!beginAuthenticate(null))
-                {
-                    if(!_initializeResult.AsyncWaitHandle.WaitOne(timeout, false))
-                    {
-                        throw new Ice.ConnectTimeoutException();
-                    }
-                }
-
-                endAuthenticate();
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(_instance.networkTraceLevel() >= 2)
-                {
-                    string s = "failed to establish ssl connection\n" + IceInternal.Network.fdToString(_fd) + "\n" + ex;
-                    _logger.trace(_instance.networkTraceCategory(), s);
-                }
-                throw;
-            }
-        }
-
         public bool initialize(AsyncCallback callback)
         {
             try
@@ -89,11 +45,7 @@ namespace IceSSL
                     _state = StateNeedEndConnect;
                     _initializeResult = IceInternal.Network.doBeginConnectAsync(_fd, _addr, callback);
 
-                    if(_initializeResult.CompletedSynchronously)
-                    {
-                        endConnect();
-                    }
-                    else
+                    if(!_initializeResult.CompletedSynchronously)
                     {
                         //
                         // Return now if the I/O request needs an asynchronous callback.
@@ -101,9 +53,14 @@ namespace IceSSL
                         return false;
                     }
                 }
-                else if(_state == StateNeedEndConnect)
+
+                if(_state == StateNeedEndConnect)
                 {
-                    endConnect();
+                    Debug.Assert(_initializeResult != null);
+                    IceInternal.Network.doEndConnectAsync(_initializeResult);
+                    _state = StateNeedBeginAuthenticate;
+                    _desc = IceInternal.Network.fdToString(_fd);
+                    _initializeResult = null;
                 }
 
                 //
@@ -132,11 +89,11 @@ namespace IceSSL
 
                 return true;
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.LocalException e)
             {
                 if(_instance.networkTraceLevel() >= 2)
                 {
-                    string s = "failed to establish ssl connection\n" + IceInternal.Network.fdToString(_fd) + "\n" + ex;
+                    string s = "failed to establish ssl connection\n" + IceInternal.Network.fdToString(_fd) + "\n" + e;
                     _logger.trace(_instance.networkTraceCategory(), s);
                 }
                 throw;
@@ -177,267 +134,16 @@ namespace IceSSL
             }
         }
 
-        public void shutdownWrite()
+        public bool write(IceInternal.Buffer buf)
         {
-            if(_instance.networkTraceLevel() >= 2)
-            {
-                string s = "shutting down ssl connection for writing\n" + ToString();
-                _logger.trace(_instance.networkTraceCategory(), s);
-            }
-
             Debug.Assert(_fd != null);
-            try
-            {
-                _fd.Shutdown(SocketShutdown.Send);
-            }
-            catch(SocketException ex)
-            {
-                if(IceInternal.Network.notConnected(ex))
-                {
-                    return;
-                }
-                throw new Ice.SocketException(ex);
-            }
-            catch(ObjectDisposedException)
-            {
-                //
-                // MSDN says this exception occurs when the socket is already closed. It appears
-                // this can occur even if we don't explicitly close it.
-                //
-            }
+            return false; // Caller will use async write.
         }
 
-        public void shutdownReadWrite()
-        {
-            if(_instance.networkTraceLevel() >= 2)
-            {
-                string s = "shutting down ssl connection for reading and writing\n" + ToString();
-                _logger.trace(_instance.networkTraceCategory(), s);
-            }
-
-            Debug.Assert(_fd != null);
-            try
-            {
-                _fd.Shutdown(SocketShutdown.Both);
-            }
-            catch(SocketException ex)
-            {
-                if(IceInternal.Network.notConnected(ex))
-                {
-                    return;
-                }
-                throw new Ice.SocketException(ex);
-            }
-            catch(ObjectDisposedException)
-            {
-                //
-                // MSDN says this exception occurs when the socket is already closed. It appears
-                // this can occur even if we don't explicitly close it.
-                //
-            }
-        }
-
-        public bool write(IceInternal.Buffer buf, int timeout)
+        public bool read(IceInternal.Buffer buf)
         {
             Debug.Assert(_fd != null);
-
-            if(timeout == 0)
-            {
-                //
-                // We are using a blocking socket, therefore the caller must use an async write.
-                //
-                return false;
-            }
-
-            try
-            {
-                if(timeout == -1)
-                {
-                    int remaining = buf.b.remaining();
-                    int packetSize = remaining;
-                    if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
-                    {
-                        packetSize = _maxPacketSize;
-                    }
-
-                    while(remaining > 0)
-                    {
-                        _stream.Write(buf.b.rawBytes(), buf.b.position(), packetSize);
-
-                        if(_instance.networkTraceLevel() >= 3)
-                        {
-                            string s = "sent " + packetSize + " of " + remaining + " bytes via ssl\n" + ToString();
-                            _logger.trace(_instance.networkTraceCategory(), s);
-                        }
-
-                        if(_stats != null)
-                        {
-                            _stats.bytesSent(type(), packetSize);
-                        }
-
-                        remaining -= packetSize;
-                        buf.b.position(buf.b.position() + packetSize);
-                        if(remaining < packetSize)
-                        {
-                            packetSize = remaining;
-                        }
-                    }
-                }
-                else
-                {
-                    //
-                    // We have to use an asynchronous write to support a timeout.
-                    //
-                    int rem = buf.b.remaining();
-                    IAsyncResult ar = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), rem, null, null);
-                    if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
-                    {
-                        throw new Ice.TimeoutException();
-                    }
-                    _stream.EndWrite(ar);
-
-                    if(_instance.networkTraceLevel() >= 3)
-                    {
-                        string s = "sent " + rem + " of " + rem + " bytes via ssl\n" + ToString();
-                        _logger.trace(_instance.networkTraceCategory(), s);
-                    }
-
-                    if(_stats != null)
-                    {
-                        _stats.bytesSent(type(), rem);
-                    }
-
-                    buf.b.position(buf.b.position() + rem);
-                }
-            }
-            catch(IOException ex)
-            {
-                if(IceInternal.Network.connectionLost(ex))
-                {
-                    throw new Ice.ConnectionLostException(ex);
-                }
-                if(IceInternal.Network.timeout(ex))
-                {
-                    throw new Ice.TimeoutException();
-                }
-                throw new Ice.SocketException(ex);
-            }
-            catch(Ice.LocalException)
-            {
-                throw;
-            }
-            catch(Exception ex)
-            {
-                throw new Ice.SyscallException(ex);
-            }
-
-            return true;
-        }
-
-        public bool read(IceInternal.Buffer buf, int timeout)
-        {
-            Debug.Assert(_fd != null);
-
-            if(timeout == 0)
-            {
-                //
-                // We are using a blocking socket, therefore the caller must use an async read.
-                //
-                return false;
-            }
-
-            try
-            {
-                if(timeout == -1)
-                {
-                    int rem = buf.b.remaining();
-                    int pos = buf.b.position();
-
-                    while(rem > 0)
-                    {
-                        int ret = _stream.Read(buf.b.rawBytes(), pos, rem);
-                        if(ret == 0)
-                        {
-                            //
-                            // Try to read again; if zero is returned, the connection is lost.
-                            //
-                            ret = _stream.Read(buf.b.rawBytes(), pos, rem);
-                            if(ret == 0)
-                            {
-                                throw new Ice.ConnectionLostException();
-                            }
-                        }
-
-                        if(_instance.networkTraceLevel() >= 3)
-                        {
-                            string s = "received " + ret + " of " + rem + " bytes via ssl\n" + ToString();
-                            _logger.trace(_instance.networkTraceCategory(), s);
-                        }
-
-                        if(_stats != null)
-                        {
-                            _stats.bytesReceived(type(), ret);
-                        }
-
-                        rem -= ret;
-                        buf.b.position(pos += ret);
-                    }
-                }
-                else
-                {
-                    //
-                    // We have to use an asynchronous read to support a timeout.
-                    //
-                    int rem = buf.b.remaining();
-                    int pos = buf.b.position();
-                    IAsyncResult ar = _stream.BeginRead(buf.b.rawBytes(), pos, rem, null, null);
-                    if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
-                    {
-                        throw new Ice.TimeoutException();
-                    }
-                    int ret = _stream.EndRead(ar);
-                    if(ret == 0)
-                    {
-                        throw new Ice.ConnectionLostException();
-                    }
-                    Debug.Assert(ret == rem);
-
-                    if(_instance.networkTraceLevel() >= 3)
-                    {
-                        string s = "received " + ret + " of " + rem + " bytes via ssl\n" + ToString();
-                        _logger.trace(_instance.networkTraceCategory(), s);
-                    }
-
-                    if(_stats != null)
-                    {
-                        _stats.bytesReceived(type(), ret);
-                    }
-
-                    buf.b.position(pos + rem);
-                }
-            }
-            catch(IOException ex)
-            {
-                if(IceInternal.Network.connectionLost(ex))
-                {
-                    throw new Ice.ConnectionLostException(ex);
-                }
-                if(IceInternal.Network.timeout(ex))
-                {
-                    throw new Ice.TimeoutException();
-                }
-                throw new Ice.SocketException(ex);
-            }
-            catch(Ice.LocalException)
-            {
-                throw;
-            }
-            catch(Exception ex)
-            {
-                throw new Ice.SyscallException(ex);
-            }
-
-            return true;
+            return false; // Caller will use async read.
         }
 
         public IAsyncResult beginRead(IceInternal.Buffer buf, AsyncCallback callback, object state)
@@ -684,15 +390,6 @@ namespace IceSSL
             {
                 _verifyPeer = 0;
             }
-        }
-
-        private void endConnect()
-        {
-            Debug.Assert(_initializeResult != null);
-            IceInternal.Network.doEndConnectAsync(_initializeResult);
-            _state = StateNeedBeginAuthenticate;
-            _desc = IceInternal.Network.fdToString(_fd);
-            _initializeResult = null;
         }
 
         private bool beginAuthenticate(AsyncCallback callback)

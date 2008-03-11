@@ -39,7 +39,18 @@ IceSSL::TransceiverI::close()
         out << "closing ssl connection\n" << toString();
     }
 
-    shutdown();
+    {
+        IceUtil::Mutex::Lock sync(_sslMutex);
+        int err = SSL_shutdown(_ssl);
+        
+        //
+        // Call it one more time if it returned 0.
+        //
+        if(err == 0)
+        {
+            SSL_shutdown(_ssl);
+        }
+    }
 
     //
     // Only one thread calls close(), so synchronization is not necessary here.
@@ -51,48 +62,8 @@ IceSSL::TransceiverI::close()
     _fd = INVALID_SOCKET;
 }
 
-void
-IceSSL::TransceiverI::shutdownWrite()
-{
-    if(_state < StateConnected)
-    {
-        return;
-    }
-
-    if(_instance->networkTraceLevel() >= 2)
-    {
-        Trace out(_logger, _instance->networkTraceCategory());
-        out << "shutting down ssl connection for writing\n" << toString();
-    }
-
-    shutdown();
-
-    assert(_fd != INVALID_SOCKET);
-    IceInternal::shutdownSocketWrite(_fd);
-}
-
-void
-IceSSL::TransceiverI::shutdownReadWrite()
-{
-    if(_state < StateConnected)
-    {
-        return;
-    }
-
-    if(_instance->networkTraceLevel() >= 2)
-    {
-        Trace out(_logger, _instance->networkTraceCategory());
-        out << "shutting down ssl connection for reading and writing\n" << toString();
-    }
-
-    shutdown();
-
-    assert(_fd != INVALID_SOCKET);
-    IceInternal::shutdownSocketReadWrite(_fd);
-}
-
 bool
-IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
+IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 {
     // Its impossible for the packetSize to be more than an Int.
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
@@ -140,15 +111,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
             }
             case SSL_ERROR_WANT_WRITE:
             {
-                if(timeout == 0)
-                {
-                    return false;
-                }
-                if(!selectWrite(_fd, timeout))
-                {
-                    throw TimeoutException(__FILE__, __LINE__);
-                }
-                continue;
+                return false;
             }
             case SSL_ERROR_SYSCALL:
             {
@@ -169,16 +132,8 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
                     {
                         if(wantWrite)
                         {
-                            if(timeout == 0)
-                            {
-                                return false;
-                            }
-                            if(!selectWrite(_fd, timeout))
-                            {
-                                throw TimeoutException(__FILE__, __LINE__);
-                            }
+                            return false;
                         }
-
                         continue;
                     }
 
@@ -233,7 +188,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
 }
 
 bool
-IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
+IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 {
     // It's impossible for the packetSize to be more than an Int.
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
@@ -277,15 +232,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
             }
             case SSL_ERROR_WANT_READ:
             {
-                if(timeout == 0)
-                {
-                    return false;
-                }
-                if(!selectRead(_fd, timeout))
-                {
-                    throw TimeoutException(__FILE__, __LINE__);
-                }
-                continue;
+                return false;
             }
             case SSL_ERROR_WANT_WRITE:
             {
@@ -311,14 +258,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
                     {
                         if(wantRead)
                         {
-                            if(timeout == 0)
-                            {
-                                return false;
-                            }
-                            if(!selectRead(_fd, timeout))
-                            {
-                                throw TimeoutException(__FILE__, __LINE__);
-                            }
+                            return false;
                         }
                         continue;
                     }
@@ -418,18 +358,18 @@ IceSSL::TransceiverI::toString() const
 }
 
 IceInternal::SocketStatus
-IceSSL::TransceiverI::initialize(int timeout)
+IceSSL::TransceiverI::initialize()
 {
     try
     {
-        if(_state == StateNeedConnect && timeout == 0)
+        if(_state == StateNeedConnect)
         {
             _state = StateConnectPending;
             return IceInternal::NeedConnect; 
         }
         else if(_state <= StateConnectPending)
         {
-            IceInternal::doFinishConnect(_fd, timeout);
+            IceInternal::doFinishConnect(_fd);
             _state = StateConnected;
             _desc = IceInternal::fdToString(_fd);
         }
@@ -454,27 +394,11 @@ IceSSL::TransceiverI::initialize(int timeout)
             }
             case SSL_ERROR_WANT_READ:
             {
-                if(timeout == 0)
-                {
-                    return IceInternal::NeedRead;
-                }
-                if(!selectRead(_fd, timeout))
-                {
-                    throw ConnectTimeoutException(__FILE__, __LINE__);
-                }
-                break;
+                return IceInternal::NeedRead;
             }
             case SSL_ERROR_WANT_WRITE:
             {
-                if(timeout == 0)
-                {
-                    return IceInternal::NeedWrite;
-                }
-                if(!selectWrite(_fd, timeout))
-                {
-                    throw ConnectTimeoutException(__FILE__, __LINE__);
-                }
-                break;
+                return IceInternal::NeedWrite;
             }
             case SSL_ERROR_SYSCALL:
             {
@@ -489,25 +413,11 @@ IceSSL::TransceiverI::initialize(int timeout)
                     {
                         if(SSL_want_read(_ssl))
                         {
-                            if(timeout == 0)
-                            {
-                                return IceInternal::NeedRead;
-                            }
-                            if(!selectRead(_fd, timeout))
-                            {
-                                throw ConnectTimeoutException(__FILE__, __LINE__);
-                            }
+                            return IceInternal::NeedRead;
                         }
                         else if(SSL_want_write(_ssl))
                         {
-                            if(timeout == 0)
-                            {
-                                return IceInternal::NeedWrite;
-                            }
-                            if(!selectWrite(_fd, timeout))
-                            {
-                                throw ConnectTimeoutException(__FILE__, __LINE__);
-                            }
+                            return IceInternal::NeedWrite;
                         }
                     
                         break;
@@ -632,18 +542,3 @@ IceSSL::TransceiverI::~TransceiverI()
     assert(_fd == INVALID_SOCKET);
 }
 
-void
-IceSSL::TransceiverI::shutdown()
-{
-    IceUtil::Mutex::Lock sync(_sslMutex);
-
-    int err = SSL_shutdown(_ssl);
-
-    //
-    // Call it one more time if it returned 0.
-    //
-    if(err == 0)
-    {
-        SSL_shutdown(_ssl);
-    }
-}

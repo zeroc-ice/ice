@@ -56,7 +56,8 @@ To build the demos you need to:
     $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
   
     The Ice library directory is $ICE_HOME/lib64 on Linux x86_64, 
-    $ICE_HOME/lib/sparcv9 on Solaris for SPARC 64-bit and 
+    $ICE_HOME/lib/sparcv9 on Solaris for SPARC 64-bit,
+    $ICE_HOME/lib/amd64 on Solaris for x86 64-bit and 
     $ICE_HOME/lib/pa20_64 on HP-UX 64-bit.
 
   - On Windows:

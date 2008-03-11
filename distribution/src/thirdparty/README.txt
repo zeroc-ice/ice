@@ -147,12 +147,12 @@ Follow these instructions for building mcpp:
 - Apply the patch for noconfig.H appropriate for your compiler from
   the noconfig directory. For example, for VS2005 you would run:
 
-  > patch -p0 < ..\noconfig\vc2005.def
+  > patch -p0 < ..\noconfig\vc2005.dif
 
 - Build the mcpp release library:
 
-  > nmake MCPP_LIB=1 /f ..\nonconfig\visualc.mak mcpplib
+  > nmake MCPP_LIB=1 /f ..\noconfig\visualc.mak mcpplib
 
   To build the debug version of the library:
 
-  > nmake MCPP_LIB=1 DEBUG=1 /f ..\nonconfig\visualc.mak mcpplib
+  > nmake MCPP_LIB=1 DEBUG=1 /f ..\noconfig\visualc.mak mcpplib

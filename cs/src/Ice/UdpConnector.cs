@@ -21,11 +21,6 @@ namespace IceInternal
             return new UdpTransceiver(instance_, _addr, _mcastInterface, _mcastTtl);
         }
 
-        public Transceiver connect(int timeout)
-        {
-            return connect();
-        }
-
         public short type()
         {
             return UdpEndpointI.TYPE;

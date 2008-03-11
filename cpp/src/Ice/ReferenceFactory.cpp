@@ -657,8 +657,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         "LocatorCacheTimeout",
         "Locator",
         "Router",
-        "CollocationOptimized",
-        "ThreadPerConnection"
+        "CollocationOptimized"
     };
 
     //
@@ -725,7 +724,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     bool cacheConnection = true;
     bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
     Ice::EndpointSelectionType endpointSelection = defaultsAndOverrides->defaultEndpointSelection;
-    bool threadPerConnection = _instance->threadPerConnection();
     int locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
 
     //
@@ -793,9 +791,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             }
         }
         
-        property = propertyPrefix + ".ThreadPerConnection";
-        threadPerConnection = properties->getPropertyAsIntWithDefault(property, threadPerConnection) > 0;
-        
         property = propertyPrefix + ".LocatorCacheTimeout";
         locatorCacheTimeout = properties->getPropertyAsIntWithDefault(property, locatorCacheTimeout);
     }
@@ -818,7 +813,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                  cacheConnection,
                                  preferSecure,
                                  endpointSelection,
-                                 threadPerConnection,
                                  locatorCacheTimeout);
 }
 

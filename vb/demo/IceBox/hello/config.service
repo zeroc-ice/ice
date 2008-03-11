@@ -36,4 +36,3 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.ImportCert.CurrentUser.Root=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx
 IceSSL.Password=password
-Ice.ThreadPerConnection=1

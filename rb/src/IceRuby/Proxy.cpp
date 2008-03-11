@@ -956,32 +956,6 @@ IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_ice_isThreadPerConnection(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ObjectPrx p = getProxy(self);
-        return p->ice_isThreadPerConnection() ? Qtrue : Qfalse;
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_ObjectPrx_ice_threadPerConnection(VALUE self, VALUE b)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_threadPerConnection(RTEST(b)), rb_class_of(self));
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
 IceRuby_ObjectPrx_ice_getConnection(VALUE self)
 {
     ICE_RUBY_TRY
@@ -1380,9 +1354,6 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_compress", CAST_METHOD(IceRuby_ObjectPrx_ice_compress), 1);
     rb_define_method(_proxyClass, "ice_timeout", CAST_METHOD(IceRuby_ObjectPrx_ice_timeout), 1);
     rb_define_method(_proxyClass, "ice_connectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionId), 1);
-    rb_define_method(_proxyClass, "ice_isThreadPerConnection",
-                     CAST_METHOD(IceRuby_ObjectPrx_ice_isThreadPerConnection), 0);
-    rb_define_method(_proxyClass, "ice_threadPerConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_threadPerConnection), 1);
     rb_define_method(_proxyClass, "ice_getConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnection), 0);
     rb_define_method(_proxyClass, "ice_getCachedConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getCachedConnection), 0);
 

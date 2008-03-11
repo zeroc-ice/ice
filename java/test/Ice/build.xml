@@ -37,7 +37,6 @@
         <ant dir="timeout"/>
         <ant dir="servantLocator"/>
         <ant dir="servantLocatorAMD"/>
-        <ant dir="threads"/>
         <ant dir="interceptor"/>
     </target>
 
@@ -67,7 +66,6 @@
         <ant dir="timeout" target="clean"/>
         <ant dir="servantLocator" target="clean"/>
         <ant dir="servantLocatorAMD" target="clean"/>
-        <ant dir="threads" target="clean"/>
         <ant dir="interceptor" target="clean"/>
     </target>
 

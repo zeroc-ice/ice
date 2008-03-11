@@ -41,10 +41,12 @@ public:
     void incFdsInUse();
     void decFdsInUse();
 
-    void _register(SOCKET, const EventHandlerPtr&);
-    void unregister(SOCKET);
+    void _register(const EventHandlerPtr&);
+    void unregister(const EventHandlerPtr&);
+    void finish(const EventHandlerPtr&);
     void execute(const ThreadPoolWorkItemPtr&);
-    void promoteFollower();
+
+    void promoteFollower(EventHandler* = 0);
     void joinWithAllThreads();
 
     std::string prefix() const;
@@ -58,11 +60,10 @@ private:
     bool _destroyed;
     const std::string _prefix;
 
-    Selector _selector;
+    Selector<EventHandler> _selector;
 
-    std::list<std::pair<SOCKET, EventHandlerPtr> > _changes; // Event handler set for addition; null for removal.
     std::list<ThreadPoolWorkItemPtr> _workItems;
-    std::map<SOCKET, EventHandlerPtr> _handlerMap;
+    std::list<EventHandlerPtr> _finished;
 
     class EventHandlerThread : public IceUtil::Thread
     {
@@ -80,7 +81,8 @@ private:
     const int _size; // Number of threads that are pre-created.
     const int _sizeMax; // Maximum number of threads.
     const int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-
+    const bool _serialize; // True if requests need to be serialized over the connection.
+ 
     const size_t _stackSize;
 
     std::vector<IceUtil::ThreadPtr> _threads; // All threads, running or not.

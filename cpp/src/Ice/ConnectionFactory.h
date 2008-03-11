@@ -12,7 +12,6 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/Thread.h> // For ThreadPerIncomingConnectionFactory.
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionI.h>
 #include <Ice/InstanceF.h>
@@ -56,8 +55,8 @@ public:
 
     void waitUntilFinished();
 
-    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, bool, Ice::EndpointSelectionType, bool&);
-    void create(const std::vector<EndpointIPtr>&, bool, bool, Ice::EndpointSelectionType, 
+    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, bool&);
+    void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, 
                 const CreateConnectionCallbackPtr&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
@@ -71,8 +70,7 @@ private:
 
     struct ConnectorInfo
     {
-        ConnectorInfo(const ConnectorPtr& c, const EndpointIPtr& e, bool t) :
-            connector(c), endpoint(e), threadPerConnection(t)
+        ConnectorInfo(const ConnectorPtr& c, const EndpointIPtr& e) : connector(c), endpoint(e)
         {
         }
 
@@ -80,7 +78,6 @@ private:
 
         ConnectorPtr connector;
         EndpointIPtr endpoint;
-        bool threadPerConnection;
     };
 
     class ConnectCallback : public Ice::ConnectionI::StartCallback, public IceInternal::EndpointI_connectors
@@ -88,7 +85,7 @@ private:
     public:
 
         ConnectCallback(const OutgoingConnectionFactoryPtr&, const std::vector<EndpointIPtr>&, bool, 
-                        const CreateConnectionCallbackPtr&, Ice::EndpointSelectionType, bool);
+                        const CreateConnectionCallbackPtr&, Ice::EndpointSelectionType);
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
         virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
@@ -107,12 +104,10 @@ private:
     private:
 
         const OutgoingConnectionFactoryPtr _factory;
-        const SelectorThreadPtr _selectorThread;
         const std::vector<EndpointIPtr> _endpoints;
         const bool _hasMore;
         const CreateConnectionCallbackPtr _callback;
         const Ice::EndpointSelectionType _selType;
-        const bool _threadPerConnection;
         std::vector<EndpointIPtr>::const_iterator _endpointsIter;
         std::vector<ConnectorInfo> _connectors;
         std::vector<ConnectorInfo>::const_iterator _iter;
@@ -121,7 +116,7 @@ private:
     friend class ConnectCallback;
 
     std::vector<EndpointIPtr> applyOverrides(const std::vector<EndpointIPtr>&);
-    Ice::ConnectionIPtr findConnection(const std::vector<EndpointIPtr>&, bool, bool&);
+    Ice::ConnectionIPtr findConnection(const std::vector<EndpointIPtr>&, bool&);
     void incPendingConnectCount();
     void decPendingConnectCount();
     Ice::ConnectionIPtr getConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, bool&);
@@ -173,7 +168,7 @@ public:
 
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
-    
+
 private:
 
     IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterPtr&,
@@ -189,24 +184,6 @@ private:
     };
 
     void setState(State);
-    void registerWithPool();
-    void unregisterWithPool();
-
-    void run();
-
-    class ThreadPerIncomingConnectionFactory : public IceUtil::Thread
-    {
-    public:
-        
-        ThreadPerIncomingConnectionFactory(const IncomingConnectionFactoryPtr&);
-        virtual void run();
-
-    private:
-        
-        IncomingConnectionFactoryPtr _factory;
-    };
-    friend class ThreadPerIncomingConnectionFactory;
-    IceUtil::ThreadPtr _threadPerIncomingConnectionFactory;
 
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
@@ -214,17 +191,11 @@ private:
 
     Ice::ObjectAdapterPtr _adapter;
 
-    bool _registeredWithPool;
-    int _finishedCount;
-
     const bool _warn;
 
     std::list<Ice::ConnectionIPtr> _connections;
 
     State _state;
-
-    bool _threadPerConnection;
-    size_t _threadPerConnectionStackSize;
 };
 
 }

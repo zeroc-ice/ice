@@ -14,10 +14,10 @@
 using namespace std;
 
 IceInternal::TransceiverPtr
-Connector::connect(int timeout)
+Connector::connect()
 {
     _configuration->checkConnectException();
-    return new Transceiver(_connector->connect(timeout));
+    return new Transceiver(_connector->connect());
 }
 
 Ice::Short

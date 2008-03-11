@@ -3010,12 +3010,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             _out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
         }
-        _out << nl << "void " << p->name() << "_async" << spar << paramsAMI << epar << ';';
+        _out << nl << "bool " << p->name() << "_async" << spar << paramsAMI << epar << ';';
         if(!deprecateReason.empty())
         {
             _out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
         }
-        _out << nl << "void " << p->name() << "_async" << spar << paramsAMI
+        _out << nl << "bool " << p->name() << "_async" << spar << paramsAMI
              << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar << ';';
     }
 }
@@ -3301,20 +3301,20 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             // context parameter
             //
             _out << sp;
-            _out << nl << "public void " << opName << "_async" << spar << paramsAMI << epar;
+            _out << nl << "public bool " << opName << "_async" << spar << paramsAMI << epar;
             _out << sb;
-            _out << nl << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
+            _out << nl << "return " << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
             _out << eb;
 
             _out << sp;
-            _out << nl << "public void " << opName << "_async" << spar << paramsAMI
+            _out << nl << "public bool " << opName << "_async" << spar << paramsAMI
                  << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
             _out << sb;
-            _out << nl << opName << "_async" << spar << argsAMI << "ctx__" << "true" << epar << ';';
+            _out << nl << "return " << opName << "_async" << spar << argsAMI << "ctx__" << "true" << epar << ';';
             _out << eb;
 
             _out << sp;
-            _out << nl << "public void " << opName << "_async" << spar << paramsAMI
+            _out << nl << "public bool " << opName << "_async" << spar << paramsAMI
                  << "_System.Collections.Generic.Dictionary<string, string> ctx__"
                  << "bool explicitContext__" << epar;
             _out << sb;
@@ -3322,7 +3322,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "ctx__ = emptyContext_;";
             _out << eb;
-            _out << nl << "cb__.invoke__" << spar << "this" << argsAMI << "ctx__" << epar << ';';
+            _out << nl << "return cb__.invoke__" << spar << "this" << argsAMI << "ctx__" << epar << ';';
             _out << eb;
         }
     }
@@ -4562,7 +4562,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         _out << nl << "public abstract void ice_response" << spar << params << epar << ';';
         
-        _out << sp << nl << "public void invoke__" << spar << "Ice.ObjectPrx prx__"
+        _out << sp << nl << "public bool invoke__" << spar << "Ice.ObjectPrx prx__"
              << paramsInvoke << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
         _out << nl << "acquireCallback__(prx__);";
@@ -4583,11 +4583,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "os__.writePendingObjects();";
         }
         _out << nl << "os__.endWriteEncaps();";
-        _out << nl << "send__();";
+        _out << nl << "return send__();";
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";
         _out << sb;
         _out << nl << "releaseCallback__(ex__);";
+        _out << nl << "return false;";
         _out << eb;
         _out << eb;
 

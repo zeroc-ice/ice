@@ -1,6 +1,26 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- An Ice server will now abort() if there are no more file descriptors
+  available to accept incoming connections.
+
+- AMI requests now return a boolean to indicate if the request is
+  sent synchronously. If not sent synchrnously and the AMI callback
+  implements the Ice::AMISentCallback interface, the Ice runtime 
+  calls the ice_sent() method once the request is sent. See the Ice
+  manual for more information.
+
+- Removed thread-per-connection concurrency model. Applications that
+  were using the thread-per-connection concurrency model for its
+  ordering guarantees can use the new thread pool serialize mode.
+
+- The Ice thread pool now supports a new serialize mode to serialize
+  the processing of messages received over a connection. This is for
+  example useful to ensure orderly dispatch of oneway requests from 
+  a client even if the thread pool has multiple threads. The thread 
+  pool serialize mode is enabled by setting the thread pool Serialize 
+  property to 1. See the Ice manual for more information.
+
 - Added a new property, Ice.TCP.Backlog, which can be used to configure
   the backlog for TCP/IP sockets. The default is set to the value of
   SOMAXCONN or 511 if SOMAXCONN is not defined.
@@ -74,6 +94,9 @@ Changes since version 3.2.X (binary incompatible)
 - It is now possible to specify properties in a config file with
   space, '#' or '=' in either the key or value string. It is necessary
   to escape '#' and '=' as '\#' and '\='.
+
+- Properties can no longer have leading or trailing whitespace in the
+  key or the value.
 
 - The following APIs were deprecated in Ice 3.1 and have been
   removed:

@@ -40,8 +40,8 @@ namespace Ice
         bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
             Dictionary<string, string> context__);
 
-        void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
-        void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
+        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
+        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
             Dictionary<string, string> context);
 
         Identity ice_getIdentity();
@@ -100,11 +100,8 @@ namespace Ice
         ObjectPrx ice_timeout(int t);
         ObjectPrx ice_connectionId(string connectionId);
 
-        bool ice_isThreadPerConnection();
-        ObjectPrx ice_threadPerConnection(bool tpc);
-
         void ice_flushBatchRequests();
-        void ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
+        bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
 
         Connection ice_getConnection();
         Connection ice_getCachedConnection();
@@ -333,13 +330,13 @@ namespace Ice
             }
         }
 
-        public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
+        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
         {
             checkTwowayOnly__("ice_invoke_async");
-            cb.invoke__(this, operation, mode, inParams, null);
+            return cb.invoke__(this, operation, mode, inParams, null);
         }
 
-        public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
+        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
                                      Dictionary<string, string> context)
         {
             if(context == null)
@@ -347,7 +344,7 @@ namespace Ice
                 context = emptyContext_;
             }
             checkTwowayOnly__("ice_invoke_async");
-            cb.invoke__(this, operation, mode, inParams, context);
+            return cb.invoke__(this, operation, mode, inParams, context);
         }
 
         public Identity ice_getIdentity()
@@ -717,24 +714,6 @@ namespace Ice
             }
         }
 
-        public bool ice_isThreadPerConnection()
-        {
-            return _reference.getThreadPerConnection();
-        }
-
-        public ObjectPrx ice_threadPerConnection(bool tpc)
-        {
-            IceInternal.Reference @ref = _reference.changeThreadPerConnection(tpc);
-            if(@ref.Equals(_reference))
-            {
-                return this;
-            }
-            else
-            {
-                return newInstance(@ref);
-            }
-        }
-
         public Connection ice_getConnection()
         {
             int cnt__ = 0;
@@ -796,9 +775,9 @@ namespace Ice
             }
         }
 
-        public void ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
+        public bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
         {
-            cb.invoke__(this);
+            return cb.invoke__(this);
         }
 
         public override bool Equals(object r)

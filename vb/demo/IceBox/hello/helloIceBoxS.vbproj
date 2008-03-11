@@ -72,17 +72,11 @@
   <ItemGroup>
     <Reference Include="IceBox">
       <Name>IceBox</Name>
-      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\IceBox.dll</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\IceBox.dll</HintPath>
+      <HintPath>..\..\..\..\cs\bin\IceBox.dll</HintPath>
     </Reference>
     <Reference Include="Ice">
       <Name>Ice</Name>
-      <HintPath>..\..\..\bin\Ice.dll</HintPath>
-    </Reference>
-    <Reference Include="IceSSL, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\IceSSL.dll</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\IceSSL.dll</HintPath>
+      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

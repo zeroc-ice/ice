@@ -21,7 +21,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 TransceiverPtr
-IceInternal::TcpConnector::connect(int timeout)
+IceInternal::TcpConnector::connect()
 {
     if(_traceLevels->network >= 2)
     {
@@ -34,7 +34,7 @@ IceInternal::TcpConnector::connect(int timeout)
         SOCKET fd = createSocket(false, _addr.ss_family);
         setBlock(fd, false);
         setTcpBufSize(fd, _instance->initializationData().properties, _logger);
-        bool connected = doConnect(fd, _addr, timeout);
+        bool connected = doConnect(fd, _addr);
         if(connected)
         {
             if(_traceLevels->network >= 1)

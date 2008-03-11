@@ -19,46 +19,60 @@ class ClockI(Demo.Clock):
 
 class Subscriber(Ice.Application):
     def usage(self):
-        print "Usage: " + self.appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]"
+        print "Usage: " + self.appName() + \
+	    " [--batch] [--datagram|--twoway|--ordered|--oneway] [--retryCount count] [--id id] [topic]"
 
     def run(self, args):
         try:
-            opts, args = getopt.getopt(args[1:], '', ['datagram', 'twoway', 'oneway', 'ordered', 'batch'])
+            opts, args = getopt.getopt(args[1:], '', ['datagram', 'twoway', 'oneway', 'ordered', 'batch',
+	    	'retryCount=', 'id='])
         except getopt.GetoptError:
             self.usage()
             return 1
 
+	batch = False
+	option = "None"
         topicName = "time"
-        datagram = False
-        twoway = False
-        ordered = False
-        batch = False
-        optsSet = 0
+        id = ""
+        retryCount = ""
+
         for o, a in opts:
+	    oldoption = option
             if o == "--datagram":
-                datagram = True
-                optsSet = optsSet + 1
+                option = "Datagram"
             elif o =="--twoway":
-                twoway = True
-                optsSet = optsSet + 1
+                option = "Twoway"
             elif o =="--ordered":
-                ordered = True
-                optsSet = optsSet + 1
+                option = "Ordered"
             elif o =="--oneway":
-                optsSet = optsSet + 1
+	    	option = "Oneway"
             elif o =="--batch":
                 batch = True
+	    elif o == "--id":
+		id = a
+	    elif o == "--retryCount":
+		retryCount = a
+	    if oldoption != option and oldoption != "None":
+		self.usage()
+		return 1
 
-        if batch and (twoway or ordered):
-            print self.appName() + ": batch can only be set with oneway or datagram"
-            return 1
-
-        if optsSet > 1:
-            self.usage()
-            sys.exit(1)
+        if len(args) > 1:
+		self.usage()
+		return 1
 
         if len(args) > 0:
             topicName = args[0]
+
+	if len(retryCount) > 0:
+	    if option == "None":
+		option = "Twoway"
+	    elif option != "Twoway" and option != "Ordered":
+	    	print self.appName() + ": retryCount requires a twoway proxy"
+		return 1
+
+        if batch and (option in ("Twoway", "Ordered")):
+            print self.appName() + ": batch can only be set with oneway or datagram"
+            return 1
 
         manager = IceStorm.TopicManagerPrx.checkedCast(self.communicator().propertyToProxy('TopicManager.Proxy'))
         if not manager:
@@ -79,32 +93,52 @@ class Subscriber(Ice.Application):
 
         adapter = self.communicator().createObjectAdapter("Clock.Subscriber")
 
-        #
-        # Add a Servant for the Ice Object.
-        #
-        qos = {}
-        subscriber = adapter.addWithUUID(ClockI())
+	#
+	# Add a servant for the Ice object. If --id is used the identity
+	# comes from the command line, otherwise a UUID is used.
+	#
+	# id is not directly altered since it is used below to detect
+	# whether subscribeAndGetPublisher can raise AlreadySubscribed.
+	#
 
-        #
-        # Set up the proxy.
-        #
-        if datagram:
-            subscriber = subscriber.ice_datagram()
-        elif twoway:
-             pass
+	subId = Ice.Identity()
+	subId.name = id
+	if len(subId.name) == 0:
+	    subId.name = Ice.generateUUID()
+        subscriber = adapter.add(ClockI(), subId)
+
+        qos = {}
+	if len(retryCount) > 0:
+	    qos["retryCount"] = retryCount
+
+	#
+	# Set up the proxy.
+	#
+        if option == "Datagram":
+	    if batch:
+		subscriber = subscriber.ice_batchDatagram()
+	    else:
+		subscriber = subscriber.ice_datagram()
+        elif option == "Twoway":
             # Do nothing to the subscriber proxy. Its already twoway.
-        elif ordered:
+             pass
+        elif option == "Ordered":
             # Do nothing to the subscriber proxy. Its already twoway.
             qos["reliability"] = "ordered"
-        else: # if(oneway)
-            subscriber = subscriber.ice_oneway()
-        if batch:
-            if datagram:
-                subscriber = subscriber.ice_batchDatagram()
-            else:
-                subscriber = subscriber.ice_batchOneway()
+        elif option == "Oneway" or option == "None":
+	    if batch:
+		subscriber = subscriber.ice_batchOneway()
+	    else:
+		subscriber = subscriber.ice_oneway()
 
-        topic.subscribeAndGetPublisher(qos, subscriber)
+	try:
+	    topic.subscribeAndGetPublisher(qos, subscriber)
+	except IceStorm.AlreadySubscribed, ex:
+	    # If we're manually setting the subscriber id ignore.
+	    if len(id) == 0:
+		raise
+	    print "reactivating persistent subscriber"
+
         adapter.activate()
 
         self.shutdownOnInterrupt()

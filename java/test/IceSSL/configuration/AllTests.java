@@ -28,10 +28,6 @@ public class AllTests
         Ice.InitializationData result = new Ice.InitializationData();
         result.properties = Ice.Util.createProperties();
         result.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
-        if(defaultProperties.getPropertyAsInt("Ice.ThreadPerConnection") > 0)
-        {
-            result.properties.setProperty("Ice.ThreadPerConnection", "1");
-        }
         if(defaultProperties.getProperty("Ice.IPv6").length() > 0)
         {
             result.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
@@ -51,10 +47,6 @@ public class AllTests
     {
         java.util.Map<String, String> result = new java.util.HashMap<String, String>();
         result.put("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
-        if(defaultProperties.getPropertyAsInt("Ice.ThreadPerConnection") > 0)
-        {
-            result.put("Ice.ThreadPerConnection", "1");
-        }
         if(defaultProperties.getProperty("Ice.IPv6").length() > 0)
         {
             result.put("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));

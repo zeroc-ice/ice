@@ -4,6 +4,24 @@
 
 import ConfigParser, sys, os, logging, fnmatch, os.path, shutil, re, pprint
 
+class ExtProgramError:
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return repr(self.msg)
+
+def runprog(command, haltOnError = True):
+    logging.debug('Running external command: %s' % command)
+    result = os.system(command)
+    if not result == 0:
+        msg = 'Command %s failed with error code %d' % (command, result)
+        print msg
+        if haltOnError:
+            raise ExtProgramError('Command %s failed with error code %d' % (command, result))
+        else:
+            logging.error(msg)
+
 def listFileLists():
     """Information routine for getting lists of file lists from a components file"""
     cfg = ConfigParser.SafeConfigParser()
@@ -76,6 +94,14 @@ def fixVersion(file, argsHash):
     newFile.close()
     oldFile.close()
     os.remove(origfile)
+
+def signFile(file, argsHash):
+   
+    pfxFile = argsHash['PFX_FILE']
+    pfxPassword = argsHash['PFX_PASSWORD']
+    timeStampingURL = argsHash['timeStampingURL']
+
+    runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword + ' /t ' + timeStampingURL + ' ' + file)
 
 class FileSpecWorker:
     def __init__(self, id, source, dest, processors):

@@ -13,8 +13,7 @@ import Ice, Test
 class RemoteCommunicatorI(Test.RemoteCommunicator):
     def createObjectAdapter(self, name, endpoints, current=None):
         com = current.adapter.getCommunicator()
-        if com.getProperties().getPropertyAsIntWithDefault("Ice.ThreadPerConnection", 0) == 0:
-            com.getProperties().setProperty(name + ".ThreadPool.Size", "1")
+        com.getProperties().setProperty(name + ".ThreadPool.Size", "1")
         adapter = com.createObjectAdapterWithEndpoints(name, endpoints)
         return Test.RemoteObjectAdapterPrx.uncheckedCast(current.adapter.addWithUUID(RemoteObjectAdapterI(adapter)))
 

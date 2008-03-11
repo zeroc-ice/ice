@@ -60,21 +60,6 @@ namespace IceInternal
             }
         }
 
-        public virtual Transceiver accept(int timeout)
-        {
-            Socket fd = Network.doAccept(_fd, timeout);
-            Network.setBlock(fd, false);
-            Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
-
-            if(_traceLevels.network >= 1)
-            {
-                string s = "accepted tcp connection\n" + Network.fdToString(fd);
-                _logger.trace(_traceLevels.networkCat, s);
-            }
-
-            return new TcpTransceiver(instance_, fd, null, true);
-        }
-
         public virtual IAsyncResult beginAccept(AsyncCallback callback, object state)
         {
             try
@@ -109,28 +94,6 @@ namespace IceInternal
             }
 
             return new TcpTransceiver(instance_, fd, null, true);
-        }
-
-        public virtual void connectToSelf()
-        {
-            Socket fd = Network.createSocket(false, _addr.AddressFamily);
-            Network.setBlock(fd, false);
-            //
-            // .Net does not allow connecting to 0.0.0.0
-            //
-            if(_addr.Address.Equals(IPAddress.Any))
-            {
-                Network.doConnect(fd, new IPEndPoint(IPAddress.Loopback, _addr.Port), -1);
-            }
-            else if(_addr.Address.Equals(IPAddress.IPv6Any))
-            {
-                Network.doConnect(fd, new IPEndPoint(IPAddress.IPv6Loopback, _addr.Port), -1);
-            }
-            else
-            {
-                Network.doConnect(fd, _addr, -1);
-            }
-            Network.closeSocket(fd);
         }
 
         public override string ToString()

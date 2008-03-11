@@ -57,9 +57,9 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     }
 
     public void
-    sent(boolean notify)
+    sent(boolean async)
     {
-        if(notify)
+        if(async)
         {
             synchronized(this)
             {

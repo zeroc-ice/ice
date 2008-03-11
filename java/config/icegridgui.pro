@@ -57,7 +57,10 @@
   public *;
 }
 -keep interface IceGrid.**
+-keep class IceInternal.SelectorHandler
 -keep class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
+-keep class com.jgoodies.looks.plastic.PlasticFieldCaret
+-keep class com.jgoodies.looks.windows.WindowsFieldCaret 
 -keep public class javax.**
 -keep interface javax.**
 -keep class * implements javax.**
@@ -67,4 +70,29 @@
 #
 -keepclassmembers class com.jgoodies.looks.** {
    <methods>;
+}
+
+#
+# More keeps to suppress Notes
+#
+-keep public class * {
+    public protected *;
+}
+
+-keep public class Ice.DispatchStatus {
+    int __value;
+    Ice.DispatchStatus[] __values;
+    int value();
+}
+
+-keep public class javax.swing.plaf.metal.MetalLookAndFeel {
+    javax.swing.plaf.metal.MetalTheme getCurrentTheme();
+}
+
+-keep public class IceGridGUI.BareBonesBrowserLaunch {
+    void openURL(java.lang.String);
+}
+
+-keep public class java.net.DatagramSocketImpl {
+    java.io.FileDescriptor fd;
 }

@@ -19,8 +19,7 @@ public:
     virtual SOCKET fd();
     virtual void close();
     virtual void listen();
-    virtual IceInternal::TransceiverPtr accept(int);
-    virtual void connectToSelf();
+    virtual IceInternal::TransceiverPtr accept();
     virtual std::string toString() const;
 
 private:

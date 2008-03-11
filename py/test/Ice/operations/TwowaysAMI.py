@@ -154,8 +154,8 @@ class AMI_MyClass_opMyClassI(CallbackBase):
         test(c1.ice_getIdentity() == self._communicator.stringToIdentity("test"))
         test(c2.ice_getIdentity() == self._communicator.stringToIdentity("noSuchIdentity"))
         test(r.ice_getIdentity() == self._communicator.stringToIdentity("test"))
-        # We can't do the callbacks below in thread per connection mode.
-        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+        # We can't do the callbacks below in serialize mode
+        if self._communicator.getProperties().getPropertyAsInt("Ice.Client.ThreadPool.Serialize") == 0:
             r.opVoid()
             c1.opVoid()
             try:
@@ -180,8 +180,8 @@ class AMI_MyClass_opStructI(CallbackBase):
         test(rso.s.s == "def")
         test(so.e == Test.MyEnum.enum3)
         test(so.s.s == "a new string")
-        # We can't do the callbacks below in thread per connection mode.
-        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+        # We can't do the callbacks below in serialize mode.
+        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0:
             so.p.opVoid()
         self.called()
 
@@ -527,17 +527,17 @@ def twowaysAMI(communicator, p):
     indirect = Test.MyClassPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = AMI_MyClass_opVoidExI()
     try:
-        indirect.opVoid_async(cb)
+        test(not indirect.opVoid_async(cb))
     except Ice.Exception:
         test(False)
     test(cb.check())
 
-    # Check that a call to a void operation raises NoEndpointException
+    # Check that a call to a twoway operation raises NoEndpointException
     # in the ice_exception() callback instead of at the point of call.
     indirect = Test.MyClassPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = AMI_MyClass_opByteExI()
     try:
-        indirect.opByte_async(cb, 0, 0)
+        test(not indirect.opByte_async(cb, 0, 0))
     except Ice.Exception:
         test(False)
     test(cb.check())
@@ -551,6 +551,22 @@ def twowaysAMI(communicator, p):
     # Let's check if we can reuse the same callback object for another call.
     p.opVoid_async(cb)
     test(cb.check())
+
+    # Check that CommunicatorDestroyedException is raised directly.
+    initData = Ice.InitializationData()
+    initData.properties = communicator.getProperties().clone()
+    ic = Ice.initialize(initData)
+    obj = ic.stringToProxy(p.ice_toString())
+    p2 = Test.MyClassPrx.checkedCast(obj)
+
+    ic.destroy()
+
+    cb = AMI_MyClass_opVoidI()
+    try:
+        test(not p2.opVoid_async(cb))
+        test(False)
+    except Ice.CommunicatorDestroyedException:
+        pass # Expected.
 
     #
     # opByte
@@ -904,8 +920,3 @@ def twowaysAMI(communicator, p):
         test(cb.check())
 
         ic.destroy()
-        
-
-
-
-  

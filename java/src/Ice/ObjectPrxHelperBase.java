@@ -251,14 +251,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public final void
+    public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
         __checkTwowayOnly("ice_invoke_async");
-        cb.__invoke(this, operation, mode, inParams, null);
+        return cb.__invoke(this, operation, mode, inParams, null);
     }
 
-    public final void
+    public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
                      java.util.Map context)
     {
@@ -267,7 +267,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             context = _emptyContext;
         }
         __checkTwowayOnly("ice_invoke_async");
-        cb.__invoke(this, operation, mode, inParams, context);
+        return cb.__invoke(this, operation, mode, inParams, context);
     }
     
     public final Identity
@@ -680,26 +680,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public boolean
-    ice_isThreadPerConnection()
-    {
-        return _reference.getThreadPerConnection();
-    }
-
-    public ObjectPrx
-    ice_threadPerConnection(boolean tpc)
-    {
-        IceInternal.Reference ref = _reference.changeThreadPerConnection(tpc);
-        if(ref.equals(_reference))
-        {
-            return this;
-        }
-        else
-        {
-            return newInstance(ref);
-        }
-    }
-
     public final Connection
     ice_getConnection()
     {
@@ -764,10 +744,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public void
+    public boolean
     ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
     {
-        cb.__invoke(this);
+        return cb.__invoke(this);
     }
 
     public final boolean

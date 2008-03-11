@@ -49,44 +49,8 @@ IceInternal::TcpTransceiver::close()
     }
 }
 
-void
-IceInternal::TcpTransceiver::shutdownWrite()
-{
-    if(_state < StateConnected)
-    {
-        return;
-    }
-
-    if(_traceLevels->network >= 2)
-    {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "shutting down tcp connection for writing\n" << toString();
-    }
-
-    assert(_fd != INVALID_SOCKET);
-    shutdownSocketWrite(_fd);
-}
-
-void
-IceInternal::TcpTransceiver::shutdownReadWrite()
-{
-    if(_state < StateConnected)
-    {
-        return;
-    }
-
-    if(_traceLevels->network >= 2)
-    {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "shutting down tcp connection for reading and writing\n" << toString();
-    }
-
-    assert(_fd != INVALID_SOCKET);
-    shutdownSocketReadWrite(_fd);
-}
-
 bool
-IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
+IceInternal::TcpTransceiver::write(Buffer& buf)
 {
     // Its impossible for the packetSize to be more than an Int.
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
@@ -128,53 +92,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
             if(wouldBlock())
             {
-                if(timeout == 0)
-                {
-                    return false;
-                }
-
-            repeatSelect:
-
-                int rs;
-                assert(_fd != INVALID_SOCKET);
-#ifdef _WIN32
-                FD_SET(_fd, &_wFdSet);
-
-                if(timeout >= 0)
-                {
-                    struct timeval tv;
-                    tv.tv_sec = timeout / 1000;
-                    tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-                    rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, &tv);
-                }
-                else
-                {
-                    rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
-                }
-#else
-                struct pollfd pollFd[1];
-                pollFd[0].fd = _fd;
-                pollFd[0].events = POLLOUT;
-                rs = ::poll(pollFd, 1, timeout);
-#endif          
-                if(rs == SOCKET_ERROR)
-                {
-                    if(interrupted())
-                    {
-                        goto repeatSelect;
-                    }
-                    
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
-                }
-                
-                if(rs == 0)
-                {
-                    throw TimeoutException(__FILE__, __LINE__);
-                }
-                
-                continue;
+                return false;
             }
             
             if(connectionLost())
@@ -214,7 +132,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 }
 
 bool
-IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
+IceInternal::TcpTransceiver::read(Buffer& buf)
 {
     // Its impossible for the packetSize to be more than an Int.
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
@@ -257,53 +175,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
             if(wouldBlock())
             {
-                if(timeout == 0)
-                {
-                    return false;
-                }
-
-            repeatSelect:
-
-                int rs;
-                assert(_fd != INVALID_SOCKET);
-#ifdef _WIN32
-                FD_SET(_fd, &_rFdSet);
-
-                if(timeout >= 0)
-                {
-                    struct timeval tv;
-                    tv.tv_sec = timeout / 1000;
-                    tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-                    rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, &tv);
-                }
-                else
-                {
-                    rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, 0);
-                }
-#else
-                struct pollfd pollFd[1];
-                pollFd[0].fd = _fd;
-                pollFd[0].events = POLLIN;
-                rs = ::poll(pollFd, 1, timeout);
-#endif
-                if(rs == SOCKET_ERROR)
-                {
-                    if(interrupted())
-                    {
-                        goto repeatSelect;
-                    }
-                    
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
-                }
-                
-                if(rs == 0)
-                {
-                    throw TimeoutException(__FILE__, __LINE__);
-                }
-                
-                continue;
+                return false;
             }
             
             if(connectionLost())
@@ -363,9 +235,9 @@ IceInternal::TcpTransceiver::toString() const
 }
 
 SocketStatus
-IceInternal::TcpTransceiver::initialize(int timeout)
+IceInternal::TcpTransceiver::initialize()
 {
-    if(_state == StateNeedConnect && timeout == 0)
+    if(_state == StateNeedConnect)
     {
         _state = StateConnectPending;
         return NeedConnect;
@@ -374,7 +246,7 @@ IceInternal::TcpTransceiver::initialize(int timeout)
     {
         try
         {
-            doFinishConnect(_fd, timeout);
+            doFinishConnect(_fd);
             _state = StateConnected;
             _desc = fdToString(_fd);
         }

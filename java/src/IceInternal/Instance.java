@@ -217,24 +217,6 @@ public final class Instance
         return _timer;
     }
 
-    public boolean
-    threadPerConnection()
-    {
-        return _threadPerConnection;
-    }
-
-    public int
-    threadPerConnectionStackSize()
-    {
-        return _threadPerConnectionStackSize;
-    }
-
-    public boolean
-    background()
-    {
-        return _background;
-    }
-
     public synchronized EndpointFactoryManager
     endpointFactoryManager()
     {
@@ -680,19 +662,6 @@ public final class Instance
 
             _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
-            _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
-
-            {
-                int stackSize = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
-                if(stackSize < 0)
-                {
-                    stackSize = 0;
-                }
-                _threadPerConnectionStackSize = stackSize;
-            }
-
-            _background = _initData.properties.getPropertyAsInt("Ice.Background") > 0;
-
             _routerManager = new RouterManager();
 
             _locatorManager = new LocatorManager();
@@ -1082,9 +1051,6 @@ public final class Instance
     private SelectorThread _selectorThread;
     private EndpointHostResolver _endpointHostResolver;
     private Timer _timer;
-    private final boolean _threadPerConnection;
-    private final int _threadPerConnectionStackSize;
-    private final boolean _background;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
     private java.util.Map<String, String> _defaultContext;

@@ -50,71 +50,8 @@ IceInternal::UdpTransceiver::close()
     _fd = INVALID_SOCKET;
 }
 
-void
-IceInternal::UdpTransceiver::shutdownWrite()
-{
-}
-
-void
-IceInternal::UdpTransceiver::shutdownReadWrite()
-{
-    if(_traceLevels->network >= 2)
-    {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "shutting down udp connection for reading and writing\n" << toString();
-    }
-
-    //
-    // Set a flag and then shutdown the socket in order to wake a thread that is
-    // blocked in read().
-    //
-    IceUtil::Mutex::Lock sync(_shutdownReadWriteMutex);
-    _shutdownReadWrite = true;
-
-#if defined(_WIN32) || defined(__sun) || defined(__hppa) || defined(_AIX) || defined(__APPLE__)
-    //
-    // On certain platforms, we have to explicitly wake up a thread blocked in
-    // select(). This is only relevant when using thread per connection.
-    //
-
-    //
-    // Save the local address before shutting down or disconnecting.
-    //
-    struct sockaddr_storage localAddr;
-    fdToLocalAddress(_fd, localAddr);
-
-    assert(_fd != INVALID_SOCKET);
-    shutdownSocketReadWrite(_fd);
-
-    //
-    // A connected UDP socket can only receive packets from its associated
-    // peer, so we disconnect the socket.
-    //
-    if(!_connect)
-    {
-        struct sockaddr_storage unspec;
-        memset(&unspec, 0, sizeof(unspec));
-        unspec.ss_family = AF_UNSPEC;
-        ::connect(_fd, reinterpret_cast<struct sockaddr*>(&unspec), int(sizeof(unspec)));
-    }
-
-    //
-    // Send a dummy packet to the socket. This packet is ignored because we have
-    // already set _shutdownReadWrite.
-    //
-    SOCKET fd = createSocket(true, localAddr.ss_family);
-    setBlock(fd, false);
-    doConnect(fd, localAddr, -1);
-    ::send(fd, "", 1, 0);
-    closeSocket(fd);
-#else
-    assert(_fd != INVALID_SOCKET);
-    shutdownSocketReadWrite(_fd);
-#endif
-}
-
 bool
-IceInternal::UdpTransceiver::write(Buffer& buf, int timeout)
+IceInternal::UdpTransceiver::write(Buffer& buf)
 {
     assert(buf.i == buf.b.begin());
     //
@@ -150,53 +87,7 @@ repeat:
 
         if(wouldBlock())
         {
-        repeatSelect:
-
-            if(timeout == 0)
-            {
-                return false;
-            }
-
-            int rs;
-            assert(_fd != INVALID_SOCKET);
-#ifdef _WIN32
-            FD_SET(_fd, &_wFdSet);
-
-            if(timeout >= 0)
-            {
-                struct timeval tv;
-                tv.tv_sec = timeout / 1000;
-                tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-                rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, &tv);
-            }
-            else
-            {
-                rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
-            }
-#else
-            struct pollfd pollFd[1];
-            pollFd[0].fd = _fd;
-            pollFd[0].events = POLLOUT;
-            rs = ::poll(pollFd, 1, timeout);
-#endif
-            if(rs == SOCKET_ERROR)
-            {
-                if(interrupted())
-                {
-                    goto repeatSelect;
-                }
-
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            if(rs == 0)
-            {
-                throw new Ice::TimeoutException(__FILE__, __LINE__);
-            }
-
-            goto repeat;
+            return false;
         }
 
         SocketException ex(__FILE__, __LINE__);
@@ -221,7 +112,7 @@ repeat:
 }
 
 bool
-IceInternal::UdpTransceiver::read(Buffer& buf, int timeout)
+IceInternal::UdpTransceiver::read(Buffer& buf)
 {
     assert(buf.i == buf.b.begin());
 
@@ -249,17 +140,6 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int timeout)
 
 repeat:
 
-    //
-    // Check the shutdown flag.
-    //
-    {
-        IceUtil::Mutex::Lock sync(_shutdownReadWriteMutex);
-        if(_shutdownReadWrite)
-        {
-            throw ConnectionLostException(__FILE__, __LINE__);
-        }
-    }
-
     ssize_t ret;
     if(_connect)
     {
@@ -275,7 +155,12 @@ repeat:
                        0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
         if(ret != SOCKET_ERROR)
         {
-            doConnect(_fd, peerAddr, -1);
+#ifndef NDEBUG
+            bool connected = doConnect(_fd, peerAddr);
+            assert(connected);
+#else
+            doConnect(_fd, peerAddr);
+#endif
             _connect = false; // We are connected now.
 
             if(_traceLevels->network >= 1)
@@ -300,42 +185,7 @@ repeat:
 
         if(wouldBlock())
         {
-            if(timeout == 0)
-            {
-                return false;
-            }
-
-        repeatSelect:
-
-            assert(_fd != INVALID_SOCKET);
-#ifdef _WIN32
-            FD_SET(_fd, &_rFdSet);
-            int rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, 0);
-#else
-            struct pollfd fdSet[1];
-            fdSet[0].fd = _fd;
-            fdSet[0].events = POLLIN;
-            int rs = ::poll(fdSet, 1, -1);
-#endif
-
-            if(rs == SOCKET_ERROR)
-            {
-                if(interrupted())
-                {
-                    goto repeatSelect;
-                }
-
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            if(rs == 0)
-            {
-                throw TimeoutException(__FILE__, __LINE__);
-            }
-
-            goto repeat;
+            return false;
         }
 
         if(recvTruncated())
@@ -393,7 +243,7 @@ IceInternal::UdpTransceiver::toString() const
 }
 
 SocketStatus
-IceInternal::UdpTransceiver::initialize(int)
+IceInternal::UdpTransceiver::initialize()
 {
     return Finished;
 }
@@ -426,15 +276,19 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _incoming(false),
     _addr(addr),
     _connect(true),
-    _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
-    _shutdownReadWrite(false)
+    _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     try
     {
         _fd = createSocket(true, _addr.ss_family);
         setBufSize(instance);
         setBlock(_fd, false);
-        doConnect(_fd, _addr, -1);
+#ifndef NDEBUG
+        bool connected = doConnect(_fd, _addr);
+        assert(connected);
+#else
+        doConnect(_fd, _addr);
+#endif
         _connect = false; // We're connected now
 
         bool multicast = false;
@@ -488,8 +342,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _stats(instance->initializationData().stats),
     _incoming(true),
     _connect(connect),
-    _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
-    _shutdownReadWrite(false)
+    _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     try
     {

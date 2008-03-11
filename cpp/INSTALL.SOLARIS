@@ -133,7 +133,7 @@ To build Ice in 64-bit mode, you need to do the following:
 
 - Obtain or build all the third-party dependencies, and put the 64-bit
   libraries in the appropriate lib subdirectory (lib/sparcv9 on SPARC,
-  lib/amd64 on x64).
+  lib/amd64 on x86).
 
 - Set the environment variable LP64 to yes, as shown below:
 

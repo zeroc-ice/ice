@@ -43,6 +43,7 @@ namespace IceInternal
             _running = 0;
             _inUse = 0;
             _load = 1.0;
+            _serialize = _instance.initializationData().properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
 
             string programName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
             if(programName.Length > 0)
@@ -146,6 +147,19 @@ namespace IceInternal
             }
         }
 
+        public void finish(Ice.ConnectionI connection)
+        {
+            lock(this)
+            {
+                if(_destroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                _finished.AddLast(connection);
+                Monitor.Pulse(this);
+            }
+        }
+
         public void joinWithAllThreads()
         {
             //
@@ -166,14 +180,21 @@ namespace IceInternal
             return _prefix;
         }
 
+        public bool
+        serialize()
+        {
+            return _serialize;
+        }
+
         private void run()
         {
             while(true)
             {
                 ThreadPoolWorkItem workItem = null;
+                Ice.ConnectionI handler = null;
                 lock(this)
                 {
-                    while(_workItems.Count == 0 && !_destroyed)
+                    while(_finished.Count == 0 && _workItems.Count == 0 && !_destroyed)
                     {
                         if(!Monitor.Wait(this, _timeout > 0 ? _timeout * 1000 : Timeout.Infinite))
                         {
@@ -191,7 +212,7 @@ namespace IceInternal
                         }
                     }
 
-                    Debug.Assert(_workItems.Count > 0 || _destroyed);
+                    Debug.Assert(_finished.Count > 0 || _workItems.Count > 0 || _destroyed);
 
                     //
                     // There are two possibilities for a notification:
@@ -201,7 +222,12 @@ namespace IceInternal
                     // 2. A work item has been scheduled.
                     //
 
-                    if(_workItems.Count > 0)
+                    if(_finished.Count > 0)
+                    {
+                        handler = _finished.First.Value;
+                        _finished.RemoveFirst();
+                    }
+                    else if(_workItems.Count > 0)
                     {
                         //
                         // Work items must be executed first even if the thread pool is destroyed.
@@ -251,20 +277,38 @@ namespace IceInternal
                 //
                 // Now we are outside the thread synchronization.
                 //
-                Debug.Assert(workItem != null);
-                try
+                if(workItem != null)
                 {
-                    //
-                    // Execute the work item and indicate whether this thread is safe (i.e., will not be reaped).
-                    //
-                    workItem(_size == _sizeMax);
+                    try
+                    {
+                        //
+                        // Execute the work item and indicate whether this thread is safe (i.e., will not be reaped).
+                        //
+                        workItem(_size == _sizeMax);
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        string s = "exception in `" + _prefix + "' while calling execute():\n" + ex;
+                        _instance.initializationData().logger.error(s);
+                    }
                 }
-                catch(Ice.LocalException ex)
+                else 
                 {
-                    string s = "exception in `" + _prefix + "' while calling execute():\n" + ex;
-                    _instance.initializationData().logger.error(s);
+                    Debug.Assert(handler != null);
+                    try
+                    {
+                        //
+                        // Execute the work item and indicate whether this thread is safe (i.e., will not be reaped).
+                        //
+                        handler.finished(this);
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        string s = "exception in `" + _prefix + "' while calling finished():\n" + ex;
+                        _instance.initializationData().logger.error(s);
+                    }
                 }
-
+                
                 if(_sizeMax > 1)
                 {
                     lock(this)
@@ -360,6 +404,7 @@ namespace IceInternal
         private readonly string _programNamePrefix;
 
         private LinkedList<ThreadPoolWorkItem> _workItems = new LinkedList<ThreadPoolWorkItem>();
+        private LinkedList<Ice.ConnectionI> _finished = new LinkedList<Ice.ConnectionI>();
 
         private int _timeout;
 
@@ -431,6 +476,7 @@ namespace IceInternal
         private readonly int _size; // Number of threads that are pre-created.
         private readonly int _sizeMax; // Maximum number of threads.
         private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+        private readonly bool _serialize; // True if requests need to be serialized over the connection.
 
         private List<WorkerThread> _threads; // All threads, running or not.
         private int _threadIndex; // For assigning thread names.

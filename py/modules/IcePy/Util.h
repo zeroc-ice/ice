@@ -26,6 +26,8 @@
 #define PyRETURN_FALSE return Py_INCREF(getFalse()), getFalse()
 #define PyRETURN_TRUE return Py_INCREF(getTrue()), getTrue()
 
+#define PyRETURN_BOOL(b) if(b) PyRETURN_TRUE; else PyRETURN_FALSE
+
 namespace IcePy
 {
 

@@ -149,26 +149,7 @@ private:
     const TopicLinkPrx _obj;
 };
 
-class ResponseTimerTask : public IceUtil::TimerTask
-{
-public:
-    ResponseTimerTask(const SubscriberPtr& subscriber) :
-        _subscriber(subscriber)
-    {
-    }
-
-    virtual void
-    runTimerTask()
-    {
-        _subscriber->flush();
-    }
-
-private:
-
-    const SubscriberPtr _subscriber;
-};
-
-class OnewayIceInvokeI : public Ice::AMI_Object_ice_invoke
+class OnewayIceInvokeI : public Ice::AMI_Object_ice_invoke, public Ice::AMISentCallback
 {
 public:
 
@@ -183,9 +164,9 @@ public:
         assert(false);
     }
 
-    virtual void __sent(Ice::ConnectionI* c)
+    virtual void
+    ice_sent()
     {
-        AMI_Object_ice_invoke::__sent(c);
         _subscriber->sent();
     }
 
@@ -309,14 +290,30 @@ SubscriberBatch::doFlush()
         {
             _lock.notify();
         }
+
+        //
+        // If the subscriber isn't online we're done.
+        //
+        if(_state != SubscriberStateOnline)
+        {
+            return;
+        }
         v.swap(_events);
         assert(!v.empty());
     }
 
-    vector<Ice::Byte> dummy;
-    for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
+    try
     {
-        _obj->ice_invoke((*p)->op, (*p)->mode, (*p)->data, dummy, (*p)->context);
+        vector<Ice::Byte> dummy;
+        for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
+        {
+            _obj->ice_invoke((*p)->op, (*p)->mode, (*p)->data, dummy, (*p)->context);
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        error(false, ex);
+        return;
     }
 
     _obj->ice_flushBatchRequests_async(new FlushBatchI(this));
@@ -365,17 +362,23 @@ SubscriberOneway::flush()
         //
         EventDataPtr e = _events.front();
         _events.erase(_events.begin());
-        ++_outstanding;
-          
         try
         {
-            _obj->ice_invoke_async(new OnewayIceInvokeI(this), e->op, e->mode, e->data, e->context);
+            if(!_obj->ice_invoke_async(new OnewayIceInvokeI(this), e->op, e->mode, e->data, e->context))
+            {
+                ++_outstanding;
+            }
         }
         catch(const Ice::Exception& ex)
         {
             error(true, ex);
             return;
         }
+    }
+
+    if(_events.empty() && _outstanding == 0 && _shutdown)
+    {
+        _lock.notify();
     }
 }
 
@@ -392,9 +395,9 @@ SubscriberOneway::sent()
     {
         _lock.notify();
     }
-    else if(_outstanding == 0 && !_events.empty())
+    else if(_outstanding <= 0 && !_events.empty())
     {
-        _instance->batchFlusher()->schedule(new ResponseTimerTask(this), IceUtil::Time::seconds(0));
+        flush();
     }
 }
 
@@ -414,7 +417,7 @@ void
 SubscriberTwoway::flush()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_lock);
-    
+
     //
     // If the subscriber isn't online we're done.
     //

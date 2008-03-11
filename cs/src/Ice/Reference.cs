@@ -82,7 +82,6 @@ namespace IceInternal
         public abstract bool getCacheConnection();
         public abstract bool getPreferSecure();
         public abstract Ice.EndpointSelectionType getEndpointSelection();
-        public abstract bool getThreadPerConnection();
         public abstract int getLocatorCacheTimeout();
 
         //
@@ -173,7 +172,6 @@ namespace IceInternal
         public abstract Reference changeCacheConnection(bool newCache);
         public abstract Reference changePreferSecure(bool newPreferSecure);
         public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
-        public abstract Reference changeThreadPerConnection(bool newTpc);
         public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 
         public abstract Reference changeTimeout(int newTimeout);
@@ -493,11 +491,6 @@ namespace IceInternal
             return Ice.EndpointSelectionType.Random;
         }
 
-        public override bool getThreadPerConnection()
-        {
-            return false;
-        }
-
         public override int getLocatorCacheTimeout()
         {
             return 0;
@@ -539,11 +532,6 @@ namespace IceInternal
         }
 
         public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
-        {
-            throw new Ice.FixedProxyException();
-        }
-
-        public override Reference changeThreadPerConnection(bool newTpc)
         {
             throw new Ice.FixedProxyException();
         }
@@ -730,11 +718,6 @@ namespace IceInternal
             return _endpointSelection;
         }
 
-        public override bool getThreadPerConnection()
-        {
-            return _threadPerConnection;
-        }
-
         public override int getLocatorCacheTimeout()
         {
             return _locatorCacheTimeout;
@@ -847,17 +830,6 @@ namespace IceInternal
             r._endpointSelection = newType;
             return r;
         }       
-
-        public override Reference changeThreadPerConnection(bool newTpc)
-        {
-            if(newTpc == _threadPerConnection)
-            {
-                return this;
-            }
-            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-            r._threadPerConnection = newTpc;
-            return r;
-        }
 
         public override Reference changeLocatorCacheTimeout(int newTimeout)
         {
@@ -1045,10 +1017,6 @@ namespace IceInternal
                 return false;
             }
             if(_endpointSelection != rhs._endpointSelection)
-            {
-                return false;
-            }
-            if(_threadPerConnection != rhs._threadPerConnection)
             {
                 return false;
             }
@@ -1300,7 +1268,6 @@ namespace IceInternal
                                  bool cacheConnection,
                                  bool preferSecure,
                                  Ice.EndpointSelectionType endpointSelection,
-                                 bool threadPerConnection,
                                  int locatorCacheTimeout)
             : base(instance, communicator, identity, context, facet, mode, secure)
         {
@@ -1312,7 +1279,6 @@ namespace IceInternal
             _cacheConnection = cacheConnection;
             _preferSecure = preferSecure;
             _endpointSelection = endpointSelection;
-            _threadPerConnection = threadPerConnection;
             _locatorCacheTimeout = locatorCacheTimeout;
             _overrideTimeout = false;
             _timeout = -1;
@@ -1491,8 +1457,7 @@ namespace IceInternal
                 // Get an existing connection or create one if there's no
                 // existing connection to one of the given endpoints.
                 //
-                connection = factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(),
-                                            out compress);
+                connection = factory.create(endpoints, false, getEndpointSelection(), out compress);
             }
             else
             {
@@ -1512,8 +1477,7 @@ namespace IceInternal
                     {
                         endpoint[0] = endpoints[i];
                         bool more = i != endpoints.Length - 1;
-                        connection = factory.create(endpoint, more, _threadPerConnection, getEndpointSelection(),
-                                                    out compress);
+                        connection = factory.create(endpoint, more, getEndpointSelection(), out compress);
                         break;
                     }
                     catch(Ice.LocalException ex)
@@ -1582,8 +1546,7 @@ namespace IceInternal
 
                 bool more = _i != _endpoints.Length - 1;
                 EndpointI[] endpoint = new EndpointI[]{ _endpoints[_i] };
-                _rr.getInstance().outgoingConnectionFactory().create(endpoint, more, _rr._threadPerConnection,
-                                                                     _rr.getEndpointSelection(), this);
+                _rr.getInstance().outgoingConnectionFactory().create(endpoint, more, _rr.getEndpointSelection(), this);
             }
 
             private RoutableReference _rr;
@@ -1612,7 +1575,7 @@ namespace IceInternal
                 // Get an existing connection or create one if there's no
                 // existing connection to one of the given endpoints.
                 //
-                factory.create(endpoints, false, _threadPerConnection, getEndpointSelection(),
+                factory.create(endpoints, false, getEndpointSelection(), 
                                new CreateConnectionCallback(this, null, callback));
             }
             else
@@ -1625,7 +1588,7 @@ namespace IceInternal
                 // connection for one of the endpoints.
                 //
 
-                factory.create(new EndpointI[]{ endpoints[0] }, true, _threadPerConnection, getEndpointSelection(),
+                factory.create(new EndpointI[]{ endpoints[0] }, true, getEndpointSelection(),
                                new CreateConnectionCallback(this, endpoints, callback));
             }
         }
@@ -1686,7 +1649,6 @@ namespace IceInternal
         private bool _cacheConnection;
         private bool _preferSecure;
         private Ice.EndpointSelectionType _endpointSelection;
-        private bool _threadPerConnection;
         private int _locatorCacheTimeout;
 
         private bool _overrideTimeout;

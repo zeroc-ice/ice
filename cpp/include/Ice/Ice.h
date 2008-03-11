@@ -33,6 +33,7 @@
 #include <Ice/Locator.h>
 #include <Ice/Router.h>
 #include <Ice/DispatchInterceptor.h>
+#include <Ice/Plugin.h>
 
 #ifndef _WIN32
 #include <Ice/IconvStringConverter.h>

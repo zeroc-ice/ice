@@ -22,17 +22,6 @@ internal class Transceiver : IceInternal.Transceiver
         return _transceiver.restartable();
     }
 
-    public void initialize(int timeout)
-    {
-        _configuration.checkInitializeException();
-        _transceiver.initialize(timeout);
-        if(_initialized)
-        {
-            throw new Ice.SocketException();
-        }
-        _initialized = true;
-    }
-
     public bool initialize(AsyncCallback callback)
     {
         _configuration.checkInitializeException();
@@ -54,50 +43,36 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.close();
     }
 
-    public void shutdownWrite()
-    {
-        _transceiver.shutdownWrite();
-    }
-
-    public void shutdownReadWrite()
-    {
-        _transceiver.shutdownReadWrite();
-    }
-
-    public bool write(IceInternal.Buffer buf, int timeout)
+    public bool write(IceInternal.Buffer buf)
     {
         if(!_initialized)
         {
             throw new Ice.SocketException();
         }
 
-        if(timeout == 0)
+        if(!_configuration.writeReady())
         {
-            if(!_configuration.writeReady())
-            {
-                return false;
-            }
+            return false;
         }
+
         _configuration.checkWriteException();
-        return _transceiver.write(buf, timeout);
+        return _transceiver.write(buf);
     }
 
-    public bool read(IceInternal.Buffer buf, int timeout)
+    public bool read(IceInternal.Buffer buf)
     {
         if(!_initialized)
         {
             throw new Ice.SocketException();
         }
 
-        if(timeout == 0)
+        if(!_configuration.readReady())
         {
-            if(!_configuration.readReady())
-            {
-                return false;
-            }
+            return false;
         }
+
         _configuration.checkReadException();
-        return _transceiver.read(buf, timeout);
+        return _transceiver.read(buf);
     }
 
     public IAsyncResult beginRead(IceInternal.Buffer buf, AsyncCallback callback, object state)

@@ -26,37 +26,37 @@ publisher can use different QoS for sending and receiving messages.
 
 For the subscriber:
 
-subscriber --oneway
+java Subscriber --oneway
 
   The subscriber receives events as oneway messages. This is the
   default.
 
-subscriber --datagram
+java Subscriber --datagram
 
   The subscriber receives events as datagrams.
 
-subscriber --twoway
+java Subscriber --twoway
 
   The subscriber receives events as twoway messages.
 
-subscriber --ordered
+java Subscriber --ordered
 
   The subscriber receives events as twoway messages with guaranteed
   ordering.
 
-subscriber --batch
+java Subscriber --batch
 
   This is an additional flag that forwards datagram and oneway events
   to the subscriber in batches.
 
-subscriber --id <id>
+java Subscriber --id <id>
 
   This is flag sets the unique for the given subscriber.  If this
   option is used it you should run the subscriber on a static port.
   Use --Clock.Subscriber.Endpoints="tcp -p <x> -h <h>:udp -p <x> -h
   <h>"
 
-subscriber --retryCount <count>
+java Subscriber --retryCount <count>
 
   This flag sets the retry count for a subscriber. This option should
   be used in conjunction with the --id option. Setting retryCount
@@ -64,14 +64,14 @@ subscriber --retryCount <count>
 
 For the publisher:
 
-publisher --oneway
+java Publisher --oneway
 
   The publisher sends events as oneway messages. This is the default.
 
-publisher --datagram
+java Publisher --datagram
 
   The publisher sends events as datagrams.
 
-publisher --twoway
+java Publisher --twoway
 
   The publisher sends events as twoway messages.

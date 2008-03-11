@@ -16,6 +16,8 @@ module Test
 interface Hold
 {
     void putOnHold(int seconds);
+    ["ami"] int set(int value);
+    void setOneway(int value, int expected);
     void shutdown();
 };
 

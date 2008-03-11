@@ -26,6 +26,8 @@ ExpatVer = '2.0.1'
 DBVer = '4.6.21'
 MCPPVer = '2.6.4'
 
+timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
+
 class DistEnvironmentError:
     def __init__(self, msg = None):
         self.msg = msg
@@ -285,7 +287,7 @@ def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installe
     installVersion = installVersion.upper()
 
     #
-    # Build and copy to the stage directory root.
+    # Build msi
     #
     os.chdir(startDir)
     for project, release in installers:
@@ -295,7 +297,7 @@ def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installe
         else:
             msi = "Ice-" + sourcesVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
-        shutil.copy(msiPath, stageDir)
+        runprog('signtool sign /f ' + os.environ['PFX_FILE'] + ' /p ' + os.environ['PFX_PASSWORD'] + ' /t ' + timeStampingURL + ' ' + msiPath)
 
 def environToString(tbl):
     '''Convert an environment hashtable to the typical k=v format'''
@@ -333,7 +335,7 @@ def main():
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
                 "logfile", "vc60", "vc80", "vc90", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
-                "bzip2home=", "mcpphome=", "jgoodiesformshome=", "jgoodieslookshome=", "thirdparty="])
+                "bzip2home=", "mcpphome=", "jgoodiesformshome=", "jgoodieslookshome=", "pfxfile=", "pfxpassword="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -364,6 +366,10 @@ def main():
                 target = 'vc80'
             elif o == '--vc90':
                 target = 'vc90'
+            elif o == '--pfxfile':
+                os.environ['PFX_FILE'] = a
+            elif o == '--pfxpassword':
+                os.environ['PFX_PASSWORD'] = a
             elif o == '--sslhome':
                 os.environ['OPENSSL_HOME'] = a
             elif o == '--expathome':
@@ -427,8 +433,6 @@ def main():
 
         environmentCheck(target)
 
-      
-
         logging.debug(environToString(os.environ))
 
      
@@ -442,6 +446,7 @@ def main():
             defaults['dllversion'] = defaults['dllversion'] + 'b'
 
         defaults['OutDir'] = ''
+        defaults['timeStampingURL'] = timeStampingURL
 
         if os.path.exists(stageDir):
             try:

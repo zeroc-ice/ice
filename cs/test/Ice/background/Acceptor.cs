@@ -27,11 +27,6 @@ internal class Acceptor : IceInternal.Acceptor
         _acceptor.listen();
     }
 
-    public IceInternal.Transceiver accept(int timeout)
-    {
-        return new Transceiver(_acceptor.accept(timeout));
-    }
-
     public IAsyncResult beginAccept(AsyncCallback callback, object state)
     {
         return _acceptor.beginAccept(callback, state);
@@ -40,11 +35,6 @@ internal class Acceptor : IceInternal.Acceptor
     public IceInternal.Transceiver endAccept(IAsyncResult result)
     {
         return new Transceiver(_acceptor.endAccept(result));
-    }
-
-    public void connectToSelf()
-    {
-        _acceptor.connectToSelf();
     }
 
     public override string ToString()

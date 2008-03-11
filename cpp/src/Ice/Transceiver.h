@@ -12,7 +12,7 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/TransceiverF.h>
-#include <Ice/Selector.h>
+#include <Ice/SelectorF.h>
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -32,13 +32,11 @@ public:
     
     virtual SOCKET fd() = 0;
     virtual void close() = 0;
-    virtual void shutdownWrite() = 0;
-    virtual void shutdownReadWrite() = 0;
-    virtual bool write(Buffer&, int) = 0;
-    virtual bool read(Buffer&, int) = 0;
+    virtual bool write(Buffer&) = 0;
+    virtual bool read(Buffer&) = 0;
     virtual std::string type() const = 0;
     virtual std::string toString() const = 0;
-    virtual SocketStatus initialize(int) = 0;
+    virtual SocketStatus initialize() = 0;
     virtual void checkSendSize(const Buffer&, size_t) = 0;
 };
 
