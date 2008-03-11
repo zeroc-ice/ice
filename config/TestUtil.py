@@ -246,7 +246,7 @@ def run(tests, root = False):
 
     args =  []
     if all:
-        for proto in ["ssl", "tcp"]:
+        for proto in ["tcp", "ssl"]:
             for compress in [0, 1]:
                 for serialize in [0, 1]:
                     testarg = ""

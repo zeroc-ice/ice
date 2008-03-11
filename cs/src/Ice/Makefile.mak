@@ -133,6 +133,8 @@ MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 !if "$(MANAGED)" == "yes"
 MCSFLAGS	= $(MCSFLAGS) -define:MANAGED
+!else
+MCSFLAGS        = $(MCSFLAGS) /unsafe
 !endif
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I$(slicedir)

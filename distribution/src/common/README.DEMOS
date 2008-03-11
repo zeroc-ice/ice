@@ -216,6 +216,7 @@ In another window:
 
 $ mono client.exe
 
+Also note that LD_LIBRARY_PATH must include <mono-root>/lib.
 
 Running the Python demos
 ========================

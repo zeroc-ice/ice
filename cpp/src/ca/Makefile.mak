@@ -12,10 +12,14 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 CA_FILES =  iceca \
-            iceca.bat \
-	    ImportKey.class
+            iceca.bat 
+
+CLASS_FILES=ImportKey.class
 
 install::
 	@for %i in ( $(CA_FILES) ) do \
 	    @echo "Installing %i" && \
 	    copy %i $(install_bindir)
+	@for %i in ( $(CLASS_FILES) ) do \
+	    @echo "Installing %i" && \
+	    copy %i $(install_libdir)

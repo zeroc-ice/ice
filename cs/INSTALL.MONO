@@ -107,6 +107,8 @@ Python is required to run the test suite:
 
   http://www.python.org/download
 
+For the tests to run, your LD_LIBRARY_PATH must include <mono-root>/lib.
+
 To run the tests, open a command window and change to the top-level
 directory. At the command prompt, execute:
 

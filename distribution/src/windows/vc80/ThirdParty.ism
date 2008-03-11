@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING10##</title>
-		<subject>Ice 3.3.0 Third Party Packages for Visual Studio 2005</subject>
+		<subject>Ice 3.3 beta Third Party Packages for Visual Studio 2005</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
@@ -1160,7 +1160,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.3.0_THIRDPARTY_VC80</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3.0-ThirdParty-VC80</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0_THIRDPARTY_VC80</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3b-ThirdParty-VC80</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.3.0_THIRDPARTY_VC80</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1818,7 +1818,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-ThirdParty-VC80</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3b-ThirdParty-VC80</td></row>
 		<row><td>ZEROC</td><td>PackageCode</td><td>{F1779DC0-CD5F-41D2-90D5-808237248D65}</td></row>
 		<row><td>ZEROC</td><td>ProductCode</td><td>{2F0AAC46-1AD3-4737-8A84-B1D0E390AA6A}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
@@ -2458,7 +2458,7 @@
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>857343407</td></row>
-		<row><td>ID_STRING10</td><td>1033</td><td>Ice 3.3.0 Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>1369225426</td></row>
+		<row><td>ID_STRING10</td><td>1033</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>1369225426</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2930,8 +2930,8 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ProductCode</td><td>{BE3E8AE3-A25D-471F-88EF-3D7074E07F5A}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3.0 Third Party Packages for Visual Studio 2005</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2005</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

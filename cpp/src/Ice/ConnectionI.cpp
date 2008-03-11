@@ -1803,97 +1803,107 @@ Ice::ConnectionI::send()
     assert(!_sendStreams.empty());
     
     bool flushSentCallbacks = _sentCallbacks.empty();
-    
-    while(!_sendStreams.empty())
+    try
     {
-        OutgoingMessage* message = &_sendStreams.front();
-
-        //
-        // Prepare the message stream for writing if necessary.
-        //
-        if(!message->stream->i)
+        while(!_sendStreams.empty())
         {
-            message->stream->i = message->stream->b.begin();
-            if(message->compress && message->stream->b.size() >= 100) // Only compress messages larger than 100 bytes.
+            OutgoingMessage* message = &_sendStreams.front();
+
+            //
+            // Prepare the message stream for writing if necessary.
+            //
+            if(!message->stream->i)
             {
-                //
-                // Message compressed. Request compressed response, if any.
-                //
-                message->stream->b[9] = 2;
-
-                //
-                // Do compression.
-                //
-                BasicStream stream(_instance.get());
-                doCompress(*message->stream, stream);
-
-                if(message->outAsync)
+                message->stream->i = message->stream->b.begin();
+                if(message->compress && message->stream->b.size() >= 100) // Only compress messages > 100 bytes.
                 {
-                    trace("sending asynchronous request", *message->stream, _logger, _traceLevels);
+                    //
+                    // Message compressed. Request compressed response, if any.
+                    //
+                    message->stream->b[9] = 2;
+
+                    //
+                    // Do compression.
+                    //
+                    BasicStream stream(_instance.get());
+                    doCompress(*message->stream, stream);
+
+                    if(message->outAsync)
+                    {
+                        trace("sending asynchronous request", *message->stream, _logger, _traceLevels);
+                    }
+                    else
+                    {
+                        traceSend(*message->stream, _logger, _traceLevels);
+                    }
+
+                    message->adopt(&stream); // Adopt the compressed stream.
+                    message->stream->i = message->stream->b.begin();
                 }
                 else
                 {
-                    traceSend(*message->stream, _logger, _traceLevels);
-                }
+                    if(message->compress)
+                    {
+                        //
+                        // Message not compressed. Request compressed response, if any.
+                        //
+                        message->stream->b[9] = 1;
+                    }
 
-                message->adopt(&stream); // Adopt the compressed stream.
-                message->stream->i = message->stream->b.begin();
-            }
-            else
-            {
-                if(message->compress)
-                {
                     //
-                    // Message not compressed. Request compressed response, if any.
+                    // No compression, just fill in the message size.
                     //
-                    message->stream->b[9] = 1;
-                }
-
-                //
-                // No compression, just fill in the message size.
-                //
-                Int sz = static_cast<Int>(message->stream->b.size());
-                const Byte* p = reinterpret_cast<const Byte*>(&sz);
+                    Int sz = static_cast<Int>(message->stream->b.size());
+                    const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
-                reverse_copy(p, p + sizeof(Int), message->stream->b.begin() + 10);
+                    reverse_copy(p, p + sizeof(Int), message->stream->b.begin() + 10);
 #else
-                copy(p, p + sizeof(Int), message->stream->b.begin() + 10);
+                    copy(p, p + sizeof(Int), message->stream->b.begin() + 10);
 #endif
-                message->stream->i = message->stream->b.begin();
+                    message->stream->i = message->stream->b.begin();
 
-                if(message->outAsync)
-                {
-                    trace("sending asynchronous request", *message->stream, _logger, _traceLevels);
-                }
-                else
-                {
-                    traceSend(*message->stream, _logger, _traceLevels);
+                    if(message->outAsync)
+                    {
+                        trace("sending asynchronous request", *message->stream, _logger, _traceLevels);
+                    }
+                    else
+                    {
+                        traceSend(*message->stream, _logger, _traceLevels);
+                    }
                 }
             }
-        }
 
-        //
-        // Send the first message.
-        //
-        assert(message->stream->i);
-        if(!_transceiver->write(*message->stream))
-        {
-            if(flushSentCallbacks && !_sentCallbacks.empty())
+            //
+            // Send the first message.
+            //
+            assert(message->stream->i);
+            if(!_transceiver->write(*message->stream))
             {
-                _threadPool->execute(_flushSentCallbacks);
+                if(flushSentCallbacks && !_sentCallbacks.empty())
+                {
+                    _threadPool->execute(_flushSentCallbacks);
+                }
+                return false;
             }
-            return false;
-        }
 
-        //
-        // Notify the message that it was sent.
-        //
-        message->sent(this, true);
-        if(dynamic_cast<Ice::AMISentCallback*>(message->outAsync.get()))
-        {
-            _sentCallbacks.push_back(message->outAsync);
+            //
+            // Notify the message that it was sent.
+            //
+            message->sent(this, true);
+            if(dynamic_cast<Ice::AMISentCallback*>(message->outAsync.get()))
+            {
+                _sentCallbacks.push_back(message->outAsync);
+            }
+            _sendStreams.pop_front();
         }
-        _sendStreams.pop_front();
+    }
+    catch(const Ice::LocalException&)
+    {
+        if(flushSentCallbacks && !_sentCallbacks.empty())
+        {
+            _threadPool->execute(_flushSentCallbacks);
+        }
+        throw;
     }
 
     if(flushSentCallbacks && !_sentCallbacks.empty())

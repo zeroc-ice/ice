@@ -16,6 +16,8 @@ resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "s
 sys.path.append(resources)
 import components
 
+iceVersion = '3.3b'
+
 #
 # Current default third party library versions.
 #
@@ -234,7 +236,7 @@ def convertLicensesToRTF(toolDir, installTarget):
     rtflicense.writelines(rtfftr)
     rtflicense.close()
 
-def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
+def buildMergeModules(startDir, stageDir, iceVersion, installVersion):
     """Build third party merge modules."""
     modules = [
         ("BerkeleyDBDevKit", "BERKELEYDB_DEV_KIT"),
@@ -274,7 +276,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     # modules at one point, like redistributing them?</brent>
     #
 
-    zipPath = "ThirdPartyMergeModules-" + sourcesVersion + "-" + installVersion.upper() + ".zip"
+    zipPath = "ThirdPartyMergeModules-" + iceVersion + "-" + installVersion.upper() + ".zip"
     zip = zipfile.ZipFile(os.path.join(stageDir, zipPath), 'w')
     for project, release in modules:
         msm = project + "." + installVersion.upper() + ".msm"
@@ -282,7 +284,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
         zip.write(msmPath, os.path.basename(msmPath))
     zip.close()
 
-def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installers):
+def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
 
     installVersion = installVersion.upper()
 
@@ -293,9 +295,9 @@ def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installe
     for project, release in installers:
         runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
         if project == "Ice":
-            msi = project + "-" + sourcesVersion + "-" + installVersion + ".msi"
+            msi = project + "-" + iceVersion + "-" + installVersion + ".msi"
         else:
-            msi = "Ice-" + sourcesVersion + "-" + project + "-" + installVersion + ".msi"
+            msi = "Ice-" + iceVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
         runprog('signtool sign /f ' + os.environ['PFX_FILE'] + ' /p ' + os.environ['PFX_PASSWORD'] + ' /t ' + timeStampingURL + ' ' + msiPath)
 
@@ -435,16 +437,10 @@ def main():
 
         logging.debug(environToString(os.environ))
 
-     
-        sourcesVersion = '3.3.0'
-
         defaults = os.environ
         defaults['dbver'] = '46'
-        defaults['version'] = sourcesVersion
-        defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
-        if sourcesVersion.find('b') != -1:
-            defaults['dllversion'] = defaults['dllversion'] + 'b'
-
+        defaults['version'] = iceVersion
+       
         defaults['OutDir'] = ''
         defaults['timeStampingURL'] = timeStampingURL
 
@@ -477,8 +473,8 @@ libraries."""
         # Build the merge module projects.
         #
        
-        buildMergeModules(targetDir, stageDir, sourcesVersion, target)
-        buildInstallers(targetDir, stageDir, sourcesVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
+        buildMergeModules(targetDir, stageDir, iceVersion, target)
+        buildInstallers(targetDir, stageDir, iceVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
 
     finally:
         #
