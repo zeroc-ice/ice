@@ -97,11 +97,15 @@ def fixVersion(file, argsHash):
 
 def signFile(file, argsHash):
    
-    pfxFile = argsHash['PFX_FILE']
-    pfxPassword = argsHash['PFX_PASSWORD']
-    timeStampingURL = argsHash['timeStampingURL']
+    #
+    # We don't sign anything in the VC60 MSIs
+    #
+    if os.environ['target'] != 'vc60':
+        pfxFile = argsHash['PFX_FILE']
+        pfxPassword = argsHash['PFX_PASSWORD']
+        timeStampingURL = argsHash['timeStampingURL']
 
-    runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword + ' /t ' + timeStampingURL + ' ' + file)
+        runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword + ' /t ' + timeStampingURL + ' ' + file)
 
 class FileSpecWorker:
     def __init__(self, id, source, dest, processors):
