@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -49,6 +49,7 @@ namespace IceInternal
             ret._limit = capacity;
             ret._capacity = capacity;
             ret._bytes = new byte[capacity];
+            ret._valBytes = new ValBytes();
             return ret;
         }
 
@@ -272,22 +273,31 @@ namespace IceInternal
             public byte b7;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public short getShort()
         {
             checkUnderflow(2);
-            ValBytes ret = new ValBytes();
             if(NO._o == _order)
             {
-                ret.b0 = _bytes[_position];
-                ret.b1 = _bytes[_position + 1];
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    _valBytes.shortVal = *((short*)p);
+		}
+#else
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+#endif
             }
             else
             {
-                ret.b1 = _bytes[_position];
-                ret.b0 = _bytes[_position + 1];
+                _valBytes.b1 = _bytes[_position];
+                _valBytes.b0 = _bytes[_position + 1];
             }
             _position += 2;
-            return ret.shortVal;
+            return _valBytes.shortVal;
         }
 
         public void getShortSeq(short[] seq)
@@ -300,32 +310,40 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 2;
-                    buf.b1 = _bytes[index];
-                    buf.b0 = _bytes[index + 1];
-                    seq[i] = buf.shortVal;
+                    _valBytes.b1 = _bytes[index];
+                    _valBytes.b0 = _bytes[index + 1];
+                    seq[i] = _valBytes.shortVal;
                 }
             }
             _position += len;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public ByteBuffer putShort(short val)
         {
             checkOverflow(2);
-            ValBytes buf = new ValBytes();
-            buf.shortVal = val;
+            _valBytes.shortVal = val;
             if(NO._o == _order)
             {
-                _bytes[_position] = buf.b0;
-                _bytes[_position + 1] = buf.b1;
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    *((short*)p) = _valBytes.shortVal;
+		}
+#else
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
+#endif
             }
             else
             {
-                _bytes[_position + 1] = buf.b0;
-                _bytes[_position] = buf.b1;
+                _bytes[_position + 1] = _valBytes.b0;
+                _bytes[_position] = _valBytes.b1;
             }
             _position += 2;
             return this;
@@ -341,39 +359,47 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 2;
-                    buf.shortVal = seq[i];
-                    _bytes[index + 1] = buf.b0;
-                    _bytes[index] = buf.b1;
+                    _valBytes.shortVal = seq[i];
+                    _bytes[index + 1] = _valBytes.b0;
+                    _bytes[index] = _valBytes.b1;
                 }
             }
             _position += len;
             return this;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public int getInt()
         {
             checkUnderflow(4);  
-            ValBytes ret = new ValBytes();
             if(NO._o == _order)
             {
-                ret.b0 = _bytes[_position];
-                ret.b1 = _bytes[_position + 1];
-                ret.b2 = _bytes[_position + 2];
-                ret.b3 = _bytes[_position + 3];
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    _valBytes.intVal = *((int*)p);
+		}
+#else
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
+#endif
             }
             else
             {
-                ret.b3 = _bytes[_position];
-                ret.b2 = _bytes[_position + 1];
-                ret.b1 = _bytes[_position + 2];
-                ret.b0 = _bytes[_position + 3];
+                _valBytes.b3 = _bytes[_position];
+                _valBytes.b2 = _bytes[_position + 1];
+                _valBytes.b1 = _bytes[_position + 2];
+                _valBytes.b0 = _bytes[_position + 3];
             }
             _position += 4;
-            return ret.intVal;
+            return _valBytes.intVal;
         }
 
         public void getIntSeq(int[] seq)
@@ -386,15 +412,14 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
-                    buf.b3 = _bytes[index];
-                    buf.b2 = _bytes[index + 1];
-                    buf.b1 = _bytes[index + 2];
-                    buf.b0 = _bytes[index + 3];
-                    seq[i] = buf.intVal;
+                    _valBytes.b3 = _bytes[index];
+                    _valBytes.b2 = _bytes[index + 1];
+                    _valBytes.b1 = _bytes[index + 2];
+                    _valBytes.b0 = _bytes[index + 3];
+                    seq[i] = _valBytes.intVal;
                 }
             }
             _position += len;
@@ -407,6 +432,9 @@ namespace IceInternal
             return this;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public ByteBuffer putInt(int pos, int val)
         {
             if(pos < 0)
@@ -417,21 +445,27 @@ namespace IceInternal
             {
                 throw new ArgumentOutOfRangeException("pos", pos, "position must be less than limit - 4");
             }
-            ValBytes buf = new ValBytes();
-            buf.intVal = val;
+            _valBytes.intVal = val;
             if(NO._o == _order)
             {
-                _bytes[pos] = buf.b0;
-                _bytes[pos + 1] = buf.b1;
-                _bytes[pos + 2] = buf.b2;
-                _bytes[pos + 3] = buf.b3;
+#if !MANAGED
+		fixed(byte* p = &_bytes[pos])
+		{
+		    *((int*)p) = _valBytes.intVal;
+		}
+#else
+                _bytes[pos] = _valBytes.b0;
+                _bytes[pos + 1] = _valBytes.b1;
+                _bytes[pos + 2] = _valBytes.b2;
+                _bytes[pos + 3] = _valBytes.b3;
+#endif
             }
             else
             {
-                _bytes[pos + 3] = buf.b0;
-                _bytes[pos + 2] = buf.b1;
-                _bytes[pos + 1] = buf.b2;
-                _bytes[pos] = buf.b3;
+                _bytes[pos + 3] = _valBytes.b0;
+                _bytes[pos + 2] = _valBytes.b1;
+                _bytes[pos + 1] = _valBytes.b2;
+                _bytes[pos] = _valBytes.b3;
             }
             return this;
         }
@@ -446,49 +480,57 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
-                    buf.intVal = seq[i];
-                    _bytes[index + 3] = buf.b0;
-                    _bytes[index + 2] = buf.b1;
-                    _bytes[index + 1] = buf.b2;
-                    _bytes[index] = buf.b3;
+                    _valBytes.intVal = seq[i];
+                    _bytes[index + 3] = _valBytes.b0;
+                    _bytes[index + 2] = _valBytes.b1;
+                    _bytes[index + 1] = _valBytes.b2;
+                    _bytes[index] = _valBytes.b3;
                 }
             }
             _position += len;
             return this;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public long getLong()
         {
             checkUnderflow(8);  
-            ValBytes ret = new ValBytes();
             if(NO._o == _order)
             {
-                ret.b0 = _bytes[_position];
-                ret.b1 = _bytes[_position + 1];
-                ret.b2 = _bytes[_position + 2];
-                ret.b3 = _bytes[_position + 3];
-                ret.b4 = _bytes[_position + 4];
-                ret.b5 = _bytes[_position + 5];
-                ret.b6 = _bytes[_position + 6];
-                ret.b7 = _bytes[_position + 7];
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    _valBytes.longVal = *((long*)p);
+		}
+#else
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
+                _valBytes.b4 = _bytes[_position + 4];
+                _valBytes.b5 = _bytes[_position + 5];
+                _valBytes.b6 = _bytes[_position + 6];
+                _valBytes.b7 = _bytes[_position + 7];
+#endif
             }
             else
             {
-                ret.b7 = _bytes[_position];
-                ret.b6 = _bytes[_position + 1];
-                ret.b5 = _bytes[_position + 2];
-                ret.b4 = _bytes[_position + 3];
-                ret.b3 = _bytes[_position + 4];
-                ret.b2 = _bytes[_position + 5];
-                ret.b1 = _bytes[_position + 6];
-                ret.b0 = _bytes[_position + 7];
+                _valBytes.b7 = _bytes[_position];
+                _valBytes.b6 = _bytes[_position + 1];
+                _valBytes.b5 = _bytes[_position + 2];
+                _valBytes.b4 = _bytes[_position + 3];
+                _valBytes.b3 = _bytes[_position + 4];
+                _valBytes.b2 = _bytes[_position + 5];
+                _valBytes.b1 = _bytes[_position + 6];
+                _valBytes.b0 = _bytes[_position + 7];
             }
             _position += 8;
-            return ret.longVal;
+            return _valBytes.longVal;
         }
 
         public void getLongSeq(long[] seq)
@@ -501,50 +543,58 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
-                    buf.b7 = _bytes[index];
-                    buf.b6 = _bytes[index + 1];
-                    buf.b5 = _bytes[index + 2];
-                    buf.b4 = _bytes[index + 3];
-                    buf.b3 = _bytes[index + 4];
-                    buf.b2 = _bytes[index + 5];
-                    buf.b1 = _bytes[index + 6];
-                    buf.b0 = _bytes[index + 7];
-                    seq[i] = buf.longVal;
+                    _valBytes.b7 = _bytes[index];
+                    _valBytes.b6 = _bytes[index + 1];
+                    _valBytes.b5 = _bytes[index + 2];
+                    _valBytes.b4 = _bytes[index + 3];
+                    _valBytes.b3 = _bytes[index + 4];
+                    _valBytes.b2 = _bytes[index + 5];
+                    _valBytes.b1 = _bytes[index + 6];
+                    _valBytes.b0 = _bytes[index + 7];
+                    seq[i] = _valBytes.longVal;
                 }
             }
             _position += len;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public ByteBuffer putLong(long val)
         {
             checkOverflow(8);
-            ValBytes buf = new ValBytes();
-            buf.longVal = val;
+            _valBytes.longVal = val;
             if(NO._o == _order)
             {
-                _bytes[_position] = buf.b0;
-                _bytes[_position + 1] = buf.b1;
-                _bytes[_position + 2] = buf.b2;
-                _bytes[_position + 3] = buf.b3;
-                _bytes[_position + 4] = buf.b4;
-                _bytes[_position + 5] = buf.b5;
-                _bytes[_position + 6] = buf.b6;
-                _bytes[_position + 7] = buf.b7;
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    *((long*)p) = _valBytes.longVal;
+		}
+#else
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
+                _bytes[_position + 2] = _valBytes.b2;
+                _bytes[_position + 3] = _valBytes.b3;
+                _bytes[_position + 4] = _valBytes.b4;
+                _bytes[_position + 5] = _valBytes.b5;
+                _bytes[_position + 6] = _valBytes.b6;
+                _bytes[_position + 7] = _valBytes.b7;
+#endif
             }
             else
             {
-                _bytes[_position + 7] = buf.b0;
-                _bytes[_position + 6] = buf.b1;
-                _bytes[_position + 5] = buf.b2;
-                _bytes[_position + 4] = buf.b3;
-                _bytes[_position + 3] = buf.b4;
-                _bytes[_position + 2] = buf.b5;
-                _bytes[_position + 1] = buf.b6;
-                _bytes[_position] = buf.b7;
+                _bytes[_position + 7] = _valBytes.b0;
+                _bytes[_position + 6] = _valBytes.b1;
+                _bytes[_position + 5] = _valBytes.b2;
+                _bytes[_position + 4] = _valBytes.b3;
+                _bytes[_position + 3] = _valBytes.b4;
+                _bytes[_position + 2] = _valBytes.b5;
+                _bytes[_position + 1] = _valBytes.b6;
+                _bytes[_position] = _valBytes.b7;
             }
             _position += 8;
             return this;
@@ -560,45 +610,53 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
-                    buf.longVal = seq[i];
-                    _bytes[index + 7] = buf.b0;
-                    _bytes[index + 6] = buf.b1;
-                    _bytes[index + 5] = buf.b2;
-                    _bytes[index + 4] = buf.b3;
-                    _bytes[index + 3] = buf.b4;
-                    _bytes[index + 2] = buf.b5;
-                    _bytes[index + 1] = buf.b6;
-                    _bytes[index] = buf.b7;
+                    _valBytes.longVal = seq[i];
+                    _bytes[index + 7] = _valBytes.b0;
+                    _bytes[index + 6] = _valBytes.b1;
+                    _bytes[index + 5] = _valBytes.b2;
+                    _bytes[index + 4] = _valBytes.b3;
+                    _bytes[index + 3] = _valBytes.b4;
+                    _bytes[index + 2] = _valBytes.b5;
+                    _bytes[index + 1] = _valBytes.b6;
+                    _bytes[index] = _valBytes.b7;
                 }
             }
             _position += len;
             return this;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public float getFloat()
         {
             checkUnderflow(4);  
-            ValBytes ret = new ValBytes();
             if(NO._o == _order)
             {
-                ret.b0 = _bytes[_position];
-                ret.b1 = _bytes[_position + 1];
-                ret.b2 = _bytes[_position + 2];
-                ret.b3 = _bytes[_position + 3];
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    _valBytes.floatVal = *((float*)p);
+		}
+#else
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
+#endif
             }
             else
             {
-                ret.b3 = _bytes[_position];
-                ret.b2 = _bytes[_position + 1];
-                ret.b1 = _bytes[_position + 2];
-                ret.b0 = _bytes[_position + 3];
+                _valBytes.b3 = _bytes[_position];
+                _valBytes.b2 = _bytes[_position + 1];
+                _valBytes.b1 = _bytes[_position + 2];
+                _valBytes.b0 = _bytes[_position + 3];
             }
             _position += 4;
-            return ret.floatVal;
+            return _valBytes.floatVal;
         }
 
         public void getFloatSeq(float[] seq)
@@ -611,38 +669,46 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
-                    buf.b3 = _bytes[index];
-                    buf.b2 = _bytes[index + 1];
-                    buf.b1 = _bytes[index + 2];
-                    buf.b0 = _bytes[index + 3];
-                    seq[i] = buf.floatVal;
+                    _valBytes.b3 = _bytes[index];
+                    _valBytes.b2 = _bytes[index + 1];
+                    _valBytes.b1 = _bytes[index + 2];
+                    _valBytes.b0 = _bytes[index + 3];
+                    seq[i] = _valBytes.floatVal;
                 }
             }
             _position += len;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public ByteBuffer putFloat(float val)
         {
             checkOverflow(4);
-            ValBytes buf = new ValBytes();
-            buf.floatVal = val;
+            _valBytes.floatVal = val;
             if(NO._o == _order)
             {
-                _bytes[_position] = buf.b0;
-                _bytes[_position + 1] = buf.b1;
-                _bytes[_position + 2] = buf.b2;
-                _bytes[_position + 3] = buf.b3;
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    *((float*)p) = _valBytes.floatVal;
+		}
+#else
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
+                _bytes[_position + 2] = _valBytes.b2;
+                _bytes[_position + 3] = _valBytes.b3;
+#endif
             }
             else
             {
-                _bytes[_position + 3] = buf.b0;
-                _bytes[_position + 2] = buf.b1;
-                _bytes[_position + 1] = buf.b2;
-                _bytes[_position] = buf.b3;
+                _bytes[_position + 3] = _valBytes.b0;
+                _bytes[_position + 2] = _valBytes.b1;
+                _bytes[_position + 1] = _valBytes.b2;
+                _bytes[_position] = _valBytes.b3;
             }
             _position += 4;
             return this;
@@ -658,49 +724,57 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 4;
-                    buf.floatVal = seq[i];
-                    _bytes[index + 3] = buf.b0;
-                    _bytes[index + 2] = buf.b1;
-                    _bytes[index + 1] = buf.b2;
-                    _bytes[index] = buf.b3;
+                    _valBytes.floatVal = seq[i];
+                    _bytes[index + 3] = _valBytes.b0;
+                    _bytes[index + 2] = _valBytes.b1;
+                    _bytes[index + 1] = _valBytes.b2;
+                    _bytes[index] = _valBytes.b3;
                 }
             }
             _position += len;
             return this;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public double getDouble()
         {
             checkUnderflow(8);  
-            ValBytes ret = new ValBytes();
             if(NO._o == _order)
             {
-                ret.b0 = _bytes[_position];
-                ret.b1 = _bytes[_position + 1];
-                ret.b2 = _bytes[_position + 2];
-                ret.b3 = _bytes[_position + 3];
-                ret.b4 = _bytes[_position + 4];
-                ret.b5 = _bytes[_position + 5];
-                ret.b6 = _bytes[_position + 6];
-                ret.b7 = _bytes[_position + 7];
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    _valBytes.doubleVal = *((double*)p);
+		}
+#else
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
+                _valBytes.b4 = _bytes[_position + 4];
+                _valBytes.b5 = _bytes[_position + 5];
+                _valBytes.b6 = _bytes[_position + 6];
+                _valBytes.b7 = _bytes[_position + 7];
+#endif
             }
             else
             {
-                ret.b7 = _bytes[_position];
-                ret.b6 = _bytes[_position + 1];
-                ret.b5 = _bytes[_position + 2];
-                ret.b4 = _bytes[_position + 3];
-                ret.b3 = _bytes[_position + 4];
-                ret.b2 = _bytes[_position + 5];
-                ret.b1 = _bytes[_position + 6];
-                ret.b0 = _bytes[_position + 7];
+                _valBytes.b7 = _bytes[_position];
+                _valBytes.b6 = _bytes[_position + 1];
+                _valBytes.b5 = _bytes[_position + 2];
+                _valBytes.b4 = _bytes[_position + 3];
+                _valBytes.b3 = _bytes[_position + 4];
+                _valBytes.b2 = _bytes[_position + 5];
+                _valBytes.b1 = _bytes[_position + 6];
+                _valBytes.b0 = _bytes[_position + 7];
             }
             _position += 8;
-            return ret.doubleVal;
+            return _valBytes.doubleVal;
         }
 
         public void getDoubleSeq(double[] seq)
@@ -713,50 +787,58 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
-                    buf.b7 = _bytes[index];
-                    buf.b6 = _bytes[index + 1];
-                    buf.b5 = _bytes[index + 2];
-                    buf.b4 = _bytes[index + 3];
-                    buf.b3 = _bytes[index + 4];
-                    buf.b2 = _bytes[index + 5];
-                    buf.b1 = _bytes[index + 6];
-                    buf.b0 = _bytes[index + 7];
-                    seq[i] = buf.doubleVal;
+                    _valBytes.b7 = _bytes[index];
+                    _valBytes.b6 = _bytes[index + 1];
+                    _valBytes.b5 = _bytes[index + 2];
+                    _valBytes.b4 = _bytes[index + 3];
+                    _valBytes.b3 = _bytes[index + 4];
+                    _valBytes.b2 = _bytes[index + 5];
+                    _valBytes.b1 = _bytes[index + 6];
+                    _valBytes.b0 = _bytes[index + 7];
+                    seq[i] = _valBytes.doubleVal;
                 }
             }
             _position += len;
         }
 
+#if !MANAGED
+	unsafe
+#endif
         public ByteBuffer putDouble(double val)
         {
             checkOverflow(8);
-            ValBytes buf = new ValBytes();
-            buf.doubleVal = val;
+            _valBytes.doubleVal = val;
             if(NO._o == _order)
             {
-                _bytes[_position] = buf.b0;
-                _bytes[_position + 1] = buf.b1;
-                _bytes[_position + 2] = buf.b2;
-                _bytes[_position + 3] = buf.b3;
-                _bytes[_position + 4] = buf.b4;
-                _bytes[_position + 5] = buf.b5;
-                _bytes[_position + 6] = buf.b6;
-                _bytes[_position + 7] = buf.b7;
+#if !MANAGED
+		fixed(byte* p = &_bytes[_position])
+		{
+		    *((double*)p) = _valBytes.doubleVal;
+		}
+#else
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
+                _bytes[_position + 2] = _valBytes.b2;
+                _bytes[_position + 3] = _valBytes.b3;
+                _bytes[_position + 4] = _valBytes.b4;
+                _bytes[_position + 5] = _valBytes.b5;
+                _bytes[_position + 6] = _valBytes.b6;
+                _bytes[_position + 7] = _valBytes.b7;
+#endif
             }
             else
             {
-                _bytes[_position + 7] = buf.b0;
-                _bytes[_position + 6] = buf.b1;
-                _bytes[_position + 5] = buf.b2;
-                _bytes[_position + 4] = buf.b3;
-                _bytes[_position + 3] = buf.b4;
-                _bytes[_position + 2] = buf.b5;
-                _bytes[_position + 1] = buf.b6;
-                _bytes[_position] = buf.b7;
+                _bytes[_position + 7] = _valBytes.b0;
+                _bytes[_position + 6] = _valBytes.b1;
+                _bytes[_position + 5] = _valBytes.b2;
+                _bytes[_position + 4] = _valBytes.b3;
+                _bytes[_position + 3] = _valBytes.b4;
+                _bytes[_position + 2] = _valBytes.b5;
+                _bytes[_position + 1] = _valBytes.b6;
+                _bytes[_position] = _valBytes.b7;
             }
             _position += 8;
             return this;
@@ -772,19 +854,18 @@ namespace IceInternal
             }
             else
             {
-                ValBytes buf = new ValBytes();
                 for(int i = 0; i < seq.Length; ++i)
                 {
                     int index = _position + i * 8;
-                    buf.doubleVal = seq[i];
-                    _bytes[index + 7] = buf.b0;
-                    _bytes[index + 6] = buf.b1;
-                    _bytes[index + 5] = buf.b2;
-                    _bytes[index + 4] = buf.b3;
-                    _bytes[index + 3] = buf.b4;
-                    _bytes[index + 2] = buf.b5;
-                    _bytes[index + 1] = buf.b6;
-                    _bytes[index] = buf.b7;
+                    _valBytes.doubleVal = seq[i];
+                    _bytes[index + 7] = _valBytes.b0;
+                    _bytes[index + 6] = _valBytes.b1;
+                    _bytes[index + 5] = _valBytes.b2;
+                    _bytes[index + 4] = _valBytes.b3;
+                    _bytes[index + 3] = _valBytes.b4;
+                    _bytes[index + 2] = _valBytes.b5;
+                    _bytes[index + 1] = _valBytes.b6;
+                    _bytes[index] = _valBytes.b7;
                 }
             }
             _position += len;
@@ -827,6 +908,7 @@ namespace IceInternal
         private int _limit;
         private int _capacity;
         private byte[] _bytes;
+        private ValBytes _valBytes;
         private ByteOrder _order;
 
         private class NO // Native Order
