@@ -457,7 +457,7 @@ os.mkdir(os.path.join(demoDistDir, "certs"))
 #
 print "Creating git archive using " + tag + "...",
 sys.stdout.flush()
-os.system("git archive --prefix=Ice-" + version + "/ " + tag + " | ( cd " + distDir + " && tar xf - )")
+os.system("git archive --prefix=Ice-" + version + "/ " + tag + " | ( cd " + distDir + " && tar xfm - )")
 print "ok"
 
 os.chdir(os.path.join(srcDistDir))
