@@ -68,15 +68,12 @@ for o, a in opts:
 
 if sys.argv[script] == "import":
     #
-    # dirname handles finding the .py under Windows since it will
-    # contain the location of the script. ICE_HOME handles the case
-    # where the install is in a non-standard location. "." handles
-    # development. "/usr/bin" handles RPM installs and "/opt/..."
-    # handles standard tarball installs.
+    # For an RPM install we use /usr/share/Ice-<full-version>. A
+    # non-RPM install uses ${prefix}/lib (that is the location of the
+    # script ../lib). For development purposes we also check ".".
     #
-    checkLocations = [os.path.dirname(sys.argv[0]), ".", "/usr/bin", "/opt/Ice-3.3b/bin"]
-    if os.getenv("ICE_HOME"):
-        checkLocations.append(os.path.join(os.getenv("ICE_HOME"), "bin"))
+    checkLocations = [".", os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
+                      "/usr/share/Ice-3.3b"]
     for bindir in checkLocations:
 	bindir = os.path.normpath(bindir)
 	if os.path.exists(os.path.join(bindir, "ImportKey.class")):
@@ -612,7 +609,7 @@ if sys.argv[script] == "request":
 	os.write(temp, "emailAddress=" + email + "\n")
     os.close(temp)
 
-    cmd = "openssl req -config " + tempname + " -new -keyout '" + keyfile + "' -out '" + reqfile + "'"
+    cmd = "openssl req -config " + tempname + ' -new -keyout "' + keyfile + '" -out "' + reqfile + '"'
     if nopassphrase:
 	cmd += " -nodes"
 
