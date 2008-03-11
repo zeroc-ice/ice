@@ -1656,52 +1656,52 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         assert(!_sendStreams.isEmpty());
 
         boolean flushSentCallbacks = _sentCallbacks.isEmpty();
-
-        while(!_sendStreams.isEmpty())
+        try
         {
-            OutgoingMessage message = _sendStreams.getFirst();
-            if(!message.prepared)
+            while(!_sendStreams.isEmpty())
             {
-                IceInternal.BasicStream stream = message.stream;
-
-                boolean compress = _overrideCompress ? _overrideCompressValue : message.compress;
-                message.stream = doCompress(stream, compress);
-                message.stream.prepareWrite();
-                message.prepared = true;
-
-                if(message.outAsync != null)
+                OutgoingMessage message = _sendStreams.getFirst();
+                if(!message.prepared)
                 {
-                    IceInternal.TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
-                }
-                else
-                {
-                    IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
-                }
+                    IceInternal.BasicStream stream = message.stream;
+
+                    boolean compress = _overrideCompress ? _overrideCompressValue : message.compress;
+                    message.stream = doCompress(stream, compress);
+                    message.stream.prepareWrite();
+                    message.prepared = true;
+
+                    if(message.outAsync != null)
+                    {
+                        IceInternal.TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
+                    }
+                    else
+                    {
+                        IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
+                    }
                 
-            }
-
-            if(!_transceiver.write(message.stream.getBuffer()))
-            {
-                if(flushSentCallbacks && !_sentCallbacks.isEmpty())
-                {
-                    _threadPool.execute(_flushSentCallbacks);
                 }
-                return false;
-            }
+
+                if(!_transceiver.write(message.stream.getBuffer()))
+                {
+                    return false;
+                }
                     
-            message.sent(this, true);
+                message.sent(this, true);
 
-            if(message.outAsync instanceof Ice.AMISentCallback)
-            {
-                _sentCallbacks.add(message);
+                if(message.outAsync instanceof Ice.AMISentCallback)
+                {
+                    _sentCallbacks.add(message);
+                }
+
+                _sendStreams.removeFirst();
             }
-
-            _sendStreams.removeFirst();
         }
-
-        if(flushSentCallbacks && !_sentCallbacks.isEmpty())
+        finally
         {
-            _threadPool.execute(_flushSentCallbacks);
+            if(flushSentCallbacks && !_sentCallbacks.isEmpty())
+            {
+                _threadPool.execute(_flushSentCallbacks);
+            }
         }
         return true;
     }

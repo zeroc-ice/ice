@@ -46,7 +46,7 @@ Ice.ACM.Client=10
 #
 # SSL Configuration
 #
-Ice.Plugin.IceSSL=IceSSL, Version=3.3.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381:IceSSL.PluginFactory
+Ice.Plugin.IceSSL=IceSSL, Version=3.3.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs
 IceSSL.ImportCert.CurrentUser.Root=cacert.pem
 IceSSL.CertFile=c_rsa1024.pfx

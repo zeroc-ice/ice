@@ -844,7 +844,11 @@ public class AllTests
         configuration.readException(new Ice.SocketException());
         if(!background.op_async(cbEx))
         {
-            cbEx.sent(true);
+            //
+            // With Ice for C#, the ice_sent callback might not be called if the connection
+            // is closed shortly after the request is sent.
+            //
+            //cbEx.sent(true);
         }
         test(cbEx.exception(true));
         configuration.readException(null);
@@ -922,7 +926,11 @@ public class AllTests
         configuration.readException(new Ice.SocketException());
         if(!background.op_async(cbEx))
         {
-            test(cbEx.sent(true));
+            //
+            // With Ice for C#, the ice_sent callback might not be called if the connection
+            // is closed shortly after the request is sent.
+            //
+            //test(cbEx.sent(true));
         }
         test(cbEx.exception(true));
         configuration.readException(null);
@@ -933,7 +941,11 @@ public class AllTests
         configuration.writeReady(false);
         configuration.readException(new Ice.SocketException());
         test(!background.op_async(cbEx));
-        test(cbEx.sent(true));
+        //
+        // With Ice for C#, the ice_sent callback might not be called if the connection
+        // is closed shortly after the request is sent.
+        //
+        //test(cbEx.sent(true));
         test(cbEx.exception(true));
         configuration.readException(null);
         configuration.writeReady(true);

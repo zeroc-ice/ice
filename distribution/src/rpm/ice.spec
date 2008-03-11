@@ -35,7 +35,7 @@
 %endif
 
 Name: ice
-Version: 3.3.0
+Version: 3.3b
 Summary: Files common to all Ice packages 
 Release: 1%{?dist}
 License: GPL with exceptions
@@ -47,7 +47,7 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%define soversion 33
+%define soversion 33b
 
 %define formsversion 1.2.0
 %define looksversion 2.1.4

@@ -1702,7 +1702,7 @@ namespace Ice
                 {
                     return;
                 }
-                
+
                 //
                 // An I/O request has completed, so cancel a pending timeout.
                 //
@@ -1710,13 +1710,12 @@ namespace Ice
                 {
                     _timer.cancel(this);
                 }
-
+                
+                Debug.Assert(_sendStreams.Count > 0);
                 Debug.Assert(_transceiver != null);
                 Debug.Assert(_sendInProgress);
-                Debug.Assert(_sendStreams.Count > 0);
-
+                
                 bool flushSentCallbacks = _sentCallbacks.Count == 0;
-
                 try
                 {
                     while(_sendStreams.Count > 0)
@@ -1750,7 +1749,7 @@ namespace Ice
                         //
                         // Begin an asynchronous write to send the remainder of the message.
                         //
-                        result = _transceiver.beginWrite(message.stream.getBuffer(), _writeAsyncCallback, null);
+                        result = _transceiver.beginWrite(message.stream.getBuffer(), _writeAsyncCallback, message);
                         if(!result.CompletedSynchronously)
                         {
                             //
@@ -1758,10 +1757,6 @@ namespace Ice
                             // and return now.
                             //
                             scheduleTimeout();
-                            if(flushSentCallbacks && _sentCallbacks.Count > 0)
-                            {
-                                _threadPool.execute(_flushSentCallbacks);
-                            }
                             return;
                         }
 
@@ -1775,12 +1770,14 @@ namespace Ice
                     setState(StateClosed, ex);
                     return;
                 }
-
-                if(flushSentCallbacks && _sentCallbacks.Count > 0)
+                finally
                 {
-                    _threadPool.execute(_flushSentCallbacks);
+                    if(flushSentCallbacks && _sentCallbacks.Count > 0)
+                    {
+                        _threadPool.execute(_flushSentCallbacks);
+                    }
                 }
-                
+
                 Debug.Assert(_sendStreams.Count == 0);
                 _sendInProgress = false;
                 if(_acmTimeout > 0)
