@@ -12,7 +12,7 @@ import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
 import textwrap
 
-iceVersion = '3.3.0'
+iceVersion = '3.3b'
 looksVersion = '2.1.4'
 formsVersion = '1.2.0'
 
@@ -22,7 +22,7 @@ resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "s
 sys.path.append(resources)
 import components
 
-DistPrefixes = ["Ice-%s", "Ice-%s-demos-for-msi"]
+DistPrefixes = ["Ice-%s"]
 
 class DistEnvironmentError:
     def __init__(self, msg = None):
@@ -174,18 +174,19 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
     if installVersion == "vc80" or installVersion == "vc90":
      
         #
-        # Ice for C#
+        # Ice for .NET
         #
-        os.chdir(os.path.join(sourcesDir, "debug", "Ice-%s" % iceVersion, "cs" ))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cs" ))
         print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         runprog("nmake /f Makefile.mak")
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cs", "demo"))
+        runprog("nmake /f Makefile.mak config")
 
         #
         # Ice for Java
         #
-
         jgoodiesLooks = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', "looks-%s.jar" % looksVersion) 
         jgoodiesForms = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', "forms-%s.jar" % formsVersion) 
         dbJar = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', 'db.jar') 

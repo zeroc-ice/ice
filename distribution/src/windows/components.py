@@ -95,6 +95,31 @@ def fixVersion(file, argsHash):
     oldFile.close()
     os.remove(origfile)
 
+def fixDemoPath(file, argsHash):
+    print "Processing " + file
+    if os.path.basename(file).startswith('config.'):
+        origfile = file + ".orig"
+        os.rename(file, origfile)
+        oldFile = open(origfile, "r")
+        newFile = open(file, "w")
+        line = oldFile.read();
+        line = re.sub('../../certs', '../certs', line)
+        newFile.write(line)
+        newFile.close()
+        oldFile.close()
+        os.remove(origfile)
+    if file.endswith('.vbproj'):
+        origfile = file + ".orig"
+        os.rename(file, origfile)
+        oldFile = open(origfile, "r")
+        newFile = open(file, "w")
+        line = oldFile.read();
+        line = re.sub('\..\cs', '', line)
+        newFile.write(line)
+        newFile.close()
+        oldFile.close()
+        os.remove(origfile)
+
 def signFile(file, argsHash):
    
     pfxFile = argsHash['PFX_FILE']
