@@ -159,7 +159,7 @@ clean::
 install::
 
 !if "$(TARGETS_CONFIG)" != ""
-$(TARGETS_CONFIG): $(TARGETS_CONFIG:.exe.config=.exe)
+$(TARGETS_CONFIG)::
         @echo "Generating" <<$@ "..."
 <?xml version="1.0"?>
   <configuration>
@@ -167,31 +167,31 @@ $(TARGETS_CONFIG): $(TARGETS_CONFIG:.exe.config=.exe)
       <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
         <dependentAssembly>
           <assemblyIdentity name="Glacier2" culture="neutral" publicKeyToken="1f998c50fec78381"/>
-          <codeBase version="$(VERSION).0" href="$(bindir)\Glacier2.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\Glacier2.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="Ice" culture="neutral" publicKeyToken="1f998c50fec78381"/>
-          <codeBase version="$(VERSION).0" href="$(bindir)\Ice.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\Ice.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IcePatch2" culture="neutral" publicKeyToken="1f998c50fec78381"/>
-          <codeBase version="$(VERSION).0" href="$(bindir)\IcePatch2.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IcePatch2.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceStorm" culture="neutral" publicKeyToken="1f998c50fec78381"/>
-          <codeBase version="$(VERSION).0" href="$(bindir)\IceStorm.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceStorm.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceBox" culture="neutral" publicKeyToken="1f998c50fec78381"/>
-          <codeBase version="$(VERSION).0" href="$(bindir)\IceBox.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceBox.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceGrid" culture="neutral" publicKeyToken="1f998c50fec78381"/>
-          <codeBase version="$(VERSION).0" href="$(bindir)\IceGrid.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceGrid.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceSSL" culture="neutral" publicKeyToken="1f998c50fec78381"/>
-          <codeBase version="$(VERSION).0" href="$(bindir)\IceSSL.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceSSL.dll"/>
         </dependentAssembly>
     </assemblyBinding>
   </runtime>
