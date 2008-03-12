@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Under Windows when building a MFC application it is no longer necessary
+  to define WINVER in the generated stdafx.h.
+
 - The iceca ImportKey.class utility is now installed in
   /usr/share/Ice-3.3.0 for an RPM install or ${prefix}/lib otherwise.
 

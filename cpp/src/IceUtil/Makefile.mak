@@ -25,6 +25,7 @@ OBJS		= ArgVector.obj \
 		  Options.obj \
 		  OutputUtil.obj \
 		  Random.obj \
+		  Mutex.obj \
 		  RWRecMutex.obj \
 		  RecMutex.obj \
 		  StaticMutex.obj \
