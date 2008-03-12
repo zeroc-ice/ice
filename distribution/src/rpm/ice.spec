@@ -15,7 +15,7 @@
 %define mono 1
 %endif
 
-%define buildall 0
+%define buildall 1
 %define makeopts -j2
 
 %define core_arches %{ix86} x86_64
@@ -48,6 +48,7 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 33b
+%define dotnetversion 3.3.51
 
 %define formsversion 1.2.0
 %define looksversion 2.1.4
@@ -304,6 +305,10 @@ make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
+
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/lib/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mv $RPM_BUILD_ROOT/lib/* $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}
@@ -404,8 +409,8 @@ done
 #
 # Some python scripts and related files
 #
-mkdir -p $RPM_BUILD_ROOT%{_datadir}
-mv $RPM_BUILD_ROOT/config $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/config/* $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 
 #
 # Cleanup extra files
@@ -415,9 +420,6 @@ rm -f $RPM_BUILD_ROOT/LICENSE
 rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
-%if %{mono}
-#rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac
-%endif
 
 #temporary
 rm -f $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
@@ -506,17 +508,17 @@ rm -rf $RPM_BUILD_ROOT
 %files dotnet
 %defattr(-, root, root, -)
 %dir %{_prefix}/lib/mono/gac/Glacier2
-%{_prefix}/lib/mono/gac/Glacier2/%{version}.*/
+%{_prefix}/lib/mono/gac/Glacier2/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/Ice
-%{_prefix}/lib/mono/gac/Ice/%{version}.*/
+%{_prefix}/lib/mono/gac/Ice/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IceBox
-%{_prefix}/lib/mono/gac/IceBox/%{version}.*/
+%{_prefix}/lib/mono/gac/IceBox/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IceGrid
-%{_prefix}/lib/mono/gac/IceGrid/%{version}.*/
+%{_prefix}/lib/mono/gac/IceGrid/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IcePatch2
-%{_prefix}/lib/mono/gac/IcePatch2/%{version}.*/
+%{_prefix}/lib/mono/gac/IcePatch2/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IceStorm
-%{_prefix}/lib/mono/gac/IceStorm/%{version}.*/
+%{_prefix}/lib/mono/gac/IceStorm/%{dotnetversion}.*/
 %endif
 
 #
