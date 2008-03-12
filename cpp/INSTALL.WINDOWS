@@ -107,6 +107,13 @@ Platform SDK in order to compile Ice:
 
   http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm
 
+Alternatively, for MSDN subscribers, you may download the PSDK from
+the MSDN Subscriber Downloads. In the content tree open:
+
+  Tools, SDKs, and DDKs / Platform SDK / Platform SDK - February 2003 Edition (English)
+
+and then download en_platformsdk_win2003.exe
+
 Once installed, you need to add the Platform SDK directories to the
 INCLUDE, LIB and PATH environment variables. This can be done by
 executing the following script:
