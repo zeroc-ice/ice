@@ -24,4 +24,6 @@ install::
 	$(call installdata,convertssl.py,$(prefix)/config)
 	$(call installdata,upgradeicegrid.py,$(prefix)/config)
 	$(call installdata,icegrid-slice.3.1.ice.gz,$(prefix)/config)
+	$(call installdata,icegrid-slice.3.2.ice.gz,$(prefix)/config)
+	$(call installdata,icegrid-slice.3.3.ice.gz,$(prefix)/config)
 

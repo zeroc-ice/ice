@@ -164,7 +164,7 @@ AdminI::~AdminI()
 void
 AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
-    checkIsMaster();
+    checkIsReadOnly();
 
     ApplicationInfo info;
     info.createTime = info.updateTime = IceUtil::Time::now().toMilliSeconds();
@@ -179,14 +179,14 @@ AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
 void
 AdminI::syncApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
-    checkIsMaster();
+    checkIsReadOnly();
     _database->syncApplicationDescriptor(descriptor, _session.get());
 }
 
 void
 AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const Current&)
 {
-    checkIsMaster();
+    checkIsReadOnly();
 
     ApplicationUpdateInfo update;
     update.updateTime = IceUtil::Time::now().toMilliSeconds();
@@ -199,14 +199,14 @@ AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const C
 void
 AdminI::removeApplication(const string& name, const Current&)
 {
-    checkIsMaster();
+    checkIsReadOnly();
     _database->removeApplication(name, _session.get());
 }
 
 void
 AdminI::instantiateServer(const string& app, const string& node, const ServerInstanceDescriptor& desc, const Current&)
 {
-    checkIsMaster();
+    checkIsReadOnly();
     _database->instantiateServer(app, node, desc, _session.get());
 }
 
@@ -613,7 +613,7 @@ AdminI::getAdapterInfo(const string& id, const Current&) const
 void
 AdminI::removeAdapter(const string& adapterId, const Ice::Current&)
 {
-    checkIsMaster();
+    checkIsReadOnly();
     _database->removeAdapter(adapterId);
 }
 
@@ -626,7 +626,7 @@ AdminI::getAllAdapterIds(const Current&) const
 void 
 AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
-    checkIsMaster();
+    checkIsReadOnly();
 
     if(!proxy)
     {
@@ -650,7 +650,7 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 void 
 AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
-    checkIsMaster();
+    checkIsReadOnly();
 
     if(!proxy)
     {
@@ -672,7 +672,7 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 void 
 AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current& current)
 {
-    checkIsMaster();
+    checkIsReadOnly();
 
     if(!proxy)
     {
@@ -697,7 +697,7 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
 void 
 AdminI::removeObject(const Ice::Identity& id, const Ice::Current& current)
 {
-    checkIsMaster();
+    checkIsReadOnly();
     if(id.category == _database->getInstanceName())
     {
         DeploymentException ex;
@@ -903,12 +903,12 @@ AdminI::getSliceChecksums(const Current&) const
 }
 
 void
-AdminI::checkIsMaster() const
+AdminI::checkIsReadOnly() const
 {
-    if(!_database->isMaster())
+    if(_database->isReadOnly())
     {
         DeploymentException ex;
-        ex.reason = "this operation is only allowed on the master registry.";
+        ex.reason = "this operation is only allowed on a slave or read-only master registry.";
         throw ex;
     }
 }

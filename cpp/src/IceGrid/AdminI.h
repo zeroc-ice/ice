@@ -90,7 +90,7 @@ public:
 
 private:
 
-    void checkIsMaster() const;
+    void checkIsReadOnly() const;
     
     const DatabasePtr _database;
     const RegistryIPtr _registry;

@@ -148,10 +148,14 @@ private:
 
 }
 
-RegistryI::RegistryI(const CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels, bool nowarn) : 
+RegistryI::RegistryI(const CommunicatorPtr& communicator, 
+                     const TraceLevelsPtr& traceLevels, 
+                     bool nowarn, 
+                     bool readonly) : 
     _communicator(communicator),
     _traceLevels(traceLevels),
     _nowarn(nowarn),
+    _readonly(readonly),
     _platform("IceGrid.Registry", communicator, traceLevels)
 {
 }
@@ -337,7 +341,7 @@ RegistryI::start()
     //
     // Create the registry database.
     //
-    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo());
+    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _readonly);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     //

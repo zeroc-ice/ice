@@ -87,10 +87,17 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
             {
                 props.push_back(createProperty(q->name + ".ReplicaGroupId", q->replicaGroupId));
             }
-            if(q->registerProcess)
+
+            //
+            // Ignore the register process attribute if the server is using Ice > 3.3.0
+            //
+            if(_iceVersion != 0 && _iceVersion < 30300)
             {
-                props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
-                _desc->processRegistered = true;
+                if(q->registerProcess)
+                {
+                    props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
+                    _desc->processRegistered = true;
+                }
             }
         }
 

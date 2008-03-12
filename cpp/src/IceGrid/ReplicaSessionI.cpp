@@ -97,6 +97,15 @@ ReplicaSessionI::getTimeout(const Ice::Current& current) const
 void
 ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const Ice::Current& current)
 {
+    //
+    // If it's a read only master, we don't setup the observer to not
+    // modify the replica database.
+    //
+    if(_database->isReadOnly())
+    {
+        return;
+    }
+
     int serialApplicationObserver;
     int serialAdapterObserver;
     int serialObjectObserver;

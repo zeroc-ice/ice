@@ -24,3 +24,5 @@ install::
 	copy icegridnode.cfg $(prefix)\config
 	copy glacier2router.cfg $(prefix)\config
 	copy icegrid-slice.3.1.ice.gz $(prefix)\config
+	copy icegrid-slice.3.2.ice.gz $(prefix)\config
+	copy icegrid-slice.3.3.ice.gz $(prefix)\config

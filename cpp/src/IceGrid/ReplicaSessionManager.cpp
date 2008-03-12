@@ -254,7 +254,6 @@ private:
     const ReplicaSessionPrx _session;
 };
 
-
 };
 
 ReplicaSessionManager::ReplicaSessionManager()
@@ -540,7 +539,7 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, Ic
         // returns once the observer is subscribed and initialized.
         //
         DatabaseObserverPtr servant = new MasterDatabaseObserverI(_thread, _database, session);
-        _observer = DatabaseObserverPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(servant));  
+        _observer = DatabaseObserverPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(servant));
         session->setDatabaseObserver(_observer);
         return session;
     }
