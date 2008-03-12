@@ -20,7 +20,6 @@ install::
 	copy templates.xml $(prefix)\config
 	copy convertssl.py $(prefix)\config
 	copy upgradeicegrid.py $(prefix)\config
-	copy upgradeicestorm.py $(prefix)\config
 	copy icegridregistry.cfg $(prefix)\config
 	copy icegridnode.cfg $(prefix)\config
 	copy glacier2router.cfg $(prefix)\config

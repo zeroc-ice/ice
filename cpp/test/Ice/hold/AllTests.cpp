@@ -129,19 +129,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "changing state between active and hold rapidly... " << flush;
-    for(int i = 0; i < 100; ++i)
+    int i;
+    for(i = 0; i < 100; ++i)
     {
         hold->putOnHold(0);
     }
-    for(int i = 0; i < 100; ++i)
+    for(i = 0; i < 100; ++i)
     {
         hold->ice_oneway()->putOnHold(0);
     }
-    for(int i = 0; i < 100; ++i)
+    for(i = 0; i < 100; ++i)
     {
         holdSerialized->putOnHold(0);
     }
-    for(int i = 0; i < 100; ++i)
+    for(i = 0; i < 100; ++i)
     {
         holdSerialized->ice_oneway()->putOnHold(0);
     }
