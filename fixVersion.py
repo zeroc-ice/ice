@@ -245,6 +245,9 @@ if not patchIceE:
         fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
+        fileMatchAndReplace(os.path.join(ice_home, "test", "IceStorm", "repgrid", "application.xml"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
+
     #
     # Fix version in Java sources
     #
