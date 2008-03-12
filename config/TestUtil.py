@@ -17,7 +17,7 @@ compress = 0                    # Set to 1 to enable bzip2 compression.
 serialize = 0                   # Set to 1 to have tests use connection serialization
 host = "127.0.0.1"              # Default to loopback.
 debug = 0                       # Set to 1 to enable test suite debugging.
-mono =  0                       # Set to 1 to use Mono as the default .NET CLR.
+mono =  0                       # Set to 1 when not on Windows
 keepGoing = 0                   # Set to 1 to have the tests continue on failure.
 ipv6 = 0                        # Default to use IPv4 only
 ice_home = None                 # Binary distribution to use (None to use binaries from source distribution)
@@ -182,7 +182,6 @@ def run(tests, root = False):
           --serialize             Run with connection serialization.
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
-          --mono                  Use mono when running C# tests.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
         """
@@ -192,7 +191,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug",
                                     "protocol=", "compress", "host=", "serialize", "continue", "ipv6",
-                                    "mono", "ice-home=", "x64"])
+                                    "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
 
@@ -229,7 +228,7 @@ def run(tests, root = False):
             if a not in ( "ssl", "tcp"):
                 usage()
 
-        if o in ( "--protocol", "--host", "--debug", "--compress", "--serialize", "--ipv6", "--mono", \
+        if o in ( "--protocol", "--host", "--debug", "--compress", "--serialize", "--ipv6", \
                   "--ice-home", "--x64"):
             arg += " " + o
             if len(a) > 0:
@@ -1121,7 +1120,6 @@ def processCmdLine():
           --host=host             Set --Ice.Default.Host=<host>.
           --serialize   Run with thread-per-connection concurrency model.
           --ipv6                  Use IPv6 addresses.
-          --mono                  Use mono when running C# tests.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
         """
@@ -1129,7 +1127,7 @@ def processCmdLine():
 
     try:
         opts, args = getopt.getopt(
-            sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "serialize", "ipv6", "mono", \
+            sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "serialize", "ipv6", \
                               "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
@@ -1138,10 +1136,7 @@ def processCmdLine():
         usage()
 
     for o, a in opts:
-        if o in ["--mono"]:
-            global mono
-            mono = 1
-        elif o == "--ice-home":
+        if o == "--ice-home":
             global ice_home
             ice_home = a
         elif o == "--x64":

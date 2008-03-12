@@ -8,11 +8,6 @@
 # **********************************************************************
 
 #
-# If you are compiling with MONO you must define this symbol.
-#
-MONO = yes
-
-#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
@@ -77,11 +72,7 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-ifeq ($(MONO), yes)
-	DSEP = /
-else
-	DSEP = \\
-endif
+DSEP = /
 
 ifdef ice_src_dist
     bindir = $(ice_dir)/cs/bin
@@ -127,11 +118,7 @@ else
 endif
 
 
-ifeq ($(MONO),yes)
 MCS			= gmcs
-else
-MCS			= csc -nologo
-endif
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 ifeq ($(DEBUG),yes)
