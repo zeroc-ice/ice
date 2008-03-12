@@ -2,5 +2,4 @@ icegridregistry.cfg
 icegridnode.cfg
 glacier2router.cfg
 upgradeicegrid.py
-upgradeicestorm.py
 icegrid-slice.3.1.ice.gz

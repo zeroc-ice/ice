@@ -86,9 +86,9 @@ def fixVersion(file, argsHash):
     oldFile = open(origfile, "r")
     newFile = open(file, "w")
     line = oldFile.read();
-    line = re.sub("@ver@", version, line)
-    line = re.sub("@libver@", libversion, line)
-    line = re.sub("@installdir@", installdir, line)
+    line = line.replace("@ver@", version)
+    line = line.replace("@libver@", libversion)
+    line = line.replace("@installdir@", installdir)
 
     newFile.write(line)
     newFile.close()
@@ -103,18 +103,18 @@ def fixDemoPath(file, argsHash):
         oldFile = open(origfile, "r")
         newFile = open(file, "w")
         line = oldFile.read();
-        line = re.sub('../../certs', '../certs', line)
+        line = line.replace('../../certs', '../certs')
         newFile.write(line)
         newFile.close()
         oldFile.close()
         os.remove(origfile)
-    if file.endswith('.vbproj'):
+    if file.endswith('.exe.config') or file.endswith('.vbproj'):
         origfile = file + ".orig"
         os.rename(file, origfile)
         oldFile = open(origfile, "r")
         newFile = open(file, "w")
         line = oldFile.read();
-        line = re.sub('\..\cs', '', line)
+        line = line.replace('\..\cs', '')
         newFile.write(line)
         newFile.close()
         oldFile.close()
