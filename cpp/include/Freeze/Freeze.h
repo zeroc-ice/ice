@@ -15,5 +15,6 @@
 #include <Freeze/TransactionalEvictor.h>
 #include <Freeze/Map.h>
 #include <Freeze/TransactionHolder.h>
+#include <Freeze/Catalog.h>
 
 #endif

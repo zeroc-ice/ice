@@ -9,7 +9,6 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <Freeze/Freeze.h>
-#include <Freeze/Catalog.h> // XXX:
 
 #include <IceStorm/SubscriberMap.h>
 #include <IceStorm/IceStormInternal.h>
