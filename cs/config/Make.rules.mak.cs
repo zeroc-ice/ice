@@ -22,7 +22,7 @@ prefix			= C:\Ice-$(VERSION)
 # be copied to $(prefix)/bin instead.
 #
 
-#no_gac			= 1
+no_gac			= 1
 
 #
 # Ice invokes unmanaged code to implement the following features:
@@ -121,17 +121,10 @@ EVERYTHING		= all clean install config
 # The .exe.config files are only generated if we're not building the 
 # source distribution.
 #
-!if "$(ice_src_dist)" == ""
 all:: $(TARGETS) $(TARGETS_CONFIG)
 
 clean::
 	del /q $(TARGETS) $(TARGETS_CONFIG) *.pdb
-!else
-all:: $(TARGETS)
-
-clean::
-	del /q $(TARGETS) *.pdb
-!endif
 
 config:: $(TARGETS_CONFIG)
 
@@ -159,43 +152,68 @@ clean::
 install::
 
 !if "$(TARGETS_CONFIG)" != ""
-$(TARGETS_CONFIG)::
+
+!if "$(PUBLIC_KEY_TOKEN)" == ""
+
+!if "$(ice_src_dist)" != ""
+$(TARGETS_CONFIG):
+	@sn -q -p $(KEYFILE) tmp.pub && \
+	sn -q -t tmp.pub > tmp.publicKeyToken && \
+	set /P PUBLIC_KEY_TOKEN= < tmp.publicKeyToken && \
+	del tmp.pub tmp.publicKeyToken && \
+	nmake /nologo /f Makefile.mak config
+!else
+$(TARGETS_CONFIG):
+	@sn -q -T $(bindir)\Ice.dll > tmp.publicKeyToken && \
+	set /P PUBLIC_KEY_TOKEN= < tmp.publicKeyToken && \
+	del tmp.pub tmp.publicKeyToken && \
+	nmake /nologo /f Makefile.mak config
+!endif
+
+!else
+
+publicKeyToken = $(PUBLIC_KEY_TOKEN:Public key token is =)
+$(TARGETS_CONFIG):
         @echo "Generating" <<$@ "..."
 <?xml version="1.0"?>
   <configuration>
     <runtime>
       <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
         <dependentAssembly>
-          <assemblyIdentity name="Glacier2" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <assemblyIdentity name="Glacier2" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
           <codeBase version="$(INTVERSION).0" href="$(bindir)\Glacier2.dll"/>
         </dependentAssembly>
         <dependentAssembly>
-          <assemblyIdentity name="Ice" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <assemblyIdentity name="Ice" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
           <codeBase version="$(INTVERSION).0" href="$(bindir)\Ice.dll"/>
         </dependentAssembly>
         <dependentAssembly>
-          <assemblyIdentity name="IcePatch2" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <assemblyIdentity name="IcePatch2" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
           <codeBase version="$(INTVERSION).0" href="$(bindir)\IcePatch2.dll"/>
         </dependentAssembly>
         <dependentAssembly>
-          <assemblyIdentity name="IceStorm" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <assemblyIdentity name="IceStorm" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
           <codeBase version="$(INTVERSION).0" href="$(bindir)\IceStorm.dll"/>
         </dependentAssembly>
         <dependentAssembly>
-          <assemblyIdentity name="IceBox" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <assemblyIdentity name="IceBox" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
           <codeBase version="$(INTVERSION).0" href="$(bindir)\IceBox.dll"/>
         </dependentAssembly>
         <dependentAssembly>
-          <assemblyIdentity name="IceGrid" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <assemblyIdentity name="IceGrid" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
           <codeBase version="$(INTVERSION).0" href="$(bindir)\IceGrid.dll"/>
         </dependentAssembly>
         <dependentAssembly>
-          <assemblyIdentity name="IceSSL" culture="neutral" publicKeyToken="1f998c50fec78381"/>
+          <assemblyIdentity name="IceSSL" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
           <codeBase version="$(INTVERSION).0" href="$(bindir)\IceSSL.dll"/>
         </dependentAssembly>
+	<qualifyAssembly partialName="IceSSL" fullName="IceSSL, Version=$(INTVERSION).0, Culture=neutral, PublicKeyToken=$(publicKeyToken)"/>
     </assemblyBinding>
   </runtime>
 </configuration>
 <<KEEP
+
+!endif
+
 !endif
 
