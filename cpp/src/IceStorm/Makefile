@@ -56,9 +56,12 @@ MOBJS		= Migrate.o \
                   SubscriberMap.o \
                   LLUMap.o \
 		  LinkRecord.o \
-		  PersistentTopicMap.o \
 		  IceStormInternal.o \
-		  Election.o
+		  Election.o \
+		  V32FormatDB.o \
+		  V31FormatDB.o \
+		  V32Format.o \
+		  V31Format.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(SERVICE_OBJS:.o=.cpp) \
@@ -69,7 +72,9 @@ SLICE_SRCS	= $(SDIR)/IceStorm.ice \
 		  ../IceStorm/Election.ice \
 		  ../IceStorm/IceStormInternal.ice \
 		  ../IceStorm/SubscriberRecord.ice \
-		  ../IceStorm/LinkRecord.ice
+		  ../IceStorm/LinkRecord.ice \
+		  ../IceStorm/V32Format.ice \
+		  ../IceStorm/V31Format.ice
 
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
@@ -128,10 +133,15 @@ SubscriberMap.h SubscriberMap.cpp: ../IceStorm/SubscriberRecord.ice $(slicedir)/
 	SubscriberMap ../IceStorm/SubscriberRecord.ice
 
 # Needed for migration.
-PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
-	rm -f PersistentTopicMap.h PersistentTopicMap.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,Ice::Identity,IceStorm::LinkRecordSeq \
-	PersistentTopicMap ../IceStorm/LinkRecord.ice
+V32FormatDB.h V32FormatDB.cpp: ../IceStorm/V32Format.ice $(SLICE2FREEZE)
+	rm -f V32FormatDB.h V32FormatDB.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::V32Format,Ice::Identity,IceStorm::LinkRecordSeq \
+	V32FormatDB ../IceStorm/V32Format.ice
+
+V31FormatDB.h V31FormatDB.cpp: ../IceStorm/V31Format.ice $(SLICE2FREEZE)
+	rm -f V31FormatDB.h V31FormatDB.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::V31Format,string,IceStorm::LinkRecordDict \
+	V31FormatDB ../IceStorm/V31Format.ice
 
 # Needed for make -jn to work.
 ../IceStorm/Grammar.y: Grammar.h

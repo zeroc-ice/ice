@@ -7,26 +7,16 @@
 //
 // **********************************************************************
 
-#ifndef LINK_RECORD_ICE
-#define LINK_RECORD_ICE
+#ifndef V32_FORMAT_ICE
+#define V32_FORMAT_ICE
 
-#include <Ice/Identity.ice>
-#include <IceStorm/IceStormInternal.ice>
+#include <IceStorm/LinkRecord.ice>
 
 module IceStorm
 {
 
-/**
- *
- * Used to store persistent information for Topic federation.
- *
- **/
-struct LinkRecord
-{
-    TopicLink* obj; // The topic link object.
-    int cost; // The cost.
-    Topic* theTopic;  // The linked topic for getLinkInfoSeq
-};
+/** sequence of link records. */
+sequence<LinkRecord> LinkRecordSeq;
 
 }; // End module IceStorm
 

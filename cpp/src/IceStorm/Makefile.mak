@@ -56,12 +56,15 @@ AOBJS		= Admin.obj \
 
 MOBJS		= Migrate.obj \
 		  SubscriberRecord.obj \
-                  LLUMap.obj \
                   SubscriberMap.obj \
+                  LLUMap.obj \
 		  LinkRecord.obj \
-		  PersistentTopicMap.obj \
 		  IceStormInternal.obj \
-		  Election.obj
+		  Election.obj \
+                  V32FormatDB.obj \
+                  V31FormatDB.obj \
+                  V32Format.obj \
+                  V31Format.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \
@@ -137,10 +140,21 @@ LLUMap.h LLUMap.cpp: $(SLICE2FREEZE) ..\IceStorm\Election.ice
 	SubscriberMap ..\IceStorm\SubscriberRecord.ice
 
 # Needed for migration.
-PersistentTopicMap.h PersistentTopicMap.cpp: ..\IceStorm\LinkRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE)
-	del /q PersistentTopicMap.h PersistentTopicMap.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,Ice::Identity,IceStorm::LinkRecordSeq \
-	PersistentTopicMap ..\IceStorm\LinkRecord.ice
+V32FormatDB.h V32FormatDB.cpp: ..\IceStorm\V32Format.ice $(SLICE2FREEZE)
+	del /q V32FormatDB.h V32FormatDB.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::V32Format,Ice::Identity,IceStorm::LinkRecordSeq \
+	V32FormatDB ..\IceStorm\V32Format.ice
+
+V31FormatDB.h V31FormatDB.cpp: ..\IceStorm\V31Format.ice $(SLICE2FREEZE)
+	del /q V31FormatDB.h V31FormatDB.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::V31Format,string,IceStorm::LinkRecordDict \
+	V31FormatDB ..\IceStorm\V31Format.ice
+
+V32Migrate.cpp ..\IceStorm\V32Migrate.h: ..\IceStorm\V32Migrate.ice
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\V32Migrate.ice
+
+V31Migrate.cpp ..\IceStorm\V31Migrate.h: ..\IceStorm\V31Migrate.ice
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\V31Migrate.ice
 
 LinkRecord.cpp ..\IceStorm\LinkRecord.h: ..\IceStorm\LinkRecord.ice
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\LinkRecord.ice
@@ -174,11 +188,13 @@ Grammar.cpp Grammar.h: Grammar.y
 clean::
 	del /q LLUMap.h LLUMap.cpp
 	del /q SubscriberMap.h SubscriberMap.cpp
-	del /q PersistentTopicMap.h PersistentTopicMap.cpp
+	del /q V32FormatDB.cpp V31FormatDB.cpp V31FormatDB.h V31FormatDB.h
 
 clean::
 	del /q IceStorm.cpp $(HDIR)\IceStorm.h
 	del /q IceStormInternal.cpp IceStormInternal.h
+	del /q V32Migrate.cpp V32Migrate.h
+	del /q V31Migrate.cpp V31Migrate.h
 	del /q LinkRecord.cpp LinkRecord.h
 	del /q Election.cpp Election.h
 	del /q SubscriberRecord.cpp SubscriberRecord.h

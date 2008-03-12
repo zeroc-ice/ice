@@ -1,1 +1,42 @@
 TBD
+
+Migrating IceStorm Databases
+----------------------------
+
+Ice 3.3 supports migrating from Ice 3.1.1 and from Ice
+3.2.1. Migration from other Ice versions may work, but is not
+officially supported. If you require assistance with this please
+contact sales@zeroc.com.
+
+To migrate, first stop your IceStorm servers.
+
+Next, copy the IceStorm database environment to a second location.
+
+$ cp -r db recovered.db
+
+Run the Berkeley DB utility db_recover on the copied database
+environment.
+
+$ db_recover -h recovered.db
+
+Note that it is essential that the correct version of db_recover is
+used. For Ice 3.1.1, Berkeley DB 4.3.29 must be used. For Ice 3.2.1,
+Berkeley DB 4.5 must be used.
+
+Now change to the location where the Ice 3.3 IceStorm database
+environments are stored.
+
+$ cd <new-location>
+
+Next, run the icestormmigrate utility. The first argument is the path
+to the old database environment. The second argument is the path to
+the new database environment.
+
+In this example we'll create a new directory "db" in which to store
+the migrated database environment.
+
+$ mkdir db
+$ icestormmigrate <path-to-recovered.db> db
+
+The migration is now complete, and the contents of old database environment
+is now in the db directory.

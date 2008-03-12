@@ -1,7 +1,6 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
-
 - The iceca ImportKey.class utility is now installed in
   /usr/share/Ice-3.3.0 for an RPM install or ${prefix}/lib otherwise.
 
@@ -59,7 +58,9 @@ Changes since version 3.2.X (binary incompatible)
     Ice::NotRegisteredException).
 
   - The IceStorm database format has changed. Use the utility
-    icestormmigrate to migrate from the Ice 3.2.1 database format.
+    icestormmigrate to migrate from the Ice 3.1.1 and Ice 3.2.1
+    database formats. Removed the old updateicestorm.py migration
+    script.
 
   - Added new demo demo/IceStorm/replication2 to demonstrate manually
     configured IceStorm replication.

@@ -20,3 +20,11 @@ LLUMap.cpp
 Grammar.cpp
 Grammar.h
 Scanner.cpp
+V31Format.cpp
+V31Format.h
+V32Format.cpp
+V32Format.h
+V31FormatDB.cpp
+V31FormatDB.h
+V32FormatDB.cpp
+V32FormatDB.h
