@@ -15,7 +15,7 @@
 %define mono 1
 %endif
 
-%define buildall 0
+%define buildall 1
 %define makeopts -j2
 
 %define core_arches %{ix86} x86_64
