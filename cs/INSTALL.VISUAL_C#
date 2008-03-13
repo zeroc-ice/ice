@@ -3,17 +3,11 @@ Build instructions
 
 Ice for .NET has been built and tested with:
 
-- Visual C# Express Version 8.0.50727.762 and .NET Framework Version
-  2.0.50727 SP1.
+- Microsoft Visual Studio 2005 Version 8.0.50727.762 and .NET
+  Framework Version 2.0.50727 SP1.
 
-- Microsoft Visual Studio 2005 Version 8.0.50727.762 and .NET Framework
-  Version 2.0.50727 SP1.
-
-- Visual C# Express Version 9.0.21022.8 RTM and .NET Framework Version
-  3.5.
-
-- Microsoft Visual Studio 2008 Version 9.0.21022.8 RTMand .NET Framework
-  Version 3.5.
+- Microsoft Visual Studio 2008 Version 9.0.21022.8 RTM and .NET
+  Framework Version 3.5.
 
 Unpack the archive. The .NET sources will be contained in the
 Ice-@ver@\cs subdirectory.
@@ -46,7 +40,7 @@ Follow these steps to build the source:
 
 4) Run nmake:
 
-   > nmake /f Makefile.mak (Visual Studio and Visual C# Express)
+   > nmake /f Makefile.mak
 
 The tests and sample programs are built automatically. If you modify
 the source code of a sample program, you can rebuild it using nmake,
@@ -55,9 +49,6 @@ or you can open the Visual Studio solution located in demo\demo.sln.
 
 SSL Notes
 ---------
-
-The IceSSL plug-in is supported for Visual Studio and Visual C#
-Express.
 
 In order to use SSL with the tests and sample programs, an SSL
 certificate must be installed on your system. The configuration files
@@ -145,7 +136,7 @@ them in the cache.
 Or you can use gacutil from the command line to achieve the same
 result:
 
-> gacutil /i "path_to_lib.dll"
+  > gacutil /i "path_to_lib.dll"
 
 You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
 installation. For example, if you have installed Visual C# 8.0 in
@@ -172,21 +163,20 @@ file called __AssemblyInfo__.ini and the Ice.dll you installed into
 the GAC in the preceding step. Now copy the Ice.pdb file into this
 directory:
 
-> copy <path_to_ice.pdb> .
+  > copy <path_to_ice.pdb> .
 
 
 Protocol compression with 64-bit Windows
 -----------------------
 
 Ice for .NET attempts to dynamically load bzip2.dll to support
-protocol compression. On 64-bit Windows, you have to make sure
-that the 64-bit version of bzip2.dll is found instead of the
-32-bit version. The bzip2 libraries are installed in
-<prefix>/bin/x64 and <prefix>/bin, respectively. For 64-bit
-Windows, you need to make sure that <prefix>/bin/x64 appears
-in the application's PATH instead of <prefix>/bin. (The Ice
-run time prints a warning to the console if it detects a
-bzip2.dll format mismatch during start-up.)
+protocol compression. On 64-bit Windows, you have to make sure that
+the 64-bit version of bzip2.dll is found instead of the 32-bit
+version. The bzip2 libraries are installed in <prefix>/bin/x64 and
+<prefix>/bin, respectively. For 64-bit Windows, you need to make sure
+that <prefix>/bin/x64 appears in the application's PATH instead of
+<prefix>/bin. (The Ice run time prints a warning to the console if it
+detects a bzip2.dll format mismatch during start-up.)
 
 
 Binary compatibility of patch releases

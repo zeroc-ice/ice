@@ -23,12 +23,11 @@ This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
 
  - in C++, using Visual Studio 2008 or Visual C++ 2008 Express Edition
- - in C#, using Visual Studio 2008 or Visual C# 2008 Express Edition
- - in Visual Basic, using Visual Studio 2008
+ - in .NET, using Visual Studio 2008
  - in Java, using Java 5 or Java 6
 
-If you want to develop Ice applications in Python, Ruby or PHP, or with
-another C++ compiler, please download the appropriate Ice binary 
+If you want to develop Ice applications in Python, Ruby or PHP, or
+with another C++ compiler, please download the appropriate Ice binary
 distribution from the ZeroC web site at
 
   http://www.zeroc.com/download.html
@@ -124,14 +123,14 @@ Building and running the C++ demos
 The C++ demos are in the demo directory.
 
 To build a C++ demo, start Visual Studio 2008 and open the solution
-demo\demo.sln. Right click on the desired demo in the Solution Explorer
-window and select "Build".
+demo\demo.sln. Right click on the desired demo in the Solution
+Explorer window and select "Build".
 
-Note that if you are using Visual C++ 2008 Express Edition the Ice demos
-that require MFC (demo/Ice/MFC and demo/IcePatch2/MFC) will not compile
-since only the Professional edition contains MFC support. You can
-either ignore any compile errors these demos generate or just remove the
-projects from the solution entirely.
+Note that if you are using Visual C++ 2008 Express Edition the Ice
+demos that require MFC (demo/Ice/MFC and demo/IcePatch2/MFC) will not
+compile since only the Professional edition contains MFC support. You
+can either ignore any compile errors these demos generate or just
+remove the projects from the solution entirely.
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
@@ -147,7 +146,7 @@ are necessary.
 
 The Ice demo source code archive and Windows installer for Visual
 Studio 2005 include examples for integrating Ice with databases other 
-than BerkeleyDB. These demos are not supported for Visual C++ 9.0 and 
+than Berkeley DB. These demos are not supported for Visual C++ 9.0 and
 are not included in this distribution.
 
 
@@ -168,8 +167,25 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 
-SSL Notes for the C# demos
---------------------------
+Building and running the Visual Basic demos
+-------------------------------------------
+
+The Visual Basic demos are in the demovb directory.
+
+To build a Visual Basic demo, start Visual Studio 2008 and open the
+solution demovb\demo.sln. Right click on the desired demo in the
+Solution Explorer window and select "Build".
+
+To run a demo, open a Command Prompt, change to the desired demo
+directory, and type 'server.exe' to start the server. In a separate
+Command Prompt window, type 'client.exe' to run the client.
+
+Some demo directories contain README files if additional requirements
+are necessary.
+
+
+SSL Notes for the .NET demos
+----------------------------
 
 In order to use SSL with the sample programs, an SSL certificate must
 be installed on your system. The configuration files handle this for
@@ -189,23 +205,6 @@ remove the certificate:
 
 5) Select the entry for "ZeroC Test CA", click the Remove button, and
    confirm that you want to remove this certificate.
-
-
-Building and running the Visual Basic demos
--------------------------------------------
-
-The Visual Basic demos are in the demovb directory.
-
-To build a Visual Basic demo, start Visual Studio 2008 and open the
-solution demovb\demo.sln. Right click on the desired demo in the
-Solution Explorer window and select "Build".
-
-To run a demo, open a Command Prompt, change to the desired demo
-directory, and type 'server.exe' to start the server. In a separate
-Command Prompt window, type 'client.exe' to run the client.
-
-Some demo directories contain README files if additional requirements
-are necessary.
 
 
 Building and running the Java demos
@@ -262,14 +261,13 @@ Protocol compression with 64-bit Windows
 ----------------------------------------
 
 Ice for .NET attempts to dynamically load bzip2.dll to support
-protocol compression. On 64-bit Windows, you have to make sure
-that the 64-bit version of bzip2.dll is found instead of the
-32-bit version. The bzip2 libraries are installed in
-<prefix>/bin/x64 and <prefix>/bin, respectively. For 64-bit
-Windows, you need to make sure that <prefix>/bin/x64 appears
-in the application's PATH instead of <prefix>/bin. (The Ice
-run time prints a warning to the console if it detects a
-bzip2.dll format mismatch during start-up.)
+protocol compression. On 64-bit Windows, you have to make sure that
+the 64-bit version of bzip2.dll is found instead of the 32-bit
+version. The bzip2 libraries are installed in <prefix>/bin/x64 and
+<prefix>/bin, respectively. For 64-bit Windows, you need to make sure
+that <prefix>/bin/x64 appears in the application's PATH instead of
+<prefix>/bin. (The Ice run time prints a warning to the console if it
+detects a bzip2.dll format mismatch during start-up.)
 
 
 Binary compatibility
@@ -295,7 +293,7 @@ The registration key used by this installer is:
 
 HKEY_LOCAL_MACHINE\Software\ZeroC\Ice @ver@ for Visual Studio 2008
 
-To install location is stored as a string value named 'InstallDir'.
+The install location is stored as a string value named 'InstallDir'.
 
 
 Acknowledgments

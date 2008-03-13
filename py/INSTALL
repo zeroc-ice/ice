@@ -3,11 +3,12 @@ Requirements
 ======================================================================
 
 - Ice @ver@
-- Python 2.3, 2.4, or 2.5 built with a C++ compiler compatible with the
-  C++ compiler used to build Ice for C++.
+- Python 2.3, 2.4, or 2.5 built with a C++ compiler compatible with
+  the C++ compiler used to build Ice for C++.
 
 Depending on your platform, you may need to download the Python source
-distribution from http://www.python.org and make our own Python build.
+distribution from http://www.python.org and make your own Python
+build.
 
 You can use the Ice for C++ binary distribution for your platform to
 build the Ice extension for Python.
@@ -185,8 +186,8 @@ HP-UX Notes
 Python needs to be configured and built with the following options in
 order to successfully load the Ice extension:
 
-./configure --enable-shared --with-cxx="aCC -AA +DAportable" \
---with-libs="-lxnet" ...
+  $ ./configure --enable-shared --with-cxx="aCC -AA +DAportable" \
+    --with-libs="-lxnet" ...
 
 
 =========================================================================
@@ -196,4 +197,4 @@ Solaris Notes
 Python needs to be configured and built with the following options in
 order to successfully load the Ice extension:
 
-./configure --enable-shared --with-cxx=CC --without-gcc ...
+  $ ./configure --enable-shared --with-cxx=CC --without-gcc ...

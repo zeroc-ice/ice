@@ -10,7 +10,7 @@ Requirements
 
 - Ice @ver@ for C++
 - Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)*
-- Ruby 1.8.4 or 1.8.5
+- Ruby 1.8.6
 
 * Ruby requires Visual C++ 6.0, therefore it is the only compiler
   supported by Ice for Ruby.
@@ -37,7 +37,7 @@ your build environment:
    The default installation directory is C:\ruby.
 
 If you selected different installation directories, you will need to
-modify the relevant pathnames in the steps below to match your
+modify the relevant path names in the steps below to match your
 configuration.
 
 
@@ -56,9 +56,9 @@ Follow these steps to build the Ice extension for Ruby:
 
    > cd Ice-@ver@\rb
 
-3) If you installed Ice @ver@ for Visual C++ 6.0 distribution in a 
-   non-standard location set the ICE_HOME environment variable with the
-   Ice installation directory. For example:
+3) If you installed the Ice @ver@ for Visual C++ 6.0 distribution in a 
+   non-standard location, set the ICE_HOME environment variable with
+   the Ice installation directory. For example:
 
    > set ICE_HOME=C:\Ice-@ver@
 
@@ -73,9 +73,9 @@ If no errors occurred, you can now begin using Ice for Ruby.
 
 NOTES:
 
- * Normally you should build with OPTIMIZE=yes. If you are using a Ruby
-   interpreter that was compiled in debug mode, set OPTIMIZE=no and edit
-   ruby/Ice.rb and change the line below
+ * Normally you should build with OPTIMIZE=yes. If you are using a
+   Ruby interpreter that was compiled in debug mode, set OPTIMIZE=no
+   and edit ruby/Ice.rb to change the line below from
 
    require "IceRuby"
 
@@ -129,9 +129,6 @@ can only be used in client applications. If you have a need for this
 feature and wish to sponsor its development, please contact us at
 info@zeroc.com.
 
-Ice for Ruby currently does not support the thread-per-connection
-concurrency model on Windows.
-
 
 OpenSSL Compatibility Issue
 ---------------------------
@@ -183,8 +180,8 @@ Running the tests
 -----------------
 
 You can run the test suite, provided that you have installed Python.
-Furthermore, the Ice for C++ tests must be built in the directory
-specified by the ICE_HOME environment variable.
+Furthermore, you must also build the Ice for C++ tests in the cpp
+subdirectory of this source distribution.
 
 Open a command window and change to the top-level directory. At the
 command prompt, execute:

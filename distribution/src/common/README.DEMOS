@@ -20,18 +20,18 @@ The Unix makefiles for C++ and C# require GNU gmake 3.80 or later. If
 your system does not come with GNU make, you can find information on
 how to acquire it at the following link:
 
-http://www.gnu.org/software/make/
+  http://www.gnu.org/software/make/
 
 The Windows makefiles for C++ and C# require Microsoft NMAKE 1.5.2. If
 you do not have NMAKE installed on your system, you can obtain it as
 part of the Microsoft Platform SDK:
 
-http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
 
 The Ice for Java demos require Ant 1.6.3, but we recommend using the
 most recent release available. Ant can be obtained at:
 
-http://ant.apache.org/bindownload.cgi
+  http://ant.apache.org/bindownload.cgi
 
 To build the demos you need to:
 
@@ -132,13 +132,12 @@ or download the Ice source distribution.
 
 To build from the console, you may need to take steps to configure
 your environment for your compiler. This usually involves running a
-file named vcvars32.bat (Visual C++ 6.0) or vsvars32.bat (VS .NET
-2003 and VS 2005). A quick, but not definitive, test is to try
-running "cl" or "nmake" from a console window. If you are using VS
-.NET 2003 or VS 2005, there should be a shortcut in your development
-tool's Start menu entry named "Visual Studio Command Prompt". Click
-on this to start a console window with your development environment
-already configured.
+file named vcvars32.bat (Visual C++ 6.0) or vsvars32.bat (VS 2005
+and VS 2008). A quick, but not definitive, test is to try running "cl"
+or "nmake" from a console window. If you are using VS 2005 or VS 2008,
+there should be a shortcut in your development tool's Start menu entry
+named "Visual Studio Command Prompt". Click on this to start a console
+window with your development environment already configured.
 
 
 Running the Ice Demos
@@ -191,9 +190,9 @@ $ java Client
 Running the C# demos
 ====================
 
-The C# demos are only supported on Linux or Windows, and the Ice
-for C# runtime is included only in the Linux and Windows
-distributions.
+The C# demos are only supported on Windows and SuSE Enterprise Linux
+Server, and the Ice for C# run time is included only in the binary
+distributions for these platforms.
 
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
@@ -217,6 +216,7 @@ In another window:
 $ mono client.exe
 
 Also note that LD_LIBRARY_PATH must include <mono-root>/lib.
+
 
 Running the Python demos
 ========================

@@ -122,7 +122,7 @@ are necessary.
 
 The Ice demo source code archive and Windows installer for Visual
 Studio 2005 include examples for integrating Ice with databases other
-than BerkeleyDB. These demos are not supported for Visual C++ 6.0 and
+than Berkeley DB. These demos are not supported for Visual C++ 6.0 and
 are not included in this distribution.
 
 
@@ -370,7 +370,7 @@ The registration key used by this installer is:
 
 HKEY_LOCAL_MACHINE\Software\ZeroC\Ice @ver@ for Visual Studio 6.0
 
-To install location is stored as a string value named 'InstallDir'.
+The install location is stored as a string value named 'InstallDir'.
 
 
 Acknowledgments

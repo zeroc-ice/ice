@@ -24,7 +24,7 @@ About this distribution
 This distribution is a binary release of Ice @ver@ for HP-UX 11i on
 PA-RISC and includes the following components:
 
-- The Ice runtime, including executables for the Ice services and 
+- The Ice run time, including executables for the Ice services and 
   Slice files.
 
 - Run time libraries for C++. These libraries enable you to execute
@@ -51,10 +51,10 @@ http://hpux.cs.utah.edu, are required to use this distribution:
 Berkeley DB and OpenSSL
 ======================================================================
 
-This distribution includes the C++ and Java runtime for Berkeley DB
-4.6.21 and the OpenSSL 0.9.8g libraries. The Berkeley DB C++ runtime
-was built using HP aC++ version A.03.56. The Berkeley DB and OpenSSL
-licenses are provided in the file THIRD_PARTY_LICENSE.
+This distribution includes the C++ run time for Berkeley DB 4.6.21 and
+the OpenSSL 0.9.8g libraries. The Berkeley DB C++ run time was built
+using HP aC++ version A.03.56. The Berkeley DB and OpenSSL licenses
+are provided in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================

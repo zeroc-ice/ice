@@ -24,7 +24,7 @@ About this distribution
 This distribution is a binary release of Ice @ver@ for Solaris 10 on
 SPARC and includes the following components:
 
-- The Ice runtime, including executables for the Ice services and 
+- The Ice run time, including executables for the Ice services and 
   Slice files.
 
 - Run time libraries for C++ and Java. These libraries enable you to 
@@ -33,10 +33,10 @@ SPARC and includes the following components:
 - Tools and libraries for developing Ice applications.
 
 This distribution contains executables and libraries in both 32-bit
-and 64-bit format. The 32-bit executables are in the bin directory, 
-the 32-bits libraries are in the lib directory, while the 64-bit
-executables are in the bin/sparcv9 directory and the 64-bit libraries
-and in the lib/sparcv9 directory.
+and 64-bit format. The 32-bit executables are in the bin directory
+and the 32-bit libraries are in the lib directory, while the 64-bit
+executables are located in bin/sparcv9 and the 64-bit libraries are
+in lib/sparcv9.
 
 
 ======================================================================
@@ -72,8 +72,8 @@ obtained from Sun Microsystems at
 Berkeley DB
 ======================================================================
 
-This distribution includes the C++ and Java runtime for Berkeley DB
-4.6.21. The C++ runtime was built using Sun CC version 5.9. The
+This distribution includes the C++ and Java run time for Berkeley DB
+4.6.21. The C++ run time was built using Sun CC version 5.9. The
 Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
 
@@ -111,11 +111,10 @@ use 'bin/sparcv9' instead of 'bin':
 
 $ export PATH=<Ice installation directory>/bin/sparcv9:$PATH
 
-
 Ice shared libraries and executables in this distribution contain 
-/opt/Ice-@mmver@/lib as the embedded runpath (/opt/Ice-@mmver@/lib/sparcv9
-for 64-bit libraries and executables). In order to run Ice
-services and tools, you can do one of the following:
+/opt/Ice-@mmver@/lib as the embedded runpath (the runpath for 64-bit
+libraries and executables is /opt/Ice-@mmver@/lib/sparcv9). In order
+to run Ice services and tools, you can do one of the following:
 
  - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
    installation:

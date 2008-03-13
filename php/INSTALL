@@ -19,9 +19,9 @@ Requirements
 Building PHP with the Ice extension (Linux)
 ======================================================================
 
-This source distribution only supports building Ice for PHP as a dynamic
-PHP extension; the product of the build is a shared library that you
-must configure PHP to load.
+This source distribution only supports building Ice for PHP as a
+dynamic PHP extension; the product of the build is a shared library
+that you must configure PHP to load.
 
 Follow the steps below to build Ice for PHP:
 
@@ -83,9 +83,9 @@ Follow these instructions to build the Ice extension:
 
 3) Open a command window.
 
-4) If you have not built Ice for C++ from the cpp subdirectory then you 
-   need to set the ICE_HOME environment variable to the location of your
-   Ice for C++ installation. For example:
+4) If you have not built Ice for C++ from the cpp subdirectory then
+   you need to set the ICE_HOME environment variable to the location
+   of your Ice for C++ installation. For example:
 
    > set ICE_HOME=C:\Ice-@ver@-VC60
 

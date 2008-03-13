@@ -30,12 +30,12 @@ Follow these steps:
 1. If you installed Ruby in a non-standard location, set the RUBY_HOME
    environment variable to the installation directory. For example:
 
-   $ export RUBY_HOME=/opt/ruby-1.8.5
+   $ export RUBY_HOME=/opt/ruby-1.8.6
 
 2. If you have not built Ice for C++ from the cpp subdirectory or if
-   you installed the Ice @ver@ for C++ development kit in a non-standard
-   location, set the ICE_HOME environment variable to the installation
-   directory. For example:
+   you have installed the Ice @ver@ for C++ development kit in a
+   non-standard location, set the ICE_HOME environment variable to the
+   installation directory. For example:
 
    $ export ICE_HOME=/opt/Ice-@ver@
 
@@ -150,8 +150,8 @@ Running the tests
 -----------------
 
 You can run the test suite, provided that you have installed Python.
-Furthermore, the Ice for C++ tests must be built in the directory
-specified by the ICE_HOME environment variable.
+Furthermore, you must also build the Ice for C++ tests in the cpp
+subdirectory of this source distribution.
 
 Open a command window and change to the top-level directory. At the
 command prompt, execute:

@@ -107,7 +107,7 @@ Berkeley DB shared libraries are in your java.library.path. On Linux,
 this can be achieved by adding <Berkeley DB home>/lib to your
 LD_LIBRARY_PATH, for example:
 
-$ export LD_LIBRARY_PATH=/opt/db46/lib:$LD_LIBRARY_PATH
+  $ export LD_LIBRARY_PATH=/opt/db46/lib:$LD_LIBRARY_PATH
 
 
 bzip2

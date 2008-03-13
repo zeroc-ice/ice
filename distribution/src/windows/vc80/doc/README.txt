@@ -23,8 +23,7 @@ This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
 
  - in C++, using Visual Studio 2005 or Visual C++ 2005 Express Edition
- - in C#, using Visual Studio 2005 or Visual C# 2005 Express Edition
- - in Visual Basic, using Visual Studio 2005
+ - in .NET, using Visual Studio 2005
  - in Java, using Java 5 or Java 6
  - in Python, using Python 2.5.2
 
@@ -165,18 +164,20 @@ window, type 'client' to start the client.
 Some demo directories contain README files if additional requirements
 are necessary.
 
-This distribution includes examples for intergrating Ice with databases
-other than BerkeleyDB. These examples are not included in the demo.sln
-file mentioned above. If you want to build these demos you must either
+This distribution includes examples for integrating Ice with databases
+other than Berkeley DB. These examples are not included in the
+demo.sln file mentioned above. If you want to build these demos you
+must do one of the following:
 
-1. Add the demo project files located in the demo\Database subdirectoris
-   to the demo solution and build from there.
+1. Add the demo project files located in the demo\Database
+   subdirectories to the demo solution and build from there.
 
-2. Build demos using the Microsoft Makefile processor, NMAKE. Under the
-   "Microsoft Visual Studio 2005" entry in your "Start" menu, click on the
-   "Visual Studio Tools" submenu and select "Visual Studio 2005 Command
-   Prompt". In this command prompt window, change to the appropriate demo
-   directory and run "nmake /f Makefile.mak". For example:
+2. Build demos using the Microsoft Makefile processor, NMAKE. Under
+   the "Microsoft Visual Studio 2005" entry in your "Start" menu,
+   click on the "Visual Studio Tools" submenu and select "Visual
+   Studio 2005 Command Prompt". In this command prompt window, change
+   to the appropriate demo directory and run "nmake /f Makefile.mak".
+   For example:
 
    cd <Ice installation root directory>\demo\Database
    nmake /f Makefile.mak.
@@ -202,8 +203,25 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 
-SSL Notes for the C# demos
---------------------------
+Building and running the Visual Basic demos
+-------------------------------------------
+
+The Visual Basic demos are in the demovb directory.
+
+To build a Visual Basic demo, start Visual Studio 2005 and open the
+solution demovb\demo.sln. Right click on the desired demo in the
+Solution Explorer window and select "Build".
+
+To run a demo, open a Command Prompt, change to the desired demo
+directory, and type 'server.exe' to start the server. In a separate
+Command Prompt window, type 'client.exe' to run the client.
+
+Some demo directories contain README files if additional requirements
+are necessary.
+
+
+SSL Notes for the .NET demos
+----------------------------
 
 In order to use SSL with the sample programs, an SSL certificate must
 be installed on your system. The configuration files handle this for
@@ -223,23 +241,6 @@ remove the certificate:
 
 5) Select the entry for "ZeroC Test CA", click the Remove button, and
    confirm that you want to remove this certificate.
-
-
-Building and running the Visual Basic demos
--------------------------------------------
-
-The Visual Basic demos are in the demovb directory.
-
-To build a Visual Basic demo, start Visual Studio 2005 and open the
-solution demovb\demo.sln. Right click on the desired demo in the
-Solution Explorer window and select "Build".
-
-To run a demo, open a Command Prompt, change to the desired demo
-directory, and type 'server.exe' to start the server. In a separate
-Command Prompt window, type 'client.exe' to run the client.
-
-Some demo directories contain README files if additional requirements
-are necessary.
 
 
 Building and running the Java demos
@@ -297,7 +298,7 @@ Running the Python demos
 
 The Python demos are in the demopy directory.
 
-You need Python 2.5 to run the demos. A binary installer for Python
+You need Python 2.5.2 to run the demos. A binary installer for Python
 can be downloaded from:
 
   http://www.python.org/download
@@ -321,14 +322,13 @@ Protocol compression with 64-bit Windows
 ----------------------------------------
 
 Ice for .NET attempts to dynamically load bzip2.dll to support
-protocol compression. On 64-bit Windows, you have to make sure
-that the 64-bit version of bzip2.dll is found instead of the
-32-bit version. The bzip2 libraries are installed in
-<prefix>/bin/x64 and <prefix>/bin, respectively. For 64-bit
-Windows, you need to make sure that <prefix>/bin/x64 appears
-in the application's PATH instead of <prefix>/bin. (The Ice
-run time prints a warning to the console if it detects a
-bzip2.dll format mismatch during start-up.)
+protocol compression. On 64-bit Windows, you have to make sure that
+the 64-bit version of bzip2.dll is found instead of the 32-bit
+version. The bzip2 libraries are installed in <prefix>/bin/x64 and
+<prefix>/bin, respectively. For 64-bit Windows, you need to make sure
+that <prefix>/bin/x64 appears in the application's PATH instead of
+<prefix>/bin. (The Ice run time prints a warning to the console if it
+detects a bzip2.dll format mismatch during start-up.)
 
 
 Binary compatibility
@@ -354,7 +354,7 @@ The registration key used by this installer is:
 
 HKEY_LOCAL_MACHINE\Software\ZeroC\Ice @ver@ for Visual Studio 2005
 
-To install location is stored as a string value named 'InstallDir'.
+The install location is stored as a string value named 'InstallDir'.
 
 
 Acknowledgments
