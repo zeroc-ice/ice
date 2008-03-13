@@ -690,10 +690,7 @@ class Application(object):
             except:
                 traceback.print_exc()
                 return 1
-        print "args before createProps: " + str(args)
         initData.properties = createProperties(args, initData.properties)
-        print "args after createProps: " + str(args)
-        print "props: " + str(initData.properties.getPropertiesForPrefix(""))
 
         #
         #  If the process logger is the default logger, we replace it with a
