@@ -186,6 +186,15 @@ public class AllTests
         test(obj.Equals(basePrx));
         Console.Out.WriteLine("ok");
         
+        if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
+        {
+            Console.Out.WriteLine();
+            Console.Out.WriteLine("This test aborts a number of server processes.");
+            Console.Out.WriteLine("Test output may be interspersed with \"killed\" message from the shell.");
+            Console.Out.WriteLine("These messages are expected and do NOT indicate a test failure.");
+            Console.Out.WriteLine();
+        }
+
         int oldPid = 0;
         bool ami = false;
         for(int i = 1, j = 0; i <= ports.Count; ++i, ++j)

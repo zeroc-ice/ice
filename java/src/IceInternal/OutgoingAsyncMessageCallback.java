@@ -22,6 +22,19 @@ abstract public class OutgoingAsyncMessageCallback
     }
 
     public void
+    __sent(Instance instance)
+    {
+        try
+        {
+            ((Ice.AMISentCallback)this).ice_sent();
+        }
+        catch(java.lang.Exception ex)
+        {
+            __warning(instance, ex);
+        }
+    }
+
+    public void
     __exception(Ice.LocalException exc)
     {
         try
@@ -94,7 +107,7 @@ abstract public class OutgoingAsyncMessageCallback
                         public void
                         execute(ThreadPool threadPool)
                         {
-                            threadPool.promoteFollower();
+                            threadPool.promoteFollower(null);
                             __exception(ex);
                         }
                     });
@@ -125,20 +138,25 @@ abstract public class OutgoingAsyncMessageCallback
     protected void
     __warning(java.lang.Exception ex)
     {
-        if(__os != null) // Don't print anything if release() was already called.
+        if(__os != null)
         {
-            Instance instance = __os.instance();
-            if(instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-            {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
-                out.setUseTab(false);
-                out.print("exception raised by AMI callback:\n");
-                ex.printStackTrace(pw);
-                pw.flush();
-                instance.initializationData().logger.warning(sw.toString());
-            }
+            __warning(__os.instance(), ex);
+        }
+    }
+
+    protected void
+    __warning(Instance instance, java.lang.Exception ex)
+    {
+        if(instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+        {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
+            out.setUseTab(false);
+            out.print("exception raised by AMI callback:\n");
+            ex.printStackTrace(pw);
+            pw.flush();
+            instance.initializationData().logger.warning(sw.toString());
         }
     }
 

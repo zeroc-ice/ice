@@ -51,11 +51,11 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
-             const RegistryInfo&);
+             const RegistryInfo&, bool);
     virtual ~Database();
     
     std::string getInstanceName() const;
-    bool isMaster() const { return _master; }
+    bool isReadOnly() const { return _readonly; }
     const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
     const Ice::ObjectAdapterPtr& getInternalAdapter() { return _internalAdapter; }
@@ -158,6 +158,7 @@ private:
     const std::string _instanceName;
     const TraceLevelsPtr _traceLevels;
     const bool _master;
+    const bool _readonly;
 
     ReplicaCache _replicaCache;
     NodeCache _nodeCache;

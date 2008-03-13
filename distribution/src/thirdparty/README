@@ -187,7 +187,6 @@ support:
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
 
-
 mcpp
 ----
 
@@ -216,6 +215,15 @@ Berkeley DB must be configured with C++ support enabled. If you intend
 to use Ice for Java with Berkeley DB, you must also enable Java
 support:
 
+  $ ../dist/configure --enable-cxx
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+
+For 64-bit builds, use:
+
+  $ export CFLAGS="-O -m64"
+  $ export CXXFLAGS="-O -m64"
+  $ export LDFLAGS="-m64
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
@@ -255,4 +263,4 @@ below:
 
 On 64-bit platforms, after installation it is necessary to rename the
 library installation directory from $(prefix)/lib to
-$(prefix)/lib/sparcv9.
+$(prefix)/lib/sparcv9 for SPARC or $(prefix)/lib/amd64 for x86.

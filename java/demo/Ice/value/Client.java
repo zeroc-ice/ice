@@ -56,8 +56,7 @@ public class Client extends Ice.Application
         //
         setInterruptHook(new ShutdownHook());
 
-        Ice.ObjectPrx base = communicator().propertyToProxy("Value.Initial");
-        InitialPrx initial = InitialPrxHelper.checkedCast(base);
+        InitialPrx initial = InitialPrxHelper.checkedCast(communicator().propertyToProxy("Initial.Proxy"));
         if(initial == null)
         {
             System.err.println("invalid object reference");

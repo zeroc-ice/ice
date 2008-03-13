@@ -14,8 +14,8 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
     public abstract void ice_response(boolean ok, byte[] outParams);
     public abstract void ice_exception(LocalException ex);
 
-    public final void __invoke(Ice.ObjectPrx prx, String operation, OperationMode mode,
-                               byte[] inParams, java.util.Map context)
+    public final boolean __invoke(Ice.ObjectPrx prx, String operation, OperationMode mode,
+                                  byte[] inParams, java.util.Map context)
     {
         __acquireCallback(prx);
         try
@@ -23,11 +23,12 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
             __prepare(prx, operation, mode, context);
             __os.writeBlob(inParams);
             __os.endWriteEncaps();
-            __send();
+            return __send();
         }
         catch(LocalException ex)
         {
             __releaseCallback(ex);
+            return false;
         }
     }
 

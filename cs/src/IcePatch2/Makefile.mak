@@ -23,8 +23,8 @@ GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
-MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
+MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS)
+MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 

@@ -134,7 +134,6 @@ class ServiceManagerI : ServiceManagerDisp_
                             e.ToString());
         }
 
-        Dictionary<ServiceObserverPrx, bool> observers = null;
         lock(this)
         {
             int i;
@@ -146,7 +145,10 @@ class ServiceManagerI : ServiceManagerDisp_
                     if(started)
                     {
                         info.status = ServiceStatus.Started;
-                        observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
+
+                        List<string> services = new List<string>();
+                        services.Add(name);
+                        servicesStarted(services, _observers.Keys);
                     }
                     else
                     {
@@ -158,13 +160,6 @@ class ServiceManagerI : ServiceManagerDisp_
             }
             _pendingStatusChanges = false;
             Monitor.PulseAll(this);
-        }
-
-        if(observers != null)
-        {
-            List<string> services = new List<string>();
-            services.Add(name);
-            servicesStarted(services, observers.Keys);
         }
     }
 
@@ -212,7 +207,6 @@ class ServiceManagerI : ServiceManagerDisp_
                             e.ToString());
         }
 
-        Dictionary<ServiceObserverPrx, bool> observers = null;
         lock(this)
         {
             int i;
@@ -224,7 +218,10 @@ class ServiceManagerI : ServiceManagerDisp_
                     if(stopped)
                     {
                         info.status = ServiceStatus.Stopped;
-                        observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
+                        
+                        List<string> services = new List<string>();
+                        services.Add(name);
+                        servicesStopped(services, _observers.Keys);
                     }
                     else
                     {
@@ -236,13 +233,6 @@ class ServiceManagerI : ServiceManagerDisp_
             }
             _pendingStatusChanges = false;
             Monitor.PulseAll(this);
-        }
-
-        if(observers != null)
-        {
-            List<string> services = new List<string>();
-            services.Add(name);
-            servicesStopped(services, observers.Keys);
         }
     }
 
@@ -591,7 +581,7 @@ class ServiceManagerI : ServiceManagerDisp_
             catch(System.InvalidCastException ex)
             {
                 FailureException e = new FailureException(ex);
-                e.reason = err + "InvalidCastException to Ice.PluginFactory";
+                e.reason = err + "InvalidCastException to IceBox.Service";
                 throw e;
             }
             catch(System.UnauthorizedAccessException ex)
@@ -723,9 +713,6 @@ class ServiceManagerI : ServiceManagerDisp_
     private void
     stopAll()
     {
-        List<string> stoppedServices = new List<string>();
-        Dictionary<ServiceObserverPrx, bool> observers = null;
-
         lock(this)
         {
             //
@@ -741,6 +728,7 @@ class ServiceManagerI : ServiceManagerDisp_
             // the disk. Services are stopped in the reverse order of which they were started.
             //
             _services.Reverse();
+            List<string> stoppedServices = new List<string>();
             foreach(ServiceInfo info in _services)
             {
                 if(info.status == ServiceStatus.Started)
@@ -813,10 +801,8 @@ class ServiceManagerI : ServiceManagerDisp_
             }
             
             _services.Clear();
-            observers = new Dictionary<ServiceObserverPrx, bool>(_observers);
+            servicesStopped(stoppedServices, _observers.Keys);
         }
-
-        servicesStopped(stoppedServices, observers.Keys);
     }
 
     private void

@@ -48,7 +48,8 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
                    const IceStorm::TopicManagerPrx& topicManager,
                    const string& instanceName,
                    const TraceLevelsPtr& traceLevels,
-                   const RegistryInfo& info) :
+                   const RegistryInfo& info,
+                   bool readonly) :
     _communicator(registryAdapter->getCommunicator()),
     _internalAdapter(registryAdapter),
     _topicManager(topicManager),
@@ -56,8 +57,9 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _instanceName(instanceName),
     _traceLevels(traceLevels),  
     _master(info.name == "Master"),
+    _readonly(readonly || !_master),
     _replicaCache(_communicator, topicManager),
-    _nodeCache(_communicator, _replicaCache, info.name),
+    _nodeCache(_communicator, _replicaCache, _readonly && _master ? string("Master (read-only)") : info.name),
     _adapterCache(_communicator),
     _objectCache(_communicator),
     _allocatableObjectCache(_communicator),
@@ -628,7 +630,7 @@ Database::getAllocatableObject(const Ice::Identity& id) const
 void
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId, const Ice::ObjectPrx& proxy)
 {
-    int serial;
+    int serial = 0;
     {
         Lock sync(*this);
         if(_adapterCache.has(adapterId))

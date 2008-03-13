@@ -31,6 +31,7 @@ def run(clientCmd, serverCmd):
     server.expect('Hello World!')
     client.waitTestSuccess()
 
-    server.kill(signal.SIGQUIT)
+    server.kill(signal.SIGINT)
+    server.waitTestSuccess()
     
     print "ok"

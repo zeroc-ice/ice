@@ -10,17 +10,10 @@
 
 import os, sys, Ice
 
-slice_dir = os.path.normpath("../../../../slice")
-if not os.path.exists(slice_dir):
-    home_dir = os.getenv('ICE_HOME', '')
-    if len(home_dir) == 0 or not os.path.exists(os.path.join(home_dir, 'slice')):
-        home_dir = os.path.join('/', 'usr', 'share', 'Ice-3.3.0')
-    if not os.path.exists(os.path.join(home_dir, 'slice')):
-        home_dir = os.path.join('/', 'opt', 'Ice-3.3.0')
-    if not os.path.exists(os.path.join(home_dir, 'slice')):
-        print sys.argv[0] + ': Slice directory not found. Define ICE_HOME.'
-        sys.exit(1)
-    slice_dir = os.path.join(home_dir, "slice")
+slice_dir = Ice.getSliceDir()
+if not slice_dir:
+    print sys.argv[0] + ': Slice directory not found. Define ICE_HOME.'
+    sys.exit(1)
 
 Ice.loadSlice('-I' + slice_dir + ' Callback.ice')
 import Demo
@@ -35,7 +28,7 @@ class Client(Ice.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        server = Demo.CallbackSenderPrx.checkedCast(self.communicator().propertyToProxy('Callback.Client.CallbackServer'))
+        server = Demo.CallbackSenderPrx.checkedCast(self.communicator().propertyToProxy('CallbackSender.Proxy'))
         if not server:
             print self.appName() + ": invalid proxy"
             return 1

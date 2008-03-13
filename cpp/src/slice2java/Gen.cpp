@@ -3482,9 +3482,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "/** @deprecated **/";
             }
-            out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
+            out << nl << "public boolean" << nl << op->name() << "_async" << spar << paramsAMI << epar;
             out << sb;
-            out << nl << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
+            out << nl << "return " << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
             out << eb;
 
             out << sp;
@@ -3492,9 +3492,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "/** @deprecated **/";
             }
-            out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
+            out << nl << "public boolean" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
             out << sb;
-            out << nl << opName << "_async" << spar << argsAMI << "__ctx" << "true" << epar << ';';
+            out << nl << "return " << opName << "_async" << spar << argsAMI << "__ctx" << "true" << epar << ';';
             out << eb;
 
             out << sp;
@@ -3509,14 +3509,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "@SuppressWarnings(\"unchecked\")";
             }
-            out << nl << "private void" << nl << opName << "_async" << spar << paramsAMI
+            out << nl << "private boolean" << nl << opName << "_async" << spar << paramsAMI
                 << contextParam << explicitContextParam << epar;
             out << sb;
             out << nl << "if(__explicitCtx &&  __ctx == null)";
             out << sb;
             out << nl << "__ctx = _emptyContext;";
             out << eb;
-            out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
+            out << nl << "return __cb.__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
             out << eb;
         }
     }
@@ -4047,14 +4047,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             out << nl << " * @deprecated " << deprecateReason;
             out << nl << " **/";
         }
-        out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << epar << ';';
+        out << nl << "public boolean " << p->name() << "_async" << spar << paramsAMI << epar << ';';
         if(!deprecateReason.empty())
         {
             out << nl << "/**";
             out << nl << " * @deprecated " << deprecateReason;
             out << nl << " **/";
         }
-        out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << contextParam << epar << ';';
+        out << nl << "public boolean " << p->name() << "_async" << spar << paramsAMI << contextParam << epar << ';';
     }
 }
 
@@ -5067,7 +5067,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
         string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
-        out << sp << nl << "public final void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
+        out << sp << nl << "public final boolean" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
             << paramsInvoke << contextParam << epar;
         out << sb;
         out << nl << "__acquireCallback(__prx);";
@@ -5091,11 +5091,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << nl << "__os.writePendingObjects();";
         }
         out << nl << "__os.endWriteEncaps();";
-        out << nl << "__send();";
+        out << nl << "return __send();";
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
         out << nl << "__releaseCallback(__ex);";
+        out << nl << "return false;";
         out << eb;
         out << eb;
 

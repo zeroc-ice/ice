@@ -4,6 +4,24 @@
 
 import ConfigParser, sys, os, logging, fnmatch, os.path, shutil, re, pprint
 
+class ExtProgramError:
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return repr(self.msg)
+
+def runprog(command, haltOnError = True):
+    logging.debug('Running external command: %s' % command)
+    result = os.system(command)
+    if not result == 0:
+        msg = 'Command %s failed with error code %d' % (command, result)
+        print msg
+        if haltOnError:
+            raise ExtProgramError('Command %s failed with error code %d' % (command, result))
+        else:
+            logging.error(msg)
+
 def listFileLists():
     """Information routine for getting lists of file lists from a components file"""
     cfg = ConfigParser.SafeConfigParser()
@@ -68,14 +86,51 @@ def fixVersion(file, argsHash):
     oldFile = open(origfile, "r")
     newFile = open(file, "w")
     line = oldFile.read();
-    line = re.sub("@ver@", version, line)
-    line = re.sub("@libver@", libversion, line)
-    line = re.sub("@installdir@", installdir, line)
+    line = line.replace("@ver@", version)
+    line = line.replace("@libver@", libversion)
+    line = line.replace("@installdir@", installdir)
 
     newFile.write(line)
     newFile.close()
     oldFile.close()
     os.remove(origfile)
+
+def fixDemoPath(file, argsHash):
+    print "Processing " + file
+    if os.path.basename(file).startswith('config.'):
+        origfile = file + ".orig"
+        os.rename(file, origfile)
+        oldFile = open(origfile, "r")
+        newFile = open(file, "w")
+        line = oldFile.read();
+        line = line.replace('../../certs', '../certs')
+        newFile.write(line)
+        newFile.close()
+        oldFile.close()
+        os.remove(origfile)
+    if file.endswith('.exe.config') or file.endswith('.vbproj'):
+        origfile = file + ".orig"
+        os.rename(file, origfile)
+        oldFile = open(origfile, "r")
+        newFile = open(file, "w")
+        line = oldFile.read();
+        line = line.replace('\..\cs', '')
+        newFile.write(line)
+        newFile.close()
+        oldFile.close()
+        os.remove(origfile)
+
+def signFile(file, argsHash):
+   
+    #
+    # We don't sign anything in the VC60 MSIs
+    #
+    if os.environ['target'] != 'vc60':
+        pfxFile = argsHash['PFX_FILE']
+        pfxPassword = argsHash['PFX_PASSWORD']
+        timeStampingURL = argsHash['timeStampingURL']
+
+        runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword + ' /t ' + timeStampingURL + ' ' + file)
 
 class FileSpecWorker:
     def __init__(self, id, source, dest, processors):

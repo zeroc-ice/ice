@@ -64,7 +64,7 @@ IceSSL::AcceptorI::listen()
 }
 
 IceInternal::TransceiverPtr
-IceSSL::AcceptorI::accept(int timeout)
+IceSSL::AcceptorI::accept()
 {
     //
     // The plugin may not be initialized.
@@ -76,7 +76,7 @@ IceSSL::AcceptorI::accept(int timeout)
         throw ex;
     }
 
-    SOCKET fd = IceInternal::doAccept(_fd, timeout);
+    SOCKET fd = IceInternal::doAccept(_fd);
     IceInternal::setBlock(fd, false);
     IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
 
@@ -110,15 +110,6 @@ IceSSL::AcceptorI::accept(int timeout)
     // accept must not block.
     //
     return new TransceiverI(_instance, ssl, fd, true, true, _adapterName);
-}
-
-void
-IceSSL::AcceptorI::connectToSelf()
-{
-    SOCKET fd = IceInternal::createSocket(false, _addr.ss_family);
-    IceInternal::setBlock(fd, false);
-    IceInternal::doConnect(fd, _addr, -1);
-    IceInternal::closeSocket(fd);
 }
 
 string

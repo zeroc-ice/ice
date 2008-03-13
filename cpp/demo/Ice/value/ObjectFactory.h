@@ -10,6 +10,8 @@
 #ifndef SERVANT_FACTORY_H
 #define SERVANT_FACTORY_H
 
+#include <Ice/Ice.h>
+
 class ObjectFactory : public Ice::ObjectFactory
 {
 public:

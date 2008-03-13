@@ -41,9 +41,9 @@ namespace IceInternal
             }
         }
 
-        public void sendAsyncRequest(OutgoingAsync @out)
+        public bool sendAsyncRequest(OutgoingAsync @out)
         {
-            _connection.sendAsyncRequest(@out, _compress, _response);
+            return _connection.sendAsyncRequest(@out, _compress, _response);
         }
 
         public bool flushBatchRequests(BatchOutgoing @out)
@@ -51,9 +51,9 @@ namespace IceInternal
             return _connection.flushBatchRequests(@out);
         }
 
-        public void flushAsyncBatchRequests(BatchOutgoingAsync @out)
+        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out)
         {
-            _connection.flushAsyncBatchRequests(@out);
+            return _connection.flushAsyncBatchRequests(@out);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)

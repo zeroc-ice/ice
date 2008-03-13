@@ -256,42 +256,42 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
     }
 }
 
-void
+bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
                                         const vector<Byte>& inParams)
 {
-    cb->__invoke(this, operation, mode, inParams, 0);
+    return cb->__invoke(this, operation, mode, inParams, 0);
 }
 
-void
+bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
                                         const vector<Byte>& inParams,
                                         const Context& context)
 {
-    cb->__invoke(this, operation, mode, inParams, &context);
+    return cb->__invoke(this, operation, mode, inParams, &context);
 }
 
-void
+bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
                                         const pair<const Byte*, const Byte*>& inParams)
 {
-    cb->__invoke(this, operation, mode, inParams, 0);
+    return cb->__invoke(this, operation, mode, inParams, 0);
 }
 
-void
+bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
                                         const pair<const Byte*, const Byte*>& inParams,
                                         const Context& context)
 {
-    cb->__invoke(this, operation, mode, inParams, &context);
+    return cb->__invoke(this, operation, mode, inParams, &context);
 }
 
 Identity
@@ -741,28 +741,6 @@ IceProxy::Ice::Object::ice_connectionId(const string& id) const
     }
 }
 
-bool
-IceProxy::Ice::Object::ice_isThreadPerConnection() const
-{
-    return _reference->getThreadPerConnection();
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_threadPerConnection(bool b) const
-{
-    ReferencePtr ref = _reference->changeThreadPerConnection(b);
-    if(ref == _reference)
-    {
-        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-        ObjectPrx proxy = __newInstance();
-        proxy->setup(ref);
-        return proxy;
-    }
-}
-
 ConnectionPtr
 IceProxy::Ice::Object::ice_getConnection()
 {
@@ -825,10 +803,10 @@ IceProxy::Ice::Object::ice_flushBatchRequests()
     }
 }
 
-void
+bool
 IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBatchRequestsPtr& cb)
 {
-    cb->__invoke(this);
+    return cb->__invoke(this);
 }
 
 ReferencePtr

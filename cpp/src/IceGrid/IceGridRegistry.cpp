@@ -66,11 +66,13 @@ bool
 RegistryService::start(int argc, char* argv[])
 {
     bool nowarn;
+    bool readonly;
 
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("", "nowarn");
+    opts.addOpt("", "readonly");
     
     vector<string> args;
     try
@@ -95,6 +97,7 @@ RegistryService::start(int argc, char* argv[])
         return false;
     }
     nowarn = opts.isSet("nowarn");
+    readonly = opts.isSet("readonly");
 
     if(!args.empty())
     {
@@ -117,7 +120,7 @@ RegistryService::start(int argc, char* argv[])
 
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
     
-    _registry = new RegistryI(communicator(), traceLevels, nowarn);
+    _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly);
     if(!_registry->start())
     {
         return false;
@@ -153,10 +156,8 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     initData.properties = createProperties(argc, argv, initData.properties);
     
     //
-    // Make sure that IceGridRegistry doesn't use
-    // thread-per-connection or collocation optimization.
+    // Make sure that IceGridRegistry doesn't use collocation optimization.
     //
-    initData.properties->setProperty("Ice.ThreadPerConnection", "");
     initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
     return Service::initializeCommunicator(argc, argv, initData);
@@ -169,7 +170,8 @@ RegistryService::usage(const string& appName)
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
-        "--nowarn             Don't print any security warnings.";
+        "--nowarn             Don't print any security warnings."
+        "--readonly           Start the master registry in read-only mode.";
 #ifndef _WIN32
     options.append(
         "\n"

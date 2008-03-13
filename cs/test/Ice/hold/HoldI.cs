@@ -12,24 +12,76 @@ using Test;
 
 public sealed class HoldI : HoldDisp_
 {
-    public override void
-    putOnHold(int seconds, Ice.Current current)
+    private static void test(bool b)
     {
-        if(seconds <= 0)
+        if(!b)
         {
-            current.adapter.hold();
-            current.adapter.activate();
+            throw new System.Exception();
+        }
+    }
+
+    public HoldI(Ice.ObjectAdapter adapter)
+    {
+        _adapter = adapter;
+    }
+
+    public override void
+    putOnHold(int milliSeconds, Ice.Current current)
+    {
+        if(milliSeconds <= 0)
+        {
+            _adapter.hold();
+            _adapter.activate();
         }
         else
         {
-            Debug.Assert(false); // TODO
+            System.Timers.Timer timer = new System.Timers.Timer(milliSeconds);
+            timer.AutoReset = false;
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(
+                delegate(object source, System.Timers.ElapsedEventArgs e)
+                {
+                    try
+                    {
+                        putOnHold(0, null);
+                    }
+                    catch(Ice.ObjectAdapterDeactivatedException)
+                    {
+                    }
+                });
+            timer.Enabled = true;
+        }
+    }
+
+    public override int
+    set(int value, Ice.Current current)
+    {
+        System.Threading.Thread.Sleep(0);
+
+        lock(this)
+        {
+            int tmp = _last;
+            _last = value;
+            return tmp;
+        }
+    }
+
+    public override void
+    setOneway(int value, int expected, Ice.Current current)
+    {
+        lock(this)
+        {
+            test(_last == expected);
+            _last = value;
         }
     }
 
     public override void
     shutdown(Ice.Current current)
     {
-        current.adapter.hold();
-        current.adapter.getCommunicator().shutdown();
+        _adapter.hold();
+        _adapter.getCommunicator().shutdown();
     }
+
+    private Ice.ObjectAdapter _adapter;
+    private int _last = 0;
 }

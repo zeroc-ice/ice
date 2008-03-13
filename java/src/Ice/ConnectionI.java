@@ -9,30 +9,12 @@
 
 package Ice;
 
-public final class ConnectionI extends IceInternal.EventHandler 
-    implements Connection, IceInternal.SelectorThread.SocketReadyCallback
+public final class ConnectionI extends IceInternal.EventHandler implements Connection
 {
     public interface StartCallback
     {
         void connectionStartCompleted(ConnectionI connection);
         void connectionStartFailed(ConnectionI connection, Ice.LocalException ex);
-    }
-
-    public class CallFinished implements IceInternal.ThreadPoolWorkItem
-    {
-        public 
-        CallFinished(ConnectionI connection)
-        {
-            _connection = connection;
-        }
-
-        public void
-        execute(IceInternal.ThreadPool threadPool)
-        {
-            _connection.finished(threadPool);
-        }
-
-        final private ConnectionI _connection;
     }
 
     public void
@@ -42,96 +24,44 @@ public final class ConnectionI extends IceInternal.EventHandler
         {
             synchronized(this)
             {
-                _startCallback = callback;
-
-                //
-                // The connection might already be closed if the communicator was destroyed.
-                //
-                if(_state == StateClosed)
+                if(_state == StateClosed) // The connection might already be closed if the communicator was destroyed.
                 {
                     assert(_exception != null);
                     throw _exception;
                 }
-            }
 
-            if(_threadPerConnection)
-            {
-                //
-                // In thread per connection mode, we create the thread for the connection. The
-                // intialization and validation of the connection is taken care of by the thread
-                // per connection.
-                //
-                try
-                {
-                    _thread = new ThreadPerConnection();
-                    _thread.start();
-                }
-                catch(java.lang.Exception ex)
-                {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    ex.printStackTrace(pw);
-                    pw.flush();
-                    _logger.error("cannot create thread for connection:\n" + sw.toString());
-                    
-                    //
-                    // Clean up.
-                    //
-                    _thread = null;
-
-                    Ice.SyscallException e = new Ice.SyscallException();
-                    e.initCause(ex);
-                    throw e;
-                }
-            }
-            else
-            {
-                //
-                // Initialize the connection transceiver and then validate the connection.
-                //
-                IceInternal.SocketStatus status = initialize(0);
+                IceInternal.SocketStatus status = initialize();
                 if(status == IceInternal.SocketStatus.Finished)
                 {
-                    status = validate(0);
+                    status = validate();
                 }
                 
-                if(status == IceInternal.SocketStatus.Finished)
+                if(status != IceInternal.SocketStatus.Finished)
                 {
-                    finishStart(null);
-                    return; // We're done!
-                }
-                
-                //
-                // If the initialization or validation couldn't be completed without potentially 
-                // blocking, we register the connection with the selector thread and return.
-                //
-                int timeout;
-                IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-                if(defaultsAndOverrides.overrideConnectTimeout)
-                {
-                    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-                }
-                else
-                {
-                    timeout = _endpoint.timeout();
-                }
-
-                synchronized(this)
-                {
-                    if(_state == StateClosed)
+                    //
+                    // If the initialization or validation couldn't be completed without potentially 
+                    // blocking, we register the connection with the selector thread and return.
+                    //
+                    int timeout;
+                    IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+                    if(defaultsAndOverrides.overrideConnectTimeout)
                     {
-                        assert(_exception != null);
-                        throw _exception;
+                        timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
                     }
+                    else
+                    {
+                        timeout = _endpoint.timeout();
+                    }
+                    
                     _sendInProgress = true;
-                    _selectorThread._register(_transceiver.fd(), this, status, timeout);
-                }
-            }
+                    _selectorThread._register(_socketReadyCallback, status, timeout);
 
-            if(callback == null) // Wait for the connection to be validated.
-            {
-                synchronized(this)
-                {
+                    if(callback != null)
+                    {
+                        _startCallback = callback;
+                        return;
+                    }
+
                     while(_state <= StateNotValidated)
                     {
                         try
@@ -153,16 +83,22 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
         catch(Ice.LocalException ex)
         {
-            synchronized(this)
+            exception(ex);
+            if(callback != null)
             {
-                setState(StateClosed, ex);
-                if(callback != null)
-                {
-                    return;
-                }
+                callback.connectionStartFailed(this, _exception);
+                return;
             }
-            waitUntilFinished();
-            throw ex;
+            else
+            {
+                waitUntilFinished();
+                throw ex;
+            }
+        }
+
+        if(callback != null)
+        {
+            callback.connectionStartCompleted(this);
         }
     }
 
@@ -253,39 +189,15 @@ public final class ConnectionI extends IceInternal.EventHandler
         return _state > StateNotValidated && _state < StateClosing;
     }
 
-    public boolean
+    public synchronized boolean
     isFinished()
     {
-        Thread threadPerConnection = null;
-
-        synchronized(this)
+        if(_transceiver != null || _dispatchCount != 0)
         {
-            if(_transceiver != null || _dispatchCount != 0 || (_thread != null && _thread.isAlive()))
-            {
-                return false;
-            }
-
-            assert(_state == StateClosed);
-
-            threadPerConnection = _thread;
-            _thread = null;
+            return false;
         }
-
-        if(threadPerConnection != null)
-        {
-            while(true)
-            {
-                try
-                {
-                    threadPerConnection.join();
-                    break;
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-        }
-
+        
+        assert(_state == StateClosed);
         return true;
     }
 
@@ -314,105 +226,82 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
     }
 
-    public void
+    public synchronized void
     waitUntilFinished()
     {
-        Thread threadPerConnection = null;
-
-        synchronized(this)
+        //
+        // We wait indefinitely until connection closing has been
+        // initiated. We also wait indefinitely until all outstanding
+        // requests are completed. Otherwise we couldn't guarantee
+        // that there are no outstanding calls when deactivate() is
+        // called on the servant locators.
+        //
+        while(_state < StateClosing || _dispatchCount > 0)
         {
-            //
-            // We wait indefinitely until connection closing has been
-            // initiated. We also wait indefinitely until all outstanding
-            // requests are completed. Otherwise we couldn't guarantee
-            // that there are no outstanding calls when deactivate() is
-            // called on the servant locators.
-            //
-            while(_state < StateClosing || _dispatchCount > 0)
+            try
             {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
+                wait();
             }
-            
-            //
-            // Now we must wait until close() has been called on the
-            // transceiver.
-            //
-            while(_transceiver != null)
+            catch(InterruptedException ex)
             {
-                try
+            }
+        }
+        
+        //
+        // Now we must wait until close() has been called on the
+        // transceiver.
+        //
+        while(_transceiver != null)
+        {
+            try
+            {
+                if(_state != StateClosed && _endpoint.timeout() >= 0)
                 {
-                    if(_state != StateClosed && _endpoint.timeout() >= 0)
-                    {
-                        long absoluteWaitTime = _stateTime + _endpoint.timeout();
-                        long waitTime = absoluteWaitTime - IceInternal.Time.currentMonotonicTimeMillis();
+                    long absoluteWaitTime = _stateTime + _endpoint.timeout();
+                    long waitTime = absoluteWaitTime - IceInternal.Time.currentMonotonicTimeMillis();
                         
-                        if(waitTime > 0)
+                    if(waitTime > 0)
+                    {
+                        //
+                        // We must wait a bit longer until we close this
+                        // connection.
+                        //
+                        wait(waitTime);
+                        if(IceInternal.Time.currentMonotonicTimeMillis() >= absoluteWaitTime)
                         {
-                            //
-                            // We must wait a bit longer until we close this
-                            // connection.
-                            //
-                            wait(waitTime);
-                            if(IceInternal.Time.currentMonotonicTimeMillis() >= absoluteWaitTime)
-                            {
-                                setState(StateClosed, new CloseTimeoutException());
-                            }
-                        }
-                        else
-                        {
-                            //
-                            // We already waited long enough, so let's close this
-                            // connection!
-                            //
                             setState(StateClosed, new CloseTimeoutException());
                         }
-
-                        //
-                        // No return here, we must still wait until
-                        // close() is called on the _transceiver.
-                        //
                     }
                     else
                     {
-                        wait();
+                        //
+                        // We already waited long enough, so let's close this
+                        // connection!
+                        //
+                        setState(StateClosed, new CloseTimeoutException());
                     }
+
+                    //
+                    // No return here, we must still wait until
+                    // close() is called on the _transceiver.
+                    //
                 }
-                catch(InterruptedException ex)
+                else
                 {
+                    wait();
                 }
             }
-
-            assert(_state == StateClosed);
-
-            threadPerConnection = _thread;
-            _thread = null;
-
-            //
-            // Clear the OA. See bug 1673 for the details of why this is necessary.
-            //
-            _adapter = null;
-        }
-
-        if(threadPerConnection != null)
-        {
-            while(true)
+            catch(InterruptedException ex)
             {
-                try
-                {
-                    threadPerConnection.join();
-                    break;
-                }
-                catch(InterruptedException ex)
-                {
-                }
             }
         }
+
+        assert(_state == StateClosed);
+
+        //
+        // Clear the OA. See bug 1673 for the details of why this is necessary.
+        //
+        _adapter = null;
     }
 
     synchronized public void
@@ -507,7 +396,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         return sent; // The request was sent.
     }
 
-    synchronized public void
+    synchronized public boolean
     sendAsyncRequest(IceInternal.OutgoingAsync out, boolean compress, boolean response)
         throws IceInternal.LocalExceptionWrapper
     {
@@ -546,9 +435,10 @@ public final class ConnectionI extends IceInternal.EventHandler
             os.writeInt(requestId);
         }
         
+        boolean sent;
         try
         {
-            sendMessage(new OutgoingMessage(out, out.__os(), compress, response));
+            sent = sendMessage(new OutgoingMessage(out, out.__os(), compress, response));
         }
         catch(Ice.LocalException ex)
         {
@@ -564,6 +454,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             //
             _asyncRequests.put(requestId, out);
         }
+        return sent;
     }
 
     public synchronized void
@@ -812,7 +703,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         return sent;
     }
 
-    synchronized public void
+    synchronized public boolean
     flushAsyncBatchRequests(IceInternal.BatchOutgoingAsync outAsync)
     {
         while(_batchStreamInUse && _exception == null)
@@ -834,7 +725,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         if(_batchRequestNum == 0)
         {
             outAsync.__sent(this);
-            return;
+            return true;
         }
 
         //
@@ -844,11 +735,12 @@ public final class ConnectionI extends IceInternal.EventHandler
         _batchStream.writeInt(_batchRequestNum);
             
         _batchStream.swap(outAsync.__os());
-
+        
+        boolean sent;
         try
         {
             OutgoingMessage message = new OutgoingMessage(outAsync, outAsync.__os(), _batchRequestCompress, false);
-            sendMessage(message);
+            sent = sendMessage(message);
         }
         catch(Ice.LocalException ex)
         {
@@ -864,6 +756,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         _batchRequestNum = 0;
         _batchRequestCompress = false;
         _batchMarker = 0;
+        return sent;
     }
 
     synchronized public void
@@ -941,12 +834,6 @@ public final class ConnectionI extends IceInternal.EventHandler
         return _endpoint; // No mutex protection necessary, _endpoint is immutable.
     }
 
-    public boolean
-    threadPerConnection()
-    {
-        return _threadPerConnection; // No mutex protection necessary, _threadPerConnection is immutable.
-    }
-
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
@@ -1000,29 +887,41 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     //
+    // Operations from SelectorHandler
+    //
+    public java.nio.channels.SelectableChannel
+    fd()
+    {
+        return _transceiver.fd();
+    }
+
+    public boolean
+    hasMoreData()
+    {
+        return _hasMoreData.value;
+    }
+
+    //
     // Operations from EventHandler
     //
 
     public boolean
     datagram()
     {
-        assert(!_threadPerConnection); // Only for use with a thread pool.
         return _endpoint.datagram(); // No mutex protection necessary, _endpoint is immutable.
     }
 
     public boolean
     readable()
     {
-        assert(!_threadPerConnection); // Only for use with a thread pool.
         return true;
     }
 
     public boolean
     read(IceInternal.BasicStream stream)
     {
-        assert(!_threadPerConnection); // Only for use with a thread pool.
-
-        return _transceiver.read(stream.getBuffer(), 0, _hasMoreData);
+        assert(_transceiver != null);
+        return _transceiver.read(stream.getBuffer(), _hasMoreData);
 
         //
         // Updating _acmAbsoluteTimeoutMillis is too expensive here,
@@ -1032,17 +931,9 @@ public final class ConnectionI extends IceInternal.EventHandler
         //
     }
 
-    public boolean
-    hasMoreData()
-    {
-        return _hasMoreData.value;
-    }
-
     public void
     message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
     {
-        assert(!_threadPerConnection); // Only for use with a thread pool.
-
         MessageInfo info = new MessageInfo(stream);
 
         synchronized(this)
@@ -1052,7 +943,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             // there could be various race conditions with close
             // connection messages and other messages.
             //
-            threadPool.promoteFollower();
+            threadPool.promoteFollower(this);
 
             if(_state != StateClosed)
             {
@@ -1089,64 +980,54 @@ public final class ConnectionI extends IceInternal.EventHandler
     public void
     finished(IceInternal.ThreadPool threadPool)
     {
-        assert(!_threadPerConnection); // Only for use with a thread pool.
-
-        threadPool.promoteFollower();
-        
-        Ice.LocalException localEx = null;
-
         synchronized(this)
         {
-            --_finishedCount;
-            if(_finishedCount > 0 || _state != StateClosed || _sendInProgress)
-            {
-                return;
-            }
-            
+            assert(threadPool == _threadPool && _state == StateClosed && !_sendInProgress);
+            threadPool.promoteFollower(null);
+        }
+
+        if(_startCallback != null)
+        {
+            _startCallback.connectionStartFailed(this, _exception);
+            _startCallback = null;
+        }
+
+        java.util.Iterator<OutgoingMessage> p = _sendStreams.iterator();
+        while(p.hasNext())
+        {
+            p.next().finished(_exception);
+        }
+        _sendStreams.clear();
+        
+        java.util.Iterator<IceInternal.Outgoing> q = _requests.values().iterator();
+        while(q.hasNext())
+        {
+            q.next().finished(_exception);
+        }
+        _requests.clear();
+
+        java.util.Iterator<IceInternal.OutgoingAsync> r = _asyncRequests.values().iterator();
+        while(r.hasNext())
+        {
+            r.next().__finished(_exception);
+        }
+        _asyncRequests.clear();
+        
+        //
+        // This must be done last as this will cause waitUntilFinished() to return (and communicator
+        // objects such as the timer might be destroyed too).
+        //
+        synchronized(this)
+        {
             try
             {
                 _transceiver.close();
             }
-            catch(LocalException ex)
+            finally
             {
-                localEx = ex;
+                _transceiver = null;
+                notifyAll();
             }
-            
-            _transceiver = null;
-            notifyAll();
-        }
-            
-        finishStart(_exception);
-
-        java.util.Iterator<OutgoingMessage> p = _queuedStreams.iterator();
-        while(p.hasNext())
-        {
-            OutgoingMessage message = p.next();
-            message.finished(_exception);
-        }
-        _queuedStreams.clear();
-        
-        java.util.Iterator<IceInternal.Outgoing> q =
-            _requests.values().iterator(); // _requests is immutable at this point.
-        while(q.hasNext())
-        {
-            IceInternal.Outgoing out = q.next();
-            out.finished(_exception); // The exception is immutable at this point.
-        }
-        _requests.clear();
-
-        java.util.Iterator<IceInternal.OutgoingAsync> r =
-            _asyncRequests.values().iterator(); // _asyncRequests is immutable at this point.
-        while(r.hasNext())
-        {
-            IceInternal.OutgoingAsync out = r.next();
-            out.__finished(_exception); // The exception is immutable at this point.
-        }
-        _asyncRequests.clear();
-        
-        if(localEx != null)
-        {
-            throw localEx;
         }
     }
 
@@ -1206,10 +1087,19 @@ public final class ConnectionI extends IceInternal.EventHandler
     // Operations from SocketReadyCallback
     // 
     public IceInternal.SocketStatus 
-    socketReady(boolean finished)
+    socketReady()
     {
-        if(!finished)
+        StartCallback callback = null;
+
+        synchronized(this)
         {
+            assert(_sendInProgress);
+
+            if(_state == StateClosed)
+            {
+                return IceInternal.SocketStatus.Finished;
+            }
+
             try
             {
                 //
@@ -1218,7 +1108,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 //
                 if(!_sendStreams.isEmpty())
                 {
-                    if(!send(0))
+                    if(!send())
                     {
                         return IceInternal.SocketStatus.NeedWrite;
                     }
@@ -1226,121 +1116,68 @@ public final class ConnectionI extends IceInternal.EventHandler
                 }
                 else
                 {
-                    //
-                    // If there's nothing to send, we're still validating the connection.
-                    //
-                    int state;
-                    synchronized(this)
+                    if(_state == StateNotInitialized)
                     {
-                        assert(_state == StateClosed || _state <= StateNotValidated);
-
-                        if(_state == StateClosed)
-                        {
-                            assert(_exception != null);
-                            throw _exception;
-                        }   
-                    
-                        state = _state;
-                    }
-                
-                    if(state == StateNotInitialized)
-                    {
-                        IceInternal.SocketStatus status = initialize(0);
+                        IceInternal.SocketStatus status = initialize();
                         if(status != IceInternal.SocketStatus.Finished)
                         {
                             return status;
                         }
                     }
                 
-                    if(state <= StateNotValidated)
+                    if(_state <= StateNotValidated)
                     {
-                        IceInternal.SocketStatus status = validate(0);
+                        IceInternal.SocketStatus status = validate();
                         if(status != IceInternal.SocketStatus.Finished)
                         {
                             return status;
                         }
                     }
                 
-                    finishStart(null);
+                    callback = _startCallback;
+                    _startCallback = null;
                 }
             }
             catch(Ice.LocalException ex)
             {
-                synchronized(this)
-                {
-                    setState(StateClosed, ex);
-                }
+                setState(StateClosed, ex);
+                return IceInternal.SocketStatus.Finished;
+            }
+
+            assert(_sendStreams.isEmpty());
+            _selectorThread.unregister(_socketReadyCallback);
+            _sendInProgress = false;
+            if(_acmTimeout > 0)
+            {
+                _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
         }
 
-        //
-        // If there's no more data to send or if connection validation is finished, we checkout 
-        // the connection state to figure out whether or not it's time to unregister with the
-        // selector thread.
-        // 
-
-        synchronized(this)
+        if(callback != null)
         {
-            assert(_sendInProgress);
-            if(_state == StateClosed)
-            {
-                assert(_startCallback == null || (!_threadPerConnection && !_registeredWithPool));
-
-                _queuedStreams.addAll(0, _sendStreams);
-                _sendInProgress = false;
-
-                if(_threadPerConnection)
-                {
-                    _transceiver.shutdownReadWrite();
-                }
-                else
-                {
-                    if(!_registeredWithPool)
-                    {
-                        _threadPool.execute(new CallFinished(this));
-                        ++_finishedCount; // For each unregistration, finished() is called once.
-                    }
-                    else
-                    {
-                        unregisterWithPool();
-                    }
-                }
-                
-                notifyAll();
-                return IceInternal.SocketStatus.Finished;
-            }
-            else if(_queuedStreams.isEmpty())
-            {
-                _sendInProgress = false;
-                if(_acmTimeout > 0)
-                {
-                    _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
-                }
-                return IceInternal.SocketStatus.Finished;
-            }
-            else
-            {
-                java.util.LinkedList<OutgoingMessage> streams = _queuedStreams;
-                _queuedStreams = _sendStreams;
-                _sendStreams = streams;
-                return IceInternal.SocketStatus.NeedWrite; // We're not finished yet, there's more data to send!
-            }
+            callback.connectionStartCompleted(this);
         }
+        return IceInternal.SocketStatus.Finished;
     }
 
-    public void
+    public synchronized void
+    socketFinished()
+    {
+        assert(_sendInProgress && _state == StateClosed);
+        _sendInProgress = false;
+        _threadPool.finish(this);
+    }
+
+    public synchronized void
     socketTimeout()
     {
-        synchronized(this)
+        if(_state <= StateNotValidated)
         {
-            if(_state <= StateNotValidated)
-            {
-                setState(StateClosed, new ConnectTimeoutException());
-            }
-            else if(_state <= StateClosing)
-            {
-                setState(StateClosed, new TimeoutException());
-            }
+            setState(StateClosed, new ConnectTimeoutException());
+        }
+        else if(_state <= StateClosing)
+        {
+            setState(StateClosed, new TimeoutException());
         }
     }
 
@@ -1357,12 +1194,11 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
-                       IceInternal.EndpointI endpoint, ObjectAdapter adapter, boolean threadPerConnection)
+                       IceInternal.EndpointI endpoint, ObjectAdapter adapter)
     {
         super(instance);
 
         final Ice.InitializationData initData = instance.initializationData();
-        _threadPerConnection = threadPerConnection;
         _transceiver = transceiver;
         _desc = transceiver.toString();
         _type = transceiver.type();
@@ -1370,8 +1206,6 @@ public final class ConnectionI extends IceInternal.EventHandler
         _adapter = adapter;
         _logger = initData.logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
-        _registeredWithPool = false;
-        _finishedCount = 0;
         _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _cacheBuffers = initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 1) == 1;
         _acmAbsoluteTimeoutMillis = 0;
@@ -1425,26 +1259,13 @@ public final class ConnectionI extends IceInternal.EventHandler
         
         try
         {
-            if(!threadPerConnection)
+            if(_adapter != null)
             {
-                //
-                // Only set _threadPool if we really need it, i.e., if we are
-                // not in thread per connection mode. Thread pools have lazy
-                // initialization in Instance, and we don't want them to be
-                // created if they are not needed.
-                //
-                if(_adapter != null)
-                {
-                    _threadPool = ((ObjectAdapterI)_adapter).getThreadPool();
-                }
-                else
-                {
-                    _threadPool = _instance.clientThreadPool();
-                }
+                _threadPool = ((ObjectAdapterI)_adapter).getThreadPool();
             }
             else
             {
-                _threadPool = null; // To satisfy the compiler.
+                _threadPool = _instance.clientThreadPool();
             }
 
             _selectorThread = _instance.selectorThread();
@@ -1472,8 +1293,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         IceUtilInternal.Assert.FinalizerAssert(_state == StateClosed);
         IceUtilInternal.Assert.FinalizerAssert(_transceiver == null);
         IceUtilInternal.Assert.FinalizerAssert(_dispatchCount == 0);
-        IceUtilInternal.Assert.FinalizerAssert(_thread == null);
-        IceUtilInternal.Assert.FinalizerAssert(_queuedStreams.isEmpty());
+        IceUtilInternal.Assert.FinalizerAssert(_sendStreams.isEmpty());
         IceUtilInternal.Assert.FinalizerAssert(_requests.isEmpty());
         IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
 
@@ -1589,10 +1409,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 {
                     return;
                 }
-                if(!_threadPerConnection)
-                {
-                    registerWithPool();
-                }
+                _threadPool._register(this);
                 break;
             }
 
@@ -1606,10 +1423,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 {
                     return;
                 }
-                if(!_threadPerConnection)
-                {
-                    unregisterWithPool();
-                }
+                _threadPool.unregister(this);
                 break;
             }
 
@@ -1622,10 +1436,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 {
                     return;
                 }
-                if(!_threadPerConnection)
-                {
-                    registerWithPool(); // We need to continue to read in closing state.
-                }
+                _threadPool._register(this);
                 break;
             }
             
@@ -1640,39 +1451,12 @@ public final class ConnectionI extends IceInternal.EventHandler
                     // The selector thread will register again the FD with the pool once it's 
                     // done.
                     //
-                    _selectorThread.unregister(_transceiver.fd());
-                    if(!_threadPerConnection)
-                    {
-                        unregisterWithPool();
-                    }
-
-                    _transceiver.shutdownWrite();
-                }
-                else if(_threadPerConnection)
-                {
-                    //
-                    // If we are in thread per connection mode and the thread is started, we
-                    // shutdown both for reading and writing. This will unblock the read call
-                    // with an exception. The thread per connection closes the transceiver.
-                    //
-                    _transceiver.shutdownReadWrite();
+                    _selectorThread.finish(_socketReadyCallback);
+                    _threadPool.unregister(this);
                 }
                 else
                 {
-                    if(!_registeredWithPool)
-                    {
-                        _threadPool.execute(new CallFinished(this));
-                        ++_finishedCount; // For each unregistration, finished() is called once.
-                    }
-                    else
-                    {
-                        unregisterWithPool();
-                    }
-                    
-                    //
-                    // Prevent further writes.
-                    //                    
-                    _transceiver.shutdownWrite();
+                    _threadPool.finish(this);
                 }
                 break;
             }
@@ -1752,46 +1536,24 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     private IceInternal.SocketStatus 
-    initialize(int timeout)
+    initialize()
     {
-        try
+        IceInternal.SocketStatus status = _transceiver.initialize();
+        if(status != IceInternal.SocketStatus.Finished)
         {
-            IceInternal.SocketStatus status = _transceiver.initialize(timeout);
-            if(status != IceInternal.SocketStatus.Finished)
-            {
-                if(timeout != 0)
-                {
-                    throw new Ice.TimeoutException();
-                }
-                return status;
-            }
-        }
-        catch(Ice.TimeoutException ex)
-        {
-            throw new Ice.ConnectTimeoutException();
-        }                
-        
-        synchronized(this)
-        {
-            if(_state == StateClosed)
-            {
-                assert(_exception != null);
-                throw _exception;
-            }
-
-            //
-            // Update the connection description once the transceiver is initialized.
-            //
-            _desc = _transceiver.toString();
-
-            setState(StateNotValidated);
+            return status;
         }
 
+        //
+        // Update the connection description once the transceiver is initialized.
+        //
+        _desc = _transceiver.toString();
+        setState(StateNotValidated);
         return IceInternal.SocketStatus.Finished;
     }
 
     private IceInternal.SocketStatus
-    validate(int timeout)
+    validate()
     {
         if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
         {
@@ -1811,26 +1573,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                     IceInternal.TraceUtil.traceSend(os, _logger, _traceLevels);
                     os.prepareWrite();
                 }
-                else
-                {
-                    // The stream can only be non-empty if we're doing a non-blocking connection validation.
-                    assert(!_threadPerConnection); 
-                }
                 
-                try
+                if(!_transceiver.write(os.getBuffer()))
                 {
-                    if(!_transceiver.write(os.getBuffer(), timeout))
-                    {
-                        if(timeout != 0)
-                        {
-                            throw new Ice.TimeoutException();
-                        }
-                        return IceInternal.SocketStatus.NeedWrite;
-                    }
-                }
-                catch(Ice.TimeoutException ex)
-                {
-                    throw new Ice.ConnectTimeoutException();
+                    return IceInternal.SocketStatus.NeedWrite;
                 }
             }
             else // The client side has the passive role for connection validation.
@@ -1841,26 +1587,10 @@ public final class ConnectionI extends IceInternal.EventHandler
                     is.resize(IceInternal.Protocol.headerSize, true);
                     is.pos(0);
                 }
-                else
-                {
-                    // The stream can only be non-empty if we're doing a non-blocking connection validation.
-                    assert(!_threadPerConnection); 
-                }
 
-                try
+                if(!_transceiver.read(is.getBuffer(), _hasMoreData))
                 {
-                    if(!_transceiver.read(is.getBuffer(), timeout, _hasMoreData))
-                    {
-                        if(timeout != 0)
-                        {
-                            throw new Ice.TimeoutException();
-                        }
-                        return IceInternal.SocketStatus.NeedRead;
-                    }
-                }
-                catch(Ice.TimeoutException ex)
-                {
-                    throw new Ice.ConnectTimeoutException();
+                    return IceInternal.SocketStatus.NeedRead;
                 }
 
                 assert(is.pos() == IceInternal.Protocol.headerSize);
@@ -1910,82 +1640,96 @@ public final class ConnectionI extends IceInternal.EventHandler
             }
         }
         
-        synchronized(this)
-        {
-            _stream.reset();
+        _stream.reset();
 
-            if(_state == StateClosed)
-            {
-                assert(_exception != null);
-                throw _exception;
-            }
-
-            //
-            // We start out in holding state.
-            //
-            setState(StateHolding);
-        }
-
+        //
+        // We start out in holding state.
+        //
+        setState(StateHolding);
         return IceInternal.SocketStatus.Finished;
     }
 
     private boolean
-    send(int timeout)
+    send()
     {
         assert(_transceiver != null);
         assert(!_sendStreams.isEmpty());
 
-        while(!_sendStreams.isEmpty())
+        boolean flushSentCallbacks = _sentCallbacks.isEmpty();
+        try
         {
-            OutgoingMessage message = _sendStreams.getFirst();
-            if(!message.prepared)
+            while(!_sendStreams.isEmpty())
             {
-                IceInternal.BasicStream stream = message.stream;
-
-                boolean compress = _overrideCompress ? _overrideCompressValue : message.compress;
-                message.stream = doCompress(stream, compress);
-                message.stream.prepareWrite();
-                message.prepared = true;
-
-                if(message.outAsync != null)
+                OutgoingMessage message = _sendStreams.getFirst();
+                if(!message.prepared)
                 {
-                    IceInternal.TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
-                }
-                else
-                {
-                    IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
-                }
+                    IceInternal.BasicStream stream = message.stream;
+
+                    boolean compress = _overrideCompress ? _overrideCompressValue : message.compress;
+                    message.stream = doCompress(stream, compress);
+                    message.stream.prepareWrite();
+                    message.prepared = true;
+
+                    if(message.outAsync != null)
+                    {
+                        IceInternal.TraceUtil.trace("sending asynchronous request", stream, _logger, _traceLevels);
+                    }
+                    else
+                    {
+                        IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
+                    }
                 
-            }
+                }
 
-            if(!_transceiver.write(message.stream.getBuffer(), timeout))
-            {
-                assert(timeout == 0);
-                return false;
-            }
+                if(!_transceiver.write(message.stream.getBuffer()))
+                {
+                    return false;
+                }
                     
-            message.sent(this, timeout == 0); // timeout == 0 indicates that this is called by the selector thread.
-            _sendStreams.removeFirst();
-        }
+                message.sent(this, true);
 
+                if(message.outAsync instanceof Ice.AMISentCallback)
+                {
+                    _sentCallbacks.add(message);
+                }
+
+                _sendStreams.removeFirst();
+            }
+        }
+        finally
+        {
+            if(flushSentCallbacks && !_sentCallbacks.isEmpty())
+            {
+                _threadPool.execute(_flushSentCallbacks);
+            }
+        }
         return true;
+    }
+
+    private void
+    flushSentCallbacks()
+    {
+        java.util.List<OutgoingMessage> sentCallbacks;
+        synchronized(this)
+        {
+            assert(_sentCallbacks != null && !_sentCallbacks.isEmpty());
+            sentCallbacks = _sentCallbacks;
+            _sentCallbacks = new java.util.LinkedList<OutgoingMessage>();
+        }
+        for(OutgoingMessage message : sentCallbacks)
+        {
+            message.outAsync.__sent(_instance);
+        }
     }
 
     private boolean
     sendMessage(OutgoingMessage message)
     {
         assert(_state != StateClosed);
-
-        //
-        // If another thread is currently sending messages, we queue the
-        // message in _queuedStreams.  It will be picked up eventually by
-        // the selector thread once the messages from _sendStreams are all
-        // sent.
-        //
         if(_sendInProgress)
         {    
             message.adopt();
-            _queuedStreams.addLast(message);
+            _sendStreams.addLast(message);
             return false;
         }
 
@@ -2015,7 +1759,7 @@ public final class ConnectionI extends IceInternal.EventHandler
             IceInternal.TraceUtil.traceSend(stream, _logger, _traceLevels);
         }
         
-        if(_transceiver.write(message.stream.getBuffer(), 0))
+        if(_transceiver.write(message.stream.getBuffer()))
         {
             message.sent(this, false);
             if(_acmTimeout > 0)
@@ -2028,64 +1772,10 @@ public final class ConnectionI extends IceInternal.EventHandler
         _sendStreams.addLast(message);
         _sendInProgress = true;
         message.adopt();
-        _selectorThread._register(_transceiver.fd(), this, IceInternal.SocketStatus.NeedWrite, _endpoint.timeout());
+        _selectorThread._register(_socketReadyCallback, IceInternal.SocketStatus.NeedWrite, _endpoint.timeout());
         return false;
     }
     
-    private void
-    finishStart(Ice.LocalException ex)
-    {
-        //
-        // We set _startCallback to null to break potential cyclic reference count 
-        // and because the finalizer checks for  it to ensure that we always invoke
-        // on the callback.
-        //
-
-        StartCallback callback = null;
-        synchronized(this)
-        {
-            callback = _startCallback;
-            _startCallback = null;
-        }
-
-        if(callback != null)
-        {
-            if(ex == null)
-            {
-                callback.connectionStartCompleted(this);
-            }
-            else
-            {
-                callback.connectionStartFailed(this, ex);
-            }
-        }
-    }
-
-    private void
-    registerWithPool()
-    {
-        assert(!_threadPerConnection); // Only for use with a thread pool.
-
-        if(!_registeredWithPool)
-        {
-            _threadPool._register(_transceiver.fd(), this);
-            _registeredWithPool = true;
-        }
-    }
-
-    private void
-    unregisterWithPool()
-    {
-        assert(!_threadPerConnection); // Only for use with a thread pool.
-
-        if(_registeredWithPool)
-        {
-            _threadPool.unregister(_transceiver.fd());
-            _registeredWithPool = false;        
-            ++_finishedCount; // For each unregistration, finished() is called once.
-        }
-    }
-
     private IceInternal.BasicStream
     doCompress(IceInternal.BasicStream uncompressed, boolean compress)
     {
@@ -2166,9 +1856,8 @@ public final class ConnectionI extends IceInternal.EventHandler
         try
         {
             //
-            // We don't need to check magic and version here. This has
-            // already been done by the ThreadPool or ThreadPerConnection,
-            // which provides us with the stream.
+            // We don't need to check magic and version here. This has already
+            // been done by the ThreadPool which provides us with the stream.
             //
             assert(info.stream.pos() == info.stream.size());
             info.stream.pos(8);
@@ -2392,305 +2081,6 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     private void
-    run()
-    {
-        try
-        {
-            //
-            // Initialize the connection transceiver and validate the connection using
-            // blocking operations.
-            //
-
-            IceInternal.SocketStatus status;
-
-            int timeout;
-            IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            if(defaultsAndOverrides.overrideConnectTimeout)
-            {
-                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-            }
-            else
-            {
-                timeout = _endpoint.timeout();
-            }
-            
-            status = initialize(timeout);
-            assert(status == IceInternal.SocketStatus.Finished);
-
-            status = validate(timeout);
-            assert(status == IceInternal.SocketStatus.Finished);
-        }
-        catch(LocalException ex)
-        {
-            synchronized(this)
-            {
-                setState(StateClosed, ex);
-                
-                if(_transceiver != null)
-                {
-                    try
-                    {
-                        _transceiver.close();
-                    }
-                    catch(LocalException e)
-                    {
-                        // Here we ignore any exceptions in close().
-                    }
-                    
-                    _transceiver = null;
-                }
-                notifyAll();
-            }
-
-            finishStart(_exception);
-            return;
-        }
-
-        finishStart(null);
-
-        boolean warnUdp = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
-
-        boolean closed = false;
-
-        IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
-        while(!closed)
-        {
-            //
-            // We must read new messages outside the thread synchronization because we use blocking reads.
-            //
-
-            try
-            {
-                try
-                {
-                    stream.resize(IceInternal.Protocol.headerSize, true);
-                    stream.pos(0);
-                    _transceiver.read(stream.getBuffer(), -1, _hasMoreData);
-
-                    int pos = stream.pos();
-                    if(pos < IceInternal.Protocol.headerSize)
-                    {
-                        //
-                        // This situation is possible for small UDP packets.
-                        //
-                        throw new IllegalMessageSizeException();
-                    }
-                    stream.pos(0);
-                    byte[] m = stream.readBlob(4);
-                    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-                       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
-                    {
-                        BadMagicException ex = new BadMagicException();
-                        ex.badMagic = m;
-                        throw ex;
-                    }
-                    byte pMajor = stream.readByte();
-                    byte pMinor = stream.readByte();
-                    if(pMajor != IceInternal.Protocol.protocolMajor)
-                    {
-                        UnsupportedProtocolException e = new UnsupportedProtocolException();
-                        e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-                        e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-                        e.major = IceInternal.Protocol.protocolMajor;
-                        e.minor = IceInternal.Protocol.protocolMinor;
-                        throw e;
-                    }
-                    byte eMajor = stream.readByte();
-                    byte eMinor = stream.readByte();
-                    if(eMajor != IceInternal.Protocol.encodingMajor)
-                    {
-                        UnsupportedEncodingException e = new UnsupportedEncodingException();
-                        e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-                        e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-                        e.major = IceInternal.Protocol.encodingMajor;
-                        e.minor = IceInternal.Protocol.encodingMinor;
-                        throw e;
-                    }
-                    byte messageType = stream.readByte();
-                    byte compress = stream.readByte();
-                    int size = stream.readInt();
-                    if(size < IceInternal.Protocol.headerSize)
-                    {
-                        throw new IllegalMessageSizeException();
-                    }
-                    if(size > _instance.messageSizeMax())
-                    {
-                        throw new MemoryLimitException();
-                    }
-                    if(size > stream.size())
-                    {
-                        stream.resize(size, true);
-                    }
-                    stream.pos(pos);
-
-                    if(pos != stream.size())
-                    {
-                        if(_endpoint.datagram())
-                        {
-                            if(warnUdp)
-                            {
-                                _logger.warning("DatagramLimitException: maximum size of " + pos + " exceeded");
-                            }
-                            throw new DatagramLimitException();
-                        }
-                        else
-                        {
-                            _transceiver.read(stream.getBuffer(), -1, _hasMoreData);
-                            assert(stream.pos() == stream.size());
-                        }
-                    }
-                }
-                catch(DatagramLimitException ex) // Expected.
-                {
-                    continue;
-                }
-                catch(SocketException ex)
-                {
-                    exception(ex);
-                }
-                catch(LocalException ex)
-                {
-                    if(_endpoint.datagram())
-                    {
-                        if(_warn)
-                        {
-                            _logger.warning("datagram connection exception:\n" + ex + "\n" + _desc);
-                        }
-                        continue;
-                    }
-                    else
-                    {
-                        exception(ex);
-                    }
-                }
-
-                MessageInfo info = new MessageInfo(stream);
-
-                LocalException localEx = null;
-
-                synchronized(this)
-                {
-                    while(_state == StateHolding)
-                    {
-                        try
-                        {
-                            wait();
-                        }
-                        catch(InterruptedException ex)
-                        {
-                        }
-                    }
-                
-                    if(_state != StateClosed)
-                    {
-                        parseMessage(info);
-                    }
-
-                    //
-                    // parseMessage() can close the connection, so we must
-                    // check for closed state again.
-                    //
-                    if(_state == StateClosed)
-                    {
-                        if(_sendInProgress)
-                        {
-                            _selectorThread.unregister(_transceiver.fd());
-                        }
-                                
-                        //
-                        // Prevent further writes.
-                        //
-                        _transceiver.shutdownWrite();
-
-                        while(_sendInProgress)
-                        {
-                            try
-                            {
-                                wait();
-                            }
-                            catch(java.lang.Exception ex)
-                            {
-                            }
-                        }
-
-                        try
-                        {
-                            _transceiver.close();
-                        }
-                        catch(LocalException ex)
-                        {
-                            localEx = ex;
-                        }
-                        _transceiver = null;
-                        notifyAll();
-
-                        //
-                        // We cannot simply return here. We have to make sure
-                        // that all requests (regular and async) are notified
-                        // about the closed connection below.
-                        //
-                        closed = true;
-                    }
-                }
-
-                //
-                // Asynchronous replies must be handled outside the thread
-                // synchronization, so that nested calls are possible.
-                //
-                if(info.outAsync != null)
-                {
-                    info.outAsync.__finished(info.stream);
-                }
-                
-                //
-                // Method invocation (or multiple invocations for batch messages)
-                // must be done outside the thread synchronization, so that nested
-                // calls are possible.
-                //
-                invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager, 
-                          info.adapter);
-
-                if(closed)
-                {
-                    java.util.Iterator<OutgoingMessage> p = _queuedStreams.iterator();
-                    while(p.hasNext())
-                    {
-                        OutgoingMessage message = p.next();
-                        message.finished(_exception);
-                    }
-                    _queuedStreams.clear();
-
-                    java.util.Iterator<IceInternal.Outgoing> q = _requests.values().iterator();
-                    while(q.hasNext())
-                    {
-                        IceInternal.Outgoing out = q.next();
-                        out.finished(_exception); // The exception is immutable at this point.
-                    }
-                    _requests.clear();
-
-                    java.util.Iterator<IceInternal.OutgoingAsync> r = _asyncRequests.values().iterator();
-                    while(r.hasNext())
-                    {
-                        IceInternal.OutgoingAsync out = r.next();
-                        out.__finished(_exception); // The exception is immutable at this point.
-                    }
-                    _asyncRequests.clear();
-                }
-
-                if(localEx != null)
-                {
-                    assert(closed);
-                    throw localEx;
-                }    
-            }
-            finally
-            {
-                stream.reset();
-            }
-        }
-    }
-
-    private void
     warning(String msg, Exception ex)
     {
         java.io.StringWriter sw = new java.io.StringWriter();
@@ -2809,34 +2199,6 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
     }
 
-    private class ThreadPerConnection extends Thread
-    {
-        public void
-        run()
-        {
-            if(ConnectionI.this._instance.initializationData().threadHook != null)
-            {
-                ConnectionI.this._instance.initializationData().threadHook.start();
-            }
-            
-            try
-            {
-                ConnectionI.this.run();
-            }
-            catch(Exception ex)
-            {
-                ConnectionI.this.error("exception in thread per connection", ex);
-            }
-            finally
-            {
-                if(ConnectionI.this._instance.initializationData().threadHook != null)
-                {
-                    ConnectionI.this._instance.initializationData().threadHook.stop();
-                }
-            }
-        }
-    }
-
     private static class OutgoingMessage
     {
         OutgoingMessage(IceInternal.BasicStream stream, boolean compress, boolean adopt)
@@ -2919,8 +2281,46 @@ public final class ConnectionI extends IceInternal.EventHandler
         boolean prepared;
     }
 
-    private Thread _thread;
-    private final boolean _threadPerConnection;
+    static class SocketReadyCallback extends IceInternal.SelectorThread.SocketReadyCallback
+    {
+        public
+        SocketReadyCallback(ConnectionI connection)
+        {
+            _connection = connection;
+        }
+        
+        public java.nio.channels.SelectableChannel
+        fd()
+        {
+            return _connection.fd();
+        }
+
+        public boolean
+        hasMoreData()
+        {
+            return _connection.hasMoreData();
+        }
+
+        public IceInternal.SocketStatus
+        socketReady()
+        {
+            return _connection.socketReady();
+        }
+
+        public void
+        socketFinished()
+        {
+            _connection.socketFinished();
+        }
+
+        public void
+        runTimerTask()
+        {
+            _connection.socketTimeout();
+        }
+
+        final private ConnectionI _connection;
+    };
 
     private IceInternal.Transceiver _transceiver;
     private Ice.BooleanHolder _hasMoreData = new Ice.BooleanHolder(false);
@@ -2928,6 +2328,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     private String _desc;
     private final String _type;
     private final IceInternal.EndpointI _endpoint;
+    private final SocketReadyCallback _socketReadyCallback = new SocketReadyCallback(this);
 
     private ObjectAdapter _adapter;
     private IceInternal.ServantManager _servantManager;
@@ -2935,8 +2336,6 @@ public final class ConnectionI extends IceInternal.EventHandler
     private final Logger _logger;
     private final IceInternal.TraceLevels _traceLevels;
 
-    private boolean _registeredWithPool;
-    private int _finishedCount;
     private final IceInternal.ThreadPool _threadPool;
     private final IceInternal.SelectorThread _selectorThread;
 
@@ -2965,10 +2364,20 @@ public final class ConnectionI extends IceInternal.EventHandler
     private boolean _batchRequestCompress;
     private int _batchMarker;
 
-    private java.util.LinkedList<OutgoingMessage> _queuedStreams = new java.util.LinkedList<OutgoingMessage>();
     private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<OutgoingMessage>();
     private boolean _sendInProgress;
 
+    private java.util.List<OutgoingMessage> _sentCallbacks = new java.util.LinkedList<OutgoingMessage>();
+    private IceInternal.ThreadPoolWorkItem _flushSentCallbacks = new IceInternal.ThreadPoolWorkItem()
+        {
+            public void
+            execute(IceInternal.ThreadPool threadPool)
+            {
+                threadPool.promoteFollower(null);
+                ConnectionI.this.flushSentCallbacks();
+            };
+        };
+    
     private int _dispatchCount;
 
     private int _state; // The current state.

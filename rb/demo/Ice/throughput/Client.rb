@@ -58,7 +58,7 @@ class Client < Ice::Application
         Ice::Application::callbackOnInterrupt
 
         throughput = Demo::ThroughputPrx::checkedCast(
-            Ice::Application::communicator().propertyToProxy('Throughput.Throughput'))
+            Ice::Application::communicator().propertyToProxy('Throughput.Proxy'))
         if not throughput
             puts $0 + ": invalid proxy"
             return 1

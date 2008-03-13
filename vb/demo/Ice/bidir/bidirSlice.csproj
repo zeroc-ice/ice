@@ -56,10 +56,9 @@
     </CompileDependsOn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.3.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\Ice.dll</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\Ice.dll</HintPath>
+    <Reference Include="Ice">
+      <Name>Ice</Name>
+      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>

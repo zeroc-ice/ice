@@ -18,8 +18,8 @@ class NestedClient : public Ice::Application
 {
 public:
 
+    NestedClient();
     virtual int run(int, char*[]);
-    virtual void interruptCallback(int);
 };
 
 int
@@ -27,6 +27,15 @@ main(int argc, char* argv[])
 {
     NestedClient app;
     return app.main(argc, argv, "config.client");
+}
+
+NestedClient::NestedClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
 }
 
 int
@@ -38,13 +47,7 @@ NestedClient::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
-
-    NestedPrx nested = NestedPrx::checkedCast(communicator()->propertyToProxy("Nested.NestedServer"));
+    NestedPrx nested = NestedPrx::checkedCast(communicator()->propertyToProxy("Nested.Proxy"));
     if(!nested)
     {
         cerr << appName() << ": invalid proxy" << endl;
@@ -83,28 +86,4 @@ NestedClient::run(int argc, char* argv[])
     while(cin.good() && s != "x");
 
     return EXIT_SUCCESS;
-}
-
-void
-NestedClient::interruptCallback(int)
-{
-/*
- * For this demo we won't destroy the communicator since it has to
- * wait for any outstanding invocations to complete which may take
- * some time if the nesting level is exceeded.
- *
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-*/
-    exit(EXIT_SUCCESS);
 }

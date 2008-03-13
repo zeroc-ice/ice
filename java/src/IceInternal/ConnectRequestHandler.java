@@ -144,7 +144,7 @@ public class ConnectRequestHandler
         }
     }
 
-    public void
+    public boolean
     sendAsyncRequest(OutgoingAsync out)
         throws LocalExceptionWrapper
     {
@@ -153,10 +153,10 @@ public class ConnectRequestHandler
             if(!initialized())
             {
                 _requests.add(new Request(out));
-                return;
+                return false;
             }
         }
-        _connection.sendAsyncRequest(out, _compress, _response);
+        return _connection.sendAsyncRequest(out, _compress, _response);
     }
 
     public boolean
@@ -165,7 +165,7 @@ public class ConnectRequestHandler
         return getConnection(true).flushBatchRequests(out);
     }
 
-    public void
+    public boolean
     flushAsyncBatchRequests(BatchOutgoingAsync out)
     {
         synchronized(this)
@@ -173,10 +173,10 @@ public class ConnectRequestHandler
             if(!initialized())
             {
                 _requests.add(new Request(out));
-                return;
+                return false;
             }
         }
-        _connection.flushAsyncBatchRequests(out);
+        return _connection.flushAsyncBatchRequests(out);
     }
 
     public Outgoing
@@ -297,7 +297,7 @@ public class ConnectRequestHandler
                     public void
                     execute(ThreadPool threadPool)
                     {
-                        threadPool.promoteFollower();
+                        threadPool.promoteFollower(null);
                         flushRequestsWithException(ex);
                     };
                 });
@@ -392,6 +392,8 @@ public class ConnectRequestHandler
             _flushing = true;
         }
 
+        final java.util.List<OutgoingAsyncMessageCallback> sentCallbacks = 
+            new java.util.ArrayList<OutgoingAsyncMessageCallback>();
         try
         {
             java.util.Iterator<Request> p = _requests.iterator(); // _requests is immutable when _flushing = true
@@ -400,11 +402,23 @@ public class ConnectRequestHandler
                 Request request = p.next();
                 if(request.out != null)
                 {
-                    _connection.sendAsyncRequest(request.out, _compress, _response);
+                    if(_connection.sendAsyncRequest(request.out, _compress, _response))
+                    {
+                        if(request.out instanceof Ice.AMISentCallback)
+                        {
+                            sentCallbacks.add(request.out);
+                        }
+                    }
                 }
                 else if(request.batchOut != null)
                 {
-                    _connection.flushAsyncBatchRequests(request.batchOut);
+                    if(_connection.flushAsyncBatchRequests(request.batchOut))
+                    {
+                        if(request.batchOut instanceof Ice.AMISentCallback)
+                        {
+                            sentCallbacks.add(request.batchOut);
+                        }
+                    }
                 }
                 else
                 {
@@ -436,12 +450,10 @@ public class ConnectRequestHandler
                         public void
                         execute(ThreadPool threadPool)
                         {
-                            threadPool.promoteFollower();
+                            threadPool.promoteFollower(null);
                             flushRequestsWithException(ex);
                         };
                     });
-                notifyAll();
-                return;
             }
         }
         catch(final Ice.LocalException ex)
@@ -455,15 +467,30 @@ public class ConnectRequestHandler
                         public void
                         execute(ThreadPool threadPool)
                         {
-                            threadPool.promoteFollower();
+                            threadPool.promoteFollower(null);
                             flushRequestsWithException(ex);
                         };
                     });
-                notifyAll();
-                return;
             }
         }
-
+        
+        if(!sentCallbacks.isEmpty())
+        {
+            final Instance instance = _reference.getInstance();
+            instance.clientThreadPool().execute(new ThreadPoolWorkItem() 
+                                                {
+                                                    public void
+                                                    execute(ThreadPool threadPool)
+                                                    {
+                                                        threadPool.promoteFollower(null);
+                                                        for(OutgoingAsyncMessageCallback callback : sentCallbacks)
+                                                        {
+                                                            callback.__sent(instance);
+                                                        }
+                                                    };
+                                                });
+        }
+        
         //
         // We've finished sending the queued requests and the request handler now send
         // the requests over the connection directly. It's time to substitute the 
@@ -480,9 +507,12 @@ public class ConnectRequestHandler
 
         synchronized(this)
         {
-            assert(!_initialized);
-            _initialized = true;
-            _flushing = false;
+            if(_exception == null)
+            {
+                assert(!_initialized);
+                _initialized = true;
+                _flushing = false;
+            }
             _proxy = null; // Break cyclic reference count.
             _delegate = null; // Break cyclic reference count.
             notifyAll();

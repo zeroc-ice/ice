@@ -33,8 +33,7 @@ class Client(Ice.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        base = self.communicator().propertyToProxy('Value.Initial')
-        initial = Demo.InitialPrx.checkedCast(base)
+        initial = Demo.InitialPrx.checkedCast(self.communicator().propertyToProxy('Initial.Proxy'))
         if not initial:
             print args[0] + ": invalid proxy"
             return 1

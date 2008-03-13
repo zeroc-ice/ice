@@ -14,8 +14,11 @@ using namespace std;
 
 class LibraryClient : public Ice::Application
 {
+public:
+
+    LibraryClient();
+
     virtual int run(int argc, char* argv[]);
-    virtual void interruptCallback(int);
 };
 
 int
@@ -25,33 +28,18 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
+LibraryClient::LibraryClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Application(Ice::NoSignalHandling)
+{
+}
+
 int
 LibraryClient::run(int argc, char* argv[])
 {
-    //
-    // Since this is an interactive demo we want the custom interrupt
-    // callback to be called when the process is interrupted.
-    //
-    callbackOnInterrupt();
-
     int runParser(int, char*[], const Ice::CommunicatorPtr&);
     return runParser(argc, argv, communicator());
-}
-
-void
-LibraryClient::interruptCallback(int)
-{
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
-    exit(EXIT_SUCCESS);
 }

@@ -48,7 +48,7 @@ class RegistryI : public Registry
 {
 public:
 
-    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, bool);
+    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, bool, bool);
     ~RegistryI();
 
     bool start();
@@ -99,6 +99,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const TraceLevelsPtr _traceLevels;
     const bool _nowarn;
+    const bool _readonly;
 
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;

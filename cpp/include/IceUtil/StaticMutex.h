@@ -65,12 +65,7 @@ public:
 
 
 #ifdef _WIN32
-#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
     mutable CRITICAL_SECTION* _mutex;
-#   else
-    mutable HANDLE _mutex;
-    mutable int _recursionCount;
-#   endif
 #else
     mutable pthread_mutex_t _mutex;
 #endif
@@ -142,8 +137,6 @@ StaticMutex::initialized() const
     return InterlockedCompareExchangePointer(reinterpret_cast<void**>(&tmp), 0, 0) != 0;
 }
 
-#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
-
 inline void
 StaticMutex::lock() const
 {
@@ -199,83 +192,6 @@ StaticMutex::lock(LockState&) const
     }
     EnterCriticalSection(_mutex);
 }
-
-#    else
-
-inline void
-StaticMutex::lock() const
-{
-    if(!initialized())
-    {
-        initialize();
-    }
-
-    DWORD rc = WaitForSingleObject(_mutex, INFINITE);
-    if(rc != WAIT_OBJECT_0)
-    {
-        if(rc == WAIT_FAILED)
-        {
-            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-        }
-        else
-        {
-            throw ThreadSyscallException(__FILE__, __LINE__, 0);
-        }
-    }
-    _recursionCount++;
-    assert(_recursionCount == 1);
-}
-
-inline bool
-StaticMutex::tryLock() const
-{
-    if(!initialized())
-    {
-        initialize();
-    }
-
-    DWORD rc = WaitForSingleObject(_mutex, 0);
-    if(rc != WAIT_OBJECT_0)
-    {
-        return false;
-    }
-    else if(_recursionCount == 1)
-    {
-        _recursionCount++;
-        unlock();
-        throw ThreadLockedException(__FILE__, __LINE__);
-    }
-    else
-    {
-        _recursionCount++;
-        return true;
-    }
-}
-
-inline void
-StaticMutex::unlock() const
-{
-    _recursionCount--;
-    BOOL rc = ReleaseMutex(_mutex);
-    if(rc == 0)
-    {
-        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
-}
-
-inline void
-StaticMutex::unlock(LockState& state) const
-{
-    unlock();
-}
-
-inline void
-StaticMutex::lock(LockState&) const
-{
-    lock();
-}
-
-#    endif
 
 #else
 

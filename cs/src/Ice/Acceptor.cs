@@ -18,10 +18,8 @@ namespace IceInternal
         Socket fd();
         void close();
         void listen();
-        Transceiver accept(int timeout);
         IAsyncResult beginAccept(AsyncCallback callback, object state);
         Transceiver endAccept(IAsyncResult result);
-        void connectToSelf();
         string ToString();
     }
 

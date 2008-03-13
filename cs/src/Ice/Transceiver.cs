@@ -47,12 +47,6 @@ namespace IceInternal
         bool restartable();
 
         //
-        // Initialize the transceiver and block for the specified (non-zero) timeout. Initialization either
-        // completes successfully in the given time, or an exception is raised.
-        //
-        void initialize(int timeout);
-
-        //
         // Initialize the transceiver using asynchronous I/O. This method never blocks. Returns true
         // if initialization is complete, or false if an I/O request is pending. In the latter case,
         // the callback must invoke initialize again and repeat this process until it returns true.
@@ -60,32 +54,20 @@ namespace IceInternal
         bool initialize(AsyncCallback callback);
 
         void close();
-        void shutdownWrite();
-        void shutdownReadWrite();
 
         //
         // Write data.
         //
-        // Returns true if all the data was written, false otherwise. If
-        // timeout is -1, this operation will block until all the data is
-        // written. If timeout is 0, it will return when the write can't
-        // be completed without blocking. If the timeout is > 0, it will
-        // block until all the data is written or the specified timeout
-        // expires.
+        // Returns true if all the data was written, false otherwise.
         //
-        bool write(Buffer buf, int timeout);
+        bool write(Buffer buf);
 
         //
         // Read data.
         //
         // Returns true if all the requested data was read, false otherwise.
-        // If timeout is -1, this operation will block until all the data
-        // is read. If timeout is 0, it will return when the read can't be
-        // completed without blocking. If the timeout is > 0, it will
-        // block until all the data is read or the specified timeout
-        // expires.
         //
-        bool read(Buffer buf, int timeout);
+        bool read(Buffer buf);
 
         //
         // Read data asynchronously.

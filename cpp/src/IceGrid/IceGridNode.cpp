@@ -97,7 +97,7 @@ class CollocatedRegistry : public RegistryI
 {
 public:
 
-    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&, bool);
+    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&, bool, bool);
     virtual void shutdown();
 
 private:
@@ -135,8 +135,11 @@ private:
 } 
 
 
-CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com, const ActivatorPtr& activator, bool nowarn) :
-    RegistryI(com, new TraceLevels(com, "IceGrid.Registry"), nowarn), 
+CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com, 
+                                       const ActivatorPtr& activator, 
+                                       bool nowarn,
+                                       bool readonly) :
+    RegistryI(com, new TraceLevels(com, "IceGrid.Registry"), nowarn, readonly), 
     _activator(activator)
 {
 }
@@ -182,6 +185,7 @@ bool
 NodeService::start(int argc, char* argv[])
 {
     bool nowarn = false;
+    bool readonly = false;
     string desc;
     vector<string> targets;
     for(int i = 1; i < argc; ++i)
@@ -199,6 +203,10 @@ NodeService::start(int argc, char* argv[])
         else if(strcmp(argv[i], "--nowarn") == 0)
         {
             nowarn = true;
+        }
+        else if(strcmp(argv[i], "--readonly") == 0)
+        {
+            readonly = true;
         }
         else if(strcmp(argv[i], "--deploy") == 0)
         {
@@ -300,7 +308,7 @@ NodeService::start(int argc, char* argv[])
     //
     if(properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        _registry = new CollocatedRegistry(communicator(), _activator, nowarn);
+        _registry = new CollocatedRegistry(communicator(), _activator, nowarn, readonly);
         if(!_registry->start())
         {
             return false;
@@ -750,10 +758,8 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     initData.properties = createProperties(argc, argv, initData.properties);
 
     //
-    // Make sure that IceGridNode doesn't use thread-per-connection or
-    // collocation optimization
+    // Make sure that IceGridNode doesn't use collocation optimization
     //
-    initData.properties->setProperty("Ice.ThreadPerConnection", "");
     initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
     //
@@ -772,6 +778,7 @@ NodeService::usage(const string& appName)
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
         "--nowarn             Don't print any security warnings.\n"
+        "--readonly           Start the collocated master registry in read-only mode."
         "\n"
         "--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
         "                     Add or update descriptor in file DESCRIPTOR, with\n"

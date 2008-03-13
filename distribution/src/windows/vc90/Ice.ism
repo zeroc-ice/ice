@@ -1764,6 +1764,7 @@
 		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
 		<row><td>IceAssemblyPublicKey</td><td>1f998c50fec78381</td><td/><td>2</td></row>
 		<row><td>IceAssemblyVersion</td><td>3.3.0.0</td><td/><td>2</td></row>
+		<row><td>PATH_TO_SIGNING_FILES</td><td>D:\builds\signing</td><td/><td>2</td></row>
 		<row><td>PATH_TO_TEMP_FILES</td><td>F:\temp</td><td/><td>2</td></row>
 		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
 		<row><td>SystemFolder</td><td/><td/><td>1</td></row>
@@ -1825,7 +1826,7 @@
 		<col def="S255">CDBrowser</col>
 		<col def="S255">DotNetBuildConfiguration</col>
 		<col def="S255">MsiCommandLine</col>
-		<row><td>ICE_MSI</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>8527884</td><td/><td/><td/></row>
+		<row><td>ICE_MSI</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://www.zeroc.com</td><td>&lt;PATH_TO_SIGNING_FILES&gt;\zerocKey.pvk</td><td>&lt;PATH_TO_SIGNING_FILES&gt;\zerocKey.spc</td><td/><td/><td>545398796</td><td/><td/><td/></row>
 	</table>
 
 	<table name="ISReleaseExtended">
@@ -1856,7 +1857,7 @@
 		<col def="S50">JSharpCmdLine</col>
 		<col def="I4">Attributes</col>
 		<col def="I4">JSharpRedistLocation</col>
-		<row><td>ICE_MSI</td><td>ZEROC</td><td>0</td><td>http://</td><td>0</td><td>install</td><td>install</td><td>[WindowsFolder]Downloaded Installations</td><td>0</td><td>http://www.installengine.com/Msiengine20</td><td>http://www.installengine.com/Msiengine20</td><td>0</td><td>http://www.installengine.com/cert03/isengine</td><td/><td/><td/><td/><td>2</td><td>http://www.installengine.com/cert03/dotnetfx</td><td>1</td><td>1033</td><td/><td/><td/><td/><td/><td>3</td></row>
+		<row><td>ICE_MSI</td><td>ZEROC</td><td>0</td><td>http://</td><td>0</td><td>install</td><td>install</td><td>[WindowsFolder]Downloaded Installations</td><td>0</td><td>http://www.installengine.com/Msiengine20</td><td>http://www.installengine.com/Msiengine20</td><td>0</td><td>http://www.installengine.com/cert03/isengine</td><td/><td/><td/><td/><td>3</td><td>http://www.installengine.com/cert03/dotnetfx</td><td>1</td><td>1033</td><td/><td/><td/><td/><td/><td>3</td></row>
 	</table>
 
 	<table name="ISScriptFile">

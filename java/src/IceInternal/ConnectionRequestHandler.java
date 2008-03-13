@@ -39,15 +39,15 @@ public class ConnectionRequestHandler implements RequestHandler
         }
         else
         {
-            return null; // The request hasn't been sent yet.
+            return null; // The request has been sent.
         }
     }
 
-    public void
+    public boolean
     sendAsyncRequest(OutgoingAsync out)
         throws LocalExceptionWrapper
     {
-        _connection.sendAsyncRequest(out, _compress, _response);
+        return _connection.sendAsyncRequest(out, _compress, _response);
     }
 
     public boolean
@@ -56,10 +56,10 @@ public class ConnectionRequestHandler implements RequestHandler
         return _connection.flushBatchRequests(out);
     }
 
-    public void
+    public boolean
     flushAsyncBatchRequests(BatchOutgoingAsync out)
     {
-        _connection.flushAsyncBatchRequests(out);
+        return _connection.flushAsyncBatchRequests(out);
     }
 
     public Outgoing

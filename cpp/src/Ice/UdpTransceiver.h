@@ -38,13 +38,11 @@ public:
 
     virtual SOCKET fd();
     virtual void close();
-    virtual void shutdownWrite();
-    virtual void shutdownReadWrite();
-    virtual bool write(Buffer&, int);
-    virtual bool read(Buffer&, int);
+    virtual bool write(Buffer&);
+    virtual bool read(Buffer&);
     virtual std::string type() const;
     virtual std::string toString() const;
-    virtual SocketStatus initialize(int);
+    virtual SocketStatus initialize();
     virtual void checkSendSize(const Buffer&, size_t);
 
     int effectivePort() const;

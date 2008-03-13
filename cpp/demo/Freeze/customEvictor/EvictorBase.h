@@ -10,7 +10,7 @@
 #ifndef EVICTOR_BASE_H
 #define EVICTOR_BASE_H
 
-#include <Ice/ServantLocator.h>
+#include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 #include <map>
 #include <list>

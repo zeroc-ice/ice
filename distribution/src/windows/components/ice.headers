@@ -113,6 +113,7 @@ IceBox/IceBox
 IceGrid/Admin
 IceGrid/Descriptor
 IceGrid/Exception
+IceGrid/IceGrid
 IceGrid/FileParser
 IceGrid/Locator
 IceGrid/Observer

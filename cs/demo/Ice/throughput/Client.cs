@@ -51,8 +51,8 @@ public class Client
                 return 1;
             }
 
-            Ice.ObjectPrx b = communicator().propertyToProxy("Throughput.Throughput");
-            ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(b);
+            ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(
+                communicator().propertyToProxy("Throughput.Proxy"));
             if(throughput == null)
             {
                 Console.Error.WriteLine("invalid proxy");

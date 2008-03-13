@@ -48,45 +48,6 @@ namespace IceInternal
             }
         }
 
-        public Transceiver connect(int timeout)
-        {
-            if(_traceLevels.network >= 2)
-            {
-                string s = "trying to establish tcp connection to " + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
-            }
-
-            try
-            {
-                Socket fd = Network.createSocket(false, _addr.AddressFamily);
-                Network.setBlock(fd, false);
-                Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
-
-                //
-                // doConnect either completes the connection within the given timeout, or
-                // raises ConnectTimeoutException.
-                //
-                Network.doConnect(fd, _addr, timeout);
-
-                if(_traceLevels.network >= 1)
-                {
-                    string s = "tcp connection established\n" + Network.fdToString(fd);
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
-
-                return new TcpTransceiver(_instance, fd, _addr, true);
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(_traceLevels.network >= 2)
-                {
-                    string s = "failed to establish tcp connection to " + ToString() + "\n" + ex;
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
-                throw;
-            }
-        }
-
         public short type()
         {
             return TcpEndpointI.TYPE;

@@ -18,11 +18,7 @@ using namespace std;
 
 static CRITICAL_SECTION _criticalSection;
 
-#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
 typedef list<CRITICAL_SECTION*> MutexList;
-#   else
-typedef list<HANDLE> MutexList;
-#   endif
 
 static MutexList* _mutexList;
 
@@ -53,17 +49,12 @@ Init::Init()
 
 Init::~Init()
 {
-#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
     for(MutexList::iterator p = _mutexList->begin(); 
         p != _mutexList->end(); ++p)
     {
         DeleteCriticalSection(*p);
         delete *p;
     }
-#   else
-    for_each(_mutexList->begin(), _mutexList->end(), 
-             CloseHandle);
-#   endif
     delete _mutexList;
     DeleteCriticalSection(&_criticalSection);
 }
@@ -82,19 +73,8 @@ void IceUtil::StaticMutex::initialize() const
     //
     if(_mutex == 0)
     {
-#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
         CRITICAL_SECTION* newMutex = new CRITICAL_SECTION;
         InitializeCriticalSection(newMutex);
-#   else
-        _recursionCount = 0;
-        
-        HANDLE newMutex = CreateMutex(0, false, 0);
-        if(newMutex == 0)
-        {
-            LeaveCriticalSection(&_criticalSection);
-            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-        }
-#   endif
 
         //
         // _mutex is written after the new initialized CRITICAL_SECTION/Mutex

@@ -8,11 +8,6 @@
 # **********************************************************************
 
 #
-# If you are compiling with MONO you must define this symbol.
-#
-MONO = yes
-
-#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
@@ -39,6 +34,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # Enable MANAGED below if you do not require these features and prefer that
 # the Ice run time use only managed code.
 #
+
 #MANAGED		= yes
 
 #
@@ -48,7 +44,17 @@ prefix			?= /opt/Ice-$(VERSION)
 
 DEBUG			= yes
 
+#
+# Define OPTIMIZE as yes if you want to build with optmization.
+#
+
 #OPTIMIZE		= yes
+
+#
+# Set the key file used to sign assemblies.
+#
+
+KEYFILE                 ?= $(top_srcdir)/config/IceDevKey.snk
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -66,11 +72,7 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-ifeq ($(MONO), yes)
-	DSEP = /
-else
-	DSEP = \\
-endif
+DSEP = /
 
 ifdef ice_src_dist
     bindir = $(ice_dir)/cs/bin
@@ -81,9 +83,9 @@ endif
 install_bindir		= $(prefix)/bin
 
 ifneq ($(ice_dir),/usr)
-ref = -r:$(bindir)/$(1).dll
+    ref = -r:$(bindir)/$(1).dll
 else
-ref = -pkg:$(1)
+    ref = -pkg:$(1)
 endif
 
 ifdef no_gac
@@ -103,23 +105,20 @@ ifeq ($(installlibrary),)
 			  chmod a+rx $(2)/$(notdir $(1))
 endif
 
+
 ifeq ($(NOGAC),)
-
-   ifeq ($(GAC_ROOT),)
-      installassembly = $(GACUTIL) -i $(1) -f -package $(2)
-   else
-      installassembly = $(GACUTIL) -i $(1) -f -package $(2) -root $(GAC_ROOT)
-   endif
+    ifeq ($(GAC_ROOT),)
+        installassembly = $(GACUTIL) -i $(1) -f -package $(2)
+    else
+        installassembly = $(GACUTIL) -i $(1) -f -package $(2) -root $(GAC_ROOT)
+    endif
 else
-   installassembly = $(call installlibrary,$(1),$(install_bindir))
+    installassembly = $(call installlibrary,$(1),$(install_bindir)); \
+                      [ -f $(1).config ] && $(call installlibrary,$(1).config,$(install_bindir))
 endif
 
 
-ifeq ($(MONO),yes)
 MCS			= gmcs
-else
-MCS			= csc -nologo
-endif
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 ifeq ($(DEBUG),yes)
@@ -199,3 +198,5 @@ clean::
 endif
 
 install::
+	$(shell [ ! -d $(prefix) ] && (mkdir $(prefix); chmod a+rx $(prefix)))
+	$(shell [ ! -d $(install_bindir) ] && (mkdir $(install_bindir); chmod a+rx $(install_bindir)))

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public abstract class EventHandler
+public abstract class EventHandler extends SelectorHandler
 {
     //
     // Return true if the handler is for a datagram transport, false otherwise.
@@ -26,14 +26,6 @@ public abstract class EventHandler
     // readable() returns true.
     //
     abstract public boolean read(BasicStream is);
-
-    //
-    // In Java, it's possible that the transceiver reads more data
-    // than what was really asked. If this is the case, hasMoreData()
-    // returns true and the handler read() method should be called 
-    // again (without doing a select()).
-    //
-    abstract public boolean hasMoreData();
 
     //
     // A complete message has been received.
@@ -77,4 +69,6 @@ public abstract class EventHandler
     // connection for validation.
     //
     protected BasicStream _stream;
+    boolean _serializing;
+    boolean _registered;
 }

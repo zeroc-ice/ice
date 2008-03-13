@@ -18,7 +18,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 TransceiverPtr
-IceInternal::UdpConnector::connect(int timeout)
+IceInternal::UdpConnector::connect()
 {
     return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
 }

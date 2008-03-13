@@ -28,7 +28,7 @@ class UdpConnector : public Connector
 {
 public:
     
-    virtual TransceiverPtr connect(int);
+    virtual TransceiverPtr connect();
 
     virtual Ice::Short type() const;
     virtual std::string toString() const;

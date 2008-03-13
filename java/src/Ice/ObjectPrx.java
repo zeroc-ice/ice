@@ -34,9 +34,9 @@ public interface ObjectPrx
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map __context);
 
-    void ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams);
-    void ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-                          java.util.Map context);
+    boolean ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams);
+    boolean ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
+                             java.util.Map context);
 
     Identity ice_getIdentity();
     ObjectPrx ice_identity(Identity newIdentity);
@@ -96,14 +96,11 @@ public interface ObjectPrx
     ObjectPrx ice_timeout(int t);
     ObjectPrx ice_connectionId(String connectionId);
 
-    boolean ice_isThreadPerConnection();
-    ObjectPrx ice_threadPerConnection(boolean tpc);
-
     Connection ice_getConnection();
     Connection ice_getCachedConnection();
 
     void ice_flushBatchRequests();
-    void ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
+    boolean ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
 
     boolean equals(java.lang.Object r);
 }

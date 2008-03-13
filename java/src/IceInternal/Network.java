@@ -87,28 +87,32 @@ public final class Network
         return false;
     }
 
-    //
-    // This method is not used anymore. See comments in
-    // TcpTransceiverI.java.
-    //
-//     public static boolean
-//     notConnected(java.net.SocketException ex)
-//     {
-//         String msg = ex.getMessage().toLowerCase();
-//         if(msg.indexOf("transport endpoint is not connected") != -1)
-//         {
-//             return true;
-//         }
-//         //
-//         // BUGFIX: We check for EINVAL because shutdown() under Mac OS
-//         // X returns EINVAL if the server side is gone.
-//         //
-//         else if(msg.indexOf("invalid argument") != -1)
-//         {
-//             return true;
-//         }
-//         return false;
-//     }
+    public static boolean
+    noMoreFds(java.lang.Throwable ex)
+    {
+        String msg = ex.getMessage();
+        if(msg != null)
+        {
+            msg = msg.toLowerCase();
+
+            final String[] msgs =
+            {
+                "too many open files", // EMFILE
+                "file table overflow", // ENFILE
+                "too many open files in system" // ENFILE
+            };
+
+            for(int i = 0; i < msgs.length; i++)
+            {
+                if(msg.indexOf(msgs[i]) != -1)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     public static java.nio.channels.SocketChannel
     createTcpSocket()
@@ -279,28 +283,54 @@ public final class Network
         }
     }
 
+    public static java.nio.channels.SocketChannel
+    doAccept(java.nio.channels.ServerSocketChannel afd)
+    {
+        java.nio.channels.SocketChannel fd = null;
+        while(true)
+        {
+            try
+            {
+                fd = afd.accept();
+                break;
+            }
+            catch(java.io.IOException ex)
+            {
+                if(interrupted(ex))
+                {
+                    continue;
+                }
+
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+        }
+
+        try
+        {
+            java.net.Socket socket = fd.socket();
+            socket.setTcpNoDelay(true);
+            socket.setKeepAlive(true);
+        }
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+
+        return fd;
+    }
+
     public static boolean
-    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr, int timeout)
+    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr)
     {
         try
         {
             if(!fd.connect(addr))
             {
-                if(timeout == 0)
-                {
-                    return false;
-                }
-
-                try
-                {
-                    doFinishConnect(fd, timeout);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    closeSocketNoThrow(fd);
-                    throw ex;
-                }
-                return true;
+                return false;
             }
         }
         catch(java.net.ConnectException ex)
@@ -336,74 +366,12 @@ public final class Network
     }
 
     public static void
-    doFinishConnect(java.nio.channels.SocketChannel fd, int timeout)
+    doFinishConnect(java.nio.channels.SocketChannel fd)
     {
         //
         // Note: we don't close the socket if there's an exception. It's the responsibility
         // of the caller to do so.
         //
-
-        if(timeout != 0)
-        {
-            try
-            {
-                java.nio.channels.Selector selector = java.nio.channels.Selector.open();
-                try
-                {
-                    while(true)
-                    {
-                        try
-                        {
-                            java.nio.channels.SelectionKey key = 
-                                fd.register(selector, java.nio.channels.SelectionKey.OP_CONNECT);
-                            int n;
-                            if(timeout > 0)
-                            {
-                                n = selector.select(timeout);
-                            }
-                            else
-                            {
-                                n = selector.select();
-                            }
-                            
-                            if(n == 0)
-                            {
-                                throw new Ice.ConnectTimeoutException();
-                            }
-                            
-                            break;
-                        }
-                        catch(java.io.IOException ex)
-                        {
-                            if(interrupted(ex))
-                            {
-                                continue;
-                            }
-                            Ice.SocketException se = new Ice.SocketException();
-                            se.initCause(ex);
-                            throw se;
-                        }
-                    }
-                }
-                finally
-                {
-                    try
-                    {
-                        selector.close();
-                    }
-                    catch(java.io.IOException ex)
-                    {
-                        // Ignore
-                    }
-                }
-            }
-            catch(java.io.IOException ex)
-            {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
-        }
 
         try
         {
@@ -446,7 +414,7 @@ public final class Network
     }
 
     public static void
-    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr, int timeout)
+    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr)
     {
         try
         {
@@ -949,58 +917,18 @@ public final class Network
     createPipe()
     {
         SocketPair fds = new SocketPair();
-
-        //
-        // BUGFIX: This method should really be very simple.
-        // Unfortunately, using a pipe causes a kernel crash under
-        // MacOS 10.3.9.
-        //
-        //try
-        //{
-        //   java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
-        //   fds.sink = pipe.sink();
-        //   fds.source = pipe.source();
-        //}
-        //catch(java.io.IOException ex)
-        //{
-        //   Ice.SocketException se = new Ice.SocketException();
-        //   se.initCause(ex);
-        //   throw se;
-        //}
-        //
-        
-        java.nio.channels.ServerSocketChannel fd = createTcpServerSocket();
-        
-        java.net.InetSocketAddress addr = new java.net.InetSocketAddress("127.0.0.1", 0);
-        
-        addr = doBind(fd, addr, 0);
-        
         try
         {
-            java.nio.channels.SocketChannel sink = createTcpSocket();
-            fds.sink = sink;
-            doConnect(sink, addr, -1);
-            try
-            {
-                fds.source = doAccept(fd, -1);
-            }
-            catch(Ice.LocalException ex)
-            {
-                try
-                {
-                    fds.sink.close();
-                }
-                catch(java.io.IOException e)
-                {
-                }
-                throw ex;
-            }
+          java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
+          fds.sink = pipe.sink();
+          fds.source = pipe.source();
         }
-        finally
+        catch(java.io.IOException ex)
         {
-            closeSocketNoThrow(fd);
+          Ice.SocketException se = new Ice.SocketException();
+          se.initCause(ex);
+          throw se;
         }
-        
         return fds;
     }
 

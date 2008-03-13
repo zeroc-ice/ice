@@ -157,13 +157,13 @@ public:
         return ice_invoke(operation, mode, inParams, outParams, &context);
     }
 
-    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
+    bool ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
                           const ::std::vector< ::Ice::Byte>&);
-    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
+    bool ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
                           const ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-    void ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
+    bool ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
                           const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
-    void ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode, 
+    bool ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode, 
                           const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
@@ -221,14 +221,11 @@ public:
     ::Ice::ObjectPrx ice_timeout(int) const;
     ::Ice::ObjectPrx ice_connectionId(const ::std::string&) const;
 
-    bool ice_isThreadPerConnection() const;
-    ::Ice::ObjectPrx ice_threadPerConnection(bool) const;
-
     ::Ice::ConnectionPtr ice_getConnection();
     ::Ice::ConnectionPtr ice_getCachedConnection() const;
 
     void ice_flushBatchRequests();
-    void ice_flushBatchRequests_async(const ::Ice::AMI_Object_ice_flushBatchRequestsPtr&);
+    bool ice_flushBatchRequests_async(const ::Ice::AMI_Object_ice_flushBatchRequestsPtr&);
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);

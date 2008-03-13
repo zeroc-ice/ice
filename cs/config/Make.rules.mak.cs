@@ -22,7 +22,7 @@ prefix			= C:\Ice-$(VERSION)
 # be copied to $(prefix)/bin instead.
 #
 
-#no_gac			= 1
+no_gac			= 1
 
 #
 # Ice invokes unmanaged code to implement the following features:
@@ -34,6 +34,7 @@ prefix			= C:\Ice-$(VERSION)
 # Enable MANAGED below if you do not require these features and prefer that
 # the Ice run time use only managed code.
 #
+
 #MANAGED		= yes
 
 #
@@ -44,10 +45,18 @@ prefix			= C:\Ice-$(VERSION)
 DEBUG			= yes
 
 #
-# Define OPTIMIZE as yes if you want to build with optimized.
+# Define OPTIMIZE as yes if you want to build with optimization.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
+
+#
+# Set the key file used to sign assemblies.
+#
+
+!if "$(KEYFILE)" == ""
+KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
+!endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -94,7 +103,7 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !if "$(ice_src_dist)" != ""
 SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
 !else
-SLICE2CS		= "$(ice_dir)\bin\slice2cs.exe"
+SLICE2CS		= "$(ice_dir)\bin$(x64suffix)\slice2cs.exe"
 !endif
 
 EVERYTHING		= all clean install config
@@ -108,23 +117,16 @@ EVERYTHING		= all clean install config
 {$(SDIR)\}.ice{$(GDIR)}.cs:
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
-!if "$(TARGETS_CONFIG)" != ""
-$(TARGETS_CONFIG):
-!if "$(ice_src_dist)" != ""
-	@echo Generating $(TARGETS_CONFIG) ... && \
-        python "$(top_srcdir)/config/makeconfig.py" "$(top_srcdir)" $(TARGETS_CONFIG:.exe.config=.exe)
-!else
-        @echo Generating $(TARGETS_CONFIG) ... && \
-        python "$(top_srcdir)/config/makeconfig.py" "$(ice_dir)" $(TARGETS_CONFIG:.exe.config=.exe)
-!endif
-!endif
-
+#
+# The .exe.config files are only generated if we're not building the 
+# source distribution.
+#
 all:: $(TARGETS) $(TARGETS_CONFIG)
-
-config:: $(TARGETS_CONFIG)
 
 clean::
 	del /q $(TARGETS) $(TARGETS_CONFIG) *.pdb
+
+config:: $(TARGETS_CONFIG)
 
 !if "$(GEN_SRCS)" != ""
 clean::
@@ -148,3 +150,70 @@ clean::
 !endif
 
 install::
+
+!if "$(TARGETS_CONFIG)" != ""
+
+!if "$(PUBLIC_KEY_TOKEN)" == ""
+
+!if "$(ice_src_dist)" != ""
+$(TARGETS_CONFIG):
+	@sn -q -p $(KEYFILE) tmp.pub && \
+	sn -q -t tmp.pub > tmp.publicKeyToken && \
+	set /P PUBLIC_KEY_TOKEN= < tmp.publicKeyToken && \
+	del tmp.pub tmp.publicKeyToken && \
+	nmake /nologo /f Makefile.mak config
+!else
+$(TARGETS_CONFIG):
+	@sn -q -T $(bindir)\Ice.dll > tmp.publicKeyToken && \
+	set /P PUBLIC_KEY_TOKEN= < tmp.publicKeyToken && \
+	del tmp.pub tmp.publicKeyToken && \
+	nmake /nologo /f Makefile.mak config
+!endif
+
+!else
+
+publicKeyToken = $(PUBLIC_KEY_TOKEN:Public key token is =)
+$(TARGETS_CONFIG):
+        @echo "Generating" <<$@ "..."
+<?xml version="1.0"?>
+  <configuration>
+    <runtime>
+      <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+        <dependentAssembly>
+          <assemblyIdentity name="Glacier2" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\Glacier2.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="Ice" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\Ice.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IcePatch2" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IcePatch2.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceStorm" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceStorm.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceBox" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceBox.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceGrid" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceGrid.dll"/>
+        </dependentAssembly>
+        <dependentAssembly>
+          <assemblyIdentity name="IceSSL" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="$(INTVERSION).0" href="$(bindir)\IceSSL.dll"/>
+        </dependentAssembly>
+	<qualifyAssembly partialName="IceSSL" fullName="IceSSL, Version=$(INTVERSION).0, Culture=neutral, PublicKeyToken=$(publicKeyToken)"/>
+    </assemblyBinding>
+  </runtime>
+</configuration>
+<<KEEP
+
+!endif
+
+!endif
+

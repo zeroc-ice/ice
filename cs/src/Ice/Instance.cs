@@ -235,12 +235,6 @@ namespace IceInternal
             }
         }
 
-        public bool threadPerConnection()
-        {
-            // No mutex lock, immutable.
-            return _threadPerConnection;
-        }
-
         public bool background()
         {
             // No mutex lock, immutable.
@@ -696,9 +690,6 @@ namespace IceInternal
                 _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
                 _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
-
-                _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
-
                 _background = _initData.properties.getPropertyAsInt("Ice.Background") > 0;
 
                 _routerManager = new RouterManager();
@@ -1037,7 +1028,6 @@ namespace IceInternal
         private ThreadPool _serverThreadPool;
         private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
-        private bool _threadPerConnection;
         private bool _background;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;

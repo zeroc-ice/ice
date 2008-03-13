@@ -183,7 +183,7 @@ public:
     {
         while(true)
         {
-            int res;
+            int res = 0;
             // This is a poll.
             bool tout = _q->timedGet(res, Time::seconds(0));
             _dog->touch(!tout);

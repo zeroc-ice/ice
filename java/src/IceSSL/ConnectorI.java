@@ -12,7 +12,7 @@ package IceSSL;
 final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
 {
     public IceInternal.Transceiver
-    connect(int timeout)
+    connect()
     {
         //
         // The plugin may not be fully initialized.
@@ -35,7 +35,7 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
             java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
             IceInternal.Network.setBlock(fd, false);
             IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
-            boolean connected = IceInternal.Network.doConnect(fd, _addr, timeout);
+            boolean connected = IceInternal.Network.doConnect(fd, _addr);
             try
             {
                 javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false);

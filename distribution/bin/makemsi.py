@@ -12,9 +12,11 @@ import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
 import textwrap
 
-iceVersion = '3.3.0'
+iceVersion = '3.3b'
 looksVersion = '2.1.4'
 formsVersion = '1.2.0'
+
+timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
 
 resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "src", "windows")
 sys.path.append(resources)
@@ -172,18 +174,19 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
     if installVersion == "vc80" or installVersion == "vc90":
      
         #
-        # Ice for C#
+        # Ice for .NET
         #
-        os.chdir(os.path.join(sourcesDir, "debug", "Ice-%s" % iceVersion, "cs" ))
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cs" ))
         print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         runprog("nmake /f Makefile.mak")
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cs", "demo"))
+        runprog("nmake /f Makefile.mak config")
 
         #
         # Ice for Java
         #
-
         jgoodiesLooks = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', "looks-%s.jar" % looksVersion) 
         jgoodiesForms = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', "forms-%s.jar" % formsVersion) 
         dbJar = os.path.join(os.environ['THIRDPARTY_HOME'], 'lib', 'db.jar') 
@@ -312,7 +315,7 @@ def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
     installVersion = installVersion.upper()
 
     #
-    # Build and copy to the stage directory root.
+    # Build msi
     #
     os.chdir(startDir)
     for project, release in installers:
@@ -322,7 +325,7 @@ def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
         else:
             msi = "Ice-" + iceVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
-        shutil.copy(msiPath, stageDir)
+        runprog('signtool sign /f ' + os.environ['PFX_FILE'] + ' /p ' + os.environ['PFX_PASSWORD'] + ' /t ' + timeStampingURL + ' ' + msiPath)
 
 def environToString(tbl):
     '''Convert an environment hashtable to the typical k=v format'''
@@ -359,7 +362,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
-                "logfile", "vc60", "vc80", "vc90", "thirdpartyhome=", "sources=", "buildDir="])
+                "logfile", "vc60", "vc80", "vc90", "thirdpartyhome=", "sources=", "buildDir=", "pfxfile=", "pfxpassword="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -396,6 +399,10 @@ def main():
                 target = 'vc80'
             elif o == '--vc90':
                 target = 'vc90'
+            elif o == '--pfxfile':
+                os.environ['PFX_FILE'] = a
+            elif o == '--pfxpassword':
+                os.environ['PFX_PASSWORD'] = a
             elif o == '--sources':
                 os.environ['SOURCES'] = a
             elif o == '--buildDir':
@@ -463,6 +470,7 @@ def main():
             defaults['installdir'] = "C:\\Ice-%s-%s" % (iceVersion, target.upper())
 
         defaults['OutDir'] = ''
+        defaults['timeStampingURL'] = timeStampingURL
 
         if os.path.exists(stageDir):
             try:

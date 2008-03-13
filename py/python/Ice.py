@@ -12,7 +12,7 @@
 Ice module
 """
 
-import sys, exceptions, string, imp, os, threading, warnings
+import sys, exceptions, string, imp, os, threading, warnings, datetime
 
 try:
     import dl
@@ -99,7 +99,69 @@ class UserException(Exception):
     pass
 
 #
-# Utilities.
+# Convenience function for locating the directory containing the Slice files.
+#
+def getSliceDir():
+    #
+    # Check for <ICE_HOME>/slice first.
+    #
+    if os.environ.has_key("ICE_HOME"):
+        dir = os.path.join(os.environ["ICE_HOME"], "slice")
+        if os.path.exists(dir):
+            return dir
+
+    #
+    # Get the parent of the directory containing this file (Ice.py).
+    #
+    pyHome = os.path.join(os.path.dirname(__file__), "..")
+
+    #
+    # For an installation from a source distribution, a binary tarball, or a
+    # Windows installer, the "slice" directory is a sibling of the "python"
+    # directory.
+    #
+    dir = os.path.join(pyHome, "slice")
+    if os.path.exists(dir):
+        return os.path.normpath(dir)
+
+    #
+    # In a source distribution, the "slice" directory is one level higher.
+    #
+    dir = os.path.join(pyHome, "..", "slice")
+    if os.path.exists(dir):
+        return os.path.normpath(dir)
+
+    iceVer = version()
+
+    #
+    # Check platform-specific locations.
+    #
+    if sys.platform[:6] == "cygwin" or sys.platform == "win32":
+        dir = os.path.join("\\", "Ice-" + iceVer, "slice")
+        if os.path.exists(dir):
+            return dir
+        dir = os.path.join("C:\\", "Ice-" + iceVer, "slice")
+        if os.path.exists(dir):
+            return dir
+    else:
+        if sys.platform[:5] == "linux":
+            #
+            # Check the default RPM location.
+            #
+            dir = os.path.join("usr", "share", "Ice-" + iceVer, "slice")
+            if os.path.exists(dir):
+                return dir
+        #
+        # Check in /opt.
+        #
+        dir = os.path.join("opt", "Ice-" + iceVer, "slice")
+        if os.path.exists(dir):
+            return dir
+
+    return None
+
+#
+# Utilities for use by generated code.
 #
 def openModule(name):
     if sys.modules.has_key(name):
@@ -599,7 +661,7 @@ class CtrlCHandler(threading.Thread):
             signal.signal(signal.SIGHUP, signal.SIG_DFL)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
-        self._self = None
+        CtrlCHandler._self = None
 
     def setCallback(self, callback):
         self._condVar.acquire()
@@ -624,6 +686,45 @@ class CtrlCHandler(threading.Thread):
     signalHandler = classmethod(signalHandler)
 
 #
+# Application logger.
+#
+class ApplicationLoggerI(Logger):
+    def __init__(self, prefix):
+        if len(prefix) > 0:
+            self._prefix = prefix + ": "
+        else:
+            self._prefix = ""
+        self._outputMutex = threading.Lock()
+
+    def _print(self, message):
+        s = "[ " + str(datetime.datetime.now()) + " " + self._prefix
+        self._outputMutex.acquire()
+        sys.stderr.write(message + "\n")
+        self._outputMutex.release()
+
+    def trace(self, category, message):
+        s = "[ " + str(datetime.datetime.now()) + " " + self._prefix
+        if len(category) > 0:
+            s += category + ": "
+        s += message + " ]"
+
+        s = s.replace("\n", "\n  ")
+
+        self._outputMutex.acquire()
+        sys.stderr.write(s + "\n")
+        self._outputMutex.release()
+
+    def warning(self, message):
+        self._outputMutex.acquire()
+        sys.stderr.write(str(datetime.datetime.now()) + " " + self._prefix + "warning: " + message + "\n")
+        self._outputMutex.release()
+
+    def error(self, message):
+        self._outputMutex.acquire()
+        sys.stderr.write(str(datetime.datetime.now()) + " " + self._prefix + "error: " + message + "\n")
+        self._outputMutex.release()
+
+#
 # Application class.
 #
 import signal, traceback
@@ -640,6 +741,27 @@ class Application(object):
             return 1
 
         #
+        # We parse the properties here to extract Ice.ProgramName.
+        #
+        if not initData:
+            initData = InitializationData()
+        if configFile:
+            try:
+                initData.properties = createProperties(None, initData.properties)
+                initData.properties.load(configFile)
+            except:
+                traceback.print_exc()
+                return 1
+        initData.properties = createProperties(args, initData.properties)
+
+        #
+        #  If the process logger is the default logger, we replace it with a
+        #  a logger which is using the program name for the prefix.
+        #
+        if isinstance(getProcessLogger(), LoggerI):
+            setProcessLogger(ApplicationLoggerI(initData.properties.getProperty("Ice.ProgramName")))
+
+        #
         # Install our handler for the signals we are interested in. We assume main()
         # is called from the main thread.
         #
@@ -650,12 +772,6 @@ class Application(object):
 
             Application._interrupted = False
             Application._appName = args[0]
-
-            if not initData:
-                initData = InitializationData()
-            if configFile:
-                initData.properties = createProperties()
-                initData.properties.load(configFile)
             Application._application = self
             Application._communicator = initialize(args, initData)
             Application._destroyed = False

@@ -12,8 +12,9 @@
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.3.0
-SOVERSION		= 33
+VERSION			= 3.3b
+INTVERSION		= 3.3.51
+SOVERSION		= 33b
 
 OBJEXT			= .obj
 
@@ -26,6 +27,10 @@ OBJEXT			= .obj
 
 !if "$(USE_BIN_DIST)" == "yes"
 ice_bin_dist = 1
+!endif
+
+!if "$(AS)" == "ml64" || "$(XTARGET)" == "x64"
+x64suffix		= \x64
 !endif
 
 #
@@ -91,13 +96,13 @@ ice_cpp_dir = $(ice_dir)\cpp
 !endif
 
 !if "$(ICE_HOME)" != ""
-!if !exist ($(ICE_HOME)\bin\$(slice_translator))
+!if !exist ($(ICE_HOME)\bin$(x64suffix)\$(slice_translator))
 !error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 ice_dir = $(ICE_HOME)
 !elseif exist ($(top_srcdir)/bin/$(slice_translator))
 ice_dir = $(top_srcdir)
-!elseif exist ("C:\Ice-$(VERSION)\bin\$(slice_translator)")
+!elseif exist ("C:\Ice-$(VERSION)\bin$(x64suffix)\$(slice_translator)")
 ice_dir = C:\Ice-$(VERSION)
 !endif
 

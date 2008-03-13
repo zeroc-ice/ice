@@ -16,6 +16,8 @@ resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "s
 sys.path.append(resources)
 import components
 
+iceVersion = '3.3b'
+
 #
 # Current default third party library versions.
 #
@@ -25,6 +27,8 @@ STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
 DBVer = '4.6.21'
 MCPPVer = '2.6.4'
+
+timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
 
 class DistEnvironmentError:
     def __init__(self, msg = None):
@@ -232,7 +236,7 @@ def convertLicensesToRTF(toolDir, installTarget):
     rtflicense.writelines(rtfftr)
     rtflicense.close()
 
-def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
+def buildMergeModules(startDir, stageDir, iceVersion, installVersion):
     """Build third party merge modules."""
     modules = [
         ("BerkeleyDBDevKit", "BERKELEYDB_DEV_KIT"),
@@ -272,7 +276,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     # modules at one point, like redistributing them?</brent>
     #
 
-    zipPath = "ThirdPartyMergeModules-" + sourcesVersion + "-" + installVersion.upper() + ".zip"
+    zipPath = "ThirdPartyMergeModules-" + iceVersion + "-" + installVersion.upper() + ".zip"
     zip = zipfile.ZipFile(os.path.join(stageDir, zipPath), 'w')
     for project, release in modules:
         msm = project + "." + installVersion.upper() + ".msm"
@@ -280,22 +284,22 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
         zip.write(msmPath, os.path.basename(msmPath))
     zip.close()
 
-def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installers):
+def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
 
     installVersion = installVersion.upper()
 
     #
-    # Build and copy to the stage directory root.
+    # Build msi
     #
     os.chdir(startDir)
     for project, release in installers:
         runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
         if project == "Ice":
-            msi = project + "-" + sourcesVersion + "-" + installVersion + ".msi"
+            msi = project + "-" + iceVersion + "-" + installVersion + ".msi"
         else:
-            msi = "Ice-" + sourcesVersion + "-" + project + "-" + installVersion + ".msi"
+            msi = "Ice-" + iceVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
-        shutil.copy(msiPath, stageDir)
+        runprog('signtool sign /f ' + os.environ['PFX_FILE'] + ' /p ' + os.environ['PFX_PASSWORD'] + ' /t ' + timeStampingURL + ' ' + msiPath)
 
 def environToString(tbl):
     '''Convert an environment hashtable to the typical k=v format'''
@@ -333,7 +337,7 @@ def main():
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
                 "logfile", "vc60", "vc80", "vc90", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
-                "bzip2home=", "mcpphome=", "jgoodiesformshome=", "jgoodieslookshome=", "thirdparty="])
+                "bzip2home=", "mcpphome=", "jgoodiesformshome=", "jgoodieslookshome=", "pfxfile=", "pfxpassword="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -364,6 +368,10 @@ def main():
                 target = 'vc80'
             elif o == '--vc90':
                 target = 'vc90'
+            elif o == '--pfxfile':
+                os.environ['PFX_FILE'] = a
+            elif o == '--pfxpassword':
+                os.environ['PFX_PASSWORD'] = a
             elif o == '--sslhome':
                 os.environ['OPENSSL_HOME'] = a
             elif o == '--expathome':
@@ -427,21 +435,14 @@ def main():
 
         environmentCheck(target)
 
-      
-
         logging.debug(environToString(os.environ))
-
-     
-        sourcesVersion = '3.3.0'
 
         defaults = os.environ
         defaults['dbver'] = '46'
-        defaults['version'] = sourcesVersion
-        defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
-        if sourcesVersion.find('b') != -1:
-            defaults['dllversion'] = defaults['dllversion'] + 'b'
-
+        defaults['version'] = iceVersion
+       
         defaults['OutDir'] = ''
+        defaults['timeStampingURL'] = timeStampingURL
 
         if os.path.exists(stageDir):
             try:
@@ -472,8 +473,8 @@ libraries."""
         # Build the merge module projects.
         #
        
-        buildMergeModules(targetDir, stageDir, sourcesVersion, target)
-        buildInstallers(targetDir, stageDir, sourcesVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
+        buildMergeModules(targetDir, stageDir, iceVersion, target)
+        buildInstallers(targetDir, stageDir, iceVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
 
     finally:
         #

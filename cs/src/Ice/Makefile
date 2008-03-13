@@ -129,10 +129,12 @@ GDIR		= generated
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
-MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
+MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 ifeq ($(MANAGED),yes)
     MCSFLAGS	:= $(MCSFLAGS) -define:MANAGED
+else
+    MCSFLAGS    := $(MCSFLAGS) -unsafe+
 endif
 
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
@@ -141,7 +143,6 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
 
 install:: all
-	$(call installassembly,$(TARGETS),$(PKG))
-	$(call installdata,$(bindir)/Ice.dll.config,$(install_bindir))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)))
 
 include .depend

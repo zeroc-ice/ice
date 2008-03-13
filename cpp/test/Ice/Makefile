@@ -30,7 +30,6 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  servantLocator \
-		  threads \
                   interceptor \
                   stringConverter \
 	  	  background

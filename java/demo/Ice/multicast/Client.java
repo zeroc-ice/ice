@@ -30,7 +30,6 @@ public class Client extends Ice.Application
         discover.lookup(reply);
         Ice.ObjectPrx base = replyI.waitReply(2000);
 
-
         if(base == null)
         {
             System.err.println(appName() + ": no replies");

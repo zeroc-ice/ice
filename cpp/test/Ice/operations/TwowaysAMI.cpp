@@ -251,8 +251,8 @@ public:
         test(c1->ice_getIdentity() == _communicator->stringToIdentity("test"));
         test(c2->ice_getIdentity() == _communicator->stringToIdentity("noSuchIdentity"));
         test(r->ice_getIdentity() == _communicator->stringToIdentity("test"));
-        // We can't do the callbacks below in thread per connection mode.
-        if(!_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
+        // We can't do the callbacks below in connection serialization mode.
+        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
         {
             r->opVoid();
             c1->opVoid();
@@ -296,8 +296,8 @@ public:
         test(rso.s.s == "def");
         test(so.e == Test::enum3);
         test(so.s.s == "a new string");
-        // We can't do the callbacks below in thread per connection mode.
-        if(!_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
+        // We can't do the callbacks below in connection serialization mode.
+        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
         {
             so.p->opVoid();
         }
@@ -881,7 +881,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         AMI_MyClass_opVoidExIPtr cb = new AMI_MyClass_opVoidExI;
         try 
         {
-            indirect->opVoid_async(cb);
+            test(!indirect->opVoid_async(cb));
         }
         catch(const Ice::Exception&)
         {
@@ -897,7 +897,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         AMI_MyClass_opByteExIPtr cb = new AMI_MyClass_opByteExI;
         try
         {
-            indirect->opByte_async(cb, 0, 0);
+            test(!indirect->opByte_async(cb, 0, 0));
         }
         catch(const Ice::Exception&)
         {
@@ -928,7 +928,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
         try
         {
-            p2->opVoid_async(cb);
+            test(!p2->opVoid_async(cb));
             test(false);
         }
         catch(const Ice::CommunicatorDestroyedException&)

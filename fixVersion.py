@@ -206,6 +206,7 @@ if not patchIceE:
     
     fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules.mak"),
                         [("VERSION[\t\s]*= " + vpatMatch, version),
+                         ("INTVERSION[\t\s]*= " + vpatMatch, majorVersion(version) + "." + minorVersion(version) + \                                                                 "." + patchVersion(version))),
                          ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
     fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "ice.spec"),
@@ -237,11 +238,21 @@ if not patchIceE:
 
         fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
+
+        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated2", "config.ib1"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated2", "config.ib2"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated2", "config.ib3"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
         
         fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated", "application.xml"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
         fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
+
+        fileMatchAndReplace(os.path.join(ice_home, "test", "IceStorm", "repgrid", "application.xml"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
     #

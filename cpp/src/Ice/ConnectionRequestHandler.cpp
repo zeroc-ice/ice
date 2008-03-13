@@ -69,10 +69,10 @@ ConnectionRequestHandler::sendRequest(Outgoing* out)
     }
 }
 
-void
+bool
 ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
 {
-    _connection->sendAsyncRequest(out, _compress, _response);
+    return _connection->sendAsyncRequest(out, _compress, _response);
 }
 
 bool
@@ -81,10 +81,10 @@ ConnectionRequestHandler::flushBatchRequests(BatchOutgoing* out)
     return _connection->flushBatchRequests(out);
 }
 
-void
+bool
 ConnectionRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& out)
 {
-    _connection->flushAsyncBatchRequests(out);
+    return _connection->flushAsyncBatchRequests(out);
 }
 
 Ice::ConnectionIPtr

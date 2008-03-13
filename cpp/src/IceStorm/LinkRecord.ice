@@ -28,9 +28,6 @@ struct LinkRecord
     Topic* theTopic;  // The linked topic for getLinkInfoSeq
 };
 
-/** Dictionary of link name to link record. */
-sequence<LinkRecord> LinkRecordSeq;
-
 }; // End module IceStorm
 
 #endif

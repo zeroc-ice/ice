@@ -62,31 +62,6 @@ namespace IceSSL
             }
         }
 
-        public IceInternal.Transceiver accept(int timeout)
-        {
-            //
-            // The plugin may not be fully initialized.
-            //
-            if(!_instance.initialized())
-            {
-                Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: plugin is not initialized";
-                throw ex;
-            }
-
-            Socket fd = IceInternal.Network.doAccept(_fd, timeout);
-            IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
-            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
-
-            if(_instance.networkTraceLevel() >= 1)
-            {
-                string s = "attempting to accept ssl connection\n" + IceInternal.Network.fdToString(fd);
-                _logger.trace(_instance.networkTraceCategory(), s);
-            }
-
-            return new TransceiverI(_instance, fd, null, true, null, _adapterName);
-        }
-
         public IAsyncResult beginAccept(AsyncCallback callback, object state)
         {
             //
@@ -131,28 +106,6 @@ namespace IceSSL
             }
 
             return new TransceiverI(_instance, fd, null, true, null, _adapterName);
-        }
-
-        public void connectToSelf()
-        {
-            Socket fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
-            IceInternal.Network.setBlock(fd, false);
-            //
-            // .Net does not allow connecting to 0.0.0.0
-            //
-            if(_addr.Address.Equals(IPAddress.Any))
-            {
-                IceInternal.Network.doConnect(fd, new IPEndPoint(IPAddress.Loopback, _addr.Port), -1);
-            }
-            else if(_addr.Address.Equals(IPAddress.IPv6Any))
-            {
-                IceInternal.Network.doConnect(fd, new IPEndPoint(IPAddress.IPv6Loopback, _addr.Port), -1);
-            }
-            else
-            {
-                IceInternal.Network.doConnect(fd, _addr, -1);
-            }
-            IceInternal.Network.closeSocket(fd);
         }
 
         public override string ToString()

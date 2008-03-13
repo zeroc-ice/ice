@@ -159,7 +159,13 @@ ifeq ($(CXX),icpc)
 
 endif
 
-BASELIBS		= -lIceUtil $(STLPORT_LIBS) -L/usr/lib/nptl -lpthread -lrt
+ifeq ($(LP64),yes)
+    NPTL_LIB		= /usr/lib64/nptl
+else
+    NPTL_LIB		= /usr/lib/nptl
+endif
+
+BASELIBS		= -lIceUtil $(STLPORT_LIBS) -L$(NPTL_LIB) -lpthread -lrt
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = 

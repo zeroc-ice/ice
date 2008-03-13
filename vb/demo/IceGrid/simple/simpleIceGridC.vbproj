@@ -73,12 +73,11 @@
   <ItemGroup>
     <Reference Include="Ice">
       <Name>Ice</Name>
-      <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="IceGrid">
       <Name>IceGrid</Name>
-      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\IceGrid.dll</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\IceGrid.dll</HintPath>
+      <HintPath>..\..\..\..\cs\bin\IceGrid.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

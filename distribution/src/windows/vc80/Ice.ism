@@ -51,8 +51,8 @@
 	
 	<summary>
 		<codepage>1252</codepage>
-		<title>Installation Database</title>
-		<subject>Ice 3.3.0 for Visual Studio 2005</subject>
+		<title>##ID_STRING42##</title>
+		<subject>Ice 3.3 beta for Visual Studio 2005</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING32##</comments>
@@ -342,16 +342,9 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
+		<row><td>AdminRegistryComponent</td><td>{44AF097C-4731-4562-B23D-D00E062D674D}</td><td>INSTALLDIR</td><td>8</td><td>AdminUser</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>BerkeleyDBDebugDLL</td><td>{54612099-D38E-4A37-BC8F-5B09F9DF2276}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>Bzip2DebugDLL</td><td>{B2E79ABA-4D50-479C-AD38-DDD8E1CEE0CD}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_glacier2cs</td><td>{53C9CFD7-57A7-4C63-8000-938EE2C0EBF6}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;= "2.0"</td><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_iceboxcs</td><td>{8C3C3EFF-B2EA-4C14-B5E8-108527E8F71D}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>iceboxcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icecs</td><td>{FB8FD85C-EC0E-4A07-BC20-A96EF1F44909}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt; "2.0"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icegridcs</td><td>{56E42CD0-C070-48BE-A5F5-5698330D04D7}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icegridcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icepatch2cs</td><td>{7F6E4D01-1F91-4D8B-BA25-8A494FEE18C6}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icestormcs</td><td>{E0F3C7F7-AFDD-41CA-B306-EA539739A9CB}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_registry</td><td>{B945C231-EF78-4737-8C8B-97DB5C086FFD}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>ISRegistryComponent</td><td>{44AF097C-4731-4562-B23D-D00E062D674D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpDemo</td><td>{A4BB2878-87EF-462B-B1D0-EF5A859702FA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpDev</td><td>{A7182719-2C34-4246-8C00-C0673BE6EBF4}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpRuntime</td><td>{4CA76E20-D92E-476E-A858-C93C152AC964}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -367,13 +360,13 @@
 		<row><td>IcePythonDev</td><td>{DBEF9446-CEED-4917-B5A1-D8E7A4220A1D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IcePythonRuntime</td><td>{3AD51C61-A673-45A1-89AD-AA473FB32078}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceVBasicDemo</td><td>{AC62A141-A625-471F-8E97-9B3D3608E463}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>NonAdminRegistryComponent</td><td>{F0EC77F5-3EF9-4B4F-B3BF-F267D9253129}</td><td>INSTALLDIR</td><td>8</td><td>NOT AdminUser</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="i2">Level</col>
 		<col def="S255">Condition</col>
-		<row><td>IceGAC</td><td>200</td><td>(Not AdminUser) OR  (MsiNetAssemblySupport &lt; "2.0")</td></row>
 		<row><td>MS.CRT.x86</td><td>200</td><td>Not AdminUser</td></row>
 	</table>
 
@@ -985,8 +978,8 @@
 	<table name="CreateFolder">
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
-		<row><td>GlobalAssemblyCache</td><td>GAC_registry</td></row>
-		<row><td>INSTALLDIR</td><td>ISRegistryComponent</td></row>
+		<row><td>INSTALLDIR</td><td>AdminRegistryComponent</td></row>
+		<row><td>INSTALLDIR</td><td>NonAdminRegistryComponent</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -998,11 +991,8 @@
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
 		<row><td>ClearAllUsers</td><td>51</td><td>ALLUSERS</td><td>{}</td><td/></row>
-		<row><td>CopyAssemblyPDBs</td><td>1586</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2,ice,icepatch2,icestorm,icegrid, icebox, icessl) DO copy [INSTALLDIR]bin\%f.pdb [WindowsFolder]assembly\GAC_MSIL\%f\3.3.0.0__1f998c50fec78381</td><td/></row>
-		<row><td>RemoveAssemblyPDBs</td><td>1394</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2,ice,icepatch2,icestorm,icegrid, icebox, icessl) DO del /q [WindowsFolder]assembly\GAC_MSIL\%f\3.3.0.0__1f998c50fec78381\%f.pdb</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
-		<row><td>UninstallAssemblyPDBs</td><td>1650</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2,ice,icepatch2,icestorm,icegrid, icebox, icessl) DO del /q [WindowsFolder]assembly\GAC_MSIL\%f\3.3.0.0__1f998c50fec78381\%f.pdb</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
 		<row><td>setUserProfileNT</td><td>51</td><td>USERPROFILE</td><td>[%USERPROFILE]</td><td/></row>
 	</table>
@@ -1073,7 +1063,7 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GAC</td><td>ASSEMBLY</td><td>GAC</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.3.0</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3.0</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3b</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.3.0</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1122,7 +1112,6 @@
 		<col def="l255">Name</col>
 		<col def="L255">Value</col>
 		<col def="s72">Component_</col>
-		<row><td>NewEnvironment1</td><td>##ID_STRING15##</td><td/><td>IceCppRuntime</td></row>
 	</table>
 
 	<table name="Error">
@@ -1306,13 +1295,13 @@
 		<col def="S255">ISFeatureCabName</col>
 		<col def="S255">ISProFeatureName</col>
 		<row><td>Ice</td><td/><td>##ID_STRING36##</td><td>##ID_STRING37##</td><td>26</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
-		<row><td>IceGAC</td><td/><td>##ID_STRING38##</td><td>##ID_STRING39##</td><td>28</td><td>1</td><td>GAC</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>MS.CRT.x86</td><td/><td>##ID_STRING40##</td><td>##ID_STRING41##</td><td>30</td><td>1</td><td>WINSXS</td><td>8</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="FeatureComponents">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
+		<row><td>Ice</td><td>AdminRegistryComponent</td></row>
 		<row><td>Ice</td><td>BerkeleyDBDebugDLL</td></row>
 		<row><td>Ice</td><td>Bzip2DebugDLL</td></row>
 		<row><td>Ice</td><td>IceCSharpDemo</td></row>
@@ -1330,14 +1319,7 @@
 		<row><td>Ice</td><td>IcePythonDev</td></row>
 		<row><td>Ice</td><td>IcePythonRuntime</td></row>
 		<row><td>Ice</td><td>IceVBasicDemo</td></row>
-		<row><td>IceGAC</td><td>GAC_glacier2cs</td></row>
-		<row><td>IceGAC</td><td>GAC_iceboxcs</td></row>
-		<row><td>IceGAC</td><td>GAC_icecs</td></row>
-		<row><td>IceGAC</td><td>GAC_icegridcs</td></row>
-		<row><td>IceGAC</td><td>GAC_icepatch2cs</td></row>
-		<row><td>IceGAC</td><td>GAC_icestormcs</td></row>
-		<row><td>IceGAC</td><td>GAC_registry</td></row>
-		<row><td>MS.CRT.x86</td><td>ISRegistryComponent</td></row>
+		<row><td>Ice</td><td>NonAdminRegistryComponent</td></row>
 	</table>
 
 	<table name="File">
@@ -1352,12 +1334,6 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
-		<row><td>glacier2cs.dll</td><td>GAC_glacier2cs</td><td>GLACIE~1.DLL|glacier2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\glacier2cs.dll</td><td>1</td><td/></row>
-		<row><td>iceboxcs.dll</td><td>GAC_iceboxcs</td><td>iceboxcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\iceboxcs.dll</td><td>1</td><td/></row>
-		<row><td>icecs.dll</td><td>GAC_icecs</td><td>icecs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icecs.dll</td><td>1</td><td/></row>
-		<row><td>icegridcs.dll</td><td>GAC_icegridcs</td><td>ICEGRI~1.DLL|icegridcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icegridcs.dll</td><td>1</td><td/></row>
-		<row><td>icepatch2cs.dll</td><td>GAC_icepatch2cs</td><td>ICEPAT~1.DLL|icepatch2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icepatch2cs.dll</td><td>1</td><td/></row>
-		<row><td>icestormcs.dll</td><td>GAC_icestormcs</td><td>ICESTO~1.DLL|icestormcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icestormcs.dll</td><td>1</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -1510,16 +1486,9 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
+		<row><td>AdminRegistryComponent</td><td/><td/><td>_BDAB47CC_F4BC_41E8_8C2D_408CACB43B8B_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>BerkeleyDBDebugDLL</td><td/><td/><td>_B4782BA7_9109_48F5_8792_7EBC8BD789A2_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>Bzip2DebugDLL</td><td/><td/><td>_87A4878B_CD50_454E_A851_679C18BF1542_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_glacier2cs</td><td/><td/><td>_6791A0B1_69E0_496B_BBBB_6DD59B697B46_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_iceboxcs</td><td/><td/><td>_103DC124_CCF8_4E14_9DDB_6F0DB7AA434D_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icecs</td><td/><td/><td>_600A5FAE_4674_435B_8700_897F353856EE_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icegridcs</td><td/><td/><td>_C97E7F94_F395_4FC5_B575_F7AF91780FBB_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icepatch2cs</td><td/><td/><td>_4148F83B_B26E_4415_A51D_5580DE431AFC_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icestormcs</td><td/><td/><td>_74B66A95_80BE_43A1_9A2E_508B6CBB795E_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_registry</td><td/><td/><td>_BD3CFD91_5B86_4986_8C18_2B0C4639FCA8_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>ISRegistryComponent</td><td/><td/><td>_BDAB47CC_F4BC_41E8_8C2D_408CACB43B8B_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpDemo</td><td/><td/><td>_7DD0A005_2547_4846_B573_62AFE1194756_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpDev</td><td/><td/><td>_3471DDA3_D6D8_440C_837A_1DF61C7914ED_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpRuntime</td><td/><td/><td>_6805EC31_B95D_4271_9CAF_B0A3E38CF543_FILTER</td><td/><td/><td/><td/></row>
@@ -1535,6 +1504,7 @@
 		<row><td>IcePythonDev</td><td/><td/><td>_37D67ECC_6F7F_43FB_A312_4B2BC92EBA4E_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IcePythonRuntime</td><td/><td/><td>_EC956E1E_E548_4E9D_A837_18AB200F9E4D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceVBasicDemo</td><td/><td/><td>_955C0399_0F87_4B8F_84C1_607A66776625_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>NonAdminRegistryComponent</td><td/><td/><td>_27C2561D_DDEF_411D_8D28_A66627CC177D_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -1775,9 +1745,6 @@
 		<row><td>ISProductFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectDataFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
-		<row><td>IceAssemblyPublicKey</td><td>1f998c50fec78381</td><td/><td>2</td></row>
-		<row><td>IceAssemblyVersion</td><td>3.3.0.0</td><td/><td>2</td></row>
-		<row><td>PATH_TO_TEMP_FILES</td><td>F:\temp</td><td/><td>2</td></row>
 		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
 		<row><td>SystemFolder</td><td/><td/><td>1</td></row>
 		<row><td>WindowsFolder</td><td/><td/><td>1</td></row>
@@ -1801,7 +1768,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-VC80</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3b-VC80</td></row>
 		<row><td>ZEROC</td><td>PackageCode</td><td>{609F1FBF-C54E-44EC-9B8A-97AB8B3DAD0B}</td></row>
 		<row><td>ZEROC</td><td>ProductCode</td><td>{DB52AD39-F307-4F99-BD42-13EC77E6B4AB}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
@@ -2466,16 +2433,20 @@
 		<row><td>ID_STRING30</td><td>1033</td><td>NOTE: You must be an Admin user and have the .NET 2.0 Framework installed in order to correctly install Ice for .NET.</td><td>0</td><td/><td>1234811028</td></row>
 		<row><td>ID_STRING31</td><td>1033</td><td>InstallShield has detected that you are not an Admin user. You will not be able to install the Ice for .NET assemblies in the GAC as a result.</td><td>0</td><td/><td>563929711</td></row>
 		<row><td>ID_STRING32</td><td>1033</td><td>The Internet Communications Engine (Ice) runtimes, tools, files and libraries for developing Ice applications.</td><td>0</td><td/><td>1234812724</td></row>
-		<row><td>ID_STRING33</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2005</td><td>0</td><td/><td>890860527</td></row>
+		<row><td>ID_STRING33</td><td>1033</td><td>Ice 3.3 beta for Visual Studio 2005</td><td>0</td><td/><td>890860527</td></row>
 		<row><td>ID_STRING34</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234802195</td></row>
-		<row><td>ID_STRING35</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2005</td><td>0</td><td/><td>1712981485</td></row>
+		<row><td>ID_STRING35</td><td>1033</td><td>Ice 3.3 beta for Visual Studio 2005</td><td>0</td><td/><td>1712981485</td></row>
 		<row><td>ID_STRING36</td><td>1033</td><td>Ice for C++, Java, .NET and Python</td><td>0</td><td/><td>563881742</td></row>
 		<row><td>ID_STRING37</td><td>1033</td><td>All you need to run and develop Ice for C++, Java, .NET and Python applications</td><td>0</td><td/><td>563879726</td></row>
 		<row><td>ID_STRING38</td><td>1033</td><td>Ice for .NET assemblies (GAC)</td><td>0</td><td/><td>563886389</td></row>
 		<row><td>ID_STRING39</td><td>1033</td><td>Shared Ice for .NET assemblies for the Global Assembly Cache. You must be an Admin user and have the .NET 2.0 Framework installed in order to correctly install this feature.</td><td>0</td><td/><td>563917263</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING40</td><td>1033</td><td>Microsoft C/C++ runtime x86</td><td>0</td><td/><td>563925071</td></row>
-		<row><td>ID_STRING41</td><td>1033</td><td>Shared installation of the Microsoft C/C++ runtime for x86</td><td>0</td><td/><td>563877999</td></row>
+		<row><td>ID_STRING41</td><td>1033</td><td>Install this feature to run Ice for C++ executables on a system without Visual Studio</td><td>0</td><td/><td>1369226160</td></row>
+		<row><td>ID_STRING42</td><td>1033</td><td>Ice 3.3 beta for Visual Studio 2005</td><td>0</td><td/><td>1369200943</td></row>
+		<row><td>ID_STRING43</td><td>1033</td><td>support@zeroc.com</td><td>0</td><td/><td>1369178447</td></row>
+		<row><td>ID_STRING44</td><td>1033</td><td>http://www.zeroc.com/support.html</td><td>0</td><td/><td>1369192815</td></row>
+		<row><td>ID_STRING45</td><td>1033</td><td>+1 561 283-1480</td><td>0</td><td/><td>1369205103</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
 		<row><td>ID_STRING6</td><td>1033</td><td>Ice for Java</td><td>0</td><td/><td>1234824659</td></row>
 		<row><td>ID_STRING7</td><td>1033</td><td>Java Demos</td><td>0</td><td/><td>-1457945110</td></row>
@@ -2568,7 +2539,6 @@
 		<row><td>AppSearch</td><td/><td>400</td><td>AppSearch</td><td/></row>
 		<row><td>BindImage</td><td/><td>4300</td><td>BindImage</td><td/></row>
 		<row><td>CCPSearch</td><td>CCP_TEST</td><td>500</td><td>CCPSearch</td><td/></row>
-		<row><td>CopyAssemblyPDBs</td><td>&amp;IceGAC=3</td><td>6275</td><td/><td/></row>
 		<row><td>CostFinalize</td><td/><td>1000</td><td>CostFinalize</td><td/></row>
 		<row><td>CostInitialize</td><td/><td>800</td><td>CostInitialize</td><td/></row>
 		<row><td>CreateFolders</td><td/><td>3700</td><td>CreateFolders</td><td/></row>
@@ -2604,7 +2574,6 @@
 		<row><td>RegisterProgIdInfo</td><td/><td>4800</td><td>RegisterProgIdInfo</td><td/></row>
 		<row><td>RegisterTypeLibraries</td><td/><td>5500</td><td>RegisterTypeLibraries</td><td/></row>
 		<row><td>RegisterUser</td><td/><td>6000</td><td>RegisterUser</td><td/></row>
-		<row><td>RemoveAssemblyPDBs</td><td/><td>6287</td><td/><td/></row>
 		<row><td>RemoveDuplicateFiles</td><td/><td>3400</td><td>RemoveDuplicateFiles</td><td/></row>
 		<row><td>RemoveEnvironmentStrings</td><td/><td>3300</td><td>RemoveEnvironmentStrings</td><td/></row>
 		<row><td>RemoveExistingProducts</td><td/><td>1410</td><td>RemoveExistingProducts</td><td/></row>
@@ -2621,7 +2590,6 @@
 		<row><td>SetODBCFolders</td><td/><td>1100</td><td>SetODBCFolders</td><td/></row>
 		<row><td>StartServices</td><td>VersionNT</td><td>5900</td><td>StartServices</td><td/></row>
 		<row><td>StopServices</td><td>VersionNT</td><td>1900</td><td>StopServices</td><td/></row>
-		<row><td>UninstallAssemblyPDBs</td><td/><td>1775</td><td/><td/></row>
 		<row><td>UnpublishComponents</td><td/><td>1700</td><td>UnpublishComponents</td><td/></row>
 		<row><td>UnpublishFeatures</td><td/><td>1800</td><td>UnpublishFeatures</td><td/></row>
 		<row><td>UnregisterClassInfo</td><td/><td>2700</td><td>UnregisterClassInfo</td><td/></row>
@@ -2771,12 +2739,6 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col key="yes" def="s72">Component_</col>
 		<col key="yes" def="s255">Name</col>
 		<col def="s255">Value</col>
-		<row><td>GAC_glacier2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
-		<row><td>GAC_iceboxcs</td><td>processorArchitecture</td><td>MSIL</td></row>
-		<row><td>GAC_icecs</td><td>processorArchitecture</td><td>MSIL</td></row>
-		<row><td>GAC_icegridcs</td><td>processorArchitecture</td><td>MSIL</td></row>
-		<row><td>GAC_icepatch2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
-		<row><td>GAC_icestormcs</td><td>processorArchitecture</td><td>MSIL</td></row>
 	</table>
 
 	<table name="MsiDigitalCertificate">
@@ -2864,13 +2826,15 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col key="yes" def="s72">Property</col>
 		<col def="L0">Value</col>
 		<col def="S255">ISComments</col>
+		<row><td>ARPCONTACT</td><td>##ID_STRING43##</td><td/></row>
+		<row><td>ARPHELPLINK</td><td>##ID_STRING44##</td><td/></row>
+		<row><td>ARPHELPTELEPHONE</td><td>##ID_STRING45##</td><td/></row>
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
 		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING14##</td><td/></row>
 		<row><td>AdminDotNetNote</td><td>0</td><td/></row>
 		<row><td>AdminWarning</td><td>0</td><td/></row>
 		<row><td>AgreeToLicense</td><td>No</td><td/></row>
 		<row><td>ApplicationUsers</td><td>AllUsers</td><td/></row>
-		<row><td>CMD_EXE</td><td/><td/></row>
 		<row><td>ContinueNotAdminText</td><td>0</td><td/></row>
 		<row><td>DWUSINTERVAL</td><td>30</td><td/></row>
 		<row><td>DefaultUIFont</td><td>Tahoma8</td><td/></row>
@@ -2894,8 +2858,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ProductCode</td><td>{798018BC-B1DD-4663-8E7B-71C5D07BCFA5}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3.0 for Visual Studio 2005</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3 beta for Visual Studio 2005</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2957,9 +2921,10 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>Registry1</td><td>2</td><td>SOFTWARE\ZeroC\[ProductName]</td><td>InstallDir</td><td>"[INSTALLDIR]"</td><td>ISRegistryComponent</td><td>0</td></row>
-		<row><td>Registry6</td><td>2</td><td>SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\Ice Assemblies</td><td/><td>[INSTALLDIR]bin</td><td>ISRegistryComponent</td><td>0</td></row>
-		<row><td>Registry7</td><td>2</td><td>SOFTWARE\Microsoft\.NETFramework\AssemblyFolders</td><td/><td/><td>ISRegistryComponent</td><td>1</td></row>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\ZeroC\[ProductName]</td><td>InstallDir</td><td>"[INSTALLDIR]"</td><td>AdminRegistryComponent</td><td>0</td></row>
+		<row><td>Registry2</td><td>1</td><td>SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\Ice assemblies</td><td/><td>[INSTALLDIR]bin</td><td>NonAdminRegistryComponent</td><td>0</td></row>
+		<row><td>Registry6</td><td>2</td><td>SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\Ice Assemblies</td><td/><td>[INSTALLDIR]bin</td><td>AdminRegistryComponent</td><td>0</td></row>
+		<row><td>Registry7</td><td>2</td><td>SOFTWARE\Microsoft\.NETFramework\AssemblyFolders</td><td/><td/><td>AdminRegistryComponent</td><td>1</td></row>
 	</table>
 
 	<table name="RemoveFile">

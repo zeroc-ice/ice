@@ -71,18 +71,13 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IceBox, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bin\IceBox.dll</HintPath>
+    <Reference Include="IceBox">
+      <Name>IceBox</Name>
+      <HintPath>..\..\..\..\cs\bin\IceBox.dll</HintPath>
     </Reference>
-    <Reference Include="Ice, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bin\Ice.dll</HintPath>
-    </Reference>
-    <Reference Include="IceSSL, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="Exists('..\..\..\slice')">..\..\..\bin\IceSSL.dll</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\slice')">..\..\..\..\cs\bin\IceSSL.dll</HintPath>
+    <Reference Include="Ice">
+      <Name>Ice</Name>
+      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

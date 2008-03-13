@@ -280,7 +280,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         __send();
     }
 
-    public final void
+    public final boolean
     __send()
     {
         try
@@ -288,8 +288,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
             _sent = false;
             _response = false;
             _delegate = _proxy.__getDelegate(true);
-            _delegate.__getRequestHandler().sendAsyncRequest(this);
-            return;
+            _sentSynchronously = _delegate.__getRequestHandler().sendAsyncRequest(this);
         }
         catch(LocalExceptionWrapper ex)
         {
@@ -299,6 +298,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         {
             handleException(ex);
         }
+        return _sentSynchronously;
     }
 
     protected final void
@@ -470,6 +470,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
     }
 
     private boolean _sent;
+    private boolean _sentSynchronously;
     private boolean _response;
     private Ice.ObjectPrxHelperBase _proxy;
     private Ice._ObjectDel _delegate;

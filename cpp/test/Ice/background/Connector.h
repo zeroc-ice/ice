@@ -17,7 +17,7 @@ class Connector : public IceInternal::Connector
 {
 public:
     
-    IceInternal::TransceiverPtr connect(int);
+    IceInternal::TransceiverPtr connect();
 
     Ice::Short type() const;
     std::string toString() const;

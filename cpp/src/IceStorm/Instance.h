@@ -91,7 +91,7 @@ private:
     const int _sendTimeout;
     const Ice::ObjectPrx _topicReplicaProxy;
     const Ice::ObjectPrx _publisherReplicaProxy;
-    IceStormElection::NodeIPtr _node;;
+    IceStormElection::NodeIPtr _node;
     IceStormElection::ObserversPtr _observers;
     IceUtil::TimerPtr _batchFlusher;
     IceUtil::TimerPtr _timer;

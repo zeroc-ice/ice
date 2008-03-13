@@ -13,7 +13,7 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
 {
     public abstract void ice_exception(LocalException ex);
 
-    public final void __invoke(Ice.ObjectPrx prx)
+    public final boolean __invoke(Ice.ObjectPrx prx)
     {
         __acquireCallback(prx);
         try
@@ -28,7 +28,7 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
             try
             {
                 delegate = proxy.__getDelegate(true);
-                delegate.__getRequestHandler().flushAsyncBatchRequests(this);
+                return delegate.__getRequestHandler().flushAsyncBatchRequests(this);
             }
             catch(Ice.LocalException ex)
             {
@@ -39,5 +39,6 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
         {
             __releaseCallback(ex);
         }
+        return false;
     }
 }
