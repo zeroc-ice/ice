@@ -1849,7 +1849,7 @@ Slice::Container::mergeModules()
             StringList metaData2 = dc2->getMetaData();
             metaData2.sort();
             metaData2.unique();
-            if(metaData1 != metaData2)
+            if(!checkGlobalMetaData(metaData1, metaData2))
             {
                 unit()->warning("global metadata mismatch for module `" + mod1->name() + "' in files " +
                                 dc1->filename() + " and " + dc2->filename());
@@ -2117,6 +2117,25 @@ Slice::Container::Container(const UnitPtr& unit) :
 {
 }
 
+void
+Slice::Container::checkPrefix(const string& name) const
+{
+    if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
+    {
+        if(name.size() >= 3)
+        {
+            string prefix3;
+            prefix3 += ::tolower(name[0]);
+            prefix3 += ::tolower(name[1]);
+            prefix3 += ::tolower(name[2]);
+            if(prefix3 == "ice")
+            {
+                _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+            }
+        }
+    }
+}
+
 bool
 Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
                                          bool intf, bool intfOther,
@@ -2179,23 +2198,40 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
     return true;
 }
 
-void
-Slice::Container::checkPrefix(const string& name) const
+bool
+Slice::Container::checkGlobalMetaData(const StringList& m1, const StringList& m2)
 {
-    if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
+    //
+    // Not all global metadata mismatches represent actual problems. We are only concerned about
+    // the prefixes listed below (also see bug 2766).
+    //
+    static const char* prefixes[] =
     {
-        if(name.size() >= 3)
+        "java:package",
+        "java:java2",
+        "java:java5",
+        "python:package",
+        0
+    };
+
+    //
+    // Collect the metadata that is unique to each list.
+    //
+    StringList diffs;
+    set_symmetric_difference(m1.begin(), m1.end(), m2.begin(), m2.end(), back_inserter(diffs));
+
+    for(StringList::const_iterator p = diffs.begin(); p != diffs.end(); ++p)
+    {
+        for(int i = 0; prefixes[i] != 0; ++i)
         {
-            string prefix3;
-            prefix3 += ::tolower(name[0]);
-            prefix3 += ::tolower(name[1]);
-            prefix3 += ::tolower(name[2]);
-            if(prefix3 == "ice")
+            if(p->find(prefixes[i]) != string::npos)
             {
-                _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+                return false;
             }
         }
     }
+
+    return true;
 }
 
 // ----------------------------------------------------------------------

@@ -457,6 +457,7 @@ protected:
 
     void checkPrefix(const std::string&) const;
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
+    bool checkGlobalMetaData(const StringList&, const StringList&);
 
     ContainedList _contents;
     std::map<std::string, ContainedPtr, CICompare> _introducedMap;
