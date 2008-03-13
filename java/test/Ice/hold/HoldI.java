@@ -54,12 +54,17 @@ public final class HoldI extends _HoldDisp
         }
     }
 
-    synchronized public int
+    public int
     set(int value, Ice.Current current)
     {
-        int tmp = _last;
-        _last = value;
-        return tmp;
+        Thread.yield();
+
+        synchronized(this)
+        {
+            int tmp = _last;
+            _last = value;
+            return tmp;
+        }
     }
 
     synchronized public void

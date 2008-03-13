@@ -1211,12 +1211,17 @@ namespace Ice
 
                 case StateClosed:
                 {
-                    if(_sendInProgress)
+                    if(!_sendInProgress)
                     {
-                        _timer.cancel(this);
-                        _sendInProgress = false;
+                        _threadPool.finish(this);
                     }
-                    _threadPool.finish(this);
+
+                    //
+                    // Close the transceiver now to interrupt pending sends or reads. If a send was
+                    // in progress, the writeAsync callback method will be called it will take care
+                    // of calling _threadPool.finish(this).
+                    //
+                    _transceiver.close();
                     break;
                 }
             }
@@ -1698,26 +1703,38 @@ namespace Ice
             //
             lock(this)
             {
-                if(_state == StateClosed)
-                {
-                    return;
-                }
-
-                //
-                // An I/O request has completed, so cancel a pending timeout.
-                //
-                if(result != null)
-                {
-                    _timer.cancel(this);
-                }
-                
-                Debug.Assert(_sendStreams.Count > 0);
-                Debug.Assert(_transceiver != null);
-                Debug.Assert(_sendInProgress);
-                
                 bool flushSentCallbacks = _sentCallbacks.Count == 0;
                 try
                 {
+                    Debug.Assert(_sendInProgress);
+                    Debug.Assert(_sendStreams.Count > 0);
+                    Debug.Assert(_transceiver != null);
+
+                    //
+                    // An I/O request has completed, so cancel a pending timeout.
+                    //
+                    if(result != null)
+                    {
+                        _timer.cancel(this);
+                    }
+
+                    if(_state == StateClosed)
+                    {
+                        if(result != null && result.IsCompleted)
+                        {
+                            OutgoingMessage message = _sendStreams.First.Value;
+                            message.sent(this, true);
+                            if(message.outAsync is Ice.AMISentCallback)
+                            {
+                                _sentCallbacks.AddLast(message);
+                            }
+                            _sendStreams.RemoveFirst();
+                        }
+                        _sendInProgress = false;
+                        _threadPool.finish(this);
+                        return;
+                    }
+                
                     while(_sendStreams.Count > 0)
                     {
                         OutgoingMessage message = _sendStreams.First.Value;
@@ -1767,6 +1784,7 @@ namespace Ice
                 }
                 catch(LocalException ex)
                 {
+                    _sendInProgress = false;
                     setState(StateClosed, ex);
                     return;
                 }
@@ -2484,6 +2502,11 @@ namespace Ice
         {
             lock(this)
             {
+                //
+                // It's important to keep this synchronization here as this is called from a
+                // thread from the thread pool and we want to make sure that the thread that
+                // called _threadPool.finish() is finished with changing the connection state.
+                //
                 Debug.Assert(_state == StateClosed && !_sendInProgress);
             }
 
@@ -2517,15 +2540,8 @@ namespace Ice
             //
             lock(this)
             {
-                try
-                {
-                    _transceiver.close();
-                }
-                finally
-                {
-                    _transceiver = null;
-                    Monitor.PulseAll(this);
-                }
+                _transceiver = null;
+                Monitor.PulseAll(this);
             }
         }
 

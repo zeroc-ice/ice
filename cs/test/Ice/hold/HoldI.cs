@@ -55,6 +55,8 @@ public sealed class HoldI : HoldDisp_
     public override int
     set(int value, Ice.Current current)
     {
+        System.Threading.Thread.Sleep(0);
+
         lock(this)
         {
             int tmp = _last;
