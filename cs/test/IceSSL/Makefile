@@ -13,25 +13,12 @@ include $(top_srcdir)/config/Make.rules.cs
 
 SUBDIRS		= configuration
 
-#
-# Only allow building configuration files if we're buildling with Mono
-# as IceSSL is not supported with Mono yet.
-#
-ifeq ($(MONO), )
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
-else
-config::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
-endif
 
 test::
 	@python $(top_srcdir)/allTests.py

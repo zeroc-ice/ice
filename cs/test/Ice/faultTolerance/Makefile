@@ -30,10 +30,6 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-ifeq ($(MONO), yes)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) -r:Mono.Posix $(subst /,$(DSEP),$^)
-else
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
-endif
 
 include .depend
