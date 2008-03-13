@@ -107,7 +107,7 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
     //
     // Replace the contents of the given argument list with the filtered arguments.
     //
-    if(arglist)
+    if(arglist && arglist != Py_None)
     {
         if(PyList_SetSlice(arglist, 0, PyList_Size(arglist), 0) < 0)
         {
