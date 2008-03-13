@@ -99,7 +99,69 @@ class UserException(Exception):
     pass
 
 #
-# Utilities.
+# Convenience function for locating the directory containing the Slice files.
+#
+def getSliceDir():
+    #
+    # Check for <ICE_HOME>/slice first.
+    #
+    if os.environ.has_key("ICE_HOME"):
+        dir = os.path.join(os.environ["ICE_HOME"], "slice")
+        if os.path.exists(dir):
+            return dir
+
+    #
+    # Get the parent of the directory containing this file (Ice.py).
+    #
+    pyHome = os.path.join(os.path.dirname(__file__), "..")
+
+    #
+    # For an installation from a source distribution, a binary tarball, or a
+    # Windows installer, the "slice" directory is a sibling of the "python"
+    # directory.
+    #
+    dir = os.path.join(pyHome, "slice")
+    if os.path.exists(dir):
+        return os.path.normpath(dir)
+
+    #
+    # In a source distribution, the "slice" directory is one level higher.
+    #
+    dir = os.path.join(pyHome, "..", "slice")
+    if os.path.exists(dir):
+        return os.path.normpath(dir)
+
+    iceVer = version()
+
+    #
+    # Check platform-specific locations.
+    #
+    if sys.platform[:6] == "cygwin" or sys.platform == "win32":
+        dir = os.path.join("\\", "Ice-" + iceVer, "slice")
+        if os.path.exists(dir):
+            return dir
+        dir = os.path.join("C:\\", "Ice-" + iceVer, "slice")
+        if os.path.exists(dir):
+            return dir
+    else:
+        if sys.platform[:5] == "linux":
+            #
+            # Check the default RPM location.
+            #
+            dir = os.path.join("usr", "share", "Ice-" + iceVer, "slice")
+            if os.path.exists(dir):
+                return dir
+        #
+        # Check in /opt.
+        #
+        dir = os.path.join("opt", "Ice-" + iceVer, "slice")
+        if os.path.exists(dir):
+            return dir
+
+    return None
+
+#
+# Utilities for use by generated code.
 #
 def openModule(name):
     if sys.modules.has_key(name):

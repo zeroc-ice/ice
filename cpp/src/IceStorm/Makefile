@@ -119,7 +119,7 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 
 $(MIGRATE): $(MOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) -lIceStorm -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStorm -lFreeze $(LIBS)
 
 LLUMap.h LLUMap.cpp: $(SLICE2FREEZE) ../IceStorm/Election.ice
 	rm -f LLUMap.h LLUMap.cpp

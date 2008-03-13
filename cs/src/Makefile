@@ -13,10 +13,6 @@ include $(top_srcdir)/config/Make.rules.cs
 
 SUBDIRS		= Ice IceStorm Glacier2 IcePatch2 IceGrid IceBox
 
-ifeq ($(MONO), )
-SUBDIRS		:= $(SUBDIRS) IceSSL
-endif
-
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \

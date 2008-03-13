@@ -307,10 +307,10 @@ mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/lib/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/%_lib/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
-mv $RPM_BUILD_ROOT/lib/* $RPM_BUILD_ROOT%{_libdir}
+mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
 mkdir -p $RPM_BUILD_ROOT%{_includedir}
 mv $RPM_BUILD_ROOT/include/* $RPM_BUILD_ROOT%{_includedir}
 
@@ -333,14 +333,14 @@ make prefix=$RPM_BUILD_ROOT install
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
-mv $RPM_BUILD_ROOT/lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
+mv $RPM_BUILD_ROOT/%_lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
 %endif
 
 %if "%{dist}" == ".sles10"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
-mv $RPM_BUILD_ROOT/lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
+mv $RPM_BUILD_ROOT/%_lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
 %endif
 
 #
