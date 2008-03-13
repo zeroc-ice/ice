@@ -565,7 +565,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
 #endif
     }
 
-    bool sent;
+    bool sent = false;
     try
     {
         OutgoingMessage message(out, os, compress, response);
@@ -875,7 +875,7 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
     //
     // Send the batch stream.
     //
-    bool sent;
+    bool sent = false;
     try
     {
         OutgoingMessage message(outAsync, outAsync->__getOs(), _batchRequestCompress, false);

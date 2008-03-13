@@ -239,8 +239,12 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
     //
     // Reset cd
     //
+#ifdef NDEBUG
+    iconv(cd, 0, 0, 0, 0);
+#else
     int rs = iconv(cd, 0, 0, 0, 0);
     assert(rs == 0);
+#endif
 
 #ifdef ICE_CONST_ICONV_INBUF
     const char* inbuf = reinterpret_cast<const char*>(sourceStart);
@@ -281,8 +285,12 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
     //
     // Reset cd
     //
+#ifdef NDEBUG
+    iconv(cd, 0, 0, 0, 0);
+#else
     int rs = iconv(cd, 0, 0, 0, 0);
     assert(rs == 0);
+#endif
 
 #ifdef ICE_CONST_ICONV_INBUF
     const char* inbuf = reinterpret_cast<const char*>(sourceStart);

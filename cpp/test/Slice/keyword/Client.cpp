@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <Key.h>
 
 using namespace std;
@@ -81,7 +82,7 @@ void
 testtypes()
 {
     _cpp_and::_cpp_continue a = _cpp_and::_cpp_asm;
-    assert(a);
+    test(a);
 
     _cpp_and::_cpp_auto b;
     b._cpp_default = 0;
@@ -119,7 +120,7 @@ testtypes()
     _cpp_and::friendPtr l = new friendI();
 
     const int m  = _cpp_and::_cpp_template;
-    assert(m == _cpp_and::_cpp_template);
+    test(m == _cpp_and::_cpp_template);
 }
 
 int

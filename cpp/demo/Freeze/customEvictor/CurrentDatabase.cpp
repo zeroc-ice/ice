@@ -47,8 +47,12 @@ CurrentDatabase::CurrentDatabase(const Ice::CommunicatorPtr& comm, const string&
     _dbName(dbName)
 {
 #ifdef USE_PTHREAD_KEY
+#ifdef NDEBUG
+    pthread_key_create(&dbKey, 0);
+#else
     int rs = pthread_key_create(&dbKey, 0);
     assert(rs == 0);
+#endif
 #endif
 }
 
@@ -75,8 +79,12 @@ CurrentDatabase::get()
         Mutex::Lock sync(_dbListMutex);
         _dbList.push_back(db);
 #ifdef USE_PTHREAD_KEY
+#ifdef NDEBUG
+	pthread_setspecific(dbKey, db);
+#else
 	int rs = pthread_setspecific(dbKey, db);
 	assert(rs == 0);
+#endif
 #endif
     }
     return *db;

@@ -630,7 +630,7 @@ Database::getAllocatableObject(const Ice::Identity& id) const
 void
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId, const Ice::ObjectPrx& proxy)
 {
-    int serial;
+    int serial = 0;
     {
         Lock sync(*this);
         if(_adapterCache.has(adapterId))
