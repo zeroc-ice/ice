@@ -40,6 +40,8 @@ HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
 Ice::Int
 HoldI::set(Ice::Int value, const Ice::Current&)
 {
+    IceUtil::ThreadControl::yield();
+
     Lock sync(*this);
     Ice::Int tmp = _last;
     _last = value;
