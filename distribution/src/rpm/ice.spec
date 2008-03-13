@@ -421,9 +421,6 @@ rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 
-#temporary
-rm -f $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
-
 %if !%{mono}
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
 %endif
@@ -611,6 +608,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/templates.xml
 %attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicegrid.py*
+%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
+%{_datadir}/Ice-%{version}/icegrid-slice.3.2.ice.gz
+%{_datadir}/Ice-%{version}/icegrid-slice.3.3.ice.gz
 %attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicestorm.py*
 %attr(755,root,root) %{_initrddir}/icegridregistry
 %attr(755,root,root) %{_initrddir}/icegridnode
