@@ -32,7 +32,7 @@ class Cond;
 // `IceUtil::noncopyable' inaccessible in `IceInternal::Outgoing' due
 // to ambiguity
 //
-class ICE_UTIL_API Mutex
+class Mutex
 {
 public:
 
@@ -54,9 +54,6 @@ public:
 
     //
     // Returns true if the lock was acquired, and false otherwise.
-    //
-    // This method is not inlined under Win32 due to issues with VC6,
-    // MFC and WINVER >= 0x0400. See bug 2752 for details.
     //
     bool tryLock() const;
 
@@ -131,6 +128,20 @@ Mutex::lock() const
     assert(_mutex.RecursionCount == 1);
 }
 
+inline bool
+Mutex::tryLock() const
+{
+    if(!TryEnterCriticalSection(&_mutex))
+    {
+        return false;
+    }
+    if(_mutex.RecursionCount > 1)
+    {
+        LeaveCriticalSection(&_mutex);
+        throw ThreadLockedException(__FILE__, __LINE__);
+    }
+    return true;
+}
 
 inline void
 Mutex::unlock() const

@@ -39,7 +39,7 @@ class Cond;
 //
 
 //
-class ICE_UTIL_API StaticMutex
+class StaticMutex
 {
 public:
 
@@ -58,9 +58,6 @@ public:
 
     //
     // Returns true if the lock was acquired, and false otherwise.
-    //
-    // This method is not inlined under Win32 due to issues with VC6,
-    // MFC and WINVER >= 0x0400. See bug 2752 for details.
     //
     bool tryLock() const;
 
@@ -102,7 +99,7 @@ private:
 
 #ifdef _WIN32
     inline bool initialized() const;
-    void initialize() const;
+    ICE_UTIL_API void initialize() const;
 #endif
 
 #ifndef _MSC_VER
@@ -149,6 +146,25 @@ StaticMutex::lock() const
     }
     EnterCriticalSection(_mutex);
     assert(_mutex->RecursionCount == 1);
+}
+
+inline bool
+StaticMutex::tryLock() const
+{
+    if(!initialized())
+    {
+        initialize();
+    }
+    if(!TryEnterCriticalSection(_mutex))
+    {
+        return false;
+    }
+    if(_mutex->RecursionCount > 1)
+    {
+        LeaveCriticalSection(_mutex);
+        throw ThreadLockedException(__FILE__, __LINE__);
+    }
+    return true;
 }
 
 inline void

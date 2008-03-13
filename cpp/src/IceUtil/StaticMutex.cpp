@@ -86,26 +86,6 @@ void IceUtil::StaticMutex::initialize() const
     }
     LeaveCriticalSection(&_criticalSection);
 }
-
-bool
-IceUtil::StaticMutex::tryLock() const
-{
-    if(!initialized())
-    {
-        initialize();
-    }
-    if(!TryEnterCriticalSection(_mutex))
-    {
-        return false;
-    }
-    if(_mutex->RecursionCount > 1)
-    {
-        LeaveCriticalSection(_mutex);
-        throw ThreadLockedException(__FILE__, __LINE__);
-    }
-    return true;
-}
-
 #endif
 
 IceUtil::StaticMutex IceUtil::globalMutex = ICE_STATIC_MUTEX_INITIALIZER;
