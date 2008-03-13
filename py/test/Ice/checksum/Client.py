@@ -20,15 +20,12 @@ else:
 import Ice
 
 #
-# Find Slice directory.
+# Get Slice directory.
 #
 slice_dir = os.path.join(os.path.join(toplevel, "..", "slice"))
 if not os.path.exists(slice_dir):
-    home_dir = os.getenv('ICE_HOME', '')
-    if len(home_dir) == 0 or not os.path.exists(os.path.join(home_dir, "slice")):
-        print sys.argv[0] + ': Slice directory not found. Define ICE_HOME.'
-        sys.exit(1)
-    slice_dir = os.path.join(home_dir, "slice")
+    print sys.argv[0] + ': Slice directory not found.'
+    sys.exit(1)
 
 Ice.loadSlice('-I' + slice_dir + ' --checksum Test.ice CTypes.ice')
 import Test, AllTests
