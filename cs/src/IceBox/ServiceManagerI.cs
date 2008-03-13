@@ -416,8 +416,6 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
             }
 
-
-
             Ice.Application.communicator().waitForShutdown();
             // XXX:
             //Ice.Application.defaultInterrupt();
@@ -860,9 +858,17 @@ class ServiceManagerI : ServiceManagerDisp_
     {
         if(_traceServiceObserver >= 1)
         {
-            _logger.trace("IceBox.ServiceObserver",
-                          "Removed service observer " + Ice.Application.communicator().proxyToString(observer)
-                          + "\nafter catching " + ex.ToString());
+            //
+            // CommunicatorDestroyedException may occur during shutdown. The observer notification has
+            // been sent, but the communicator was destroyed before the reply was received. We do not
+            // log a message for this exception.
+            //
+            if(!(ex is Ice.CommunicatorDestroyedException))
+            {
+                _logger.trace("IceBox.ServiceObserver",
+                              "Removed service observer " + Ice.Application.communicator().proxyToString(observer)
+                              + "\nafter catching " + ex.ToString());
+            }
         } 
     } 
     

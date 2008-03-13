@@ -849,9 +849,17 @@ public class ServiceManagerI extends _ServiceManagerDisp
     {
         if(_traceServiceObserver >= 1)
         {
-            _logger.trace("IceBox.ServiceObserver",
-                          "Removed service observer " + _server.communicator().proxyToString(observer)
-                          + "\nafter catching " + ex.toString());
+            //
+            // CommunicatorDestroyedException may occur during shutdown. The observer notification has
+            // been sent, but the communicator was destroyed before the reply was received. We do not
+            // log a message for this exception.
+            //
+            if(!(ex instanceof Ice.CommunicatorDestroyedException))
+            {
+                _logger.trace("IceBox.ServiceObserver",
+                              "Removed service observer " + _server.communicator().proxyToString(observer)
+                              + "\nafter catching " + ex.toString());
+            }
         }
     }
 

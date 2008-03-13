@@ -78,7 +78,6 @@ private:
 
 }
 
-
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) : 
     _communicator(communicator),
     _pendingStatusChanges(false),
@@ -260,7 +259,6 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
     }
 }
 
-
 void
 IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const Ice::Current&)
 {
@@ -295,7 +293,6 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
     }
 }
 
-
 void
 IceBox::ServiceManagerI::removeObserver(const ServiceObserverPrx& observer, const Ice::Exception& ex)
 {
@@ -314,7 +311,6 @@ IceBox::ServiceManagerI::removeObserver(const ServiceObserverPrx& observer, cons
         observerRemoved(observer, ex);
     }
 } 
-
 
 void
 IceBox::ServiceManagerI::shutdown(const Current&)
@@ -849,7 +845,6 @@ IceBox::ServiceManagerI::stopAll()
     servicesStopped(stoppedServices, _observers);
 }
 
-
 void
 IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers)
 {
@@ -883,9 +878,17 @@ IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, con
 { 
     if(_traceServiceObserver >= 1)
     {
-        Trace out(_logger, "IceBox.ServiceObserver");
-        out << "Removed service observer " << _communicator->proxyToString(observer)
-            << "\nafter catching " << ex.what();
+        //
+        // CommunicatorDestroyedException may occur during shutdown. The observer notification has
+        // been sent, but the communicator was destroyed before the reply was received. We do not
+        // log a message for this exception.
+        //
+        if(dynamic_cast<const CommunicatorDestroyedException*>(&ex) == 0)
+        {
+            Trace out(_logger, "IceBox.ServiceObserver");
+            out << "Removed service observer " << _communicator->proxyToString(observer)
+                << "\nafter catching " << ex.what();
+        }
     } 
 } 
 
