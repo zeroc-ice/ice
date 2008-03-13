@@ -611,7 +611,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
 %{_datadir}/Ice-%{version}/icegrid-slice.3.2.ice.gz
 %{_datadir}/Ice-%{version}/icegrid-slice.3.3.ice.gz
-%attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicestorm.py*
 %attr(755,root,root) %{_initrddir}/icegridregistry
 %attr(755,root,root) %{_initrddir}/icegridnode
 %attr(755,root,root) %{_initrddir}/glacier2router
