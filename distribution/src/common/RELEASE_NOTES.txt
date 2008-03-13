@@ -1,21 +1,164 @@
-TBD
+Release notes for Ice 3.3.0
+===========================
 
-Migrating IceStorm Databases
+INTRO TBD
+
+The sections below describe the new features and fixes included in
+this release. See the section titled "Upgrading your application"
+for more information about migrating to a new Ice release, including
+details about APIs that have been deprecated or removed in this
+release.
+
+Note that because the Python, Ruby, and PHP language mappings use the
+C++ Ice run time, they automatically benefit from fixes to the C++ Ice
+core even if those language mappings are not explicitly mentioned
+below.
+
+
+New Features
+============
+
+This section discusses the significant enhancements offered in this
+release.
+
+
+Background I/O
+--------------
+
+
+Scalability improvements in Glacier2
+------------------------------------
+
+
+Highly-available IceStorm
+-------------------------
+
+
+Freeze transactional evictor
 ----------------------------
 
-Ice 3.3 supports migrating from Ice 3.1.1 and from Ice
-3.2.1. Migration from other Ice versions may work, but is not
+
+Administrative facility
+-----------------------
+
+
+Dynamic network interfaces
+--------------------------
+
+
+IPv6 and UDP multicast
+----------------------
+
+
+Updated C# mapping
+------------------
+
+
+
+Platforms and compilers
+=======================
+
+The list shown below represents changes or additions to the platforms
+and compilers that Ice supports:
+
+* Red Hat Enterprise Linux 4.6 and 5.1 (i386 and x86_64)
+* SuSE Enterprise Linux Server 10 SP1 (i386 and x86_64)
+* Microsoft Windows Vista (x86 and x64)
+* Mac OS X 10.5
+* Solaris 10 SPARC and x86 (32- and 64-bit)
+* Microsoft Visual Studio 2005 SP1
+* Microsoft Visual Studio 2008
+
+Express editions of Microsoft compilers are only supported by the C++
+language mapping; Ice for .NET requires Visual Studio 2005 or 2008.
+
+
+Desupported components
+======================
+
+This section describes Ice components that are no longer supported.
+
+
+Java2
+-----
+
+Ice for Java now requires Java5 or Java6 as its compilation and run-
+time environment. See the section titled "Deprecated APIs" for
+additional information on the Java language mapping.
+
+To continue using Java2 for your application, you must use a previous
+Ice release. Note however that ZeroC only provides support for the
+most recent Ice release unless you have a support contract.
+
+
+Thread per connection concurrency model
+---------------------------------------
+
+The improvements introduced by the non-blocking AMI feature (see
+"Background I/O") have made this concurrency model unnecessary
+and it has been removed as of this release. See "Removed APIs" for
+additional information.
+
+
+Slice-to-Visual Basic compiler
+------------------------------
+
+Ice no longer includes the Slice-to-Visual Basic compiler. Given the
+language-neutral nature of .NET's Common Language Runtime (CLR),
+maintaining Slice compilers for both Visual Basic and C# is
+unnecessary.
+
+Users can write an Ice application in any language that is supported
+by the CLR, but Slice definitions must now be generated in C#. For
+this reason, we have renamed Ice for C# to Ice for .NET.
+
+
+Upgrading your application
+==========================
+
+Ice 3.3.0 does not maintain backward binary compatibility with
+applications built using Ice 3.2.x, but every effort was made to
+preserve source compatibility. Note however that Ice always maintains
+protocol ("on the wire") compatibility with prior releases.
+
+The requirements for upgrading depend on the language mapping used by
+your application:
+
+- For statically-typed languages (C++, Java, .NET), the application
+  must be recompiled. 
+
+- For scripting languages that use static translation, your Slice
+  files must be recompiled.
+
+If your application uses IceStorm or IceGrid, please refer to the
+relevant sections below for migration instructions.
+
+Finally, certain APIs that were deprecated in previous Ice releases
+have been removed in this release. If your application relied on one
+of these APIs, it may no longer compile or execute correctly. A list
+of the removed APIs is provided in the section titled "Removed APIs"
+along with a description of their replacements. Furthermore, the
+section "Deprecated APIs" discusses APIs that are deprecated as of
+this release; we encourage you to update your applications and
+eliminate the use of these APIs as soon as possible.
+
+
+Migrating IceStorm databases
+----------------------------
+
+Ice 3.3 supports migrating IceStorm databases from Ice 3.1.1 and from
+Ice 3.2.1. Migration from other Ice versions may work, but is not
 officially supported. If you require assistance with this please
 contact sales@zeroc.com.
 
 To migrate, first stop your IceStorm servers.
 
-Next, copy the IceStorm database environment to a second location.
+Next, copy the IceStorm database environment to a second location:
 
 $ cp -r db recovered.db
 
 Run the Berkeley DB utility db_recover on the copied database
-environment.
+environment:
 
 $ db_recover -h recovered.db
 
@@ -24,7 +167,7 @@ used. For Ice 3.1.1, Berkeley DB 4.3.29 must be used. For Ice 3.2.1,
 Berkeley DB 4.5 must be used.
 
 Now change to the location where the Ice 3.3 IceStorm database
-environments are stored.
+environments are stored:
 
 $ cd <new-location>
 
@@ -33,30 +176,31 @@ to the old database environment. The second argument is the path to
 the new database environment.
 
 In this example we'll create a new directory "db" in which to store
-the migrated database environment.
+the migrated database environment:
 
 $ mkdir db
 $ icestormmigrate <path-to-recovered.db> db
 
-The migration is now complete, and the contents of old database environment
-is now in the db directory.
+The migration is now complete, and the contents of the old database
+environment are now in the db directory.
 
-Migrating IceGrid Databases
+
+Migrating IceGrid databases
 ---------------------------
 
-Ice 3.3 supports migrating from Ice 3.1.1 and from Ice
-3.2.1. Migration from other Ice versions may work, but is not
+Ice 3.3 supports migrating IceGrid databases from Ice 3.1.1 and from
+Ice 3.2.1. Migration from other Ice versions may work, but is not
 officially supported. If you require assistance with this please
 contact sales@zeroc.com.
 
-To migrate, first stop the IceGrid registry to upgrade.
+To migrate, first stop the IceGrid registry you wish to upgrade.
 
-Next, copy the IceGrid database environment to a second location.
+Next, copy the IceGrid database environment to a second location:
 
 $ cp -r db recovered.db
 
 Run the Berkeley DB utility db_recover on the copied database
-environment.
+environment:
 
 $ db_recover -h recovered.db
 
@@ -65,7 +209,7 @@ used. For Ice 3.1.1, Berkeley DB 4.3.29 must be used. For Ice 3.2.1,
 Berkeley DB 4.5 must be used.
 
 Now change to the location where the Ice 3.3 IceGrid database
-environments are stored.
+environments are stored:
 
 $ cd <new-location>
 
@@ -76,17 +220,17 @@ database environment. The second argument is the path to the new
 database environment.
 
 In this example we'll create a new directory "db" in which to store
-the migrated database environment.
+the migrated database environment:
 
 $ mkdir db
 $ upgradeicegrid.py <path-to-recovered.db> db
 
-The migration is now complete, and the contents of old database
-environment is now in the db directory. 
+The migration is now complete, and the contents of the old database
+environment are now in the db directory. 
 
 By default, the migration utility assumes that the servers deployed
 with IceGrid also use Ice 3.3.0. If your servers still use an older
-Ice version, you need to specify the --server-version command line
+Ice version, you need to specify the --server-version command-line
 option when running upgradeicegrid.py:
 
 $ upgradeicegrid.py --server-version 3.2.1 <path-to-recovered.db> db
@@ -101,7 +245,70 @@ registry in read-only mode using the --readonly option, for example:
 
 $ icegridregistry --Ice.Config=config.master --readonly
 
-Next, you can connect to the master registry with the icegridadmin or
-IceGrid administrative GUI to ensure the database is correct. If
+Next, you can connect to the master registry with icegridadmin or the
+IceGrid administrative GUI to ensure that the database is correct. If
 everything looks fine, you can shutdown and restart the master
 registry without the --readonly option.
+
+
+Removed APIs
+------------
+
+TBD
+
+* Thread per connection
+
+  The primary purpose of this concurrency model was to serialize the
+  requests received over a connection, either because the application
+  needed to ensure that requests are dispatched in the order they are
+  received, or because the application did not want to implement the
+  synchronization that might be required when using the thread pool
+  concurrency model.
+
+  Another reason for using the thread-per-connection concurrency model
+  is that it was required by the IceSSL plug-ins for Java and C#. This
+  requirement has been eliminated.
+
+  The ability to serialize requests is now provided by the thread pool
+  and enabled via a new configuration property:
+
+  <threadpool>.Serialize=1
+
+  Please refer to the "Ice Run Time" chapter of the Ice manual for
+  more details on this feature.
+
+  Aside from the potential semantic changes involved in migrating your
+  application to the thread pool concurrency model, other artifacts of
+  thread-per-connection may be present in your application and must be
+  removed:
+
+  - The configuration properties Ice.ThreadPerConnection and
+    <proxy>.ThreadPerConnection
+
+  - The proxy methods ice_threadPerConnection and
+    ice_isThreadPerConnection
+
+
+Deprecated APIs
+---------------
+
+The Ice APIs and components listed below are deprecated in this
+release. They will be supported for at least one more major (TBD)
+release; for example, these items will be supported in Ice 3.4 and
+removed in Ice 3.5. We encourage you to update your applications
+and eliminate the use of these APIs as soon as possible.
+
+TBD
+
+* Java2 language mapping
+
+  Java5 is now the default language mapping. Applications that use the
+  Java2 mapping can continue to use it by adding the appropriate
+  metadata tag to your Slice files or by using the "--meta java:java2"
+  option when running the Slice-to-Java compiler. Note that the
+  compiler now emits a deprecation warning when it encounters the
+  Java2 metadata tag.
+
+  If you used the "java:java5" metadata tag when compiling your Slice
+  definitions, you can now remove those tags. Any uses of custom type
+  metadata ("java:type:...") should also be reviewed.
