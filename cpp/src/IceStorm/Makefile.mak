@@ -201,6 +201,7 @@ clean::
 	del /q $(DLLNAME:.dll=.*)
 	del /q $(SVCDLLNAME:.dll=.*)
 	del /q $(ADMIN:.exe=.*)
+	del /q $(MIGRATE:.exe=.*)
 
 clean::
 	del /q Grammar.cpp Grammar.h
