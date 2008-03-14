@@ -49,7 +49,7 @@ class SessionKeeper
     //
     private class Session
     {
-        Session(AdminSessionPrx session, long keepAliveperiod, Component parent)
+        Session(AdminSessionPrx session, long keepAliveperiod, boolean routed, Component parent)
         {
             _session = session;
             
@@ -68,14 +68,9 @@ class SessionKeeper
                 throw e;
             }
 
-            if(_coordinator.getCommunicator().getDefaultRouter() == null)
-            {
-                _admin = AdminPrxHelper.uncheckedCast(_admin.ice_endpoints(session.ice_getEndpoints()));
-            }
-
             try
             {
-                if(_coordinator.getCommunicator().getDefaultRouter() == null)
+                if(!routed)
                 {
                     Ice.ObjectPrx adminCallbackTemplate = _session.getAdminCallbackTemplate();
 
@@ -97,7 +92,8 @@ class SessionKeeper
                                 publishedEndpoints += ":" + endpointString;
                             }
                         }
-                        _coordinator.getCommunicator().getProperties().setProperty("CallbackAdapter.PublishedEndpoints", publishedEndpoints);
+                        _coordinator.getCommunicator().getProperties().setProperty(
+                            "CallbackAdapter.PublishedEndpoints", publishedEndpoints);
                     }
                 }
                 _serverAdminCategory = _admin.getServerAdminCategory();
@@ -119,7 +115,7 @@ class SessionKeeper
             
             try
             {
-                registerObservers();
+                registerObservers(routed);
             }
             catch(Ice.LocalException e)
             {
@@ -236,33 +232,31 @@ class SessionKeeper
             _coordinator.getStatusBar().setConnected(false);
         }
 
-        private void registerObservers()
+        private void registerObservers(boolean routed)
         {
             //
             // Create the object adapter for the observers
             //
             String category;
             
-            Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
-                _coordinator.getCommunicator().getDefaultRouter());
-            if(router == null)
+            if(!routed)
             {
                 category = "observer";
               
                 String adapterName = _adminCallbackCategory == null ? "" : "CallbackAdapter";
 
-                _adapter = 
-                    _coordinator.getCommunicator().createObjectAdapter(adapterName);
+                _adapter = _coordinator.getCommunicator().createObjectAdapter(adapterName);
                 _adapter.activate();
                 _session.ice_getConnection().setAdapter(_adapter);
             }
             else
             {
+                Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
+                    _coordinator.getCommunicator().getDefaultRouter());
                 category = router.getCategoryForClient();
                 _adminCallbackCategory = category;
 
-                _adapter = 
-                    _coordinator.getCommunicator().createObjectAdapterWithRouter("RoutedAdapter", router);
+                _adapter = _coordinator.getCommunicator().createObjectAdapterWithRouter("RoutedAdapter", router);
                 _adapter.activate();
             }
             
@@ -310,7 +304,7 @@ class SessionKeeper
 
             try
             {
-                if(router != null)
+                if(routed)
                 {
                     _session.setObservers(registryObserver, 
                                           nodeObserver, 
@@ -1242,8 +1236,7 @@ class SessionKeeper
        
             Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
          
-            AdminSessionPrx session = _coordinator.login(
-                _loginInfo, parent, keepAlivePeriodHolder);
+            AdminSessionPrx session = _coordinator.login(_loginInfo, parent, keepAlivePeriodHolder);
             if(session == null)
             {
                 return false;
@@ -1277,7 +1270,7 @@ class SessionKeeper
             
             try
             {
-                _session = new Session(session, keepAlivePeriodHolder.value, parent);
+                _session = new Session(session, keepAlivePeriodHolder.value, _loginInfo.routed, parent);
             }
             catch(Ice.LocalException e)
             {

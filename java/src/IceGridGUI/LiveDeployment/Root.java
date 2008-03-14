@@ -932,12 +932,6 @@ public class Root extends ListArrayTreeNode
                     {
                         result = session.openRegistryStdErr(_replicaName, count);
                     }
-                    
-                    if(_coordinator.getCommunicator().getDefaultRouter() == null)
-                    {
-                        result = FileIteratorPrxHelper.uncheckedCast(
-                            result.ice_endpoints(session.ice_getEndpoints()));
-                    }
                     return result;
                 }
 

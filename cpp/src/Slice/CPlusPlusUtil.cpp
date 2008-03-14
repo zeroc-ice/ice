@@ -38,9 +38,14 @@ Slice::ToIfdef::operator()(char c)
 string
 Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 {
-    string file = normalizePath(orig, true);
     string::size_type pos;
     string cwd = getCwd();
+    string file = orig;
+    if(!isAbsolute(file))
+    {
+        file = cwd + "/" + file;
+    }
+    file = normalizePath(file, true);
 
     //
     // Compare each include path against the included file and select
@@ -50,31 +55,28 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         string includePath = *p;
-        if(isAbsolute(orig) && !isAbsolute(includePath))
+#ifdef _WIN32
+        if(!isAbsolute(includePath))
         {
             includePath = cwd + "/" + includePath;
         }
-        includePath = normalizePath(includePath, true);
-
-#ifndef _WIN32
+#else
         //
         // We need to get the real path name of the include directory in case
         // it is a symlink, since the preprocessor output contains real path names.
         //
-        if(isAbsolute(includePath))
+        int fd = open(".", O_RDONLY);
+        if(fd != -1)
         {
-            int fd = open(".", O_RDONLY);
-            if(fd != -1)
+            if (!chdir(includePath.c_str()))
             {
-                if (!chdir(includePath.c_str()))
-                {
-                    includePath = getCwd() + "/";
-                    fchdir(fd);
-                }
-                close(fd);
+                includePath = getCwd() + "/";
+                fchdir(fd);
             }
+            close(fd);
         }
 #endif
+        includePath = normalizePath(includePath, true);
 
         if(file.compare(0, includePath.length(), includePath) == 0)
         {

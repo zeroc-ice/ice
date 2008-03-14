@@ -1647,7 +1647,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     // (if any) to the new connection, so that callbacks from the
     // router can be received over this new connection.
     //
-    if(_routerInfo)
+    if(_routerInfo && _routerInfo->getAdapter())
     {
 	connection->setAdapter(_routerInfo->getAdapter());
     }
@@ -1684,7 +1684,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                     // (if any) to the new connection, so that callbacks from the
                     // router can be received over this new connection.
                     //
-                    if(_routerInfo)
+                    if(_routerInfo && _routerInfo->getAdapter())
                     {
                         connection->setAdapter(_routerInfo->getAdapter());
                     }
@@ -1729,7 +1729,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                     // (if any) to the new connection, so that callbacks from the
                     // router can be received over this new connection.
                     //
-                    if(_reference->getRouterInfo())
+                    if(_reference->getRouterInfo() && _reference->getRouterInfo()->getAdapter())
                     {
                         connection->setAdapter(_reference->getRouterInfo()->getAdapter());
                     }
