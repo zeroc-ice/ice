@@ -13,11 +13,12 @@ Changes since version 3.2.1 (binary incompatible)
   future release.
 
 - It is now possible to specify properties in a config file with
-  space, '#' or '=' in either the key or value string. It is necessary 
-  to escape '#' and '=' as '\#' and '\='.
+  space, '#' or '=' in either the key or value string. It is necessary
+  to escape '#' and '=' as '\#' and '\='. Leading or trailing spaces are
+  only allowed in keys and need to be escaped as '\ '.
 
-- Properties can no longer have leading or trailing whitespace in the
-  key or the value.
+- Properties set programatically can no longer have leading or trailing 
+  whitespace in the key.
 
 - The following APIs were deprecated in Ice 3.1 and have been
   removed:
