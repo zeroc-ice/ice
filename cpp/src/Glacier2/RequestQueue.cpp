@@ -203,16 +203,19 @@ bool
 Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 {
     IceUtil::Mutex::Lock lock(*this);
-    for(vector<RequestPtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+    if(request->hasOverride())
     {
-        //
-        // If the new request overrides an old one, then abort the old
-        // request and replace it with the new request.
-        //
-        if(request->override(*p))
+        for(vector<RequestPtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
         {
-            *p = request;
-            return true;
+            //
+            // If the new request overrides an old one, then abort the old
+            // request and replace it with the new request.
+            //
+            if(request->override(*p))
+            {
+                *p = request;
+                return true;
+            }
         }
     }
     

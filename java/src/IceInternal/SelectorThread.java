@@ -259,11 +259,6 @@ public class SelectorThread
         public void
         run()
         {
-            if(_instance.initializationData().threadHook != null)
-            {
-                _instance.initializationData().threadHook.start();
-            }
-
             try
             {
                 SelectorThread.this.run();
@@ -285,11 +280,6 @@ public class SelectorThread
                 pw.flush();
                 String s = "unknown exception in selector thread " + getName() + ":\n" + sw.toString();
                 _instance.initializationData().logger.error(s);
-            }
-
-            if(_instance.initializationData().threadHook != null)
-            {
-                _instance.initializationData().threadHook.stop();
             }
         }
     }

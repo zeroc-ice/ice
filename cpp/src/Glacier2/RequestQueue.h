@@ -33,6 +33,7 @@ public:
     bool invoke();
     bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const { return _proxy; }
+    bool hasOverride() const { return !_override.empty(); }
 
 private:
 

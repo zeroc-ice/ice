@@ -261,11 +261,6 @@ IceInternal::SelectorThread::HelperThread::HelperThread(const SelectorThreadPtr&
 void
 IceInternal::SelectorThread::HelperThread::run()
 {
-    if(_selectorThread->_instance->initializationData().threadHook)
-    {
-        _selectorThread->_instance->initializationData().threadHook->start();
-    }
-
     try
     {
         _selectorThread->run();
@@ -279,11 +274,6 @@ IceInternal::SelectorThread::HelperThread::run()
     {
         Error out(_selectorThread->_instance->initializationData().logger);
         out << "unknown exception in selector thread";
-    }
-
-    if(_selectorThread->_instance->initializationData().threadHook)
-    {
-        _selectorThread->_instance->initializationData().threadHook->stop();
     }
 
     _selectorThread = 0; // Break cyclic dependency.
