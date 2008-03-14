@@ -241,7 +241,13 @@ IcePatch2::simplify(const string& path)
     string::size_type pos;
 
 #ifdef _WIN32
-    for(pos = 0; pos < result.size(); ++pos)
+    pos = 0;
+    if(result.find("\\\\") == 0)
+    {
+        pos = 2;
+    }
+
+    for(; pos < result.size(); ++pos)
     {
         if(result[pos] == '\\')
         {
