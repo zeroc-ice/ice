@@ -11,6 +11,10 @@
 #include <Slice/Util.h>
 #include <cstring>
 
+#ifndef _WIN32
+#  include <fcntl.h>
+#endif
+
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
@@ -51,6 +55,26 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
             includePath = cwd + "/" + includePath;
         }
         includePath = normalizePath(includePath, true);
+
+#ifndef _WIN32
+        //
+        // We need to get the real path name of the include directory in case
+        // it is a symlink, since the preprocessor output contains real path names.
+        //
+        if(isAbsolute(includePath))
+        {
+            int fd = open(".", O_RDONLY);
+            if(fd != -1)
+            {
+                if (!chdir(includePath.c_str()))
+                {
+                    includePath = getCwd() + "/";
+                    fchdir(fd);
+                }
+                close(fd);
+            }
+        }
+#endif
 
         if(file.compare(0, includePath.length(), includePath) == 0)
         {
