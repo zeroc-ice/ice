@@ -51,14 +51,14 @@
 	
 	<summary>
 		<codepage>1252</codepage>
-		<title>Installation Database</title>
-		<subject>Ice 3.3.0 Third Party Packages for Visual Studio 2008</subject>
+		<title>##ID_STRING10##</title>
+		<subject>Ice 3.3 beta Third Party Packages for Visual Studio 2008</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{479F2CFA-61A7-47CC-A729-6E8E305F7E02}</revnumber>
+		<revnumber>{620349C2-178A-4F5C-A613-415BC99043B1}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1160,7 +1160,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.3.0_THIRDPARTY_VC90</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3.0-ThirdParty-VC90</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0_THIRDPARTY_VC90</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3b-ThirdParty-VC90</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.3.0_THIRDPARTY_VC90</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1608,7 +1608,7 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
-		<row><td>MS.CRT.x86</td><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td></row>
+		<row><td>MS.CRT.x86</td><td>Microsoft_VC90_CRT_x86.0138F525_6C8A_333F_A105_14AE030B9A54</td><td>0</td></row>
 		<row><td>packages</td><td>BZip2DevKit.VC90.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBDevKit.VC90.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td></row>
@@ -1702,18 +1702,18 @@
 		<col def="s255">Name</col>
 		<col def="S255">Destination</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>BZip2DevKit.VC90.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>0</td><td>BZip2 Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBDevKit.VC90.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBRuntime.VC90.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>Bzip2Runtime.VC90.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td><td>Bzip2 Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td><td>Visual C++ 8.0 CRT (x86) WinSXS MSM</td><td/><td/></row>
-		<row><td>ExpatDevKit.VC90.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>0</td><td>Expat Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>ExpatRuntime.VC90.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>JGoodies.VC90.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td><td>JGoodies Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BZip2DevKit.VC90.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>0</td><td>BZip2 Dev Kit for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBDevKit.VC90.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBJava.VC90.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBRuntime.VC90.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>Bzip2Runtime.VC90.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td><td>Bzip2 Runtime for Visual Studio .Net 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>ExpatDevKit.VC90.F9B22CE0_4775_41AD_9FB8_5F0E2FC9D2D4</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>ExpatRuntime.VC90.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>JGoodies.VC90.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td><td>JGoodies Runtime for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>MCPPDevKit.VC90.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>0</td><td>MCPP Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>OpenSSLDevKit.VC90.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>OpenSSLRuntime.VC90.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>Microsoft_VC90_CRT_x86.0138F525_6C8A_333F_A105_14AE030B9A54</td><td>0</td><td>Visual C++ 9.0 CRT (x86) WinSXS MSM</td><td/><td/></row>
+		<row><td>OpenSSLDevKit.VC90.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>OpenSSLRuntime.VC90.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2008</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
 
 	<table name="ISMergeModuleCfgValues">
@@ -1818,7 +1818,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-ThirdParty-VC90</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3b-ThirdParty-VC90</td></row>
 		<row><td>ZEROC</td><td>PackageCode</td><td>{F1779DC0-CD5F-41D2-90D5-808237248D65}</td></row>
 		<row><td>ZEROC</td><td>ProductCode</td><td>{2F0AAC46-1AD3-4737-8A84-B1D0E390AA6A}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
@@ -2458,6 +2458,7 @@
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 2008</td><td>0</td><td/><td>857343407</td></row>
+		<row><td>ID_STRING10</td><td>1033</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2008</td><td>0</td><td/><td>1369225426</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2926,11 +2927,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{5C58447A-6FF5-475E-9E02-CA9E7339DFD7}</td><td/></row>
+		<row><td>ProductCode</td><td>{64A69196-1E6B-4D53-B321-80FF6E07F018}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3.0 Third Party Packages for Visual Studio 2008</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2008</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2939,7 +2940,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{8004CC8B-80BE-4D3E-B427-E04A0BE8F697}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{52FF8DE1-637F-4366-8340-6F9EBAD7F94C}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
