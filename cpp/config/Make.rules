@@ -210,7 +210,7 @@ endif
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
-ifdef ice_rpm_dist
+ifeq ($(ice_dir), /usr) 
     CPPFLAGS		= $(STLPORT_FLAGS)
     LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
