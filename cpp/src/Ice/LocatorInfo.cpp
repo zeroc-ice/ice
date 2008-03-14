@@ -431,12 +431,28 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, int ttl, const G
                 virtual void
                 ice_exception(const Ice::Exception& ex)
                 {
-                    _locatorInfo->getEndpointsException(_reference, ex, _callback);
+                    if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
+                    {
+                        try
+                        {
+                            bool cached;
+                            vector<EndpointIPtr> endpoints = _locatorInfo->getEndpoints(_reference, _ttl, cached);
+                            _callback->setEndpoints(endpoints, cached);
+                        }
+                        catch(const Ice::LocalException& e)
+                        {
+                            _callback->setException(e);
+                        }
+                    }
+                    else
+                    {
+                        _locatorInfo->getEndpointsException(_reference, ex, _callback);
+                    }
                 }
                 
                 Callback(const LocatorInfoPtr& locatorInfo, const LocatorTablePtr& table,
-                         const ReferencePtr& reference, const GetEndpointsCallbackPtr& callback) :
-                    _locatorInfo(locatorInfo), _table(table), _reference(reference), _callback(callback)
+                         const ReferencePtr& reference, int ttl, const GetEndpointsCallbackPtr& callback) :
+                    _locatorInfo(locatorInfo), _table(table), _reference(reference), _ttl(ttl), _callback(callback)
                 {
                 }
 
@@ -445,6 +461,7 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, int ttl, const G
                 const LocatorInfoPtr _locatorInfo;
                 const LocatorTablePtr _table;
                 const ReferencePtr _reference;
+                const int _ttl;
                 const GetEndpointsCallbackPtr _callback;
             };
 
@@ -452,7 +469,7 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, int ttl, const G
             // Search the adapter in the location service if we didn't
             // find it in the cache.
             //
-            _locator->findAdapterById_async(new Callback(this, _table, ref, callback), adapterId);
+            _locator->findAdapterById_async(new Callback(this, _table, ref, ttl, callback), adapterId);
             return;
         }
         else
@@ -489,7 +506,23 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, int ttl, const G
                 virtual void
                 ice_exception(const Ice::Exception& ex)
                 {
-                    _locatorInfo->getEndpointsException(_reference, ex, _callback);
+                    if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
+                    {
+                        try
+                        {
+                            bool cached;
+                            vector<EndpointIPtr> endpoints = _locatorInfo->getEndpoints(_reference, _ttl, cached);
+                            _callback->setEndpoints(endpoints, cached);
+                        }
+                        catch(const Ice::LocalException& e)
+                        {
+                            _callback->setException(e);
+                        }
+                    }
+                    else
+                    {
+                        _locatorInfo->getEndpointsException(_reference, ex, _callback);
+                    }
                 }
 
                 Callback(const LocatorInfoPtr& locatorInfo, const ReferencePtr& reference, int ttl,

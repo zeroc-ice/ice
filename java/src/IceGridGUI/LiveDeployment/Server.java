@@ -190,11 +190,6 @@ class Server extends ListArrayTreeNode
                     {
                         result = session.openServerStdErr(_id, count);
                     }
-                    if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
-                    {
-                        result = FileIteratorPrxHelper.uncheckedCast(
-                            result.ice_endpoints(session.ice_getEndpoints()));
-                    }
                     return result;
                 }
 
@@ -247,14 +242,7 @@ class Server extends ListArrayTreeNode
                         DeploymentException
                     {
                         AdminSessionPrx session = getRoot().getCoordinator().getSession();
-                        FileIteratorPrx result = session.openServerLog(_id, fPath, count);
-
-                        if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
-                        {
-                            result = FileIteratorPrxHelper.uncheckedCast(
-                                result.ice_endpoints(session.ice_getEndpoints()));
-                        }
-                        return result;
+                        return session.openServerLog(_id, fPath, count);
                     }
                     
                     public String getTitle()
@@ -456,6 +444,7 @@ class Server extends ListArrayTreeNode
                                     }
                                     else
                                     {
+                                        e.printStackTrace();
                                         _editor.setBuildId("Error: " + e.toString(), Server.this);
                                     }
                                 }

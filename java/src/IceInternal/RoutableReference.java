@@ -817,7 +817,7 @@ public class RoutableReference extends Reference
         // (if any) to the new connection, so that callbacks from the
         // router can be received over this new connection.
         //
-        if(_routerInfo != null)
+        if(_routerInfo != null && _routerInfo.getAdapter() != null)
         {
             connection.setAdapter(_routerInfo.getAdapter());
         }
@@ -856,7 +856,7 @@ public class RoutableReference extends Reference
                                    // (if any) to the new connection, so that callbacks from the
                                    // router can be received over this new connection.
                                    //
-                                   if(_routerInfo != null)
+                                   if(_routerInfo != null && _routerInfo.getAdapter() != null)
                                    {
                                        connection.setAdapter(_routerInfo.getAdapter());
                                    }
@@ -891,7 +891,7 @@ public class RoutableReference extends Reference
                                    // (if any) to the new connection, so that callbacks from the
                                    // router can be received over this new connection.
                                    //
-                                   if(_routerInfo != null)
+                                   if(_routerInfo != null && _routerInfo.getAdapter() != null)
                                    {
                                        connection.setAdapter(_routerInfo.getAdapter());
                                    }

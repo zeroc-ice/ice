@@ -105,7 +105,21 @@ public final class RouterInfo
                 public void
                 ice_exception(Ice.LocalException ex)
                 {
-                    callback.setException(ex);
+                    if(ex instanceof Ice.CollocationOptimizationException)
+                    {
+                        try
+                        {
+                            callback.setEndpoints(getClientEndpoints());
+                        }
+                        catch(Ice.LocalException e)
+                        {
+                            callback.setException(e);
+                        }
+                    }
+                    else
+                    {
+                        callback.setException(ex);
+                    }
                 }
             });
     }
@@ -169,7 +183,22 @@ public final class RouterInfo
                 public void
                 ice_exception(Ice.LocalException ex)
                 {
-                    callback.setException(ex);
+                    if(ex instanceof Ice.CollocationOptimizationException)
+                    {
+                        try
+                        {
+                            addProxy(proxy);
+                            callback.addedProxy();
+                        }
+                        catch(Ice.LocalException e)
+                        {
+                            callback.setException(ex);
+                        }
+                    }
+                    else
+                    {
+                        callback.setException(ex);
+                    }
                 }
             },
             new Ice.ObjectPrx[] { proxy });

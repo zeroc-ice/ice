@@ -12,7 +12,6 @@ using System.Diagnostics;
 
 namespace IceInternal
 {
-
     public sealed class LocatorInfo
     {
         public interface GetEndpointsCallback
@@ -180,10 +179,11 @@ namespace IceInternal
 
         private class AdapterCallback : Ice.AMI_Locator_findAdapterById
         {
-            internal AdapterCallback(LocatorInfo info, Reference @ref, GetEndpointsCallback callback)
+            internal AdapterCallback(LocatorInfo info, Reference @ref, int ttl, GetEndpointsCallback callback)
             {
                 _info = info;
                 _ref = @ref;
+                _ttl = ttl;
                 _callback = callback;
             }
 
@@ -216,11 +216,27 @@ namespace IceInternal
 
             public override void ice_exception(Ice.Exception ex)
             {
-                _info.getEndpointsException(_ref, ex, _callback);
+                if(ex is Ice.CollocationOptimizationException)
+                {
+                    try
+                    {
+                        bool cached;
+                        _callback.setEndpoints(_info.getEndpoints(_ref, _ttl, out cached), cached);
+                    }
+                    catch(Ice.LocalException e)
+                    {
+                        _callback.setException(e);
+                    }
+                }
+                else
+                {
+                    _info.getEndpointsException(_ref, ex, _callback);
+                }
             }
 
             private LocatorInfo _info;
             private Reference _ref;
+            private int _ttl;
             private GetEndpointsCallback _callback;
         }
 
@@ -241,7 +257,22 @@ namespace IceInternal
 
             public override void ice_exception(Ice.Exception ex)
             {
-                _info.getEndpointsException(_ref, ex, _callback);
+                if(ex is Ice.CollocationOptimizationException)
+                {
+                    try
+                    {
+                        bool cached;
+                        _callback.setEndpoints(_info.getEndpoints(_ref, _ttl, out cached), cached);
+                    }
+                    catch(Ice.LocalException e)
+                    {
+                        _callback.setException(e);
+                    }
+                }
+                else
+                {
+                    _info.getEndpointsException(_ref, ex, _callback);
+                }
             }
 
             private LocatorInfo _info;
@@ -274,7 +305,7 @@ namespace IceInternal
                     // Search the adapter in the location service if we didn't
                     // find it in the cache.
                     //
-                    _locator.findAdapterById_async(new AdapterCallback(this, @ref, callback), adapterId);
+                    _locator.findAdapterById_async(new AdapterCallback(this, @ref, ttl, callback), adapterId);
                     return;
                 }
                 else

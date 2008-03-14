@@ -193,7 +193,21 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
         virtual void
         ice_exception(const Ice::Exception& ex)
         {
-            _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+            if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
+            {
+                try
+                {
+                    _callback->setEndpoints(_routerInfo->getClientEndpoints());
+                }
+                catch(const Ice::LocalException& e)
+                {
+                    _callback->setException(e);
+                }
+            }
+            else
+            {
+                _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+            }
         }
 
         Callback(const RouterInfoPtr& routerInfo, const GetClientEndpointsCallbackPtr& callback) :
@@ -274,7 +288,22 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrx& proxy, const AddProxyCal
         virtual void
         ice_exception(const Ice::Exception& ex)
         {
-            _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+            if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
+            {
+                try
+                {
+                    _routerInfo->addProxy(_proxy);
+                    _callback->addedProxy();
+                }
+                catch(const Ice::LocalException& e)
+                {
+                    _callback->setException(e);
+                }
+            }
+            else
+            {
+                _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+            }
         }
 
         Callback(const RouterInfoPtr& routerInfo, const Ice::ObjectPrx& proxy, const AddProxyCallbackPtr& callback) :
