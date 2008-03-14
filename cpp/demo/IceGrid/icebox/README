@@ -26,8 +26,12 @@ the application you deployed above:
 
   - Launch the application. Windows users can double-click on the
     file IceGridGUI.jar located in <Ice installation directory>\bin.
-    Users on other platforms can start it from a command window as
-    follows:
+    Users with a Linux RPM installation can use a script to start the
+    program:
+
+    $ icegridgui
+
+    On other platforms, start it from a command window as follows:
 
     $ java -jar IceGridGUI.jar
 
