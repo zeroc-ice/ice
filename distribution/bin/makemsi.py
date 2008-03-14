@@ -325,7 +325,11 @@ def buildInstallers(startDir, stageDir, iceVersion, installVersion, installers):
         else:
             msi = "Ice-" + iceVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
-        runprog('signtool sign /f ' + os.environ['PFX_FILE'] + ' /p ' + os.environ['PFX_PASSWORD'] + ' /t ' + timeStampingURL + ' ' + msiPath)
+        runprog('signtool sign /f ' + os.environ['PFX_FILE'] + ' /p ' + os.environ['PFX_PASSWORD'] 
+                + ' /t ' + timeStampingURL
+                + ' /d ' + msi
+                + ' /du http://www.zeroc.com'
+                + ' ' + msiPath)
 
 def environToString(tbl):
     '''Convert an environment hashtable to the typical k=v format'''
