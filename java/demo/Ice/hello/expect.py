@@ -26,9 +26,9 @@ import demoscript.Util
 import demoscript.Ice.hello
 demoscript.Util.defaultLanguage = "Java"
 
-server = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
+server = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server.expect('.* ready')
-client = demoscript.Util.spawn('java Client')
+client = demoscript.Util.spawn('java Client --Ice.Warn.Connections=0')
 client.expect('.*==>')
 
 demoscript.Ice.hello.run(client, server)
