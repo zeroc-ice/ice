@@ -229,7 +229,7 @@ class Service extends ListArrayTreeNode
         {
             _cellRenderer = new DefaultTreeCellRenderer();
 
-            _startedIcon = Utils.getIcon("/icons/16x16/service_started.png");
+            _startedIcon = Utils.getIcon("/icons/16x16/service_running.png");
             _stoppedIcon = Utils.getIcon("/icons/16x16/service.png");
         }
         

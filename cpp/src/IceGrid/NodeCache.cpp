@@ -89,7 +89,7 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
             }
 
             //
-            // Ignore the register process attribute if the server is using Ice > 3.3.0
+            // Ignore the register process attribute if the server is using Ice >= 3.3.0
             //
             if(_iceVersion != 0 && _iceVersion < 30300)
             {
