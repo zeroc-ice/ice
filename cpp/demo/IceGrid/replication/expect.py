@@ -72,7 +72,7 @@ def runtest():
     for i in range(1, 5):
         client.expect("Hello World!")
     client.sendline('x')
-    client.kill(signal.SIGINT)
+    client.sendline('x')
 
     client.waitTestSuccess(timeout=1)
 
