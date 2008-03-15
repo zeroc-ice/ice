@@ -130,7 +130,11 @@ def signFile(file, argsHash):
         pfxPassword = argsHash['PFX_PASSWORD']
         timeStampingURL = argsHash['timeStampingURL']
 
-        runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword + ' /t ' + timeStampingURL + ' ' + file)
+        runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword 
+                + ' /d ' + os.path.basename(file)
+                + ' /du http://www.zeroc.com'
+                + ' /t ' + timeStampingURL 
+                + ' ' + file)
 
 class FileSpecWorker:
     def __init__(self, id, source, dest, processors):
