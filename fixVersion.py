@@ -205,8 +205,9 @@ if not patchIceE:
                          ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
     
     fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules.mak"),
-                        [("VERSION[\t\s]*= " + vpatMatch, version),
-                         ("INTVERSION[\t\s]*= " + vpatMatch, majorVersion(version) + "." + minorVersion(version) + \                                                                 "." + patchVersion(version))),
+                        [("^VERSION[\t\s]*= " + vpatMatch, version),
+                         ("INTVERSION[\t\s]*= " + vpatMatch, majorVersion(version) + "." + minorVersion(version) + \
+                                                             "." + patchVersion(version)),
                          ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
     fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "ice.spec"),
@@ -229,6 +230,7 @@ if not patchIceE:
 
         fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "iceca"),
                             [("Ice-" + vpatMatch, version)])
+        os.system("chmod 755 " + os.path.join(ice_home, "src", "ca", "iceca"))        
 
         fileMatchAndReplace(os.path.join(ice_home, "doc", "swish", "swish.conf"),
                             [("doc/Ice-" + vpatMatch, version)])
@@ -261,9 +263,7 @@ if not patchIceE:
     icej_home = os.path.join(ice_dir, "java")
     if icej_home:
         fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
-                            [("ice\.version[\t\s]*= " + vpatMatch, \
-                              majorVersion(version) + "." + minorVersion(version)), \
-                             ("ice\.version\.patch[\t\s]*= " + vpatMatch, version)])
+                            [("ice\.version[\t\s]*= " + vpatMatch, version)])
          
         fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
                             [("ICE_STRING_VERSION = \"" + vpatMatch +"\"", version), \
@@ -282,12 +282,6 @@ if not patchIceE:
                 fileMatchAndReplace(f, [("AssemblyVersion\(\"" + vpatMatch + "\"",
                                          majorVersion(version) + "." + minorVersion(version) + "." + \
                                          patchVersion(version))])
-
-        fileMatchAndReplace(os.path.join(icecs_home, "config", "makeconfig.py"),
-                            [("version=*\"([0-9]*\.[0-9]*\.[0-9]*).0\"",
-                              majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
-        cmd = "chmod 770 " + os.path.join(icecs_home, "config", "makeconfig.py")
-        os.system(cmd)
 
         fileMatchAndReplace(os.path.join(icecs_home, "demo", "IceStorm", "clock", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
@@ -310,10 +304,6 @@ if not patchIceE:
     #
     icevb_home = os.path.join(ice_dir, "vb")
     if icevb_home:
-        fileMatchAndReplace(os.path.join(icevb_home, "config", "makeconfig.py"),
-                            [("codeBase version=\"" + vpatMatch + "\.0\"", 
-                            majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
-
         fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
@@ -350,14 +340,6 @@ if not patchIceE:
     #
     #icerb_home = os.path.join(ice_dir, "rb", os.path.join("src", "IceRuby", "Config.h"))
     #if icerb_home:
-
-    print "Running 'make config' in cs"
-    os.chdir(icecs_home)
-    result = os.system('gmake config')
-    if result != 0:
-        print "\'gmake config\' failed!!!"
-
-    print "\nYou must run \"nmake /f Makefile.mak config\" in vb to complete version change!"
 
     sys.exit(0)
 

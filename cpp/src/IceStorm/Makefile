@@ -149,6 +149,8 @@ V31FormatDB.h V31FormatDB.cpp: ../IceStorm/V31Format.ice $(SLICE2FREEZE)
 clean::
 	-rm -f SubscriberMap.h SubscriberMap.cpp
 	-rm -f PersistentTopicMap.h PersistentTopicMap.cpp
+	-rm -f V32FormatDB.h V32FormatDB.cpp
+	-rm -f V31FormatDB.h V31FormatDB.cpp
 	-rm -f LLUMap.h LLUMap.cpp
 	-rm -f Grammar.cpp Grammar.h
 	-rm -f Scanner.cpp
