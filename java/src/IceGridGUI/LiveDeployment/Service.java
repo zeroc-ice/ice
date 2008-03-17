@@ -22,7 +22,7 @@ import java.util.Enumeration;
 import IceGrid.*;
 import IceGridGUI.*;
 
-class Service extends ListArrayTreeNode
+public class Service extends ListArrayTreeNode
 {
     //
     // Actions

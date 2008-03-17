@@ -38,7 +38,7 @@
                <property name="Glacier2.PermissionsVerifier" value="DemoGlacier2/NullPermissionsVerifier"/>
             </properties>
          </server-instance>
-         <icebox id="IceBox" activation="on-demand" exe="icebox">
+         <icebox id="IceBox" activation="on-demand" exe="iceboxd">
             <description>A sample IceBox server</description>
             <properties>
                <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
