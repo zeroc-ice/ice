@@ -195,6 +195,11 @@ To build a C# demo, start Visual Studio 2005 and open the solution
 democs\demo.sln. Right click on the desired demo in the Solution
 Explorer window and select "Build".
 
+Note that Visual Studio may present you with a "Security Warning"
+dialog when you open the solution. This harmless warning is caused
+by the technique that the projects use to compile Slice files. You
+can safely allow the projects to load normally.
+
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'server.exe' to start the server. In a separate
 Command Prompt window, type 'client.exe' to run the client.
@@ -211,6 +216,11 @@ The Visual Basic demos are in the demovb directory.
 To build a Visual Basic demo, start Visual Studio 2005 and open the
 solution demovb\demo.sln. Right click on the desired demo in the
 Solution Explorer window and select "Build".
+
+Note that Visual Studio may present you with a "Security Warning"
+dialog when you open the solution. This harmless warning is caused
+by the technique that the projects use to compile Slice files. You
+can safely allow the projects to load normally.
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'server.exe' to start the server. In a separate
