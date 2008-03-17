@@ -53,9 +53,9 @@ public sealed class HoldI : HoldDisp_
     }
 
     public override int
-    set(int value, Ice.Current current)
+    set(int value, int delay, Ice.Current current)
     {
-        System.Threading.Thread.Sleep(0);
+        System.Threading.Thread.Sleep(delay);
 
         lock(this)
         {

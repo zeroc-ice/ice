@@ -159,20 +159,22 @@ install::
 $(TARGETS_CONFIG):
 	@sn -q -p $(KEYFILE) tmp.pub && \
 	sn -q -t tmp.pub > tmp.publicKeyToken && \
-	set /P PUBLIC_KEY_TOKEN= < tmp.publicKeyToken && \
+	set /P TMP_TOKEN= < tmp.publicKeyToken && \
+        cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
 	del tmp.pub tmp.publicKeyToken && \
-	nmake /nologo /f Makefile.mak config
+	nmake /nologo /f Makefile.mak config"
 !else
 $(TARGETS_CONFIG):
 	@sn -q -T $(bindir)\Ice.dll > tmp.publicKeyToken && \
-	set /P PUBLIC_KEY_TOKEN= < tmp.publicKeyToken && \
+	set /P TMP_TOKEN= < tmp.publicKeyToken && \
+        cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
 	del tmp.pub tmp.publicKeyToken && \
-	nmake /nologo /f Makefile.mak config
+	nmake /nologo /f Makefile.mak config"
 !endif
 
 !else
 
-publicKeyToken = $(PUBLIC_KEY_TOKEN:Public key token is =)
+publicKeyToken = $(PUBLIC_KEY_TOKEN: =)
 $(TARGETS_CONFIG):
         @echo "Generating" <<$@ "..."
 <?xml version="1.0"?>

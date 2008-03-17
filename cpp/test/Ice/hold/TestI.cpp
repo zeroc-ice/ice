@@ -38,9 +38,9 @@ HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
 }
 
 Ice::Int
-HoldI::set(Ice::Int value, const Ice::Current&)
+HoldI::set(Ice::Int value, Ice::Int delay, const Ice::Current&)
 {
-    IceUtil::ThreadControl::yield();
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
 
     Lock sync(*this);
     Ice::Int tmp = _last;

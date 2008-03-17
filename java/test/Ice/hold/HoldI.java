@@ -55,9 +55,15 @@ public final class HoldI extends _HoldDisp
     }
 
     public int
-    set(int value, Ice.Current current)
+    set(int value, int delay, Ice.Current current)
     {
-        Thread.yield();
+        try
+        {
+            Thread.sleep(delay);
+        }
+        catch(java.lang.InterruptedException ex)
+        {
+        }
 
         synchronized(this)
         {
