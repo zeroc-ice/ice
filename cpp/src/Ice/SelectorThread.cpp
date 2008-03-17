@@ -87,6 +87,7 @@ IceInternal::SelectorThread::_register(SOCKET fd, const SocketReadyCallbackPtr& 
     Lock sync(*this);
     assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
     assert(status != Finished);
+    assert(cb->_status == Finished);
 
     cb->_fd = fd;
     cb->_status = status;
@@ -106,6 +107,7 @@ IceInternal::SelectorThread::unregister(const SocketReadyCallbackPtr& cb)
     Lock sync(*this);
     assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
     assert(cb->_fd != INVALID_SOCKET);
+    assert(cb->_status != Finished);
 
     _selector.remove(cb.get(), cb->_status, true); // No interrupt needed, it's always called from the selector thread.
     cb->_status = Finished;
@@ -117,8 +119,10 @@ IceInternal::SelectorThread::finish(const SocketReadyCallbackPtr& cb)
     Lock sync(*this);
     assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
     assert(cb->_fd != INVALID_SOCKET);
+    assert(cb->_status != Finished);
 
     _selector.remove(cb.get(), cb->_status);
+    cb->_status = Finished;
 
     _finished.push_back(cb);
     _selector.setInterrupt();
@@ -150,7 +154,7 @@ IceInternal::SelectorThread::run()
             continue;
         }
 
-        vector<SocketReadyCallbackPtr> readyList;
+        vector<pair<SocketReadyCallbackPtr, SocketStatus> > readyList;
         bool finished = false;
     
         {
@@ -180,9 +184,8 @@ IceInternal::SelectorThread::run()
                 do
                 {
                     SocketReadyCallbackPtr cb = _finished.front();
-                    cb->_status = Finished;
                     _finished.pop_front();
-                    readyList.push_back(cb);
+                    readyList.push_back(make_pair(cb, Finished));
                 }
                 while(_selector.clearInterrupt()); // As long as there are interrupts.
                 finished = true;
@@ -195,15 +198,17 @@ IceInternal::SelectorThread::run()
                 SocketReadyCallbackPtr cb;
                 while(cb = _selector.getNextSelected())
                 {
-                    readyList.push_back(cb);
+                    readyList.push_back(make_pair(cb, cb->_status));
                 }
             }
         }
 
-        for(vector<SocketReadyCallbackPtr>::iterator p = readyList.begin(); p != readyList.end(); ++p)
+        vector<pair<SocketReadyCallbackPtr, SocketStatus> >::const_iterator p;
+        for(p = readyList.begin(); p != readyList.end(); ++p)
         {
+            const SocketReadyCallbackPtr cb = p->first;
+            const SocketStatus previousStatus = p->second;
             SocketStatus status = Finished;
-            SocketReadyCallbackPtr cb = *p;
             try
             {
                 if(cb->_timeout >= 0)
@@ -235,11 +240,14 @@ IceInternal::SelectorThread::run()
 
             if(status != Finished)
             {
-                if(status != cb->_status)
+                if(status != previousStatus)
                 {
                     Lock sync(*this);
-                    _selector.update(cb.get(), cb->_status, status);
-                    cb->_status = status;
+                    if(cb->_status != Finished) // The callback might have been finished concurrently.
+                    {
+                        _selector.update(cb.get(), cb->_status, status);
+                        cb->_status = status;
+                    }
                 }
 
                 if(cb->_timeout >= 0)
