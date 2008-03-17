@@ -103,8 +103,8 @@ MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(DLLNAME): $(OBJS) IceStorm.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceStorm.res $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -112,20 +112,20 @@ $(DLLNAME): $(OBJS)
 
 $(SVCLIBNAME): $(SVCDLLNAME)
 
-$(SVCDLLNAME): $(SERVICE_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SERVICE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(SVCDLLNAME): $(SERVICE_OBJS) IceStormService.res
+	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SERVICE_OBJS) IceStormService.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(SVCDLLNAME:.dll=.lib) $(SVCLIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(SVCDLLNAME:.dll=.exp) del /q $(SVCDLLNAME:.dll=.exp)
 
-$(ADMIN): $(AOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
+$(ADMIN): $(AOBJS) IceStormAdmin.res 
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) IceStormAdmin.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(MIGRATE): $(MOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(MPDBFLAGS) $(MOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(MLINKWITH)
+$(MIGRATE): $(MOBJS) IceStormMigrate.res
+	$(LINK) $(LD_EXEFLAGS) $(MPDBFLAGS) $(MOBJS) IceStormMigrate.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(MLINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -183,6 +183,18 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
+IceStorm.res: IceStorm.rc
+	rc.exe $(RCFLAGS) IceStorm.rc
+
+IceStormService.res: IceStormService.rc
+	rc.exe $(RCFLAGS) IceStormService.rc
+
+IceStormAdmin.res: IceStormAdmin.rc
+	rc.exe $(RCFLAGS) IceStormAdmin.rc
+
+IceStormMigrate.res: IceStormMigrate.rc
+	rc.exe $(RCFLAGS) IceStormMigrate.rc
+
 !ifdef BUILD_UTILS
 
 clean::
@@ -202,6 +214,7 @@ clean::
 	del /q $(SVCDLLNAME:.dll=.*)
 	del /q $(ADMIN:.exe=.*)
 	del /q $(MIGRATE:.exe=.*)
+	del /q IceStormAdmin.res IceStormMigrate.res IceStorm.res IceStormService.res
 
 clean::
 	del /q Grammar.cpp Grammar.h

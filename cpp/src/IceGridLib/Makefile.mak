@@ -43,13 +43,15 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(LIB_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(LIB_OBJS) IceGrid.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) IceGrid.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
+IceGrid.res: IceGrid.rc
+	rc.exe $(RCFLAGS) IceGrid.rc
 clean::
 	del /q Admin.cpp $(HDIR)\Admin.h
 	del /q Descriptor.cpp $(HDIR)\Descriptor.h
@@ -61,6 +63,7 @@ clean::
 	del /q Registry.cpp $(HDIR)\Registry.h
 	del /q UserAccountMapper.cpp $(HDIR)\UserAccountMapper.h
 	del /q $(DLLNAME:.dll=.*)
+	del /q IceGrid.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

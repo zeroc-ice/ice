@@ -57,8 +57,8 @@ $(LIBNAME): $(OBJS)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(ICE_OS_LIBS)
+$(DLLNAME): $(OBJS) IceUtil.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceUtil.res $(PREOUT)$@ $(PRELIBS)$(ICE_OS_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -66,8 +66,12 @@ $(DLLNAME): $(OBJS)
 
 !endif
 
+IceUtil.res: IceUtil.rc
+	rc.exe $(RCFLAGS) IceUtil.rc
+
 clean::
 	del /q $(DLLNAME:.dll=.*)
+	del /q IceUtil.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

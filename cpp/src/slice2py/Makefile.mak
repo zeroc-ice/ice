@@ -25,13 +25,18 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
-$(NAME): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+$(NAME): $(OBJS) Slice2Py.res
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) Slice2Py.res $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
+Slice2Py.res: Slice2Py.rc
+	rc.exe $(RCFLAGS) Slice2Py.rc
+
 clean::
 	del /q $(NAME:.exe=.*)
+	del /q Slice2Py.res
 
 install:: all
 	copy $(NAME) $(install_bindir)

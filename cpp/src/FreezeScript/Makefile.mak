@@ -47,14 +47,15 @@ TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
 DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 !endif
 
-$(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
+$(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res
+	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res $(SETARGV) $(PREOUT)$@ \
 		$(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS) DumpDB.res
+	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) DumpDB.res $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -72,11 +73,18 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
+TransformDB.res: TransformDB.rc
+	rc.exe $(RCFLAGS) TransformDB.rc
+
+DumpDB.res: DumpDB.rc
+	rc.exe $(RCFLAGS) DumpDB.rc
+
 clean::
 	del /q $(TRANSFORMDB:.exe=.*)
 	del /q $(DUMPDB:.exe=.*)
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp
+	del /q TransformDB.res DumpDB.res
 
 install:: all
 	copy $(TRANSFORMDB) $(install_bindir)

@@ -127,6 +127,7 @@ SETARGV			= setargv.obj
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX	= $(LIBSUFFIX)d
+RCFLAGS		= -D_DEBUG
 !endif
 
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib

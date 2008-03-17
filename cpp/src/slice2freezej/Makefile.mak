@@ -25,13 +25,18 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
-$(NAME): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+$(NAME): $(OBJS) Slice2FreezeJ.res
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) Slice2FreezeJ.res $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
+Slice2FreezeJ.res: Slice2FreezeJ.rc
+	rc.exe $(RCFLAGS) Slice2FreezeJ.rc
+
 clean::
 	del /q $(NAME:.exe=.*)
+	del /q Slice2FreezeJ.res
 
 install:: all
 	copy $(NAME) $(install_bindir)

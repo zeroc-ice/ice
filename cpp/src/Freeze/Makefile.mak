@@ -61,8 +61,8 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(OBJS) Freeze.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) Freeze.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -83,6 +83,9 @@ $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(SLICE2FREEZE) $(slicedir)/Ice
 	CatalogIndexList $(slicedir)/Ice/BuiltinSequences.ice
 	move CatalogIndexList.h $(HDIR)
 
+Freeze.res: Freeze.rc
+	rc.exe $(RCFLAGS) Freeze.rc
+
 clean::
 	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
 
@@ -100,6 +103,7 @@ clean::
 	del /q Transaction.cpp $(HDIR)\Transaction.h
 	del /q TransactionalEvictor.cpp $(HDIR)\TransactionalEvictor.h
 	del /q PingObject.cpp PingObject.h
+	del /q Freeze.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

@@ -117,18 +117,20 @@ RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
 NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)
 !endif
 
-$(ADMIN): $(ADMIN_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
+$(ADMIN): $(ADMIN_OBJS) IceGridAdmin.res
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) IceGridAdmin.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) &&\
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(REGISTRY_SVR_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH)
+$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) IceGridRegistry.res 
+	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(REGISTRY_SVR_OBJS) IceGridRegistry.res $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)$(NLINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(NODE_SERVER): $(NODE_SVR_OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH)
+$(NODE_SERVER): $(NODE_SVR_OBJS) IceGridNode.res
+	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) IceGridNode.res $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)$(NLINKWITH)
 	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -162,6 +164,15 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
+IceGridAdmin.res: IceGridAdmin.rc
+	rc.exe $(RCFLAGS) IceGridAdmin.rc
+
+IceGridNode.res: IceGridNode.rc
+	rc.exe $(RCFLAGS) IceGridNode.rc
+
+IceGridRegistry.res: IceGridRegistry.rc
+	rc.exe IceGridRegistry.rc
+
 clean::
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
@@ -172,6 +183,7 @@ clean::
 	del /q $(ADMIN:.exe=.*)
 	del /q $(NODE_SERVER:.exe=.*)
 	del /q $(REGISTRY_SERVER:.exe=.*)
+	del /q IceGridAdmin.res IceGridNode.res IceGridRegistry.res
 
 clean::
 	del /q Grammar.cpp Grammar.h

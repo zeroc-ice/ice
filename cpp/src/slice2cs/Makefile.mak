@@ -26,13 +26,18 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
-$(NAME): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+$(NAME): $(OBJS) Slice2Cs.res
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) Slice2Cs.res $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
+Slice2Cs.res: Slice2Cs.rc
+	rc.exe $(RCFLAGS) Slice2Cs.rc
+
 clean::
 	del /q $(NAME:.exe=.*)
+	del /q Slice2Cs.res
 
 install:: all
 	copy $(NAME) $(install_bindir)
