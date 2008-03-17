@@ -236,6 +236,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name customEvictorS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name multicastC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name multicastS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -859,6 +865,33 @@ Package=<4>
 ###############################################################################
 
 Project: "minimalS"=.\Ice\minimal\minimalS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "multicastC"=.\Ice\multicast\multicastC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name multicastS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "multicastS"=.\Ice\multicast\multicastS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
