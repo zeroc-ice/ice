@@ -98,8 +98,22 @@ namespace IceInternal
 
             public override void ice_exception(Ice.Exception ex)
             {
-                Debug.Assert(ex is Ice.LocalException);
-                _callback.setException((Ice.LocalException)ex);
+                if(ex is Ice.CollocationOptimizationException)
+                {
+                    try
+                    {
+                        _callback.setEndpoints(_info.getClientEndpoints());
+                    }
+                    catch(Ice.LocalException e)
+                    {
+                        _callback.setException(e);
+                    }
+                }
+                else
+                {
+                    Debug.Assert(ex is Ice.LocalException);
+                    _callback.setException((Ice.LocalException)ex);
+                }
             }
 
             private RouterInfo _info;
@@ -171,8 +185,23 @@ namespace IceInternal
 
             public override void ice_exception(Ice.Exception ex)
             {
-                Debug.Assert(ex is Ice.LocalException);
-                _callback.setException((Ice.LocalException)ex);
+                if(ex is Ice.CollocationOptimizationException)
+                {
+                    try
+                    {
+                        _info.addProxy(_prx);
+                        _callback.addedProxy();
+                    }
+                    catch(Ice.LocalException e)
+                    {
+                        _callback.setException(e);
+                    }
+                }
+                else
+                {
+                    Debug.Assert(ex is Ice.LocalException);
+                    _callback.setException((Ice.LocalException)ex);
+                }
             }
 
             private RouterInfo _info;

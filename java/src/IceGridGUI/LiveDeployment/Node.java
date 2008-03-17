@@ -58,11 +58,6 @@ class Node extends ListTreeNode
                     {
                         result = session.openNodeStdErr(_id, count);
                     }
-                    if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
-                    {
-                        result = FileIteratorPrxHelper.uncheckedCast(
-                            result.ice_endpoints(session.ice_getEndpoints()));
-                    }
                     return result;
                 }
 

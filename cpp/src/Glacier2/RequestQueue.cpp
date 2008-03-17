@@ -236,9 +236,16 @@ Glacier2::RequestQueue::flushRequests(set<Ice::ObjectPrx>& batchProxies)
     IceUtil::Mutex::Lock lock(*this);
     for(vector<RequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
-        if((*p)->invoke()) // If batch invocation, add the proxy to the batch proxy set.
+        try
         {
-            batchProxies.insert((*p)->getProxy());
+            if((*p)->invoke()) // If batch invocation, add the proxy to the batch proxy set.
+            {
+                batchProxies.insert((*p)->getProxy());
+            }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore, this can occur for batch requests.
         }
     }
     _requests.clear();

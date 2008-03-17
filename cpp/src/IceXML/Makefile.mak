@@ -30,15 +30,19 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(OBJS) IceXML.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceXML.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
+IceXML.res: IceXML.rc
+	rc.exe $(RCFLAGS) IceXML.rc
+
 clean::
 	del /q $(DLLNAME:.dll=.*)
+	del /q IceXML.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

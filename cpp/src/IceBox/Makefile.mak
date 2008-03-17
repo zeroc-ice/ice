@@ -62,22 +62,33 @@ APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(DLLNAME): $(OBJS) IceBox.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceBox.res $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
+$(SERVER): $(SOBJS) IceBoxExe.res
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) IceBoxExe.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+		icebox$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(ADMIN): $(AOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
+$(ADMIN): $(AOBJS) IceBoxAdmin.res
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) IceBoxAdmin.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+		icebox$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+IceBox.res: IceBox.rc
+	rc.exe $(RCFLAGS) IceBox.rc
+
+IceBoxExe.res: IceBoxExe.rc
+	rc.exe $(RCFLAGS) IceBoxExe.rc
+
+IceBoxAdmin.res: IceBoxAdmin.rc
+	rc.exe $(RCFLAGS) IceBoxAdmin.rc
 
 !ifdef BUILD_UTILS
 
@@ -86,6 +97,7 @@ clean::
 	del /q $(DLLNAME:.dll=.*)
 	del /q $(SERVER:.exe=.*)
 	del /q $(ADMIN:.exe=.*)
+	del /q IceBox.res IceBoxAdmin.res IceBoxExe.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

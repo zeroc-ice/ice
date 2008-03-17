@@ -236,7 +236,22 @@ public final class LocatorInfo
                         public void
                         ice_exception(Ice.LocalException ex)
                         {
-                            getEndpointsException(ref, ex, callback);
+                            if(ex instanceof Ice.CollocationOptimizationException)
+                            {
+                                try
+                                {
+                                    Ice.BooleanHolder cached = new Ice.BooleanHolder();
+                                    callback.setEndpoints(getEndpoints(ref, ttl, cached), cached.value);
+                                }
+                                catch(Ice.LocalException e)
+                                {
+                                    callback.setException(e);
+                                }
+                            }
+                            else
+                            {
+                                getEndpointsException(ref, ex, callback);
+                            }
                         }
                     }, adapterId);
                 return;
@@ -281,7 +296,22 @@ public final class LocatorInfo
                         public void
                         ice_exception(Ice.LocalException ex)
                         {
-                            getEndpointsException(ref, ex, callback);
+                            if(ex instanceof Ice.CollocationOptimizationException)
+                            {
+                                try
+                                {
+                                    Ice.BooleanHolder cached = new Ice.BooleanHolder();
+                                    callback.setEndpoints(getEndpoints(ref, ttl, cached), cached.value);
+                                }
+                                catch(Ice.LocalException e)
+                                {
+                                    callback.setException(e);
+                                }
+                            }
+                            else
+                            {
+                                getEndpointsException(ref, ex, callback);
+                            }
                         }                        
                     }, identity);
                 return;
@@ -499,12 +529,12 @@ public final class LocatorInfo
                             _table.addProxy(ref.getIdentity(), object);
                         }
                         
-                                if(ref.getInstance().traceLevels().location >= 1)
-                                {
-                                    getEndpointsTrace(ref, endpoints, objectCached || endpointsCached);
-                                }
-                                
-                                callback.setEndpoints(endpoints, objectCached || endpointsCached);
+                        if(ref.getInstance().traceLevels().location >= 1)
+                        {
+                            getEndpointsTrace(ref, endpoints, objectCached || endpointsCached);
+                        }
+                        
+                        callback.setEndpoints(endpoints, objectCached || endpointsCached);
                     }
                     
                     public void

@@ -1,4 +1,4 @@
-/* ------------------- Script © 2006 EC Software -------------------
+/* ---------------- Script © 2005-2007 EC Software -----------------
    This script was created by Help & Manual and is part of the      
    "Browser-based Help" export format. This script is designed for  
    use in combination with the output of Help & Manual and must not 
@@ -10,10 +10,19 @@
 var usecookie = false;
 var tocselecting = false;
 var currentselection;
+var autocollapse = false;
 var treestate = "";  
 
 function fullexpand() { switchall(true); }
 function fullcollapse() { switchall(false); }
+
+function levelexpand(divID) {
+    var div = hmnavigation.document.getElementById(divID).firstChild;
+    while (div) {
+       switchdiv(div, div.id, true);
+       div = div.nextSibling;
+    }
+}
 
 function switchall(divvisible) {
     var tree = hmnavigation.document.getElementById("tree");
@@ -27,6 +36,7 @@ function switchall(divvisible) {
 function loadstate(tree) {
     var divID;
     if ((treestate=="") && (usecookie)) treestate = document.cookie;
+    
     while (treestate != "") {
        divID = treestate.substring(0,treestate.indexOf(","));
        treestate = treestate.substring(divID.length+1,treestate.length);
@@ -66,6 +76,12 @@ function switchdiv(thisdiv, divID, divvisible) {
     }
 }
 
+function hilightexpand(spanID, divID) {
+    hilight(spanID);
+    var thisdiv = hmnavigation.document.getElementById(divID);
+    if (thisdiv) switchdiv(thisdiv, divID, true);
+}
+
 function hilight(spanID) {
     tocselecting = true;
     var thisnode = null;
@@ -97,6 +113,16 @@ function intoview(thisnode, tree, selectionchanged) {
     else if (t < bt) hmnavigation.window.scrollTo(0,t);              
 }
 
+function collapseunfocused(tree, selectedID) {
+    if (tree) {
+       var nodepath = "div"+selectedID.substring(1,selectedID.length);
+       var items = tree.getElementsByTagName("div");
+       for (var i = 0; i < items.length; i++) {
+          if (nodepath.lastIndexOf(items[i].id)<0) { switchdiv(items[i], items[i].id, false); }
+       }
+    }
+}
+
 function quicksync(aID) {
     if (aID != "") {
        var tree = hmnavigation.document.getElementById("tree");
@@ -106,6 +132,10 @@ function quicksync(aID) {
              var selectionchanged = hilight("s"+aID.substring(1,aID.length));
              intoview(thisspan, tree, selectionchanged);
           }
+       }
+       if (autocollapse) {
+          if (currentselection) collapseunfocused(tree, currentselection.id);
+          else collapseunfocused(tree, "");
        }
     }
     tocselecting = false;
@@ -124,6 +154,10 @@ function lazysync(topicID) {
                 break;
              }
           }
+       }
+       if (autocollapse) {
+          if (currentselection) collapseunfocused(tree, currentselection.id);
+          else collapseunfocused(tree, "");
        }
     }
     tocselecting = false;

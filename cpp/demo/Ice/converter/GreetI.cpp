@@ -18,19 +18,18 @@ string decodeString(const string& str)
     ostringstream result;
     for(string::const_iterator p = str.begin(); p != str.end(); ++p)
     {
-        if(isprint(*p))
+        if(isprint(static_cast<unsigned char>(*p)))
         {
             result << *p;
         }
         else
         {
             result << "\\"
-                   << oct << (unsigned int)(unsigned char)(*p);
+                   << oct << static_cast<unsigned int>(static_cast<unsigned char>(*p));
         }
     }
     return result.str();
 }
-
 
 string
 GreetI::exchangeGreeting(const std::string& msg, const Ice::Current&) const

@@ -1500,7 +1500,7 @@ namespace IceInternal
             // (if any) to the new connection, so that callbacks from the
             // router can be received over this new connection.
             //
-            if(_routerInfo != null)
+            if(_routerInfo != null && _routerInfo.getAdapter() != null)
             {
                 connection.setAdapter(_routerInfo.getAdapter());
             }
@@ -1524,7 +1524,7 @@ namespace IceInternal
                 // (if any) to the new connection, so that callbacks from the
                 // router can be received over this new connection.
                 //
-                if(_rr._routerInfo != null)
+                if(_rr._routerInfo != null && _rr._routerInfo.getAdapter() != null)
                 {
                     connection.setAdapter(_rr._routerInfo.getAdapter());
                 }

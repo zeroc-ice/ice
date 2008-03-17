@@ -102,10 +102,10 @@ public class AllTests
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        String @ref = "hold:default -p 12010 -t 10000";
+        String @ref = "hold:default -p 12010 -t 30000";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        String refSerialized = "hold:default -p 12011 -t 10000";
+        String refSerialized = "hold:default -p 12011 -t 30000";
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         Console.Out.WriteLine("ok");
@@ -144,6 +144,7 @@ public class AllTests
         
         Console.Out.Write("testing without serialize mode... ");
         Console.Out.Flush();
+        System.Random rand = new System.Random();
         {
             Condition cond = new Condition(true);
             int value = 0;
@@ -151,18 +152,23 @@ public class AllTests
             while(cond.value())
             {
                 cb = new AMICheckSetValue(cond, value);
-                if(!hold.set_async(cb, ++value))
-                {
-                    cb.waitForSent();
-                }
-                else
+                if(hold.set_async(cb, ++value, rand.Next(5)))
                 {
                     cb = null;
+                }
+                if(value % 100 == 0)
+                {
+                    if(cb != null)
+                    {
+                        cb.waitForSent();
+                        cb = null;
+                    }
                 }
             }
             if(cb != null)
             {
                 cb.waitForSent();
+                cb = null;
             }
         }
         Console.Out.WriteLine("ok");
@@ -173,21 +179,26 @@ public class AllTests
             Condition cond = new Condition(true);
             int value = 0;
             AMICheckSetValue cb = null;
-            while(value < 10000 && cond.value())
+            while(value < 3000 && cond.value())
             {
                 cb = new AMICheckSetValue(cond, value);
-                if(!holdSerialized.set_async(cb, ++value))
-                {
-                    cb.waitForSent();
-                }
-                else
+                if(holdSerialized.set_async(cb, ++value, 0))
                 {
                     cb = null;
+                }
+                if(value % 100 == 0)
+                {
+                    if(cb != null)
+                    {
+                        cb.waitForSent();
+                        cb = null;
+                    }
                 }
             }
             if(cb != null)
             {
                 cb.waitForSent();
+                cb = null;
             }
             test(cond.value());
 

@@ -582,6 +582,41 @@ public class Coordinator
         }
     }
     
+    static private class ReuseConnectionRouter extends Ice._RouterDisp
+    {
+        public
+        ReuseConnectionRouter(Ice.ObjectPrx proxy)
+        {
+            _clientProxy = proxy;
+        }
+
+        public Ice.ObjectPrx
+        getClientProxy(Ice.Current current)
+        {
+            return _clientProxy;
+        }
+
+        public Ice.ObjectPrx
+        getServerProxy(Ice.Current current)
+        {
+            return null;
+        }
+
+        /** @deprecated **/
+        public void
+        addProxy(Ice.ObjectPrx proxy, Ice.Current current)
+        {
+        }
+
+        public Ice.ObjectPrx[]
+        addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
+        {
+            return new Ice.ObjectPrx[0];
+        }
+
+        private final Ice.ObjectPrx _clientProxy;
+    };
+
     public Ice.Communicator getCommunicator()
     {
         if(_communicator == null)
@@ -1257,8 +1292,7 @@ public class Coordinator
             
             try
             {
-                Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.
-                    uncheckedCast(_communicator.stringToProxy(str));
+                Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(_communicator.stringToProxy(str));
 
                 //
                 // The session must be routed through this router
@@ -1268,8 +1302,7 @@ public class Coordinator
                 Glacier2.SessionPrx s;
                 if(info.routerUseSSL)
                 {
-                    router = Glacier2.RouterPrxHelper.
-                        uncheckedCast(router.ice_secure(true));
+                    router = Glacier2.RouterPrxHelper.uncheckedCast(router.ice_secure(true));
 
                     s = router.createSessionFromSecureConnection();
                     
@@ -1288,8 +1321,8 @@ public class Coordinator
                 }
                 else
                 {
-                    s = router.createSession(
-                        info.routerUsername, new String(info.routerPassword));
+                    router = Glacier2.RouterPrxHelper.uncheckedCast(router.ice_preferSecure(true));
+                    s = router.createSession(info.routerUsername, new String(info.routerPassword));
 
                     if(s == null)
                     {
@@ -1363,12 +1396,10 @@ public class Coordinator
             str += ":" + info.registryEndpoints;
            
             RegistryPrx currentRegistry = null; 
-
+            IceGrid.LocatorPrx defaultLocator = null;
             try
             {
-                IceGrid.LocatorPrx defaultLocator = IceGrid.LocatorPrxHelper.
-                    checkedCast(_communicator.stringToProxy(str));
-
+                defaultLocator = IceGrid.LocatorPrxHelper.checkedCast(_communicator.stringToProxy(str));
                 if(defaultLocator == null)
                 {
                     JOptionPane.showMessageDialog(
@@ -1381,13 +1412,6 @@ public class Coordinator
  
                 currentRegistry = defaultLocator.getLocalRegistry();
                 
-                //
-                // Make sure the currentRegistry uses the same endpoints as the locator
-                // (for when IceGrid Admin is used over a ssh tunnel)
-                //
-                currentRegistry = RegistryPrxHelper.uncheckedCast(
-                    currentRegistry.ice_endpoints(defaultLocator.ice_getEndpoints()));
-
                 _communicator.setDefaultLocator(defaultLocator);
             }
             catch(Ice.LocalException e)
@@ -1401,7 +1425,6 @@ public class Coordinator
             }
 
             RegistryPrx registry = currentRegistry;
-
             if(info.connectToMaster && !currentRegistry.ice_getIdentity().name.equals("Registry"))
             {
                 Ice.Identity masterRegistryId = new Ice.Identity();
@@ -1412,6 +1435,22 @@ public class Coordinator
                     uncheckedCast(_communicator.stringToProxy(
                                       "\"" + _communicator.identityToString(masterRegistryId) + "\""));
             }
+
+            //
+            // If the registry to use is the locator local registry, we install a default router
+            // to ensure we'll use a single connection regardless of the endpoints returned in the
+            // proxies of the various session/admin methods (useful if used over an ssh tunnel).
+            //
+            if(registry.ice_getIdentity().equals(currentRegistry.ice_getIdentity()))
+            {
+                Ice.Properties properties = _communicator.getProperties();
+                properties.setProperty("CollocInternal.AdapterId", Ice.Util.generateUUID());
+                Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("CollocInternal");
+                colloc.setLocator(null);
+                Ice.ObjectPrx router = colloc.addWithUUID(new ReuseConnectionRouter(defaultLocator));
+                _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(router));
+                registry = RegistryPrxHelper.uncheckedCast(registry.ice_router(_communicator.getDefaultRouter()));
+            }
             
             do
             {
@@ -1419,29 +1458,20 @@ public class Coordinator
                 {
                     if(info.registryUseSSL)
                     {
-                        registry = RegistryPrxHelper.
-                            uncheckedCast(registry.ice_secure(true));
+                        registry = RegistryPrxHelper.uncheckedCast(registry.ice_secure(true));
                         
                         session = registry.createAdminSessionFromSecureConnection();
                         assert session != null;
                     }
                     else
                     {
+                        registry = RegistryPrxHelper.uncheckedCast(registry.ice_preferSecure(true));
+
                         session = registry.createAdminSession(info.registryUsername, 
                                                         new String(info.registryPassword));
                         assert session != null;
                     }
                     keepAlivePeriodHolder.value = registry.getSessionTimeout() * 1000 / 2;
-
-                    //
-                    // Make sure the session uses the same endpoints as the locator
-                    // (for when IceGrid Admin is used over a ssh tunnel)
-                    //
-                    if(registry == currentRegistry)
-                    {
-                        session = AdminSessionPrxHelper.uncheckedCast(
-                            session.ice_endpoints(currentRegistry.ice_getEndpoints()));
-                    }
                 }
                 catch(IceGrid.PermissionDeniedException e)
                 {

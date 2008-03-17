@@ -130,8 +130,8 @@ RES_FILE	= EventLoggerMsg.res
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+$(DLLNAME): $(OBJS) Ice.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) Ice.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -147,6 +147,9 @@ EventLoggerI.obj: EventLoggerMsg.h
 EventLoggerMsg.h EventLoggerMsg.res: EventLoggerMsg.mc
 	mc EventLoggerMsg.mc
 	$(RC) -r -fo EventLoggerMsg.res EventLoggerMsg.rc
+
+Ice.res: Ice.rc
+	rc.exe $(RCFLAGS) Ice.rc
 
 clean::
 	del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
@@ -183,6 +186,7 @@ clean::
 	del /q StatsF.cpp $(HDIR)\StatsF.h
 	del /q Stats.cpp $(HDIR)\Stats.h
 	del /q $(DLLNAME:.dll=.*)
+	del /q Ice.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

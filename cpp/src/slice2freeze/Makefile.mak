@@ -21,13 +21,18 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-$(NAME): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+$(NAME): $(OBJS) Slice2Freeze.res
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) Slice2Freeze.res $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
+Slice2Freeze.res: Slice2Freeze.rc
+	rc.exe $(RCFLAGS) Slice2Freeze.rc
+
 clean::
 	del /q $(NAME:.exe=.*)
+	del /q Slice2Freeze.res
 
 install:: all
 	copy $(NAME) $(install_bindir)

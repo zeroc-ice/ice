@@ -89,7 +89,9 @@ class AdapterEditor extends CommunicatorChildEditor
             };
         _registerProcess = new JCheckBox(checkRegisterProcess);
         _registerProcess.setToolTipText(
-            "<html>During activation, create a Process object<br>"
+            "<html>This setting is ignored for servers running Ice<br>"
+            + "version 3.3 or greater.<br>"
+            + "During activation, create a Process object<br>"
             + "in this adapter and register it with IceGrid<br>"
             + "to enable clean shutdown; you should register<br>"
             + "exactly one Process object per server.</html>");

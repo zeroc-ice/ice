@@ -70,30 +70,43 @@ CAPDBFLAGS      = /pdb:$(CALC:.exe=.pdb)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) $(OPENSSL_LIBS)
+$(DLLNAME): $(OBJS) IcePatch2.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IcePatch2.res $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) \
+		$(OPENSSL_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+$(SERVER): $(SOBJS) IcePatch2Server.res
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) IcePatch2Server.res $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 		icepatch2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+$(CLIENT): $(COBJS) IcePatch2Client.res
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) IcePatch2Client.res $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 		icepatch2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(CALC): $(CALCOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(SETARGV) $(CALCOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+$(CALC): $(CALCOBJS) IcePatch2Calc.res
+	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(SETARGV) $(CALCOBJS) IcePatch2Calc.res $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 		icepatch2$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+IcePatch2.res: IcePatch2.rc
+	rc.exe $(RCFLAGS) IcePatch2.rc
+
+IcePatch2Server.res: IcePatch2Server.rc
+	rc.exe $(RCFLAGS) IcePatch2Server.rc
+
+IcePatch2Client.res: IcePatch2Client.rc
+	rc.exe $(RCFLAGS) IcePatch2Client.rc
+
+IcePatch2Calc.res: IcePatch2Calc.rc
+	rc.exe $(RCFLAGS) IcePatch2Calc.rc
 
 !ifdef BUILD_UTILS
 
@@ -104,6 +117,7 @@ clean::
 	del /q $(SERVER:.exe=.*)
 	del /q $(CLIENT:.exe=.*)
 	del /q $(CALC:.exe=.*)
+	del /q IcePatch.res IcePatch2Server.res IcePatch2Client.res IcePatch2Calc.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

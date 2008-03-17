@@ -254,7 +254,7 @@
 
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
-            <attribute name="Class-Path" value="../help/ ../resources/ ../../share/doc/Ice-${ice.version}/ ../../share/doc/packages/Ice-${ice.version}/"/>
+            <attribute name="Class-Path" value="../help/ ../resources/ ../share/doc/ice-${ice.version}/ ../share/doc/packages/ice-${ice.version}/"/>
         </manifest>
         <jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>

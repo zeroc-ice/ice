@@ -51,8 +51,8 @@ $(LIBNAME): $(OBJS)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS) mcpp$(LIBSUFFIX).lib
+$(DLLNAME): $(OBJS) Slice.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) Slice.res $(PREOUT)$@ $(PRELIBS)$(BASELIBS) mcpp$(LIBSUFFIX).lib
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -74,10 +74,14 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
+Slice.res: Slice.rc
+	rc.exe $(RCFLAGS) Slice.rc
+
 clean::
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp
 	del /q $(DLLNAME:.dll=.*)
+	del /q Slice.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

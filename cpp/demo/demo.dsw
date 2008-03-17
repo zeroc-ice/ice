@@ -236,6 +236,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name customEvictorS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name multicastC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name multicastS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name replicated2C
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name replicated2S
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -596,6 +608,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2callbackC
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -867,6 +882,33 @@ Package=<4>
 
 ###############################################################################
 
+Project: "multicastC"=.\Ice\multicast\multicastC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name multicastS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "multicastS"=.\Ice\multicast\multicastS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "nestedC"=.\ice\nested\nestedC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -952,6 +994,33 @@ Package=<4>
 ###############################################################################
 
 Project: "printerS"=.\book\printer\printerS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "replicated2C"=.\IceStorm\replicated2\replicated2C.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name replicated2S
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "replicated2S"=.\IceStorm\replicated2\replicated2S.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1202,6 +1271,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name transformRead
+    End Project Dependency
 }}}
 
 ###############################################################################

@@ -99,12 +99,6 @@ class Slave extends TreeNode
                     {
                         result = session.openRegistryStdErr(_id, count);
                     }
-                    
-                    if(getCoordinator().getCommunicator().getDefaultRouter() == null)
-                    {
-                        result = FileIteratorPrxHelper.uncheckedCast(
-                            result.ice_endpoints(session.ice_getEndpoints()));
-                    }
                     return result;
                 }
 

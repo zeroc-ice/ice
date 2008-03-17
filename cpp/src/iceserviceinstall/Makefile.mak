@@ -65,23 +65,30 @@ TPDBFLAGS       = /pdb:$(TOOL:.exe=.pdb)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+$(DLLNAME): $(OBJS) IceServiceInstaller.res
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceServiceInstaller.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(TOOL): $(TOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(TLINKWITH)
+$(TOOL): $(TOBJS) IceServiceInstall.res
+	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TOBJS) IceServiceInstall.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(TLINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest $(EXTRA_MANIFEST) -outputresource:$@;#1 && del /q $@.manifest
+
+IceServiceInstaller.res: IceServiceInstaller.rc
+	rc.exe $(RCFLAGS) IceServiceInstaller.rc
+
+IceServiceInstall.res: IceServiceInstall.rc
+	rc.exe $(RCFLAGS) IceServiceInstall.rc
 
 !ifdef BUILD_UTILS
 
 clean::
 	del /q $(TOOL:.exe=.*)
 	del /q $(DLLNAME:.dll=.*)
+	del /q IceServiceInstall.res IceServiceInstaller.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

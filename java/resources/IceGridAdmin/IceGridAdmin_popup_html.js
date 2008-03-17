@@ -1,4 +1,4 @@
-/* --- Script © 2005 EC Software --- */
+/* --- Script © 2005-2007 EC Software --- */
 var ua = navigator.userAgent;
 var dom = (document.getElementById) ? true : false;
 var ie4 = (document.all && !dom) ? true : false;
@@ -11,9 +11,10 @@ function hmshowPopup(e, txt, stick) {
   e = e?e:window.event;
   var mx = ns4 ? e.PageX : e.clientX;
   var my = ns4 ? e.PageY : e.clientY;
-  var bodyl = (window.pageXOffset) ? window.pageXOffset : document.body.scrollLeft;
-  var bodyt = (window.pageYOffset) ? window.pageYOffset : document.body.scrollTop;
-  var bodyw = (window.innerWidth)  ? window.innerWidth  : document.body.offsetWidth;
+  var obj   = (window.document.compatMode && window.document.compatMode == "CSS1Compat") ? window.document.documentElement : window.document.body;
+  var bodyl = (window.pageXOffset) ? window.pageXOffset : obj.scrollLeft;
+  var bodyt = (window.pageYOffset) ? window.pageYOffset : obj.scrollTop;
+  var bodyw = (window.innerWidth)  ? window.innerWidth  : obj.offsetWidth;
   if (ns4) {
     tooltip.document.write(tip);
     tooltip.document.close();
@@ -26,12 +27,6 @@ function hmshowPopup(e, txt, stick) {
     if (tooltip.offsetWidth) if ((mx + offsxy + bodyl + tooltip.offsetWidth) > bodyw) { mx = bodyw - offsxy - bodyl - tooltip.offsetWidth; if (mx < 0) mx = 0; }
     tooltip.style.left = (mx + offsxy + bodyl)+"px";
     tooltip.style.top  = (my + offsxy + bodyt)+"px";
-  if (ie5_5) {
-    tooltip.style.filter = "progid:DXImageTransform.Microsoft.DropShadow(color='b0b0b0', Direction=135, OffX='3', OffY='3') progid:DXImageTransform.Microsoft.Fade(Overlap=1.00)";
-    for (i = 0; i <= 1; i++)
-    { tooltip.filters[i].Apply();
-      tooltip.filters[i].Play();}
-  }
   }
   with(tooltip) { ns4 ? visibility="show" : style.visibility="visible" }
   if (stick) document.onmouseup = hmhidePopup;

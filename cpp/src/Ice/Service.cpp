@@ -389,7 +389,17 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     // Ice.EventLog.Source on Windows.
     //
     InitializationData initData = initializationData;
-    initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+    try
+    {
+        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        ostringstream ostr;
+        ostr << ex;
+        error(ostr.str());
+        return EXIT_FAILURE;
+    }
 
 #ifdef _WIN32
 

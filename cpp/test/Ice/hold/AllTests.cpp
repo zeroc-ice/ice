@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/Random.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -111,10 +112,10 @@ void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    string ref = "hold:default -p 12010 -t 10000";
+    string ref = "hold:default -p 12010 -t 30000";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
-    string refSerialized = "hold:default -p 12011 -t 10000";
+    string refSerialized = "hold:default -p 12011 -t 30000";
     Ice::ObjectPrx baseSerialized = communicator->stringToProxy(refSerialized);
     test(base);
     cout << "ok" << endl;
@@ -156,18 +157,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
         while(cond->value())
         {
             cb = new AMICheckSetValue(cond, value);
-            if(!hold->set_async(cb, ++value))
-            {
-                cb->waitForSent();
-            }
-            else
+            if(hold->set_async(cb, ++value, IceUtilInternal::random(5)))
             {
                 cb = 0;
+            }
+            if(value % 100 == 0)
+            {
+                if(cb)
+                {
+                    cb->waitForSent();
+                    cb = 0;
+                }
             }
         }
         if(cb)
         {
             cb->waitForSent();
+            cb = 0;
         }
     }
     cout << "ok" << endl;
@@ -177,21 +183,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
         ConditionPtr cond = new Condition(true);
         int value = 0;
         AMICheckSetValuePtr cb;
-        while(value < 10000 && cond->value())
+        while(value < 3000 && cond->value())
         {
             cb = new AMICheckSetValue(cond, value);
-            if(!holdSerialized->set_async(cb, ++value))
-            {
-                cb->waitForSent();
-            }
-            else
+            if(holdSerialized->set_async(cb, ++value, 0))
             {
                 cb = 0;
+            }
+            if(value % 100 == 0)
+            {
+                if(cb)
+                {
+                    cb->waitForSent();
+                    cb = 0;
+                }
             }
         }
         if(cb)
         {
             cb->waitForSent();
+            cb = 0;
         }
         test(cond->value());
 

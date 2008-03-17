@@ -25,6 +25,7 @@ public class SelectorThread
 
         protected int _timeout;
         protected SocketStatus _status;
+        protected SocketStatus _previousStatus;
     }
 
     SelectorThread(Instance instance)
@@ -75,6 +76,7 @@ public class SelectorThread
     {
         // Note: unregister should only be called from the socketReady() call-back.
         assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
+        assert(cb._status != SocketStatus.Finished);
 
         _selector.remove(cb);
         cb._status = SocketStatus.Finished;
@@ -84,8 +86,10 @@ public class SelectorThread
     finish(SocketReadyCallback cb)
     {
         assert(!_destroyed); // The selector thread is destroyed after the incoming/outgoing connection factories.
+        assert(cb._status != SocketStatus.Finished);
 
         _selector.remove(cb);
+        cb._status = SocketStatus.Finished;
 
         _finished.add(cb);
         _selector.setInterrupt();
@@ -161,7 +165,7 @@ public class SelectorThread
                     do
                     {
                         SocketReadyCallback cb = _finished.removeFirst();
-                        cb._status = SocketStatus.Finished;
+                        cb._previousStatus = SocketStatus.Finished;
                         readyList.add(cb);
                     }
                     while(_selector.clearInterrupt()); // As long as there are interrupts
@@ -172,6 +176,7 @@ public class SelectorThread
                     SocketReadyCallback cb;
                     while((cb = (SocketReadyCallback)_selector.getNextSelected()) != null)
                     {
+                        cb._previousStatus = cb._status;
                         readyList.add(cb);
                     }
                 }
@@ -217,12 +222,16 @@ public class SelectorThread
                         _selector.hasMoreData(cb);
                     }
 
-                    if(status != cb._status)
+                    if(status != cb._previousStatus)
                     {
                         synchronized(this)
                         {
-                            _selector.update(cb, status);
-                            cb._status = status;
+                            // The callback might have been finished concurrently.
+                            if(cb._status != SocketStatus.Finished) 
+                            {
+                                _selector.update(cb, status);
+                                cb._status = status;
+                            }
                         }
                     }
 

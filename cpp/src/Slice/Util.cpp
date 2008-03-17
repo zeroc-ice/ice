@@ -63,6 +63,11 @@ Slice::normalizePath(const string& path, bool removeDriveLetter)
         result.replace(pos, 2, "/");
     }
     pos = 0;
+    while((pos = result.find("/./", pos)) != string::npos)
+    {
+        result.erase(pos, 2);
+    }
+    pos = 0;
     while((pos = result.find("/..", pos)) != string::npos)
     {
         string::size_type last = result.find_last_of("/", pos - 1);

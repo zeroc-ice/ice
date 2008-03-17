@@ -194,13 +194,7 @@ class Service extends ListArrayTreeNode
                         DeploymentException
                     {
                         AdminSessionPrx session = getRoot().getCoordinator().getSession();
-                        FileIteratorPrx result = session.openServerLog(_parent.getId(), fPath, count);
-                        if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
-                        {
-                            result = FileIteratorPrxHelper.uncheckedCast(
-                                result.ice_endpoints(session.ice_getEndpoints()));
-                        }
-                        return result;
+                        return session.openServerLog(_parent.getId(), fPath, count);
                     }
                     
                     public String getTitle()
@@ -229,7 +223,7 @@ class Service extends ListArrayTreeNode
         {
             _cellRenderer = new DefaultTreeCellRenderer();
 
-            _startedIcon = Utils.getIcon("/icons/16x16/service_started.png");
+            _startedIcon = Utils.getIcon("/icons/16x16/service_running.png");
             _stoppedIcon = Utils.getIcon("/icons/16x16/service.png");
         }
         
