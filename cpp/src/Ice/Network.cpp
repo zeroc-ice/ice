@@ -424,10 +424,9 @@ getInterfaceIndex(const string& name)
         }
         delete[] buf;
     }
-#else
+#elif !defined(__hpux)
     index = if_nametoindex(name.c_str());
 #endif
-
     return index;
 }
 

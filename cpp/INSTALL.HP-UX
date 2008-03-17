@@ -135,6 +135,15 @@ To build Ice in 64-bit mode, you need to:
 
 
 ======================================================================
+IPv6 Multicast
+======================================================================
+
+Unlike on other platforms, interface indexes cannot be used to
+configure the interface to use for a IPv6 multicast endpoint. Instead 
+the IP address must be used instead.
+
+
+======================================================================
 Installation
 ======================================================================
 
