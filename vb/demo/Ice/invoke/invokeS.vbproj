@@ -75,7 +75,6 @@
       <Name>Ice</Name>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
-    <Reference Include="invokeSlice, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -93,6 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="invokeSlice.csproj">
+      <Project>{50C3DD2A-26E4-407D-9613-154429E5BC8F}</Project>
+      <Name>invokeSlice</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />

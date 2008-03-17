@@ -71,7 +71,6 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="callbackSlice, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
@@ -93,6 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="callbackSlice.csproj">
+      <Project>{A84E3CA4-D56A-408B-BEA0-F1829F87A967}</Project>
+      <Name>callbackSlice</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />

@@ -70,7 +70,6 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="bidirSlice, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
@@ -92,6 +91,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="bidirSlice.csproj">
+      <Project>{B406A516-462C-431E-9C3A-78CF34817875}</Project>
+      <Name>bidirSlice</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />

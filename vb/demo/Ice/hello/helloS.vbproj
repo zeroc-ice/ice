@@ -71,7 +71,6 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="helloSlice, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
@@ -93,6 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="helloSlice.csproj">
+      <Project>{FCAA524C-D8C9-43CB-B004-F821DFC56C6E}</Project>
+      <Name>helloSlice</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />
