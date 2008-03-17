@@ -40,6 +40,12 @@ struct AtomicCounter
 {
     volatile int counter;
 };
+
+void atomicSet(AtomicCounter*, int);
+void atomicInc(AtomicCounter *);
+int atomicDecAndTest(AtomicCounter *);
+int atomicExchangeAdd(int, AtomicCounter*);
+
 }
 
 #elif defined(_WIN32)

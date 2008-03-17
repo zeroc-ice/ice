@@ -23,8 +23,6 @@ class ICE_API GCShared : public virtual IceUtil::Shared
 {
 public:
 
-    GCShared();
-    GCShared(const GCShared&);
     virtual ~GCShared() {}
 
     GCShared& operator=(const GCShared&)
@@ -45,21 +43,26 @@ public:
 
     int __getRefUnsafe() const
     {
+#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
+        return _ref.counter;
+#else
         return _ref;
+#endif
     }
 
     void __decRefUnsafe()
     {
+#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
+        IceUtilInternal::atomicDecAndTest(&_ref);
+#else
         --_ref;
+#endif
     }
 
 protected:
 
     void __gcIncRef();
     void __gcDecRef();
-
-    int _ref;
-    bool _noDelete;
 
     friend class IceInternal::GC; // Allows IceInternal::GC to read value of _ref.
 };
