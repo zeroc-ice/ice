@@ -27,7 +27,7 @@ try:
     adapter.activate()
     ic.waitForShutdown()
 except:
-    traceback.print_exec()
+    traceback.print_exc()
     status = 1
 
 if ic:
