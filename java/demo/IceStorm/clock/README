@@ -51,16 +51,20 @@ java Subscriber --batch
 
 java Subscriber --id <id>
 
-  This is flag sets the unique for the given subscriber.  If this
-  option is used it you should run the subscriber on a static port.
-  Use --Clock.Subscriber.Endpoints="tcp -p <x> -h <h>:udp -p <x> -h
-  <h>"
+  This option specifies a unique identity for this subscriber. When
+  you use this option, you should also run the subscriber on a fixed
+  port by setting the Clock.Subscriber.Endpoints property. For
+  example:
+
+  $ subscriber --Clock.Subscriber.Endpoints="tcp -p <port> -h <host>"
+
+  Replace "tcp" with "udp" when using the --datagram option.
 
 java Subscriber --retryCount <count>
 
-  This flag sets the retry count for a subscriber. This option should
-  be used in conjunction with the --id option. Setting retryCount
-  changes the default subscriber QoS to twoway.
+  This option sets the retry count for a subscriber. This option
+  should be used in conjunction with the --id option. Setting
+  retryCount changes the default subscriber QoS to twoway.
 
 For the publisher:
 

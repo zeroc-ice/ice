@@ -5,7 +5,7 @@ IceBox server hosting a number of IceBox services.
 Setup
 -----
 
-Start the IceGrid registry and node with:
+Start the IceGrid registry and node:
 
  $ icegridnode --Ice.Config=config.grid
 

@@ -27,8 +27,8 @@ Highlights:
   environment.
 
 - The application code does not deal at all with database deadlocks;
-  Freeze retries automatically (and correctly) each time a
-  deadlock is detected and reported by Berkeley DB.
+  Freeze retries automatically (and correctly) each time a deadlock is
+  detected and reported by Berkeley DB.
 
 - The application code does not perform any synchronization: with
   a Freeze transactional evictor, the servants you get are either
