@@ -242,6 +242,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name multicastS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name replicated2C
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name replicated2S
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -988,6 +994,33 @@ Package=<4>
 ###############################################################################
 
 Project: "printerS"=.\book\printer\printerS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "replicated2C"=.\IceStorm\replicated2\replicated2C.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name replicated2S
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "replicated2S"=.\IceStorm\replicated2\replicated2S.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
