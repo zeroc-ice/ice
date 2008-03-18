@@ -307,9 +307,13 @@ You also need to add the Ice bin directory to your PATH, for example:
 set PATH=<Ice installation root directory>\bin;%PATH%
 
 Finally, set PYTHONPATH so that the Python interpreter is able to load
-the Ice extension:
+the Ice extension. On 32-bit systems, use this setting:
 
 set PYTHONPATH=<Ice installation root directory>\python
+
+On 64-bit systems, use this setting instead:
+
+set PYTHONPATH=<Ice installation root directory>\python\x64
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'python Server.py' to start the server. In a

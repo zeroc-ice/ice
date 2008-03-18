@@ -92,7 +92,15 @@ def configurePaths():
     if not isWin32():
         os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
                                                
-    os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+    #
+    # On Windows x64, set PYTHONPATH to python/x64.
+    #
+    if isWin32() and isX64():
+        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python", "x64") + os.pathsep + \
+            os.getenv("PYTHONPATH", "")
+    else:
+        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+
     os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
  
 def isBinDist():
