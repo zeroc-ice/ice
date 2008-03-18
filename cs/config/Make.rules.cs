@@ -54,7 +54,7 @@ DEBUG			= yes
 # Set the key file used to sign assemblies.
 #
 
-KEYFILE                 ?= $(top_srcdir)/config/IceDevKey.snk
+KEYFILE                 ?= $(top_srcdir)/../config/IceDevKey.snk
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

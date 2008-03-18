@@ -55,7 +55,7 @@ OPTIMIZE		= yes
 #
 
 !if "$(KEYFILE)" == ""
-KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
+KEYFILE                 = $(top_srcdir)\..\config\IceDevKey.snk
 !endif
 
 # ----------------------------------------------------------------------
