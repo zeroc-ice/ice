@@ -40,8 +40,6 @@ struct AtomicCounter
 {
     volatile int counter;
 
-#ifdef ICE_HAS_ATOMIC_FUNCTIONS
-
     /*
      * atomicSet - set ice_atomic variable
      * @v: pointer of type AtomicCounter
@@ -110,7 +108,6 @@ struct AtomicCounter
         return tmp + i;
     }
 
-#endif
 };
 
 }
