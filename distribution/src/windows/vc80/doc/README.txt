@@ -307,11 +307,11 @@ You also need to add the Ice bin directory to your PATH, for example:
 set PATH=<Ice installation root directory>\bin;%PATH%
 
 Finally, set PYTHONPATH so that the Python interpreter is able to load
-the Ice extension. On 32-bit systems, use this setting:
+the Ice extension. For a 32-bit Python installation, use this setting:
 
 set PYTHONPATH=<Ice installation root directory>\python
 
-On 64-bit systems, use this setting instead:
+For a 64-bit Python installation, use this setting instead:
 
 set PYTHONPATH=<Ice installation root directory>\python\x64
 
