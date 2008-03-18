@@ -38,7 +38,14 @@ public:
     virtual void
     lookup(const DiscoverReplyPrx& reply, const Ice::Current&)
     {
-        reply->reply(_obj);
+        try
+        {
+            reply->reply(_obj);
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore
+        }
     }
 
 private:

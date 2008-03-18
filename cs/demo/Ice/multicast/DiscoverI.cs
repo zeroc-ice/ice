@@ -20,7 +20,14 @@ public class DiscoverI : DiscoverDisp_
     public override void
     lookup(DiscoverReplyPrx reply, Ice.Current current)
     {
-        reply.reply(_obj);
+        try
+        {
+            reply.reply(_obj);
+        }
+        catch(Ice.LocalException)
+        {
+            // Ignore
+        }
     }
 
     private Ice.ObjectPrx _obj;

@@ -19,7 +19,14 @@ public class DiscoverI extends _DiscoverDisp
     public void
     lookup(DiscoverReplyPrx reply, Ice.Current current)
     {
-        reply.reply(_obj);
+        try
+        {
+            reply.reply(_obj);
+        }
+        catch(Ice.LocalException ex)
+        {
+            // Ignore
+        }
     }
 
     private Ice.ObjectPrx _obj;
