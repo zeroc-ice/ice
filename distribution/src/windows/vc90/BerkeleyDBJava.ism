@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>BerkeleyDBJava.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>&lt;ISProjectFolder&gt;\install\berkeley\java</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BerkeleyDBJava.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>&lt;ISProjectFolder&gt;\install\berkeley\javax64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
