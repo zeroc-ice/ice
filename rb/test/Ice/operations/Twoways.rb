@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # **********************************************************************
 #
 # Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
@@ -540,7 +539,4 @@ def twoways(communicator, p)
 
         ic.destroy()
     end
-
-
-    
 end

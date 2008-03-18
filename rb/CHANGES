@@ -1,6 +1,8 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Removed "#!/usr/bin/env ruby" where unnecessary.
+
 - Added ice_staticId() method to generated Slice classes.
 
 - The use of sequences (and structs containing sequences) as valid 
