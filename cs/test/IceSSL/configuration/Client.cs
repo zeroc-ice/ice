@@ -28,15 +28,8 @@ public class Client
         }
 
         Test.ServerFactoryPrx factory;
-
-        Console.Out.WriteLine("testing with thread-per-connection.");
-        factory = AllTests.allTests(communicator, args[0], false);
-        if(factory != null)
-        {
-            Console.Out.WriteLine("testing with thread pool.");
-            AllTests.allTests(communicator, args[0], true);
-            factory.shutdown();
-        }
+        factory = AllTests.allTests(communicator, args[0]);
+        factory.shutdown();
         
         return 0;
     }

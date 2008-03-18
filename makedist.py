@@ -109,7 +109,7 @@ def copy(srcpath, destpath):
     if os.path.exists(destpath):
         print "warning: overwritting " + destpath
 
-    shutil.copyfile(srcpath, destpath)
+    shutil.copy(srcpath, destpath)
     fixFilePermission(destpath)
 
 #
@@ -514,6 +514,8 @@ for root, dirnames, filesnames in os.walk('.'):
 
 os.rename("distribution", os.path.join("..", "distribution")) # Move the distribution directory to the top-level
 os.rename("demoscript", os.path.join(demoscriptDistDir, "demoscript")) # Move the demoscript directory
+os.mkdir(os.path.join(demoscriptDistDir, "config"))
+copy(os.path.join("config", "DemoUtil.py"), os.path.join(demoscriptDistDir, "config"))
 
 print "ok"
 
@@ -549,14 +551,14 @@ copyMatchingFiles(os.path.join("cs", "config"), os.path.join(demoDistDir, "confi
 for d in os.listdir('.'):
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "allDemos.py")):
-        os.rename(os.path.join(d, "allDemos.py"), os.path.join(demoscriptDistDir, d, "allDemos.py"))
-        os.rename(os.path.join(demoscriptDistDir, d), os.path.join(demoscriptDistDir, getMappingDir("demo", d)))
+        md = os.path.join(demoscriptDistDir, getMappingDir("demo", d))
+        os.rename(os.path.join(demoscriptDistDir, d, "demo"), md)
+        os.rename(os.path.join(d, "allDemos.py"), os.path.join(md, "allDemos.py"))
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copytree(os.path.join(d, "demo"), os.path.join(demoDistDir, getMappingDir("demo", d)))
 
 rmFilesForUnix = []
-rmFilesForMsi = [ "README.DEMOS", "ICE_LICENSE" ]
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
 exeConfigSubstituteExprs = [(re.compile(regexpEscape("\\..\\cs")), "")]
 for root, dirnames, filesnames in os.walk(demoDistDir):
@@ -573,19 +575,7 @@ for root, dirnames, filesnames in os.walk(demoDistDir):
             if fnmatch.fnmatch(f, m):
                 rmFilesForUnix.append(os.path.join(root[len(demoDistDir) + 1:], f))
 
-        for m in [ "Make*"]:
-            if fnmatch.fnmatch(f, m):
-                rmFilesForMsi.append(os.path.join(root[len(demoDistDir) + 1:], f))
-
-#
-# Copy Ice-x.y.z-demos to Ice-x.y.z-demos-for-msi
-#
-demoMsiDistDir = os.path.join(distDir, "Ice-" + version + "-demos-for-msi")
-copytree(demoDistDir, demoMsiDistDir)
-
-# Remove files from Msi and Unix demo distributions.
 for f in rmFilesForUnix: os.remove(os.path.join(demoDistDir, f))
-for f in rmFilesForMsi: os.remove(os.path.join(demoMsiDistDir, f))
 print "ok"
 
 #
@@ -614,14 +604,27 @@ print "Archiving..."
 sys.stdout.flush()
 os.chdir(distDir)
 os.rename("distribution", "distfiles-" + version)
-for d in [srcDistDir, demoDistDir, demoscriptDistDir, "distfiles-" + version, rpmBuildDistDir]:
+for d in [srcDistDir, demoDistDir, "distfiles-" + version, rpmBuildDistDir]:
     dist = os.path.basename(d)
     print "   creating " + dist + ".tar.gz ...",
     sys.stdout.flush()
     os.system("tar c" + quiet + "f - " + dist + " | gzip -9 - > " + dist + ".tar.gz")
     print "ok"
 
-for d in [srcDistDir, demoDistDir, demoMsiDistDir]:
+for (d, archiveDir) in [(demoscriptDistDir, "Ice-" + version + "-demos")]:
+    dist = os.path.basename(d)
+    print "   creating " + dist + ".tar.gz ...",
+    sys.stdout.flush()
+    os.mkdir("tmp")
+    os.rename(dist, os.path.join("tmp", archiveDir))
+    os.chdir("tmp")
+    os.system("tar c" + quiet + "f - " + archiveDir + " | gzip -9 - > " + os.path.join("..", dist) + ".tar.gz")
+    os.chdir("..")
+    os.rename(os.path.join("tmp", archiveDir), dist)
+    os.rmdir("tmp")
+    print "ok"
+
+for d in [srcDistDir, demoDistDir]:
     dist = os.path.basename(d)
     print "   creating " + dist + ".zip ...",
     sys.stdout.flush()
@@ -658,7 +661,6 @@ sys.stdout.flush()
 rmtree(os.path.join(distDir, "distfiles-" + version))
 rmtree(srcDistDir)
 rmtree(demoDistDir)
-rmtree(demoMsiDistDir)
 rmtree(demoscriptDistDir)
 rmtree(rpmBuildDistDir)
 print "ok"

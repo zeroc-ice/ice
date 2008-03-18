@@ -31,7 +31,7 @@ MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(bindir)\Ice.dll $(SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
 !if "$(NOGAC)" == ""
 

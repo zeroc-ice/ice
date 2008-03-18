@@ -54,8 +54,8 @@ class IceStormUtil(object):
         self.toplevel = toplevel
         self.testdir = testdir
         self.iceBox = TestUtil.getIceBox(testdir)
-        self.iceBoxAdmin = os.path.join(TestUtil.getBinDir(testdir), "iceboxadmin")
-        self.iceStormAdmin = os.path.join(TestUtil.getBinDir(testdir), "icestormadmin")
+        self.iceBoxAdmin = os.path.join(TestUtil.getCppBinDir(), "iceboxadmin")
+        self.iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
     def runIceBoxAdmin(self, endpts, command):
         clientCfg = TestUtil.DriverConfig("client")

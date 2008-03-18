@@ -23,7 +23,7 @@ TestUtil.processCmdLine()
 
 testdir = os.path.dirname(os.path.abspath(__file__))
 
-router = os.path.join(TestUtil.getIceDir("cpp"), "bin", "glacier2router")
+router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
 args =  r' --Ice.PrintProcessId' \
         r' --Glacier2.RoutingTable.MaxSize=10' + \

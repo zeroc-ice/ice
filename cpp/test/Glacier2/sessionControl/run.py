@@ -32,7 +32,7 @@ TestUtil.getServerPid(serverPipe)
 TestUtil.getAdapterReady(serverPipe)
 print "ok"
 
-router = os.path.join(TestUtil.getBinDir(__file__), "glacier2router")
+router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
 args =    r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
           r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \

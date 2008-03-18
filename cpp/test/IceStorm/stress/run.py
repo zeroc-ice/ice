@@ -25,8 +25,8 @@ name = os.path.join("IceStorm", "stress")
 testdir = os.path.dirname(os.path.abspath(__file__))
 
 iceBox = TestUtil.getIceBox(testdir)
-iceBoxAdmin = os.path.join(TestUtil.getBinDir(testdir), "iceboxadmin")
-iceStormAdmin = os.path.join(TestUtil.getBinDir(testdir), "icestormadmin")
+iceBoxAdmin = os.path.join(TestUtil.getCppBinDir(), "iceboxadmin")
+iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
 import IceStormUtil
 

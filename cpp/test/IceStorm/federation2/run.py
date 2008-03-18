@@ -27,8 +27,8 @@ testdir = os.path.dirname(os.path.abspath(__file__))
 import IceStormUtil
 
 iceBox = TestUtil.getIceBox(testdir)
-iceBoxAdmin = os.path.join(TestUtil.getBinDir(testdir), "iceboxadmin")
-iceStormAdmin = os.path.join(TestUtil.getBinDir(testdir), "icestormadmin")
+iceBoxAdmin = os.path.join(TestUtil.getCppBinDir(), "iceboxadmin")
+iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
 publisher = os.path.join(testdir, "publisher")
 subscriber = os.path.join(testdir, "subscriber")

@@ -17,28 +17,22 @@ toplevel = None
 testErrors = []
 
 def configurePaths():
-    bindist = isBinDist()
 
     if ice_home:
         print "[ using Ice installation from " + ice_home,
-        if isX64():
-            print "(64bit)",
-        print "]"
-    elif os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
-        print "[ using Ice installation from " + os.environ["ICE_HOME"],
-        if isX64():
+        if x64:
             print "(64bit)",
         print "]"
 
     binDir = os.path.join(getIceDir("cpp"), "bin")        
     if isCygwin():
-        if bindist and isX64():
+        if ice_home and x64:
             binDir = os.path.join(binDir, "x64")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
-            if isX64():
-                if bindist:
+            if x64:
+                if ice_home:
                     libDir = os.path.join(libDir, "pa20_64")
                     binDir = os.path.join(binDir, "pa20_64")
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
@@ -49,8 +43,8 @@ def configurePaths():
         elif isAIX():
             os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
         elif isSolaris():
-            if isX64():
-                if bindist:
+            if x64:
+                if ice_home:
                     if isSparc():
                         libDir = os.path.join(libDir, "sparcv9")
                         binDir = os.path.join(binDir, "sparcv9")
@@ -61,8 +55,8 @@ def configurePaths():
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
         else:
-            if isX64():
-                if bindist:
+            if x64:
+                if ice_home:
                     libDir = libDir + "64"
                     binDir = binDir + "64"
                 os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
@@ -83,7 +77,14 @@ def configurePaths():
     if not isCygwin():
         os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
 
-    os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+    #
+    # On Windows x64, set PYTHONPATH to python/x64.
+    #
+    if isCygwin() and x64:
+        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python", "x64") + os.pathsep + \
+            os.getenv("PYTHONPATH", "")
+    else:
+        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
     os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
 
 def findTopLevel():
@@ -102,19 +103,6 @@ def findTopLevel():
 
     return toplevel
 
-def isBinDist():
-    return  (ice_home or (os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0))
-
-def isX64():
-    if x64:
-        return True
-    elif isCygwin():
-        if (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
-            return True
-    elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
-        return True
-    return False
-
 def getIceDir(subdir = None):
     #
     # If ICE_HOME is set we're running the test against a binary distribution. Otherwise,
@@ -123,8 +111,6 @@ def getIceDir(subdir = None):
     global ice_home
     if ice_home:
         return ice_home
-    if os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
-        return os.environ["ICE_HOME"]
     elif subdir:
         return os.path.join(findTopLevel(), subdir)
     else:
@@ -275,6 +261,12 @@ def run(demos):
             if o == "--start-after":
                 start += 1
             demos = demos[start:]
+
+    if not ice_home and os.environ.get("ICE_HOME", "") != "":
+        ice_home = os.environ["ICE_HOME"]
+
+    if not x64:
+        x64 = isCygwin() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
 
     configurePaths()
 

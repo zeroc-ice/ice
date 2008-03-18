@@ -27,6 +27,6 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --stream -I.
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\Ice.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(C_SRCS) $(GEN_SRCS)
 
 !include .depend

@@ -24,7 +24,7 @@ import IceGridAdmin
 
 def icepatch2Calc(datadir, dirname):
 
-    icePatch2Calc = os.path.join(TestUtil.getBinDir(__file__), "icepatch2calc")
+    icePatch2Calc = os.path.join(TestUtil.getCppBinDir(), "icepatch2calc")
     commandPipe = os.popen(icePatch2Calc + " " + os.path.join(datadir, dirname) + " 2>&1")
 
     TestUtil.printOutputFromPipe(commandPipe)

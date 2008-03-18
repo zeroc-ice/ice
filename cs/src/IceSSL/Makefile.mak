@@ -34,7 +34,7 @@ MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 $(TARGETS):: $(SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(bindir)\Ice.dll $(SRCS)
+	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS)
 
 !if "$(NOGAC)" == ""
 

@@ -36,16 +36,10 @@ testErrors = []
 
 def configurePaths():
     toplevel = findTopLevel()
-    bindist = isBinDist()
 
     if ice_home:
         print "[ using Ice installation from " + ice_home,
-        if isX64():
-            print "(64bit)",
-        print "]"
-    elif os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
-        print "[ using Ice installation from " + os.environ["ICE_HOME"],
-        if isX64():
+        if x64:
             print "(64bit)",
         print "]"
 
@@ -54,8 +48,8 @@ def configurePaths():
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if isHpUx():
-            if isX64():
-                if bindist:
+            if x64:
+                if ice_home:
                     libDir = os.path.join(libDir, "pa20_64")
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
             else:
@@ -65,8 +59,8 @@ def configurePaths():
         elif isAIX():
             os.environ["LIBPATH"] = libDir + os.pathsep + os.getenv("LIBPATH", "")
         elif isSolaris():
-            if isX64():
-                if bindist:
+            if x64:
+                if ice_home:
                     if isSparc():
                         libDir = os.path.join(libDir, "sparcv9")
                     else:
@@ -75,8 +69,8 @@ def configurePaths():
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
         else:
-            if isX64():
-                if bindist:
+            if x64:
+                if ice_home:
                     libDir = libDir + "64"
                 os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
             else:
@@ -95,7 +89,7 @@ def configurePaths():
     #
     # On Windows x64, set PYTHONPATH to python/x64.
     #
-    if isWin32() and isX64():
+    if isWin32() and x64:
         os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python", "x64") + os.pathsep + \
             os.getenv("PYTHONPATH", "")
     else:
@@ -103,19 +97,6 @@ def configurePaths():
 
     os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
  
-def isBinDist():
-    return  (ice_home or (os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0))
-
-def isX64():
-    if x64:
-       return True
-    elif isWin32():
-        if (os.environ.has_key("XTARGET") and os.environ["XTARGET"] == "x64"):
-            return True
-    elif os.environ.has_key("LP64") and os.environ["LP64"] == "yes":
-        return True
-    return False
-
 def addLdPath(libpath):
     if isWin32():
         os.environ["PATH"] = libpath + os.pathsep + os.getenv("PATH", "")
@@ -314,8 +295,6 @@ def getIceDir(subdir = None):
     global ice_home
     if ice_home:
         return ice_home
-    if os.environ.has_key("ICE_HOME") and len(os.environ["ICE_HOME"]) != 0:
-        return os.environ["ICE_HOME"]
     elif subdir:
         return os.path.join(findTopLevel(), subdir)
     else: 
@@ -623,21 +602,21 @@ class InvalidSelectorString(Exception):
 
 sslConfigTree = { 
         "cpp" : { 
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --Ice.Default.Protocol=ssl --IceSSL.DefaultDir=%(certsdir)s " +  
-            "--IceSSL.CertAuthFile=cacert.pem",
+            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --Ice.Default.Protocol=ssl " +
+            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CertAuthFile=cacert.pem",
             "client" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem",
             "server" : " --IceSSL.CertFile=s_rsa1024_pub.pem --IceSSL.KeyFile=s_rsa1024_priv.pem",
             "colloc" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem"
             },
         "java" : { 
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory --Ice.Default.Protocol=ssl --IceSSL.DefaultDir=%(certsdir)s " +  
-            " --IceSSL.Truststore=certs.jks --IceSSL.Password=password",
+            "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory --Ice.Default.Protocol=ssl " +
+            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Truststore=certs.jks --IceSSL.Password=password",
             "client" : " --IceSSL.Keystore=client.jks",
             "server" : " --IceSSL.Keystore=server.jks",
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
         "cs" : {
-            "plugin" : " --Ice.Plugin.IceSSL=%(bindir)s\\IceSSL.dll:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
+            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
             " --IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s",
             "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
             "server" : " --IceSSL.CertFile=s_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem",
@@ -675,14 +654,7 @@ def getDefaultMapping(currentDir = ""):
 
 def getTestEnv():
     env = {}
-
-    lang = getDefaultMapping()
-    if lang == "cs":
-        env["bindir"] = os.path.splitdrive(os.path.join(os.path.abspath(findTopLevel()), "cs", "bin"))[1]
-        env["certsdir"] = os.path.splitdrive(os.path.join(os.path.abspath(findTopLevel()), "certs"))[1]
-    else:
-        env["certsdir"] = os.path.join(os.path.abspath(findTopLevel()), "certs")
-        env["bindir"] = os.path.join(os.path.abspath(findTopLevel()), "cpp", "bin")
+    env["certsdir"] = os.path.abspath(os.path.join(findTopLevel(), "certs"))
     return env 
 
 class DriverConfig:
@@ -731,8 +703,11 @@ def argsToDict(argumentString, results):
             results[current] = None
     return results
             
-def getCommandLine(exe, config, env = getTestEnv()):
+def getCommandLine(exe, config, env=None):
 
+    if not env:
+        env = getTestEnv()
+        
     #
     # Command lines are built up from the items in the components
     # sequence, which is initialized with command line options common to
@@ -992,7 +967,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
         client = os.path.join(testdir, client)
 
     print "starting server...",
-    serverCmd = getCommandLine(server, DriverConfig("server")) + additionalServerOptions
+    serverCmd = getCommandLine(server, DriverConfig("server")) + ' ' + additionalServerOptions
     if debug:
         print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
@@ -1002,7 +977,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     print "ok"
     
     print "starting client...",
-    clientCmd = getCommandLine(client, DriverConfig("client")) + additionalClientOptions
+    clientCmd = getCommandLine(client, DriverConfig("client")) + ' ' + additionalClientOptions
     if debug:
         print "(" + clientCmd + ")",
     clientPipe = os.popen(clientCmd + " 2>&1")
@@ -1054,11 +1029,11 @@ def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
 	os.remove(filename)
 
-def startClient(exe, args, config=None, env=getTestEnv()):
+def startClient(exe, args, config=None, env=None):
     if config == None:
         config = DriverConfig("client")
     if debug:
-        print "(" + getCommandLine(exe, config, env) + args + ")",
+        print "(" + getCommandLine(exe, config, env) + ' ' + args + ")",
 
     if config.lang == "php":
         os.chdir(os.path.dirname(os.path.abspath(exe)))
@@ -1071,40 +1046,28 @@ def startClient(exe, args, config=None, env=getTestEnv()):
         tmpini.write("extension=%s\n" % phpExtension)
         tmpini.close()
 
-    return os.popen(getCommandLine(exe, config, env) + args + " 2>&1")
+    return os.popen(getCommandLine(exe, config, env) + ' ' + args + " 2>&1")
 
-def startServer(exe, args, config=None, env=getTestEnv()):
+def startServer(exe, args, config=None, env=None):
     if config == None:
         config = DriverConfig("server")
     if debug:
-        print "(" + getCommandLine(exe, config, env) + args + ")",
-    return os.popen(getCommandLine(exe, config, env) + args + " 2>&1")
+        print "(" + getCommandLine(exe, config, env) + ' ' + args + ")",
+    return os.popen(getCommandLine(exe, config, env) + ' ' +args + " 2>&1")
 
-def startColloc(exe, args, config=None, env=getTestEnv()):
+def startColloc(exe, args, config=None, env=None):
     if config == None:
         config = DriverConfig("colloc")
     if debug:
-        print "(" + getCommandLine(exe, config, env) + args + ")",
-    return os.popen(getCommandLine(exe, config, env) + args + " 2>&1")
+        print "(" + getCommandLine(exe, config, env) + ' ' + args + ")",
+    return os.popen(getCommandLine(exe, config, env) + ' ' + args + " 2>&1")
 
 def getMappingDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), getDefaultMapping(currentDir)))
 
-def getBinDir(currentDir):
-    binDir = os.path.join(getIceDir(getMappingDir(currentDir)), "bin")
-    if isBinDist() and isX64():
-        if isHpUx():
-            binDir = os.path.join(binDir, "pa20_64")
-        elif isSolaris():
-            if isSparc():
-                binDir = os.path.join(binDir, "sparcv9")
-            else:
-                binDir = os.path.join(binDir, "amd64")
-    return binDir
-
 def getCppBinDir():
     binDir = os.path.join(getIceDir("cpp"), "bin")
-    if isBinDist() and isX64():
+    if ice_home and x64:
         if isHpUx():
             binDir = os.path.join(binDir, "pa20_64")
         elif isSolaris():
@@ -1115,9 +1078,6 @@ def getCppBinDir():
         elif isWin32():
             binDir = os.path.join(binDir, "x64")
     return binDir
-
-def getCertsDir(currentDir):
-    return os.path.abspath(os.path.join(findTopLevel(), "certs"))
 
 def processCmdLine():
     def usage():
@@ -1173,6 +1133,13 @@ def processCmdLine():
 
     if len(args) > 0:
         usage()
+
+    # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
+    if not ice_home and os.environ.get("ICE_HOME", "") != "" and os.environ.get("USE_BIN_DIST", "no") == "yes":
+        ice_home = os.environ["ICE_HOME"]
+
+    if not x64:
+        x64 = isWin32() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
 
     configurePaths()
 

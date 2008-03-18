@@ -79,6 +79,12 @@ bindir			= $(top_srcdir)\bin
 install_bindir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib
 
+!if "$(ice_src_dist)" != ""
+refdir = $(bindir)
+!else
+refdir = $(ice_dir)\bin
+!endif
+
 !if "$(no_gac)" != ""
 NOGAC			= $(no_gac)
 !endif
@@ -159,8 +165,6 @@ $(TARGETS_CONFIG):
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
 	del tmp.pub tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak config"
-
-assemblydir = $(bindir)
 !else
 $(TARGETS_CONFIG):
 	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
@@ -168,8 +172,6 @@ $(TARGETS_CONFIG):
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
 	del tmp.pub tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak config"
-
-assemblydir = $(ice_dir)\bin
 !endif
 
 !else
@@ -183,31 +185,31 @@ $(TARGETS_CONFIG):
       <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
         <dependentAssembly>
           <assemblyIdentity name="Glacier2" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-          <codeBase version="$(INTVERSION).0" href="$(assemblydir)\Glacier2.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(refdir)\Glacier2.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="Ice" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-          <codeBase version="$(INTVERSION).0" href="$(assemblydir)\Ice.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(refdir)\Ice.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IcePatch2" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-          <codeBase version="$(INTVERSION).0" href="$(assemblydir)\IcePatch2.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(refdir)\IcePatch2.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceStorm" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-          <codeBase version="$(INTVERSION).0" href="$(assemblydir)\IceStorm.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(refdir)\IceStorm.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceBox" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-          <codeBase version="$(INTVERSION).0" href="$(assemblydir)\IceBox.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(refdir)\IceBox.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceGrid" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-          <codeBase version="$(INTVERSION).0" href="$(assemblydir)\IceGrid.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(refdir)\IceGrid.dll"/>
         </dependentAssembly>
         <dependentAssembly>
           <assemblyIdentity name="IceSSL" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-          <codeBase version="$(INTVERSION).0" href="$(assemblydir)\IceSSL.dll"/>
+          <codeBase version="$(INTVERSION).0" href="$(refdir)\IceSSL.dll"/>
         </dependentAssembly>
 	<qualifyAssembly partialName="IceSSL" fullName="IceSSL, Version=$(INTVERSION).0, Culture=neutral, PublicKeyToken=$(publicKeyToken)"/>
     </assemblyBinding>

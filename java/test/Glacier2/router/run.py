@@ -23,7 +23,7 @@ TestUtil.processCmdLine()
 
 testdir = os.path.dirname(os.path.abspath(__file__))
 
-router = os.path.join(TestUtil.getIceDir("cpp"), "bin", "glacier2router")
+router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
 args =  r' --Ice.Warn.Dispatch=0' + \
         r' --Ice.Warn.Connections=0' + \

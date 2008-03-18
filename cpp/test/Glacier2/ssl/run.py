@@ -32,7 +32,7 @@ TestUtil.getServerPid(serverPipe)
 TestUtil.getAdapterReady(serverPipe)
 print "ok"
 
-router = os.path.join(TestUtil.getBinDir(__file__), "glacier2router")
+router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
 args = r' --Ice.Warn.Dispatch=0' + \
         r' --Glacier2.AddSSLContext=1' + \
@@ -43,28 +43,21 @@ args = r' --Ice.Warn.Dispatch=0' + \
         r' --Glacier2.SessionManager="sessionmanager:tcp -h 127.0.0.1 -p 12350 -t 10000"' + \
         r' --Glacier2.PermissionsVerifier="Glacier2/NullPermissionsVerifier"' + \
         r' --Glacier2.SSLSessionManager="sslsessionmanager:tcp -h 127.0.0.1 -p 12350 -t 10000"' + \
-        r' --Glacier2.SSLPermissionsVerifier="sslverifier:tcp -h 127.0.0.1 -p 12350 -t 10000"' + \
-        r" --Ice.Plugin.IceSSL=IceSSL:createIceSSL" + \
-        r" --IceSSL.DefaultDir=" + TestUtil.getCertsDir(__file__) + \
-        r' --IceSSL.CertFile=s_rsa1024_pub.pem' + \
-        r' --IceSSL.KeyFile=s_rsa1024_priv.pem' + \
-        r' --IceSSL.CertAuthFile=cacert.pem'
+        r' --Glacier2.SSLPermissionsVerifier="sslverifier:tcp -h 127.0.0.1 -p 12350 -t 10000"'
 
+routerCfg = TestUtil.DriverConfig("server")
+routerCfg.protocol = "ssl"
 print "starting router...",
-starterPipe = TestUtil.startServer(router, args + " 2>&1")
+starterPipe = TestUtil.startServer(router, args + " 2>&1", routerCfg)
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
 
+clientCfg = TestUtil.DriverConfig("client")
+clientCfg.protocol = "ssl"
 client = os.path.join(testdir, "client")
-args = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL" + \
-        " --IceSSL.DefaultDir=" + TestUtil.getCertsDir(__file__) + \
-        " --IceSSL.CertFile=c_rsa1024_pub.pem" + \
-        " --IceSSL.KeyFile=c_rsa1024_priv.pem" + \
-        " --IceSSL.CertAuthFile=cacert.pem"
-
 print "starting client...",
-clientPipe = TestUtil.startClient(client, args + " 2>&1") 
+clientPipe = TestUtil.startClient(client, "", clientCfg)
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

@@ -31,15 +31,15 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\Ice.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\Ice.dll $(S_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(S_SRCS) $(GEN_SRCS)
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\Ice.dll $(COL_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(COL_SRCS) $(GEN_SRCS)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\Ice.dll $(SAMD_SRCS) $(GEN_AMD_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(SAMD_SRCS) $(GEN_AMD_SRCS)
 
 !include .depend
