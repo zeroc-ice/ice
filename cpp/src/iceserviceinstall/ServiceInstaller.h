@@ -10,17 +10,10 @@
 #ifndef ICE_SERVICE_INSTALLER_H
 #define ICE_SERVICE_INSTALLER_H
 
-#ifdef ICE_SERVICE_INSTALLER_API_EXPORTS
-#   define ICE_SERVICE_INSTALLER_API ICE_DECLSPEC_EXPORT
-#else
-#   define ICE_SERVICE_INSTALLER_API ICE_DECLSPEC_IMPORT
-#endif
-
 #include <Ice/Ice.h>
-
 #include <AccCtrl.h>
 
-class ICE_SERVICE_INSTALLER_API IceServiceInstaller
+class IceServiceInstaller
 {
 public:
 
