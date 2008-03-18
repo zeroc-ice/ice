@@ -76,7 +76,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
     
     if(path == ".." ||
        path.find("/../") != string::npos ||
-       path.size() >= 3 && (path.substr(0, 3) == "../" || path.substr(path.size() - 3, 3) == "/.."))
+       (path.size() >= 3 && (path.substr(0, 3) == "../" || path.substr(path.size() - 3, 3) == "/..")))
     {
         FileAccessException ex;
         ex.reason = "illegal `..' component in path `" + path + "'";

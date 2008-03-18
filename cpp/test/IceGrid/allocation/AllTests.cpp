@@ -948,8 +948,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
         }
         while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
-        test(cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy) ||
-             cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy));
+        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         AllocateObjectByTypeCallbackPtr cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
@@ -987,8 +987,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
         }
         while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
-        test(cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy) ||
-             cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy));
+        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
@@ -1011,8 +1011,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
         }
         while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
-        test(cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy) ||
-             cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy));
+        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;

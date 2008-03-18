@@ -557,7 +557,7 @@ void
 IceInternal::BatchOutgoing::invoke()
 {
     assert(_handler || _connection);
-    if(_handler && !_handler->flushBatchRequests(this) || _connection && !_connection->flushBatchRequests(this))
+    if((_handler && !_handler->flushBatchRequests(this)) || (_connection && !_connection->flushBatchRequests(this)))
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         while(!_exception.get() && !_sent)

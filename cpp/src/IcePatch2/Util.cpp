@@ -279,7 +279,7 @@ IcePatch2::simplify(const string& path)
     }
 
     if(result == "/." ||
-       result.size() == 4 && isalpha(result[0]) && result[1] == ':' && result[2] == '/' && result[3] == '.')
+       (result.size() == 4 && isalpha(result[0]) && result[1] == ':' && result[2] == '/' && result[3] == '.'))
     {
        return result.substr(0, result.size() - 1);
     }
@@ -289,7 +289,7 @@ IcePatch2::simplify(const string& path)
         result.erase(result.size() - 2, 2);
     }
 
-    if(result == "/" || result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/')
+    if(result == "/" || (result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/'))
     {
         return result;
     }
@@ -346,7 +346,7 @@ IcePatch2::getSuffix(const string& pa)
     string::size_type dotPos = path.rfind('.');
     string::size_type slashPos = path.rfind('/');
 
-    if(dotPos == string::npos || slashPos != string::npos && slashPos > dotPos)
+    if(dotPos == string::npos || (slashPos != string::npos && slashPos > dotPos))
     {
         return string();
     }
@@ -362,7 +362,7 @@ IcePatch2::getWithoutSuffix(const string& pa)
     string::size_type dotPos = path.rfind('.');
     string::size_type slashPos = path.rfind('/');
 
-    if(dotPos == string::npos || slashPos != string::npos && slashPos > dotPos)
+    if(dotPos == string::npos || (slashPos != string::npos && slashPos > dotPos))
     {
         return path;
     }

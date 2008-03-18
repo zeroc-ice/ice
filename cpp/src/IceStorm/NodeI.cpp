@@ -536,7 +536,7 @@ NodeI::mergeContinue()
         // need a majority of the nodes to be active in order to start
         // running.
         unsigned int ingroup = static_cast<unsigned int>(tmpSet.size());
-        if(_max != _nodes.size() && ingroup != _nodes.size() -1 || ingroup < _nodes.size()/2)
+        if((_max != _nodes.size() && ingroup != _nodes.size() -1) || ingroup < _nodes.size()/2)
         {
             if(_traceLevels->election > 0)
             {

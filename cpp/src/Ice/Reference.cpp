@@ -297,7 +297,7 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(_overrideCompress != r._overrideCompress || _overrideCompress && _compress != r._compress)
+    if((_overrideCompress != r._overrideCompress) || (_overrideCompress && _compress != r._compress))
     {
 	return false;
     }
@@ -1187,7 +1187,7 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
 	return false;
     }
-    if(_overrideTimeout != rhs->_overrideTimeout || _overrideTimeout && _timeout != rhs->_timeout)
+    if((_overrideTimeout != rhs->_overrideTimeout) || (_overrideTimeout && _timeout != rhs->_timeout))
     {
 	return false;
     }

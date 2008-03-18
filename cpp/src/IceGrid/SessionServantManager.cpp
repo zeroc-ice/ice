@@ -49,7 +49,7 @@ SessionServantManager::locate(const Ice::Current& current, Ice::LocalObjectPtr&)
     else
     {
         map<Ice::Identity, ServantInfo>::const_iterator p = _servants.find(current.id);
-        if(p == _servants.end() || _checkConnection && p->second.connection != current.con)
+        if(p == _servants.end() || (_checkConnection && p->second.connection != current.con))
         {
             return 0;
         }

@@ -147,7 +147,7 @@ AllocationRequest::AllocationRequest(const SessionIPtr& session) :
 }
 
 Allocatable::Allocatable(bool allocatable, const AllocatablePtr& parent) : 
-    _allocatable(allocatable || parent && parent->isAllocatable()),
+    _allocatable(allocatable || (parent && parent->isAllocatable())),
     _count(0),
     _releasing(false)
 {
@@ -277,7 +277,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
                 // there's no request, just notify the allocatable that it can
                 // be allocated again.
                 //
-                if(request && allocatable->allocate(request, true) || !request && allocatable->canTryAllocate())
+                if((request && allocatable->allocate(request, true)) || (!request && allocatable->canTryAllocate()))
                 {
                     while(true)
                     {

@@ -380,7 +380,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 
     {
         Lock sync(*this);
-        if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
+        if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
         {
             assert(_loaded.get() || _load.get() || _destroy.get());
             activationTimeout = _activationTimeout;
@@ -401,7 +401,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 
         {
             Lock sync(*this);
-            if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
+            if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
             {
                 assert(_loaded.get() || _load.get() || _destroy.get());
                 activationTimeout = _activationTimeout;
@@ -455,7 +455,7 @@ ServerEntry::getAdapter(int& activationTimeout, int& deactivationTimeout, const 
 
     {
         Lock sync(*this);
-        if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
+        if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
         {
             AdapterPrxDict::const_iterator p = _adapters.find(id);
             if(p != _adapters.end())
@@ -483,7 +483,7 @@ ServerEntry::getAdapter(int& activationTimeout, int& deactivationTimeout, const 
 
         {
             Lock sync(*this);
-            if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
+            if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
             {
                 AdapterPrxDict::const_iterator p = _adapters.find(id);
                 if(p != _adapters.end())
@@ -915,8 +915,8 @@ ServerEntry::allocatedNoSync(const SessionIPtr& session)
     {
         Lock sync(*this);
         if(!_updated || 
-           _loaded.get() && _loaded->descriptor->activation != "session" || 
-           _load.get() && _load->descriptor->activation != "session")
+           (_loaded.get() && _loaded->descriptor->activation != "session") || 
+           (_load.get() && _load->descriptor->activation != "session"))
         {
             return;
         }
@@ -1009,8 +1009,8 @@ ServerEntry::releasedNoSync(const SessionIPtr& session)
     {
         Lock sync(*this);
         if(!_updated || 
-           _loaded.get() && _loaded->descriptor->activation != "session" || 
-           _load.get() && _load->descriptor->activation != "session")
+           (_loaded.get() && _loaded->descriptor->activation != "session") || 
+           (_load.get() && _load->descriptor->activation != "session"))
         {
             return;
         }

@@ -185,7 +185,7 @@ LocatorI::Request::Request(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
     _count(count),
     _lastAdapter(_adapters.begin())
 {
-    assert(_count == 0 && _adapters.empty() || _count > 0);
+    assert((_count == 0 && _adapters.empty()) || _count > 0);
 }
 
 void
@@ -362,7 +362,7 @@ LocatorI::Request::sendResponse()
         // contact the adapters or because the replica group has
         // no members.
         //
-        assert(_exception.get() || _replicaGroup && _adapters.empty());
+        assert(_exception.get() || (_replicaGroup && _adapters.empty()));
 
         if(_traceLevels->locator > 0)
         {

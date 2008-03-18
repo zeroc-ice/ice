@@ -21,7 +21,7 @@ public:
     virtual bool
     checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current&) const
     {
-        return userId == "client1" && passwd == "test1" || userId == "client2" && passwd == "test2";
+        return (userId == "client1" && passwd == "test1") || (userId == "client2" && passwd == "test2");
     }
 };
 

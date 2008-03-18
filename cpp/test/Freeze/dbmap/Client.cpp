@@ -234,7 +234,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     test(!(m == m1));
     test(m != m1);
     test(m1.size() == 0);
-    test(m.communicator() == m1.communicator() == communicator);
+    test(m.communicator() == (m1.communicator() == communicator));
 
 
     vector<Byte>::const_iterator j;

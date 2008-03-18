@@ -890,7 +890,7 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
 {
     IceUtil::Mutex::Lock sync(_observerMutex);
 
-    if(info.state == Destroyed || info.state == Inactive && info.enabled)
+    if(info.state == Destroyed || (info.state == Inactive && info.enabled))
     {
         _serversDynamicInfo.erase(info.id);
     }

@@ -133,7 +133,7 @@ descriptorWithoutRevisionEqual(const InternalServerDescriptorPtr& lhs, const Int
         return false;
     }
 
-    if(!lhs->distrib && rhs->distrib || lhs->distrib && !rhs->distrib)
+    if((!lhs->distrib && rhs->distrib) || (lhs->distrib && !rhs->distrib))
     {
         return false;
     }
@@ -877,7 +877,7 @@ ServerI::isAdapterActivatable(const string& id) const
     }
 
     if(_desc->activation == "manual" || 
-       _desc->activation == "session" && _desc->sessionId.empty())
+       (_desc->activation == "session" && _desc->sessionId.empty()))
     {
         return false;
     }
@@ -1030,7 +1030,8 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
     // 
     if(_desc &&
        (replicaName != "Master" || _desc->sessionId == desc->sessionId) &&
-       (_desc->uuid == desc->uuid && _desc->revision == desc->revision || descriptorWithoutRevisionEqual(_desc, desc)))
+       ((_desc->uuid == desc->uuid && _desc->revision == desc->revision) ||
+		descriptorWithoutRevisionEqual(_desc, desc)))
     {
         if(_desc->revision != desc->revision)
         {
@@ -1241,7 +1242,7 @@ ServerI::disableOnFailure()
     // is always and the server wasn't active at the time of the
     // failure we disable the server.
     //
-    if(_disableOnFailure != 0 || _activation == Always && (_state == Activating || _state == WaitForActivation))
+    if(_disableOnFailure != 0 || (_activation == Always && (_state == Activating || _state == WaitForActivation)))
     {
         _previousActivation = _activation;
         _activation = Disabled;
@@ -1258,8 +1259,8 @@ ServerI::enableAfterFailure(bool force)
     }
 
     if(force ||
-       _disableOnFailure > 0 && 
-       (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now(IceUtil::Time::Monotonic)))
+       (_disableOnFailure > 0 && 
+       (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now(IceUtil::Time::Monotonic))))
     {
         _activation = _previousActivation;
         _failureTime = IceUtil::Time();

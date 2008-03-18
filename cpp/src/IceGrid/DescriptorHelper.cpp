@@ -2876,7 +2876,7 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
             }
         }
         else if(!_instance.distrib.icepatch.empty() && 
-                (server.empty() && n->second.hasServers() || n->second.hasServer(server)))
+                ((server.empty() && n->second.hasServers()) || n->second.hasServer(server)))
         {
             nodes.push_back(n->first);
         }
