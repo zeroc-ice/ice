@@ -144,7 +144,7 @@ $(TARGETS_CONFIG):
 	nmake /nologo /f Makefile.mak config"
 !else
 $(TARGETS_CONFIG):
-	@sn -q -T $(bindir)\Ice.dll > tmp.publicKeyToken && \
+	@sn -q -T $(csbindir)\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
 	del tmp.pub tmp.publicKeyToken && \

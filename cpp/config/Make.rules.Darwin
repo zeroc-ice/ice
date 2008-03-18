@@ -28,7 +28,11 @@ CXXLIBS			=
 
 LDPLATFORMFLAGS         = -Wl,-bind_at_load
 
-shlibldflags		= $(CXXFLAGS) -L$(libdir)
+ifdef ice_src_dist
+    shlibldflags	= $(CXXFLAGS) -L$(libdir)
+else
+    shlibldflags	= $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)
+endif
 
 mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
 mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
@@ -55,11 +59,18 @@ ifeq ($(DB_HOME),)
    # but in the ICE_DIR/lib directory, we set DB_RPATH_LINK to tell the linker where 
    # to find it.
    #
-   ifeq ($(shell test -f $(libdir)/libFreeze.$(VERSION).dylib && echo 0),0)
-      dblib_install_name=$(firstword $(strip $(shell otool -L $(libdir)/libFreeze.$(VERSION).dylib | grep libdb_cxx)))
-      ifeq ($(shell test ! -f $(dblib_install_name) -a -f $(libdir)/$(notdir $(dblib_install_name)) && echo 0),0)
-         DB_RPATH_LINK=-dylib_file $(dblib_install_name):$(libdir)/$(notdir $(dblib_install_name))
+   ifdef ice_src_dist
+       ifeq ($(shell test -f $(libdir)/libFreeze.$(VERSION).dylib && echo 0),0)
+          dblib_install_name=$(firstword $(strip $(shell otool -L $(libdir)/libFreeze.$(VERSION).dylib | grep libdb_cxx)))
+          ifeq ($(shell test ! -f $(dblib_install_name) -a -f $(libdir)/$(notdir $(dblib_install_name)) && echo 0),0)
+             DB_RPATH_LINK=-dylib_file $(dblib_install_name):$(libdir)/$(notdir $(dblib_install_name))
       endif
+   endif
+       ifeq ($(shell test -f $(ice_dir)/$(libsubdir)/libFreeze.$(VERSION).dylib && echo 0),0)
+          dblib_install_name=$(firstword $(strip $(shell otool -L $(ice_dir)/$(libsubdir)/libFreeze.$(VERSION).dylib | grep libdb_cxx)))
+          ifeq ($(shell test ! -f $(dblib_install_name) -a -f $(ice_dir)/$(libsubdir)/$(notdir $(dblib_install_name)) && echo 0),0)
+             DB_RPATH_LINK=-dylib_file $(dblib_install_name):$(ice_dir)/$(libsubdir)/$(notdir $(dblib_install_name))
+   else
    endif
 endif
 
@@ -74,4 +85,8 @@ ICONV_LIB               = -liconv
 
 PLATFORM_HAS_READLINE   := no
 
-export DYLD_LIBRARY_PATH := $(libdir):$(DYLD_LIBRARY_PATH)
+ifdef ice_src_dist
+    export DYLD_LIBRARY_PATH := $(libdir):$(DYLD_LIBRARY_PATH)
+else
+    export DYLD_LIBRARY_PATH := $(ice_dir)/$(libsubdir):$(DYLD_LIBRARY_PATH)
+endi

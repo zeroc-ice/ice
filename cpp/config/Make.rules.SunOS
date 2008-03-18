@@ -163,7 +163,15 @@ ifeq ($(MACHINE_TYPE),i86pc)
 endif
 
 ifeq ($(LP64),yes)
-    export LD_LIBRARY_PATH_64	:= $(libdir):$(LD_LIBRARY_PATH_64)
+    ifdef ice_src_dist
+        export LD_LIBRARY_PATH_64	:= $(libdir):$(LD_LIBRARY_PATH_64)
+    else
+        export LD_LIBRARY_PATH_64	:= $(ice_dir)/$(libsubdir):$(LD_LIBRARY_PATH_64)
+    endif
 else
-    export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
+    ifdef ice_src_dist
+        export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
+    else
+        export LD_LIBRARY_PATH	:= $(ice_dir)/$(libsubdir):$(LD_LIBRARY_PATH)
+    endif
 endif

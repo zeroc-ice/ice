@@ -49,4 +49,8 @@ ICE_OS_LIBS		=
 
 PLATFORM_HAS_READLINE	= yes
 
-export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
+ifdef ice_src_dist
+    export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
+else
+    export LD_LIBRARY_PATH	:= $(ice_dir)/$(libsubdir):$(LD_LIBRARY_PATH)
+endif

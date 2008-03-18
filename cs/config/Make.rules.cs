@@ -74,16 +74,16 @@ endif
 
 DSEP = /
 
-ifdef ice_src_dist
-    bindir = $(ice_dir)/cs/bin
-else
-    bindir = $(ice_dir)/bin
-endif
+bindir = $(top_srcdir)/bin
 
 install_bindir		= $(prefix)/bin
 
 ifneq ($(ice_dir),/usr)
-    ref = -r:$(bindir)/$(1).dll
+    ifdef ice_src_dist
+        ref = -r:$(bindir)/$(1).dll
+    else
+        ref = -r:$(ice_dir)/bin/$(1).dll
+    endif
 else
     ref = -pkg:$(1)
 endif

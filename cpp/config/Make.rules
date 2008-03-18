@@ -128,13 +128,17 @@ endif
 
 install_includedir	= $(prefix)/include
 install_docdir		= $(prefix)/doc
+
+bindir			= $(top_srcdir)/bin
+libdir			= $(top_srcdir)/lib
+
+#
+# includedir is not handled the same as bindir and libdir
+# because it is used in the .depend files
+#
 ifdef ice_src_dist
-    bindir		= $(top_srcdir)/bin
-    libdir		= $(top_srcdir)/lib
     includedir		= $(top_srcdir)/include
 else
-    bindir		= $(ice_dir)/$(binsubdir)
-    libdir		= $(ice_dir)/$(libsubdir)
     includedir		= $(ice_dir)/include
 endif
 
@@ -214,8 +218,12 @@ ifeq ($(ice_dir), /usr)
     CPPFLAGS		= $(STLPORT_FLAGS)
     LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
-    CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
-    LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir) 
+    CPPFLAGS	= -I$(includedir) $(STLPORT_FLAGS)
+    ifdef ice_src_dist
+        LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir) 
+    else
+        LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir) 
+    endif
 endif
 
 ifeq ($(FLEX_NOLINE),yes)
@@ -234,11 +242,19 @@ ifeq ($(mkshlib),)
     $(error You need to define mkshlib in Make.rules.$(UNAME)) 
 endif
 
-SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
-SLICE2CPP	= $(bindir)/slice2cpp
-SLICE2XSD	= $(bindir)/slice2xsd
-SLICE2FREEZE	= $(bindir)/slice2freeze
-SLICE2DOCBOOK	= $(bindir)/slice2docbook
+ifdef ice_src_dist
+    SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2CPP		= $(bindir)/slice2cpp
+    SLICE2XSD		= $(bindir)/slice2xsd
+    SLICE2FREEZE	= $(bindir)/slice2freeze
+    SLICE2DOCBOOK	= $(bindir)/slice2docbook
+else
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+    SLICE2CPP		= $(ice_dir)/$(binsubdir)/slice2cpp
+    SLICE2XSD		= $(ice_dir)/$(binsubdir)/slice2xsd
+    SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
+    SLICE2DOCBOOK	= $(ice_dir)/$(binsubdir)/slice2docbook
+endif
 
 EVERYTHING		= all depend clean install 
 

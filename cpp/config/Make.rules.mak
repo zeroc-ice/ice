@@ -97,13 +97,11 @@ ice_require_cpp  = 1
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-!if "$(ice_src_dist)" != ""
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
+!if "$(ice_src_dist)" != ""
 includedir		= $(top_srcdir)\include
 !else
-bindir			= $(ice_dir)\bin$(x64suffix)
-libdir			= $(ice_dir)\lib$(x64suffix)
 includedir		= $(ice_dir)\include
 !endif
 
@@ -139,11 +137,19 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
+!if "$(ice_src_dist)" != ""
 SLICEPARSERLIB		= $(libdir)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(bindir)\slice2cpp.exe
 SLICE2XSD		= $(bindir)\slice2xsd.exe
 SLICE2FREEZE		= $(bindir)\slice2freeze.exe
 SLICE2DOCBOOK		= $(bindir)\slice2docbook.exe
+!else
+SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib
+SLICE2CPP		= $(ice_dir)\bin$(x64suffix)\slice2cpp.exe
+SLICE2XSD		= $(ice_dir)\bin$(x64suffix)\slice2xsd.exe
+SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
+SLICE2DOCBOOK		= $(ice_dir)\bin$(x64suffix)\slice2docbook.exe
+!endif
 
 EVERYTHING		= all clean install
 
