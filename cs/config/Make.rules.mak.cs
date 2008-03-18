@@ -22,7 +22,7 @@ prefix			= C:\Ice-$(VERSION)
 # be copied to $(prefix)/bin instead.
 #
 
-no_gac			= 1
+#no_gac			= 1
 
 #
 # Ice invokes unmanaged code to implement the following features:
