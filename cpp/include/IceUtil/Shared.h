@@ -31,20 +31,87 @@ namespace IceUtilInternal
 // atomic.h are more-or-less duplicated.
 //
 
-/*
- * Make sure gcc doesn't try to be clever and move things around
- * on us. We need to use _exactly_ the address the user gave us,
- * not some alias that contains the same information.
- */
+//
+// Make sure gcc doesn't try to be clever and move things around
+// on us. We need to use _exactly_ the address the user gave us,
+// not some alias that contains the same information.
+//
 struct AtomicCounter
 {
     volatile int counter;
-};
 
-void atomicSet(AtomicCounter*, int);
-void atomicInc(AtomicCounter *);
-int atomicDecAndTest(AtomicCounter *);
-int atomicExchangeAdd(int, AtomicCounter*);
+#ifdef ICE_HAS_ATOMIC_FUNCTIONS
+
+    /*
+     * atomicSet - set ice_atomic variable
+     * @v: pointer of type AtomicCounter
+     * @i: required value
+     * 
+     * Atomically sets the value of @v to @i. Note that the guaranteed
+     * useful range of an AtomicCounter is only 24 bits.
+     */
+    void atomicSet(int i)
+    {
+        counter = i;
+    }
+
+    /*
+     * atomicInc - increment ice_atomic variable
+     * @v: pointer of type AtomicCounter
+     * 
+     * Atomically increments @v by 1. Note that the guaranteed useful
+     * range of an AtomicCounter is only 24 bits.
+     *
+     * Inlined because this operation is performance critical.
+     */
+    void atomicInc()
+    {
+        __asm__ __volatile__(
+            "lock ; incl %0"
+            :"=m" (counter)
+            :"m" (counter));
+    }
+
+    /**
+     * atomicDecAndTest - decrement and test
+     * @v: pointer of type AtomicCounter
+     * 
+     * Atomically decrements @v by 1 and returns true if the result is 0,
+     * or false for all other cases. Note that the guaranteed useful
+     * range of an AtomicCounter is only 24 bits.
+     *
+     * Inlined because this operation is performance critical.
+     */
+    int atomicDecAndTest()
+    {
+        unsigned char c;
+        __asm__ __volatile__(
+            "lock ; decl %0; sete %1"
+            :"=m" (counter), "=qm" (c)
+            :"m" (counter) : "memory");
+        return c != 0;
+    }
+
+    /**
+     * atomicExchangeAdd - same as InterlockedExchangeAdd. This
+     * didn't come from atomic.h (the code was derived from similar code
+     * in /usr/include/asm/rwsem.h)
+     *
+     * Inlined because this operation is performance critical.
+     */
+    int atomicExchangeAdd(int i)
+    {
+        int tmp = i;
+        __asm__ __volatile__(
+            "lock ; xadd %0,(%2)"
+            :"+r"(tmp), "=m"(counter)
+            :"r"(this), "m"(counter)
+            : "memory");
+        return tmp + i;
+    }
+
+#endif
+};
 
 }
 

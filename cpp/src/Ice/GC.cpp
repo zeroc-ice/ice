@@ -60,7 +60,7 @@ IceInternal::GCShared::__incRef()
     RecMutex::Lock lock(gcRecMutex);
 #if defined(ICE_HAS_ATOMIC_FUNCTIONS)
     assert(_ref.counter >= 0);
-    atomicInc(&_ref);
+    _ref.atomicInc();
 #else
     assert(_ref >= 0);
     ++_ref;
@@ -74,7 +74,7 @@ IceInternal::GCShared::__decRef()
     bool doDelete = false;
 #if defined(ICE_HAS_ATOMIC_FUNCTIONS)
     assert(_ref.counter > 0);
-    if(IceUtilInternal::atomicDecAndTest(&_ref))
+    if(_ref.atomicDecAndTest())
 #else
     assert(_ref > 0);
     if(--_ref == 0)
@@ -128,7 +128,7 @@ IceInternal::GCShared::__gcIncRef()
 #endif
     }
 #if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    IceUtilInternal::atomicInc(&_ref);
+    _ref.atomicInc();
 #else
     ++_ref;
 #endif
@@ -141,7 +141,7 @@ IceInternal::GCShared::__gcDecRef()
     bool doDelete = false;
 #if defined(ICE_HAS_ATOMIC_FUNCTIONS)
     assert(_ref.counter > 0);
-    if(IceUtilInternal::atomicDecAndTest(&_ref))
+    if(_ref.atomicDecAndTest())
 #else
     assert(_ref > 0);
     if(--_ref == 0)

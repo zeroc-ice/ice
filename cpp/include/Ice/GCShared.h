@@ -53,7 +53,7 @@ public:
     void __decRefUnsafe()
     {
 #if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-        IceUtilInternal::atomicDecAndTest(&_ref);
+        _ref.atomicDecAndTest();
 #else
         --_ref;
 #endif
