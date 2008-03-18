@@ -82,7 +82,10 @@ internal class Transceiver : IceInternal.Transceiver
             throw new Ice.SocketException();
         }
 
-        _configuration.checkReadException();
+        if(_configuration.readReady())
+        {
+            _configuration.checkReadException(); // Only raise if we're configured to read now.
+        }
         return _transceiver.beginRead(buf, callback, state);
     }
 
