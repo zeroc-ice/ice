@@ -58,13 +58,8 @@ void
 IceInternal::GCShared::__incRef()
 {
     RecMutex::Lock lock(gcRecMutex);
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    assert(_ref.counter >= 0);
-    _ref.atomicInc();
-#else
     assert(_ref >= 0);
     ++_ref;
-#endif
 }
 
 void
@@ -72,13 +67,8 @@ IceInternal::GCShared::__decRef()
 {
     RecMutex::Lock lock(gcRecMutex);
     bool doDelete = false;
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    assert(_ref.counter > 0);
-    if(_ref.atomicDecAndTest())
-#else
     assert(_ref > 0);
     if(--_ref == 0)
-#endif
     {
         doDelete = !_noDelete;
         _noDelete = true;
@@ -94,11 +84,7 @@ int
 IceInternal::GCShared::__getRef() const
 {
     RecMutex::Lock lock(gcRecMutex);
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    return _ref.counter;
-#else
     return _ref;
-#endif
 }
 
 void
@@ -112,13 +98,8 @@ void
 IceInternal::GCShared::__gcIncRef()
 {
     RecMutex::Lock lock(gcRecMutex);
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    assert(_ref.counter >= 0);
-    if(_ref.counter == 0)
-#else
     assert(_ref >= 0);
     if(_ref == 0)
-#endif
     {
 #ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
         gcObjects.insert(this);
@@ -127,11 +108,7 @@ IceInternal::GCShared::__gcIncRef()
         assert(rc.second);
 #endif
     }
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    _ref.atomicInc();
-#else
     ++_ref;
-#endif
 }
 
 void
@@ -139,13 +116,8 @@ IceInternal::GCShared::__gcDecRef()
 {
     RecMutex::Lock lock(gcRecMutex);
     bool doDelete = false;
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    assert(_ref.counter > 0);
-    if(_ref.atomicDecAndTest())
-#else
     assert(_ref > 0);
     if(--_ref == 0)
-#endif
     {
         doDelete = !_noDelete;
         _noDelete = true;

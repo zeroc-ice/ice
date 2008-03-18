@@ -43,20 +43,12 @@ public:
 
     int __getRefUnsafe() const
     {
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-        return _ref.counter;
-#else
         return _ref;
-#endif
     }
 
     void __decRefUnsafe()
     {
-#if defined(ICE_HAS_ATOMIC_FUNCTIONS)
-        _ref.atomicDecAndTest();
-#else
         --_ref;
-#endif
     }
 
 protected:
