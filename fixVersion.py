@@ -21,6 +21,12 @@ def usage():
     print
 
 
+def commaVersion(version):
+    major = majorVersion(version)
+    minor = minorVersion(version)
+    patch = patchVersion(version)
+    return ("%s,%s,%s" % (major, minor, patch))
+
 def intVersion(version):
     r = re.search(vpatParse, version)
     major = int(r.group(1))
@@ -257,6 +263,14 @@ if not patchIceE:
         fileMatchAndReplace(os.path.join(ice_home, "test", "IceStorm", "repgrid", "application.xml"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
+        for f in find(os.path.join(ice_home, "src"), "*.rc"):
+            fileMatchAndReplace(f, [("\"FileVersion\", \"" + vpatMatch, version), \
+                                    ("\"ProductVersion\", \"" + vpatMatch, version), \
+                                    ("INTERNALNAME \"[^0-9]*2?([0-9][0-9]b?)d?", soVersion(version)), \
+                                    ("ORIGINALFILENAME \"[^0-9]*2?([0-9][0-9]b?)d?\.dll", soVersion(version)), \
+                                    ("FILEVERSION ([0-9]+,[0-9]+,[0-9]+)", commaVersion(version)), \
+                                    ("PRODUCTVERSION ([0-9]+,[0-9]+,[0-9]+)", commaVersion(version))])
+        
     #
     # Fix version in Java sources
     #
