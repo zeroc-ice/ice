@@ -142,7 +142,12 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
 
+ifneq ($(NOGAC),)
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)))
+	 $(call installdata,$(TARGETS).config,$(install_bindir))
+endif
+
+install:: all
+	$(call installassembly,$(TARGETS),$(PKG))
 
 include .depend

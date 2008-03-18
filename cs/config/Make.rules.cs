@@ -99,13 +99,6 @@ INSTALL_DATA		= ${INSTALL}
 
 GACUTIL			= gacutil
 
-
-ifeq ($(installlibrary),)
-    installlibrary	= $(INSTALL_LIBRARY) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
-endif
-
-
 ifeq ($(NOGAC),)
     ifeq ($(GAC_ROOT),)
         installassembly = $(GACUTIL) -i $(1) -f -package $(2)
@@ -113,8 +106,8 @@ ifeq ($(NOGAC),)
         installassembly = $(GACUTIL) -i $(1) -f -package $(2) -root $(GAC_ROOT)
     endif
 else
-    installassembly = $(call installlibrary,$(1),$(install_bindir)); \
-                      [ -f $(1).config ] && $(call installlibrary,$(1).config,$(install_bindir))
+    installassembly 	= $(INSTALL_LIBRARY) $(1) $(install_bindir); \
+    			  chmod a+rx $(install_bindir)/$(notdir $(1))
 endif
 
 
