@@ -223,9 +223,6 @@ def run(tests, root = False):
             if len(a) > 0:
                 arg += " " + a
 
-    if all and len(arg) > 0:
-        usage()
-
     if testFilter != None:
         if removeFilter:
             tests = [ x for x in tests if not testFilter.search(x) ]
@@ -243,7 +240,7 @@ def run(tests, root = False):
                     if serialize:
                         testarg += " --serialize"
                     testarg += " --protocol %s" % (proto)
-                    args.append(testarg)
+                    args.append(testarg + arg)
     else:
         args.append(arg)
 
