@@ -223,7 +223,7 @@ Building and running the Java demos
 The Java demos are in the demoj directory.
 
 To build the Java demos, you need J2SE SDK 1.5.0 or later, and Ant
-1.6.3 or later. They can be downloaded from:
+1.7.0 or later. They can be downloaded from:
 
   http://java.sun.com/j2se/index.jsp
   http://ant.apache.org/bindownload.cgi

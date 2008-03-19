@@ -28,7 +28,7 @@ part of the Microsoft Platform SDK:
 
   http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
 
-The Ice for Java demos require Ant 1.6.3, but we recommend using the
+The Ice for Java demos require Ant 1.7.0, but we recommend using the
 most recent release available. Ant can be obtained at:
 
   http://ant.apache.org/bindownload.cgi

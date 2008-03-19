@@ -175,7 +175,7 @@ Compiling the Source
 Preparing to Build
 ------------------
 
-The Ice for Java build system requires Apache Ant 1.6.3 or later. Ant
+The Ice for Java build system requires Apache Ant 1.7.0 or later. Ant
 is available at the link below:
 
   http://ant.apache.org/
