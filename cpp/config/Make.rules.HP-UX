@@ -78,16 +78,3 @@ ICE_OS_LIBS             = -lipv6
 lp64suffix              = /pa20_64
 lp64binsuffix           = /pa20_64
 
-ifeq ($(LP64),yes)
-    ifdef ice_src_dist
-        export LD_LIBRARY_PATH 	:= $(libdir):$(LD_LIBRARY_PATH)
-    else
-        export LD_LIBRARY_PATH 	:= $(libdir):$(LD_LIBRARY_PATH)
-    endif
-else
-    ifdef ice_src_dist
-        export SHLIB_PATH   	:= $(ice_dir)/$(libsubdir):$(SHLIB_PATH)
-    else
-        export SHLIB_PATH   	:= $(ice_dir)/$(libsubdir):$(SHLIB_PATH)
-    endif
-endif

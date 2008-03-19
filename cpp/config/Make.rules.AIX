@@ -78,8 +78,3 @@ LIBS			= -lIce $(BASELIBS)
 ICEUTIL_OS_LIBS		=
 ICE_OS_LIBS		=
 
-ifdef ice_src_dist
-    export LIBPATH	:= $(libdir):$(LIBPATH)
-else
-    export LIBPATH	:= $(ice_dir)/$(libsubdir):$(LIBPATH)
-endif

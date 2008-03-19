@@ -109,9 +109,16 @@ IceInternal::EndpointHostResolver::run()
             _queue.pop_front();
         }
 
-        resolve.callback->connectors(
-            resolve.endpoint->connectors(
-                getAddresses(resolve.host, resolve.port, _instance->protocolSupport(), true)));
+        try
+        {
+            resolve.callback->connectors(
+                resolve.endpoint->connectors(
+                    getAddresses(resolve.host, resolve.port, _instance->protocolSupport(), true)));
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            resolve.callback->exception(ex);
+        }
     }
 
     for(deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)

@@ -89,8 +89,16 @@ public class EndpointHostResolver
                 resolve = (ResolveEntry)_queue.removeFirst();
             }
 
-            resolve.callback.connectors(resolve.endpoint.connectors(
+            try
+            {
+                resolve.callback.connectors(
+                    resolve.endpoint.connectors(
                         Network.getAddresses(resolve.host, resolve.port, _instance.protocolSupport())));
+            }
+            catch(Ice.LocalException ex)
+            {
+                resolve.callback.exception(ex);
+            }
         }
 
         java.util.Iterator<ResolveEntry> p = _queue.iterator();
