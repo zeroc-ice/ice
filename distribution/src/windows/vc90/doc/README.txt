@@ -123,8 +123,9 @@ Building and running the C++ demos
 The C++ demos are in the demo directory.
 
 To build a C++ demo, start Visual Studio 2008 and open the solution
-demo\demo.sln. Right click on the desired demo in the Solution
-Explorer window and select "Build".
+demo\demo.sln. Select your target configuration: Debug or Release,
+Win32 or x64 (on supported x64 platforms). Right click on the desired
+demo in the Solution Explorer window and select "Build".
 
 Note that if you are using Visual C++ 2008 Express Edition the Ice
 demos that require MFC (demo\Ice\MFC and demo\IcePatch2\MFC) will not
@@ -132,17 +133,19 @@ compile since only the Professional edition contains MFC support. You
 can either ignore any compile errors these demos generate or just
 remove the projects from the solution entirely.
 
-To run these demos, you need to add the Ice bin directory to your
-PATH, as shown below:
+To run these demos, you will typically need at least two Command
+Prompt windows. In each command prompt, add the Ice bin directory to
+your PATH, as shown below:
 
 set PATH=<Ice installation root directory>\bin;%PATH%
 
-Next, open a Command Prompt, change to the desired demo subdirectory,
-and type 'server' to start the server. In a separate Command Prompt
-window, type 'client' to start the client.
+If you built an x64 configuration, use this setting instead:
 
-Some demo directories contain README files if additional requirements
-are necessary.
+set PATH=<Ice installation root directory>\bin\x64;%PATH%
+
+Change to the desired demo subdirectory and review the README file if
+one is present. Type 'server' to start the server. In another command
+prompt, type 'client' to start the client.
 
 The Ice demo source code archive and Windows installer for Visual
 Studio 2005 include examples for integrating Ice with databases other 
