@@ -191,7 +191,7 @@ Running the C# demos
 ====================
 
 The C# demos are only supported on Windows and SuSE Enterprise Linux
-Server, and the Ice for C# run time is included only in the binary
+Server, and the Ice for .NET run time is included only in the binary
 distributions for these platforms.
 
 To run a demo, open a terminal window, change to the desired demo
