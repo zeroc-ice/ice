@@ -12,6 +12,7 @@ top_srcdir	= ../..
 PKG		= Ice
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
+POLICY_TARGET	= $(POLICY).dll
 
 SRCS		= Acceptor.cs \
 		  Application.cs \
@@ -144,10 +145,10 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 ifneq ($(NOGAC),)
 install:: all
-	 $(call installdata,$(TARGETS).config,$(install_bindir))
+	$(call installdata,$(TARGETS).config,$(install_bindir))
 endif
 
 install:: all
-	$(call installassembly,$(TARGETS),$(PKG))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),$(POLICY)))
 
 include .depend

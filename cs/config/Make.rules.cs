@@ -128,6 +128,53 @@ else
     SLICE2CS = $(ice_dir)/bin/slice2cs
 endif
 
+AL              = al
+POLICY          = policy.$(SHORT_VERSION).$(PKG)
+
+ifneq ($(PUBLIC_KEY_TOKEN),)
+    publicKeyToken = $(PUBLIC_KEY_TOKEN)
+else
+    ifneq ($(ice_src_dist),)
+	publicKeyToken = $(shell sn -q -p $(KEYFILE) tmp.pub; \
+			   sn -q -t tmp.pub | sed 's/^.* //'; \
+			   rm tmp.pub)
+    else
+	publicKeyToken = $(shell sn -q -T $(bindir)/Ice.dll >tmp.pub; \
+	                   sed 's/^.* //' <tmp.pub; \
+			   rm tmp.pub)
+    endif
+endif
+
+ifneq ($(POLICY_TARGET),)
+
+$(bindir)/$(POLICY_TARGET):
+	@echo '\
+<configuration> \
+  <runtime> \
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> \
+      <dependentAssembly> \
+        <assemblyIdentity name="Ice" publicKeyToken="$(publicKeyToken)" culture=""/> \
+        <publisherPolicy apply="yes"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).4.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).3.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).2.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).1.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).4.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).3.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).2.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).4.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).3.0"/> \
+        <bindingRedirect oldVersion="$(SHORT_VERSION).3.0" newVersion="$(SHORT_VERSION).4.0"/> \
+      </dependentAssembly> \
+    </assemblyBinding> \
+  </runtime> \
+</configuration>' >$(POLICY)
+	$(AL) /link:$(POLICY) /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	chmod a+r $(POLICY)
+	chmod a+rx $(POLICY_TARGET)
+	mv $(POLICY) $(POLICY_TARGET) $(bindir)
+endif
+
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
 SGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_S_SRCS))))
@@ -147,6 +194,10 @@ $(GDIR)/%.cs: $(SDIR)/%.ice
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
 all:: $(TARGETS)
+
+ifneq ($(POLICY_TARGET),)
+all:: $(bindir)/$(POLICY_TARGET)
+endif
 
 depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
 	-rm -f .depend

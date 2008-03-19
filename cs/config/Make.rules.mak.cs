@@ -15,16 +15,6 @@
 prefix			= C:\Ice-$(VERSION)
 
 #
-# The default behavior of 'nmake /f Makefile.mak install' attempts to add
-# the Ice for .NET libraries to the Global Assembly Cache (GAC). If you would
-# prefer not to install these libraries to the GAC, or if you do not have
-# sufficient privileges to do so, then enable no_gac and the libraries will
-# be copied to $(prefix)/bin instead.
-#
-
-#no_gac			= 1
-
-#
 # Ice invokes unmanaged code to implement the following features:
 #
 # - Protocol compression
@@ -84,12 +74,6 @@ refdir = $(bindir)
 !else
 refdir = $(ice_dir)\bin
 !endif
-
-!if "$(no_gac)" != ""
-NOGAC			= $(no_gac)
-!endif
-
-GACUTIL			= gacutil
 
 MCS			= csc -nologo
 

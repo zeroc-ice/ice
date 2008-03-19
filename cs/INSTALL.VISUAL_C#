@@ -136,7 +136,7 @@ them in the cache.
 Or you can use gacutil from the command line to achieve the same
 result:
 
-  > gacutil /i "path_to_lib.dll"
+  > gacutil /i <library.dll>
 
 You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
 installation. For example, if you have installed Visual C# 8.0 in
@@ -183,58 +183,15 @@ Binary compatibility of patch releases
 --------------------------------------
 
 Patch releases of Ice are binary compatible. For example, version
-<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
-compiled with <x>.<y>.0 with the <x>.<y>.1 Ice assemblies without
+3.2.1 is compatible with 3.2.0, so you can run applications
+compiled with 3.2.0 with the 3.2.1 Ice assemblies without
 having to recompile.
 
-If you want to run already deployed <x>.<y>.0 applications with the
-<x>.<y>.1 run time (or later patch release) on a machine, follow the
-steps below:
+Ice for .NET includes policy assemblies in Ice-@ver@/cs/bin that
+supply the .NET run time with the required compatibility information.
+Policy assemblies have names of the form policy.<major>.<minor>.<package>.dll.
+For example, the policy assembly for IceBox 3.2 is called policy.3.2.IceBox.dll.
 
-1) Start a command shell.
-
-2) Run the following commands:
-
-      gacutil /u policy.<x>.<y>.Icecs
-      gacutil /u policy.<x>.<y>.Icebox
-      gacutil /u policy.<x>.<y>.IceGrid
-      gacutil /u policy.<x>.<y>.IcePatch2
-      gacutil /u policy.<x>.<y>.IceSSL
-      gacutil /u policy.<x>.<y>.IceStorm
-      gacutil /u policy.<x>.<y>.Glacier2
-
-   Substitute the major and minor version for <x> and <y> in these
-   commands, for example: gacutil /u policy.3.2.Ice
-
-   These commands uninstall the <x>.<y> Ice run time.
-
-3) Either change directory to the cs\bin directory of the Ice source tree
-   or copy all the files beginning with "policy", and all files ending in 
-   ".dll" from the cs\bin directory of the machine on which you compiled 
-   Ice for .NET into a single directory on the target machine and change
-   directory to that directory.
-
-4) Run the following commands:
-
-      gacutil /i policy.<x>.<y>.Ice.dll
-      gacutil /i policy.<x>.<y>.IceBox.dll
-      gacutil /i policy.<x>.<y>.IceGrid.dll
-      gacutil /i policy.<x>.<y>.IcePatch2.dll
-      gacutil /i policy.<x>.<y>.IceSSL.dll
-      gacutil /i policy.<x>.<y>.IceStorm.dll
-      gacutil /i policy.<x>.<y>.Glacier2.dll
-
-   These commands cause applications requesting the <x>.<y>.0 run
-   time to load the <x>.<y>.1 (or later patch version) run time instead.
-
-5) Run the following commands:
-
-      gacutil /i Icecs.dll
-      gacutil /i IceBox.dll
-      gacutil /i IceGrid.dll
-      gacutil /i IcePatch2.dll
-      gacutil /i IceSSL.dll
-      gacutil /i IceStorm.dll
-      gacutil /i Glacier2.dll
-
-   These commands install the newer patch version DLLs into the GAC.
+To upgrade an existing application to a new patch release, the policy
+assemblies must be present in your PATH, or they must be
+installed into the GAC as described in the previous section.

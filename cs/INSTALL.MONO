@@ -148,7 +148,7 @@ the libraries with the -r option to mcs.
 Alternatively, you can add the libraries to the global assembly cache.
 To do this, use
 
-$ gacutil -i <path_to_lib.dll>
+$ gacutil -i <library.dll>
 
 Once installed in the cache, the assemblies will always be located
 correctly without having to set environment variables.
@@ -161,12 +161,15 @@ Binary compatibility
 --------------------
 
 Patch releases of Ice are binary compatible. For example, version
-<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
-compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
+3.2.1 is compatible with 3.2.0, so you can run applications
+compiled with 3.2.0 with the 3.2.1 runtime without having to
 recompile.
 
-A patch release includes policy assemblies in Ice-@ver@/cs/bin that
+Ice for .NET includes policy assemblies in Ice-@ver@/cs/bin that
 supply the Mono run time with the required compatibility information.
+Policy assemblies have names of the form policy.<major>.<minor>.<package>.dll.
+For example, the policy assembly for IceBox 3.2 is called policy.3.2.IceBox.dll.
+
 To upgrade an existing application to a new patch release, the policy
 assemblies must be present in your MONO_PATH, or they must be
 installed into the GAC as described in the previous section.

@@ -37,17 +37,8 @@ $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) -r:$(refdir)\Ice.dll $(L_SRCS) $(GEN_SRCS)
 
-!if "$(NOGAC)" == ""
-
-install:: all
-	$(GACUTIL) -i $(LIBNAME)
-
-!else
-
 install:: all
 	copy $(LIBNAME) $(install_bindir)
-
-!endif
 
 install:: all
 	copy $(ICEBOXNET) $(install_bindir)

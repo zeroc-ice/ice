@@ -31,16 +31,7 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
-!if "$(NOGAC)" == ""
-
-install:: all
-	$(GACUTIL) -i $(bindir)\$(LIBNAME)
-
-!else
-
 install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
-
-!endif
 
 !include .depend

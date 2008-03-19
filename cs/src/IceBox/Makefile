@@ -10,9 +10,10 @@
 top_srcdir	= ../..
 
 PKG		= IceBox
-LIBNAME		= $(bindir)/$(PKG).dll
+LIBNAME		= $(PKG).dll
 ICEBOXNET	= $(bindir)/iceboxnet.exe
-TARGETS		= $(ICEBOXNET) $(LIBNAME)
+TARGETS		= $(ICEBOXNET) $(bindir)/$(LIBNAME)
+POLICY_TARGET	= $(POLICY).dll
 
 L_SRCS		= AssemblyInfo.cs
 I_SRCS		= Server.cs ServiceManagerI.cs
@@ -26,19 +27,19 @@ include $(top_srcdir)/config/Make.rules.cs
 
 EXE_MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-LIB_MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(LIBNAME)
+LIB_MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(bindir)/$(LIBNAME)
 LIB_MCSFLAGS	:= $(LIB_MCSFLAGS) -keyfile:$(KEYFILE)
 
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
-$(ICEBOXNET): $(I_SRCS) $(LIBNAME)
+$(ICEBOXNET): $(I_SRCS) $(bindir)/$(LIBNAME)
 	$(MCS) $(EXE_MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,Ice) $(I_SRCS)
 
-$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
+$(bindir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	$(call installassembly,$(LIBNAME),$(PKG))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),$(POLICY)))
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))

@@ -62,6 +62,12 @@ def minorVersion(version):
     minor = int(r.group(2))
     return ("%d" % (minor)).strip()
 
+def shortVersion(version):
+    r = re.search(vpatParse, version)
+    major = int(r.group(1))
+    minor = int(r.group(2))
+    return ("%d.%d" % (major, minor)).strip()
+
 def patchVersion(version):
     r = re.search(vpatParse, version)
     
@@ -207,6 +213,7 @@ if not patchIceE:
     fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules"),
                         [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
                          ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
+                         ("SHORT_VERSION[\t\s]*= ([0-9]*\.[0-9]*)", shortVersion(version)),
                          ("VERSION[\t\s]*= " + vpatMatch, version),
                          ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
     
@@ -214,6 +221,7 @@ if not patchIceE:
                         [("^VERSION[\t\s]*= " + vpatMatch, version),
                          ("INTVERSION[\t\s]*= " + vpatMatch, majorVersion(version) + "." + minorVersion(version) + \
                                                              "." + patchVersion(version)),
+                         ("SHORT_VERSION[\t\s]*= ([0-9]*\.[0-9]*)", shortVersion(version)),
                          ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
     fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "ice.spec"),

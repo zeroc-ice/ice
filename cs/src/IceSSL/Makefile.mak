@@ -36,16 +36,7 @@ MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 $(TARGETS):: $(SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS)
 
-!if "$(NOGAC)" == ""
-
-install:: all
-	$(GACUTIL) -i $(bindir)/$(LIBNAME)
-
-!else
-
 install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
-
-!endif
 
 !include .depend

@@ -12,6 +12,7 @@ top_srcdir	= ../..
 PKG		= IceSSL
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
+POLICY_TARGET	= $(POLICY).dll
 
 SRCS		= AcceptorI.cs \
 		  AssemblyInfo.cs \
@@ -37,6 +38,6 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	$(call installassembly,$(TARGETS),$(PKG))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),$(POLICY)))
 
 include .depend
