@@ -91,11 +91,6 @@ DYLD_LIBRARY_PATH environment variable to add the "lib" directory:
 $ export PATH=`pwd`/bin:$PATH
 $ export DYLD_LIBRARY_PATH=`pwd`/lib:$DYLD_LIBRARY_PATH
 
-On Intel platforms, you also need to set DYLD_BIND_AT_LAUNCH to
-prevent random crashes at runtime in the dynamic linker binding code:
-
-$ export DYLD_BIND_AT_LAUNCH=1
-
 
 ======================================================================
 Installation
