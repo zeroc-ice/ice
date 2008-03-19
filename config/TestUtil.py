@@ -38,10 +38,10 @@ def configurePaths():
     toplevel = findTopLevel()
 
     if ice_home:
-        print "[ using Ice installation from " + ice_home,
+        print "*** using Ice installation from " + ice_home,
         if x64:
             print "(64bit)",
-        print "]"
+        print
 
     if isWin32():
         os.environ["PATH"] = getCppBinDir() + os.pathsep + os.getenv("PATH", "")
@@ -250,12 +250,10 @@ def run(tests, root = False):
     if loop:
         num = 1
         while 1:
-            for arg in args:
-                runTests(arg, tests, num)
+            runTests(args, tests, num)
             num += 1
     else:
-        for arg in args:
-            runTests(arg, tests)
+        runTests(args, tests)
 
     global testErrors
     if len(testErrors) > 0:
@@ -779,39 +777,54 @@ def getCommandLine(exe, config, env=None):
 
     return commandline
 
-def runTests(args, tests, num = 0):
+def runTests(configs, tests, num = 0):
     #
-    # Run each of the tests.
+    # The configs argument is a list containing one or more test configurations.
     #
-    for i in tests:
+    configCount = 1
+    for args in configs:
+        #
+        # Run each of the tests.
+        #
+        for i in tests:
 
-        i = os.path.normpath(i)
-        dir = os.path.join(toplevel, i)
+            i = os.path.normpath(i)
+            dir = os.path.join(toplevel, i)
 
-        print
-        if num > 0:
-            print "[" + str(num) + "]",
-        print "*** running tests in " + dir,
-        print
-
-        os.chdir(dir)
-
-        status = os.system("python " + os.path.join(dir, "run.py " + args))
-        #print "python " + os.path.join(dir, "run.py " + args)
-        #status = 0
-
-        if status:
-            if(num > 0):
+            print
+            if num > 0:
                 print "[" + str(num) + "]",
-            message = "test in " + os.path.abspath(dir) + " failed with exit status", status,
-            print message
-            global keepGoing
-            if keepGoing == 0:
-                sys.exit(status)
+            print "*** running tests in " + dir
+            print "*** configuration:",
+            if len(args.strip()) == 0:
+                print "Default",
             else:
-                print " ** Error logged and will be displayed again when suite is completed **"
-                global testErrors
-                testErrors.append(message)
+                print args.strip(),
+            if len(configs) > 1:
+                print "[ " + str(configCount) + " of " + str(len(configs)) + " ]",
+            print
+            print "*** test started:", time.strftime("%x %X")
+
+            os.chdir(dir)
+
+            status = os.system("python " + os.path.join(dir, "run.py " + args))
+            #print "python " + os.path.join(dir, "run.py " + args)
+            #status = 0
+
+            if status:
+                if(num > 0):
+                    print "[" + str(num) + "]",
+                message = "test in " + os.path.abspath(dir) + " failed with exit status", status,
+                print message
+                global keepGoing
+                if keepGoing == 0:
+                    sys.exit(status)
+                else:
+                    print " ** Error logged and will be displayed again when suite is completed **"
+                    global testErrors
+                    testErrors.append(message)
+
+        configCount += 1
 
 def getDefaultServerFile():
     lang = getDefaultMapping()
