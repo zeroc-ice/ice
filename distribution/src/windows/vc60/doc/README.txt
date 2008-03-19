@@ -190,9 +190,9 @@ To run the PHP demos, you need PHP 5.2.5. It can be downloaded from:
 
   http://www.php.net/downloads.php
 
-The example in demophp/Ice/hello demonstrates the use of the Ice
+The example in demophp\Ice\hello demonstrates the use of the Ice
 extension for PHP in a dynamic Web page, whereas the example in
-demophp/Ice/value requires PHP's command line interpreter. Both
+demophp\Ice\value requires PHP's command line interpreter. Both
 examples require that an Ice server be available; a matching server
 from any of the other language mappings can be used. A README file is
 provided in each of the example directories.

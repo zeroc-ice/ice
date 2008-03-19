@@ -275,7 +275,7 @@ Installation
 Simply run "nmake /f Makefile.mak install". This will install Ice in
 the directory specified by the "prefix" variable in
 config\Make.rules.mak. After installation, make sure that the
-<prefix>/bin directory is in your PATH. You must also add the include
+<prefix>\bin directory is in your PATH. You must also add the include
 directory to the Visual C++ "Include files", the lib directory to the
 "Library files", and the bin directory to the "Executable files":
 

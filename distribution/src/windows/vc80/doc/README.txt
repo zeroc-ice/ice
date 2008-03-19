@@ -147,7 +147,7 @@ demo\demo.sln. Right click on the desired demo in the Solution Explorer
 window and select "Build".
 
 Note that if you are using Visual C++ 2005 Express Edition the Ice demos
-that require MFC (demo/Ice/MFC and demo/IcePatch2/MFC) will not compile
+that require MFC (demo\Ice\MFC and demo\IcePatch2\MFC) will not compile
 since only the Professional edition contains MFC support. You can
 either ignore any compile errors these demos generate or just remove the
 projects from the solution entirely.
@@ -327,10 +327,10 @@ Protocol compression with 64-bit Windows
 Ice for .NET attempts to dynamically load bzip2.dll to support
 protocol compression. On 64-bit Windows, you have to make sure that
 the 64-bit version of bzip2.dll is found instead of the 32-bit
-version. The bzip2 libraries are installed in <prefix>/bin/x64 and
-<prefix>/bin, respectively. For 64-bit Windows, you need to make sure
-that <prefix>/bin/x64 appears in the application's PATH instead of
-<prefix>/bin. (The Ice run time prints a warning to the console if it
+version. The bzip2 libraries are installed in <prefix>\bin\x64 and
+<prefix>\bin, respectively. For 64-bit Windows, you need to make sure
+that <prefix>\bin\x64 appears in the application's PATH instead of
+<prefix>\bin. (The Ice run time prints a warning to the console if it
 detects a bzip2.dll format mismatch during start-up.)
 
 
