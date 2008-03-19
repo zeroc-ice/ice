@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, os, re, errno, getopt, time, StringIO
+import sys, os, re, errno, getopt, time, StringIO, string
 from threading import Thread
 
 # Global flags and their default values.
@@ -317,15 +317,11 @@ if isWin32():
     #
     #phpCmd = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "bin")) + "\" -d extension=php_ice.dll"
 else:
-    if not isDarwin():
-        cwd = os.getcwd()
-        os.chdir(os.environ["HOME"])
-        os.chdir(cwd)
-        p = os.popen("php -v 2>/dev/null")
-        l = p.readlines()
-        if p.close() != None:
+    for path in string.split(os.environ["PATH"], os.pathsep):
+        if os.path.exists(os.path.join(path, "php5")):
             phpCmd = "php5"
-
+            break
+                                
     phpExtensionDir = os.path.abspath(os.path.join(findTopLevel(), "php", "lib"))
     phpExtension = "IcePHP.so"
     #
