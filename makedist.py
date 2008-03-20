@@ -583,6 +583,7 @@ rpmBuildFiles = [ \
     os.path.join("src", "rpm", "*.conf"), \
     os.path.join("src", "rpm", "*.suse"), \
     os.path.join("src", "rpm", "*.redhat"), \
+    os.path.join("src", "rpm", "ice.pth"), \
     os.path.join("src", "common", "RELEASE_NOTES.txt"), \
     os.path.join("src", "unix", "*Linux*"), \
     os.path.join("src", "thirdparty", "php", "ice.ini"), \
