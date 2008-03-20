@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING10##</title>
-		<subject>Ice 3.3 beta Third Party Packages for Visual Studio 2008</subject>
+		<subject>##ID_STRING17##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
@@ -2458,13 +2458,14 @@
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 2008</td><td>0</td><td/><td>857343407</td></row>
-		<row><td>ID_STRING10</td><td>1033</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2008</td><td>0</td><td/><td>1369225426</td></row>
+		<row><td>ID_STRING10</td><td>1033</td><td>Ice 3.3b Third Party Packages for Visual Studio 2008</td><td>0</td><td/><td>-1583598194</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING14</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033471019</td></row>
 		<row><td>ID_STRING15</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033471019</td></row>
 		<row><td>ID_STRING16</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033471019</td></row>
+		<row><td>ID_STRING17</td><td>1033</td><td>Ice 3.3b Third Party Packages for Visual Studio 2008</td><td>0</td><td/><td>-1583587954</td></row>
 		<row><td>ID_STRING19</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033471019</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1860585904</td></row>
 		<row><td>ID_STRING20</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033471019</td></row>
@@ -2493,7 +2494,7 @@
 		<row><td>ID_STRING6</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING7</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING8</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033470955</td></row>
-		<row><td>ID_STRING9</td><td>1033</td><td>Microsoft C/C++ runtime (shared installation)</td><td>0</td><td/><td>563928778</td></row>
+		<row><td>ID_STRING9</td><td>1033</td><td>Microsoft C/C++ runtime</td><td>0</td><td/><td>-1583559378</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>NEW_STRING1</td><td>1033</td><td>Please read the following license agreement carefully.</td><td>0</td><td/><td>1033487371</td></row>
 		<row><td>NEW_STRING10</td><td>1033</td><td>{&amp;MSSansBold8}License Agreement</td><td>0</td><td/><td>1033456747</td></row>
@@ -2930,7 +2931,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ProductCode</td><td>{64A69196-1E6B-4D53-B321-80FF6E07F018}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2008</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3b Third Party Packages for Visual Studio 2008</td><td/></row>
 		<row><td>ProductVersion</td><td>3.3.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
