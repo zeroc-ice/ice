@@ -1,23 +1,25 @@
 ======================================================================
-Ice for Ruby
+Requirements
 ======================================================================
 
-This file describes how to compile Ice for Ruby on a Windows platform.
 
+Operating System
+----------------
 
-Requirements
-------------
-
-- Ice @ver@ for C++
-- Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)*
-- Ruby 1.8.6
-
-* Ruby requires Visual C++ 6.0, therefore it is the only compiler
-  supported by Ice for Ruby.
+Ice for Ruby is only supported on Windows XP.
 
 
 Build Environment
 -----------------
+
+To build Ice for Ruby you must have the following:
+
+ - Ice @ver@ for C++
+ - Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)*
+ - Ruby 1.8.6
+
+* Ruby requires Visual C++ 6.0, therefore it is the only compiler
+  supported by Ice for Ruby.
 
 The instructions in this file make the following assumptions about
 your build environment:
@@ -39,6 +41,11 @@ your build environment:
 If you selected different installation directories, you will need to
 modify the relevant path names in the steps below to match your
 configuration.
+
+
+======================================================================
+Compilation and Testing
+======================================================================
 
 
 Compiling Ice for Ruby
@@ -84,8 +91,50 @@ NOTES:
    require "IceRubyd"
 
 
+Running the tests
+-----------------
+
+You can run the test suite, provided that you have installed Python.
+Furthermore, you must also build the Ice for C++ tests in the cpp
+subdirectory of this source distribution.
+
+Open a command window and change to the top-level directory. At the
+command prompt, execute:
+
+  > python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+  > python run.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+
+======================================================================
+Installation
+======================================================================
+
+You can perform an automated installation with the following command:
+
+  > nmake /f Makefile.mak install
+
+This process uses the "prefix" variable in config\Make.rules.mak as
+the installation's root directory. The subdirectory <prefix>\ruby is
+created as a copy of the local "ruby" directory and contains the Ice
+for Ruby extension library (IceRuby.dll) as well as Ruby source code.
+Using this installation method requires that you modify your
+environment as described in "Using Ice for Ruby" below.
+
+
+======================================================================
 Using Ice for Ruby
-------------------
+======================================================================
+
+
+Configuring your environment
+----------------------------
 
 The Ruby interpreter must be able to locate the Ice extension. One way
 to configure the interpreter is to define the RUBYLIB environment
@@ -106,6 +155,10 @@ At a command prompt, you can set your PATH as shown below:
 
   > set PATH=C:\Ice-@ver@-VC60\bin;C:\Ice-@ver@\bin;%PATH%
 
+
+Testing your installation
+-------------------------
+
 To verify that Ruby can load the Ice extension successfully, open a
 command window and start the interpreter using irb.bat:
 
@@ -118,6 +171,37 @@ At the prompt, enter
 
 If the interpreter responds with the value "true", the Ice extension
 was loaded successfully. Enter "exit" to quit the interpreter.
+
+
+Running the demos
+-----------------
+
+The demos directory contains Ruby versions of the Ice sample programs.
+Note that only clients are provided, since Ice for Ruby does not
+support server-side activities. In order to run a sample client, you
+must first start its corresponding server from another Ice language
+mapping, such as C++.
+
+As an example, let's run the hello application in demo\Ice\hello using
+the C++ server. Assuming that your Ice installation is located in
+C:\Ice-@ver@, and that you have already compiled the sample C++
+programs, we begin by starting the server:
+
+  > cd \Ice-@ver@-VC60\demo\Ice\hello
+  > server
+
+In a separate window, start the client:
+
+  > cd Ice-@ver@\rb\demo\Ice\hello
+  > ruby Client.rb
+
+Some demo directories contain README files if additional requirements
+are necessary.
+
+
+======================================================================
+Notes
+======================================================================
 
 
 Limitations
@@ -148,50 +232,3 @@ Also be aware that the Ruby installer inserts C:\ruby\bin at the
 beginning of the system PATH, therefore the DLLs listed above can also
 have an adverse impact on other Ice language mappings that use
 OpenSSL, such as C++ and Python.
-
-
-Running the demos
------------------
-
-The demos directory contains Ruby versions of the Ice sample programs.
-Note that only clients are provided, since Ice for Ruby does not
-support server-side activities. In order to run a sample client, you
-must first start its corresponding server from another Ice language
-mapping, such as C++.
-
-As an example, let's run the hello application in demo\Ice\hello using
-the C++ server. Assuming that your Ice installation is located in
-C:\Ice-@ver@, and that you have already compiled the sample C++
-programs, we begin by starting the server:
-
-  > cd \Ice-@ver@-VC60\demo\Ice\hello
-  > server
-
-In a separate window, start the client:
-
-  > cd Ice-@ver@\rb\demo\Ice\hello
-  > ruby Client.rb
-
-Some demo directories contain README files if additional requirements
-are necessary.
-
-
-Running the tests
------------------
-
-You can run the test suite, provided that you have installed Python.
-Furthermore, you must also build the Ice for C++ tests in the cpp
-subdirectory of this source distribution.
-
-Open a command window and change to the top-level directory. At the
-command prompt, execute:
-
-  > python allTests.py
-
-You can also run tests individually by changing to the test directory
-and running this command:
-
-  > python run.py
-
-If everything worked out, you should see lots of "ok" messages. In
-case of a failure, the tests abort with "failed".

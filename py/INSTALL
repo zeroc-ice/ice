@@ -15,7 +15,7 @@ build the Ice extension for Python.
 
 
 ======================================================================
-Building the Ice extension for Python (Linux/Solaris/HP-UX/Mac OS X)
+Building the Ice extension for Python (Linux/Solaris/Mac OS X)
 ======================================================================
 
 Follow these steps to build the Ice extension for Python:
@@ -177,17 +177,6 @@ and running this command:
 
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
-
-
-=========================================================================
-HP-UX Notes
-=========================================================================
-
-Python needs to be configured and built with the following options in
-order to successfully load the Ice extension:
-
-  $ ./configure --enable-shared --with-cxx="aCC -AA +DAportable" \
-    --with-libs="-lxnet" ...
 
 
 =========================================================================
