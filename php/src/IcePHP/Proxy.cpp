@@ -1297,7 +1297,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_router)
 
     Ice::ObjectPrx proxy;
     Slice::ClassDefPtr def;
-    if(!fetchProxy(zprx, proxy, def TSRMLS_CC))
+    if(zprx && !fetchProxy(zprx, proxy, def TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -1388,7 +1388,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_locator)
 
     Ice::ObjectPrx proxy;
     Slice::ClassDefPtr def;
-    if(!fetchProxy(zprx, proxy, def TSRMLS_CC))
+    if(zprx && !fetchProxy(zprx, proxy, def TSRMLS_CC))
     {
         RETURN_NULL();
     }
