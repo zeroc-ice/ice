@@ -43,6 +43,14 @@ def configurePaths():
             print "(64bit)",
         print
 
+    #
+    # If Ice is installed from RPMs, just set the CLASSPATH for Java.
+    #
+    if ice_home == "/usr":
+        javaDir = os.path.join("/", "usr", "share", "java")
+        os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+        return # That's it, we're done!
+    
     if isWin32():
         os.environ["PATH"] = getCppBinDir() + os.pathsep + os.getenv("PATH", "")
     else:
@@ -75,28 +83,29 @@ def configurePaths():
                 os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
-            
-    javaDir = getIceDir("java")
-    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
-    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib") + os.pathsep + os.getenv("CLASSPATH", "")
 
+    javaDir = os.path.join(getIceDir("java"), "lib")
+    os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+    os.environ["CLASSPATH"] = os.path.join(javaDir) + os.pathsep + os.getenv("CLASSPATH", "")
+    
     # 
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if not isWin32():
         os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
-                                               
+        
     #
     # On Windows x64, set PYTHONPATH to python/x64.
     #
+    pythonDir = os.path.join(getIceDir("py"), "python")
     if isWin32() and x64:
-        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python", "x64") + os.pathsep + \
-            os.getenv("PYTHONPATH", "")
+        os.environ["PYTHONPATH"] = os.path.join(pythonDir, "x64") + os.pathsep + os.getenv("PYTHONPATH", "")
     else:
-        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+        os.environ["PYTHONPATH"] = pythonDir + os.pathsep + os.getenv("PYTHONPATH", "")
 
-    os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
- 
+    rubyDir = os.path.join(getIceDir("rb"), "ruby")
+    os.environ["RUBYLIB"] = rubyDir + os.pathsep + os.getenv("RUBYLIB", "")
+
 def addLdPath(libpath):
     if isWin32():
         os.environ["PATH"] = libpath + os.pathsep + os.getenv("PATH", "")
@@ -147,6 +156,9 @@ def isAIX():
   
 def isDarwin():
    return sys.platform == "darwin"
+
+def isLinux():
+    return sys.platform.startswith("linux")
 
 def index(l, re):
     """Find the index of the first item in the list that matches the given re"""
@@ -1141,12 +1153,15 @@ def processCmdLine():
         usage()
 
     # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
-    if not ice_home and os.environ.get("ICE_HOME", "") != "" and os.environ.get("USE_BIN_DIST", "no") == "yes":
-        ice_home = os.environ["ICE_HOME"]
-
+    if not ice_home and os.environ.get("USE_BIN_DIST", "no") == "yes":
+        if os.environ.get("ICE_HOME", "") != "":
+            ice_home = os.environ["ICE_HOME"]
+        elif isLinux():
+            ice_home = "/usr"
+            
     if not x64:
         x64 = isWin32() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
-
+    
     configurePaths()
 
 if os.environ.has_key("ICE_CONFIG"):

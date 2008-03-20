@@ -24,6 +24,14 @@ def configurePaths():
             print "(64bit)",
         print "]"
 
+    #
+    # If Ice is installed from RPMs, just set the CLASSPATH for Java.
+    #
+    if ice_home == "/usr":
+        javaDir = os.path.join("/", "usr", "share", "java")
+        os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+        return # That's it, we're done!
+    
     binDir = os.path.join(getIceDir("cpp"), "bin")        
     if isCygwin():
         if ice_home and x64:
@@ -262,8 +270,11 @@ def run(demos):
                 start += 1
             demos = demos[start:]
 
-    if not ice_home and os.environ.get("ICE_HOME", "") != "":
-        ice_home = os.environ["ICE_HOME"]
+    if not ice_home and os.environ.get("USE_BIN_DIST", "no") == "yes" or os.environ.get("ICE_HOME", "") != "":
+        if os.environ.get("ICE_HOME", "") != "":
+            ice_home = os.environ["ICE_HOME"]
+        elif isLinux():
+            ice_home = "/usr"
 
     if not x64:
         x64 = isCygwin() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
