@@ -19,12 +19,12 @@ install::
 	@for i in $(CA_FILES) ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_PROGRAM) $$i $(install_bindir) ;\
-	    chmod a+x $(install_bindir)/$$i ;\
+	    $(INSTALL_PROGRAM) $$i $(prefix)/bin ;\
+	    chmod a+x $(prefix)/bin/$$i ;\
 	done
 	@for i in $(CLASS_FILES) ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_PROGRAM) $$i $(install_libdir) ;\
-	    chmod a+x $(install_libdir)/$$i ;\
+	    $(INSTALL_PROGRAM) $$i $(prefix)/lib ;\
+	    chmod a+x $(prefix)/lib/$$i ;\
 	done
