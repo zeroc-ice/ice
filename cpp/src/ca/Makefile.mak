@@ -19,7 +19,7 @@ CLASS_FILES=ImportKey.class
 install::
 	@for %i in ( $(CA_FILES) ) do \
 	    @echo "Installing %i" && \
-	    copy %i $(install_bindir)
+	    copy %i $(prefix)\bin
 	@for %i in ( $(CLASS_FILES) ) do \
 	    @echo "Installing %i" && \
-	    copy %i $(install_libdir)
+	    copy %i $(prefix)\lib

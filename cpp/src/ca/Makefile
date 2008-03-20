@@ -16,6 +16,15 @@ CA_FILES =  iceca
 CLASS_FILES = ImportKey.class
 
 install::
+	@for subdir in $(prefix)/bin $(prefix)/lib; \
+	do \
+	    if test ! -d $$subdir ; \
+	    then \
+		echo "Creating $$subdir..." ; \
+		mkdir -p $$subdir ; \
+		chmod a+rx $$subdir ; \
+	    fi ; \
+	done
 	@for i in $(CA_FILES) ; \
 	do \
 	    echo "Installing $$i" ; \
