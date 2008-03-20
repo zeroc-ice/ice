@@ -147,7 +147,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     string currentKey = IceUtilInternal::trim(key);
     if(currentKey.empty())
     {
-        return;
+        throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
 
     //
@@ -409,121 +409,168 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
 void
 Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& converter)
 {
-    string s = line;
+    string key;
+    string value;
     
-    //
-    // Remove comments and unescape #'s
-    //
-    string::size_type idx = 0;
-    while((idx = s.find("#", idx)) != string::npos)
+    enum ParseState { Key , Value };
+    ParseState state = Key;
+
+    string whitespace;
+    string escapedspace;
+    bool finished = false;
+    for(string::size_type i = 0; i < line.size(); ++i)
     {
-        if(idx != 0 && s[idx - 1] == '\\')
+        char c = line[i];
+        switch(state)
         {
-            s.erase(idx - 1, 1);
-            ++idx;
+          case Key:
+          {
+            switch(c)
+            {
+              case '\\':
+                if(i < line.length() - 1)
+                {
+                    c = line[++i];
+                    switch(c)
+                    {
+                      case '\\':
+                      case '#':
+                      case '=':
+                        key += whitespace;
+                        whitespace.clear();
+                        key += c; 
+                        break;
+
+                      case ' ':
+                        if(key.length() != 0)
+                        {
+                            whitespace += c;
+                        }
+                        break;
+
+                      default:
+                        key += whitespace;
+                        whitespace.clear();
+                        key += '\\';
+                        key += c;
+                        break;
+                    }
+                }
+                else
+                {
+                    key += whitespace;
+                    key += c;
+                }
+                break;
+
+              case ' ':
+              case '\t':
+              case '\r':
+              case '\n':
+                  if(key.length() != 0)
+                  {
+                      whitespace += c;
+                  }
+                  break;
+
+              case '=':
+                  whitespace.clear();
+                  state = Value;
+                  break;
+
+              case '#':
+                  finished = true;
+                  break;
+              
+              default:
+                  key += whitespace;
+                  whitespace.clear();
+                  key += c;
+                  break;
+            }
+            break;
+          }
+
+          case Value:
+          {
+            switch(c)
+            {
+              case '\\':
+                if(i < line.length() - 1)
+                {
+                    c = line[++i];
+                    switch(c)
+                    {
+                      case '\\':
+                      case '#':
+                      case '=':
+                        value += value.length() == 0 ? escapedspace : whitespace;
+                        whitespace.clear();
+                        escapedspace.clear();
+                        value += c; 
+                        break;
+
+                      case ' ':
+                        whitespace += c;
+                        escapedspace += c;
+                        break;
+
+                      default:
+                        value += value.length() == 0 ? escapedspace : whitespace;
+                        whitespace.clear();
+                        escapedspace.clear();
+                        value += '\\';
+                        value += c;
+                        break;
+                    }
+                }
+                else
+                {
+                    value += value.length() == 0 ? escapedspace : whitespace;
+                      value += c;
+                }
+                break;
+
+              case ' ':
+              case '\t':
+              case '\r':
+              case '\n':
+                  if(value.length() != 0)
+                  {
+                      whitespace += c;
+                  }
+                  break;
+
+              case '#':
+                  value += escapedspace;
+                  finished = true;
+                  break;
+              
+              default:
+                  value += value.length() == 0 ? escapedspace : whitespace;
+                  whitespace.clear();
+                  escapedspace.clear();
+                  value += c;
+                  break;
+            }
+            break;
+          }
         }
-        else
+        if(finished)
         {
-            s.erase(idx);
             break;
         }
     }
+    value += escapedspace;
 
-    //
-    // Split key/value and unescape ='s
-    //
-    string::size_type split = string::npos;
-    idx = 0;
-    while((idx = s.find("=", idx)) != string::npos)
+    if((state == Key && key.length() != 0) || (state == Value && key.length() == 0))
     {
-        if(idx != 0 && s[idx - 1] == '\\')
-        {
-            s.erase(idx - 1, 1);
-        }
-        else if(split == string::npos)
-        {
-            split = idx;
-        }
-        ++idx;
-    }
-
-    if(split == 0 || split == string::npos)
-    {
-        s = IceUtilInternal::trim(s);
-        if(s.length() != 0)
-        {
-            getProcessLogger()->warning("invalid config file entry: \"" + line + "\"");
-        }
+        getProcessLogger()->warning("invalid config file entry: \"" + line + "\"");
         return;
     }
-
-    //
-    // Deal with espaced spaces. For key we just unescape and trim but
-    // for values any esaped spaces must be kept.
-    // 
-    string key = s.substr(0, split);
-    while((idx = key.find("\\ ")) != string::npos)
+    else if(key.length() == 0)
     {
-        key.replace(idx, 2, " ");
-    }
-    key = IceUtilInternal::trim(key);
-
-    string value = s.substr(split + 1, s.length() - split - 1);
-    idx = 0;
-    string whitespace = "";
-    while(idx < value.length())
-    {
-        if(value[idx] == '\\')
-        {
-            if(idx + 1 != value.length() && 
-               (value[idx + 1] == ' ' || value[idx + 1] == '\t' || value[idx + 1] == '\r' || value[idx + 1] == '\n'))
-            {
-                whitespace += value[idx + 1];
-                idx += 2;
-            }
-            else
-            {
-                break;
-            }
-        }
-        else if(value[idx] == ' ' || value[idx] == '\t' || value[idx] == '\r' || value[idx] == '\n')
-        {
-            ++idx;
-        }
-        else
-        {
-            break;
-        }
-    }
-    value = whitespace + value.substr(idx, value.length() - idx);
-    if(idx != value.length())
-    {
-        idx = value.length() - 1;
-        whitespace = "";
-        while(idx > 0)
-        {
-            if(value[idx] == ' ' || value[idx] == '\t' || value[idx] == '\r' || value[idx] == '\n')
-            {
-               if(value[idx - 1] == '\\')
-               {
-                   whitespace += value[idx];
-                   idx -= 2;
-               }
-               else
-               {
-                   --idx;
-               }
-            }
-            else
-            {
-                break;
-            }
-        }
-        value = value.substr(0, idx + 1) + whitespace;
-    }
-    while((idx = value.find("\\ ")) != string::npos)
-    {
-        value.replace(idx, 2, " ");
+        return;
     }
 
     if(converter)
