@@ -68,19 +68,20 @@ Java
 To use Ice for Java with the Java5 mapping, add Ice.jar to your
 CLASSPATH, as shown in the following bash command:
 
-$ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
+$ export CLASSPATH=/usr/share/java/Ice.jar:$CLASSPATH
 
 To use Ice for Java with the Java2 mapping, modify your CLASSPATH as
 follows:
 
-$ export CLASSPATH=/usr/lib/Ice-@ver@/java2/Ice.jar:$CLASSPATH
+$ export CLASSPATH=/usr/share/java/Ice-java2.jar:$CLASSPATH
 
 Note that the Freeze component of Ice for Java requires Berkeley DB.
-In order to use Freeze, you must add db.jar to your CLASSPATH. In
-addition, the JVM requires the directory containing the Berkeley DB
-libraries to be listed in java.library.path, therefore you must add
-this directory to your LD_LIBRARY_PATH. Assuming you are using the RPM
-installation of Berkeley DB, the bash command is shown below:
+Ice.jar and Ice-java2.jar contain manifests that automatically load
+the Berkeley DB classes (db.jar), however the JVM requires that the
+directory containing the Berkeley DB libraries be listed in
+java.library.path, therefore you must add this directory to your
+LD_LIBRARY_PATH. Assuming you are using the RPM installation of
+Berkeley DB, the bash command is shown below:
 
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
@@ -117,20 +118,15 @@ For more information on this issue, refer to Sun's bug database:
 Python
 ------
 
-To use Ice for Python, the PYTHONPATH environment variable must be
-updated so that the interpreter can load the Ice extension and
-supporting Python files:
-
-$ export PYTHONPATH=/usr/lib/Ice-@ver@/python:$PYTHONPATH
-
-On a x86_64 system, the python Ice extension is installed in
-/usr/lib64/Ice-@ver@/python, so use instead:
-
-$ export PYTHONPATH=/usr/lib64/Ice-@ver@/python:$PYTHONPATH
+The Ice for Python run-time RPM (ice-python) installs the Ice
+extension and its associated Python files into the "site-packages"
+directory. The RPM also installs a ".pth" file that enables you to
+import the various Ice modules without requiring any additional
+configuration.
 
 
 .NET/Mono
--------
+---------
 
 The RPM installation adds the .NET run-time libraries to the global
 assembly cache (GAC), so that no changes to your environment are
@@ -163,15 +159,9 @@ Enterprise Linux Server.
 Ruby
 ----
 
-To use Ice for Ruby, the RUBYLIB environment variable must be updated 
-so that the interpreter can locate the Ruby extension.
-
-$ export RUBYLIB=/usr/lib/Ice-@ver@/ruby:$RUBYLIB
-
-On a x86_64 system, the Ruby Ice extension is installed in
-/usr/lib64/Ice-@ver@/ruby, so use this setting instead:
-
-$ export RUBYLIB=/usr/lib64/Ice-@ver@/ruby:$RUBYLIB
+The Ice for Ruby run-time RPM (ice-ruby) installs the Ice extension
+and its associated Ruby files into the "site-ruby" directory. No
+additional configuration is necessary to use Ice in your Ruby programs.
 
 Note: Ice for Ruby RPMs are currently available only on Red Hat
 Enterprise Linux.
@@ -272,7 +262,7 @@ A Java-based graphical tool for administering IceGrid applications
 is included in this distribution. The Java archive file is installed
 as
 
-/usr/lib/Ice-@ver@/IceGridGUI.jar
+/usr/share/java/IceGridGUI.jar
 
 With a suitable Java installation, you can execute the application
 using the following command:
