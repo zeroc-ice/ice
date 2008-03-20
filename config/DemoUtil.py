@@ -30,6 +30,7 @@ def configurePaths():
     if ice_home == "/usr":
         javaDir = os.path.join("/", "usr", "share", "java")
         os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+        os.environ["CLASSPATH"] = os.path.join("classes") + os.pathsep + os.getenv("CLASSPATH", "")
         return # That's it, we're done!
     
     binDir = os.path.join(getIceDir("cpp"), "bin")        
