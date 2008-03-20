@@ -12,6 +12,7 @@ top_srcdir	= ..\..
 PKG		= IceSSL
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
+POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= AcceptorI.cs \
 		  AssemblyInfo.cs \
@@ -38,5 +39,7 @@ $(TARGETS):: $(SRCS)
 
 install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
+	copy $(bindir)\$(POLICY) $(install_bindir)
+	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
 
 !include .depend

@@ -148,27 +148,27 @@ endif
 ifneq ($(POLICY_TARGET),)
 
 $(bindir)/$(POLICY_TARGET):
-	@echo '\
-<configuration> \
-  <runtime> \
-    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> \
-      <dependentAssembly> \
-        <assemblyIdentity name="Ice" publicKeyToken="$(publicKeyToken)" culture=""/> \
-        <publisherPolicy apply="yes"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).4.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).3.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).2.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).1.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).4.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).3.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).2.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).4.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).3.0"/> \
-        <bindingRedirect oldVersion="$(SHORT_VERSION).3.0" newVersion="$(SHORT_VERSION).4.0"/> \
-      </dependentAssembly> \
-    </assemblyBinding> \
-  </runtime> \
-</configuration>' >$(POLICY)
+	@echo -e " \
+<configuration> \n \
+  <runtime> \n \
+    <assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\"> \n \
+      <dependentAssembly> \n \
+        <assemblyIdentity name=\"Ice\" publicKeyToken=\"$(publicKeyToken)\" culture=\"\"/> \n \
+        <publisherPolicy apply=\"yes\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).2.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).1.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).2.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).2.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).2.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).3.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+      </dependentAssembly> \n \
+    </assemblyBinding> \n \
+  </runtime> \n \
+</configuration>" >$(POLICY)
 	$(AL) /link:$(POLICY) /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
@@ -242,5 +242,4 @@ clean::
 endif
 
 install::
-	$(shell [ ! -d $(prefix) ] && (mkdir $(prefix); chmod a+rx $(prefix)))
-	$(shell [ ! -d $(install_bindir) ] && (mkdir $(install_bindir); chmod a+rx $(install_bindir)))
+	$(shell [ ! -d $(install_bindir) ] && (mkdir -p $(install_bindir); chmod a+rx $(prefix) $(install_bindir)))

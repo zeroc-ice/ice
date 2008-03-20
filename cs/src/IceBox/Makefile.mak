@@ -13,6 +13,7 @@ PKG		= IceBox
 LIBNAME		= $(bindir)\$(PKG).dll
 ICEBOXNET	= $(bindir)\iceboxnet.exe
 TARGETS		= $(LIBNAME) $(ICEBOXNET)
+POLICY_TARGET   = $(POLICY).dll
 
 L_SRCS		= AssemblyInfo.cs
 I_SRCS		= Server.cs ServiceManagerI.cs
@@ -39,6 +40,8 @@ $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 
 install:: all
 	copy $(LIBNAME) $(install_bindir)
+	copy $(bindir)\$(POLICY) $(install_bindir)
+	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
 
 install:: all
 	copy $(ICEBOXNET) $(install_bindir)

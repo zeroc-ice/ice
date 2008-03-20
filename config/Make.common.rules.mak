@@ -14,6 +14,7 @@
 SHELL			= /bin/sh
 VERSION			= 3.3b
 INTVERSION		= 3.3.51
+SHORT_VERSION           = 3.3
 SOVERSION		= 33b
 
 OBJEXT			= .obj

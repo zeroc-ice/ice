@@ -12,6 +12,7 @@ top_srcdir	= ..\..
 PKG		= Glacier2
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
+POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= AssemblyInfo.cs
 
@@ -35,5 +36,7 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
+	copy $(bindir)\$(POLICY) $(install_bindir)
+	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
 
 !include .depend

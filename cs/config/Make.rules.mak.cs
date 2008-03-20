@@ -109,6 +109,13 @@ EVERYTHING		= all clean install config
 #
 all:: $(TARGETS) $(TARGETS_CONFIG)
 
+AL      = al
+POLICY  = policy.$(SHORT_VERSION).$(PKG)
+
+!if "$(POLICY_TARGET)" != ""
+all:: $(bindir)/$(POLICY_TARGET)
+!endif
+
 clean::
 	del /q $(TARGETS) $(TARGETS_CONFIG) *.pdb
 
@@ -135,7 +142,64 @@ clean::
 	del /q $(SAMD_GEN_SRCS)
 !endif
 
+
+!if "$(POLICY_TARGET)" != ""
+
+$(bindir)/$(POLICY_TARGET):
+!if "$(PUBLIC_KEY_TOKEN)" == ""
+!if "$(ice_src_dist)" != ""
+	echo "Making policy 1"
+	@sn -q -p $(KEYFILE) tmp.pub && \
+	sn -q -t tmp.pub > tmp.publicKeyToken && \
+	set /P TMP_TOKEN= < tmp.publicKeyToken && \
+        cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
+	del tmp.pub tmp.publicKeyToken && \
+	nmake /nologo /f Makefile.mak policy"
+!else
+	echo "Making policy 2"
+	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
+	set /P TMP_TOKEN= < tmp.publicKeyToken && \
+        cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
+	del tmp.pub tmp.publicKeyToken && \
+	nmake /nologo /f Makefile.mak policy"
+!endif
+!endif
+
+publicKeyToken = $(PUBLIC_KEY_TOKEN: =)
+
+policy:
+        @echo <<$(POLICY)
+<configuration>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="Ice" publicKeyToken="$(publicKeyToken)" culture=""/>
+        <publisherPolicy apply="yes"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).4.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).3.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).2.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).1.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).4.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).3.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).2.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).4.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).3.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).3.0" newVersion="$(SHORT_VERSION).4.0"/>
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+</configuration>
+<<KEEP
+	$(AL) /link:$(POLICY) /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	move $(POLICY) $(bindir)
+	move $(POLICY_TARGET) $(bindir)
+
+!endif
+
+
 install::
+	if not exist $(prefix) mkdir $(prefix)
+	if not exist $(install_bindir) mkdir $(install_bindir)
 
 !if "$(TARGETS_CONFIG)" != ""
 
