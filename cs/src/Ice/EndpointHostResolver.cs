@@ -99,8 +99,16 @@ namespace IceInternal
                     _queue.RemoveFirst();
                 }
 
-                resolve.callback.connectors(resolve.endpoint.connectors(
-                    Network.getAddresses(resolve.host, resolve.port, _instance.protocolSupport())));
+                try
+                {
+                    resolve.callback.connectors(
+                        resolve.endpoint.connectors(
+                            Network.getAddresses(resolve.host, resolve.port, _instance.protocolSupport())));
+                }
+                catch(Ice.LocalException ex)
+                {
+                    resolve.callback.exception(ex);
+                }
             }
 
             foreach(ResolveEntry entry in _queue)

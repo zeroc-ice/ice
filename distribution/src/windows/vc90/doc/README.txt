@@ -123,26 +123,29 @@ Building and running the C++ demos
 The C++ demos are in the demo directory.
 
 To build a C++ demo, start Visual Studio 2008 and open the solution
-demo\demo.sln. Right click on the desired demo in the Solution
-Explorer window and select "Build".
+demo\demo.sln. Select your target configuration: Debug or Release,
+Win32 or x64 (on supported x64 platforms). Right click on the desired
+demo in the Solution Explorer window and select "Build".
 
 Note that if you are using Visual C++ 2008 Express Edition the Ice
-demos that require MFC (demo/Ice/MFC and demo/IcePatch2/MFC) will not
+demos that require MFC (demo\Ice\MFC and demo\IcePatch2\MFC) will not
 compile since only the Professional edition contains MFC support. You
 can either ignore any compile errors these demos generate or just
 remove the projects from the solution entirely.
 
-To run these demos, you need to add the Ice bin directory to your
-PATH, as shown below:
+To run these demos, you will typically need at least two Command
+Prompt windows. In each command prompt, add the Ice bin directory to
+your PATH, as shown below:
 
 set PATH=<Ice installation root directory>\bin;%PATH%
 
-Next, open a Command Prompt, change to the desired demo subdirectory,
-and type 'server' to start the server. In a separate Command Prompt
-window, type 'client' to start the client.
+If you built an x64 configuration, use this setting instead:
 
-Some demo directories contain README files if additional requirements
-are necessary.
+set PATH=<Ice installation root directory>\bin\x64;%PATH%
+
+Change to the desired demo subdirectory and review the README file if
+one is present. Type 'server' to start the server. In another command
+prompt, type 'client' to start the client.
 
 The Ice demo source code archive and Windows installer for Visual
 Studio 2005 include examples for integrating Ice with databases other 
@@ -223,7 +226,7 @@ Building and running the Java demos
 The Java demos are in the demoj directory.
 
 To build the Java demos, you need J2SE SDK 1.5.0 or later, and Ant
-1.6.3 or later. They can be downloaded from:
+1.7.0 or later. They can be downloaded from:
 
   http://java.sun.com/j2se/index.jsp
   http://ant.apache.org/bindownload.cgi
@@ -273,10 +276,10 @@ Protocol compression with 64-bit Windows
 Ice for .NET attempts to dynamically load bzip2.dll to support
 protocol compression. On 64-bit Windows, you have to make sure that
 the 64-bit version of bzip2.dll is found instead of the 32-bit
-version. The bzip2 libraries are installed in <prefix>/bin/x64 and
-<prefix>/bin, respectively. For 64-bit Windows, you need to make sure
-that <prefix>/bin/x64 appears in the application's PATH instead of
-<prefix>/bin. (The Ice run time prints a warning to the console if it
+version. The bzip2 libraries are installed in <prefix>\bin\x64 and
+<prefix>\bin, respectively. For 64-bit Windows, you need to make sure
+that <prefix>\bin\x64 appears in the application's PATH instead of
+<prefix>\bin. (The Ice run time prints a warning to the console if it
 detects a bzip2.dll format mismatch during start-up.)
 
 

@@ -25,11 +25,9 @@ To use Visual Basic (or other .NET languages) with Ice, you need
 the run-time support provided by the Ice for .NET assembly
 (Ice.dll). The Ice for Visual Basic build environment expects
 Ice.dll to be installed in $(solutiondir)\..\cs\bin.  Alternatively,
-you can install Ice.dll in the Global Assembly Cache (GAC). If you
-have installed the Ice binary distribution for Windows, the Ice.dll
-assembly has already been installed in the GAC. If you prefer to
-install the assembly in the GAC yourself, refer to the INSTALL file
-in the cs subdirectory  for instructions.
+you can install Ice.dll in the Global Assembly Cache (GAC). Refer to the
+INSTALL.VISUAL_C# file in the cs subdirectory for instructions on
+installing the asemblies in the GAC.
 
 To compile your Slice definitions, you need to use slice2cs to generate
 C# source code and use a C# compiler to compile the generated code into

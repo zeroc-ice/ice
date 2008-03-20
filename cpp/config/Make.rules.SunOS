@@ -162,16 +162,3 @@ ifeq ($(MACHINE_TYPE),i86pc)
     lp64binsuffix	    = /amd64
 endif
 
-ifeq ($(LP64),yes)
-    ifdef ice_src_dist
-        export LD_LIBRARY_PATH_64	:= $(libdir):$(LD_LIBRARY_PATH_64)
-    else
-        export LD_LIBRARY_PATH_64	:= $(ice_dir)/$(libsubdir):$(LD_LIBRARY_PATH_64)
-    endif
-else
-    ifdef ice_src_dist
-        export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
-    else
-        export LD_LIBRARY_PATH	:= $(ice_dir)/$(libsubdir):$(LD_LIBRARY_PATH)
-    endif
-endif

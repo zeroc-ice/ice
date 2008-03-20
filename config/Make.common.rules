@@ -98,7 +98,7 @@ $(error slice_translator must be defined)
     endif
 
     lp64bindir = 
-    ifeq ($(shell uname),SunOS)
+    ifeq ($(UNAME),SunOS)
 	ifeq ($(MACHINE_TYPE),sun4u)
 	    lp64bindir = /sparcv9
 	endif
@@ -107,7 +107,7 @@ $(error slice_translator must be defined)
 	endif
     endif
 
-    ifeq ($(shell uname),HP-UX)
+    ifeq ($(UNAME),HP-UX)
         lp64bindir = /pa20_64
     endif
 
@@ -191,12 +191,12 @@ ifneq ($(ice_dir), /usr)
         ice_lib_dir = $(ice_dir)/lib
     endif
 
-    ifeq ($(shell uname),Linux)
+    ifeq ($(UNAME),Linux)
         export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
         export LD_LIBRARY_PATH := $(ice_lib_dir)64:$(LD_LIBRARY_PATH)
     endif
 
-    ifeq ($(shell uname),SunOS)
+    ifeq ($(UNAME),SunOS)
         export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
 	ifeq ($(MACHINE_TYPE),sun4u)
             export LD_LIBRARY_PATH_64 := $(ice_lib_dir)/sparcv9:$(LD_LIBRARY_PATH_64)
@@ -206,18 +206,27 @@ ifneq ($(ice_dir), /usr)
 	endif
     endif
 
-    ifeq ($(shell uname),Darwin)
+    ifeq ($(UNAME),Darwin)
         export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
     endif
 
-    ifeq ($(shell uname),AIX)
+    ifeq ($(UNAME),AIX)
         export LIBPATH := $(ice_lib_dir):$(LIBPATH)
     endif
 
-    ifeq ($(shell uname),HP-UX)
+    ifeq ($(UNAME),HP-UX)
         export SHLIB_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
         export LD_LIBRARY_PATH := $(ice_lib_dir)/pa20_64:$(SHLIB_PATH)
     endif
+
+    ifeq ($(UNAME),FreeBSD)
+        export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
+    endif
+
+    ifeq ($(UNAME),OSF1)
+        export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
+    endif
+
 endif
 
 

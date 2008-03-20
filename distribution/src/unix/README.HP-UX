@@ -5,7 +5,7 @@ The Internet Communications Engine
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, C#, Java,
+object-oriented specification language, easy to use C++, .NET, Java,
 Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
 protocol, asynchronous method invocation and dispatch, dynamic
 transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
@@ -55,21 +55,6 @@ This distribution includes the C++ run time for Berkeley DB 4.6.21 and
 the OpenSSL 0.9.8g libraries. The Berkeley DB C++ run time was built
 using HP aC++ version A.03.56. The Berkeley DB and OpenSSL licenses
 are provided in the file THIRD_PARTY_LICENSE.
-
-
-======================================================================
-Ice extension for Python
-======================================================================
-
-Ice for Python is fully supported on HP-UX. However it is not included
-in this distribution because there is no suitable binary distribution
-for Python itself available from HP or other common repositories for
-HP-UX software.
-
-If you want to use Ice for Python on HP-UX, you can build the source
-distribution available at 
-
-  http://www.zeroc.com/download.html
 
 
 ======================================================================
