@@ -22,9 +22,21 @@ keepGoing = 0                   # Set to 1 to have the tests continue on failure
 ipv6 = 0                        # Default to use IPv4 only
 ice_home = None                 # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
-
 javaCmd = "java"                # Default java loader
-phpCmd = "php"                  # Name of default php binary (usually php or php5)
+
+#
+# The PHP interpreter is called "php5" on some platforms (e.g., SLES).
+#
+phpCmd = "php"
+for path in string.split(os.environ["PATH"], os.pathsep):
+    #
+    # Stop if we find "php" in the PATH first.
+    #
+    if os.path.exists(os.path.join(path, "php")):
+        break
+    elif os.path.exists(os.path.join(path, "php5")):
+        phpCmd = "php5"
+        break
 
 #
 # This is set by the choice of init method. If not set, before it is
@@ -313,28 +325,54 @@ serverPids = []
 serverThreads = []
 allServerThreads = []
 
-phpExtensionDir = None
-phpExtension = None
+def writePhpIni(src, dst):
+    extDir = None
+    ext = None
 
-if isWin32():
-    phpExtensionDir = os.path.abspath(os.path.join(findTopLevel(), "php", "bin"))
-    phpExtension = "php_ice.dll"
     #
-    # TODO: When we no longer support PHP 5.1.x, we can do the following:
+    # TODO
     #
-    #phpCmd = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "bin")) + "\" -d extension=php_ice.dll"
-else:
-    for path in string.split(os.environ["PATH"], os.pathsep):
-        if os.path.exists(os.path.join(path, "php5")):
-            phpCmd = "php5"
-            break
-                                
-    phpExtensionDir = os.path.abspath(os.path.join(findTopLevel(), "php", "lib"))
-    phpExtension = "IcePHP.so"
+    # When we no longer support PHP 5.1.x, we can use the following PHP
+    # command-line options:
     #
-    # TODO: When we no longer support PHP 5.1.x, we can do the following:
+    # -d extension_dir=...
+    # -d extension=[php_ice.dll|IcePHP.so]
     #
-    #phpCmd = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "lib")) + "\" -d extension=IcePHP.so"
+    if isWin32():
+        ext = "php_ice.dll"
+        extDir = os.path.abspath(os.path.join(getIceDir("php"), "bin"))
+    else:
+        ext = "IcePHP.so"
+        if not ice_home:
+            extDir = os.path.abspath(os.path.join(findTopLevel(), "php", "lib"))
+        else:
+            #
+            # If ICE_HOME points to the installation directory of a source build, the
+            # PHP extension will be located in $ICE_HOME/lib or $ICE_HOME/lib64.
+            # For an RPM installation, PHP is already configured to load the extension.
+            # We could also execute "php -m" and check if the output includes "ice".
+            #
+            if x64:
+                extDir = os.path.join(ice_home, "lib64")
+            else:
+                extDir = os.path.join(ice_home, "lib")
+
+            if not os.path.exists(os.path.join(extDir, ext)):
+                if ice_home == "/usr":
+                    extDir = None # Assume PHP is already configured to load the extension.
+                else:
+                    print "unable to find IcePHP extension!"
+                    sys.exit(1)
+
+    ini = open(src, "r").readlines()
+    for i in range(0, len(ini)):
+        ini[i] = ini[i].replace("ICE_HOME", os.path.join(findTopLevel()))
+    tmpini = open(dst, "w")
+    tmpini.writelines(ini)
+    if extDir:
+        tmpini.write("extension_dir=%s\n" % extDir)
+        tmpini.write("extension=%s\n" % ext)
+    tmpini.close()
 
 def getIceSoVersion():
 
@@ -905,16 +943,8 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     os.chdir(testdir)
 
     if lang == "php":
-        ini = open("php.ini", "r").readlines()
-        for i in range(0, len(ini)):
-            ini[i] = ini[i].replace("ICE_HOME", os.path.join(findTopLevel()))
-        tmpini = open("tmp.ini", "w")
-        tmpini.writelines(ini)
-        tmpini.write("extension_dir=%s\n" % phpExtensionDir)
-        tmpini.write("extension=%s\n" % phpExtension)
-        tmpini.close()
-        
-    
+        writePhpIni("php.ini", "tmp.ini")
+
     print "starting " + clientName + "...",
     clientCmd = getCommandLine(client, DriverConfig("client")) + " " + additionalClientOptions
     if debug:
@@ -1055,14 +1085,7 @@ def startClient(exe, args, config=None, env=None):
 
     if config.lang == "php":
         os.chdir(os.path.dirname(os.path.abspath(exe)))
-        ini = open("php.ini", "r").readlines()
-        for i in range(0, len(ini)):
-            ini[i] = ini[i].replace("ICE_HOME", os.path.join(findTopLevel()))
-        tmpini = open("tmp.ini", "w")
-        tmpini.writelines(ini)
-        tmpini.write("extension_dir=%s\n" % phpExtensionDir)
-        tmpini.write("extension=%s\n" % phpExtension)
-        tmpini.close()
+        writePhpIni("php.ini", "tmp.ini")
 
     return os.popen(getCommandLine(exe, config, env) + ' ' + args + " 2>&1")
 
