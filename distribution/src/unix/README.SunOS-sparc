@@ -153,20 +153,18 @@ below:
 
 $ export CLASSPATH=<Ice installation directory>/lib/Ice.jar:$CLASSPATH
 
-To use the Java2 version of Ice instead, modify your CLASSPATH as
+To use Ice for Java with the Java2 mapping, modify your CLASSPATH as
 follows:
 
 $ export CLASSPATH=<Ice installation directory>/lib/java2/Ice.jar:$CLASSPATH
 
-If you plan to use Freeze for persistence, you must also add the
-Berkeley DB JAR file (db.jar) to your CLASSPATH:
-
-$ export CLASSPATH=<Ice installation directory>/lib/db.jar:$CLASSPATH
-
-In addition, the JVM requires that the directory containing the
-Berkeley DB libraries be listed in java.library.path, therefore you
-must add this directory to LD_LIBRARY_PATH (or LD_LIBRARY_PATH_64 if
-you run java in 64-bit mode).
+Note that the Freeze component of Ice for Java requires Berkeley DB.
+Ice.jar contains a manifest that automatically loads the Berkeley DB
+classes (db.jar), however the JVM requires that the directory
+containing the Berkeley DB libraries be listed in java.library.path.
+Modifying your LD_LIBRARY_PATH (or LD_LIBRARY_PATH_64, if you use a
+64-bit JVM) as described in the "General" section above satisfies this
+requirement.
 
 Ice includes ant tasks for translating Slice to Java. The ant tasks
 allow slice2java and slice2freezej to be invoked from the ant build
