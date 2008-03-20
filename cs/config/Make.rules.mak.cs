@@ -103,7 +103,11 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
 !if "$(ice_src_dist)" != ""
+!if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
+!else
+SLICE2CS		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe"
+!endif
 !else
 SLICE2CS		= "$(ice_dir)\bin$(x64suffix)\slice2cs.exe"
 !endif

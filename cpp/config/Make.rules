@@ -147,17 +147,8 @@ endif
 #
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
-ifeq ($(LP64),yes)
-    install_bindir	  := $(prefix)/bin$(lp64binsuffix)
-    install_libdir	  := $(prefix)/lib$(lp64suffix)
-    libsubdir		  := lib$(lp64suffix)
-    binsubdir		  := bin$(lp64binsuffix)
-else
-    install_bindir	  := $(prefix)/bin
-    install_libdir	  := $(prefix)/lib
-    libsubdir		  := lib
-    binsubdir		  := bin
-endif
+install_bindir	  := $(prefix)/$(binsubdir)
+install_libdir	  := $(prefix)/$(libsubdir)
 
 ifneq ($(embedded_runpath_prefix),)
     runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)

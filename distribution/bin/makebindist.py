@@ -151,27 +151,26 @@ for l in buildLanguages:
     if l != "java":
 
         makeCmd = "gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install"
-        
-        #
-        # Copy the language source directory to a directory suffixed with -lp64 
-        # if this platform supports a 64 bits build and the directory doesn't 
-        # exist yet.
-        #
-        if l in platform.build_lp64 and not os.path.exists(os.path.join(srcDir, l + "-lp64")):
-            copy(os.path.join(srcDir, l), os.path.join(srcDir, l + "-lp64"))
 
-        #
-        # 32 bits build
-        #
-        if os.system("LP64=no " + makeCmd) != 0:
-            print sys.argv[0] + ": `" + l + "' build failed"
-            os.chdir(cwd)
-            sys.exit(1)
+        if not platform.build_lp64:
+            if os.system(makeCmd) != 0:
+                print sys.argv[0] + ": `" + l + "' build failed"
+                os.chdir(cwd)
+                sys.exit(1)
+        else:
+            #
+            # Copy the language source directory to a directory suffixed with -lp64 
+            # if this platform supports a 64 bits build and the directory doesn't 
+            # exist yet.
+            #
+            if not os.path.exists(os.path.join(srcDir, l + "-lp64")):
+                copy(os.path.join(srcDir, l), os.path.join(srcDir, l + "-lp64"))
 
-        #
-        # 64 bits build on platform supporting it.
-        #
-        if l in platform.build_lp64:
+            if os.system("LP64=no " + makeCmd) != 0:
+                print sys.argv[0] + ": `" + l + "' build failed"
+                os.chdir(cwd)
+                sys.exit(1)
+
             os.chdir(os.path.join(srcDir, l + "-lp64"))
             if os.system("LP64=yes " + makeCmd) != 0:
                 print sys.argv[0] + ": `" + l + "' build failed"

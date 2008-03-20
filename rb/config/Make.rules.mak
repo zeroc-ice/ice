@@ -82,10 +82,14 @@ ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 
 !if "$(ice_src_dist)" != ""
 ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"
+!if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib"
 !else
+ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib$(x64suffix)"
+!endif
+!else
 ICE_CPPFLAGS		= -I"$(ice_dir)\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib"
+ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib$(x64suffix)"
 !endif
 
 slicedir                = $(ice_dir)\slice
@@ -98,9 +102,13 @@ ICECPPFLAGS		= -I$(slicedir)
 SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
 !if "$(ice_src_dist)" != ""
+!if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 SLICE2RB		= "$(ice_cpp_dir)\bin\slice2rb.exe"
 !else
-SLICE2RB		= "$(ice_dir)\bin\slice2rb.exe"
+SLICE2RB		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2rb.exe"
+!endif
+!else
+SLICE2RB		= "$(ice_dir)\bin$(x64suffix)\slice2rb.exe"
 !endif
 
 EVERYTHING		= all clean install
