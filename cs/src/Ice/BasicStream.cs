@@ -2426,7 +2426,7 @@ namespace IceInternal
         }
 
 #if !MANAGED
-        [DllImport("libbz2.dll")]
+        [DllImport("bzip2.dll")]
         extern static int BZ2_bzBuffToBuffCompress(byte[] dest,
                                                    ref int destLen,
                                                    byte[] source,
@@ -2505,7 +2505,7 @@ namespace IceInternal
         }
 
 #if !MANAGED
-        [DllImport("libbz2.dll")]
+        [DllImport("bzip2.dll")]
         extern static int BZ2_bzBuffToBuffDecompress(byte[] dest,
                                                      ref int destLen,
                                                      byte[] source,
