@@ -66,8 +66,8 @@ ice_src_dist = 1
 !if "$(ICE_HOME)" != ""
 
 !if "$(slice_translator)" != ""
-!if !exist ($(ICE_HOME)\bin\$(slice_translator))
-!error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.
+!if !exist ($(ICE_HOME)\bin$(x64suffix)\$(slice_translator))
+!error Unable to find $(slice_translator) in $(ICE_HOME)\bin$(x64suffix), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 !if exist ($(ice_dir)\cpp\bin\$(slice_translator))
 !message Found $(slice_translator) in both ICE_HOME\bin and $(ice_dir)\cpp\bin, ICE_HOME\bin\$(slice_translator) will be used!
@@ -75,7 +75,7 @@ ice_src_dist = 1
 ice_cpp_dir = $(ICE_HOME)
 !else
 !message Ignoring ICE_HOME environment variable to build current source tree.
-ice_cpp_dir = $(ice_dir)/cpp
+ice_cpp_dir = $(ice_dir)\cpp
 !endif
 
 !else
@@ -97,7 +97,7 @@ ice_cpp_dir = $(ice_dir)\cpp
 
 !if "$(ICE_HOME)" != ""
 !if !exist ($(ICE_HOME)\bin$(x64suffix)\$(slice_translator))
-!error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.
+!error Unable to find $(slice_translator) in $(ICE_HOME)\bin$(x64suffix), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 ice_dir = $(ICE_HOME)
 !elseif exist ($(top_srcdir)/bin/$(slice_translator))
