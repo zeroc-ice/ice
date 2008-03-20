@@ -96,18 +96,9 @@ properly:
 
 $ export ICE_HOME=/opt/Ice-@ver@
 
-You must add Ice-@ver@/cs/bin to your MONO_PATH. (Don't forget to export
-MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
-directory) in the Global Assembly Cache (GAC), using gacutil -i
-<name>. For example:
-
-$ gacutil -i Ice.dll
-
 Python is required to run the test suite:
 
   http://www.python.org/download
-
-For the tests to run, your LD_LIBRARY_PATH must include <mono-root>/lib.
 
 To run the tests, open a command window and change to the top-level
 directory. At the command prompt, execute:
@@ -127,8 +118,8 @@ Running the demos
 -----------------
 
 To run the demos, you need to have Ice-@ver@/cs/bin in your MONO_PATH
-(or install the Ice DLLs in the GAC, as for running the tests). See
-the README file in each demo directory for a description of each demo.
+or install the Ice DLLs in the GAC. See the README file in each
+demo directory for a description of each demo.
 
 
 Installation
