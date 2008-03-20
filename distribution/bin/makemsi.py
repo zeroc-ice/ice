@@ -183,6 +183,8 @@ def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
         runprog("nmake /f Makefile.mak")
         os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "cs", "demo"))
         runprog("nmake /f Makefile.mak config")
+        os.chdir(os.path.join(sourcesDir, "release", "Ice-%s" % iceVersion, "vb", "demo"))
+        runprog("nmake /f Makefile.mak config")
 
         #
         # Ice for Java
