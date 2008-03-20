@@ -299,6 +299,10 @@ rm -rf $RPM_BUILD_ROOT
 #
 # C++
 #
+
+# Temporary
+mkdir -p $RPM_BUILD_ROOT/lib
+
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
 make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
@@ -306,7 +310,7 @@ mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/%_lib/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/lib/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
