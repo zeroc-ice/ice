@@ -104,7 +104,7 @@ def findTopLevel():
 
     for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
         toplevel = os.path.abspath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+        if os.path.exists(os.path.join(toplevel, "config", "DemoUtil.py")):
             break
     else:
         toplevel = None
