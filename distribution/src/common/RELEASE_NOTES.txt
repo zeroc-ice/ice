@@ -1,5 +1,6 @@
+======================================================================
 Release notes for Ice 3.3.0
-===========================
+======================================================================
 
 INTRO TBD
 
@@ -15,8 +16,9 @@ core even if those language mappings are not explicitly mentioned
 below.
 
 
+======================================================================
 New Features
-============
+======================================================================
 
 This section discusses the significant enhancements offered in this
 release.
@@ -286,8 +288,9 @@ you will need to annotate your Slice definitions with the metadata
 tag "clr:collection".
 
 
+======================================================================
 Platforms and compilers
-=======================
+======================================================================
 
 The list shown below represents changes or additions to the platforms
 and compilers that Ice supports:
@@ -304,27 +307,44 @@ Express editions of Microsoft compilers are only supported by the C++
 language mapping; Ice for .NET requires Visual Studio 2005 or 2008.
 
 
+======================================================================
+Ice for .NET
+======================================================================
+
+Given the language-neutral nature of .NET's Common Language Runtime
+(CLR), maintaining Slice compilers for both Visual Basic and C# is
+unnecessary. As a result, Ice no longer includes a Slice compiler for
+Visual Basic, and Ice for C# is now known as Ice for .NET.
+
+Users can write an Ice application in any language that is supported
+by the CLR, but Slice definitions must now be generated in C#.
+
+The names of the Ice for .NET run-time DLLs have also been changed
+accordingly. Below is a list of the old DLL names and their equivalent
+names in this release:
+
+  icecs.dll        Ice.dll
+  glacier2cs.dll   Glacier2.dll
+  iceboxcs.dll     IceBox.dll
+  icegridcs.dll    IceGrid.dll
+  icepatch2cs.dll  IcePatch2.dll
+  icesslcs.dll     IceSSL.dll
+  icestormcs.dll   IceStorm.dll
+
+You will need to update your Visual Studio projects to reflect these
+changes. Ice continues to include sample programs for Visual Basic,
+and you can use these projects as a guide for updating your own Visual
+Basic projects.
+
+
+======================================================================
 Fixes and improvements
-======================
+======================================================================
 
-* The new property Ice.TCP.Backlog allows you to specify the size of
-  incoming connection backlog for TCP/IP sockets. This setting is
-  also used for SSL. In C++ the default value is SOMAXCONN or 511 if
-  that macro is not defined. In Java and .NET the default value is
-  511.
-
-* An IceGrid node is more conservative when removing the directory of
-  a server. The node only removes the directory when the server is
-  explicitly removed from a deployed application or if the directory
-  contains only files and directories that were created by the node.
-
-* Configuration properties for IceBox services can now be defined on
-  the command line.
-
-* The rules for legal property names and values have been relaxed.
-  Refer to the "Properties" chapter in the Ice manual for a complete
-  description of the syntax. The limit on the line length of a
-  property in a configuration file has also been removed.
+Below is an abbreviated list of changes included in this release that
+were not already discussed in "New Features". For a complete list of
+changes, please refer to the CHANGES.txt file included in your Ice
+distribution.
 
 * An IceBox service can now recursively start and stop other IceBox
   services from within its start and stop methods. The level of
@@ -340,10 +360,31 @@ Fixes and improvements
   IceBox.ServiceManager.Endpoints. If this property is not defined,
   the ServiceManager interface is not available.
 
+* Configuration properties for IceBox services can now be defined on
+  the command line.
+
 * A new object adapter property, <adapter>.ProxyOptions, lets you
   customize the proxies that the adapter creates.
 
+* Accepting incoming connections can no longer block a thread from a
+  server thread pool. This includes activities such as connection
+  validation and SSL handshaking.
+
+* The new property Ice.TCP.Backlog allows you to specify the size of
+  incoming connection backlog for TCP/IP sockets. This setting is
+  also used for SSL. In C++ the default value is SOMAXCONN or 511 if
+  that macro is not defined. In Java and .NET the default value is
+  511.
+
+* Changed servant locators so both locate() and finished() can throw
+  user exceptions.
+
 * It is now legal to change the compression setting of a fixed proxy.
+
+* An IceGrid node is more conservative when removing the directory of
+  a server. The node only removes the directory when the server is
+  explicitly removed from a deployed application or if the directory
+  contains only files and directories that were created by the node.
 
 * IceGrid's round-robin load balancing policy better handles servers
   that are unreachable.
@@ -362,11 +403,18 @@ Fixes and improvements
   explicitly set the property IceGrid.Registry.SessionFilters or
   IceGrid.Registry.AdminSessionFilters.
 
+* The IceGrid node now unblocks the SIGHUP, SIGINT and SIGTERM signals
+  from forked servers.
+
 * Several improvements have been made to the output of slice2html.
 
 * The inheritance structure of C++ servant classes has changed such
   that it is now possible for a servant to derive from
   IceUtil::Thread.
+
+* If a proxy contains a host that is multihomed, the client will now
+  try all of the IP addresses reported by DNS. Previously, only the
+  first address in the list was used and others were ignored.
 
 * The way that the Ice run time determines whether a proxy invocation
   is eligible for collocation optimization has changed somewhat. The
@@ -376,20 +424,13 @@ Fixes and improvements
   or published endpoint of an object adapter from the same
   communicator.
 
-* Accepting incoming connections can no longer block a thread from a
-  server thread pool. This includes activities such as connection
-  validation and SSL handshaking.
-
-* The marshaling code now throws an exception if an enumerator that is
-  out of range for its enumeration is sent or received.
-
 * Exceptions thrown from collocation-optimized invocations are now
   fully transparent. If an operation throws an exception that is
   not in the operation's exception specification, or throws a
   non-Ice exception, the client receives UnknownUserException
   or UnknownException, exactly as if the servant for a remote
   invocation had thrown the same exception. (In earlier versions,
-  the client received the orginal exception, rather than an
+  the client received the original exception, rather than an
   unknown exception.)
 
   For Ice run-time exceptions, all run-time exceptions are passed
@@ -403,9 +444,6 @@ Fixes and improvements
   - UnknownLocalException
   - UnknownUserException
   - CollocationOptimizationException
-
-* Changed servant locators so both locate() and finished() can throw
-  user exceptions.
 
 * Most proxy factory methods now return a proxy of the same type as
   the original and no longer require the use of a checked or unchecked
@@ -422,11 +460,42 @@ Fixes and improvements
 
   hello = (HelloPrx)hello.ice_oneway();
 
+* The IceSSL plugins for Java and .NET now support a password callback
+  interface. You can also specify the class name of a certificate
+  verifier or password callback via configuration properties.
+
+* It is now possible to use Ice's built-in sequence types in Slice
+  data structures that are compiled with streaming support. Previously
+  this would not work because the Ice sequences were not compiled with
+  streaming support.
+
+* Changed Ice.Exception in .NET to derive from System.Exception
+  instead of System.ApplicationException in accordance with
+  Microsoft's recommendations for writing custom exceptions.
+
+* The Ice.Application class now supports signal handling on Mono.
+
+* The .NET build system supports the new macro MANAGED, which can be
+  enabled if you want to build a version of the Ice run time that uses
+  only managed code.
+
+* Marshaling performance in .NET has been improved.
+
+* The rules for legal property names and values have been relaxed.
+  Refer to the "Properties" chapter in the Ice manual for a complete
+  description of the syntax. The limit on the line length of a
+  property in a configuration file has also been removed.
+
+* The new property Ice.Warn.UnusedProperties causes the communicator
+  to display a warning during its destruction that lists all
+  properties that were set but whose values were never read.
+
+* Ice for Java now supports the ICE_CONFIG environment variable.
 
 
-
+======================================================================
 Desupported components
-======================
+======================================================================
 
 This section describes Ice components that are no longer supported.
 
@@ -452,21 +521,9 @@ and it has been removed as of this release. See "Removed APIs" for
 additional information.
 
 
-Slice-to-Visual Basic compiler
-------------------------------
-
-Ice no longer includes the Slice-to-Visual Basic compiler. Given the
-language-neutral nature of .NET's Common Language Runtime (CLR),
-maintaining Slice compilers for both Visual Basic and C# is
-unnecessary.
-
-Users can write an Ice application in any language that is supported
-by the CLR, but Slice definitions must now be generated in C#. For
-this reason, we have renamed Ice for C# to Ice for .NET.
-
-
+======================================================================
 Upgrading your application
-==========================
+======================================================================
 
 Ice 3.3.0 does not maintain backward binary compatibility with
 applications built using Ice 3.2.x, but every effort was made to
@@ -606,7 +663,8 @@ registry without the --readonly option.
 Removed APIs
 ------------
 
-TBD
+This section describes features and APIs that are no longer available
+in this release.
 
 * Thread per connection
 
@@ -640,6 +698,11 @@ TBD
   - The proxy methods ice_threadPerConnection and
     ice_isThreadPerConnection
 
+* .NET metadata
+
+  The metadata directive "cs:collection" is no longer valid. Use
+  ["clr:collection"] instead.
+
 * C++
 
   The following methods have been removed:
@@ -660,34 +723,83 @@ TBD
 
     Use the equivalent Communicator operations.
 
-  - ObjectPrx::ice_hash
-  - ObjectPrx::ice_communicator
-  - ObjectPrx::ice_collocationOptimization
-  - ObjectPrx::ice_connection
+* Java
 
-    Replaced with methods of the form ice_get..., such as ice_getHash.
-    ice_collocationOptimization is now ice_getCollocationOptimized.
+  The following methods have been removed:
 
-  - ObjectPrx::ice_newIdentity
-  - ObjectPrx::ice_newContext
-  - ObjectPrx::ice_newFacet
-  - ObjectPrx::ice_newAdapterId
-  - ObjectPrx::ice_newEndpoints
+  - Application.main(String, String[], String, Logger)
 
-    Replaced with methods that do not use "new" in their names. For
-    example, ice_newIdentity was replaced by ice_identity.
+    Use Application.main(String, String[], InitializationData)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(String[], InitializationData) instead.
+
+* .NET
+
+  The following methods have been removed:
+
+  - Application.main(string, string[], string, Logger)
+
+    Use Application.main(string, string[], InitializationData)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(ref string[], InitializationData) instead.
+
+* Python
+
+  The following methods have been removed:
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(args, initializationData) instead.
+
+  - stringToIdentity
+  - identityToString
+
+    Use the equivalent Communicator operations.
+
+* General
+
+  The following methods have been removed:
+
+  - ice_hash
+  - ice_communicator
+  - ice_collocationOptimization
+  - ice_connection
+
+    These proxy methods were replaced by ones of the form ice_get...,
+    such as ice_getHash. ice_collocationOptimization is now
+    ice_getCollocationOptimized.
+
+  - ice_newIdentity
+  - ice_newContext
+  - ice_newFacet
+  - ice_newAdapterId
+  - ice_newEndpoints
+
+    These proxy methods were replaced by ones that do not use "new" in
+    their names. For example, ice_newIdentity was replaced by
+    ice_identity.
 
 
 Deprecated APIs
 ---------------
 
 The Ice APIs and components listed below are deprecated in this
-release. They will be supported for at least one more major (TBD)
-release; for example, these items will be supported in Ice 3.4 and
-removed in Ice 3.5. We encourage you to update your applications
-and eliminate the use of these APIs as soon as possible.
-
-TBD
+release. They will be supported for at least one more minor release;
+for example, these items will be supported in Ice 3.4 and removed in
+Ice 3.5. We encourage you to update your applications and eliminate
+the use of these APIs as soon as possible.
 
 * Java2 language mapping
 
@@ -707,6 +819,59 @@ TBD
   The use of sequences, and structures containing sequences, as the
   key type of a Slice dictionary is now deprecated.
 
+* LocalObject
+
+  The mappings for the LocalObject type have changed in Java, .NET and
+  Python. The new mappings are shown below:
+
+  Java    java.lang.Object
+  .NET    System.Object
+  Python  object
+
+  The types Ice.LocalObject and Ice.LocalObjectImpl are deprecated.
+
 * Ice.MonitorConnections
 
-* LocalObject (Java/C#/Python)
+  In previous releases this property specified the interval at which a
+  background thread in the Ice run time checked for idle connections
+  and enforced timeouts on AMI requests. This setting is now ignored
+  because the changes to AMI (see "New Features") include more precise
+  AMI timeouts.
+
+* Ice.Trace.Location
+
+  This property has been replaced by Ice.Trace.Locator.
+
+* Ice.Default.CollocationOptimization
+
+  This property, as well as the corresponding proxy property, have
+  been replaced by Ice.Default.CollocationOptimized and
+  <proxy>.CollocationOptimized, respectively.
+
+* <Adapter>.RegisterProcess
+
+  This property caused the Ice run time to register a proxy with the
+  locator registry (e.g., IceGrid) that allowed the process to be shut
+  down remotely. The new administrative facility (see "New Features")
+  has replaced this functionality.
+
+* Ice.ServerId
+
+  As with <Adapter>.RegisterProcess, this property was used primarily
+  for IceGrid integration and has been replaced by a similar mechanism
+  in the administrative facility (see "New Features").
+
+* Glacier2.Admin
+  IcePatch2.Admin
+
+  These are the names of administrative object adapters in Glacier2
+  and IcePatch2, respectively. The functionality offered by these
+  object adapters has been replaced by that of the administrative
+  facility (see "New Features"), therefore these adapters (and their
+  associated configuration properties) are deprecated.
+
+* Ice.LoggerPlugin
+
+  This property provided a means of installing a custom logger
+  implementation. It has been replaced by the new configuration
+  property Ice.Plugin.Logger.
