@@ -48,19 +48,20 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     file = normalizePath(file, true);
 
     //
-    // Compare each include path against the included file and select
-    // the path that produces the shortest relative filename.
+    // Modify the list of include paths to be absolute paths, with and 
+    // without symlinks resolved.
     //
-    string result = file;
+    vector<string> newIncludePaths;
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         string includePath = *p;
-#ifdef _WIN32
         if(!isAbsolute(includePath))
         {
             includePath = cwd + "/" + includePath;
         }
-#else
+        newIncludePaths.push_back(normalizePath(includePath, true));
+
+#ifndef _WIN32
         //
         // We need to get the real path name of the include directory in case
         // it is a symlink, since the preprocessor output contains real path names.
@@ -75,9 +76,18 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
             }
             close(fd);
         }
+        newIncludePaths.push_back(normalizePath(includePath, true));
 #endif
-        includePath = normalizePath(includePath, true);
+    }
 
+    //
+    // Compare each include path against the included file and select
+    // the path that produces the shortest relative filename.
+    //
+    string result = file;
+    for(vector<string>::const_iterator p = newIncludePaths.begin(); p != newIncludePaths.end(); ++p)
+    {
+        string includePath = *p;
         if(file.compare(0, includePath.length(), includePath) == 0)
         {
             string s = file.substr(includePath.length());
