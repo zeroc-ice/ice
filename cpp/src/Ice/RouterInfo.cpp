@@ -265,7 +265,7 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrx& proxy, const AddProxyCal
     assert(proxy);
     {
         IceUtil::Mutex::Lock sync(*this);
-        if(_identities.find(proxy->ice_getIdentity()) == _identities.end())
+        if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
