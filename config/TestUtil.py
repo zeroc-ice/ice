@@ -854,6 +854,7 @@ def runTests(configs, tests, num = 0):
                 print "[ " + str(configCount) + " of " + str(len(configs)) + " ]",
             print
             print "*** test started:", time.strftime("%x %X")
+            sys.stdout.flush()
 
             os.chdir(dir)
 
