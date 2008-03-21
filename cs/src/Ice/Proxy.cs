@@ -950,45 +950,27 @@ namespace Ice
             }
         }
 
-        public ObjectDel_ getDelegate__(bool async)
+        public ObjectDel_ getDelegate__(bool ami)
         {
-            lock(this)
+            if(_reference.getCacheConnection())
             {
-                if(_delegate != null)
+                lock(this)
                 {
+                    if(_delegate != null)
+                    {
+                        return _delegate;
+                    }
+                    // Connect asynchrously to avoid blocking with the proxy mutex locked.
+                    _delegate = createDelegate(true);
                     return _delegate;
                 }
-
-                ObjectDel_ @delegate = null;
-                if(_reference.getCollocationOptimized())
-                {
-                    ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-                    if(adapter != null)
-                    {
-                        ObjectDelD_ d = createDelegateD__();
-                        d.setup(_reference, adapter);
-                        @delegate = d;
-                    }
-                }
-                
-                if(@delegate == null)
-                {
-                    ObjectDelM_ d = createDelegateM__();
-                    d.setup(_reference, this, async);
-                    @delegate = d;
-                }
-            
-                if(_reference.getCacheConnection())
-                {
-                    //
-                    // The _delegate attribute is only used if "cache connection"
-                    // is enabled. If it's not enabled, we don't keep track of the
-                    // delegate -- a new delegate is created for each invocations.
-                    //  
-                    _delegate = @delegate;
-                }
-                
-                return @delegate;
+            }
+            else
+            {
+                IceInternal.Reference.Mode mode = _reference.getMode();
+                return createDelegate(ami || 
+                                      mode == IceInternal.Reference.Mode.ModeBatchOneway ||
+                                      mode == IceInternal.Reference.Mode.ModeBatchDatagram);
             }
         }
 
@@ -1020,6 +1002,24 @@ namespace Ice
         protected virtual ObjectDelD_ createDelegateD__()
         {
             return new ObjectDelD_();
+        }
+
+        private ObjectDel_ createDelegate(bool async)
+        {
+            if(_reference.getCollocationOptimized())
+            {
+                ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
+                if(adapter != null)
+                {
+                    ObjectDelD_ d = createDelegateD__();
+                    d.setup(_reference, adapter);
+                    return d;
+                }
+            }
+
+            ObjectDelM_ d2 = createDelegateM__();
+            d2.setup(_reference, this, async);
+            return d2;
         }
 
         //
@@ -1640,9 +1640,7 @@ namespace Ice
 
             Debug.Assert(handler__ == null);
 
-            if(async ||
-               rf.getMode() == IceInternal.Reference.Mode.ModeBatchOneway ||
-               rf.getMode() == IceInternal.Reference.Mode.ModeBatchDatagram)
+            if(async)
             {
                 IceInternal.ConnectRequestHandler handler = new IceInternal.ConnectRequestHandler(rf, proxy, this);
                 handler__ = handler.connect();

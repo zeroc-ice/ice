@@ -994,63 +994,44 @@ operator<<(ostream& os, const ::IceProxy::Ice::Object& p)
 }
 
 Handle< ::IceDelegate::Ice::Object>
-IceProxy::Ice::Object::__getDelegate(bool async)
+IceProxy::Ice::Object::__getDelegate(bool ami)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(_delegate)
-    {
-        return _delegate;
-    }
-
-    Handle< ::IceDelegate::Ice::Object> delegate;
-    if(_reference->getCollocationOptimized())
-    {
-        ObjectAdapterPtr adapter = _reference->getInstance()->objectAdapterFactory()->findObjectAdapter(this);
-        if(adapter)
-        {
-            Handle< ::IceDelegateD::Ice::Object> d = __createDelegateD();
-            d->setup(_reference, adapter);
-            delegate = d;
-        }
-    }
-
-    if(!delegate)
-    {
-        Handle< ::IceDelegateM::Ice::Object> d = __createDelegateM();
-        d->setup(_reference, this, async);
-        delegate = d;
-    }
-
     if(_reference->getCacheConnection())
     {
-        //
-        // The _delegate attribute is only used if "cache connection"
-        // is enabled. If it's not enabled, we don't keep track of the
-        // delegate -- a new delegate is created for each invocations.
-        //
-        _delegate = delegate;
+        IceUtil::Mutex::Lock sync(*this);
+        if(_delegate)
+        {
+            return _delegate;
+        }
+        _delegate = createDelegate(true); // Connect asynchrously to avoid blocking with the proxy mutex locked.
+        return _delegate;
     }
-
-    return delegate;
+    else
+    {
+        const Reference::Mode mode = _reference->getMode();
+        return createDelegate(ami || mode == Reference::ModeBatchOneway || mode == Reference::ModeBatchDatagram);
+    }
 }
 
 void
 IceProxy::Ice::Object::__setRequestHandler(const Handle< ::IceDelegate::Ice::Object>& delegate,
                                            const ::IceInternal::RequestHandlerPtr& handler)
 {
-    IceUtil::Mutex::Lock sync(*this);
-    if(_delegate.get() == delegate.get())
+    if(_reference->getCacheConnection())
     {
-        if(dynamic_cast< ::IceDelegateM::Ice::Object*>(_delegate.get()))
+        IceUtil::Mutex::Lock sync(*this);
+        if(_delegate.get() == delegate.get())
         {
-            _delegate = __createDelegateM();
-            _delegate->__setRequestHandler(handler);
-        }
-        else if(dynamic_cast< ::IceDelegateD::Ice::Object*>(_delegate.get()))
-        {
-            _delegate = __createDelegateD();
-            _delegate->__setRequestHandler(handler);
+            if(dynamic_cast< ::IceDelegateM::Ice::Object*>(_delegate.get()))
+            {
+                _delegate = __createDelegateM();
+                _delegate->__setRequestHandler(handler);
+            }
+            else if(dynamic_cast< ::IceDelegateD::Ice::Object*>(_delegate.get()))
+            {
+                _delegate = __createDelegateD();
+                _delegate->__setRequestHandler(handler);
+            }
         }
     }
 }
@@ -1071,6 +1052,25 @@ IceProxy::Ice::Object*
 IceProxy::Ice::Object::__newInstance() const
 {
     return new Object;
+}
+
+Handle< ::IceDelegate::Ice::Object>
+IceProxy::Ice::Object::createDelegate(bool async)
+{
+    if(_reference->getCollocationOptimized())
+    {
+        ObjectAdapterPtr adapter = _reference->getInstance()->objectAdapterFactory()->findObjectAdapter(this);
+        if(adapter)
+        {
+            Handle< ::IceDelegateD::Ice::Object> d = __createDelegateD();
+            d->setup(_reference, adapter);
+            return d;
+        }
+    }
+    
+    Handle< ::IceDelegateM::Ice::Object> d = __createDelegateM();
+    d->setup(_reference, this, async);
+    return d;
 }
 
 void
@@ -1309,12 +1309,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref, const ::Ice::ObjectPrx
 
     assert(!__handler);
 
-    //
-    // If the delegate is created as a result of an AMI call or if the proxy is
-    // a batch proxy we use the connect request handler to connect the in the 
-    // background.
-    //
-    if(async || ref->getMode() == Reference::ModeBatchOneway || ref->getMode() == Reference::ModeBatchDatagram)
+    if(async)
     {
         IceInternal::ConnectRequestHandlerPtr handler = new ::IceInternal::ConnectRequestHandler(ref, proxy, this);
         __handler = handler->connect();

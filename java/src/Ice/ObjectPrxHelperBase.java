@@ -814,7 +814,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             //
             // The _delegate attribute is only used if "cache connection"
             // is enabled. If it's not enabled, we don't keep track of the
-            // delegate -- a new delegate is created for each invocations.
+            // delegate -- a new delegate is created for each invocation.
             //  
             
             if(delegateD != null)
@@ -931,60 +931,48 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public final synchronized _ObjectDel
-    __getDelegate(boolean async)
+    public final _ObjectDel
+    __getDelegate(boolean ami)
     {
-        if(_delegate != null)
-        {
-            return _delegate;
-        }
-
-        _ObjectDel delegate = null;
-        if(_reference.getCollocationOptimized())
-        {
-            ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-            if(adapter != null)
-            {
-                _ObjectDelD d = __createDelegateD();
-                d.setup(_reference, adapter);
-                delegate = d;
-            }
-        }
-
-        if(delegate == null)
-        {
-            _ObjectDelM d = __createDelegateM();
-            d.setup(_reference, this, async);
-            delegate = d;
-        }
-
         if(_reference.getCacheConnection())
         {
-            //
-            // The _delegate attribute is only used if "cache connection"
-            // is enabled. If it's not enabled, we don't keep track of the
-            // delegate -- a new delegate is created for each invocations.
-            //
-            _delegate = delegate;
+            synchronized(this)
+            {
+                if(_delegate != null)
+                {
+                    return _delegate;
+                }
+                // Connect asynchrously to avoid blocking with the proxy mutex locked.
+                _delegate = createDelegate(true);
+                return _delegate;
+            }
         }
-
-        return delegate;
+        else
+        {
+            final int mode = _reference.getMode();
+            return createDelegate(ami || 
+                                  mode == IceInternal.Reference.ModeBatchOneway || 
+                                  mode == IceInternal.Reference.ModeBatchDatagram);
+        }
     }
 
     synchronized public void
     __setRequestHandler(_ObjectDel delegate, IceInternal.RequestHandler handler)
     {
-        if(delegate == _delegate)
+        if(_reference.getCacheConnection())
         {
-            if(_delegate instanceof _ObjectDelM)
+            if(delegate == _delegate)
             {
-                _delegate = __createDelegateM();
-                _delegate.__setRequestHandler(handler);
-            }
-            else if(_delegate instanceof _ObjectDelD)
-            {
-                _delegate = __createDelegateD();
-                _delegate.__setRequestHandler(handler);
+                if(_delegate instanceof _ObjectDelM)
+                {
+                    _delegate = __createDelegateM();
+                    _delegate.__setRequestHandler(handler);
+                }
+                else if(_delegate instanceof _ObjectDelD)
+                {
+                    _delegate = __createDelegateD();
+                    _delegate.__setRequestHandler(handler);
+                }
             }
         }
     }
@@ -999,6 +987,25 @@ public class ObjectPrxHelperBase implements ObjectPrx
     __createDelegateD()
     {
         return new _ObjectDelD();
+    }
+
+    _ObjectDel
+    createDelegate(boolean async)
+    {
+        if(_reference.getCollocationOptimized())
+        {
+            ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
+            if(adapter != null)
+            {
+                _ObjectDelD d = __createDelegateD();
+                d.setup(_reference, adapter);
+                return d;
+            }
+        }
+
+        _ObjectDelM d = __createDelegateM();
+        d.setup(_reference, this, async);
+        return d;
     }
 
     //

@@ -269,6 +269,7 @@ private:
                     ::std::vector< ::Ice::Byte>&,
                     const ::Ice::Context*);
   
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> createDelegate(bool);
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
 
