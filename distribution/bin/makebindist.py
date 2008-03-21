@@ -133,6 +133,13 @@ if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
         print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
         sys.exit(1)
     os.rename("Ice-" + version, srcDir)
+
+    if platform.build_lp64:
+        if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
+            print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
+            sys.exit(1)
+        os.rename("Ice-" + version, srcDir + "-64")
+
     os.chdir(cwd)
     print "ok"
 
@@ -151,28 +158,19 @@ for l in buildLanguages:
     if l != "java":
 
         makeCmd = "gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install"
-        
-        #
-        # Copy the language source directory to a directory suffixed with -lp64 
-        # if this platform supports a 64 bits build and the directory doesn't 
-        # exist yet.
-        #
-        if l in platform.build_lp64 and not os.path.exists(os.path.join(srcDir, l + "-lp64")):
-            copy(os.path.join(srcDir, l), os.path.join(srcDir, l + "-lp64"))
 
-        #
-        # 32 bits build
-        #
-        if os.system("LP64=no " + makeCmd) != 0:
-            print sys.argv[0] + ": `" + l + "' build failed"
-            os.chdir(cwd)
-            sys.exit(1)
+        if not platform.build_lp64:
+            if os.system(makeCmd) != 0:
+                print sys.argv[0] + ": `" + l + "' build failed"
+                os.chdir(cwd)
+                sys.exit(1)
+        else:
+            if os.system("LP64=no " + makeCmd) != 0:
+                print sys.argv[0] + ": `" + l + "' build failed"
+                os.chdir(cwd)
+                sys.exit(1)
 
-        #
-        # 64 bits build on platform supporting it.
-        #
-        if l in platform.build_lp64:
-            os.chdir(os.path.join(srcDir, l + "-lp64"))
+            os.chdir(os.path.join(srcDir + "-64", l))
             if os.system("LP64=yes " + makeCmd) != 0:
                 print sys.argv[0] + ": `" + l + "' build failed"
                 os.chdir(cwd)

@@ -116,17 +116,22 @@ else
 endif 
 
 ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+    else
+        ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+    endif
     ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
     ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 endif
 ifdef ice_bin_dist
-    ICE_LIB_DIR = -L$(ice_dir)/lib$(lp64suffix)
+    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
     ICE_FLAGS	= -I$(ice_dir)/include
 endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 
 ifneq ($(embedded_runpath_prefix),)
-   runpath_libdir	:= $(embedded_runpath_prefix)/lib$(lp64suffix)
+   runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
 endif
 
 CPPFLAGS		=
@@ -135,9 +140,13 @@ SLICE2PYFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-    SLICE2PY = $(ice_cpp_dir)/bin/slice2py
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        SLICE2PY = $(ice_cpp_dir)/bin/slice2py
+    else
+        SLICE2PY = $(ice_cpp_dir)/$(binsubdir)/slice2py
+    endif
 else
-    SLICE2PY = $(ice_dir)/bin/slice2py
+    SLICE2PY = $(ice_dir)/$(binsubdir)/slice2py
 endif
 
 #

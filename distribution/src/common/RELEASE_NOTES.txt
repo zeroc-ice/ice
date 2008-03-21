@@ -80,6 +80,9 @@ application to implement its own flow-control logic:
 
 * An AMI callback can be notified when a queued request is sent.
 
+Taken together, these two API enhancements allow you to keep track of
+your outstanding AMI invocations.
+
 There have been other notable changes to the asynchronous invocation
 model:
 
@@ -96,7 +99,7 @@ model:
   bool ice_flushBatchRequests_async(callback)
 
   As its name implies, the second method allows you to flush batch
-  requests using the non-blocking AMI semantics.
+  requests with non-blocking AMI semantics.
 
 * Ice guarantees that the thread making an AMI request is never used
   to invoke a method in the callback object. Instead, all invocations
@@ -141,10 +144,40 @@ opportunity to batch oneway requests, and to support its ability to
 override pending requests.
 
 
-Highly-available IceStorm
--------------------------
+IceStorm
+--------
 
-TBD
+The most significant improvement to IceStorm is the addition of a
+highly-available mode. Using master-slave replication with support for
+automatic failover, IceStorm now provides a much greater degree of
+reliability. This mode is enabled entirely via configuration and
+requires no changes to publishers or subscribers.
+
+This release also contains a number of other IceStorm changes:
+
+* Subscriptions are now persistent by default, meaning IceStorm stores
+  the proxy of each subscriber in its database. At startup, IceStorm
+  considers each of these subscribers as already subscribed and
+  automatically removes a subscriber's proxy from the database if a
+  delivery attempt fails. To take advantage of a persistent
+  subscription, a subscriber should register either an indirect proxy
+  or a direct proxy that uses a fixed port.
+
+* A new Quality of Service (QoS) parameter, retryCount, gives a
+  subscriber some control over IceStorm's behavior when delivery
+  attempts fail.
+
+* IceStorm can run in a fully-transient mode in which no databases are
+  maintained. Replication is not supported in this mode.
+
+* IceStorm guarantees that it will deliver all received events to
+  subscribers before it shuts down.
+
+* A new operation, getNonReplicatedPublisher, has been added to the
+  Topic interface for use when event ordering is important.
+
+The IceStorm chapter in the Ice manual has more information on these
+changes, including a new section devoted to the highly-available mode.
 
 
 Freeze transactional evictor
@@ -221,7 +254,6 @@ Appendix D of the Ice manual explains the syntax for specifying IPv6
 and UDP multicast addresses in endpoints.
 
 
-
 Updated C# mapping
 ------------------
 
@@ -254,7 +286,6 @@ you will need to annotate your Slice definitions with the metadata
 tag "clr:collection".
 
 
-
 Platforms and compilers
 =======================
 
@@ -276,7 +307,122 @@ language mapping; Ice for .NET requires Visual Studio 2005 or 2008.
 Fixes and improvements
 ======================
 
-IPv4/IPv6/TCP.Backlog
+* The new property Ice.TCP.Backlog allows you to specify the size of
+  incoming connection backlog for TCP/IP sockets. This setting is
+  also used for SSL. In C++ the default value is SOMAXCONN or 511 if
+  that macro is not defined. In Java and .NET the default value is
+  511.
+
+* An IceGrid node is more conservative when removing the directory of
+  a server. The node only removes the directory when the server is
+  explicitly removed from a deployed application or if the directory
+  contains only files and directories that were created by the node.
+
+* Configuration properties for IceBox services can now be defined on
+  the command line.
+
+* The rules for legal property names and values have been relaxed.
+  Refer to the "Properties" chapter in the Ice manual for a complete
+  description of the syntax. The limit on the line length of a
+  property in a configuration file has also been removed.
+
+* An IceBox service can now recursively start and stop other IceBox
+  services from within its start and stop methods. The level of
+  recursion is limited to the threads in the administrative object
+  adapter's thread pool.
+
+* IceBox services that share a communicator now use a dedicated
+  communicator instance that is not used by the IceBox server. This
+  dedicated communicator only inherits properties from the server's
+  communicator if IceBox.InheritProperties is set to a non-zero value.
+  
+* It is no longer necessary to define a value for the property
+  IceBox.ServiceManager.Endpoints. If this property is not defined,
+  the ServiceManager interface is not available.
+
+* A new object adapter property, <adapter>.ProxyOptions, lets you
+  customize the proxies that the adapter creates.
+
+* It is now legal to change the compression setting of a fixed proxy.
+
+* IceGrid's round-robin load balancing policy better handles servers
+  that are unreachable.
+
+* When resolving the endpoints of a replica group, the IceGrid locator
+  no longer waits for an object adapter to complete its activation if
+  another adapter is already active.
+
+* Added an object adapter to the IceGrid registry. The adapter is
+  named `IceGrid.Registry.AdminSessionManager' and is responsible for
+  Glacier2 administrative sessions.
+
+* Glacier2 filters are now disabled by default for IceGrid client
+  and administrative sessions created with the IceGrid session
+  managers. If you rely on these filters being enabled, you must now
+  explicitly set the property IceGrid.Registry.SessionFilters or
+  IceGrid.Registry.AdminSessionFilters.
+
+* Several improvements have been made to the output of slice2html.
+
+* The inheritance structure of C++ servant classes has changed such
+  that it is now possible for a servant to derive from
+  IceUtil::Thread.
+
+* The way that the Ice run time determines whether a proxy invocation
+  is eligible for collocation optimization has changed somewhat. The
+  Ice run time no longer performs a DNS lookup; instead, invocations
+  on a direct proxy will use the optimization only if the host and
+  port of one of its endpoints match the host and port of an endpoint
+  or published endpoint of an object adapter from the same
+  communicator.
+
+* Accepting incoming connections can no longer block a thread from a
+  server thread pool. This includes activities such as connection
+  validation and SSL handshaking.
+
+* The marshaling code now throws an exception if an enumerator that is
+  out of range for its enumeration is sent or received.
+
+* Exceptions thrown from collocation-optimized invocations are now
+  fully transparent. If an operation throws an exception that is
+  not in the operation's exception specification, or throws a
+  non-Ice exception, the client receives UnknownUserException
+  or UnknownException, exactly as if the servant for a remote
+  invocation had thrown the same exception. (In earlier versions,
+  the client received the orginal exception, rather than an
+  unknown exception.)
+
+  For Ice run-time exceptions, all run-time exceptions are passed
+  to the client as UnknownLocalException, except for
+
+  - ObjectNotExistException
+  - FacetNotExistException
+  - OperationNotExistException
+  - OperationNotExistException
+  - UnknownException
+  - UnknownLocalException
+  - UnknownUserException
+  - CollocationOptimizationException
+
+* Changed servant locators so both locate() and finished() can throw
+  user exceptions.
+
+* Most proxy factory methods now return a proxy of the same type as
+  the original and no longer require the use of a checked or unchecked
+  cast. For example, in C++ you can write
+
+  HelloPrx hello = ...;
+  hello = hello->ice_oneway();
+
+  Previously you would have needed a cast, such as
+
+  hello = HelloPrx::uncheckedCast(hello->ice_oneway());
+
+  In Java and .NET, you must use a type cast:
+
+  hello = (HelloPrx)hello.ice_oneway();
+
+
 
 
 Desupported components
@@ -494,6 +640,43 @@ TBD
   - The proxy methods ice_threadPerConnection and
     ice_isThreadPerConnection
 
+* C++
+
+  The following methods have been removed:
+
+  - Application::main(int, char*[], const char*, const Ice::LoggerPtr&)
+
+    Use Application::main(int, char*[], const InitializationData&)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(int, char*[], const InitializationData&) instead.
+
+  - stringToIdentity
+  - identityToString
+
+    Use the equivalent Communicator operations.
+
+  - ObjectPrx::ice_hash
+  - ObjectPrx::ice_communicator
+  - ObjectPrx::ice_collocationOptimization
+  - ObjectPrx::ice_connection
+
+    Replaced with methods of the form ice_get..., such as ice_getHash.
+    ice_collocationOptimization is now ice_getCollocationOptimized.
+
+  - ObjectPrx::ice_newIdentity
+  - ObjectPrx::ice_newContext
+  - ObjectPrx::ice_newFacet
+  - ObjectPrx::ice_newAdapterId
+  - ObjectPrx::ice_newEndpoints
+
+    Replaced with methods that do not use "new" in their names. For
+    example, ice_newIdentity was replaced by ice_identity.
+
 
 Deprecated APIs
 ---------------
@@ -518,6 +701,11 @@ TBD
   If you used the "java:java5" metadata tag when compiling your Slice
   definitions, you can now remove those tags. Any uses of custom type
   metadata ("java:type:...") should also be reviewed.
+
+* Sequences as dictionary keys
+
+  The use of sequences, and structures containing sequences, as the
+  key type of a Slice dictionary is now deprecated.
 
 * Ice.MonitorConnections
 

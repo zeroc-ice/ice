@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.3 beta Third Party Packages for Visual Studio 6.0</subject>
+		<subject>Ice 3.3b Third Party Packages for Visual Studio 6.0</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
@@ -2986,7 +2986,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ProductCode</td><td>{C2784E71-50C7-4F54-A439-EEE9BA2DD42C}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3b Third Party Packages for Visual Studio 6.0</td><td/></row>
 		<row><td>ProductVersion</td><td>3.3.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>

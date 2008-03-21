@@ -47,7 +47,7 @@ berkeleydb = { \
 }
 
 berkeleydbjar = { \
-    'Linux' : '/usr/share/java/db46/db.jar', \
+    'Linux' : '/usr/share/java/db-4.6.21.jar', \
 }
 
 expat = { \
@@ -397,7 +397,9 @@ class BerkeleyDB(ThirdParty):
                 return os.path.join(self.location, "lib", "db.jar")
 
     def getFilesFromSubDirs(self, platform, bindir, libdir):
-        files = [ os.path.join(libdir, "db.jar"), os.path.join(bindir, "db_*") ]
+        files = [ os.path.join(bindir, "db_*") ]
+        if not platform.lp64subdir:
+            files += [ os.path.join(libdir, "db.jar") ]
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"), "jnilib")
         return files

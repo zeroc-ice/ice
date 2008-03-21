@@ -375,12 +375,17 @@ public class SliceTask extends org.apache.tools.ant.Task
             else
             {
                 ldLibPathEnv = "LD_LIBRARY_PATH";
-                ldLib64PathEnv = "LD_LIBRARY_PATH_64";
+                ldLib64PathEnv = "LD_LIBRARY_PATH";
                 lib64Path = new File(iceInstall + File.separator + "lib64").toString();
             }
 
             if(ldLibPathEnv != null)
             {
+                if(ldLibPathEnv.equals(ldLib64PathEnv))
+                {
+                    libPath = libPath + File.pathSeparator + lib64Path;
+                }
+
                 String envLibPath = getEnvironment(ldLibPathEnv);
                 if(envLibPath != null)
                 {
@@ -393,7 +398,7 @@ public class SliceTask extends org.apache.tools.ant.Task
                 task.addEnv(v);
             }
 
-            if(ldLib64PathEnv != null)
+            if(ldLib64PathEnv != null && !ldLib64PathEnv.equals(ldLibPathEnv))
             {
                 String envLib64Path = getEnvironment(ldLib64PathEnv);
                 if(envLib64Path != null)

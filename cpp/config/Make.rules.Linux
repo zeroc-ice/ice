@@ -31,10 +31,6 @@ endif
 CFLAGS = -O2
 
 ifeq ($(MACHINE),x86_64)
-   
-   ifeq ($(LP64),)
-      LP64      = yes
-   endif
    ifeq ($(LP64),yes)
       CFLAGS	+= -m64
    else
@@ -80,7 +76,6 @@ ifeq ($(CXX),c++)
       else
          CXXARCHFLAGS	+= -m32
       endif
-      lp64suffix	= 64
    endif
 
    CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT -I/usr/include/nptl
@@ -159,11 +154,7 @@ ifeq ($(CXX),icpc)
 
 endif
 
-ifeq ($(LP64),yes)
-    NPTL_LIB		= /usr/lib64/nptl
-else
-    NPTL_LIB		= /usr/lib/nptl
-endif
+NPTL_LIB		= /usr/$(libsubdir)/nptl
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -L$(NPTL_LIB) -lpthread -lrt
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)

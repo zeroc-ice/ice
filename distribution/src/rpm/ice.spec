@@ -58,7 +58,6 @@ BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: db46-devel >= 4.6.21, db46-java >= 4.6.21
 BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.6.4
-BuildRequires: j2sdk >= 1.5.0
 
 #
 # We also need a recent version of ant, %{_javadir}/jgoodies-forms-%{formsversion}.jar,
@@ -123,7 +122,7 @@ The Ice runtime for .NET (mono).
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, jre >= 1.5.0, db46-java,
+Requires: ice = %{version}-%{release}, db46-java,
 %description java
 The Ice runtime for Java.
 %endif
@@ -142,7 +141,7 @@ The Ice runtime for C++
 %package utils
 Summary: Ice utilities and admin tools.
 Group: Applications/System
-Requires: ice-libs = %{version}-%{release}, jre >= 1.5.0
+Requires: ice-libs = %{version}-%{release}
 %description utils
 Admin tools to manage Ice servers (IceGrid, IceStorm, IceBox etc.),
 plus various Ice-related utilities.
@@ -300,6 +299,10 @@ rm -rf $RPM_BUILD_ROOT
 #
 # C++
 #
+
+# Temporary
+mkdir -p $RPM_BUILD_ROOT/lib
+
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
 make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
@@ -307,7 +310,7 @@ mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/%_lib/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/lib/ImportKey.class $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 
 mkdir -p $RPM_BUILD_ROOT%{_libdir}
 mv $RPM_BUILD_ROOT/%_lib/* $RPM_BUILD_ROOT%{_libdir}
@@ -322,6 +325,7 @@ make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
 mkdir -p $RPM_BUILD_ROOT%{python_sitearch}/Ice
 mv $RPM_BUILD_ROOT/python/* $RPM_BUILD_ROOT%{python_sitearch}/Ice
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.pth $RPM_BUILD_ROOT%{python_sitearch}
 
 #
 # PHP
@@ -721,7 +725,7 @@ fi
 %files python
 %defattr(-, root, root, -)
 %{python_sitearch}/Ice
-#%{python_sitearch}/ice.pth
+%{python_sitearch}/ice.pth
 
 %files python-devel
 %defattr(-, root, root, -)

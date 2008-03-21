@@ -1,22 +1,43 @@
 ======================================================================
-Ice for Ruby
+Requirements
 ======================================================================
 
-This file describes how to compile Ice for Ruby on Linux.
+
+Operating System
+----------------
+
+Ice for Ruby is expected to build and run properly on any recent Linux
+distribution for x86 and x86_64. However, Ice for Ruby is officially
+supported only on:
+
+ - Red Hat Enterprise Linux Advanced Server 4 Update 6 for i386 or
+   x86_64 (RHEL 4.6)
+
+ - Red Hat Enterprise Linux 5 Update 1 for i386 or x86_64 (RHEL 5.1)
 
 
-Requirements
-------------
+Build Environment
+-----------------
 
-- Ice @ver@ for C++ development kit
-- Ruby 1.8.1 or later
+To build Ice for Ruby you must have the following:
 
-You can build Ice for Ruby using a source or RPM installation of Ruby.
-If you prefer to use RPMs, the following components are required:
+ - Ice @ver@ for C++ development kit
+ - Ruby 1.8.1 or later
+
+You can use a source or RPM installation of Ruby. If you prefer to use
+RPMs, the following packages are required:
 
   ruby
   ruby-libs
   ruby-devel
+
+You will also need Python installed on your system if you wish to run
+the automated test suite.
+
+
+======================================================================
+Compilation and Testing
+======================================================================
 
 
 Compiling Ice for Ruby
@@ -47,27 +68,82 @@ Follow these steps:
 If no errors occurred, you can now begin using Ice for Ruby.
 
 
-Using Ice for Ruby
-------------------
+Running the tests
+-----------------
 
-The Ruby interpreter must be able to locate the Ice extension. One way
-to configure the interpreter is to define the RUBYLIB environment
-variable as follows:
+You can run the test suite, provided that you have installed Python.
+Furthermore, you must also build the Ice for C++ tests in the cpp
+subdirectory of this source distribution.
+
+Open a command window and change to the top-level directory. At the
+command prompt, execute:
+
+  $ python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+  $ python run.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+
+======================================================================
+Installation
+======================================================================
+
+You can perform an automated installation with the following command:
+
+  > make install
+
+This process uses the "prefix" variable in config/Make.rules as the
+installation's root directory. The subdirectory <prefix>/ruby is
+created as a copy of the local "ruby" directory and contains the Ice
+for Ruby extension library (IceRuby.so) as well as Ruby source code.
+Using this installation method requires that you modify your
+environment as described in "Using Ice for Ruby" below.
+
+Another option is to copy the contents of the local "ruby" directory
+to your Ruby installation's "site_ruby" directory. For example, if
+you installed Ruby via RPM, you can use the steps below:
+
+  $ su
+  # cd <Ice source directory>/rb/ruby
+  # tar cf - * | (cd /usr/lib/ruby/site_ruby/1.8/i386-linux; tar xvf -)
+
+On x86_64 systems, change the last command to:
+
+  # tar cf - * | (cd /usr/lib64/ruby/site_ruby/1.8/x86_64-linux; tar xvf -)
+
+There is no need to modify your environment if you use this approach.
+
+
+======================================================================
+Using Ice for Ruby
+======================================================================
+
+
+Configuring your environment
+----------------------------
+
+The Ruby interpreter must be able to locate the Ice extension. If you
+used the automated installation described above, you need to define
+the RUBYLIB environment variable as follows:
 
   $ export RUBYLIB=/opt/Ice-@ver@/ruby:$RUBYLIB
 
 This example assumes that your Ice for Ruby installation is located in
 the /opt/Ice-@ver@ directory.
 
-In addition, you must modify your PATH environment variable to include
-the directory /opt/Ice-@ver@/bin as shown below:
-
-  $ export PATH=/opt/Ice-@ver@/bin:$PATH
-
 You must also modify LD_LIBRARY_PATH to include the directory
 /opt/Ice-@ver@/lib:
 
   $ export LD_LIBRARY_PATH=/opt/Ice-@ver@/lib:LD_LIBRARY_PATH
+
+
+Testing your installation
+-------------------------
 
 To verify that Ruby can load the Ice extension successfully, open a
 command window and start the interpreter using irb:
@@ -81,6 +157,36 @@ At the prompt, enter
 
 If the interpreter responds with the value "true", the Ice extension
 was loaded successfully. Enter "exit" to quit the interpreter.
+
+
+Running the demos
+-----------------
+
+The demos directory contains Ruby versions of the Ice sample programs.
+Note that only clients are provided, since Ice for Ruby does not
+support server-side activities. In order to run a sample client, you
+must first start its corresponding server from another Ice language
+mapping, such as C++.
+
+As an example, let's run the hello application in demo/Ice/hello using
+the C++ server. Assuming that you have already compiled the sample C++
+programs in the cpp subdirectory, we begin by starting the server:
+
+  $ cd Ice-@ver@/cpp/demo/Ice/hello
+  $ server
+
+In a separate window, start the client:
+
+  $ cd Ice-@ver@/rb/demo/Ice/hello
+  $ ruby Client.rb
+
+Some demo directories contain README files if additional requirements
+are necessary.
+
+
+======================================================================
+Notes
+======================================================================
 
 
 Limitations
@@ -119,49 +225,3 @@ For more information on SELinux in Red Hat Enterprise Linux 4, refer
 to the link below:
 
   http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
-
-
-Running the demos
------------------
-
-The demos directory contains Ruby versions of the Ice sample programs.
-Note that only clients are provided, since Ice for Ruby does not
-support server-side activities. In order to run a sample client, you
-must first start its corresponding server from another Ice language
-mapping, such as C++.
-
-As an example, let's run the hello application in demo/Ice/hello using
-the C++ server. Assuming that you have already compiled the sample C++
-programs in the cpp subdirectory, we begin by starting the server:
-
-  $ cd Ice-@ver@/cpp/demo/Ice/hello
-  $ server
-
-In a separate window, start the client:
-
-  $ cd Ice-@ver@/rb/demo/Ice/hello
-  $ ruby Client.rb
-
-Some demo directories contain README files if additional requirements
-are necessary.
-
-
-Running the tests
------------------
-
-You can run the test suite, provided that you have installed Python.
-Furthermore, you must also build the Ice for C++ tests in the cpp
-subdirectory of this source distribution.
-
-Open a command window and change to the top-level directory. At the
-command prompt, execute:
-
-  $ python allTests.py
-
-You can also run tests individually by changing to the test directory
-and running this command:
-
-  $ python run.py
-
-If everything worked out, you should see lots of "ok" messages. In
-case of a failure, the tests abort with "failed".

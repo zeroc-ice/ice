@@ -94,7 +94,7 @@ else
 endif
 
 libdir			= $(top_srcdir)/lib
-install_libdir		= $(prefix)/lib$(lp64suffix)
+install_libdir		= $(prefix)/$(libsubdir)
 
 #
 # Platform specific definitions
@@ -107,7 +107,11 @@ endif
 include	 $(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
-    ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+    else
+        ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
+    endif
     ICE_FLAGS 	= -I$(ice_cpp_dir)/include
 endif
 ifdef ice_bin_dist

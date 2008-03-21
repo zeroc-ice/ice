@@ -160,7 +160,7 @@ Ruby
 ----
 
 The Ice for Ruby run-time RPM (ice-ruby) installs the Ice extension
-and its associated Ruby files into the "site-ruby" directory. No
+and its associated Ruby files into the "site_ruby" directory. No
 additional configuration is necessary to use Ice in your Ruby programs.
 
 Note: Ice for Ruby RPMs are currently available only on Red Hat
