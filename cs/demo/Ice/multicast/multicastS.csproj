@@ -110,7 +110,7 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice" Inputs="Hello.ice" Outputs="generated\Hello.cs generated\Discovery.cs">
+  <Target Name="CompileSlice" Inputs="Hello.ice" Outputs="generated\Hello.cs">
     <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Hello.ice" />
     <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Discovery.ice" />
     <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Hello.ice" />
@@ -118,6 +118,7 @@
   </Target>
   <Target Name="AfterClean">
     <Delete Files="generated\Hello.cs" />
+    <Delete Files="generated\Discovery.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>
