@@ -240,6 +240,9 @@ def run(tests, root = False):
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
+            if mono and getDefaultMapping() == "cs" and a == "ssl":
+                print "SSL is not supported with mono"
+                sys.exit(1)
 
         if o in ( "--protocol", "--host", "--debug", "--compress", "--serialize", "--ipv6", \
                   "--ice-home", "--x64"):
@@ -255,7 +258,11 @@ def run(tests, root = False):
 
     args =  []
     if all:
-        for proto in ["tcp", "ssl"]:
+        protocols = ["tcp"]
+        if not mono or getDefaultMapping() != "cs":
+            protocols.append("ssl")
+
+        for proto in protocols:
             for compress in [0, 1]:
                 for serialize in [0, 1]:
                     testarg = ""
@@ -1170,6 +1177,9 @@ def processCmdLine():
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
+            if mono and getDefaultMapping() == "cs" and a == "ssl":
+                print "SSL is not supported with mono"
+                sys.exit(1)
             global protocol
             protocol = a
 
