@@ -8,13 +8,21 @@
 #
 # **********************************************************************
 
-import sys, demoscript, time
+import sys, demoscript, time, os
 
 def run(clientStr, desc = 'application'):
     print "cleaning databases...",
     sys.stdout.flush()
-    demoscript.Util.cleanDbDir("db/node")
-    demoscript.Util.cleanDbDir("db/registry")
+    nodeDir = os.path.join("db", "node")
+    if not os.path.exists(nodeDir):
+        os.mkdir(nodeDir)
+    else:
+        demoscript.Util.cleanDbDir(nodeDir)
+    regDir = os.path.join("db", "registry")
+    if not os.path.exists(regDir):
+        os.mkdir(regDir)
+    else:
+        demoscript.Util.cleanDbDir(regDir)
     print "ok"
 
     if demoscript.Util.defaultHost:

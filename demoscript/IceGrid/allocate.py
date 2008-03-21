@@ -8,14 +8,22 @@
 #
 # **********************************************************************
 
-import sys, demoscript
+import sys, demoscript, os
 import demoscript.pexpect as pexpect
 
 def run(clientCmd):
     print "cleaning databases...",
     sys.stdout.flush()
-    demoscript.Util.cleanDbDir("db/node")
-    demoscript.Util.cleanDbDir("db/registry")
+    nodeDir = os.path.join("db", "node")
+    if not os.path.exists(nodeDir):
+        os.mkdir(nodeDir)
+    else:
+        demoscript.Util.cleanDbDir(nodeDir)
+    regDir = os.path.join("db", "registry")
+    if not os.path.exists(regDir):
+        os.mkdir(regDir)
+    else:
+        demoscript.Util.cleanDbDir(regDir)
     print "ok"
 
     if demoscript.Util.defaultHost:
