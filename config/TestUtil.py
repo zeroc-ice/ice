@@ -211,13 +211,12 @@ def run(tests, root = False):
     if args:
         usage()
 
-    testFilter = None
-    removeFilter = False
     start = 0
     loop = False
     all = False
     arg = ""
 
+    filters = []
     for o, a in opts:
         if o == "--continue":
             keepGoing = 1
@@ -226,7 +225,9 @@ def run(tests, root = False):
         elif o in ("-r", "-R", "--filter", '--rfilter'):
             testFilter = re.compile(a)
             if o in ("--rfilter", "-R"):
-                removeFilter = True
+                filters.append((testFilter, True))
+            else:
+                filters.append((testFilter, False))
         elif o == "--all" :
             all = True
         elif o in ('--start', "--start-after"):
@@ -250,7 +251,7 @@ def run(tests, root = False):
             if len(a) > 0:
                 arg += " " + a
 
-    if testFilter != None:
+    for testFilter, removeFilter in filters:
         if removeFilter:
             tests = [ x for x in tests if not testFilter.search(x) ]
         else:
