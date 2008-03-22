@@ -259,10 +259,7 @@ def run(tests, root = False):
 
     args =  []
     if all:
-        protocols = ["tcp"]
-        if not mono or getDefaultMapping() != "cs":
-            protocols.append("ssl")
-
+        protocols = ["tcp", "ssl"]
         for proto in protocols:
             for compress in [0, 1]:
                 for serialize in [0, 1]:
@@ -845,7 +842,10 @@ def runTests(configs, tests, num = 0):
         # Run each of the tests.
         #
         for i in tests:
-
+            # If this is python and we're running ssl protocol tests
+            # then skip. This occurs when using --all.
+            if mono and i.startswith("cs/test") and args.find("--protocol ssl") != -1:
+                continue
             i = os.path.normpath(i)
             dir = os.path.join(toplevel, i)
 
@@ -1178,6 +1178,7 @@ def processCmdLine():
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
+            # ssl protocol isn't directly supported with mono.
             if mono and getDefaultMapping() == "cs" and a == "ssl":
                 print "SSL is not supported with mono"
                 sys.exit(1)
