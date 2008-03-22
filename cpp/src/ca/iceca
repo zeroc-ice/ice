@@ -67,20 +67,6 @@ for o, a in opts:
 	keep = True
 
 if sys.argv[script] == "import":
-    #
-    # For an RPM install we use /usr/share/Ice-<full-version>. A
-    # non-RPM install uses ${prefix}/lib (that is the location of the
-    # script ../lib). For development purposes we also check ".".
-    #
-    checkLocations = [".", os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
-                      "/usr/share/Ice-3.3b"]
-    for bindir in checkLocations:
-	bindir = os.path.normpath(bindir)
-	if os.path.exists(os.path.join(bindir, "ImportKey.class")):
-	    break
-    else:
-	raise "can't locate simple CA package"
-
     def usage():
 	print "usage: " + sys.argv[script] + " [--overwrite] [--java alias cert key keystore] [--cs cert key out-file]"
 	sys.exit(1)
@@ -106,6 +92,21 @@ if sys.argv[script] == "import":
 	usage()
 
     if java:
+        #
+        # For an RPM install we use /usr/share/Ice-<full-version>. A
+        # non-RPM install uses ${prefix}/lib (that is the location of the
+        # script ../lib). For development purposes we also check ".".
+        #
+        checkLocations = [".", os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
+                          "/usr/share/Ice-3.3b"]
+        for bindir in checkLocations:
+            bindir = os.path.normpath(bindir)
+            if os.path.exists(os.path.join(bindir, "ImportKey.class")):
+                break
+        else:
+            print "Error: cannot locate ImportKey.class any of the following locations:\n%s" % str(checkLocations)
+            sys.exit(1)
+
 	if len(args) != 4:
 	    usage()
 
