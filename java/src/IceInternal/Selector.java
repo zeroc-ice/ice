@@ -200,7 +200,12 @@ public final class Selector
             }
             if(handler.hasMoreData())
             {
+                assert(_pendingIter == null);
                 _pendingHandlers.remove(handler);
+            }
+            if(!_iter.hasNext())
+            {
+                _iter = null;
             }
             return handler;
         }
@@ -217,6 +222,10 @@ public final class Selector
             if(handler._key == null || !handler._key.isValid() || !handler.hasMoreData())
             {
                 continue;
+            }
+            if(!_pendingIter.hasNext())
+            {
+                _pendingIter = null;
             }
             return handler;
         }
@@ -267,7 +276,12 @@ public final class Selector
             {
                 // Ignore.
             }
-            _iter = null; // Current iterator is invalidated by selectNow()
+            
+            //
+            // Current iterator is invalidated by selectNow().
+            //
+            _iter = null;
+            _pendingIter = null;
         }
         
         _interrupted = _interruptCount > 0;
@@ -352,6 +366,7 @@ public final class Selector
                 readInterrupt(1);
                 _keys.remove(_fdIntrReadKey);
                 _iter = null;
+                _pendingIter = null;
             }
             else
             {
