@@ -671,6 +671,7 @@ sslConfigTree = {
         }
 sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
+sslConfigTree["php"] = sslConfigTree["cpp"]
 
 def getDefaultMapping(currentDir = ""):
     """Try and guess the language mapping out of the current path"""
