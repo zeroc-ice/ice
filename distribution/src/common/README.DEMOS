@@ -113,7 +113,7 @@ $ java Client
 Running the C# demos
 ====================
 
-The C# demos are only supported SuSE Enterprise Linux Server, and
+The C# demos are only supported on SuSE Enterprise Linux Server, and
 the Ice for .NET run time is included only in the binary
 distributions for this platform.
 
