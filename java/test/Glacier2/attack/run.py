@@ -37,7 +37,7 @@ routerConfig = TestUtil.DriverConfig("server")
 routerConfig.lang = "cpp"
 starterPipe = TestUtil.startServer(router, args + " 2>&1", routerConfig)
 TestUtil.getServerPid(starterPipe)
-TestUtil.getAdapterReady(starterPipe)
+TestUtil.getAdapterReady(starterPipe, True, 2)
 print "ok"
 
 name = os.path.join("Glacier2", "attack")

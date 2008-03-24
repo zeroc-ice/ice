@@ -33,7 +33,7 @@ args =    r' --Glacier2.RoutingTable.MaxSize=10' + \
 print "starting router...",
 starterPipe = TestUtil.startServer(router, args)
 TestUtil.getServerPid(starterPipe)
-TestUtil.getAdapterReady(starterPipe)
+TestUtil.getAdapterReady(starterPipe, True, 2)
 print "ok"
 
 name = os.path.join("Glacier2", "attack")

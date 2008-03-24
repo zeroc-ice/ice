@@ -51,7 +51,7 @@ def startRouter(buffered):
     # since we want the the router to run over two calls to
     # mixedClientServerTest
     #
-    TestUtil.getAdapterReady(starterPipe, False)
+    TestUtil.getAdapterReady(starterPipe, False, 2)
     print "ok"
 
     routerThread = TestUtil.ReaderThread(starterPipe);

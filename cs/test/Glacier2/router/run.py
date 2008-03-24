@@ -46,7 +46,7 @@ TestUtil.getServerPid(starterPipe)
 # since we want the the router to run over two calls to
 # mixedClientServerTest
 #
-TestUtil.getAdapterReady(starterPipe, False)
+TestUtil.getAdapterReady(starterPipe, False, 2)
 print "ok"
 starterThread = TestUtil.ReaderThread(starterPipe);
 starterThread.start()

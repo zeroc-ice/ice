@@ -44,7 +44,7 @@ args = r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
 print "starting router...",
 starterPipe = TestUtil.startServer(router, args) 
 TestUtil.getServerPid(starterPipe)
-TestUtil.getAdapterReady(starterPipe)
+TestUtil.getAdapterReady(starterPipe, True, 2)
 print "ok"
 
 client = os.path.join(testdir, "client")

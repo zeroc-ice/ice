@@ -50,7 +50,7 @@ routerCfg.protocol = "ssl"
 print "starting router...",
 starterPipe = TestUtil.startServer(router, args + " 2>&1", routerCfg)
 TestUtil.getServerPid(starterPipe)
-TestUtil.getAdapterReady(starterPipe)
+TestUtil.getAdapterReady(starterPipe, True, 2)
 print "ok"
 
 clientCfg = TestUtil.DriverConfig("client")

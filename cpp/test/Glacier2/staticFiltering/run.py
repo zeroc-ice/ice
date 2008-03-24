@@ -301,7 +301,7 @@ for testcase in testcases:
     
     starterPipe = TestUtil.startServer(router, " 2>&1", routerDriver)
     TestUtil.getServerPid(starterPipe)
-    TestUtil.getAdapterReady(starterPipe)
+    TestUtil.getAdapterReady(starterPipe, True, 2)
     pingProgress()
 
     if TestUtil.protocol != "ssl":
