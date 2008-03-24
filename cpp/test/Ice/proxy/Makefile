@@ -40,6 +40,14 @@ SRCS		= $(COBJS:.o=.cpp) \
 
 SLICE_SRCS	= Test.ice TestAMD.ice
 
+
+#
+# the long allTests function crashes when built with Sun CC 5.9 on x86 with -O,
+# inlining and -KPIC; work-around: we disable PIC
+#
+GENPIC          = no
+
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)

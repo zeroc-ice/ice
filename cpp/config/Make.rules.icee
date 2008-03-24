@@ -25,12 +25,12 @@ OPTIMIZE		= yes
 #
 #LP64			?= yes
 
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
 STATICLIBS		= yes
+GENPIC                  = no
 
 SHELL			= /bin/sh
 

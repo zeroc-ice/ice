@@ -22,6 +22,8 @@ OBJS		= Client.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
+GENPIC          = no
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)

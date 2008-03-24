@@ -102,6 +102,11 @@ USE_READLINE		?= no
 #READLINE_HOME		?= /opt/readline
 
 #
+# Generate position independent code unless GENPIC is set to no
+#
+#GENPIC                     ?= yes
+
+#
 # Support for creating static libraries is currently provided only for
 # building the Ice-E translators.
 #

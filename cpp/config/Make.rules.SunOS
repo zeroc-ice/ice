@@ -89,7 +89,7 @@ ifeq ($(CXX),CC)
 
     CXXFLAGS		    = -mt +p -features=tmplife $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
 
-    ifeq ($(STATICLIBS),)
+    ifneq ($(GENPIC),no)
 	CXXFLAGS	    += -KPIC
     endif
 
@@ -103,6 +103,12 @@ ifeq ($(CXX),CC)
     # C++ run-time libraries, necessary for linking some shared libraries.
     #
     CXXLIBS		    = -lCstd -lCrun
+
+    #
+    # For some tests, we need to link with Cstd statically. See
+    # http://forum.java.sun.com/thread.jspa?threadID=5277939
+    #
+    STATICLIBSTDFLAG        = -staticlib=Cstd
 
     mkshlib		    = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
