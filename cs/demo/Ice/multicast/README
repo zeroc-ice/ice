@@ -14,3 +14,7 @@ callback proxy and waits for a response. Any servers that are up and
 listening on the broadcast port will then contact the client using the
 callback saying they are available. The client selects a server and
 proceeds.
+
+By default this demo uses IPv4. If you want to use IPv6 UDP multicast
+instead, uncomment the alternative IPv6 configuration in config..client
+and config.server.
