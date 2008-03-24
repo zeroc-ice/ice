@@ -70,6 +70,9 @@ main(int argc, char* argv[])
 int
 HelloServer::run(int argc, char* argv[])
 {
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    args = communicator()->getProperties()->parseCommandLineOptions("Discover", args);
+
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
     Ice::ObjectAdapterPtr discoverAdapter = communicator()->createObjectAdapter("Discover");
 

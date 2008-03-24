@@ -78,6 +78,9 @@ main(int argc, char* argv[])
 int
 HelloClient::run(int argc, char* argv[])
 {
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    args = communicator()->getProperties()->parseCommandLineOptions("Discover", args);
+
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("DiscoverReply");
     DiscoverReplyIPtr replyI = new DiscoverReplyI;
     DiscoverReplyPrx reply = DiscoverReplyPrx::uncheckedCast(adapter->addWithUUID(replyI));
