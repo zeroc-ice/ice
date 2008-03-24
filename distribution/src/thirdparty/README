@@ -215,7 +215,7 @@ Berkeley DB must be configured with C++ support enabled. If you intend
 to use Ice for Java with Berkeley DB, you must also enable Java
 support:
 
-  $ ../dist/configure --enable-cxx
+  $ ../dist/configure --enable-cxx --with-mutex=POSIX/pthreads
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
 
