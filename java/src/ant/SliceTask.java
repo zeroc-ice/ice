@@ -370,7 +370,15 @@ public class SliceTask extends org.apache.tools.ant.Task
             {
                 ldLibPathEnv = "LD_LIBRARY_PATH";
                 ldLib64PathEnv = "LD_LIBRARY_PATH_64";
-                lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "sparcv9").toString();
+                String arch = System.getProperty("os.arch");
+                if(arch.equals("x86"))
+                {
+                    lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "amd64").toString();
+                }
+                else
+                {
+                    lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "sparcv9").toString();
+                }
             }
             else
             {
