@@ -765,7 +765,8 @@ fi
    (icegridregistry, icebox etc.). This way, ice-libs 3.3.0 can coexist with
     ice-libs 3.4.0. The same is true for ice-dotnet, and to a lesser extent 
     other ice runtime packages
-- Many updates derived from Mary Ellen Foster's Fedora RPM spec for Ice.
+- Many updates derived from Mary Ellen Foster (<mefoster at gmail.com>)'s 
+  Fedora RPM spec for Ice.
  - The Ice jar files are now installed in %{_javalibdir}, with 
    jpackage-compliant names
  - New icegridgui shell script to launch the IceGrid GUI
