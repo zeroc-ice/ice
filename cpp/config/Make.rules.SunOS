@@ -109,9 +109,9 @@ ifeq ($(CXX),CC)
     mklib		    = $(CXX) -xar -o $(1) $(2)
 
     ifneq ($(embedded_runpath_prefix),)
-         LDPLATFORMFLAGS    = -R $(runpath_libdir):/usr/sfw/$(libsubdir) -z text
+         LDPLATFORMFLAGS    = -norunpath -R $(runpath_libdir):/usr/sfw/$(libsubdir) -z text
     else
-         LDPLATFORMFLAGS    = -R /usr/sfw/$(libsubdir)  -z text
+         LDPLATFORMFLAGS    = -norunpath -R /usr/sfw/$(libsubdir)  -z text
     endif
     
 endif
