@@ -16,5 +16,5 @@ callback saying they are available. The client selects a server and
 proceeds.
 
 By default this demo uses IPv4. If you want to use IPv6 UDP multicast
-instead, uncomment the alternative IPv6 configuration in config..client
+instead, uncomment the alternative IPv6 configuration in config.client
 and config.server.
