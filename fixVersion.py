@@ -42,6 +42,13 @@ def intVersion(version):
             patch = 51
     return ("%2d%02d%02d" % (major, minor, patch)).strip()        
 
+def betaVersion(version):
+    r = re.search(vpatParse, version)
+    if r.group(3).startswith("b"):
+        return "b"
+    else:
+        return ""
+
 def soVersion(version):
     r = re.search(vpatParse, version)
     major = int(r.group(1))
@@ -206,7 +213,7 @@ if not re.match(vpatCheck, version):
 if not patchIceE:
     fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules"),
                         [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
-                         ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
+                         ("VERSION_MINOR[\t\s]*= ([0-9]*b?)", minorVersion(version) + betaVersion(version)),
                          ("VERSION[\t\s]*= " + vpatMatch, version),
                          ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
     
