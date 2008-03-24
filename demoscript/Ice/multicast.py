@@ -11,25 +11,41 @@
 import sys, demoscript, signal
 import demoscript.pexpect as pexpect
 
+def runClient(clientCmd, server1, server2):
+    client = demoscript.Util.spawn(clientCmd)
+    received = False
+    try:
+        server1.expect('Hello World!')
+        received = True
+    except pexpect.TIMEOUT:
+        pass
+    try:
+        server2.expect('Hello World!')
+        received = True
+    except pexpect.TIMEOUT:
+        pass
+    if not received:
+        raise pexpect.TIMEOUT
+    client.waitTestSuccess()
+
 def runDemo(clientCmd, serverCmd):
-    server = demoscript.Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
-    server.expect('Discover ready')
-    server.expect('Hello ready')
+    server1 = demoscript.Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
+    server1.expect('Discover ready')
+    server1.expect('Hello ready')
 
-    client = demoscript.Util.spawn(clientCmd)
-    server.expect('Hello World!')
-    client.waitTestSuccess()
+    server2 = demoscript.Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
+    server2.expect('Discover ready')
+    server2.expect('Hello ready')
 
-    client = demoscript.Util.spawn(clientCmd)
-    server.expect('Hello World!')
-    client.waitTestSuccess()
+    runClient(clientCmd, server1, server2)
+    runClient(clientCmd, server1, server2)
+    runClient(clientCmd, server1, server2)
 
-    client = demoscript.Util.spawn(clientCmd)
-    server.expect('Hello World!')
-    client.waitTestSuccess()
+    server1.kill(signal.SIGINT)
+    server1.waitTestSuccess()
 
-    server.kill(signal.SIGINT)
-    server.waitTestSuccess()
+    server2.kill(signal.SIGINT)
+    server2.waitTestSuccess()
 
 def run(clientCmd, serverCmd):
     print "testing multicast discovery (Ipv4)...",
