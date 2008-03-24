@@ -24,15 +24,15 @@ TestControllerI::TestControllerI()
 {
     TestConfiguration current;
     current.description = "No filters at all";
-    current.cases.push_back(TestCase("foo/bar:default -h 127.0.0.1 -p 12012", true));
+    current.cases.push_back(TestCase("foo/bar:default -p 12012", true));
 
     _configurations.push_back(current);
 
     current = TestConfiguration();
     current.description = "Category filter";
-    current.cases.push_back(TestCase("foo/barA:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("bar/fooA:default -h 127.0.0.1 -p 12012", false));
-    current.cases.push_back(TestCase("\"a cat with spaces/fooX\":default -h 127.0.0.1 -p 12012", true));
+    current.cases.push_back(TestCase("foo/barA:default -p 12012", true));
+    current.cases.push_back(TestCase("bar/fooA:default -p 12012", false));
+    current.cases.push_back(TestCase("\"a cat with spaces/fooX\":default -p 12012", true));
     current.categoryFiltersAccept.push_back("foo");
     current.categoryFiltersAccept.push_back("a cat with spaces");
     _configurations.push_back(current);
@@ -46,8 +46,8 @@ TestControllerI::TestControllerI()
 
     current = TestConfiguration();
     current.description = "Object id filter";
-    current.cases.push_back(TestCase("foo/barC:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("bar/fooC:default -h 127.0.0.1 -p 12012", false));
+    current.cases.push_back(TestCase("foo/barC:default -p 12012", true));
+    current.cases.push_back(TestCase("bar/fooC:default -p 12012", false));
     Identity id;
     id.category = "foo";
     id.name = "barC";
