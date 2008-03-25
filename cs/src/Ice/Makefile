@@ -142,7 +142,7 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
-        $(INSTALL) $(LIBNAME).config $(bindir)
+	$(INSTALL) $(LIBNAME).config $(bindir)
 
 ifneq ($(NOGAC),)
 install:: all
