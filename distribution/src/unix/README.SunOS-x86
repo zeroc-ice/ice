@@ -125,6 +125,13 @@ following:
    installation:
 
    $ ln -s <Ice installation directory> /opt/Ice-@mmver@ 
+
+   - Beta Note
+   The third-party binaries included in this distribution use
+   /opt/Ice-3.3/lib and /opt/Ice-3.3/lib/amd64 as embedded runpath,
+   so you may want to create a second symbolic link:
+
+   $ ln -s /opt/Ice-3.3b /opt/Ice-3.3
   
  - Add the Ice lib directory to your LD_LIBRARY_PATH and 
    LD_LIBRARY_PATH_64 environment variables:
