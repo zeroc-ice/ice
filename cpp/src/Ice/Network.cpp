@@ -1522,6 +1522,7 @@ IceInternal::createPipe(SOCKET fds[2])
     catch(...)
     {
         ::closesocket(fd);
+        ::closesocket(fds[0]);
         throw;
     }
 
@@ -1545,7 +1546,7 @@ IceInternal::createPipe(SOCKET fds[2])
     catch(...)
     {
         ::closesocket(fds[0]);
-        ::closesocket(fd);
+        ::closesocket(fds[1]);
         throw;
     }
 
@@ -1564,6 +1565,7 @@ IceInternal::createPipe(SOCKET fds[2])
     }
     catch(...)
     {
+        closeSocketNoThrow(fds[0]);
         closeSocketNoThrow(fds[1]);
         throw;
     }
@@ -1575,6 +1577,7 @@ IceInternal::createPipe(SOCKET fds[2])
     catch(...)
     {
         closeSocketNoThrow(fds[0]);
+        closeSocketNoThrow(fds[1]);
         throw;
     }
 
