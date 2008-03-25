@@ -2,7 +2,7 @@ Mono Version
 ------------
 
 This version of Ice for .NET requires Mono version 1.2.2 or later
-(1.2.6 or later if you want to use multi-cast).
+(1.2.6 or later if you want to use IPv6 multi-cast).
 
 Note that Mono currently does not contain full SSL support and 
 therefore IceSSL is not supported.
@@ -18,8 +18,9 @@ only on:
  - Novell SuSE Linux Enterprise Server 10 Service Pack 1 for i586 or
    x86_64 (SLES 10 SP1).
 
-   Note that SLES 10 SP1 includes Mono 1.2.2, which is no longer supported due
-   to the addition of multi-cast to Ice 3.3. To upgrade to a more recent version
+   Note that SLES 10 SP1 includes Mono 1.2.2, which does not support
+   IPv6 multi-cast. If you want to use this feature, you need to upgrade
+   to Mono 1.2.6 or later. To upgrade to a more recent version
    of Mono please follow the directions at:
 
    http://www.go-mono.com/mono-downloads/download.html
