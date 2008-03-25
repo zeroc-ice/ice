@@ -192,7 +192,7 @@ int slice_parse();
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
 //
-#define YYMAXDEPTH  20000 // 20000 should suffice. Bison default is 10000 as maximum.
+#define YYMAXDEPTH  10000
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 //
