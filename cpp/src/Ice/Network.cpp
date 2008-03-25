@@ -1521,8 +1521,8 @@ IceInternal::createPipe(SOCKET fds[2])
     }
     catch(...)
     {
+        // fds[0] is closed by doConnect
         ::closesocket(fd);
-        ::closesocket(fds[0]);
         throw;
     }
 
@@ -1546,7 +1546,7 @@ IceInternal::createPipe(SOCKET fds[2])
     catch(...)
     {
         ::closesocket(fds[0]);
-        ::closesocket(fds[1]);
+        // fds[1] is closed by setBlock
         throw;
     }
 
@@ -1565,7 +1565,7 @@ IceInternal::createPipe(SOCKET fds[2])
     }
     catch(...)
     {
-        closeSocketNoThrow(fds[0]);
+        // fds[0] is closed by setBlock
         closeSocketNoThrow(fds[1]);
         throw;
     }
@@ -1577,7 +1577,7 @@ IceInternal::createPipe(SOCKET fds[2])
     catch(...)
     {
         closeSocketNoThrow(fds[0]);
-        closeSocketNoThrow(fds[1]);
+        // fds[1] is closed by setBlock
         throw;
     }
 
