@@ -72,8 +72,7 @@ Now you're ready to build Ice:
 $ make
 
 This will build the Ice core libraries, services, tests and examples.
-After a successful build, you can run the test suite, provided that
-you have installed Python:
+After a successful build, you can run the test suite:
 
 $ make test
 

@@ -31,9 +31,6 @@ RPMs, the following packages are required:
   ruby-libs
   ruby-devel
 
-You will also need Python installed on your system if you wish to run
-the automated test suite.
-
 
 ======================================================================
 Compilation and Testing
@@ -71,8 +68,12 @@ If no errors occurred, you can now begin using Ice for Ruby.
 Running the tests
 -----------------
 
-You can run the test suite, provided that you have installed Python.
-Furthermore, you must also build the Ice for C++ tests in the cpp
+The test subdirectory contains Ruby implementations of the core Ice
+test suite. Python is required to run the test suite:
+
+  http://www.python.org/download
+
+The test suites require that the Ice for C++ tests be built in the cpp
 subdirectory of this source distribution.
 
 Open a command window and change to the top-level directory. At the

@@ -348,12 +348,14 @@ Running the Tests
 ======================================================================
 
 The test subdirectory contains PHP implementations of the core Ice
-test suite. In order to run these tests, you must have Python 2.2
-or later, and the Ice for C++ tests must be built in the directory
-specified by the ICE_HOME environment variable.
+test suite. Python is required to run the test suite:
 
-The test scripts require that the CLI version of the PHP interpreter
-be available in your PATH.
+  http://www.python.org/download
+
+The test suites require that the Ice for C++ tests to be built in the
+cpp subdirectory of this source distribution. In addition, the scripts
+require that the CLI version of the PHP interpreter be available in
+your PATH.
 
 To run all of the tests, do the following:
 

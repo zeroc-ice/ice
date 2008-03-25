@@ -156,17 +156,6 @@ ProGuard is available here:
 Ice for Java has been tested with ProGuard 4.1.
 
 
-Python
-------
-
-To run the automated test suite, you will need Python 2.2 or later. 
-If you have no interest in running the test scripts, Python is not 
-required. Linux distributions usually include Python. For Windows 
-XP/Vista, you can download a Python distribution from:
-
-  http://www.python.org/download
-
-
 ======================================================================
 Compiling the Source
 ======================================================================
@@ -273,8 +262,9 @@ variable with the path name of your Ice installation:
   # On Windows
   > set ICE_HOME=c:\Ice-@ver@
 
-As already mentioned in the "Requirements" section above, the Ice test
-suites require a Python interpreter.
+Python is required to run the test suite:
+
+  http://www.python.org/download
 
 To run the tests, open a command window and change to the top-level
 directory. At the command prompt, execute:

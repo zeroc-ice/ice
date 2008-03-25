@@ -74,18 +74,6 @@ applications:
 http://proguard.sourceforge.net
 
 
-Python
-------
-
-To run the automated test suite on Java SE system, you will need 
-Python 2.2 or later. If you have no interest in running the test 
-scripts, Python is not required. Linux distributions usually include
-Python. For Windows XP/Vista, you can download a Python distribution
-from:
-
-http://www.python.org/download
-
-
 ======================================================================
 Tests and Demos
 ======================================================================
@@ -93,8 +81,12 @@ Tests and Demos
 Java SE Platform
 ----------------
 
-You can run the test suite with the following command (provided that 
-Python is installed on your system):
+Python is required to run the test suite:
+
+  http://www.python.org/download
+
+To run the tests, open a command window and change to the top-level
+directory. At the command prompt, execute:
 
 $ python allTests.py
 

@@ -63,13 +63,6 @@ Make from the "Software Porting And Archive Centre for HP-UX",
 http://hpux.cs.utah.edu.
 
 
-Python
-------
-
-You will need Python to run the automated test suite. If you have no
-interest in running the test scripts, Python is not required.
-
-You can download Python from http://hpux.cs.utah.edu.
 
 
 ======================================================================
@@ -95,8 +88,12 @@ Now you're ready to build Ice:
 $ gmake
 
 This will build the Ice core libraries, services, tests and examples.
-After a successful build, you can run the test suite, provided that
-you installed Python:
+
+Python is required to run the test suite:
+
+  http://www.python.org/download
+
+After a successful build, you can run the test suite:
 
 $ gmake test
 
