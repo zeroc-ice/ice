@@ -584,17 +584,16 @@ rpmBuildFiles = [ \
     os.path.join("src", "rpm", "*.suse"), \
     os.path.join("src", "rpm", "*.redhat"), \
     os.path.join("src", "rpm", "ice.pth"), \
-    os.path.join("src", "common", "RELEASE_NOTES.txt"), \
     os.path.join("src", "unix", "*Linux*"), \
     os.path.join("src", "thirdparty", "php", "ice.ini"), \
 ]
 copyMatchingFiles(os.path.join(distDir, "distribution"), rpmBuildDistDir, rpmBuildFiles)
 
 #
-# Copy CHANGES and RELEASE_NOTES.txt
+# Copy CHANGES and RELEASE_NOTES
 #
-copy(os.path.join(srcDistDir, "cpp", "CHANGES"), os.path.join(distDir, "Ice-" + version + "-CHANGES"))
-copy(os.path.join(distDir, "distribution", "src", "common", "RELEASE_NOTES.txt"), distDir)
+copy(os.path.join(srcDistDir, "CHANGES"), os.path.join(distDir, "Ice-" + version + "-CHANGES"))
+copy(os.path.join(srcDistDir, "RELEASE_NOTES"), os.path.join(distDir, "Ice-" + version + "-RELEASE_NOTES"))
 
 #
 # Everything should be clean now, we can create the source distributions archives
@@ -633,7 +632,7 @@ for d in [srcDistDir]:
         os.system("zip -9rq " + dist +".zip " + dist)
     print "ok"
 
-readme = open("README.txt", "w")
+readme = open("README", "w")
 print >>readme, "This directory contains the source distributions of Ice " + version + ".\n"
 print >>readme, "Creation time: " + time.strftime("%a %b %d %Y, %I:%M:%S %p (%Z)")
 (sysname, nodename, release, ver, machine) = os.uname();

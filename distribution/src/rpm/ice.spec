@@ -440,7 +440,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
 # Doc
 #
 mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}
-cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES
+cp -p $RPM_BUILD_DIR/Ice-%{version}/RELEASE_NOTES $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/RELEASE_NOTES
+cp -p $RPM_BUILD_DIR/Ice-%{version}/CHANGES $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/CHANGES
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/README
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/THIRD_PARTY_LICENSE
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/SOURCES

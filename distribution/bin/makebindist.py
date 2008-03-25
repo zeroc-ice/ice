@@ -207,7 +207,8 @@ platform.completeDistribution(buildDir, version)
 print "Copying distribution files (README, SOURCES, etc)...",
 sys.stdout.flush()
 platform.copyDistributionFiles(distDir, buildDir)
-copy(os.path.join(distDir, "src", "common","RELEASE_NOTES.txt"), os.path.join(buildDir, "RELEASE_NOTES.txt"))
+copy(os.path.join(srcDir, "CHANGES"), os.path.join(buildDir, "CHANGES"))
+copy(os.path.join(srcDir, "RELEASE_NOTES"), os.path.join(buildDir, "RELEASE_NOTES"))
 print "ok"
 
 #
