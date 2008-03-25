@@ -121,13 +121,6 @@ to run Ice services and tools, you can do one of the following:
 
    $ ln -s <Ice installation directory> /opt/Ice-@mmver@ 
 
-   - Beta Note
-   The third-party binaries included in this distribution use 
-   /opt/Ice-3.3/lib and /opt/Ice-3.3/lib/sparcv9 as embedded runpath,
-   so you may want to create a second symbolic link:
-
-   $ ln -s /opt/Ice-@mmver@ /opt/Ice-3.3
-
  - Add the Ice lib directory to your LD_LIBRARY_PATH and 
    LD_LIBRARY_PATH_64 environment variables:
 
