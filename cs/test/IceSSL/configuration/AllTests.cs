@@ -102,8 +102,7 @@ public class AllTests
         catch(CryptographicException)
         {
             Console.Out.WriteLine("This test requires administrator privileges.");
-            factory.shutdown();
-            return null;
+            return factory;
         }
 
         try
