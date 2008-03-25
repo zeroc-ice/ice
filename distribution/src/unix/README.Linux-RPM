@@ -23,7 +23,8 @@ About this distribution
 
 Ice @ver@ for Linux is distributed in several RPM packages:
 
-- The base Ice RPM contains the slice files and associated documentation.
+- The base Ice RPM contains the Slice files and associated
+  documentation.
 
 - The ice-libs RPM contains the C++ run-time libraries.
 
@@ -34,7 +35,7 @@ Ice @ver@ for Linux is distributed in several RPM packages:
   scripts.
 
 - For each supported Ice language, C++, Java, Python, Ruby and .NET
-  (Mono), we provide an associated run-time library RPM which enables
+  (Mono), we provide an associated run-time library RPM that enables
   you to execute Ice applications developed in that language. In
   addition, a development kit for each language is contained in a
   separate RPM.

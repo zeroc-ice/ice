@@ -352,7 +352,7 @@ test suite. Python is required to run the test suite:
 
   http://www.python.org/download
 
-The test suites require that the Ice for C++ tests to be built in the
+The test suites require that the Ice for C++ tests be built in the
 cpp subdirectory of this source distribution. In addition, the scripts
 require that the CLI version of the PHP interpreter be available in
 your PATH.
