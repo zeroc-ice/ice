@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::Buffer::swap(Buffer& other)
+IceInternal::Buffer::swapBuffer(Buffer& other)
 {
     b.swap(other.b);
     std::swap(i, other.i); 

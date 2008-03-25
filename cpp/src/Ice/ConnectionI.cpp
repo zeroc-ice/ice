@@ -1924,7 +1924,7 @@ Ice::ConnectionI::flushSentCallbacks()
     }
     for(vector<OutgoingAsyncMessageCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
     {
-        (*p)->__sent(_instance);
+        (*p)->__sentCallback(_instance);
     }
 }
 
