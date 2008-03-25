@@ -107,6 +107,7 @@ namespace IceInternal
             }
 
             connection_ = connection;
+            interceptorAsyncCallbackList_ = null;
         }
 
         public virtual void reclaim()
@@ -121,6 +122,8 @@ namespace IceInternal
             {
                 os_.reset();
             }
+
+	    interceptorAsyncCallbackList_ = null;
         }
 
         protected internal void warning__(System.Exception ex)
