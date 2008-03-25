@@ -55,8 +55,8 @@ UNAME			:= $(shell uname)
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
 
-CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
-LDFLAGS			=   $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir) 
+CPPFLAGS		= -I$(includedir)
+LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir) 
 
 ifeq ($(FLEX_NOLINE),yes)
     FLEXFLAGS	       := -L

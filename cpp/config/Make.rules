@@ -52,13 +52,6 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 USE_READLINE		?= no
 
-#
-# If you want to use STLport, set STLPORT_HOME to the STLport
-# installation directory. If STLPORT_HOME is undefined or empty,
-# STLport is not used.
-#
-#STLPORT_HOME		?= /opt/STLport
-
 
 #
 # If libbzip2 is not installed in a standard location where the
@@ -160,18 +153,6 @@ ifneq ($(embedded_runpath_prefix),)
     create_runpath_symlink ?= yes
 endif
 
-ifneq ($(STLPORT_HOME),)
-    STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
-    ifeq ($(OPTIMIZE),yes)
-	STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc
-    else
-	STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc_stldebug
-    endif
-else
-    STLPORT_FLAGS	=
-    STLPORT_LIBS	=
-endif
-
 OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
 OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
 OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
@@ -211,10 +192,10 @@ ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), /usr) 
-    CPPFLAGS		= $(STLPORT_FLAGS)
+    CPPFLAGS		= 
     LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
-    CPPFLAGS	= -I$(includedir) $(STLPORT_FLAGS)
+    CPPFLAGS	= -I$(includedir)
     ifdef ice_src_dist
         LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir) 
     else
