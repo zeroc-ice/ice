@@ -44,7 +44,7 @@ public:
         return __os;
     }
 
-    void __sent(const InstancePtr&);
+    void __sentCallback(const InstancePtr&);
     void __exception(const Ice::Exception&);
 
 protected:

@@ -86,7 +86,7 @@ public:
         threadPool->promoteFollower();
         for(vector<OutgoingAsyncMessageCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
-            (*p)->__sent(_instance);
+            (*p)->__sentCallback(_instance);
         }
     }
 

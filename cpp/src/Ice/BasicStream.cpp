@@ -93,7 +93,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
 {
     assert(_instance == other._instance);
 
-    Buffer::swap(other);
+    swapBuffer(other);
 
     std::swap(_closure, other._closure);
 

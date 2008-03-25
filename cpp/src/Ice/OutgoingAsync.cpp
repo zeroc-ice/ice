@@ -77,7 +77,7 @@ IceInternal::OutgoingAsyncMessageCallback::~OutgoingAsyncMessageCallback()
 }
 
 void
-IceInternal::OutgoingAsyncMessageCallback::__sent(const InstancePtr& instance)
+IceInternal::OutgoingAsyncMessageCallback::__sentCallback(const InstancePtr& instance)
 {
     try
     {

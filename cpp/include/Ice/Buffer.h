@@ -22,7 +22,7 @@ public:
     Buffer(size_t maxCapacity) : b(maxCapacity), i(b.begin()) { }
     virtual ~Buffer() { }
 
-    void swap(Buffer&);
+    void swapBuffer(Buffer&);
 
     class ICE_API Container : private IceUtil::noncopyable
     {
