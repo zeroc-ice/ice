@@ -180,7 +180,7 @@ public final class PropertiesI implements Properties
         Logger logger = Ice.Util.getProcessLogger();
         if(key == null || key.length() == 0)
         {
-            return;
+            throw new Ice.InitializationException("Attempt to set property with empty key");
         }
 
         int dotPos = key.indexOf('.');
@@ -434,114 +434,174 @@ public final class PropertiesI implements Properties
         }
     }
 
+    private static final int ParseStateKey = 0;
+    private static final int ParseStateValue = 1;
+
     private void
     parseLine(String line)
     {
-        String s = line;
+        String key = "";
+        String value = "";
+    
+        int state = ParseStateKey;
 
-        //
-        // Remove comments and unescape #'s
-        //
-        int idx = 0;
-        while((idx = s.indexOf("#", idx)) != -1)
+        String whitespace = "";
+        String escapedspace = "";
+        boolean finished = false;
+        for(int i = 0; i < line.length(); ++i)
         {
-            if(idx == 0 || s.charAt(idx - 1) != '\\')
+            char c = line.charAt(i);
+            switch(state)
             {
-                s = s.substring(0, idx);
+              case ParseStateKey:
+              {
+                  switch(c)
+                  {
+                    case '\\':
+                      if(i < line.length() - 1)
+                      {
+                          c = line.charAt(++i);
+                          switch(c)
+                          {
+                            case '\\':
+                            case '#':
+                            case '=':
+                              key += whitespace;
+                              whitespace = "";
+                              key += c;
+                              break;
+    
+                            case ' ':
+                              if(key.length() != 0)
+                              {
+                                  whitespace += c;
+                              }
+                              break;
+
+                            default:
+                              key += whitespace;
+                              whitespace = "";
+                              key += '\\';
+                              key += c;
+                              break;
+                          }
+                      }
+                      else
+                      {
+                          key += whitespace;
+                          key += c;
+                      }
+                      break;
+    
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        if(key.length() != 0)
+                        {
+                            whitespace += c;
+                        }
+                        break;
+    
+                    case '=':
+                        whitespace = "";
+                        state = ParseStateValue;
+                        break;
+    
+                    case '#':
+                        finished = true;
+                        break;
+    
+                    default:
+                        key += whitespace;
+                        whitespace = "";
+                        key += c;
+                        break;
+                  }
+                  break;
+              }
+    
+              case ParseStateValue:
+              {
+                  switch(c)
+                  {
+                    case '\\':
+                      if(i < line.length() - 1)
+                      {
+                          c = line.charAt(++i);
+                          switch(c)
+                          {
+                            case '\\':
+                            case '#':
+                            case '=':
+                              value += value.length() == 0 ? escapedspace : whitespace;
+                              whitespace = "";
+                              escapedspace = "";
+                              value += c;
+                              break;
+    
+                            case ' ':
+                              whitespace += c;
+                              escapedspace += c;
+                              break;
+    
+                            default:
+                              value += value.length() == 0 ? escapedspace : whitespace;
+                              whitespace = "";
+                              escapedspace = "";
+                              value += '\\';
+                              value += c;
+                              break;
+                          }
+                      }
+                      else
+                      {
+                          value += value.length() == 0 ? escapedspace : whitespace;
+                          value += c;
+                      }
+                      break;
+    
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        if(value.length() != 0)
+                        {
+                            whitespace += c;
+                        }
+                        break;
+    
+                    case '#':
+                        value += escapedspace;
+                        finished = true;
+                        break;
+    
+                    default:
+                        value += value.length() == 0 ? escapedspace : whitespace;
+                        whitespace = "";
+                        escapedspace = "";
+                        value += c;
+                        break;
+                  }
+                  break;
+              }
+            }
+            if(finished)
+            {
                 break;
             }
-            ++idx;
         }
-        s = s.replace("\\#", "#");
-
-        //
-        // Split key/value and unescape ='s
-        //
-        int split = -1;
-        idx = 0;
-        while((idx = s.indexOf("=", idx)) != -1)
+        value += escapedspace;
+    
+        if((state == ParseStateKey && key.length() != 0) || (state == ParseStateValue && key.length() == 0))
         {
-            if(idx == 0 || s.charAt(idx - 1) != '\\')
-            {
-                split = idx;
-                break;
-            }
-            ++idx;
-        }
-        if(split == 0 || split == -1)
-        {
-            s = s.trim();
-            if(s.length() != 0)
-            {
-                Ice.Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
-            }
+            Ice.Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
             return;
         }
-
-        //
-        // Deal with espaced spaces. For key we just unescape and trim but
-        // for values any esaped spaces must be kept.
-        //
-        String key = s.substring(0, split);
-        key = key.replace("\\=", "=");
-        key = key.replace("\\ ", " ");
-        key = key.trim();
-        
-        String value = s.substring(split + 1, s.length());
-        value = value.replace("\\=", "=");
-
-        idx = 0;
-        String whitespace = "";
-        while(idx < value.length())
+        else if(key.length() == 0)
         {
-            if(value.charAt(idx) == '\\')
-            {
-                if(idx + 1 != value.length() && java.lang.Character.isWhitespace(value.charAt(idx + 1)))
-                {
-                    whitespace += value.charAt(idx + 1);
-                    idx += 2;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else if(java.lang.Character.isWhitespace(value.charAt(idx)))
-            {
-                ++idx;
-            }
-            else
-            {
-                break;
-            }
+            return;
         }
-        value = whitespace + value.substring(idx, value.length());
-        if(idx != value.length())
-        {
-            idx = value.length() - 1;
-            whitespace = "";
-            while(idx > 0)
-            {
-                if(java.lang.Character.isWhitespace(value.charAt(idx)))
-                {
-                   if(value.charAt(idx - 1) == '\\')
-                   {
-                       whitespace += value.charAt(idx);
-                       idx -= 2;
-                   }
-                   else
-                   {
-                       --idx;
-                   }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            value = value.substring(0, idx + 1) + whitespace;
-        }
-        value = value.replace("\\ ", " ");
 
         setProperty(key, value);
     }

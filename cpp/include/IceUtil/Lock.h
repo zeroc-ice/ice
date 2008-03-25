@@ -117,7 +117,7 @@ private:
 };
 
 //
-// Must be name TryLockT, not TryLock. See the comment for LockT for
+// Must be named TryLockT, not TryLock. See the comment for LockT for
 // an explanation.
 //
 template <typename T>

@@ -58,6 +58,8 @@ SLICE_SRCS	= Test.ice \
 		  Wstring.ice \
 		  WstringAMD.ice
 
+GENPIC          = no
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
@@ -69,14 +71,14 @@ $(CLIENT): $(COBJS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(SOBJS) $(LIBS)
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(SAMDOBJS) $(LIBS)
 
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(COLOBJS) $(LIBS)
 
 include .depend

@@ -102,6 +102,12 @@ Users of Visual Studio 2008 must remove bufferoverflowU.lib from the
 linker input "Additional Dependencies" in most projects when building
 on x64.
 
+When building the debug version of the Berkeley DB DLL (db_dll project),
+you should also remove the "DIAGNOSTIC" define and the 
+/export:__db_assert linker option. With the default settings, the Berkeley
+DB environments created with the debug DB DLL are not compatible with 
+the environments created with the release DB DLL.
+
 For installation instructions, please refer to
 
   http://www.oracle.com/technology/documentation/berkeley-db/db/ref/build_win/intro.html

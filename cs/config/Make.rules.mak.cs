@@ -87,7 +87,11 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
 !if "$(ice_src_dist)" != ""
+!if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
+!else
+SLICE2CS		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe"
+!endif
 !else
 SLICE2CS		= "$(ice_dir)\bin$(x64suffix)\slice2cs.exe"
 !endif
@@ -142,13 +146,11 @@ clean::
 	del /q $(SAMD_GEN_SRCS)
 !endif
 
-
 !if "$(POLICY_TARGET)" != ""
 
 $(bindir)/$(POLICY_TARGET):
 !if "$(PUBLIC_KEY_TOKEN)" == ""
 !if "$(ice_src_dist)" != ""
-	echo "Making policy 1"
 	@sn -q -p $(KEYFILE) tmp.pub && \
 	sn -q -t tmp.pub > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
@@ -156,7 +158,6 @@ $(bindir)/$(POLICY_TARGET):
 	del tmp.pub tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak policy"
 !else
-	echo "Making policy 2"
 	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \

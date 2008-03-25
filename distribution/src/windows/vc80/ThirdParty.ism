@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING10##</title>
-		<subject>Ice 3.3 beta Third Party Packages for Visual Studio 2005</subject>
+		<subject>Ice 3.3b Third Party Packages for Visual Studio 2005</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
@@ -2458,7 +2458,7 @@
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>857343407</td></row>
-		<row><td>ID_STRING10</td><td>1033</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>1369225426</td></row>
+		<row><td>ID_STRING10</td><td>1033</td><td>Ice 3.3b Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>1369225426</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2930,7 +2930,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ProductCode</td><td>{BE3E8AE3-A25D-471F-88EF-3D7074E07F5A}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3 beta Third Party Packages for Visual Studio 2005</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3b Third Party Packages for Visual Studio 2005</td><td/></row>
 		<row><td>ProductVersion</td><td>3.3.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>

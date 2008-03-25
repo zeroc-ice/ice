@@ -25,11 +25,11 @@ static const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 namespace
 {
 
-class AMI_Array_Object_ice_invokeI : public AMI_Array_Object_ice_invoke
+class AMI_Array_Object_ice_invokeTwowayI : public AMI_Array_Object_ice_invoke
 {
 public:
 
-    AMI_Array_Object_ice_invokeI(const AMD_Array_Object_ice_invokePtr& amdCB) :
+    AMI_Array_Object_ice_invokeTwowayI(const AMD_Array_Object_ice_invokePtr& amdCB) :
         _amdCB(amdCB)
     {
     }
@@ -37,19 +37,45 @@ public:
     virtual void
     ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
     {
-        if(_amdCB)
-        {
-            _amdCB->ice_response(ok, outParams);
-        }
+        _amdCB->ice_response(ok, outParams);
     }
 
     virtual void
     ice_exception(const Exception& ex)
     {
-        if(_amdCB)
-        {
-            _amdCB->ice_exception(ex);
-        }
+        _amdCB->ice_exception(ex);
+    }
+
+private:
+
+    const AMD_Array_Object_ice_invokePtr _amdCB;
+};
+
+class AMI_Array_Object_ice_invokeOnewayI : public AMI_Array_Object_ice_invoke, public Ice::AMISentCallback
+{
+public:
+
+    AMI_Array_Object_ice_invokeOnewayI(const AMD_Array_Object_ice_invokePtr& amdCB) :
+        _amdCB(amdCB)
+    {
+    }
+
+    virtual void
+    ice_response(bool, const pair<const Byte*, const Byte*>&)
+    {
+        assert(false);
+    }
+
+    virtual void
+    ice_sent()
+    {
+        _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+    }
+
+    virtual void
+    ice_exception(const Exception& ex)
+    {
+        _amdCB->ice_exception(ex);
     }
 
 private:
@@ -314,43 +340,47 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
         try
         {
             AMI_Array_Object_ice_invokePtr amiCB;
+            Ice::AMISentCallback* sentCB = 0;
             if(proxy->ice_isTwoway())
             {
-                amiCB = new AMI_Array_Object_ice_invokeI(amdCB);
+                amiCB = new AMI_Array_Object_ice_invokeTwowayI(amdCB);
             }
             else
             {
-                amiCB = new AMI_Array_Object_ice_invokeI(0);
+                AMI_Array_Object_ice_invokeOnewayI* cb = new AMI_Array_Object_ice_invokeOnewayI(amdCB);
+                amiCB = cb;
+                sentCB = cb;
             }
 
+            bool sent;
             if(_forwardContext)
             {
                 if(_sslContext.size() > 0)
                 {
                     Ice::Context ctx = current.ctx;
                     ctx.insert(_sslContext.begin(), _sslContext.end());
-                    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
+                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
                 }
                 else
                 {
-                    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, current.ctx);
+                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, current.ctx);
                 }
             }
             else
             {
                 if(_sslContext.size() > 0)
                 {
-                    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, _sslContext);
+                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, _sslContext);
                 }
                 else
                 {
-                    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
+                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
                 }
             }
 
-            if(!proxy->ice_isTwoway())
+            if(sent && sentCB)
             {
-                amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+                sentCB->ice_sent();
             }
         }
         catch(const LocalException& ex)

@@ -47,7 +47,7 @@ berkeleydb = { \
 }
 
 berkeleydbjar = { \
-    'Linux' : '/usr/share/java/db46/db.jar', \
+    'Linux' : '/usr/share/java/db-4.6.21.jar', \
 }
 
 expat = { \
@@ -185,15 +185,15 @@ class ThirdParty :
         if "java" in self.languages and self.location and self.location.endswith(".jar"):
             return self.location
 
-    def getFilesFromSubDirs(self, platform, bindir, libdir):
+    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         return []
 
     def getFiles(self, platform):
-        files = self.getFilesFromSubDirs(platform, "bin", "lib")
+        files = self.getFilesFromSubDirs(platform, "bin", "lib", False)
         if platform.lp64subdir:
             files += self.getFilesFromSubDirs(platform, \
                                               os.path.join("bin", platform.lp64subdir), \
-                                              os.path.join("lib", platform.lp64subdir))
+                                              os.path.join("lib", platform.lp64subdir), True)
         return files
 
     def includeInDistribution(self):
@@ -396,8 +396,10 @@ class BerkeleyDB(ThirdParty):
             else:
                 return os.path.join(self.location, "lib", "db.jar")
 
-    def getFilesFromSubDirs(self, platform, bindir, libdir):
-        files = [ os.path.join(libdir, "db.jar"), os.path.join(bindir, "db_*") ]
+    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
+        files = [ os.path.join(bindir, "db_*") ]
+        if not x64:
+            files += [ os.path.join(libdir, "db.jar") ]
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"), "jnilib")
         return files
@@ -406,21 +408,21 @@ class Bzip2(ThirdParty):
     def __init__(self, platform, locations):
         ThirdParty.__init__(self, platform, "Bzip2", locations, ["cpp"])
 
-    def getFilesFromSubDirs(self, platform, bindir, libdir):
+    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         return platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
 
 class Expat(ThirdParty):
     def __init__(self, platform, locations):
         ThirdParty.__init__(self, platform, "Expat", locations, ["cpp"])
 
-    def getFilesFromSubDirs(self, platform, bindir, libdir):
+    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         return platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
 
 class OpenSSL(ThirdParty):
     def __init__(self, platform, locations):
         ThirdParty.__init__(self, platform, "OpenSSL", locations, ["cpp"])
 
-    def getFilesFromSubDirs(self, platform, bindir, libdir):
+    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         files = [ os.path.join(bindir, "openssl") ]
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
         return files

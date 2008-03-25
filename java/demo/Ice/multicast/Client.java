@@ -14,11 +14,7 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        if(args.length > 0)
-        {
-            System.err.println(appName() + ": too many arguments");
-            return 1;
-        }
+        args = communicator().getProperties().parseCommandLineOptions("Discover", args);
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("DiscoverReply");
         DiscoverReplyI replyI = new DiscoverReplyI();

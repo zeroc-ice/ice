@@ -26,6 +26,8 @@ SRCS		= $(COBJS:.o=.cpp) \
 		  $(VOBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
+GENPIC          = no
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)

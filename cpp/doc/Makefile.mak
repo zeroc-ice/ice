@@ -35,5 +35,8 @@ clean::
 	-rd /s /q reference
 
 install:: reference\index.html 
+	@if not exist $(install_docdir)\reference \
+	    @echo "Creating $(install_docdir)\reference..." && \
+	    mkdir $(install_docdir)\reference
 	copy reference\index.html $(install_docdir)\reference
 	xcopy /i /s /y reference $(install_docdir)\reference

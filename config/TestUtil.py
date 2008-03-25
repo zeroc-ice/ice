@@ -22,9 +22,21 @@ keepGoing = 0                   # Set to 1 to have the tests continue on failure
 ipv6 = 0                        # Default to use IPv4 only
 ice_home = None                 # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
-
 javaCmd = "java"                # Default java loader
-phpCmd = "php"                  # Name of default php binary (usually php or php5)
+
+#
+# The PHP interpreter is called "php5" on some platforms (e.g., SLES).
+#
+phpCmd = "php"
+for path in string.split(os.environ["PATH"], os.pathsep):
+    #
+    # Stop if we find "php" in the PATH first.
+    #
+    if os.path.exists(os.path.join(path, "php")):
+        break
+    elif os.path.exists(os.path.join(path, "php5")):
+        phpCmd = "php5"
+        break
 
 #
 # This is set by the choice of init method. If not set, before it is
@@ -43,6 +55,14 @@ def configurePaths():
             print "(64bit)",
         print
 
+    #
+    # If Ice is installed from RPMs, just set the CLASSPATH for Java.
+    #
+    if ice_home == "/usr":
+        javaDir = os.path.join("/", "usr", "share", "java")
+        os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+        return # That's it, we're done!
+    
     if isWin32():
         os.environ["PATH"] = getCppBinDir() + os.pathsep + os.getenv("PATH", "")
     else:
@@ -75,28 +95,29 @@ def configurePaths():
                 os.environ["LD_LIBRARY_PATH_64"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH_64", "")
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
-            
-    javaDir = getIceDir("java")
-    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
-    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib") + os.pathsep + os.getenv("CLASSPATH", "")
 
+    javaDir = os.path.join(getIceDir("java"), "lib")
+    os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+    os.environ["CLASSPATH"] = os.path.join(javaDir) + os.pathsep + os.getenv("CLASSPATH", "")
+    
     # 
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if not isWin32():
         os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
-                                               
+        
     #
     # On Windows x64, set PYTHONPATH to python/x64.
     #
+    pythonDir = os.path.join(getIceDir("py"), "python")
     if isWin32() and x64:
-        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python", "x64") + os.pathsep + \
-            os.getenv("PYTHONPATH", "")
+        os.environ["PYTHONPATH"] = os.path.join(pythonDir, "x64") + os.pathsep + os.getenv("PYTHONPATH", "")
     else:
-        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
+        os.environ["PYTHONPATH"] = pythonDir + os.pathsep + os.getenv("PYTHONPATH", "")
 
-    os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
- 
+    rubyDir = os.path.join(getIceDir("rb"), "ruby")
+    os.environ["RUBYLIB"] = rubyDir + os.pathsep + os.getenv("RUBYLIB", "")
+
 def addLdPath(libpath):
     if isWin32():
         os.environ["PATH"] = libpath + os.pathsep + os.getenv("PATH", "")
@@ -148,6 +169,9 @@ def isAIX():
 def isDarwin():
    return sys.platform == "darwin"
 
+def isLinux():
+    return sys.platform.startswith("linux")
+
 def index(l, re):
     """Find the index of the first item in the list that matches the given re"""
     for i in range(0, len(l)):
@@ -187,13 +211,12 @@ def run(tests, root = False):
     if args:
         usage()
 
-    testFilter = None
-    removeFilter = False
     start = 0
     loop = False
     all = False
     arg = ""
 
+    filters = []
     for o, a in opts:
         if o == "--continue":
             keepGoing = 1
@@ -202,7 +225,9 @@ def run(tests, root = False):
         elif o in ("-r", "-R", "--filter", '--rfilter'):
             testFilter = re.compile(a)
             if o in ("--rfilter", "-R"):
-                removeFilter = True
+                filters.append((testFilter, True))
+            else:
+                filters.append((testFilter, False))
         elif o == "--all" :
             all = True
         elif o in ('--start', "--start-after"):
@@ -216,6 +241,9 @@ def run(tests, root = False):
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
+            if mono and getDefaultMapping() == "cs" and a == "ssl":
+                print "SSL is not supported with mono"
+                sys.exit(1)
 
         if o in ( "--protocol", "--host", "--debug", "--compress", "--serialize", "--ipv6", \
                   "--ice-home", "--x64"):
@@ -223,7 +251,7 @@ def run(tests, root = False):
             if len(a) > 0:
                 arg += " " + a
 
-    if testFilter != None:
+    for testFilter, removeFilter in filters:
         if removeFilter:
             tests = [ x for x in tests if not testFilter.search(x) ]
         else:
@@ -231,7 +259,8 @@ def run(tests, root = False):
 
     args =  []
     if all:
-        for proto in ["tcp", "ssl"]:
+        protocols = ["tcp", "ssl"]
+        for proto in protocols:
             for compress in [0, 1]:
                 for serialize in [0, 1]:
                     testarg = ""
@@ -301,28 +330,54 @@ serverPids = []
 serverThreads = []
 allServerThreads = []
 
-phpExtensionDir = None
-phpExtension = None
+def writePhpIni(src, dst):
+    extDir = None
+    ext = None
 
-if isWin32():
-    phpExtensionDir = os.path.abspath(os.path.join(findTopLevel(), "php", "bin"))
-    phpExtension = "php_ice.dll"
     #
-    # TODO: When we no longer support PHP 5.1.x, we can do the following:
+    # TODO
     #
-    #phpCmd = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "bin")) + "\" -d extension=php_ice.dll"
-else:
-    for path in string.split(os.environ["PATH"], os.pathsep):
-        if os.path.exists(os.path.join(path, "php5")):
-            phpCmd = "php5"
-            break
-                                
-    phpExtensionDir = os.path.abspath(os.path.join(findTopLevel(), "php", "lib"))
-    phpExtension = "IcePHP.so"
+    # When we no longer support PHP 5.1.x, we can use the following PHP
+    # command-line options:
     #
-    # TODO: When we no longer support PHP 5.1.x, we can do the following:
+    # -d extension_dir=...
+    # -d extension=[php_ice.dll|IcePHP.so]
     #
-    #phpCmd = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "lib")) + "\" -d extension=IcePHP.so"
+    if isWin32():
+        ext = "php_ice.dll"
+        extDir = os.path.abspath(os.path.join(getIceDir("php"), "bin"))
+    else:
+        ext = "IcePHP.so"
+        if not ice_home:
+            extDir = os.path.abspath(os.path.join(findTopLevel(), "php", "lib"))
+        else:
+            #
+            # If ICE_HOME points to the installation directory of a source build, the
+            # PHP extension will be located in $ICE_HOME/lib or $ICE_HOME/lib64.
+            # For an RPM installation, PHP is already configured to load the extension.
+            # We could also execute "php -m" and check if the output includes "ice".
+            #
+            if x64:
+                extDir = os.path.join(ice_home, "lib64")
+            else:
+                extDir = os.path.join(ice_home, "lib")
+
+            if not os.path.exists(os.path.join(extDir, ext)):
+                if ice_home == "/usr":
+                    extDir = None # Assume PHP is already configured to load the extension.
+                else:
+                    print "unable to find IcePHP extension!"
+                    sys.exit(1)
+
+    ini = open(src, "r").readlines()
+    for i in range(0, len(ini)):
+        ini[i] = ini[i].replace("ICE_HOME", os.path.join(findTopLevel()))
+    tmpini = open(dst, "w")
+    tmpini.writelines(ini)
+    if extDir:
+        tmpini.write("extension_dir=%s\n" % extDir)
+        tmpini.write("extension=%s\n" % ext)
+    tmpini.close()
 
 def getIceSoVersion():
 
@@ -616,6 +671,7 @@ sslConfigTree = {
         }
 sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
+sslConfigTree["php"] = sslConfigTree["cpp"]
 
 def getDefaultMapping(currentDir = ""):
     """Try and guess the language mapping out of the current path"""
@@ -787,7 +843,10 @@ def runTests(configs, tests, num = 0):
         # Run each of the tests.
         #
         for i in tests:
-
+            # If this is python and we're running ssl protocol tests
+            # then skip. This occurs when using --all.
+            if mono and i.startswith("cs/test") and args.find("--protocol ssl") != -1:
+                continue
             i = os.path.normpath(i)
             dir = os.path.join(toplevel, i)
 
@@ -804,6 +863,7 @@ def runTests(configs, tests, num = 0):
                 print "[ " + str(configCount) + " of " + str(len(configs)) + " ]",
             print
             print "*** test started:", time.strftime("%x %X")
+            sys.stdout.flush()
 
             os.chdir(dir)
 
@@ -893,16 +953,8 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     os.chdir(testdir)
 
     if lang == "php":
-        ini = open("php.ini", "r").readlines()
-        for i in range(0, len(ini)):
-            ini[i] = ini[i].replace("ICE_HOME", os.path.join(findTopLevel()))
-        tmpini = open("tmp.ini", "w")
-        tmpini.writelines(ini)
-        tmpini.write("extension_dir=%s\n" % phpExtensionDir)
-        tmpini.write("extension=%s\n" % phpExtension)
-        tmpini.close()
-        
-    
+        writePhpIni("php.ini", "tmp.ini")
+
     print "starting " + clientName + "...",
     clientCmd = getCommandLine(client, DriverConfig("client")) + " " + additionalClientOptions
     if debug:
@@ -1043,14 +1095,7 @@ def startClient(exe, args, config=None, env=None):
 
     if config.lang == "php":
         os.chdir(os.path.dirname(os.path.abspath(exe)))
-        ini = open("php.ini", "r").readlines()
-        for i in range(0, len(ini)):
-            ini[i] = ini[i].replace("ICE_HOME", os.path.join(findTopLevel()))
-        tmpini = open("tmp.ini", "w")
-        tmpini.writelines(ini)
-        tmpini.write("extension_dir=%s\n" % phpExtensionDir)
-        tmpini.write("extension=%s\n" % phpExtension)
-        tmpini.close()
+        writePhpIni("php.ini", "tmp.ini")
 
     return os.popen(getCommandLine(exe, config, env) + ' ' + args + " 2>&1")
 
@@ -1134,6 +1179,10 @@ def processCmdLine():
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
+            # ssl protocol isn't directly supported with mono.
+            if mono and getDefaultMapping() == "cs" and a == "ssl":
+                print "SSL is not supported with mono"
+                sys.exit(1)
             global protocol
             protocol = a
 
@@ -1141,12 +1190,15 @@ def processCmdLine():
         usage()
 
     # Only use binary distribution from ICE_HOME environment variable if USE_BIN_DIST=yes
-    if not ice_home and os.environ.get("ICE_HOME", "") != "" and os.environ.get("USE_BIN_DIST", "no") == "yes":
-        ice_home = os.environ["ICE_HOME"]
-
+    if not ice_home and os.environ.get("USE_BIN_DIST", "no") == "yes":
+        if os.environ.get("ICE_HOME", "") != "":
+            ice_home = os.environ["ICE_HOME"]
+        elif isLinux():
+            ice_home = "/usr"
+            
     if not x64:
         x64 = isWin32() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
-
+    
     configurePaths()
 
 if os.environ.has_key("ICE_CONFIG"):

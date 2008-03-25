@@ -129,6 +129,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lifecycleFSC", "book\lifecy
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "multicastC", "Ice\multicast\multicastC.csproj", "{E8B0F14C-D67D-4A4D-B604-448D7EE048F8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9} = {E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "multicastS", "Ice\multicast\multicastS.csproj", "{E6EF341D-3807-4A8B-ACEB-F1C9FB23ABB9}"
 EndProject

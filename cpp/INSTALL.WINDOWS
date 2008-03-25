@@ -47,14 +47,18 @@ C++ compiler
 
 The following C++ compilers are supported:
 
-- Microsoft Visual C++ 2008 (both Professional and Express editions)
+- Microsoft Visual C++ 2008 (Professional and Express editions)
 
   Visual C++ 2008 Express is available for download from:
 
   http://msdn.microsoft.com/vstudio/express/visualc/
 
-- Microsoft Visual C++ 2005 (both Professional and Express editions)
+- Microsoft Visual C++ 2005 SP1 (Professional and Express editions)
  
+  Service Pack 1 is available for download from:
+
+  http://msdn2.microsoft.com/en-us/vstudio/bb265237.aspx
+
   Visual C++ 2005 Express is available for download from:
 
   http://www.microsoft.com/express/2005/

@@ -269,14 +269,7 @@ public class _ObjectDelM implements _ObjectDel
 
         assert(__handler == null);
 
-        //
-        // If the delegate is created as a result of an AMI call or if the proxy is
-        // a batch proxy we use the connect request handler to connect the in the 
-        // background.
-        //
-        if(async ||
-           ref.getMode() == IceInternal.Reference.ModeBatchOneway || 
-           ref.getMode() == IceInternal.Reference.ModeBatchDatagram)
+        if(async)
         {
             IceInternal.ConnectRequestHandler handler = new IceInternal.ConnectRequestHandler(ref, proxy, this);
             __handler = handler.connect();

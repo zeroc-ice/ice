@@ -1,27 +1,6 @@
-Changes since version 3.2.x (HEAD ONLY)
----------------------------
+NOTE: This file is no longer being updated. See the CHANGES.txt file
+      in the top-level directory.
 
-- The use of sequences (and structs containing sequences) as valid 
-  dictionary keys has been deprecated and will be removed in a future
-  release.
-
-- Added the Ice_version() function to return the Ice version as a
-  string.
-
-- LocalObject is now mapped to PHP's base object type. The interface
-  Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now
-  deprecated.
-
-- Added support for an optional context argument to ice_checkedCast
-  and ice_uncheckedCast.
-
-- Added the following proxy methods:
-
-  ice_getRouter/ice_router
-  ice_getLocator/ice_locator
-
-- Added the translator option "-w" to suppress warnings during Slice
-  translation.
 
 Changes since version 3.2.0
 ---------------------------

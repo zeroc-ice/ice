@@ -30,7 +30,7 @@ DISABLEDWARNINGS        = +W849
 
 CXXFLAGS		= -AA -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
 
-ifeq ($(STATICLIBS),)
+ifneq ($(GENPIC),no)
     CXXFLAGS		+= +Z
 endif
 

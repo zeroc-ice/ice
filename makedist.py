@@ -550,6 +550,9 @@ copyMatchingFiles(os.path.join("cs", "config"), os.path.join(demoDistDir, "confi
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):
 
+    if d == "vb":
+        continue
+
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "allDemos.py")):
         md = os.path.join(demoscriptDistDir, getMappingDir("demo", d))
         os.rename(os.path.join(demoscriptDistDir, d, "demo"), md)
@@ -558,24 +561,19 @@ for d in os.listdir('.'):
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copytree(os.path.join(d, "demo"), os.path.join(demoDistDir, getMappingDir("demo", d)))
 
-rmFilesForUnix = []
+rmFiles = []
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
-exeConfigSubstituteExprs = [(re.compile(regexpEscape("\\..\\cs")), "")]
 for root, dirnames, filesnames in os.walk(demoDistDir):
     for f in filesnames:
 
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-        for m in [ "*.csproj", "*.vbproj", "*.exe.config"]:
+        for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config", "Make*mak*"]:
             if fnmatch.fnmatch(f, m):
-                substitute(os.path.join(root, f), exeConfigSubstituteExprs)
+                rmFiles.append(os.path.join(root[len(demoDistDir) + 1:], f))
 
-        for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config"]:
-            if fnmatch.fnmatch(f, m):
-                rmFilesForUnix.append(os.path.join(root[len(demoDistDir) + 1:], f))
-
-for f in rmFilesForUnix: os.remove(os.path.join(demoDistDir, f))
+for f in rmFiles: os.remove(os.path.join(demoDistDir, f))
 print "ok"
 
 #
@@ -585,6 +583,7 @@ rpmBuildFiles = [ \
     os.path.join("src", "rpm", "*.conf"), \
     os.path.join("src", "rpm", "*.suse"), \
     os.path.join("src", "rpm", "*.redhat"), \
+    os.path.join("src", "rpm", "ice.pth"), \
     os.path.join("src", "common", "RELEASE_NOTES.txt"), \
     os.path.join("src", "unix", "*Linux*"), \
     os.path.join("src", "thirdparty", "php", "ice.ini"), \
@@ -624,7 +623,7 @@ for (d, archiveDir) in [(demoscriptDistDir, "Ice-" + version + "-demos")]:
     os.rmdir("tmp")
     print "ok"
 
-for d in [srcDistDir, demoDistDir]:
+for d in [srcDistDir]:
     dist = os.path.basename(d)
     print "   creating " + dist + ".zip ...",
     sys.stdout.flush()

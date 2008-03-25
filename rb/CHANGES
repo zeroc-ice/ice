@@ -1,27 +1,6 @@
-Changes since version 3.2.X (binary incompatible)
--------------------------------------------------
+NOTE: This file is no longer being updated. See the CHANGES.txt file
+      in the top-level directory.
 
-- Removed "#!/usr/bin/env ruby" where unnecessary.
-
-- Added ice_staticId() method to generated Slice classes.
-
-- The use of sequences (and structs containing sequences) as valid 
-  dictionary keys has been deprecated and will be removed in a future
-  release.
-
-- Added the Ice::version() function to return the Ice version as a
-  string.
-
-- Fixed a code generation bug with slice2rb where the reserved words
-  BEGIN and END would generate classes, modules and constants named
-  _BEGIN, and _END which is illegal. They now generate BEGIN_ and
-  END_.
-
-Changes since version 3.2.1
----------------------------
-
-- Fixed bug where marshaling a plain object proxy fails with a
-  uninitialized constant exception
 
 Changes since version 3.2.0
 ---------------------------     

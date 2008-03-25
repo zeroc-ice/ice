@@ -35,16 +35,16 @@ print "ok"
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
 args =    r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-          r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+          r' --Ice.Admin.Endpoints="tcp -p 12348 -t 10000"' + \
           r' --Ice.Admin.InstanceName=Glacier2' + \
           r' --Glacier2.Server.Endpoints="default -p 12349 -t 10000"' + \
-          r' --Glacier2.SessionManager="SessionManager:tcp -h 127.0.0.1 -p 12010 -t 10000"' \
+          r' --Glacier2.SessionManager="SessionManager:tcp -p 12010 -t 10000"' \
           r' --Glacier2.PermissionsVerifier="Glacier2/NullPermissionsVerifier" 2>&1'
 
 print "starting router...",
 starterPipe = TestUtil.startServer(router, args)
 TestUtil.getServerPid(starterPipe)
-TestUtil.getAdapterReady(starterPipe)
+TestUtil.getAdapterReady(starterPipe, True, 2)
 print "ok"
 
 client = os.path.join(testdir, "client")

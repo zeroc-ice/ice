@@ -13,7 +13,7 @@
 
 SHELL			= /bin/sh
 VERSION_MAJOR   	= 3
-VERSION_MINOR   	= 3
+VERSION_MINOR   	= 3b
 VERSION			= 3.3b
 SHORT_VERSION           = 3.3
 SOVERSION		= 33b
@@ -37,6 +37,39 @@ endif
 
 ifeq ($(USE_BIN_DIST),yes)
 ice_bin_dist = 1
+endif
+
+ifeq ($(UNAME),SunOS)
+    ifeq ($(MACHINE_TYPE),sun4u)
+       lp64suffix	= /sparcv9
+       lp64binsuffix	= /sparcv9
+    endif
+    ifeq ($(MACHINE_TYPE),i86pc)
+	lp64suffix	= /amd64
+	lp64binsuffix	= /amd64
+    endif
+endif
+
+ifeq ($(UNAME),HP-UX)
+    lp64suffix		= /pa20_64
+    lp64binsuffix	= /pa20_64
+endif
+
+ifeq ($(UNAME),Linux)
+   ifeq ($(MACHINE_TYPE),x86_64)
+      lp64suffix	= 64
+      ifeq ($(LP64),)
+          LP64      	= yes
+      endif
+   endif
+endif
+
+ifeq ($(LP64),yes)
+    libsubdir		  := lib$(lp64suffix)
+    binsubdir		  := bin$(lp64binsuffix)
+else
+    libsubdir		  := lib
+    binsubdir		  := bin
 endif
 
 #
@@ -71,8 +104,8 @@ ifndef ice_bin_dist
         #
 	ifneq ($(ICE_HOME),)
 	    ifdef slice_translator
-		ifneq ($(shell test -f $(ICE_HOME)/bin/$(slice_translator) && echo 0), 0)
-$(error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
 		endif
 		ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
 $(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
@@ -97,23 +130,9 @@ ifndef ice_src_dist
 $(error slice_translator must be defined)
     endif
 
-    lp64bindir = 
-    ifeq ($(UNAME),SunOS)
-	ifeq ($(MACHINE_TYPE),sun4u)
-	    lp64bindir = /sparcv9
-	endif
-	ifeq ($(MACHINE_TYPE),i86pc)
-	    lp64bindir = /amd64
-	endif
-    endif
-
-    ifeq ($(UNAME),HP-UX)
-        lp64bindir = /pa20_64
-    endif
-
     ifneq ($(ICE_HOME),)
-        ifneq ($(shell test -f $(ICE_HOME)/bin/$(slice_translator) -o -f $(ICE_HOME)/bin$(lp64bindir)/$(slice_translator) && echo 0), 0)
-$(error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+        ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
         endif
         ice_dir = $(ICE_HOME)
     else
@@ -126,7 +145,7 @@ $(error Unable to find $(slice_translator) in $(ICE_HOME), please verify ICE_HOM
 $(warning Found $(slice_translator) in both /usr/bin and /opt/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
 		endif
 	    else
-	        ifeq ($(shell test -f /opt/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
+	        ifeq ($(shell test -f /opt/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
 	            ice_dir = /opt/Ice-$(VERSION)
 		endif
 	    endif
@@ -154,20 +173,10 @@ $(error Unable to find the C++ header file $(ice_cpp_header), please verify ICE_
 endif
 
 #
-# If we're building against an RPM or binary distribution and LP64 is not 
-# defined, we check a binary and set it automatically.
+# Clear the embedded runpath prefix if building against RPM distribution.
 #
-ifndef ice_src_dist
-    ifeq ($(LP64),)
-        ifneq ($(shell file $(ice_dir)/bin/icebox | grep 64-bit),)
-            LP64=yes
-        endif
-    endif
-
-    ifeq ($(ice_dir), /usr)
-        # Clear the embedded runpath prefix if building against RPM distribution.
-        embedded_runpath_prefix =
-    endif
+ifeq ($(ice_dir), /usr)
+    embedded_runpath_prefix =
 endif
 
 #
@@ -186,23 +195,24 @@ install_slicedir = $(prefix)/slice
 #
 ifneq ($(ice_dir), /usr)
     ifdef ice_src_dist
-        ice_lib_dir = $(ice_cpp_dir)/lib
+	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+	    ice_lib_dir = $(ice_cpp_dir)/lib
+	else
+            ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
+	endif
     else
-        ice_lib_dir = $(ice_dir)/lib
+        ice_lib_dir = $(ice_dir)/$(libsubdir)
     endif
 
     ifeq ($(UNAME),Linux)
         export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
-        export LD_LIBRARY_PATH := $(ice_lib_dir)64:$(LD_LIBRARY_PATH)
     endif
 
     ifeq ($(UNAME),SunOS)
-        export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
-	ifeq ($(MACHINE_TYPE),sun4u)
-            export LD_LIBRARY_PATH_64 := $(ice_lib_dir)/sparcv9:$(LD_LIBRARY_PATH_64)
-	endif
-	ifeq ($(MACHINE_TYPE),i86pc)
-            export LD_LIBRARY_PATH_64 := $(ice_lib_dir)/amd64:$(LD_LIBRARY_PATH_64)
+        ifeq ($(LP64),yes)
+            export LD_LIBRARY_PATH_64 := $(ice_lib_dir):$(LD_LIBRARY_PATH_64)
+        else
+            export LD_LIBRARY_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
 	endif
     endif
 
@@ -215,8 +225,11 @@ ifneq ($(ice_dir), /usr)
     endif
 
     ifeq ($(UNAME),HP-UX)
-        export SHLIB_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
-        export LD_LIBRARY_PATH := $(ice_lib_dir)/pa20_64:$(SHLIB_PATH)
+        ifeq ($(LP64),yes)
+	    export LD_LIBRARY_PATH := $(ice_lib_dir)$(lp64dir):$(SHLIB_PATH)
+	else
+	    export SHLIB_PATH := $(ice_lib_dir):$(LD_LIBRARY_PATH)
+	endif
     endif
 
     ifeq ($(UNAME),FreeBSD)

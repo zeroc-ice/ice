@@ -23,11 +23,7 @@ public class Server
     {
         public override int run(string[] args)
         {
-            if(args.Length > 0)
-            {
-                System.Console.Error.WriteLine(appName() + ": too many arguments");
-                return 1;
-            }
+            args = communicator().getProperties().parseCommandLineOptions("Discover", args);
 
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
             Ice.ObjectAdapter discoverAdapter = communicator().createObjectAdapter("Discover");

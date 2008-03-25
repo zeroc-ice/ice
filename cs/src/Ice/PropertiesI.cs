@@ -164,7 +164,7 @@ namespace Ice
             }
             if(key == null || key.Length == 0)
             {
-                return;
+                throw new Ice.InitializationException("Attempt to set property with empty key");
             }
 
             //
@@ -424,111 +424,175 @@ namespace Ice
                 throw se;
             }
         }
+
+        private const int ParseStateKey = 0;
+        private const int ParseStateValue = 1;
         
         private void parseLine(string line)
         {
-            string s = line;
+            string key = "";
+            string val = "";
 
-            //
-            // Remove comments and unescape #'s
-            //
-            int idx = 0;
-            while((idx = s.IndexOf("#", idx)) != -1)
+            int state = ParseStateKey;
+
+            string whitespace = "";
+            string escapedspace = "";
+            bool finished = false;
+            for(int i = 0; i < line.Length; ++i)
             {
-                if(idx == 0 || s[idx - 1] != '\\')
+                char c = line[i];
+                switch(state)
                 {
-                    s = s.Substring(0, idx);
+                  case ParseStateKey:
+                  {
+                      switch(c)
+                      {
+                        case '\\':
+                          if(i < line.Length - 1)
+                          {
+                              c = line[++i];
+                              switch(c)
+                              {
+                                case '\\':
+                                case '#':
+                                case '=':
+                                  key += whitespace;
+                                  whitespace= "";
+                                  key += c;
+                                  break;
+        
+                                case ' ':
+                                  if(key.Length != 0)
+                                  {
+                                      whitespace += c;
+                                  }
+                                  break;
+        
+                                default:
+                                  key += whitespace;
+                                  whitespace= "";
+                                  key += '\\';
+                                  key += c;
+                                  break;
+                              }
+                          }
+                          else
+                          {
+                              key += whitespace;
+                              key += c;
+                          }
+                          break;
+        
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if(key.Length != 0)
+                            {
+                                whitespace += c;
+                            }
+                            break;
+        
+                        case '=':
+                            whitespace= "";
+                            state = ParseStateValue;
+                            break;
+        
+                        case '#':
+                            finished = true;
+                            break;
+        
+                        default:
+                            key += whitespace;
+                            whitespace= "";
+                            key += c;
+                            break;
+                      }
+                      break;
+                  }
+
+                  case ParseStateValue:
+                  {
+                      switch(c)
+                      {
+                        case '\\':
+                          if(i < line.Length - 1)
+                          {
+                              c = line[++i];
+                              switch(c)
+                              {
+                                case '\\':
+                                case '#':
+                                case '=':
+                                  val += val.Length == 0 ? escapedspace : whitespace;
+                                  whitespace= "";
+                                  escapedspace= "";
+                                  val += c;
+                                  break;
+        
+                                case ' ':
+                                  whitespace += c;
+                                  escapedspace += c;
+                                  break;
+        
+                                default:
+                                  val += val.Length == 0 ? escapedspace : whitespace;
+                                  whitespace= "";
+                                  escapedspace= "";
+                                  val += '\\';
+                                  val += c;
+                                  break;
+                              }
+                          }
+                          else
+                          {
+                              val += val.Length == 0 ? escapedspace : whitespace;
+                              val += c;
+                          }
+                          break;
+        
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if(val.Length != 0)
+                            {
+                                whitespace += c;
+                            }
+                            break;
+        
+                        case '#':
+                            val += escapedspace;
+                            finished = true;
+                            break;
+        
+                        default:
+                            val += val.Length == 0 ? escapedspace : whitespace;
+                            whitespace = "";
+                            escapedspace = "";
+                            val += c;
+                            break;
+                      }
+                      break;
+                  }
+                }
+                if(finished)
+                {
                     break;
                 }
-                ++idx;
             }
-            s = s.Replace("\\#", "#");
-
-            //
-            // Split key/value and unescape ='s
-            //
-            int split = -1;
-            idx = 0;
-            while((idx = s.IndexOf("=", idx)) != -1)
+            val += escapedspace;
+        
+            if((state == ParseStateKey && key.Length != 0) || (state == ParseStateValue && key.Length == 0))
             {
-                if(idx == 0 || s[idx - 1] != '\\')
-                {
-                    split = idx;
-                    break;
-                }
-                ++idx;
+                Ice.Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
+                return;
             }
-            if(split == 0 || split == -1)
+            else if(key.Length == 0)
             {
-                s = s.Trim();
-                if(s.Length != 0)
-                {
-                    Ice.Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
-                }
                 return;
             }
 
-            string key = s.Substring(0, split);
-            key = key.Replace("\\=", "=");
-            key = key.Replace("\\ ", " ");
-            key = key.Trim();
-
-            string val = s.Substring(split + 1, s.Length - split - 1);
-            val = val.Replace("\\=", "=");
-
-            idx = 0;
-            string whitespace = "";
-            while(idx < val.Length)
-            {
-                if(val[idx] == '\\')
-                {
-                    if(idx + 1 != val.Length && System.Char.IsWhiteSpace(val[idx + 1]))
-                    {
-                        whitespace += val[idx + 1];
-                        idx += 2;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else if(System.Char.IsWhiteSpace(val[idx]))
-                {
-                    ++idx;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            val = whitespace + val.Substring(idx, val.Length - idx);
-            if(idx != val.Length)
-            {
-                idx = val.Length - 1;
-                whitespace = "";
-                while(idx > 0)
-                {
-                    if(System.Char.IsWhiteSpace(val[idx]))
-                    {
-                       if(val[idx - 1] == '\\')
-                       {
-                           whitespace += val[idx];
-                           idx -= 2;
-                       }
-                       else
-                       {
-                           --idx;
-                       }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                val = val.Substring(0, idx + 1) + whitespace;
-            }
-            val = val.Replace("\\ ", " ");
-            
             setProperty(key, val);
         }
         

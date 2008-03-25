@@ -147,13 +147,13 @@ def getSliceDir():
             #
             # Check the default RPM location.
             #
-            dir = os.path.join("usr", "share", "Ice-" + iceVer, "slice")
+            dir = os.path.join("/", "usr", "share", "Ice-" + iceVer, "slice")
             if os.path.exists(dir):
                 return dir
         #
         # Check in /opt.
         #
-        dir = os.path.join("opt", "Ice-" + iceVer, "slice")
+        dir = os.path.join("/", "opt", "Ice-" + iceVer, "slice")
         if os.path.exists(dir):
             return dir
 

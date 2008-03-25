@@ -123,9 +123,13 @@ ifeq ($(OPTIMIZE),yes)
 endif
 
 ifdef ice_src_dist
-    SLICE2CS = $(ice_cpp_dir)/bin/slice2cs
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        SLICE2CS = $(ice_cpp_dir)/bin/slice2cs
+    else
+        SLICE2CS = $(ice_cpp_dir)/$(binsubdir)/slice2cs
+    endif
 else
-    SLICE2CS = $(ice_dir)/bin/slice2cs
+    SLICE2CS = $(ice_dir)/$(binsubdir)/slice2cs
 endif
 
 AL              = al

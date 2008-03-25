@@ -128,6 +128,302 @@ private:
 };
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
+
+void
+logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
+{
+    cout << "testing stderr/stdout/log files... " << flush;
+    string testDir = comm->getProperties()->getProperty("TestDir");
+    assert(!testDir.empty());
+    try
+    {
+        session->openServerStdErr("LogServer", -1);
+        test(false);
+    }
+    catch(const FileNotAvailableException&)
+    {
+    }
+    try
+    {
+        session->openServerStdOut("LogServer", -1);
+        test(false);
+    }
+    catch(const FileNotAvailableException&)
+    {
+    }
+    try
+    {
+        session->openServerLog("LogServer", "unknown.txt", -1);
+        test(false);
+    }
+    catch(const FileNotAvailableException&)
+    {
+    }
+
+    Ice::ObjectPrx obj = TestIntfPrx::checkedCast(comm->stringToProxy("LogServer"));
+    try
+    {
+        session->openServerStdErr("LogServer", -1)->destroy();
+        session->openServerStdOut("LogServer", -1)->destroy();
+    }
+    catch(const FileNotAvailableException& ex)
+    {
+        cerr << ex.reason << endl;
+        test(false);
+    }
+
+    FileIteratorPrx it;
+    Ice::StringSeq lines;
+    try
+    {
+        //
+        // Test with empty file.
+        // 
+        ofstream os((testDir + "/log1.txt").c_str());
+        os.close();
+
+        it = session->openServerLog("LogServer", testDir + "/log1.txt", -1);
+        test(it->read(1024, lines) && lines.empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log1.txt", 0);
+        test(it->read(1024, lines) && lines.empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log1.txt", 100);
+        test(it->read(1024, lines) && lines.empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+    }
+    catch(const FileNotAvailableException& ex)
+    {
+        cerr << ex.reason << endl;
+        test(false);
+    }
+
+    try
+    {
+        //
+        // Test with log file with one line with no EOL on last line.
+        // 
+        ofstream os((testDir + "/log2.txt").c_str());
+        os << "one line file with no EOL on last line";
+        os.close();
+
+        it = session->openServerLog("LogServer", testDir + "/log2.txt", -1);
+        test(it->read(1024, lines) && lines.size() == 1);
+        test(lines[0] == "one line file with no EOL on last line");
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log2.txt", 0);
+        test(it->read(1024, lines) && lines.empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+        
+        it = session->openServerLog("LogServer", testDir + "/log2.txt", 1);
+        test(it->read(1024, lines) && lines.size() == 1);
+        test(lines[0] == "one line file with no EOL on last line");
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log2.txt", 100);
+        test(it->read(1024, lines) && lines.size() == 1);
+        test(lines[0] == "one line file with no EOL on last line");
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+    }
+    catch(const FileNotAvailableException& ex)
+    {
+        cerr << ex.reason << endl;
+        test(false);
+    }
+
+    try
+    {
+        //
+        // Test with log file with one line with EOL on last line.
+        // 
+        ofstream os((testDir + "/log3.txt").c_str());
+        os << "one line file with EOL on last line" << endl;
+        os.close();
+
+        it = session->openServerLog("LogServer", testDir + "/log3.txt", -1);
+        test(it->read(1024, lines) && lines.size() == 2);
+        test(lines[0] == "one line file with EOL on last line");
+        test(lines[1].empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log3.txt", 0);
+        test(it->read(1024, lines) && lines.empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+        
+        it = session->openServerLog("LogServer", testDir + "/log3.txt", 1);
+        test(it->read(1024, lines) && lines.size() == 2);
+        test(lines[0] == "one line file with EOL on last line");
+        test(lines[1].empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log3.txt", 100);
+        test(it->read(1024, lines) && lines.size() == 2);
+        test(lines[0] == "one line file with EOL on last line");
+        test(lines[1].empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log3.txt", 2);
+        test(it->read(1024, lines) && lines.size() == 2);
+        test(lines[0] == "one line file with EOL on last line");
+        test(lines[1].empty());
+        it->destroy();
+    }
+    catch(const FileNotAvailableException& ex)
+    {
+        cerr << ex.reason << endl;
+        test(false);
+    }
+
+    try
+    {
+        //
+        // Test with log file with multiple lines
+        // 
+        ofstream os((testDir + "/log4.txt").c_str());
+        os << "line 1" << endl;
+        os << "line 2" << endl;
+        os << "line 3" << endl;
+        os.close();
+
+        it = session->openServerLog("LogServer", testDir + "/log4.txt", -1);
+        test(it->read(1024, lines) && lines.size() == 4);
+        test(lines[0] == "line 1");
+        test(lines[1] == "line 2");
+        test(lines[2] == "line 3");
+        test(lines[3].empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log4.txt", 0);
+        test(it->read(1024, lines) && lines.empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+        
+        it = session->openServerLog("LogServer", testDir + "/log4.txt", 1);
+        test(it->read(1024, lines) && lines.size() == 2);
+        test(lines[0] == "line 3");
+        test(lines[1].empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log4.txt", 2);
+        test(it->read(1024, lines) && lines.size() == 3);
+        test(lines[0] == "line 2");
+        test(lines[1] == "line 3");
+        test(lines[2].empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log4.txt", 100);
+        test(it->read(1024, lines) && lines.size() == 4);
+        test(lines[0] == "line 1");
+        test(lines[1] == "line 2");
+        test(lines[2] == "line 3");
+        test(lines[3].empty());
+        it->destroy();
+    }
+    catch(const FileNotAvailableException& ex)
+    {
+        cerr << ex.reason << endl;
+        test(false);
+    }
+
+    try
+    {
+        ofstream os((testDir + "/log1.txt").c_str(), ios_base::out | ios_base::trunc);
+        os << flush;
+
+        it = session->openServerLog("LogServer", testDir + "/log1.txt", -1);
+        test(it->read(1024, lines) && lines.empty());
+
+        os << "started a line" << flush;
+        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "started a line");
+        os << ", continuing the line" << flush;
+        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == ", continuing the line");
+        os << ", finished" << endl;
+        test(it->read(1024, lines) && lines.size() == 2);
+        test(lines[0] == ", finished");
+        test(lines[1].empty());
+
+        os << "started a line" << flush;
+        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "started a line");
+        os << endl << flush;
+        test(it->read(1024, lines) && lines.size() == 2 && lines[0].empty() && lines[1].empty());
+        os << "and another line" << endl;
+        test(it->read(1024, lines) && lines.size() == 2 && !lines[0].empty() && lines[1].empty());
+
+        os << "starting a long line now, " << flush;
+        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "starting a long line now, ");
+        writeLongLine(os);
+        os.flush();
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
+        test(it->read(1024, lines) && lines.size() == 1 && isLongLineEnd(lines[0]));
+        test(it->read(1024, lines) && lines.empty());
+        os << endl;
+        test(it->read(1024, lines) && lines.size() == 2 && lines[0].empty() && lines[1].empty());
+        
+        os << "starting multiple long line now, " << flush;
+        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "starting multiple long line now, ");
+        writeLongLine(os);
+        os << endl;
+        writeLongLine(os);
+        os << endl;
+        writeLongLine(os);
+        os.flush();
+        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineStart(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineContent(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
+        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineContent(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
+        test(it->read(1024, lines) && lines.size() == 1 && isLongLineEnd(lines[0]));
+        os << endl;
+        test(it->read(1024, lines) && lines.size() == 2 && lines[0].empty() && lines[1].empty());
+
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log1.txt", 0);
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log1.txt", 1);
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
+        test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
+        test(it->read(1024, lines) && lines.empty());
+        it->destroy();
+        
+        it = session->openServerLog("LogServer", testDir + "/log1.txt", 2);
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
+        test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
+        it->destroy();
+    }
+    catch(const FileNotAvailableException& ex)
+    {
+        cerr << ex.reason << endl;
+        test(false);
+    }
+
+    cout << "ok" << endl;
+}
+
+
 void
 allTests(const Ice::CommunicatorPtr& comm)
 {
@@ -430,295 +726,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
     cout << "ok" << endl;
 
-    cout << "testing stderr/stdout/log files... " << flush;
-    string testDir = comm->getProperties()->getProperty("TestDir");
-    assert(!testDir.empty());
-    try
-    {
-        session->openServerStdErr("LogServer", -1);
-        test(false);
-    }
-    catch(const FileNotAvailableException&)
-    {
-    }
-    try
-    {
-        session->openServerStdOut("LogServer", -1);
-        test(false);
-    }
-    catch(const FileNotAvailableException&)
-    {
-    }
-    try
-    {
-        session->openServerLog("LogServer", "unknown.txt", -1);
-        test(false);
-    }
-    catch(const FileNotAvailableException&)
-    {
-    }
-
-    obj = TestIntfPrx::checkedCast(comm->stringToProxy("LogServer"));
-    try
-    {
-        session->openServerStdErr("LogServer", -1)->destroy();
-        session->openServerStdOut("LogServer", -1)->destroy();
-    }
-    catch(const FileNotAvailableException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-
-    FileIteratorPrx it;
-    Ice::StringSeq lines;
-    try
-    {
-        //
-        // Test with empty file.
-        // 
-        ofstream os((testDir + "/log1.txt").c_str());
-        os.close();
-
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", -1);
-        test(it->read(1024, lines) && lines.empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", 0);
-        test(it->read(1024, lines) && lines.empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", 100);
-        test(it->read(1024, lines) && lines.empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-    }
-    catch(const FileNotAvailableException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-
-    try
-    {
-        //
-        // Test with log file with one line with no EOL on last line.
-        // 
-        ofstream os((testDir + "/log2.txt").c_str());
-        os << "one line file with no EOL on last line";
-        os.close();
-
-        it = session->openServerLog("LogServer", testDir + "/log2.txt", -1);
-        test(it->read(1024, lines) && lines.size() == 1);
-        test(lines[0] == "one line file with no EOL on last line");
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log2.txt", 0);
-        test(it->read(1024, lines) && lines.empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-        
-        it = session->openServerLog("LogServer", testDir + "/log2.txt", 1);
-        test(it->read(1024, lines) && lines.size() == 1);
-        test(lines[0] == "one line file with no EOL on last line");
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log2.txt", 100);
-        test(it->read(1024, lines) && lines.size() == 1);
-        test(lines[0] == "one line file with no EOL on last line");
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-    }
-    catch(const FileNotAvailableException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-
-    try
-    {
-        //
-        // Test with log file with one line with EOL on last line.
-        // 
-        ofstream os((testDir + "/log3.txt").c_str());
-        os << "one line file with EOL on last line" << endl;
-        os.close();
-
-        it = session->openServerLog("LogServer", testDir + "/log3.txt", -1);
-        test(it->read(1024, lines) && lines.size() == 2);
-        test(lines[0] == "one line file with EOL on last line");
-        test(lines[1].empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log3.txt", 0);
-        test(it->read(1024, lines) && lines.empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-        
-        it = session->openServerLog("LogServer", testDir + "/log3.txt", 1);
-        test(it->read(1024, lines) && lines.size() == 2);
-        test(lines[0] == "one line file with EOL on last line");
-        test(lines[1].empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log3.txt", 100);
-        test(it->read(1024, lines) && lines.size() == 2);
-        test(lines[0] == "one line file with EOL on last line");
-        test(lines[1].empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log3.txt", 2);
-        test(it->read(1024, lines) && lines.size() == 2);
-        test(lines[0] == "one line file with EOL on last line");
-        test(lines[1].empty());
-        it->destroy();
-    }
-    catch(const FileNotAvailableException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-
-    try
-    {
-        //
-        // Test with log file with multiple lines
-        // 
-        ofstream os((testDir + "/log4.txt").c_str());
-        os << "line 1" << endl;
-        os << "line 2" << endl;
-        os << "line 3" << endl;
-        os.close();
-
-        it = session->openServerLog("LogServer", testDir + "/log4.txt", -1);
-        test(it->read(1024, lines) && lines.size() == 4);
-        test(lines[0] == "line 1");
-        test(lines[1] == "line 2");
-        test(lines[2] == "line 3");
-        test(lines[3].empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log4.txt", 0);
-        test(it->read(1024, lines) && lines.empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-        
-        it = session->openServerLog("LogServer", testDir + "/log4.txt", 1);
-        test(it->read(1024, lines) && lines.size() == 2);
-        test(lines[0] == "line 3");
-        test(lines[1].empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log4.txt", 2);
-        test(it->read(1024, lines) && lines.size() == 3);
-        test(lines[0] == "line 2");
-        test(lines[1] == "line 3");
-        test(lines[2].empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log4.txt", 100);
-        test(it->read(1024, lines) && lines.size() == 4);
-        test(lines[0] == "line 1");
-        test(lines[1] == "line 2");
-        test(lines[2] == "line 3");
-        test(lines[3].empty());
-        it->destroy();
-    }
-    catch(const FileNotAvailableException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-
-    try
-    {
-        ofstream os((testDir + "/log1.txt").c_str(), ios_base::out | ios_base::trunc);
-        os << flush;
-
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", -1);
-        test(it->read(1024, lines) && lines.empty());
-
-        os << "started a line" << flush;
-        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "started a line");
-        os << ", continuing the line" << flush;
-        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == ", continuing the line");
-        os << ", finished" << endl;
-        test(it->read(1024, lines) && lines.size() == 2);
-        test(lines[0] == ", finished");
-        test(lines[1].empty());
-
-        os << "started a line" << flush;
-        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "started a line");
-        os << endl << flush;
-        test(it->read(1024, lines) && lines.size() == 2 && lines[0].empty() && lines[1].empty());
-        os << "and another line" << endl;
-        test(it->read(1024, lines) && lines.size() == 2 && !lines[0].empty() && lines[1].empty());
-
-        os << "starting a long line now, " << flush;
-        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "starting a long line now, ");
-        writeLongLine(os);
-        os.flush();
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
-        test(it->read(1024, lines) && lines.size() == 1 && isLongLineEnd(lines[0]));
-        test(it->read(1024, lines) && lines.empty());
-        os << endl;
-        test(it->read(1024, lines) && lines.size() == 2 && lines[0].empty() && lines[1].empty());
-        
-        os << "starting multiple long line now, " << flush;
-        test(it->read(1024, lines) && lines.size() == 1 && lines[0] == "starting multiple long line now, ");
-        writeLongLine(os);
-        os << endl;
-        writeLongLine(os);
-        os << endl;
-        writeLongLine(os);
-        os.flush();
-        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineStart(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineContent(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
-        test(!it->read(1024, lines) && lines.size() == 1 &&  isLongLineContent(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
-        test(it->read(1024, lines) && lines.size() == 1 && isLongLineEnd(lines[0]));
-        os << endl;
-        test(it->read(1024, lines) && lines.size() == 2 && lines[0].empty() && lines[1].empty());
-
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", 0);
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", 1);
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
-        test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-        
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", 2);
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
-        test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
-        it->destroy();
-    }
-    catch(const FileNotAvailableException& ex)
-    {
-        cerr << ex.reason << endl;
-        test(false);
-    }
-
-    cout << "ok" << endl;
+    logTests(comm, session);
 
     keepAlive->destroy();
     keepAlive->getThreadControl().join();

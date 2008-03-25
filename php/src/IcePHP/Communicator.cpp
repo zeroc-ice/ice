@@ -294,7 +294,7 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
 
     Ice::ObjectPrx proxy;
     Slice::ClassDefPtr def;
-    if(!fetchProxy(zprx, proxy, def TSRMLS_CC))
+    if(!zprx || !fetchProxy(zprx, proxy, def TSRMLS_CC))
     {
         RETURN_EMPTY_STRING();
     }
