@@ -12,7 +12,6 @@
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
-#include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/FacetMap.ice>
