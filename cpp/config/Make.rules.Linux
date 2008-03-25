@@ -156,7 +156,7 @@ endif
 
 NPTL_LIB		= /usr/$(libsubdir)/nptl
 
-BASELIBS		= -lIceUtil $(STLPORT_LIBS) -L$(NPTL_LIB) -lpthread -lrt
+BASELIBS		= -lIceUtil -L$(NPTL_LIB) -lpthread -lrt
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = 
