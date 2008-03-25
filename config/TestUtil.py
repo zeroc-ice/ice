@@ -25,6 +25,15 @@ x64 = False                     # Binary distribution is 64-bit
 javaCmd = "java"                # Default java loader
 
 #
+# The folowing tests are not supported with IPv6
+#
+ipv6Skip = [
+        "IceBox/configuration",
+        "IceStorm/repstress",
+        "Glacier2/staticFiltering"
+        ]
+
+#
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
 #
 phpCmd = "php"
@@ -862,6 +871,20 @@ def runTests(configs, tests, num = 0):
             if len(configs) > 1:
                 print "[ " + str(configCount) + " of " + str(len(configs)) + " ]",
             print
+            
+            #
+            # Skip tests not supported with IPv6 if necessary
+            #
+            if args.find("--ipv6"):
+                for j in ipv6Skip:
+                    match = False
+                    if i.endswith(j):
+                        match = True
+                        break
+                if match:    
+                    print "*** test not supported with IPv6"
+                    continue
+
             print "*** test started:", time.strftime("%x %X")
             sys.stdout.flush()
 
