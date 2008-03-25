@@ -336,6 +336,7 @@ public class SliceTask extends org.apache.tools.ant.Task
     addLdLibraryPath(ExecTask task)
     {
         String iceInstall = getIceHome();
+        boolean srcdist = getProject().getProperties().containsKey("ice.src.dist");
         if(iceInstall != null)
         {
             String ldLibPathEnv = null;
@@ -356,7 +357,14 @@ public class SliceTask extends org.apache.tools.ant.Task
             {
                 ldLibPathEnv = "SHLIB_PATH";
                 ldLib64PathEnv = "LD_LIBRARY_PATH";
-                lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "pa20_64").toString();
+                if(srcdist)
+                {
+                    lib64Path = libPath;
+                }
+                else
+                {
+                    lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "pa20_64").toString();
+                }
             }
             else if(os.startsWith("Windows"))
             {
@@ -371,11 +379,15 @@ public class SliceTask extends org.apache.tools.ant.Task
                 ldLibPathEnv = "LD_LIBRARY_PATH";
                 ldLib64PathEnv = "LD_LIBRARY_PATH_64";
                 String arch = System.getProperty("os.arch");
-                if(arch.equals("x86"))
+                if(srcdist)
+                {
+                    lib64Path = libPath;
+                }
+                else if(arch.equals("x86"))
                 {
                     lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "amd64").toString();
                 }
-                else
+                else // Sparc
                 {
                     lib64Path = new File(iceInstall + File.separator + "lib" + File.separator + "sparcv9").toString();
                 }
@@ -384,7 +396,14 @@ public class SliceTask extends org.apache.tools.ant.Task
             {
                 ldLibPathEnv = "LD_LIBRARY_PATH";
                 ldLib64PathEnv = "LD_LIBRARY_PATH";
-                lib64Path = new File(iceInstall + File.separator + "lib64").toString();
+                if(srcdist)
+                {
+                    lib64Path = libPath;
+                }
+                else
+                {
+                    lib64Path = new File(iceInstall + File.separator + "lib64").toString();
+                }
             }
 
             if(ldLibPathEnv != null)
