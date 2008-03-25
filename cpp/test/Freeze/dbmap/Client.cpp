@@ -59,8 +59,9 @@ FindFirstOfTest(const pair<const Byte, const Int>& p, Byte q)
 void
 populateDB(const Freeze::ConnectionPtr& connection, ByteIntMap& m)
 {
-    alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
-    size_t length = alphabet.size();
+    vector<Byte> localAlphabet;
+    localAlphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
+    size_t length = localAlphabet.size();
     
     for(;;)
     {
@@ -69,7 +70,7 @@ populateDB(const Freeze::ConnectionPtr& connection, ByteIntMap& m)
             TransactionHolder txHolder(connection);
             for(size_t j = 0; j < length; ++j)
             {
-                m.put(ByteIntMap::value_type(alphabet[j], static_cast<Int>(j)));
+	        m.put(ByteIntMap::value_type(localAlphabet[j], static_cast<Int>(j)));
             }
             txHolder.commit();
             break;
@@ -223,6 +224,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     // Populate the database with the alphabet
     //
     populateDB(connection, m1);
+    alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
 
     //
     // Test ==, swap and communicator()
@@ -455,6 +457,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     // Re-populate
     //
     populateDB(connection, m);
+    alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
 
     cout << "testing algorithms... " << flush;
 
