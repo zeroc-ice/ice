@@ -11,12 +11,12 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= config src include test demo doc
+SUBDIRS		= config src include test demo
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_docdir)
+INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir)
 
 install:: install-common
-ifeq ("$(create_runpath_symlink)",yes)
+ifeq ($(create_runpath_symlink),yes)
 	@if test -h $(embedded_runpath_prefix) ; \
 	then \
 	     if `\rm -f $(embedded_runpath_prefix) 2>/dev/null`; \

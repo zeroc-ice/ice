@@ -11,9 +11,9 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-SUBDIRS		= config src include test demo doc
+SUBDIRS		= config src include test demo
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_docdir)
+INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir)
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \

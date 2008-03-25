@@ -147,6 +147,8 @@ install-common::
 	@echo "Copying slice files..." && \
 	cmd /c "xcopy /s /y $(top_srcdir)\..\slice $(install_slicedir)" || exit 1
 
-	@copy ..\ICE_LICENSE $(prefix)
-	@copy ..\LICENSE $(prefix)
+	@if exist $(top_srcdir)\..\ICE_LICENSE 
+	    @copy ..\ICE_LICENSE $(prefix)
+	@if exist $(top_srcdir)\..\LICENSE 
+	    @copy ..\LICENSE $(prefix)
 

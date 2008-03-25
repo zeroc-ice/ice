@@ -38,8 +38,13 @@ reference/index.html: $(SLICEFILES)
 clean::
 	-rm -rf reference/*
 
-install:: reference/index.html
-	@if test ! -d $(install_docdir)/reference ; \
+install:: install-common reference/index.html
+	@if test ! -d $(install_docdir) ; \
+	then \
+	    echo "Creating $(install_docdir)..." ; \
+	    $(call mkdir,$(install_docdir)) ; \
+	fi ; \
+	if test ! -d $(install_docdir)/reference ; \
 	then \
 	    echo "Creating $(install_docdir)/reference..." ; \
 	    $(call mkdir,$(install_docdir)/reference) ; \

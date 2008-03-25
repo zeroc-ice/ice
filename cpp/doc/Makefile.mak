@@ -34,7 +34,7 @@ reference\index.html: $(SLICEFILES)
 clean::
 	-rd /s /q reference
 
-install:: reference\index.html 
+install:: install-common reference\index.html 
 	@if not exist $(install_docdir)\reference \
 	    @echo "Creating $(install_docdir)\reference..." && \
 	    mkdir $(install_docdir)\reference
