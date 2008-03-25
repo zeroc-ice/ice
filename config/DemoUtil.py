@@ -150,6 +150,9 @@ def isAIX():
 def isDarwin():
    return sys.platform == "darwin"
 
+def isLinux():
+    return sys.platform.startswith("linux")
+
 if sys.platform == "win32":
     print "allDemos.py only supports cygwin python under Windows (use /usr/bin/python allDemos.py)"
     sys.exit(1)
