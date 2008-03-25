@@ -69,7 +69,7 @@ BuildRequires: ruby-devel
 %endif
 
 %if %{mono}
-BuildRequires: mono-core >= 1.2.6
+BuildRequires: mono-core >= 1.2.6, mono-devel >= 1.2.6
 %endif
 
 %if "%{dist}" == ".rhel4"
