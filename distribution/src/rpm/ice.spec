@@ -110,7 +110,7 @@ solution, and much more.
 %package dotnet
 Summary: The Ice runtime for .NET (mono)
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, mono-core >= 1.2.6
+Requires: ice = %{version}-%{release}, mono-core >= 1.2.2
 %description dotnet
 The Ice runtime for .NET (mono).
 %endif
