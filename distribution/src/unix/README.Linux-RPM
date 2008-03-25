@@ -21,18 +21,23 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is an RPM release of the Ice @ver@ run time for
-Linux and includes executables for the Ice services, Slice files, the 
-C++ run-time libraries and sample /etc/init.d scripts.
+Ice @ver@ for Linux is distributed in several RPM packages:
 
-Additional Ice components are provided in separate RPM packages:
+- The base Ice RPM contains the slice files and associated documentation.
 
-- Run time libraries for Java, Python, PHP, Ruby and .NET (Mono).
-  These libraries enable you to execute Ice applications.
+- The ice-libs RPM contains the C++ run-time libraries.
 
-- Development kits for C++, Java, Python, Ruby, and .NET (Mono). A
-  development kit is required for building Ice applications using a
-  supported language mapping.
+- The ice-utils RPM contains utilities necessary to administer an Ice
+  installation.
+
+- The ice-servers RPM contains all Ice servers, and sample init.d
+  scripts.
+
+- For each supported Ice language, C++, Java, Python, Ruby and .NET
+  (Mono), we provide an associated run-time library RPM which enables
+  you to execute Ice applications developed in that language. In
+  addition, a development kit for each language is contained in a
+  separate RPM.
 
 These RPMs are available for download at the ZeroC web site at
 
@@ -152,9 +157,6 @@ mono. For example,
 
 $ mono server.exe
 
-Note: Ice for .NET RPMs are currently available only on SuSE
-Enterprise Linux Server.
-
 
 Ruby
 ----
@@ -162,9 +164,6 @@ Ruby
 The Ice for Ruby run-time RPM (ice-ruby) installs the Ice extension
 and its associated Ruby files into the "site_ruby" directory. No
 additional configuration is necessary to use Ice in your Ruby programs.
-
-Note: Ice for Ruby RPMs are currently available only on Red Hat
-Enterprise Linux.
 
 
 PHP
@@ -292,5 +291,5 @@ Ice patch releases are binary compatible. For example, Ice version
 built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
 having to recompile or relink this application.
 
-Please refer to the RELEASE_NOTES.txt file included in this
-distribution for detailed upgrade instructions.
+Please refer to the RELEASE_NOTES file included in this distribution
+for detailed upgrade instructions.
