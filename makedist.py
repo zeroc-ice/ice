@@ -555,13 +555,14 @@ os.rename(os.path.join("cs", "config", "Make.demo.rules.cs"), os.path.join(demoD
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):
 
-    if d == "vb":
-        continue
-
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "allDemos.py")):
         md = os.path.join(demoscriptDistDir, getMappingDir("demo", d))
         os.rename(os.path.join(demoscriptDistDir, d, "demo"), md)
         os.rename(os.path.join(d, "allDemos.py"), os.path.join(md, "allDemos.py"))
+        os.rmdir(os.path.join(demoscriptDistDir, d))
+
+    if d == "vb":
+        continue
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copytree(os.path.join(d, "demo"), os.path.join(demoDistDir, getMappingDir("demo", d)))
