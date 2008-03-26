@@ -26,12 +26,13 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 using namespace IceStorm;
+using namespace IceStormInternal;
 using namespace IceStormElection;
 
-namespace IceStorm
+namespace IceStormInternal
 {
 
-class ServiceI : public ::IceStorm::Service
+class ServiceI : public IceStormInternal::Service
 {
 public:
 
@@ -77,7 +78,7 @@ createIceStorm(CommunicatorPtr communicator)
 }
 
 ServicePtr
-IceStorm::Service::create(const CommunicatorPtr& communicator,
+Service::create(const CommunicatorPtr& communicator,
                           const ObjectAdapterPtr& topicAdapter,
                           const ObjectAdapterPtr& publishAdapter,
                           const string& name,
@@ -90,16 +91,16 @@ IceStorm::Service::create(const CommunicatorPtr& communicator,
     return svc;
 }
 
-IceStorm::ServiceI::ServiceI()
+ServiceI::ServiceI()
 {
 }
 
-IceStorm::ServiceI::~ServiceI()
+ServiceI::~ServiceI()
 {
 }
 
 void
-IceStorm::ServiceI::start(
+ServiceI::start(
     const string& name,
     const CommunicatorPtr& communicator,
     const StringSeq& args)
@@ -338,7 +339,7 @@ IceStorm::ServiceI::start(
 }
 
 void
-IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
+ServiceI::start(const CommunicatorPtr& communicator,
                           const ObjectAdapterPtr& topicAdapter,
                           const ObjectAdapterPtr& publishAdapter,
                           const string& name,
@@ -369,13 +370,13 @@ IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
 }
 
 TopicManagerPrx
-IceStorm::ServiceI::getTopicManager() const
+ServiceI::getTopicManager() const
 {
     return _managerProxy;
 }
 
 void
-IceStorm::ServiceI::stop()
+ServiceI::stop()
 {
     // Shutdown the instance. This deactivates all OAs.
     _instance->shutdown();
@@ -399,7 +400,7 @@ IceStorm::ServiceI::stop()
 }
 
 void
-IceStorm::ServiceI::validateProperties(const string& name, const PropertiesPtr& properties, const LoggerPtr& logger)
+ServiceI::validateProperties(const string& name, const PropertiesPtr& properties, const LoggerPtr& logger)
 {
     static const string suffixes[] =
     {

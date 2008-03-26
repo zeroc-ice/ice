@@ -15,6 +15,12 @@ IceGrid.Registry.Client.Endpoints=default -p 4061
 IceGrid.Registry.Server.Endpoints=default
 IceGrid.Registry.Internal.Endpoints=default
 IceGrid.Registry.AdminCallbackRouter.Endpoints=default
+
+#
+# Enable the admin session manager for use with Glacier2.
+#
+IceGrid.Registry.AdminSessionManager.Endpoints=default
+
 IceGrid.Registry.Data=db/registry
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier

@@ -355,6 +355,8 @@ noted.
 - Added support for string concatenation in FreezeScript using the
   '+' operator.
 
+- dumpdb output now goes to stdout.
+
 
 C++ Changes
 ===========

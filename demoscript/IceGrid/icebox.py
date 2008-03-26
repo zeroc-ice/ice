@@ -129,47 +129,46 @@ def run(clientStr, desc = 'application'):
 
     print "ok"
 
-    if demoscript.Util.defaultLanguage == "C++":
-        print "testing administration with Glacier2...", 
-        sys.stdout.flush()
+    print "testing administration with Glacier2...", 
+    sys.stdout.flush()
 
-        admin.sendline("server start DemoGlacier2")
-        admin.expect('>>>')
-        admin.sendline('exit')
+    admin.sendline("server start DemoGlacier2")
+    admin.expect('>>>')
+    admin.sendline('exit')
 
-        admin = demoscript.Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"', language="C++")
-        admin.expect('user id:')
-        admin.sendline('foo')
-        admin.expect('password:')
-        admin.sendline('foo')
-        admin.expect('>>>')
+    admin = demoscript.Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"', language="C++")
+    admin.expect('user id:')
+    admin.sendline('foo')
+    admin.expect('password:')
+    admin.sendline('foo')
+    admin.expect('>>>')
 
-        admin.sendline("service start IceBox Homer")
-        admin.expect('>>>')
-        admin.sendline("service start IceBox Marge")
-        admin.expect('>>>')
+    admin.sendline("service start IceBox Homer")
+    admin.expect('>>>')
+    admin.sendline("service start IceBox Marge")
+    admin.expect('>>>')
 
-        client = demoscript.Util.spawn(clientStr)
-        node.expect("Hello from Lisa")
-        client.waitTestSuccess(timeout=1)
-    
-        client = demoscript.Util.spawn(clientStr)
-        node.expect("Hello from Maggie")
-        client.waitTestSuccess(timeout=1)
+    client = demoscript.Util.spawn(clientStr)
+    node.expect("Hello from Lisa")
+    client.waitTestSuccess(timeout=1)
 
-        client = demoscript.Util.spawn(clientStr)
-        node.expect("Hello from Homer")
-        client.waitTestSuccess(timeout=1)
+    client = demoscript.Util.spawn(clientStr)
+    node.expect("Hello from Maggie")
+    client.waitTestSuccess(timeout=1)
 
-        client = demoscript.Util.spawn(clientStr)
-        node.expect("Hello from Marge")
-        client.waitTestSuccess(timeout=1)
-    
-        client = demoscript.Util.spawn(clientStr)
-        node.expect("Hello from Bart")
-        client.waitTestSuccess(timeout=1)
+    client = demoscript.Util.spawn(clientStr)
+    node.expect("Hello from Homer")
+    client.waitTestSuccess(timeout=1)
 
-        print "ok"
+    client = demoscript.Util.spawn(clientStr)
+    node.expect("Hello from Marge")
+    client.waitTestSuccess(timeout=1)
+
+    client = demoscript.Util.spawn(clientStr)
+    node.expect("Hello from Bart")
+    client.waitTestSuccess(timeout=1)
+
+    print "ok"
 
     admin.sendline('registry shutdown Master')
     admin.sendline('exit')
