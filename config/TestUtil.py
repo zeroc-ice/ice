@@ -875,9 +875,11 @@ def runTests(configs, tests, num = 0):
             #
             # Skip tests not supported with IPv6 if necessary
             #
-            if args.find("--ipv6"):
+
+            print args
+            if args.find("ipv6") != -1:
+                match = False
                 for j in ipv6Skip:
-                    match = False
                     if i.endswith(j):
                         match = True
                         break
