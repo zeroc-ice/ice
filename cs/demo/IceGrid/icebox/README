@@ -20,6 +20,12 @@ Note for Mono:
 This demo shows a very simple IceGrid deployment, with a single
 IceBox server hosting a number of IceBox services.
 
+Note for 64 bit Windows:
+
+In order to run this demo under 64 bit Windows you must add
+<ice-install-dir>\bin to your PATH, since that is where iceboxnet.exe
+is located.
+
 
 Setup
 -----
