@@ -41,9 +41,8 @@ namespace IceInternal
             //
             _bzlibInstalled = false;
 
-
             //
-            // We are setting the library name here because, under Mono, we don't know the exact library  name.
+            // We are setting the library name here because, under Mono, we don't know the exact library name.
             // In addition, the FileName member of the BadImageFormatException is the empty string, even though
             // it should provide the name of the library.
             //
@@ -61,8 +60,12 @@ namespace IceInternal
             {
                 Console.Error.WriteLine("warning: found " + lib + " but entry point BZ2_bzlibVersion is missing.");
             }
-            catch(BadImageFormatException)
+            catch(BadImageFormatException ex)
             {
+                if(ex.FileName != null && ex.FileName.Length != 0)
+                {
+                    lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
+                }
                 Console.Error.Write("warning: " + lib + " could not be loaded (likely due to 32/64-bit mismatch).");
                 if(IntPtr.Size == 8)
                 {
