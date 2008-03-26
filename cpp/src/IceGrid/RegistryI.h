@@ -126,7 +126,7 @@ private:
     Glacier2::PermissionsVerifierPrx _adminVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslAdminVerifier;
 
-    IceStorm::ServicePtr _iceStorm;
+    IceStormInternal::ServicePtr _iceStorm;
 };
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 
