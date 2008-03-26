@@ -169,11 +169,11 @@ public class Client extends Ice.Application
 
                     if(delay == 0)
                     {
-                        System.out.println("delay is now deactivated");
+                        System.out.println("server delay is now deactivated");
                     }
                     else
                     {
-                        System.out.println("delay is now set to 2500ms");
+                        System.out.println("server delay is now set to 2500ms");
                     }
                 }
                 else if(line.equals("S"))

@@ -151,7 +151,7 @@ HelloClient::run(int argc, char* argv[])
                 
                 if(delay == 0)
                 {
-                    cout << "server delay is now disabled" << endl;
+                    cout << "server delay is now deactivated" << endl;
                 }
                 else
                 {
