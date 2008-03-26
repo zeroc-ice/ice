@@ -547,6 +547,11 @@ copyMatchingFiles(os.path.join("cpp", "config"), os.path.join(demoDistDir, "conf
 copyMatchingFiles(os.path.join("java", "config"), os.path.join(demoDistDir, "config"), configFiles)
 copyMatchingFiles(os.path.join("cs", "config"), os.path.join(demoDistDir, "config"), configFiles)
 
+os.rename(os.path.join("cpp", "config", "Make.demo.rules"), os.path.join(demoDistDir, "config", "Make.rules"))
+os.rename(os.path.join("java", "config", "build.demo.properties"),
+          os.path.join(demoDistDir, "config", "build.properties"))
+os.rename(os.path.join("cs", "config", "Make.demo.rules.cs"), os.path.join(demoDistDir, "config", "Make.rules.cs"))
+
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):
 

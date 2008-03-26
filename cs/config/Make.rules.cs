@@ -90,11 +90,6 @@ ifdef no_gac
 NOGAC			?= $(no_gac)
 endif
 
-INSTALL			= cp -fp
-INSTALL_PROGRAM		= ${INSTALL}
-INSTALL_LIBRARY		= ${INSTALL}
-INSTALL_DATA		= ${INSTALL}
-
 GACUTIL			= gacutil
 
 ifeq ($(NOGAC),)
