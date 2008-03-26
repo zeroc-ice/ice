@@ -33,7 +33,9 @@
 #endif
 
 #ifndef WINVER
-#define WINVER 0x0400
+#  if defined(_MSC_VER) && _MSC_VER > 1300
+#    define WINVER 0x0400
+#  endif
 #endif
 
 #ifndef _WIN32_IE                       // Allow use of features specific to IE 4.0 or later.
