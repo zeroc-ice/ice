@@ -58,14 +58,7 @@ public:
     virtual const Current& getCurrent() = 0;
 };
 
-//
-// No virtual inheritance from IceInternal::GCShared is required. This
-// used to be virtual inheritance from IceUtil::Shared, because we
-// could derive multiple times from IceUtil::Shared, such as deriving
-// a servant class from both Ice::Object and IceUtil::Thread. However,
-// we never derive from IceInternal::GCShared more than once.
-//
-class ICE_API Object : public IceInternal::GCShared
+class ICE_API Object : public virtual IceInternal::GCShared
 {
 public:
 

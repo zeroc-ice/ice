@@ -48,7 +48,9 @@ public:
 
         if(this->_ptr)
         {
-            upCast(this->_ptr)->__incRef();
+            IceUtil::Shared* tmp = upCast(this->_ptr);
+            tmp->__incRef();
+            //upCast(this->_ptr)->__incRef();
         }
     }
     
