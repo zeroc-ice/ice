@@ -128,9 +128,9 @@ ifeq ($(CXX),CC)
     ifeq ($(MACHINE_TYPE),sun4u)
         CCLIBDIR                = $(shell whatdir CC)/../../lib
     	ifeq ($(LP64),yes)
-		PLATFORMLIBDIRS    := -L$(CCLIBDIR)
-        else
 		PLATFORMLIBDIRS    := -L$(CCLIBDIR)/v9
+        else
+		PLATFORMLIBDIRS    := -L$(CCLIBDIR)
         endif
     endif
 endif
