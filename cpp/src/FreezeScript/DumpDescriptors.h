@@ -156,7 +156,7 @@ class EchoDescriptor : public Descriptor
 public:
 
     EchoDescriptor(const DescriptorPtr&, int, const DataFactoryPtr&, const ErrorReporterPtr&,
-                   const IceXML::Attributes&);
+                   const IceXML::Attributes&, std::ostream&);
 
     virtual void addChild(const DescriptorPtr&);
     virtual void validate();
@@ -164,6 +164,7 @@ public:
 
 private:
 
+    std::ostream& _os;
     std::string _message;
     NodePtr _value;
     std::string _valueStr;

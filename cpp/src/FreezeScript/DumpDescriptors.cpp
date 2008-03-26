@@ -862,8 +862,9 @@ FreezeScript::FailDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo*)
 //
 FreezeScript::EchoDescriptor::EchoDescriptor(const DescriptorPtr& parent, int line, const DataFactoryPtr& factory,
                                              const ErrorReporterPtr& errorReporter,
-                                             const IceXML::Attributes& attributes) :
-    Descriptor(parent, line, factory, errorReporter)
+                                             const IceXML::Attributes& attributes,
+                                             ostream& os) :
+    Descriptor(parent, line, factory, errorReporter), _os(os)
 {
     IceXML::Attributes::const_iterator p;
 
@@ -902,11 +903,9 @@ FreezeScript::EchoDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo*)
 {
     DescriptorErrorContext ctx(_errorReporter, "echo", _line);
 
-    ostream& out = _errorReporter->stream();
-
     if(!_message.empty())
     {
-        out << _message;
+        _os << _message;
     }
 
     if(_value)
@@ -920,10 +919,10 @@ FreezeScript::EchoDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo*)
         {
             _errorReporter->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
         }
-        printData(v, out);
+        printData(v, _os);
     }
 
-    out << endl;
+    _os << endl;
 }
 
 //
