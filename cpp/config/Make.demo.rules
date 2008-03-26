@@ -57,6 +57,10 @@ includedir		= $(ice_dir)/include
 #
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
+ifneq ($(embedded_runpath_prefix),)
+    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+endif
+
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
