@@ -56,25 +56,11 @@ def run(clientStr, desc = 'application'):
     print "testing client...", 
     sys.stdout.flush()
 
-    client = demoscript.Util.spawn(clientStr)
-    node.expect("Hello from Homer")
-    client.waitTestSuccess(timeout=1)
+    for s in [ "Homer", "Marge", "Bart", "Lisa", "Maggie" ]:
+        client = demoscript.Util.spawn(clientStr)
+        node.expect("Hello from %s" % s)
+        client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
-    node.expect("Hello from Marge")
-    client.waitTestSuccess(timeout=1)
-    
-    client = demoscript.Util.spawn(clientStr)
-    node.expect("Hello from Bart")
-    client.waitTestSuccess(timeout=1)
-
-    client = demoscript.Util.spawn(clientStr)
-    node.expect("Hello from Lisa")
-    client.waitTestSuccess(timeout=1)
-
-    client = demoscript.Util.spawn(clientStr)
-    node.expect("Hello from Maggie")
-    client.waitTestSuccess(timeout=1)
     print "ok"
 
     print "testing stop/start of services...", 
