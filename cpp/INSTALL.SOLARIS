@@ -20,12 +20,13 @@ C++ compiler
 
 The following Sun compiler is supported:
 
-- Sun C++ 5.8 (part of Sun Studio 11)
+- Sun C++ 5.9 (part of Sun Studio 12)
 
 Builds with the following compilers are expected to succeed, but these
 compilers are not supported at this time:
 
-- Sun C++ 5.5, 5.6 and 5.7 (Sun Studio 8, 9, and 10 respectively)
+- Sun C++ 5.5, 5.6, 5.7 and 5.8 (Sun Studio 8, 9, 10 and 11
+  respectively)
 
 - GCC 3.4, 4.0 and 4.1
 
