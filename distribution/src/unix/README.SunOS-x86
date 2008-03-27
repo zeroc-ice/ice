@@ -44,7 +44,7 @@ Requirements
 ======================================================================
 
 This binary distribution was compiled on Solaris 10 using Sun CC
-version 5.9.
+version 5.9 with Patch 124863-01.
 
 The following Solaris 10 binary packages are required to use 
 this distribution:
