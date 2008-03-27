@@ -58,7 +58,16 @@ public:
     virtual const Current& getCurrent() = 0;
 };
 
+//
+// We should not need virtual inheritance here since Object is the only class
+// that derives from GCShared. However, Visual C++ seems to generate bad code
+// without 'virtual'. This needs to be investigated further.
+//
+#ifdef _MSC_VER
 class ICE_API Object : public virtual IceInternal::GCShared
+#else
+class ICE_API Object : public IceInternal::GCShared
+#endif
 {
 public:
 
