@@ -112,6 +112,7 @@ solution, and much more.
 Summary: The Ice runtime for .NET (mono)
 Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, mono-core >= 1.2.2
+Obsoletes: ice-dotnet < %{version}-%{release}
 %description mono
 The Ice runtime for .NET (mono).
 %endif
@@ -188,6 +189,7 @@ Tools for developing Ice applications in Java.
 Summary: Tools for developing Ice applications in C#
 Group: Development/Tools
 Requires: ice-mono = %{version}-%{release}, ice-libs = %{version}-%{release}, pkgconfig
+Obsoletes: ice-csharp-devel < %{version}-%{release}
 %description mono-devel
 Tools for developing Ice applications in C#.
 %endif
@@ -430,6 +432,13 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
 %endif
 
+#
+# Temporary
+#
+%if %{mono}
+rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.*
+%endif
+
 %endif
 
 #
@@ -466,7 +475,7 @@ ln -s Ice-java2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2.jar
 # Mono
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cs
-make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
+make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 %endif
 
 #
@@ -492,7 +501,9 @@ rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
 
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do 
-     rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f 
+     rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f
+     # Temporary
+     rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.$f
 done
 
 %endif
@@ -727,12 +738,6 @@ fi
 %{_prefix}/lib/mono/IceGrid/
 %{_prefix}/lib/mono/IcePatch2/
 %{_prefix}/lib/mono/IceStorm/
-%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.Glacier2/
-%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.Ice/
-%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IceBox/
-%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IceGrid/
-%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IcePatch2/
-%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IceStorm/
 %endif
 
 %files java-devel
