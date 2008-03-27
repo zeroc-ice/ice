@@ -1819,10 +1819,10 @@
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
 		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3b-ThirdParty-VC90</td></row>
-		<row><td>ZEROC</td><td>PackageCode</td><td>{F1779DC0-CD5F-41D2-90D5-808237248D65}</td></row>
-		<row><td>ZEROC</td><td>ProductCode</td><td>{2F0AAC46-1AD3-4737-8A84-B1D0E390AA6A}</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{DCCCD480-4D91-4A49-9D2A-B9871C768083}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{0ADC5B8C-1CE4-4E6E-950C-34EE415D7A1B}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
-		<row><td>ZEROC</td><td>UpgradeCode</td><td>{94971278-0721-4111-A591-9A06E4C13028}</td></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{FEF8C053-1C35-4E4F-9C42-4DE0566E1108}</td></row>
 	</table>
 
 	<table name="ISRelease">
