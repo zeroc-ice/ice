@@ -2,8 +2,6 @@
 Release notes for Ice 3.3b
 ======================================================================
 
-INTRO TBD
-
 The sections below describe the new features and fixes included in
 this release. See the section titled "Upgrading your application"
 for more information about migrating to a new Ice release, including
@@ -27,17 +25,18 @@ Table of Contents
      - Dynamic network interfaces
      - IPv6 and UDP multicast
      - Updated C# mapping
-  2. Platforms and compilers
-  3. Ice for .NET
-  4. Fixes and improvements
-  5. Desupported components
+  2. Ice for .NET
+  3. Fixes and improvements
+  4. Desupported components
      - Java2
      - Thread per connection concurrency model 
-  6. Upgrading your application
+  5. Upgrading your application
      - Migrating IceStorm databases
      - Migrating IceGrid databases
      - Removed APIs
      - Deprecated APIs
+  6. Platform specific notes
+     - Solaris x86
 
 ======================================================================
 1. New Features
@@ -310,28 +309,8 @@ If you prefer to use the previous .NET 1.1 mapping to DictionaryBase,
 you will need to annotate your Slice definitions with the metadata
 tag "clr:collection".
 
-
 ======================================================================
-2. Platforms and compilers
-======================================================================
-
-The list shown below represents changes or additions to the platforms
-and compilers that Ice supports:
-
-* Red Hat Enterprise Linux 4.6 and 5.1 (i386 and x86_64)
-* SuSE Enterprise Linux Server 10 SP1 (i386 and x86_64)
-* Microsoft Windows Vista (x86 and x64)
-* Mac OS X 10.5
-* Solaris 10 SPARC and x86 (32- and 64-bit)
-* Microsoft Visual Studio 2005 SP1
-* Microsoft Visual Studio 2008
-
-Express editions of Microsoft compilers are only supported by the C++
-language mapping; Ice for .NET requires Visual Studio 2005 or 2008.
-
-
-======================================================================
-3. Ice for .NET
+2. Ice for .NET
 ======================================================================
 
 Given the language-neutral nature of .NET's Common Language Runtime
@@ -361,7 +340,7 @@ Basic projects.
 
 
 ======================================================================
-4. Fixes and improvements
+3. Fixes and improvements
 ======================================================================
 
 Below is an abbreviated list of changes included in this release that
@@ -517,7 +496,7 @@ distribution.
 
 
 ======================================================================
-5. Desupported components
+4. Desupported components
 ======================================================================
 
 This section describes Ice components that are no longer supported.
@@ -545,7 +524,7 @@ additional information.
 
 
 ======================================================================
-6. Upgrading your application
+5. Upgrading your application
 ======================================================================
 
 Ice 3.3b does not maintain backward binary compatibility with
@@ -898,3 +877,17 @@ the use of these APIs as soon as possible.
   This property provided a means of installing a custom logger
   implementation. It has been replaced by the new configuration
   property Ice.Plugin.Logger.
+
+======================================================================
+6. Platform specific notes
+======================================================================
+
+Solaris 10 x86
+---------------
+C++ developpers using sequence<bool> on Solaris 10 x86 (32-bit) should 
+link their applications with the static version of libCstd, or upgrade 
+the Sun C++ runtime shared libraries to a newer version (not yet 
+available as of this Ice release).
+
+Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for more 
+information.

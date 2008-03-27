@@ -97,7 +97,7 @@ def fixVersion(file, argsHash):
 
 def fixDemoPath(file, argsHash):
     print "Processing " + file
-    if os.path.basename(file).startswith('config.'):
+    if os.path.basename(file).startswith('config'):
         origfile = file + ".orig"
         os.rename(file, origfile)
         oldFile = open(origfile, "r")

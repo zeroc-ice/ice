@@ -107,11 +107,11 @@ solution, and much more.
 # to create dangling symbolic links (the GAC symlinks used for development) 
 #
 %if %{mono}
-%package dotnet
+%package mono
 Summary: The Ice runtime for .NET (mono)
 Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, mono-core >= 1.2.2
-%description dotnet
+%description mono
 The Ice runtime for .NET (mono).
 %endif
 
@@ -151,7 +151,7 @@ Summary: Ice servers and related files.
 Group: System Environment/Daemons
 Requires: ice-utils = %{version}-%{release}
 %if %{mono}
-Requires: ice-dotnet = %{version}-%{release}
+Requires: ice-mono = %{version}-%{release}
 %endif
 # Requirements for the users
 %if "%{dist}" == ".sles10"
@@ -183,11 +183,11 @@ Requires: ice-java = %{version}-%{release}, ice-libs = %{version}-%{release}
 Tools for developing Ice applications in Java.
 
 %if %{mono}
-%package csharp-devel
+%package mono-devel
 Summary: Tools for developing Ice applications in C#
 Group: Development/Tools
-Requires: ice-dotnet = %{version}-%{release}, ice-libs = %{version}-%{release}, pkgconfig
-%description csharp-devel
+Requires: ice-mono = %{version}-%{release}, ice-libs = %{version}-%{release}, pkgconfig
+%description mono-devel
 Tools for developing Ice applications in C#.
 %endif
 
@@ -379,14 +379,14 @@ ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar
 %if %{mono}
 
 #
-# DotNet: for iceboxnet.exe and GAC symlinks
+# Mono: for iceboxnet.exe and GAC symlinks
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 #
-# .NET spec files (for csharp-devel)
+# .NET spec files (for mono-devel)
 #
 if test ! -d $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 then 
@@ -462,7 +462,7 @@ ln -s Ice-java2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2.jar
 
 %if %{mono}
 #
-# DotNet
+# Mono
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
@@ -503,11 +503,11 @@ done
 rm -rf $RPM_BUILD_ROOT
 
 #
-# dotnet package; see comment above about why we create
+# mono package; see comment above about why we create
 # "useless" arch-specific packages
 #
 %if %{mono}
-%files dotnet
+%files mono
 %defattr(-, root, root, -)
 %dir %{_prefix}/lib/mono/gac/Glacier2
 %{_prefix}/lib/mono/gac/Glacier2/%{dotnetversion}.*/
@@ -699,7 +699,7 @@ fi
 
 
 %if %{mono}
-%files csharp-devel
+%files mono-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2cs
 %{_libdir}/pkgconfig/Ice.pc
@@ -764,7 +764,7 @@ fi
  - Split main ice rpm into ice noarch (license and Slice files), ice-libs 
    (C++ runtime libraries), ice-utils (admin tools & utilities), ice-servers
    (icegridregistry, icebox etc.). This way, ice-libs 3.3.0 can coexist with
-    ice-libs 3.4.0. The same is true for ice-dotnet, and to a lesser extent 
+    ice-libs 3.4.0. The same is true for ice-mono, and to a lesser extent 
     other ice runtime packages
 - Many updates derived from Mary Ellen Foster (<mefoster at gmail.com>)'s 
   Fedora RPM spec for Ice.
