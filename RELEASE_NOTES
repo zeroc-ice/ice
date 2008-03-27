@@ -29,7 +29,7 @@ Table of Contents
   3. Fixes and improvements
   4. Desupported components
      - Java2
-     - Thread per connection concurrency model 
+     - Thread per connection concurrency model
   5. Upgrading your application
      - Migrating IceStorm databases
      - Migrating IceGrid databases
@@ -357,7 +357,7 @@ distribution.
   communicator instance that is not used by the IceBox server. This
   dedicated communicator only inherits properties from the server's
   communicator if IceBox.InheritProperties is set to a non-zero value.
-  
+
 * It is no longer necessary to define a value for the property
   IceBox.ServiceManager.Endpoints. If this property is not defined,
   the ServiceManager interface is not available.
@@ -536,7 +536,7 @@ The requirements for upgrading depend on the language mapping used by
 your application:
 
 - For statically-typed languages (C++, Java, .NET), the application
-  must be recompiled. 
+  must be recompiled.
 
 - For scripting languages that use static translation, your Slice
   files must be recompiled.
@@ -637,7 +637,7 @@ $ mkdir db
 $ upgradeicegrid.py <path-to-recovered.db> db
 
 The migration is now complete, and the contents of the old database
-environment are now in the db directory. 
+environment are now in the db directory.
 
 By default, the migration utility assumes that the servers deployed
 with IceGrid also use Ice 3.3b. If your servers still use an older Ice
@@ -882,12 +882,14 @@ the use of these APIs as soon as possible.
 6. Platform specific notes
 ======================================================================
 
+
 Solaris 10 x86
----------------
-C++ developpers using sequence<bool> on Solaris 10 x86 (32-bit) should 
-link their applications with the static version of libCstd, or upgrade 
-the Sun C++ runtime shared libraries to a newer version (not yet 
+--------------
+
+C++ developers using sequence<bool> on Solaris 10 x86 (32-bit) should
+link their applications with the static version of libCstd, or upgrade
+the Sun C++ runtime shared libraries to a newer version (not yet
 available as of this Ice release).
 
-Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for more 
-information.
+Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
+more information.
