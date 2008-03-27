@@ -49,6 +49,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 33b
 %define dotnetversion 3.3.51
+%define dotnetpolicyversion 3.3
 
 %define formsversion 1.2.0
 %define looksversion 2.1.4
@@ -382,7 +383,7 @@ ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar
 # Mono: for iceboxnet.exe and GAC symlinks
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cs
-make prefix=$RPM_BUILD_ROOT GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
+make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 #
@@ -521,6 +522,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/mono/gac/IcePatch2/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IceStorm
 %{_prefix}/lib/mono/gac/IceStorm/%{dotnetversion}.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/0.*/
 %endif
 
 #
@@ -714,6 +727,12 @@ fi
 %{_prefix}/lib/mono/IceGrid/
 %{_prefix}/lib/mono/IcePatch2/
 %{_prefix}/lib/mono/IceStorm/
+%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.Glacier2/
+%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.Ice/
+%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IceBox/
+%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IceGrid/
+%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IcePatch2/
+%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.IceStorm/
 %endif
 
 %files java-devel
