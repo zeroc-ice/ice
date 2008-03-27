@@ -356,8 +356,8 @@ class Darwin(Platform):
         #
         mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
         for oldName in oldInstallNames:
-            libName = re.sub("\/opt\/.*\/(.*)", "\\1", oldName)
-            newName = '/opt/Ice-' + mmversion + '/' + libName
+            libName = os.path.basename(oldName)
+            newName = '/opt/Ice-' + mmversion + '/lib/' + libName
             os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/' + libName)
             for f in binFiles:
                 os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)

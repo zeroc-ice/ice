@@ -24,7 +24,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
     adapter1->add(new HoldI(timer, adapter1), communicator->stringToIdentity("hold"));
-    adapter1->activate();
 
     communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default -p 12011 -t 10000:udp");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5"); 
@@ -33,6 +32,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
     adapter2->add(new HoldI(timer, adapter2), communicator->stringToIdentity("hold"));
+
+    adapter1->activate();
     adapter2->activate();
 
     communicator->waitForShutdown();

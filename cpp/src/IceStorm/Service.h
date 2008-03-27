@@ -21,11 +21,13 @@
 #   endif
 #endif
 
-namespace IceStorm
+// This API is internal to Ice, and should not be used by external
+// applications.
+namespace IceStormInternal
 {
 
 class Service;
-typedef ::IceInternal::Handle< ::IceStorm::Service> ServicePtr;
+typedef ::IceInternal::Handle< IceStormInternal::Service> ServicePtr;
 
 class ICE_STORM_API Service : public ::IceBox::Service
 {
@@ -40,7 +42,7 @@ public:
 
     virtual void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) = 0;
 
-    virtual TopicManagerPrx getTopicManager() const = 0;
+    virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;
 
     virtual void stop() = 0;
 };

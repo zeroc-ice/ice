@@ -70,12 +70,9 @@ ifeq ($(CXX),CC)
             #
             # Assumes >= 5.5
             #
-            # -erroff=hidef is a (bad) work-around for
-            # for Sun CC 5.5 bug #4852754
-            #
             # wvarhidenmem,wvarhidemem: various name hiding
             #
-            CXXWARNFLAGS    = +w -erroff=hidef,wvarhidenmem,wvarhidemem
+            CXXWARNFLAGS    = +w -erroff=wvarhidenmem,wvarhidemem
             CXXSCOPEFLAGS   = -xldscope=hidden
         endif
     endif
@@ -108,18 +105,34 @@ ifeq ($(CXX),CC)
     # For some tests, we need to link with Cstd statically. See
     # http://forum.java.sun.com/thread.jspa?threadID=5277939
     #
-    STATICLIBSTDFLAG        = -staticlib=Cstd
+    ifeq ($(MACHINE_TYPE),i86pc)
+    	ifneq ($(LP64),yes)
+       		STATICLIBSTDFLAG  = -staticlib=Cstd
+	endif
+    endif
 
     mkshlib		    = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
     mklib		    = $(CXX) -xar -o $(1) $(2)
 
     ifneq ($(embedded_runpath_prefix),)
-         LDPLATFORMFLAGS    = -norunpath -R $(runpath_libdir):/usr/sfw/$(libsubdir) -z text
+         LDPLATFORMFLAGS    = -norunpath -R $(runpath_libdir):/usr/sfw/$(libsubdir) -z text $(PLATFORMLIBDIRS)
     else
-         LDPLATFORMFLAGS    = -norunpath -R /usr/sfw/$(libsubdir)  -z text
+         LDPLATFORMFLAGS    = -norunpath -R /usr/sfw/$(libsubdir) -z text $(PLATFORMLIBDIRS)
     endif
-    
+
+    #
+    # On SPARC, we also link with <SUNWspro>/lib or lib/v9.
+    # See http://forum.java.sun.com/thread.jspa?threadID=5279267 
+    #
+    ifeq ($(MACHINE_TYPE),sun4u)
+        CCLIBDIR                = $(shell whatdir CC)/../../lib
+    	ifeq ($(LP64),yes)
+		PLATFORMLIBDIRS    := -L$(CCLIBDIR)/v9
+        else
+		PLATFORMLIBDIRS    := -L$(CCLIBDIR)
+        endif
+    endif
 endif
 
 ifeq ($(CXX),gcc)

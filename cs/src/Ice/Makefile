@@ -144,7 +144,7 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
 	$(INSTALL) $(LIBNAME).config $(bindir)
 
-ifneq ($(NOGAC),)
+ifneq ($(GACINSTALL),yes)
 install:: all
 	$(call installdata,$(TARGETS).config,$(install_bindir))
 endif

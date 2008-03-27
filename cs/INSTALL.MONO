@@ -25,6 +25,8 @@ only on:
 
    http://www.go-mono.com/mono-downloads/download.html
 
+You need to install the mono-core and the mono-devel RPMs to build Ice 
+for .NET on Linux.
 
 Build instructions
 ------------------

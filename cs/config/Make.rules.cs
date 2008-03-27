@@ -15,12 +15,12 @@
 prefix			?= /opt/Ice-$(VERSION)
 
 #
-# The default behavior of 'make install' does not install the Ice for .NET
-# libraries in the Global Assembly Cache (GAC). If you would prefer to
-# install these libraries in the GAC, disable no_gac.
+# The default behavior of 'make install' is to install the Ice for .NET
+# libraries in the 'bin' directory. If you would prefer to
+# install these libraries in the GAC, set GACINSTALL to yes.
 #
 
-#no_gac			= 1
+#GACINSTALL             = yes
 
 #
 # Ice invokes unmanaged code to implement the following features:
@@ -86,18 +86,9 @@ else
     ref = -pkg:$(1)
 endif
 
-ifdef no_gac
-NOGAC			?= $(no_gac)
-endif
-
-INSTALL			= cp -fp
-INSTALL_PROGRAM		= ${INSTALL}
-INSTALL_LIBRARY		= ${INSTALL}
-INSTALL_DATA		= ${INSTALL}
-
 GACUTIL			= gacutil
 
-ifeq ($(NOGAC),)
+ifeq ($(GACINSTALL),yes)
     ifeq ($(GAC_ROOT),)
         installassembly = $(GACUTIL) -i $(1) -f -package $(2)
     else

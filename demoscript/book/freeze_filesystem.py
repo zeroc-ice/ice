@@ -13,7 +13,6 @@ import sys, signal
 def run(client, server):
     print "testing...",
     sys.stdout.flush()
-    server.expect('added.*RootDir')
     client.expect('Created README')
     server.expect('added')
     client.expect('Contents of filesystem:')

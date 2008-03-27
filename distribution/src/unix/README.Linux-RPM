@@ -83,8 +83,8 @@ $ export CLASSPATH=/usr/share/java/Ice-java2.jar:$CLASSPATH
 
 Note that the Freeze component of Ice for Java requires Berkeley DB.
 Ice.jar and Ice-java2.jar contain manifests that automatically load
-the Berkeley DB classes (db.jar), however the JVM requires that the
-directory containing the Berkeley DB libraries be listed in
+the Berkeley DB classes (db-4.6.21.jar), however the JVM requires that
+the directory containing the Berkeley DB libraries be listed in
 java.library.path, therefore you must add this directory to your
 LD_LIBRARY_PATH. Assuming you are using the RPM installation of
 Berkeley DB, the bash command is shown below:
@@ -95,6 +95,11 @@ On a x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB libraries
 are installed in /usr/lib64, so use this setting instead:
 
 $ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
+
+When building a Java application that uses Freeze, you also need
+to add the Berkeley DB jar file to your CLASSPATH:
+
+$ export CLASSPATH=/usr/share/java/db-4.6.21.jar:$CLASSPATH
 
 When using the Ice for Java SSL plugin (IceSSL), you may experience
 occasional hangs. The most likely reason is that your system's entropy
@@ -266,6 +271,10 @@ as
 
 With a suitable Java installation, you can execute the application
 using the following command:
+
+$ icegridgui
+
+or
 
 $ java -jar IceGridGUI.jar
 

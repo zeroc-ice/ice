@@ -849,7 +849,7 @@ FreezeScript::DescriptorHandler::startElement(const string& name, const IceXML::
             _errorReporter->descriptorError("<echo> cannot be a top-level element", line);
         }
 
-        d = new EchoDescriptor(_current, line, _factory, _errorReporter, attributes);
+        d = new EchoDescriptor(_current, line, _factory, _errorReporter, attributes, cout);
     }
     else if(name == "if")
     {

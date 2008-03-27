@@ -44,7 +44,7 @@ Requirements
 ======================================================================
 
 This binary distribution was compiled on Solaris 10 using Sun CC
-version 5.9.
+version 5.9 with Patch 124863-01.
 
 The following Solaris 10 binary packages are required to use 
 this distribution:
@@ -178,6 +178,11 @@ Modifying your LD_LIBRARY_PATH (or LD_LIBRARY_PATH_64, if you use a
 64-bit JVM) as described in the "General" section above satisfies this
 requirement.
 
+When building a Java application that uses Freeze, you also need
+to add the Berkeley DB jar file to your CLASSPATH:
+
+$ export CLASSPATH=<Ice installation directory>/lib/db.jar:$CLASSPATH
+
 Ice includes ant tasks for translating Slice to Java. The ant tasks
 allow slice2java and slice2freezej to be invoked from the ant build
 system. These tasks require one of the following:
@@ -236,5 +241,5 @@ Ice patch releases are binary compatible. For example, Ice version
 built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
 having to recompile or relink this application.
 
-Please refer to the RELEASE_NOTES.txt file included in this
-distribution for detailed upgrade instructions.
+Please refer to the RELEASE_NOTES file included in this distribution
+for detailed upgrade instructions.

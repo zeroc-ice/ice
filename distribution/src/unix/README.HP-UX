@@ -149,8 +149,8 @@ Ice patch releases are binary compatible. For example, Ice version
 built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
 having to recompile or relink this application.
 
-Please refer to the RELEASE_NOTES.txt file included in this
-distribution for detailed upgrade instructions.
+Please refer to the RELEASE_NOTES file included in this distribution
+for detailed upgrade instructions.
 
 
 ======================================================================

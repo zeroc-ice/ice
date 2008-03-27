@@ -40,6 +40,13 @@ namespace IceInternal
             // not available.
             //
             _bzlibInstalled = false;
+
+            //
+            // We are setting the library name here because, under Mono, we don't know the exact library name.
+            // In addition, the FileName member of the BadImageFormatException is the empty string, even though
+            // it should provide the name of the library.
+            //
+            string lib = AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono ? "bzip2 library" : "bzip2.dll";
             try
             {
                 BZ2_bzlibVersion();
@@ -47,13 +54,24 @@ namespace IceInternal
             }
             catch(DllNotFoundException)
             {
+                // Expected -- bzip2.dll not installed or not in PATH.
             }
             catch(EntryPointNotFoundException)
             {
+                Console.Error.WriteLine("warning: found " + lib + " but entry point BZ2_bzlibVersion is missing.");
             }
-            catch(BadImageFormatException)
+            catch(BadImageFormatException ex)
             {
-                Console.Error.WriteLine("warning: libbz2 could not be loaded (likely due to 32/64-bit mismatch).");
+                if(ex.FileName != null && ex.FileName.Length != 0)
+                {
+                    lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
+                }
+                Console.Error.Write("warning: " + lib + " could not be loaded (likely due to 32/64-bit mismatch).");
+                if(IntPtr.Size == 8)
+                {
+                    Console.Error.Write(" Make sure the directory containing the 64-bit " + lib + " is in your PATH.");
+                }
+                Console.Error.WriteLine();
             }
 #endif
         }

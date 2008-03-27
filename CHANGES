@@ -10,9 +10,9 @@ The entries below contain brief descriptions of the changes in this
 release, in no particular order. Some of the entries reflect
 significant new additions, while others represent minor corrections.
 We recommend that you use the release notes included in your Ice
-distribution (see RELEASE_NOTES.txt) as a guide for migrating your
-applications to this release, and the Ice manual for complete details
-on a particular aspect of Ice.
+distribution as a guide for migrating your applications to this
+release, and the Ice manual for complete details on a particular
+aspect of Ice.
 
 
 General Changes
@@ -354,6 +354,8 @@ noted.
 
 - Added support for string concatenation in FreezeScript using the
   '+' operator.
+
+- dumpdb output now goes to stdout.
 
 
 C++ Changes

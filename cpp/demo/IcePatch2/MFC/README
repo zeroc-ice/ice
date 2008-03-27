@@ -35,3 +35,7 @@ select the empty directory you just created. Then click the "Patch"
 button to begin the patch process. The first time you click this
 button you will be prompted to confirm that you want to perform a
 thorough patch (because the target download directory is empty).
+
+If you add files or delete files from the data directory or make
+changes to existing files, you must stop the server, run icepatch2calc
+again to update the data files, and then restart the IcePatch2 server.

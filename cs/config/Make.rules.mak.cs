@@ -107,10 +107,6 @@ EVERYTHING		= all clean install config
 {$(SDIR)\}.ice{$(GDIR)}.cs:
 	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
-#
-# The .exe.config files are only generated if we're not building the 
-# source distribution.
-#
 all:: $(TARGETS) $(TARGETS_CONFIG)
 
 AL      = al

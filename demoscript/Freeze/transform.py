@@ -26,22 +26,24 @@ def run(createCmd, recreateCmd, readCmd, readnewCmd):
 
     print "reading database...",
     read = demoscript.Util.spawn(readCmd)
-    read.expect("All contacts \(default order\)")
-    read.expect('arnold:\t{1,2}\(333\)333-3333 x1234')
-    read.expect('bob:\t{1,2}\(222\)222-2222')
-    read.expect('carlos:\t{1,2}\(111\)111-1111')
-    read.expect('don:\t{1,2}\(777\)777-7777')
-    read.expect('ed:\t{1,2}\(666\)666-6666')
-    read.expect('frank:\t{1,2}\(555\)555-5555 x123')
-    read.expect('gary:\t{1,2}\(444\)444-4444')
-    read.expect('All contacts \(ordered by phone number\)')
-    read.expect('carlos:\t{1,2}\(111\)111-1111')
-    read.expect('bob:\t{1,2}\(222\)222-2222')
-    read.expect('arnold:\t{1,2}\(333\)333-3333 x1234')
-    read.expect('gary:\t{1,2}\(444\)444-4444')
-    read.expect('frank:\t{1,2}\(555\)555-5555 x123')
-    read.expect('ed:\t{1,2}\(666\)666-6666')
-    read.expect('don:\t{1,2}\(777\)777-7777')
+    read.expect_list(read.compile_pattern_list([ \
+                    "All contacts \(default order\)", \
+                    'arnold:\t{1,2}\(333\)333-3333 x1234', \
+                    'bob:\t{1,2}\(222\)222-2222', \
+                    'carlos:\t{1,2}\(111\)111-1111', \
+                    'don:\t{1,2}\(777\)777-7777', \
+                    'ed:\t{1,2}\(666\)666-6666', \
+                    'frank:\t{1,2}\(555\)555-5555 x123', \
+                    'gary:\t{1,2}\(444\)444-4444', \
+                    'All contacts \(ordered by phone number\)', \
+                    'carlos:\t{1,2}\(111\)111-1111', \
+                    'bob:\t{1,2}\(222\)222-2222', \
+                    'arnold:\t{1,2}\(333\)333-3333 x1234', \
+                    'gary:\t{1,2}\(444\)444-4444', \
+                    'frank:\t{1,2}\(555\)555-5555 x123', \
+                    'ed:\t{1,2}\(666\)666-6666', \
+                    'don:\t{1,2}\(777\)777-7777', \
+                    ]))
     read.waitTestSuccess()
     print "ok"
 
@@ -65,21 +67,23 @@ def run(createCmd, recreateCmd, readCmd, readnewCmd):
 
     print "rereading new database...",
     readnew = demoscript.Util.spawn(readnewCmd)
-    readnew.expect("All contacts \(default order\)")
-    readnew.expect('arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com')
-    readnew.expect('bob:\t{1,2}\(222\)222-2222 bob@gmail.com')
-    readnew.expect('carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com')
-    readnew.expect('don:\t{1,2}\(777\)777-7777 don@gmail.com')
-    readnew.expect('ed:\t{1,2}\(666\)666-6666 ed@gmail.com')
-    readnew.expect('frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com')
-    readnew.expect('gary:\t{1,2}\(444\)444-4444 gary@gmail.com')
-    readnew.expect('All contacts \(ordered by phone number\)')
-    readnew.expect('carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com')
-    readnew.expect('bob:\t{1,2}\(222\)222-2222 bob@gmail.com')
-    readnew.expect('arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com')
-    readnew.expect('gary:\t{1,2}\(444\)444-4444 gary@gmail.com')
-    readnew.expect('frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com')
-    readnew.expect('ed:\t{1,2}\(666\)666-6666 ed@gmail.com')
-    readnew.expect('don:\t{1,2}\(777\)777-7777 don@gmail.com')
+    readnew.expect_list(readnew.compile_pattern_list([ \
+                    "All contacts \(default order\)", \
+                    'arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com', \
+                    'bob:\t{1,2}\(222\)222-2222 bob@gmail.com', \
+                    'carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com', \
+                    'don:\t{1,2}\(777\)777-7777 don@gmail.com', \
+                    'ed:\t{1,2}\(666\)666-6666 ed@gmail.com', \
+                    'frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com', \
+                    'gary:\t{1,2}\(444\)444-4444 gary@gmail.com', \
+                    'All contacts \(ordered by phone number\)', \
+                    'carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com', \
+                    'bob:\t{1,2}\(222\)222-2222 bob@gmail.com', \
+                    'arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com', \
+                    'gary:\t{1,2}\(444\)444-4444 gary@gmail.com', \
+                    'frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com', \
+                    'ed:\t{1,2}\(666\)666-6666 ed@gmail.com', \
+                    'don:\t{1,2}\(777\)777-7777 don@gmail.com', \
+                        ]))
     readnew.waitTestSuccess()
     print "ok"

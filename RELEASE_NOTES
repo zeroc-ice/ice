@@ -1,8 +1,6 @@
 ======================================================================
-Release notes for Ice 3.3.0
+Release notes for Ice 3.3b
 ======================================================================
-
-INTRO TBD
 
 The sections below describe the new features and fixes included in
 this release. See the section titled "Upgrading your application"
@@ -15,9 +13,33 @@ C++ Ice run time, they automatically benefit from fixes to the C++ Ice
 core even if those language mappings are not explicitly mentioned
 below.
 
+Table of Contents
+-----------------
+
+  1. New Features
+     - Non-blocking AMI
+     - Scalability improvements in Glacier2
+     - IceStorm
+     - Freeze transactional evictor
+     - Administrative facility
+     - Dynamic network interfaces
+     - IPv6 and UDP multicast
+     - Updated C# mapping
+  2. Ice for .NET
+  3. Fixes and improvements
+  4. Desupported components
+     - Java2
+     - Thread per connection concurrency model
+  5. Upgrading your application
+     - Migrating IceStorm databases
+     - Migrating IceGrid databases
+     - Removed APIs
+     - Deprecated APIs
+  6. Platform specific notes
+     - Solaris x86
 
 ======================================================================
-New Features
+1. New Features
 ======================================================================
 
 This section discusses the significant enhancements offered in this
@@ -27,7 +49,7 @@ release.
 Non-blocking AMI
 ----------------
 
-Ice 3.3.0 includes an important change in the semantics of AMI
+Ice 3.3b includes an important change in the semantics of AMI
 requests: Ice now guarantees that the calling thread will never block
 when issuing an asynchronous invocation.
 
@@ -242,7 +264,7 @@ manual for further details.
 IPv6 and UDP multicast
 ----------------------
 
-Ice 3.3.0 includes support for IPv6 as well as UDP multicast. Both of
+Ice 3.3b includes support for IPv6 as well as UDP multicast. Both of
 these features are controlled via configuration properties.
 
 IPv6 is disabled by default, and can be enabled using the new property
@@ -287,28 +309,8 @@ If you prefer to use the previous .NET 1.1 mapping to DictionaryBase,
 you will need to annotate your Slice definitions with the metadata
 tag "clr:collection".
 
-
 ======================================================================
-Platforms and compilers
-======================================================================
-
-The list shown below represents changes or additions to the platforms
-and compilers that Ice supports:
-
-* Red Hat Enterprise Linux 4.6 and 5.1 (i386 and x86_64)
-* SuSE Enterprise Linux Server 10 SP1 (i386 and x86_64)
-* Microsoft Windows Vista (x86 and x64)
-* Mac OS X 10.5
-* Solaris 10 SPARC and x86 (32- and 64-bit)
-* Microsoft Visual Studio 2005 SP1
-* Microsoft Visual Studio 2008
-
-Express editions of Microsoft compilers are only supported by the C++
-language mapping; Ice for .NET requires Visual Studio 2005 or 2008.
-
-
-======================================================================
-Ice for .NET
+2. Ice for .NET
 ======================================================================
 
 Given the language-neutral nature of .NET's Common Language Runtime
@@ -338,7 +340,7 @@ Basic projects.
 
 
 ======================================================================
-Fixes and improvements
+3. Fixes and improvements
 ======================================================================
 
 Below is an abbreviated list of changes included in this release that
@@ -355,7 +357,7 @@ distribution.
   communicator instance that is not used by the IceBox server. This
   dedicated communicator only inherits properties from the server's
   communicator if IceBox.InheritProperties is set to a non-zero value.
-  
+
 * It is no longer necessary to define a value for the property
   IceBox.ServiceManager.Endpoints. If this property is not defined,
   the ServiceManager interface is not available.
@@ -494,7 +496,7 @@ distribution.
 
 
 ======================================================================
-Desupported components
+4. Desupported components
 ======================================================================
 
 This section describes Ice components that are no longer supported.
@@ -522,11 +524,11 @@ additional information.
 
 
 ======================================================================
-Upgrading your application
+5. Upgrading your application
 ======================================================================
 
-Ice 3.3.0 does not maintain backward binary compatibility with
-applications built using Ice 3.2.x, but every effort was made to
+Ice 3.3b does not maintain backward binary compatibility with
+applications built using Ice 3.2, but every effort was made to
 preserve source compatibility. Note however that Ice always maintains
 protocol ("on the wire") compatibility with prior releases.
 
@@ -534,7 +536,7 @@ The requirements for upgrading depend on the language mapping used by
 your application:
 
 - For statically-typed languages (C++, Java, .NET), the application
-  must be recompiled. 
+  must be recompiled.
 
 - For scripting languages that use static translation, your Slice
   files must be recompiled.
@@ -555,8 +557,8 @@ eliminate the use of these APIs as soon as possible.
 Migrating IceStorm databases
 ----------------------------
 
-Ice 3.3 supports migrating IceStorm databases from Ice 3.1.1 and from
-Ice 3.2.1. Migration from other Ice versions may work, but is not
+Ice 3.3 supports migrating IceStorm databases from Ice 3.1 and from
+Ice 3.2. Migration from other Ice versions may work, but is not
 officially supported. If you require assistance with this please
 contact sales@zeroc.com.
 
@@ -572,7 +574,7 @@ environment:
 $ db_recover -h recovered.db
 
 Note that it is essential that the correct version of db_recover is
-used. For Ice 3.1.1, Berkeley DB 4.3.29 must be used. For Ice 3.2.1,
+used. For Ice 3.1, Berkeley DB 4.3.29 must be used. For Ice 3.2,
 Berkeley DB 4.5 must be used.
 
 Now change to the location where the Ice 3.3 IceStorm database
@@ -597,10 +599,10 @@ environment are now in the db directory.
 Migrating IceGrid databases
 ---------------------------
 
-Ice 3.3 supports migrating IceGrid databases from Ice 3.1.1 and from
-Ice 3.2.1. Migration from other Ice versions may work, but is not
-officially supported. If you require assistance with this please
-contact sales@zeroc.com.
+Ice 3.3 supports migrating IceGrid databases from Ice 3.1 and from Ice
+3.2. Migration from other Ice versions may work, but is not officially
+supported. If you require assistance with this please contact
+sales@zeroc.com.
 
 To migrate, first stop the IceGrid registry you wish to upgrade.
 
@@ -614,7 +616,7 @@ environment:
 $ db_recover -h recovered.db
 
 Note that it is essential that the correct version of db_recover is
-used. For Ice 3.1.1, Berkeley DB 4.3.29 must be used. For Ice 3.2.1,
+used. For Ice 3.1, Berkeley DB 4.3.29 must be used. For Ice 3.2,
 Berkeley DB 4.5 must be used.
 
 Now change to the location where the Ice 3.3 IceGrid database
@@ -623,8 +625,8 @@ environments are stored:
 $ cd <new-location>
 
 Next, run the upgradeicegrid.py utility located in the `config'
-directory of your Ice distribution (or in /usr/share/Ice-3.3.0 if
-using an RPM installation). The first argument is the path to the old
+directory of your Ice distribution (or in /usr/share/Ice-3.3b if using
+an RPM installation). The first argument is the path to the old
 database environment. The second argument is the path to the new
 database environment.
 
@@ -635,12 +637,12 @@ $ mkdir db
 $ upgradeicegrid.py <path-to-recovered.db> db
 
 The migration is now complete, and the contents of the old database
-environment are now in the db directory. 
+environment are now in the db directory.
 
 By default, the migration utility assumes that the servers deployed
-with IceGrid also use Ice 3.3.0. If your servers still use an older
-Ice version, you need to specify the --server-version command-line
-option when running upgradeicegrid.py:
+with IceGrid also use Ice 3.3b. If your servers still use an older Ice
+version, you need to specify the --server-version command-line option
+when running upgradeicegrid.py:
 
 $ upgradeicegrid.py --server-version 3.2.1 <path-to-recovered.db> db
 
@@ -875,3 +877,19 @@ the use of these APIs as soon as possible.
   This property provided a means of installing a custom logger
   implementation. It has been replaced by the new configuration
   property Ice.Plugin.Logger.
+
+======================================================================
+6. Platform specific notes
+======================================================================
+
+
+Solaris 10 x86
+--------------
+
+C++ developers using sequence<bool> on Solaris 10 x86 (32-bit) should
+link their applications with the static version of libCstd, or upgrade
+the Sun C++ runtime shared libraries to a newer version (not yet
+available as of this Ice release).
+
+Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
+more information.

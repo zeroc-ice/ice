@@ -52,7 +52,8 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     // without symlinks resolved.
     //
     vector<string> newIncludePaths;
-    for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+    vector<string>::const_iterator p;
+    for(p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         string includePath = *p;
         if(!isAbsolute(includePath))
@@ -85,7 +86,7 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     // the path that produces the shortest relative filename.
     //
     string result = file;
-    for(vector<string>::const_iterator p = newIncludePaths.begin(); p != newIncludePaths.end(); ++p)
+    for(p = newIncludePaths.begin(); p != newIncludePaths.end(); ++p)
     {
         string includePath = *p;
         if(file.compare(0, includePath.length(), includePath) == 0)

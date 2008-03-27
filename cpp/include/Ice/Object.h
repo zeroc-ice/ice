@@ -59,13 +59,15 @@ public:
 };
 
 //
-// No virtual inheritance from IceInternal::GCShared is required. This
-// used to be virtual inheritance from IceUtil::Shared, because we
-// could derive multiple times from IceUtil::Shared, such as deriving
-// a servant class from both Ice::Object and IceUtil::Thread. However,
-// we never derive from IceInternal::GCShared more than once.
+// We should not need virtual inheritance here since Object is the only class
+// that derives from GCShared. However, Visual C++ seems to generate bad code
+// without 'virtual'. This needs to be investigated further.
 //
+#ifdef _MSC_VER
+class ICE_API Object : public virtual IceInternal::GCShared
+#else
 class ICE_API Object : public IceInternal::GCShared
+#endif
 {
 public:
 
