@@ -20,7 +20,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # install these libraries in the GAC, disable no_gac.
 #
 
-#no_gac			= 1
+no_gac			= 1
 
 #
 # Ice invokes unmanaged code to implement the following features:
