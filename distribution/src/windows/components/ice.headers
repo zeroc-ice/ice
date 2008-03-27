@@ -127,7 +127,6 @@ IcePatch2/FileInfo
 IcePatch2/FileServer
 IceSSL/Plugin
 IceStorm/IceStorm
-IceStorm/Service
 IceUtil/AbstractMutex
 IceUtil/ArgVector
 IceUtil/Cache

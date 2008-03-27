@@ -502,7 +502,6 @@ libraries."""
         shutil.copy(os.path.join(os.environ['THIRDPARTY_HOME'], "LICENSE"),
             os.path.join(resources, "docs", target, "THIRD_PARTY_LICENSE"))
 
-        #convertLicensesToRTF(resources, target)
 
         #
         # Screw clean rules, run the ultimate clean!
@@ -540,12 +539,18 @@ libraries."""
                 runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug")))
             if not os.path.exists(os.path.join(buildDir, "release", z %  iceVersion)):
                 runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release")))
-
+        
             if target == "vc80" or target == "vc90":
                 if not os.path.exists(os.path.join(buildDir, "debug-x64", z %  iceVersion)):
                     runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug-x64")))
                 if not os.path.exists(os.path.join(buildDir, "release-x64", z %  iceVersion)):
                     runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release-x64")))
+
+        # Need .txt version
+        shutil.copy(os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "RELEASE_NOTES"),
+                    os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "RELEASE_NOTES.txt"))
+        shutil.copy(os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "CHANGES"),
+                    os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "CHANGES.txt"))
 
         #
         # Build the Ice distributions.
