@@ -1,5 +1,5 @@
 ======================================================================
-Release notes for Ice 3.3.0
+Release notes for Ice 3.3b
 ======================================================================
 
 INTRO TBD
@@ -15,9 +15,32 @@ C++ Ice run time, they automatically benefit from fixes to the C++ Ice
 core even if those language mappings are not explicitly mentioned
 below.
 
+Table of Contents
+-----------------
+
+  1. New Features
+     - Non-blocking AMI
+     - Scalability improvements in Glacier2
+     - IceStorm
+     - Freeze transactional evictor
+     - Administrative facility
+     - Dynamic network interfaces
+     - IPv6 and UDP multicast
+     - Updated C# mapping
+  2. Platforms and compilers
+  3. Ice for .NET
+  4. Fixes and improvements
+  5. Desupported components
+     - Java2
+     - Thread per connection concurrency model 
+  6. Upgrading your application
+     - Migrating IceStorm databases
+     - Migrating IceGrid databases
+     - Removed APIs
+     - Deprecated APIs
 
 ======================================================================
-New Features
+1. New Features
 ======================================================================
 
 This section discusses the significant enhancements offered in this
@@ -27,7 +50,7 @@ release.
 Non-blocking AMI
 ----------------
 
-Ice 3.3.0 includes an important change in the semantics of AMI
+Ice 3.3b includes an important change in the semantics of AMI
 requests: Ice now guarantees that the calling thread will never block
 when issuing an asynchronous invocation.
 
@@ -242,7 +265,7 @@ manual for further details.
 IPv6 and UDP multicast
 ----------------------
 
-Ice 3.3.0 includes support for IPv6 as well as UDP multicast. Both of
+Ice 3.3b includes support for IPv6 as well as UDP multicast. Both of
 these features are controlled via configuration properties.
 
 IPv6 is disabled by default, and can be enabled using the new property
@@ -289,7 +312,7 @@ tag "clr:collection".
 
 
 ======================================================================
-Platforms and compilers
+2. Platforms and compilers
 ======================================================================
 
 The list shown below represents changes or additions to the platforms
@@ -308,7 +331,7 @@ language mapping; Ice for .NET requires Visual Studio 2005 or 2008.
 
 
 ======================================================================
-Ice for .NET
+3. Ice for .NET
 ======================================================================
 
 Given the language-neutral nature of .NET's Common Language Runtime
@@ -338,7 +361,7 @@ Basic projects.
 
 
 ======================================================================
-Fixes and improvements
+4. Fixes and improvements
 ======================================================================
 
 Below is an abbreviated list of changes included in this release that
@@ -494,7 +517,7 @@ distribution.
 
 
 ======================================================================
-Desupported components
+5. Desupported components
 ======================================================================
 
 This section describes Ice components that are no longer supported.
@@ -522,11 +545,11 @@ additional information.
 
 
 ======================================================================
-Upgrading your application
+6. Upgrading your application
 ======================================================================
 
-Ice 3.3.0 does not maintain backward binary compatibility with
-applications built using Ice 3.2.x, but every effort was made to
+Ice 3.3b does not maintain backward binary compatibility with
+applications built using Ice 3.2, but every effort was made to
 preserve source compatibility. Note however that Ice always maintains
 protocol ("on the wire") compatibility with prior releases.
 
@@ -555,8 +578,8 @@ eliminate the use of these APIs as soon as possible.
 Migrating IceStorm databases
 ----------------------------
 
-Ice 3.3 supports migrating IceStorm databases from Ice 3.1.1 and from
-Ice 3.2.1. Migration from other Ice versions may work, but is not
+Ice 3.3 supports migrating IceStorm databases from Ice 3.1 and from
+Ice 3.2. Migration from other Ice versions may work, but is not
 officially supported. If you require assistance with this please
 contact sales@zeroc.com.
 
@@ -572,7 +595,7 @@ environment:
 $ db_recover -h recovered.db
 
 Note that it is essential that the correct version of db_recover is
-used. For Ice 3.1.1, Berkeley DB 4.3.29 must be used. For Ice 3.2.1,
+used. For Ice 3.1, Berkeley DB 4.3.29 must be used. For Ice 3.2,
 Berkeley DB 4.5 must be used.
 
 Now change to the location where the Ice 3.3 IceStorm database
@@ -597,10 +620,10 @@ environment are now in the db directory.
 Migrating IceGrid databases
 ---------------------------
 
-Ice 3.3 supports migrating IceGrid databases from Ice 3.1.1 and from
-Ice 3.2.1. Migration from other Ice versions may work, but is not
-officially supported. If you require assistance with this please
-contact sales@zeroc.com.
+Ice 3.3 supports migrating IceGrid databases from Ice 3.1 and from Ice
+3.2. Migration from other Ice versions may work, but is not officially
+supported. If you require assistance with this please contact
+sales@zeroc.com.
 
 To migrate, first stop the IceGrid registry you wish to upgrade.
 
@@ -614,7 +637,7 @@ environment:
 $ db_recover -h recovered.db
 
 Note that it is essential that the correct version of db_recover is
-used. For Ice 3.1.1, Berkeley DB 4.3.29 must be used. For Ice 3.2.1,
+used. For Ice 3.1, Berkeley DB 4.3.29 must be used. For Ice 3.2,
 Berkeley DB 4.5 must be used.
 
 Now change to the location where the Ice 3.3 IceGrid database
@@ -623,8 +646,8 @@ environments are stored:
 $ cd <new-location>
 
 Next, run the upgradeicegrid.py utility located in the `config'
-directory of your Ice distribution (or in /usr/share/Ice-3.3.0 if
-using an RPM installation). The first argument is the path to the old
+directory of your Ice distribution (or in /usr/share/Ice-3.3b if using
+an RPM installation). The first argument is the path to the old
 database environment. The second argument is the path to the new
 database environment.
 
@@ -638,9 +661,9 @@ The migration is now complete, and the contents of the old database
 environment are now in the db directory. 
 
 By default, the migration utility assumes that the servers deployed
-with IceGrid also use Ice 3.3.0. If your servers still use an older
-Ice version, you need to specify the --server-version command-line
-option when running upgradeicegrid.py:
+with IceGrid also use Ice 3.3b. If your servers still use an older Ice
+version, you need to specify the --server-version command-line option
+when running upgradeicegrid.py:
 
 $ upgradeicegrid.py --server-version 3.2.1 <path-to-recovered.db> db
 
