@@ -572,9 +572,12 @@ Client::run(int argc, char* argv[])
             return EXIT_FAILURE;            
         }
 
-        keepAlive = new SessionKeepAliveThread(session, timeout / 2);
-        keepAlive->start();
- 
+        if(timeout > 0)
+        {
+            keepAlive = new SessionKeepAliveThread(session, timeout / 2);
+            keepAlive->start();
+        }
+
         AdminPrx admin = session->getAdmin();
 
         Ice::SliceChecksumDict serverChecksums = admin->getSliceChecksums();
@@ -653,8 +656,11 @@ Client::run(int argc, char* argv[])
         throw;
     }
 
-    keepAlive->destroy();
-    keepAlive->getThreadControl().join();
+    if(keepAlive)
+    {
+        keepAlive->destroy();
+        keepAlive->getThreadControl().join();
+    }
 
     if(session)
     {

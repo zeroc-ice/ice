@@ -50,7 +50,7 @@ def run(clientStr, desc = 'application'):
     admin.sendline("application add \'%s.xml\'" %(desc))
     admin.expect('>>>')
     admin.sendline("server start IceBox")
-    admin.expect('>>>')
+    admin.expect('>>>', timeout=15)
     print "ok"
 
     print "testing client...", 
