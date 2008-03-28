@@ -5,3 +5,5 @@ Service2.Prop=1
 
 OverrideMe=3
 UnsetMe=
+
+Ice.PrintAdapterReady=0
