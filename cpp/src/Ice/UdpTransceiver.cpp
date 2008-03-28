@@ -283,7 +283,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         _fd = createSocket(true, _addr.ss_family);
         setBufSize(instance);
         setBlock(_fd, false);
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__hpux)
         bool connected = doConnect(_fd, _addr);
         assert(connected);
 #else
