@@ -35,6 +35,6 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),$(POLICY)))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),))
 
 include .depend

@@ -39,7 +39,7 @@ $(bindir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),$(POLICY)))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),))
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))

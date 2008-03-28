@@ -90,9 +90,9 @@ GACUTIL			= gacutil
 
 ifeq ($(GACINSTALL),yes)
     ifeq ($(GAC_ROOT),)
-        installassembly = $(GACUTIL) -i $(1) -f -package $(2)
+        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt)
     else
-        installassembly = $(GACUTIL) -i $(1) -f -package $(2) -root $(GAC_ROOT)
+        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt -root $(GAC_ROOT))
     endif
 else
     installassembly 	= $(INSTALL_LIBRARY) $(1) $(install_bindir); \
