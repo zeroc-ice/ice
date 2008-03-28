@@ -1160,7 +1160,7 @@ def processCmdLine():
           --protocol=tcp|ssl      Run with the given protocol.
           --compress              Run the tests with protocol compression.
           --host=host             Set --Ice.Default.Host=<host>.
-          --serialize   Run with thread-per-connection concurrency model.
+          --serialize             Run with connection serialization.
           --ipv6                  Use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
