@@ -67,7 +67,7 @@ SLICE2CPPFLAGS  := --stream $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(COBJS) $(LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
