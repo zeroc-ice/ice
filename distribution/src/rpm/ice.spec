@@ -432,13 +432,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
 %endif
 
-#
-# Temporary
-#
-%if %{mono}
-rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.*
-%endif
-
 %endif
 
 #
@@ -502,8 +495,6 @@ rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do 
      rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f
-     # Temporary
-     rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/policy.%{dotnetpolicyversion}.$f
 done
 
 %endif
