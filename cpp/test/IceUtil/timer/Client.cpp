@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
             test(timer->cancel(task));
             int count = task->getCount();
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-            test(count == task->getCount());
+            test(count == task->getCount() || count + 1 == task->getCount());
         }
 
         timer->destroy();
