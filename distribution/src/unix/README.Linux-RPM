@@ -239,24 +239,36 @@ to the link below:
 /etc/init.d scripts
 ======================================================================
 
-The Ice RPM includes the following sample /etc/init.d scripts and
-associated configuration files:
+The ice-servers RPM includes the following sample /etc/init.d scripts 
+and associated configuration files:
 
 - /etc/init.d/icegridregistry and /etc/icegridregistry.conf
 - /etc/init.d/icegridnode and /etc/icegridnode.conf
 - /etc/init.d/glacier2router and /etc/glacier2router.conf
 
-None of these services are enabled during the RPM installation; you 
-need to manually enable the desired service(s) using the chkconfig
-command, for example:
+The installation of this RPM also creates a user account and group
+for running these services (account ice and group ice), and the
+directories for the icegridregistry and icegridnode data
+(/var/lib/ice/icegrid/registry and /var/lib/ice/icegrid/node1).
 
-# chkconfig --add icegridregistry
+By default, all these services are off at all runlevels. You need
+to manually switch on one or more runlevels, for example: 
+
+#
+# On a Red Hat Enterprise Linux system, configure the icegridregistry 
+# to start at runlevel 3 and 5:
+#
+chkconfig --level 35 icegridregistry on
+
+#
+# On a SuSE Linux Enterprise Server system, configure the 
+# icegridregistry to start at runlevel 3 and 5:
+#
+chkconfig icegridregistry 35
+
 
 Before doing so, please review the script itself and its associated
-configuration file. You should create one or more accounts to run 
-these services ('iceuser' in the sample scripts). For icegridregistry
-and icegridnode, you also need to create 'data' directories with the 
-proper permissions (refer to the .conf files).
+configuration file.
 
 
 ======================================================================
