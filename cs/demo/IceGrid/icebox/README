@@ -4,18 +4,21 @@ Note for Mono:
     configure Linux to recognize Mono binaries. Configuration
     instructions are provided in INSTALL.MONO at the top level of the
     Ice for .NET source distribution or, in README at the top level of
-    the Ice binary distribution (in /usr/share/doc/Ice-@ver@ if you
-    have installed Ice from RPMs).
+    the Ice binary distribution (in /usr/share/doc/packages/ice-@ver@
+    if you have installed Ice from RPMs).
 
     Alternatively, if you do not want to reconfigure your kernel, edit
-    application.xml and change the icebox element to read:
+    application.xml and change the <icebox> element to read:
 
     <icebox id="IceBox" exe="mono" activation="on-demand">
       <option>../../../bin/iceboxnet.exe</option>
 
-    Note that the icebox executable is "mono", and that the actual
-    icebox executable is passed as an argument to the Mono
-    interpreter.
+    Note that we use "mono" as the executable and pass the path name
+    of the icebox executable as an argument to the Mono interpreter.
+    If you are not using an Ice source distribution, you will need to
+    change the value of the <option> element to reflect the location
+    of the icebox executable in your installation, such as
+    /usr/bin/iceboxnet.exe or /opt/Ice-@ver@/bin/iceboxnet.exe.
 
 This demo shows a very simple IceGrid deployment, with a single
 IceBox server hosting a number of IceBox services.

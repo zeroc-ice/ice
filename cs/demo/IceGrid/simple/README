@@ -4,18 +4,17 @@ Note for Mono:
     configure Linux to recognize Mono binaries. Configuration
     instructions are provided in INSTALL.MONO at the top level of the
     Ice for .NET source distribution or, in README at the top level of
-    the Ice binary distribution (in /usr/share/doc/Ice-@ver@ if you
-    have installed Ice from RPMs).
+    the Ice binary distribution (in /usr/share/doc/packages/ice-@ver@
+    if you have installed Ice from RPMs).
 
     Alternatively, if you do not want to reconfigure your kernel, edit
-    application.xml and change the server element to read:
+    application.xml and change the <server> element to read:
 
     <server id="SimpleServer" exe="mono" activation="on-demand">
       <option>./server.exe</option>
 
-    Note that the server executable is "mono", and that the actual
-    server executable is passed as an argument to the Mono
-    interpreter.
+    Note that we use "mono" as the executable and pass the path name
+    of the actual server as an argument to the Mono interpreter.
 
 To run the demo, first start the IceGrid service:
 
