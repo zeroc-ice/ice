@@ -94,7 +94,7 @@ CPPFLAGS	= $(CPPFLAGS) -DICE_STORM_LIB_API_EXPORTS
 
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 SPDBFLAGS       = /pdb:$(SVCDLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)

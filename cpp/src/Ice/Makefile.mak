@@ -121,7 +121,7 @@ LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib Iphlpapi.l
 !if "$(CPP_COMPILER)" == "BCC2006"
 RES_FILE	= ,, Ice.res
 !else
-!if "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"

@@ -65,7 +65,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS
 
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 RPDBFLAGS       = /pdb:$(ROUTER:.exe=.pdb)
 !endif

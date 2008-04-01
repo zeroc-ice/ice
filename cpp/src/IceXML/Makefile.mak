@@ -24,7 +24,7 @@ CPPFLAGS	= $(CPPFLAGS) -DICE_XML_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 
 LINKWITH        = $(EXPAT_LIBS) $(BASELIBS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 

@@ -111,7 +111,7 @@ CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 CPPFLAGS 	= $(CPPFLAGS) -Zm200
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
 NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)

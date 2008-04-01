@@ -29,7 +29,7 @@ LINKWITH	= /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" $(LINKWI
 EXTRA_MANIFEST  = security.manifest
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS       = /pdb:$(TOOL:.exe=.pdb)
 !endif
 

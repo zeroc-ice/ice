@@ -37,7 +37,7 @@ LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
 CPPFLAGS        = -I.. -DICE_GRID_API_EXPORTS $(CPPFLAGS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 

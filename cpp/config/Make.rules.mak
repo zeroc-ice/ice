@@ -26,6 +26,12 @@ prefix			= C:\Ice-$(VERSION)
 #STATICLIBS             = yes
 
 #
+# Define if you want pdb files to be generated for optimized/release
+# builds
+#
+#RELEASEPDBS             = yes
+
+#
 # Specify your C++ compiler. Supported values are:
 # VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS
 #

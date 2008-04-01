@@ -21,6 +21,10 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
+!if "$(GENERATE_PDB)" == "yes"
+PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
+!endif
+
 $(NAME): $(OBJS) Slice2Freeze.res
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) Slice2Freeze.res $(SETARGV) $(PREOUT)$@ \
 		$(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
