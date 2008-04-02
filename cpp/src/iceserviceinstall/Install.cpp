@@ -23,6 +23,7 @@ public:
 
     bool pauseEnabled() const;
     bool debug() const;
+    bool pause() const;
 
 private:
 
@@ -30,6 +31,7 @@ private:
 
     bool _debug;
     bool _pauseEnabled;
+    bool _pause;
 };
 
 int
@@ -38,7 +40,7 @@ main(int argc, char* argv[])
     Install app;
     int status = app.main(argc, argv);
 
-    if(app.pauseEnabled() && (app.debug() || status != 0))
+    if(app.pauseEnabled() && (app.pause() || app.debug() || status != 0))
     {
         system("pause");
     }
@@ -74,18 +76,20 @@ Install::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    _pauseEnabled = !opts.isSet("nopause");
+
     if(opts.isSet("help"))
     {
         usage();
+        _pause = true;
         return EXIT_SUCCESS;
     }
     if(opts.isSet("version"))
     {
         cout << ICE_STRING_VERSION << endl;
+        _pause = true;
         return EXIT_SUCCESS;
     }
-
-    _pauseEnabled = !opts.isSet("nopause");
 
     if(commands.size() != 2)
     {
@@ -151,7 +155,8 @@ Install::run(int argc, char* argv[])
 
 Install::Install() :
     _pauseEnabled(true),
-    _debug(false)
+    _debug(false),
+    _pause(false)
 {
 }
 
@@ -165,6 +170,12 @@ bool
 Install::debug() const
 {
     return _debug;
+}
+
+bool
+Install::pause() const
+{
+    return _pause;
 }
 
 void
