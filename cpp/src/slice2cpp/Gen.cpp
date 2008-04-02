@@ -2694,7 +2694,12 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
     C << nl << "catch(const ::Ice::UserException& __ex)";
     C << sb;
-    C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
+    //
+    // COMPILERFIX: Don't throw UnknownUserException directly. This is causing access
+    // violation errors with Visual C++ 64bits optimized builds. See bug #2962.
+    //
+    C << nl << "::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());";
+    C << nl << "throw __uue;";
     C << eb;
     C << eb;
 
