@@ -18,6 +18,9 @@ Ice::ObjectAdapterPtr Filesystem::NodeI::_adapter;
 Freeze::EvictorPtr Filesystem::NodeI::_evictor;
 
 Filesystem::NodeI::NodeI()
+#ifdef __SUNPRO_CC
+  : _ID(Ice::Identity())
+#endif
 {
 }
 

@@ -50,6 +50,12 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
+#ifdef __SUNPRO_CC
+    using IceUtil::Monitor<IceUtil::Mutex>::lock;
+    using IceUtil::Monitor<IceUtil::Mutex>::unlock;
+#endif
+
+
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
              const RegistryInfo&, bool);
     virtual ~Database();

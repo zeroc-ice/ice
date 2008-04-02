@@ -42,6 +42,9 @@ public:
     virtual bool operator!=(const IceInternal::EndpointI&) const;
     virtual bool operator<(const IceInternal::EndpointI&) const;
 
+protected:
+
+    using IceInternal::EndpointI::connectors;
 private:
 
     EndpointI(const IceInternal::EndpointIPtr&);
