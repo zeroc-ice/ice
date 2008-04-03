@@ -147,6 +147,5 @@ install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)
 	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
-	copy $(LIBNAME).config $(install_bindir)
 
 !include .depend
