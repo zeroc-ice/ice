@@ -15,15 +15,10 @@ all::
 	echo ""
 
 install::
-	@if test ! -d $(prefix)/config ; \
-	then \
-	    echo "Creating $(prefix)/config..." ; \
-	    $(call mkdir,$(prefix)/config) ; \
-	fi
-	$(call installdata,templates.xml,$(prefix)/config)
-	$(call installdata,convertssl.py,$(prefix)/config)
-	$(call installdata,upgradeicegrid.py,$(prefix)/config)
-	$(call installdata,icegrid-slice.3.1.ice.gz,$(prefix)/config)
-	$(call installdata,icegrid-slice.3.2.ice.gz,$(prefix)/config)
-	$(call installdata,icegrid-slice.3.3.ice.gz,$(prefix)/config)
+	$(call installdata,templates.xml,$(install_configdir))
+	$(call installdata,convertssl.py,$(install_configdir))
+	$(call installdata,upgradeicegrid.py,$(install_configdir))
+	$(call installdata,icegrid-slice.3.1.ice.gz,$(install_configdir))
+	$(call installdata,icegrid-slice.3.2.ice.gz,$(install_configdir))
+	$(call installdata,icegrid-slice.3.3.ice.gz,$(install_configdir))
 

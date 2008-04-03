@@ -115,7 +115,7 @@ install_bindir		= $(prefix)\bin$(x64suffix)
 install_libdir	  	= $(prefix)\lib$(x64suffix)
 install_includedir	= $(prefix)\include
 install_docdir		= $(prefix)\doc
-libsubdir	  	= lib
+install_configdir	= $(prefix)\config
 
 SETARGV			= setargv.obj
 

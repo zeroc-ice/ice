@@ -11,7 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak.cs
 
-SUBDIRS		= config src test demo
+SUBDIRS		= src test demo
 
 install:: install-common
 	@if not exist $(install_bindir) \

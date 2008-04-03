@@ -118,7 +118,6 @@ PYTHON_CPPFLAGS		= -I"$(PYTHON_HOME)\include"
 PYTHON_LDFLAGS		= /LIBPATH:"$(PYTHON_HOME)\libs"
 
 install_libdir		= $(prefix)\python
-libsubdir		= lib
 
 ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PYFLAGS		= $(ICECPPFLAGS)

@@ -12,17 +12,12 @@ top_srcdir	= ..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(prefix)\config \
-	    @echo "Creating $(prefix)\config..." && \
-	    mkdir $(prefix)\config
-	copy Make.rules.mak $(prefix)\config
-	copy Make.rules.bcc $(prefix)\config
-	copy templates.xml $(prefix)\config
-	copy convertssl.py $(prefix)\config
-	copy upgradeicegrid.py $(prefix)\config
-	copy icegridregistry.cfg $(prefix)\config
-	copy icegridnode.cfg $(prefix)\config
-	copy glacier2router.cfg $(prefix)\config
-	copy icegrid-slice.3.1.ice.gz $(prefix)\config
-	copy icegrid-slice.3.2.ice.gz $(prefix)\config
-	copy icegrid-slice.3.3.ice.gz $(prefix)\config
+	copy templates.xml $(install_configdir)
+	copy convertssl.py $(install_configdir)
+	copy upgradeicegrid.py $(install_configdir)
+	copy icegridregistry.cfg $(install_configdir)
+	copy icegridnode.cfg $(install_configdir)
+	copy glacier2router.cfg $(install_configdir)
+	copy icegrid-slice.3.1.ice.gz $(install_configdir)
+	copy icegrid-slice.3.2.ice.gz $(install_configdir)
+	copy icegrid-slice.3.3.ice.gz $(install_configdir)
