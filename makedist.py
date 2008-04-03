@@ -57,7 +57,6 @@ filesToRemove = [ \
 configFiles = [ \
     "Make.*", \
     "common.xml", \
-    "build.properties", \
 ]
 
 #
@@ -111,6 +110,19 @@ def copy(srcpath, destpath):
 
     shutil.copy(srcpath, destpath)
     fixFilePermission(destpath)
+
+def replace(srcpath, destpath):
+
+    if not os.path.exists(srcpath):
+        print "warning: " + srcpath + " doesn't exist"
+        return
+
+    if os.path.isdir(destpath):
+        destpath = os.path.join(destpath, os.path.basename(srcpath))
+
+    shutil.copy(srcpath, destpath)
+    fixFilePermission(destpath)
+
 
 #
 # Copy files from srcpath and matching the given patterns to destpath
@@ -539,7 +551,7 @@ sys.stdout.flush()
 
 # Demo distribution
 copy("ICE_LICENSE", demoDistDir)
-copy(os.path.join(distDir, "distribution", "src", "common", "README.DEMOS"), os.path.join(demoDistDir))
+copy(os.path.join(distDir, "distribution", "src", "common", "README.DEMOS"), demoDistDir)
 
 copyMatchingFiles(os.path.join("certs"), os.path.join(demoDistDir, "certs"), certsFiles)
 copyMatchingFiles(os.path.join("config"), os.path.join(demoDistDir, "config"), configFiles)
@@ -547,10 +559,9 @@ copyMatchingFiles(os.path.join("cpp", "config"), os.path.join(demoDistDir, "conf
 copyMatchingFiles(os.path.join("java", "config"), os.path.join(demoDistDir, "config"), configFiles)
 copyMatchingFiles(os.path.join("cs", "config"), os.path.join(demoDistDir, "config"), configFiles)
 
-os.rename(os.path.join("cpp", "config", "Make.demo.rules"), os.path.join(demoDistDir, "config", "Make.rules"))
-os.rename(os.path.join("java", "config", "build.demo.properties"),
-          os.path.join(demoDistDir, "config", "build.properties"))
-os.rename(os.path.join("cs", "config", "Make.demo.rules.cs"), os.path.join(demoDistDir, "config", "Make.rules.cs"))
+replace(os.path.join(distDir, "distribution", "src", "common", "Make.rules"), os.path.join(demoDistDir, "config"))
+replace(os.path.join(distDir, "distribution", "src", "common", "Make.rules.cs"), os.path.join(demoDistDir, "config"))
+replace(os.path.join(distDir, "distribution", "src", "common", "build.properties"), os.path.join(demoDistDir, "config"))
 
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):

@@ -114,6 +114,7 @@ public:
 
 private:
 
+    using GeneratorBase::printHeaderFooter;
     void printHeaderFooter();
 
     typedef ::std::pair< ::std::string, ::std::string> StringPair;

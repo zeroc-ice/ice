@@ -148,10 +148,12 @@ public:
     virtual bool operator!=(const EndpointI&) const = 0;
     virtual bool operator<(const EndpointI&) const = 0;
 
-private:
+protected:
 
     virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
     friend class EndpointHostResolver;
+
+private:
 
 #if defined(__SUNPRO_CC) || defined(__HP_aCC)
     //

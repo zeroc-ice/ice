@@ -130,6 +130,8 @@ public:
 
 protected:
 
+    using CommunicatorHelper::instantiateImpl;
+
     void instantiateImpl(const ServiceDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&,
                          const PropertySetDescriptorDict&) const;
 
@@ -156,6 +158,8 @@ public:
     void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
 
 protected:
+
+    using CommunicatorHelper::instantiateImpl;
 
     void printImpl(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
     void instantiateImpl(const ServerDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&) const;
@@ -220,6 +224,8 @@ public:
     void print(const Ice::CommunicatorPtr&, IceUtilInternal::Output&, const ServerInfo&) const;
 
 protected:
+
+    using ServerHelper::instantiateImpl;
 
     void instantiateImpl(const IceBoxDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&,
                          const PropertySetDescriptorDict&) const;

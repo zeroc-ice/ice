@@ -119,19 +119,19 @@ SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib Iphlpapi.lib
 
 !if "$(CPP_COMPILER)" == "BCC2006"
-RES_FILE	= ,, EventLoggerMsg.res
+RES_FILE	= ,, Ice.res
 !else
-!if "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"
-RES_FILE	= EventLoggerMsg.res
+RES_FILE	= Ice.res
 !endif
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) Ice.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) Ice.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -144,11 +144,10 @@ $(HDIR)\BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)\BuiltinSequences.ice $(
 
 EventLoggerI.obj: EventLoggerMsg.h
 
-EventLoggerMsg.h EventLoggerMsg.res: EventLoggerMsg.mc
+EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
 	mc EventLoggerMsg.mc
-	$(RC) -r -fo EventLoggerMsg.res EventLoggerMsg.rc
 
-Ice.res: Ice.rc
+Ice.res: Ice.rc EventLoggerMsg.rc
 	rc.exe $(RCFLAGS) Ice.rc
 
 clean::
@@ -186,6 +185,7 @@ clean::
 	del /q StatsF.cpp $(HDIR)\StatsF.h
 	del /q Stats.cpp $(HDIR)\Stats.h
 	del /q $(DLLNAME:.dll=.*)
+	del /q EventLoggerMsg.h EventLoggerMsg.rc
 	del /q Ice.res
 
 install:: all

@@ -47,6 +47,10 @@ class ReplicaCache : public CacheByString<ReplicaEntry>
 {
 public:
 
+#ifdef __SUNPRO_CC
+    using CacheByString<ReplicaEntry>::remove;
+#endif 
+
     ReplicaCache(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
 
     ReplicaEntryPtr add(const std::string&, const ReplicaSessionIPtr&);

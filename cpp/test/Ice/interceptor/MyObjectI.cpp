@@ -49,6 +49,9 @@ int
 MyObjectI::badSystemAdd(int, int, const Ice::Current&)
 {
     throw Ice::InitializationException(__FILE__, __LINE__, "testing");
+#ifdef __SUNPRO_CC
+    return 0;
+#endif
 }
     
 

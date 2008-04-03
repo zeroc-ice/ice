@@ -21,6 +21,10 @@ RC		= rc.exe
 PREOUT		= /out:
 PRELIBS		=
 
+!if "$(OPTIMIZE)" != "yes" || "$(RELEASEPDBS)" == "yes"
+GENERATE_PDB	= yes
+!endif
+
 !if "$(ice_src_dist)" != ""
 
 # If building a source distribution, use THIRDPARTY_HOME for the 3rd party libraries
@@ -84,9 +88,18 @@ LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(ice_dir)\lib$(x64suffix)" /nologo /FIXED:no
 LDFLAGS		= $(LDFLAGS) /nologo /FIXED:no
 
 !if "$(OPTIMIZE)" != "yes"
+
 LDFLAGS		= $(LDFLAGS) /debug /incremental:yes
+
 !else
-LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF
+
+LDFLAGS         = $(LDFLAGS) /OPT:REF
+!if "$(GENERATE_PDB)" != "yes"
+LDFLAGS         = $(LDFLAGS) /pdb:none
+!else
+LDFLAGS         = $(LDFLAGS) /debug
+!endif
+
 !endif
 
 LD_DLLFLAGS	= $(LDFLAGS) /dll

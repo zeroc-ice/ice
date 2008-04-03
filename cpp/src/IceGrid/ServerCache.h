@@ -96,6 +96,10 @@ class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
+#ifdef __SUNPRO_CC
+    using CacheByString<ServerEntry>::remove;
+#endif
+
     ServerCache(const Ice::CommunicatorPtr&, const std::string&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&);
 
     ServerEntryPtr add(const ServerInfo&);

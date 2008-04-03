@@ -45,6 +45,9 @@ public:
     virtual bool operator!=(const EndpointI&) const;
     virtual bool operator<(const EndpointI&) const;
 
+protected:
+    using EndpointI::connectors;
+
 private:
 
 #if defined(__SUNPRO_CC)

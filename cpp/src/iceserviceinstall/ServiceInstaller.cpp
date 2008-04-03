@@ -30,10 +30,28 @@
 using namespace std;
 using namespace Ice;
 
+//
+// Replace / by \
+//
+inline string
+fixDirSeparator(const string& path)
+{
+    string result = path;
+    size_t pos = 0;
+    while((pos = result.find('/', pos)) != string::npos)
+    {
+        result[pos] = '\\';
+        pos++;
+    }
+
+    return result;
+}
+
+
 IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFile,
                                          const CommunicatorPtr& communicator) :
     _serviceType(serviceType),
-    _configFile(configFile),
+    _configFile(fixDirSeparator(configFile)),
     _communicator(communicator),
     _serviceProperties(createProperties()),
     _sid(0),
@@ -137,6 +155,10 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         imagePath.replace(imagePath.rfind('\\'), string::npos, "\\"
                           + serviceTypeToLowerString(_serviceType) + ".exe");
     }
+    else
+    {
+        imagePath = fixDirSeparator(imagePath);
+    }
     if(!fileExists(imagePath))
     {
         throw imagePath + ": not found";
@@ -151,7 +173,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             throw "The IceGrid registry service can't depend on itself";
         }
 
-        string registryDataDir = _serviceProperties->getProperty("IceGrid.Registry.Data");
+        string registryDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Registry.Data"));
         if(registryDataDir == "")
         {
             throw "IceGrid.Registry.Data must be set in " + _configFile;
@@ -163,7 +185,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     }
     else if(_serviceType == icegridnode)
     {
-        string nodeDataDir = _serviceProperties->getProperty("IceGrid.Node.Data");
+        string nodeDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Node.Data"));
         if(nodeDataDir == "")
         {
             throw "IceGrid.Node.Data must be set in " + _configFile;
