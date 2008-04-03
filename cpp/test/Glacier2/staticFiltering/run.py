@@ -256,8 +256,8 @@ for testcase in testcases:
     #
 
     routerArgs = " --Ice.Config=" + os.path.join(testdir, "router.cfg") + \
-          r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-          r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+          r' --Glacier2.Client.Endpoints="default -p 12347 -t 60000"' + \
+          r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 60000"' + \
           r' --Ice.Admin.InstanceName=Glacier2' + \
           r' --Glacier2.CryptPasswords="'  + os.path.dirname(os.path.abspath(__file__)) + r'/passwords"' 
 
