@@ -220,7 +220,7 @@ protected:
                 }
                 ObjectStore<T>* store = new ObjectStore<T>(facet, facetType,_createDb, this, storeIndices, populateEmptyIndices);
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
                 _storeMap.insert(StoreMap::value_type(facet, store));
 #else
                 _storeMap.insert(typename StoreMap::value_type(facet, store));
@@ -235,7 +235,7 @@ protected:
             {
                 facet = "";
             }
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
             std::pair<StoreMap::iterator, bool> ir = 
                 _storeMap.insert(StoreMap::value_type(facet, 0));
 #else
@@ -278,7 +278,7 @@ protected:
             }
             os = new ObjectStore<T>(facet, facetType, true, this);
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
             _storeMap.insert(StoreMap::value_type(facet, os));
 #else
             _storeMap.insert(typename StoreMap::value_type(facet, os));

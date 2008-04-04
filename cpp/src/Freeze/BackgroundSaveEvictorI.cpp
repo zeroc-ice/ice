@@ -13,6 +13,10 @@
 #include <IceUtil/StringUtil.h>
 #include <Freeze/Util.h>
 
+#include <Freeze/ObjectStore.h>
+
+
+
 #include <typeinfo>
 
 using namespace std;
@@ -1399,12 +1403,12 @@ Freeze::BackgroundSaveEvictorElement::~BackgroundSaveEvictorElement()
 {
 }
 
+// COMPILERFIX: Required to build with C++ Builder 2007
+typedef ObjectStore<BackgroundSaveEvictorElement>::Position BackgroundSaveEvictorElementPosition;
+
 void 
-Freeze::BackgroundSaveEvictorElement::init(ObjectStore<BackgroundSaveEvictorElement>::Position p)
+Freeze::BackgroundSaveEvictorElement::init(BackgroundSaveEvictorElementPosition p)
 {
     stale = false;
     cachePosition = p;
 }
-
-
-

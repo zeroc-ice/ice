@@ -10,6 +10,7 @@
 #include <IceGrid/NodeServerAdminRouter.h>
 #include <Ice/Ice.h>
 #include <IceGrid/ServerI.h>
+#include <IceGrid/ServerAdapterI.h>
 
 using namespace IceGrid;
 using namespace Ice;

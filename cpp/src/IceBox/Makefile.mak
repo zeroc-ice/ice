@@ -60,24 +60,34 @@ SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+RES_FILE        = ,, IceBox.res
+SRES_FILE       = ,, IceBoxExe.res
+ARES_FILE       = ,, IceBoxAdmin.res
+!else
+RES_FILE        = IceBox.res
+SRES_FILE       = IceBoxExe.res
+ARES_FILE       = IceBoxAdmin.res
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IceBox.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceBox.res $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(SERVER): $(SOBJS) IceBoxExe.res
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) IceBoxExe.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-		icebox$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+		icebox$(LIBSUFFIX).lib $(SRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(ADMIN): $(AOBJS) IceBoxAdmin.res
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) IceBoxAdmin.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-		icebox$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+		icebox$(LIBSUFFIX).lib $(ARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -107,7 +117,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

@@ -281,7 +281,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
             string memberType = typeToString((*d)->type());
             _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
             ContainedPtr contained = ContainedPtr::dynamicCast((*d)->type());
-            string sliceId = contained ? contained->scoped() : "::Ice::Object";
+            string sliceId = contained ? contained->scoped() : string("::Ice::Object");
             _out << nl << "_typeId = \"" << sliceId << "\";";
             if(allClassMembers.size() > 1)
             {
@@ -1461,7 +1461,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 string memberType = typeToString((*q)->type());
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
                 ContainedPtr contained = ContainedPtr::dynamicCast((*q)->type());
-                string sliceId = contained ? contained->scoped() : "::Ice::Object";
+                string sliceId = contained ? contained->scoped() : string("::Ice::Object");
                 _out << nl << "_typeId = \"" << sliceId << "\";";
                 if(allClassMembers.size() > 1)
                 {
@@ -1731,7 +1731,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
                 ContainedPtr contained = ContainedPtr::dynamicCast((*q)->type());
-                string sliceId = contained ? contained->scoped() : "::Ice::Object";
+                string sliceId = contained ? contained->scoped() : string("::Ice::Object");
                 _out << nl << "_typeId = \"" << sliceId << "\";";
                 if(classMembers.size() > 1)
                 {
@@ -2621,7 +2621,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << nl << retS << " ret__;";
                 ContainedPtr contained = ContainedPtr::dynamicCast(ret);
-                string sliceId = contained ? contained->scoped() : "::Ice::Object";
+                string sliceId = contained ? contained->scoped() : string("::Ice::Object");
                 _out << nl << "IceInternal.ParamPatcher<" << retS << "> ret___PP = new IceInternal.ParamPatcher<"
                      << retS << ">(\"" << sliceId << "\");";
                 _out << nl << "is__.readObject(ret___PP);";
@@ -3051,9 +3051,9 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
     _out << " e__ in v__)";
     _out << sb;
-    string keyArg = isNewMapping ? "e__.Key" : "((" + keyS + ")e__.Key)";
+    string keyArg = isNewMapping ? string("e__.Key") : "((" + keyS + ")e__.Key)";
     writeMarshalUnmarshalCode(_out, key, keyArg, true, false, false);
-    string valueArg = isNewMapping ? "e__.Value" : "((" + valueS + ")e__.Value)";
+    string valueArg = isNewMapping ? string("e__.Value") : "((" + valueS + ")e__.Value)";
     writeMarshalUnmarshalCode(_out, value, valueArg, true, false, false);
     _out << eb;
     _out << eb;

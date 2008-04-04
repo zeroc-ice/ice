@@ -58,7 +58,7 @@ CallbackClient::CallbackClient() :
     // Since this is an interactive demo we don't want any signal
     // handling.
     //
-    Application(Ice::NoSignalHandling)
+    Ice::Application(Ice::NoSignalHandling)
 {
 }
 

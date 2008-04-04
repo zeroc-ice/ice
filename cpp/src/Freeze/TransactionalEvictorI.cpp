@@ -827,8 +827,11 @@ Freeze::TransactionalEvictorElement::~TransactionalEvictorElement()
 {
 }
 
+// COMPILERFIX: Required to build with C++ Builder 2007
+typedef ObjectStore<TransactionalEvictorElement>::Position TransactionalEvictorElementPosition;
+
 void 
-Freeze::TransactionalEvictorElement::init(ObjectStore<TransactionalEvictorElement>::Position p)
+Freeze::TransactionalEvictorElement::init(TransactionalEvictorElementPosition p)
 {
     _stale = false;
     _cachePosition = p;

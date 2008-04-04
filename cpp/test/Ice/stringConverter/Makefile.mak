@@ -25,7 +25,7 @@ CPPFLAGS	=  $(CPPFLAGS) -I$(ICONV_HOME)\include -DICONV_ON_WINDOWS -DICE_NO_ERRN
 LIBS            =  $(LIBS) -LIBPATH:$(ICONV_HOME)\lib $(ICONV_LIB)
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 

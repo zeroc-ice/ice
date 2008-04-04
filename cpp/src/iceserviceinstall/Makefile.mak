@@ -33,8 +33,14 @@ EXTRA_MANIFEST  = security.manifest
 PDBFLAGS       = /pdb:$(TOOL:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+RES_FILE        = ,, IceServiceInstall.res
+!else
+RES_FILE        = IceServiceInstall.res
+!endif
+
 $(TOOL): $(OBJS) IceServiceInstall.res
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) IceServiceInstall.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest $(EXTRA_MANIFEST) -outputresource:$@;#1 && del /q $@.manifest
 
@@ -51,7 +57,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(TOOL:.exe=.tds) $(install_bindir)

@@ -125,8 +125,12 @@ Observers::check()
                 }
                 int id = p->id;
                 p = _observers.erase(p);
-                IceUtil::Mutex::Lock sync(_reapedMutex);
+
+                // COMPILERFIX: Just using following causes double unlock with C++Builder 2007
+                //IceUtil::Mutex::Lock sync(_reapedMutex);
+                _reapedMutex.lock();
                 _reaped.push_back(id);
+                _reapedMutex.unlock();
                 continue;
             }
             ++p;
@@ -256,8 +260,12 @@ Observers::wait(const string& op)
             }
             int id = p->id;
             p = _observers.erase(p);
-            IceUtil::Mutex::Lock sync(_reapedMutex);
+
+            // COMPILERFIX: Just using following causes double unlock with C++Builder 2007
+            //IceUtil::Mutex::Lock sync(_reapedMutex);
+            _reapedMutex.lock();
             _reaped.push_back(id);
+            _reapedMutex.unlock();
             continue;
         }
         ++p;

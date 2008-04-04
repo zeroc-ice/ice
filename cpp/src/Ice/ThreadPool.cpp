@@ -23,7 +23,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(ThreadPool* p) { return p; }
+ICE_API IceUtil::Shared* IceInternal::upCast(ThreadPool* p) { return p; }
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),

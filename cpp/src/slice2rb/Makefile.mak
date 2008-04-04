@@ -25,9 +25,15 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+RES_FILE        = ,, Slice2Rb.res
+!else
+RES_FILE        = Slice2Rb.res
+!endif
+
 $(NAME): $(OBJS) Slice2Rb.res
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) Slice2Rb.res $(SETARGV) $(PREOUT)$@ \
-		$(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib \
+		$(BASELIBS) $(RES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -43,7 +49,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(NAME:.exe=.tds) $(install_bindir)

@@ -101,13 +101,13 @@ ALINKWITH 	= $(LINKWITH) icegrid$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib icepatch
 		  icebox$(LIBSUFFIX).lib
 NLINKWITH	= $(ALINKWITH) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib \
 		  icessl$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib $(OPENSSL_LIBS)
-!if "$(CPP_COMPILER)" != "BCC2006"
+!if "$(CPP_COMPILER)" != "BCC2007"
 NLINKWITH	= $(NLINKWITH) pdh.lib ws2_32.lib
 !endif
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(CPP_COMPILER)" != "BCC2006"
+!if "$(CPP_COMPILER)" != "BCC2007"
 CPPFLAGS 	= $(CPPFLAGS) -Zm200
 !endif
 
@@ -117,20 +117,29 @@ RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
 NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+ARES_FILE       = ,, IceGridAdmin.res
+RRES_FILE       = ,, IceGridRegistry.res
+NRES_FILE       = ,, IceGridNode.res
+!else
+ARES_FILE       = IceGridAdmin.res
+RRES_FILE       = IceGridRegistry.res
+NRES_FILE       = IceGridNode.res
+!endif
+
 $(ADMIN): $(ADMIN_OBJS) IceGridAdmin.res
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) IceGridAdmin.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH) $(ARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) &&\
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) IceGridRegistry.res 
-	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(REGISTRY_SVR_OBJS) IceGridRegistry.res $(SETARGV) $(PREOUT)$@ \
-		$(PRELIBS)$(NLINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(REGISTRY_SVR_OBJS) $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)$(NLINKWITH) $(RRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) IceGridNode.res
-	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) IceGridNode.res $(SETARGV) $(PREOUT)$@ \
-		$(PRELIBS)$(NLINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH) $(NRES_FILE)
 	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -196,7 +205,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(ADMIN:.exe=.tds) $(install_bindir)

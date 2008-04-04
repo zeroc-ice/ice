@@ -12,6 +12,7 @@
 #include <IceStorm/TransientTopicI.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/Instance.h>
+#include <IceStorm/Subscriber.h>
 
 #include <Ice/Ice.h>
 

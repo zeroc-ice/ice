@@ -19,8 +19,8 @@ About this distribution
 -----------------------
 
 This binary distribution provides all Ice run time services and 
-development tools to build Ice applications in C++ using Borland
-C++Builder 2006 Update 2.
+development tools to build Ice applications in C++ using C++Builder
+2006 R2.
 
 If you want to develop Ice applications in another programming
 language, on with another C++ compiler, please download the 
@@ -31,27 +31,58 @@ http://www.zeroc.com/download.html.
 Supported Windows versions
 --------------------------
 
-This distribution is supported on Windows XP with Service Pack 2.
+This distribution is supported on
+
+  - Windows XP with Service Pack 2
+  - Windows Vista.
+
+Monotonic clock
+---------------
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
 
 
 Running IceGrid and Glacier2 components as services
 ---------------------------------------------------
 
-The WINDOWS_SERVICES.txt file included in this distribution contains
-information on how to install and run the IceGrid registry, IceGrid
-node, and Glacier2 router as Windows services.
+An appendix in the Ice manual provides information on installing and
+running the IceGrid registry, IceGrid node, and Glacier2 router as
+Windows services.
 
 
-Demos
------
+Building and running the C++ demos
+----------------------------------
 
-Sample programs are provided in the Ice-@ver@-demos.zip package,
-which can be downloaded from the ZeroC web site at
+The C++ demos are in the demo directory.
 
-http://www.zeroc.com/download.html
+To build the C++ demos, open a "RAD Studio Command Prompt" and
+change to the demo directory and run the following command to build
+the demos
 
-Please refer to the README.DEMOS file included in that package for
-more information.
+  > nmake /f Makefile.mak
+
+Note that this requires Microsoft NMAKE. If you do not already have this
+installed, you can download it as part of the Windows Platform SDK:
+
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
+
+To run these demos, you need to add the Ice bin directory to your
+PATH, as shown below:
+
+set PATH=<Ice installation root directory>\bin;%PATH%
+
+Next, open a Command Prompt, change to the desired demo subdirectory,
+and type 'server' to start the server. In a separate Command Prompt
+window, type 'client' to start the client.
+
+Some demo directories contain README files if additional requirements
+are necessary.
 
 
 Binary compatibility

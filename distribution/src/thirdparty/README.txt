@@ -161,10 +161,18 @@ Follow these instructions for building mcpp:
 
   > patch -p0 < ..\noconfig\vc2005.dif
 
-- Build the mcpp release library:
+- Microsoft Visual C++: 
+ 
+  Build the mcpp release library:
 
   > nmake MCPP_LIB=1 /f ..\noconfig\visualc.mak mcpplib
 
   To build the debug version of the library:
 
   > nmake MCPP_LIB=1 DEBUG=1 /f ..\noconfig\visualc.mak mcpplib
+
+- CodeGear C++Builder: 
+
+  Build the mcpp library:
+
+  > make -DMCPP_LIB -f..\noconfig\borlandc.mak mcpplib

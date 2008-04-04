@@ -67,7 +67,7 @@ Install::run(int argc, char* argv[])
     vector<string> commands;
     try
     {
-        commands = opts.parse(argc, argv);
+        commands = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {

@@ -17,7 +17,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(SelectorThread* p) { return p; }
+ICE_API IceUtil::Shared* IceInternal::upCast(SelectorThread* p) { return p; }
 
 IceInternal::SelectorThread::SelectorThread(const InstancePtr& instance) :
     _instance(instance),

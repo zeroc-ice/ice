@@ -43,7 +43,7 @@ SRCS		= $(TRANSPORT_OBJS:.obj=.cpp) \
 CPPFLAGS	= -I. -I../../include -I../../../src $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= $(LIBS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 TPDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)

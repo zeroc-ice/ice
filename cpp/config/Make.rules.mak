@@ -33,18 +33,10 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS
+# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS, BCC2007
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC80
-!endif
-
-#
-# Borland C++Builder 2006 home directory. Used if CPP_COMPILER
-# is set to BCC2006. Change if different from default.
-#
-!if "$(BCB)" == ""
-BCB		= C:\Program Files\Borland\BDS\4.0	
 !endif
 
 #
@@ -52,7 +44,7 @@ BCB		= C:\Program Files\Borland\BDS\4.0
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
 #
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 THIRDPARTY_HOME_EXT 	= BCC
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
 THIRDPARTY_HOME_EXT	= VC80
@@ -119,7 +111,7 @@ install_configdir	= $(prefix)\config
 
 SETARGV			= setargv.obj
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
         "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS" || \

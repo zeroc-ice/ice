@@ -55,7 +55,7 @@ SDIR		= $(slicedir)\Glacier2
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
-!if "$(CPP_COMPILER)" != "BCC2006"
+!if "$(CPP_COMPILER)" != "BCC2007"
 LINKWITH	= $(LINKWITH) ws2_32.lib
 !endif
 
@@ -70,19 +70,27 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 RPDBFLAGS       = /pdb:$(ROUTER:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+RES_FILE        = ,, Glacier2.res
+RRES_FILE       = ,, Glacier2Router.res
+!else
+RES_FILE        = Glacier2.res
+RRES_FILE       = Glacier2Router.res
+!endif
+
 SLICE2CPPFLAGS	= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) Glacier2.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) Glacier2.res $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(ROUTER): $(ROBJS) Glacier2Router.res
-	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) Glacier2Router.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -113,7 +121,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

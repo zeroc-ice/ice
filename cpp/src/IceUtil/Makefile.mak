@@ -46,6 +46,12 @@ CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I.. -DWIN32_LEAN_AND_MEAN
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+RES_FILE	= ,, IceUtil.res
+!else
+RES_FILE	= IceUtil.res
+!endif
+
 !if "$(STATICLIBS)" == "yes"
 
 $(DLLNAME):
@@ -58,7 +64,7 @@ $(LIBNAME): $(OBJS)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IceUtil.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceUtil.res $(PREOUT)$@ $(PRELIBS)$(ICE_OS_LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(ICE_OS_LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -79,7 +85,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

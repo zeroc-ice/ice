@@ -41,7 +41,7 @@ PlayerI::win(int count, const Ice::Current&)
 }
 
 PlayerI::PlayerI() :
-    PersistentPlayer(0)
+    CasinoStore::PersistentPlayer(0)
 {
 }
 

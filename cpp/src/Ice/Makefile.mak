@@ -116,9 +116,12 @@ SDIR		= $(slicedir)\Ice
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
-LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib Iphlpapi.lib
+LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib
+!if "$(CPP_COMPILER)" != "BCC2007"
+LINKWITH	= $(LINKWITH) Iphlpapi.lib
+!endif
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 RES_FILE	= ,, Ice.res
 !else
 !if "$(GENERATE_PDB)" == "yes"
@@ -194,7 +197,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

@@ -43,7 +43,7 @@ CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
 CPPFLAGS	= $(CPPFLAGS) -Od -v -k -D_DEBUG
 !endif
 
-LDFLAGS		= $(LDFLAGS) -L"$(libdir)" -L"$(BCB)\lib" -q -Gn -v -x
+LDFLAGS		= $(LDFLAGS) -L"$(libdir)" -L"$(BDS)\lib" -q -Gn -v -x
 
 LD_DLLFLAGS	= $(LDFLAGS) -Gi -Tpd c0d32.obj
 LD_EXEFLAGS	= $(LDFLAGS) -Tpe c0x32.obj
@@ -55,4 +55,5 @@ LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
 
 BZIP2_LIBS      = libbz2.lib
 DB_LIBS         = libdb46.lib
+MCPP_LIBS       = mcpp.lib
 ICONV_LIB       = libiconv-bcc.lib

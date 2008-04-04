@@ -101,10 +101,22 @@ APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+RES_FILE        = ,, IceStorm.res
+SRES_FILE       = ,, IceStormService.res
+ARES_FILE       = ,, IceStormAdmin.res
+MRES_FILE       = ,, IceStormMigrate.res
+!else
+RES_FILE        = IceStorm.res
+SRES_FILE       = IceStormService.res
+ARES_FILE       = IceStormAdmin.res
+MRES_FILE       = IceStormMigrate.res
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IceStorm.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IceStorm.res $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
@@ -113,19 +125,19 @@ $(DLLNAME): $(OBJS) IceStorm.res
 $(SVCLIBNAME): $(SVCDLLNAME)
 
 $(SVCDLLNAME): $(SERVICE_OBJS) IceStormService.res
-	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SERVICE_OBJS) IceStormService.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SERVICE_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(SRES_FILE)
 	move $(SVCDLLNAME:.dll=.lib) $(SVCLIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(SVCDLLNAME:.dll=.exp) del /q $(SVCDLLNAME:.dll=.exp)
 
 $(ADMIN): $(AOBJS) IceStormAdmin.res 
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) IceStormAdmin.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH) $(ARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(MIGRATE): $(MOBJS) IceStormMigrate.res
-	$(LINK) $(LD_EXEFLAGS) $(MPDBFLAGS) $(MOBJS) IceStormMigrate.res $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(MLINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(MPDBFLAGS) $(MOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(MLINKWITH) $(MRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -230,7 +242,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

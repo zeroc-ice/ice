@@ -73,6 +73,9 @@ The following C++ compilers are supported:
   In order to build the MFC demos, you need to install the MFC
   "Shared Libraries for Unicode".
 
+- CodeGear C++Builder 2007 R2 Version 11.0.2902.10471 with
+  December 2007 Update
+
 
 Visual C++ 2005 Express Setup
 -----------------------------
@@ -138,8 +141,8 @@ NMAKE and Message Compiler (MC.EXE)
 
 In order to build Ice you need the Microsoft NMAKE and Message Compiler 
 utilities. These are included in all full Microsoft C++ compiler distributions.
-If you are using the Borland C++ compiler or Visual C++ 2008 Express, you can 
-download them as part of the Windows Platform SDK:
+If you are using C++Builder or Visual C++ 2008 Express, you can download them
+as part of the Windows Platform SDK:
  
   http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
 
@@ -222,6 +225,8 @@ environment variable:
 
 Note that you must be using a Windows x64 platform when compiling a
 64-bit version of Ice.
+
+For C++Builder use the "RAD Studio Command Prompt".
 
 Change the working directory to Ice-@ver@. For example:
 

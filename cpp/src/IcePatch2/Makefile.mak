@@ -68,31 +68,43 @@ CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 CAPDBFLAGS      = /pdb:$(CALC:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+RES_FILE        = ,, IcePatch2.res
+SRES_FILE       = ,, IcePatch2Server.res
+CRES_FILE       = ,, IcePatch2Client.res
+CARES_FILE      = ,, IcePatch2Calc.res
+!else
+RES_FILE        = IcePatch2.res
+SRES_FILE       = IcePatch2Server.res
+CRES_FILE       = IcePatch2Client.res
+CARES_FILE      = IcePatch2Calc.res
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IcePatch2.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) IcePatch2.res $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) \
-		$(OPENSSL_LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) \
+		$(OPENSSL_LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(SERVER): $(SOBJS) IcePatch2Server.res
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) IcePatch2Server.res $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-		icepatch2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+		icepatch2$(LIBSUFFIX).lib $(SRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(CLIENT): $(COBJS) IcePatch2Client.res
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) IcePatch2Client.res $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-		icepatch2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+		icepatch2$(LIBSUFFIX).lib $(CRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(CALC): $(CALCOBJS) IcePatch2Calc.res
-	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(SETARGV) $(CALCOBJS) IcePatch2Calc.res $(PREOUT)$@ $(PRELIBS)$(LIBS) \
-		icepatch2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(SETARGV) $(CALCOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+		icepatch2$(LIBSUFFIX).lib $(CARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -128,7 +140,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

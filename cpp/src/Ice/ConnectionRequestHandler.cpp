@@ -21,7 +21,19 @@ using namespace IceInternal;
 ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference, const Ice::ObjectPrx& proxy) :
     RequestHandler(reference)
 {
-    _connection = _reference->getConnection(_compress);
+// COMPILERFIX: Without the catch/rethrow C++Builder 2007 can get access violations.
+#ifdef __BCPLUSPLUS__ 
+    try
+    {
+#endif
+        _connection = _reference->getConnection(_compress);
+#ifdef __BCPLUSPLUS__
+    }
+    catch(const Ice::LocalException&)
+    {
+        throw;
+    }
+#endif
     RouterInfoPtr ri = reference->getRouterInfo();
     if(ri)
     {

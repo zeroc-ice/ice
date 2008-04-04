@@ -57,11 +57,11 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(CPP_COMPILER)" != "BCC2006"
+!if "$(CPP_COMPILER)" != "BCC2007"
 CPPFLAGS	= $(CPPFLAGS) -Zm200
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 SAPDBFLAGS       = /pdb:$(SERVERAMD:.exe=.pdb)

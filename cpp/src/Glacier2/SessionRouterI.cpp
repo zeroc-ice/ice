@@ -146,52 +146,52 @@ public:
     {
     }
 
+    class CheckPermissionsCB : public AMI_PermissionsVerifier_checkPermissions
+    {
+    public:
+
+        CheckPermissionsCB(const UserPasswordCreateSessionPtr& session, bool hasSessionManager) : 
+            _session(session),
+            _hasSessionManager(hasSessionManager)
+        {
+        }
+
+        virtual void
+        ice_response(bool ok, const string& reason)
+        {
+            if(ok)
+            {
+                _session->authorized(_hasSessionManager);
+            }
+            else
+            {
+                _session->exception(PermissionDeniedException(reason.empty() ? string("permission denied") : reason));
+            }
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            if(dynamic_cast<const CollocationOptimizationException*>(&ex))
+            {
+                _session->authorizeCollocated();
+            }
+            else
+            {
+                _session->unexpectedAuthorizeException(ex);
+            }
+        }
+
+    private:
+
+        const UserPasswordCreateSessionPtr _session;
+        const bool _hasSessionManager;
+    };
+
     virtual void
     authorize()
     {
         assert(_sessionRouter->_verifier);
-
-        class CheckPermissionsCB : public AMI_PermissionsVerifier_checkPermissions
-        {
-        public:
-
-            CheckPermissionsCB(const UserPasswordCreateSessionPtr& session, bool hasSessionManager) : 
-                _session(session),
-                _hasSessionManager(hasSessionManager)
-            {
-            }
-
-            virtual void
-            ice_response(bool ok, const string& reason)
-            {
-                if(ok)
-                {
-                    _session->authorized(_hasSessionManager);
-                }
-                else
-                {
-                    _session->exception(PermissionDeniedException(reason.empty() ? "permission denied" : reason));
-                }
-            }
-
-            virtual void
-            ice_exception(const Ice::Exception& ex)
-            {
-                if(dynamic_cast<const CollocationOptimizationException*>(&ex))
-                {
-                    _session->authorizeCollocated();
-                }
-                else
-                {
-                    _session->unexpectedAuthorizeException(ex);
-                }
-            }
-
-        private:
-
-            const UserPasswordCreateSessionPtr _session;
-            const bool _hasSessionManager;
-        };
 
         AMI_PermissionsVerifier_checkPermissionsPtr cb = new CheckPermissionsCB(this, _sessionRouter->_sessionManager);
         _sessionRouter->_verifier->checkPermissions_async(cb, _user, _password, _current.ctx);
@@ -209,7 +209,7 @@ public:
             }
             else
             {
-                exception(PermissionDeniedException(reason.empty() ? "permission denied" : reason));
+                exception(PermissionDeniedException(reason.empty() ? string("permission denied") : reason));
             }
         }
         catch(const Ice::Exception& ex)
@@ -224,44 +224,45 @@ public:
         return FilterManager::create(_instance, _user, true);
     }
 
+    class CreateCB : public AMI_SessionManager_create
+    {
+    public:
+        
+        CreateCB(const CreateSessionPtr& session) : _session(session)
+        {
+        }
+        
+        virtual void 
+        ice_response(const SessionPrx& session)
+        {
+            _session->sessionCreated(session);
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            try
+            {
+                ex.ice_throw();
+            }
+            catch(const CannotCreateSessionException& ex)
+            {
+                _session->exception(ex);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                _session->unexpectedCreateSessionException(ex);
+            }
+        }
+
+    private:
+        
+        const CreateSessionPtr _session;
+    };
+
     virtual void
     createSession()
     {
-        class CreateCB : public AMI_SessionManager_create
-        {
-        public:
-            
-            CreateCB(const CreateSessionPtr& session) : _session(session)
-            {
-            }
-            
-            virtual void 
-            ice_response(const SessionPrx& session)
-            {
-                _session->sessionCreated(session);
-            }
-
-            virtual void
-            ice_exception(const Ice::Exception& ex)
-            {
-                try
-                {
-                    ex.ice_throw();
-                }
-                catch(const CannotCreateSessionException& ex)
-                {
-                    _session->exception(ex);
-                }
-                catch(const Ice::Exception& ex)
-                {
-                    _session->unexpectedCreateSessionException(ex);
-                }
-            }
-
-        private:
-            
-            const CreateSessionPtr _session;
-        };
         _sessionRouter->_sessionManager->create_async(new CreateCB(this), _user, _control, _current.ctx);
     }
     
@@ -296,52 +297,53 @@ public:
     {
     }
 
+    class AuthorizeCB : public AMI_SSLPermissionsVerifier_authorize
+    {
+    public:
+
+        AuthorizeCB(const SSLCreateSessionPtr& session, bool hasSessionManager) : 
+            _session(session),
+            _hasSessionManager(hasSessionManager)
+        {
+        }
+
+        virtual void
+        ice_response(bool ok, const string& reason)
+        {
+            if(ok)
+            {
+                _session->authorized(_hasSessionManager);
+            }
+            else
+            {
+                _session->exception(PermissionDeniedException(reason.empty() ? string("permission denied")
+                                                                             : reason));
+            }
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            if(dynamic_cast<const CollocationOptimizationException*>(&ex))
+            {
+                _session->authorizeCollocated();
+            }
+            else
+            {
+                _session->unexpectedAuthorizeException(ex);
+            }
+        }
+
+    private:
+
+        const SSLCreateSessionPtr _session;
+        const bool _hasSessionManager;
+    };
+
     virtual void
     authorize()
     {
         assert(_sessionRouter->_verifier);
-
-        class AuthorizeCB : public AMI_SSLPermissionsVerifier_authorize
-        {
-        public:
-
-            AuthorizeCB(const SSLCreateSessionPtr& session, bool hasSessionManager) : 
-                _session(session),
-                _hasSessionManager(hasSessionManager)
-            {
-            }
-
-            virtual void
-            ice_response(bool ok, const string& reason)
-            {
-                if(ok)
-                {
-                    _session->authorized(_hasSessionManager);
-                }
-                else
-                {
-                    _session->exception(PermissionDeniedException(reason.empty() ? "permission denied" : reason));
-                }
-            }
-
-            virtual void
-            ice_exception(const Ice::Exception& ex)
-            {
-                if(dynamic_cast<const CollocationOptimizationException*>(&ex))
-                {
-                    _session->authorizeCollocated();
-                }
-                else
-                {
-                    _session->unexpectedAuthorizeException(ex);
-                }
-            }
-
-        private:
-
-            const SSLCreateSessionPtr _session;
-            const bool _hasSessionManager;
-        };
 
         AMI_SSLPermissionsVerifier_authorizePtr cb = new AuthorizeCB(this, _sessionRouter->_sessionManager);
         _sessionRouter->_sslVerifier->authorize_async(cb, _sslInfo, _current.ctx);
@@ -359,7 +361,7 @@ public:
             }
             else
             {
-                exception(PermissionDeniedException(reason.empty() ? "permission denied" : reason));
+                exception(PermissionDeniedException(reason.empty() ? string("permission denied") : reason));
             }
         }
         catch(const Ice::Exception& ex)
@@ -374,44 +376,45 @@ public:
         return FilterManager::create(_instance, _user, false);
     }
 
+    class CreateCB : public AMI_SSLSessionManager_create
+    {
+    public:
+        
+        CreateCB(const CreateSessionPtr& session) : _session(session)
+        {
+        }
+        
+        virtual void 
+        ice_response(const SessionPrx& session)
+        {
+            _session->sessionCreated(session);
+        }
+
+        virtual void
+        ice_exception(const Ice::Exception& ex)
+        {
+            try
+            {
+                ex.ice_throw();
+            }
+            catch(const CannotCreateSessionException& ex)
+            {
+                _session->exception(ex);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                _session->unexpectedCreateSessionException(ex);
+            }
+        }
+
+    private:
+        
+        const CreateSessionPtr _session;
+    };
+
     virtual void
     createSession()
     {
-        class CreateCB : public AMI_SSLSessionManager_create
-        {
-        public:
-            
-            CreateCB(const CreateSessionPtr& session) : _session(session)
-            {
-            }
-            
-            virtual void 
-            ice_response(const SessionPrx& session)
-            {
-                _session->sessionCreated(session);
-            }
-
-            virtual void
-            ice_exception(const Ice::Exception& ex)
-            {
-                try
-                {
-                    ex.ice_throw();
-                }
-                catch(const CannotCreateSessionException& ex)
-                {
-                    _session->exception(ex);
-                }
-                catch(const Ice::Exception& ex)
-                {
-                    _session->unexpectedCreateSessionException(ex);
-                }
-            }
-
-        private:
-            
-            const CreateSessionPtr _session;
-        };
         _sessionRouter->_sslSessionManager->create_async(new CreateCB(this), _sslInfo, _control, _current.ctx);
     }
     
@@ -437,9 +440,12 @@ class DestroyCB : public AMI_Session_destroy
 {
 public:
 
-    DestroyCB(int traceLevel, const LoggerPtr& logger) : 
-        _logger(traceLevel > 0 ? logger : LoggerPtr())
+    DestroyCB(int traceLevel, const LoggerPtr& logger)
     {
+        if(traceLevel > 0)
+        {
+            _logger = logger;
+        }
     }
 
     virtual void
@@ -545,8 +551,12 @@ Glacier2::CreateSession::sessionCreated(const SessionPrx& session)
     RouterIPtr router;
     try
     {
-        router = new RouterI(_instance, _current.con, _user, session, 
-                             _control ? _control->ice_getIdentity() : Ice::Identity(), _filterManager, _sslContext);
+        Ice::Identity ident;
+        if(_control)
+        {
+            ident = _control->ice_getIdentity();
+        }
+        router = new RouterI(_instance, _current.con, _user, session, ident, _filterManager, _sslContext);
     }
     catch(const Ice::Exception& ex)
     {

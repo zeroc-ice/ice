@@ -47,15 +47,23 @@ TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
 DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2007"
+TRES_FILE        = ,, TransformDB.res
+DRES_FILE        = ,, DumpDB.res
+!else
+TRES_FILE        = TransformDB.res
+DRES_FILE        = DumpDB.res
+!endif
+
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res
-	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res $(SETARGV) $(PREOUT)$@ \
-		$(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)$(LINKWITH) $(TRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS) DumpDB.res
-	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) DumpDB.res $(SETARGV) $(PREOUT)$@ \
-		$(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
+		$(PRELIBS)$(LINKWITH) $(DRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
@@ -92,7 +100,7 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
 	copy $(TRANSFORMDB:.exe=.tds) $(install_bindir)

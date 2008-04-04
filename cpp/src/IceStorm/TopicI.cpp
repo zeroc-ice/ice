@@ -473,7 +473,6 @@ TopicImpl::TopicImpl(
             {
                 Ice::Warning out(traceLevels->logger);
                 out << _name << " recreate " << _instance->communicator()->identityToString(id) << " failed: " << ex;
-                continue;
             }
         }
     }

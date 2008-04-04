@@ -482,7 +482,7 @@ private:
 };
 
 TestApp::TestApp(const string& envName) :
-    Application(Ice::NoSignalHandling),
+    Ice::Application(Ice::NoSignalHandling),
     _envName(envName),
     _repetitions(10000)
 {

@@ -18,6 +18,7 @@
 #include <IceUtil/StringUtil.h>
 
 #include <IceStorm/NodeI.h>
+#include <IceStorm/TransientTopicI.h>
 
 #include <IceGrid/Locator.h>
 #include <IceGrid/Query.h>

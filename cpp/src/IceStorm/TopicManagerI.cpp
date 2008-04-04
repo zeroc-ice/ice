@@ -16,6 +16,7 @@
 
 #include <IceStorm/NodeI.h>
 #include <IceStorm/Observers.h>
+#include <IceStorm/Subscriber.h>
 
 #include <Ice/SliceChecksums.h>
 

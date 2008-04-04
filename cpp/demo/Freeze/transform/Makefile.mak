@@ -27,7 +27,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 CREATE_PDBFLAGS        = /pdb:$(CREATE:.exe=.pdb)
 READ_PDBFLAGS          = /pdb:$(READ:.exe=.pdb)
 READNEW_PDBFLAGS       = /pdb:$(READNEW:.exe=.pdb)

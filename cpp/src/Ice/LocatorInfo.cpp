@@ -384,6 +384,73 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, int ttl, bool& c
     return endpoints;
 }
 
+namespace IceInternal
+{
+
+class findAdapterByIdCallback : public AMI_Locator_findAdapterById
+{
+public:
+
+    virtual void
+    ice_response(const Ice::ObjectPrx& object)
+    {
+        vector<EndpointIPtr> endpoints;
+        if(object)
+        {
+            endpoints = object->__reference()->getEndpoints();
+            if(!endpoints.empty())
+            {
+                _table->addAdapterEndpoints(_reference->getAdapterId(), endpoints);
+            }
+        }
+
+        if(_reference->getInstance()->traceLevels()->location >= 1)
+        {
+            _locatorInfo->getEndpointsTrace(_reference, endpoints, false);
+        }
+
+        _callback->setEndpoints(endpoints, false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& ex)
+    {
+        if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
+        {
+            try
+            {
+                bool cached;
+                vector<EndpointIPtr> endpoints = _locatorInfo->getEndpoints(_reference, _ttl, cached);
+                _callback->setEndpoints(endpoints, cached);
+            }
+            catch(const Ice::LocalException& e)
+            {
+                _callback->setException(e);
+            }
+        }
+        else
+        {
+            _locatorInfo->getEndpointsException(_reference, ex, _callback);
+        }
+    }
+
+    findAdapterByIdCallback(const LocatorInfoPtr& locatorInfo, const LocatorTablePtr& table,
+             const ReferencePtr& reference, int ttl, const LocatorInfo::GetEndpointsCallbackPtr& callback) :
+        _locatorInfo(locatorInfo), _table(table), _reference(reference), _ttl(ttl), _callback(callback)
+    {
+    }
+
+private:
+
+    const LocatorInfoPtr _locatorInfo;
+    const LocatorTablePtr _table;
+    const ReferencePtr _reference;
+    const int _ttl;
+    const LocatorInfo::GetEndpointsCallbackPtr _callback;
+};
+
+};
+
 void
 IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& callback)
 {
@@ -403,73 +470,12 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, int ttl, const G
                 out << "searching for adapter by id" << "\nadapter = " << adapterId;
             }
 
-            class Callback : public AMI_Locator_findAdapterById
-            {
-            public:
-                
-                virtual void
-                ice_response(const Ice::ObjectPrx& object)
-                {
-                    vector<EndpointIPtr> endpoints;
-                    if(object)
-                    {
-                        endpoints = object->__reference()->getEndpoints();
-                        if(!endpoints.empty())
-                        {
-                            _table->addAdapterEndpoints(_reference->getAdapterId(), endpoints);
-                        }
-                    }
-                    
-                    if(_reference->getInstance()->traceLevels()->location >= 1)
-                    {
-                        _locatorInfo->getEndpointsTrace(_reference, endpoints, false);
-                    }
-                    
-                    _callback->setEndpoints(endpoints, false);
-                }
-
-                virtual void
-                ice_exception(const Ice::Exception& ex)
-                {
-                    if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
-                    {
-                        try
-                        {
-                            bool cached;
-                            vector<EndpointIPtr> endpoints = _locatorInfo->getEndpoints(_reference, _ttl, cached);
-                            _callback->setEndpoints(endpoints, cached);
-                        }
-                        catch(const Ice::LocalException& e)
-                        {
-                            _callback->setException(e);
-                        }
-                    }
-                    else
-                    {
-                        _locatorInfo->getEndpointsException(_reference, ex, _callback);
-                    }
-                }
-                
-                Callback(const LocatorInfoPtr& locatorInfo, const LocatorTablePtr& table,
-                         const ReferencePtr& reference, int ttl, const GetEndpointsCallbackPtr& callback) :
-                    _locatorInfo(locatorInfo), _table(table), _reference(reference), _ttl(ttl), _callback(callback)
-                {
-                }
-
-            private:
-                
-                const LocatorInfoPtr _locatorInfo;
-                const LocatorTablePtr _table;
-                const ReferencePtr _reference;
-                const int _ttl;
-                const GetEndpointsCallbackPtr _callback;
-            };
-
             //
             // Search the adapter in the location service if we didn't
             // find it in the cache.
             //
-            _locator->findAdapterById_async(new Callback(this, _table, ref, ttl, callback), adapterId);
+            _locator->findAdapterById_async(
+                new IceInternal::findAdapterByIdCallback(this, _table, ref, ttl, callback), adapterId);
             return;
         }
         else
