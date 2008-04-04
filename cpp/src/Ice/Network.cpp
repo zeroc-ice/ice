@@ -350,11 +350,11 @@ getAddressImpl(const string& host, int port, struct sockaddr_storage& addr, Prot
     }
 
     memcpy(&addr, info->ai_addr, info->ai_addrlen);
-    if(info->ai_family != PF_INET)
+    if(info->ai_family == PF_INET)
     {
         reinterpret_cast<sockaddr_in*>(&addr)->sin_port = htons(port);
     }
-    else if(info->ai_family != AF_INET6)
+    else if(info->ai_family == PF_INET6)
     {
         reinterpret_cast<sockaddr_in6*>(&addr)->sin6_port = htons(port);
     }

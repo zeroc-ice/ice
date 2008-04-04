@@ -667,10 +667,9 @@ namespace IceInternal
             setBlock(fd, fd.Blocking);
 
             //
-            // The RemoteEndPoint property can raise a SocketException. On Windows, this
-            // property always succeeds after a successful call to EndConnect. On Mono,
-            // EndConnect appears to complete successfully yet RemoteEndPoint can still
-            // raise a SocketException with WSAENOTCONN.
+            // The RemoteEndPoint property can raise a SocketException with WSAENOTCONN
+            // even when EndConnect completes successfully. On Windows this only seems
+            // to occur when using IPv6; we ignore the error in this case.
             //
             EndPoint addr = null;
             try
@@ -679,7 +678,10 @@ namespace IceInternal
             }
             catch(SocketException ex)
             {
-                throw new Ice.ConnectFailedException(ex);
+                if(fd.AddressFamily != AddressFamily.InterNetworkV6)
+                {
+                    throw new Ice.ConnectFailedException(ex);
+                }
             }
 
             if(addr != null && addr.Equals(fd.LocalEndPoint))

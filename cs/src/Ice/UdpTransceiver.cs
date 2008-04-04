@@ -148,8 +148,9 @@ namespace IceInternal
             {
                 peerAddr = new IPEndPoint(IPAddress.Any, 0);
             }
-            else if(_addr.AddressFamily == AddressFamily.InterNetworkV6)
+            else
             {
+                Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
                 peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
             }
 
@@ -277,7 +278,16 @@ namespace IceInternal
 
             try
             {
-                EndPoint peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                EndPoint peerAddr;
+                if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                }
+                else
+                {
+                    Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
+                    peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                }
                 return _fd.BeginReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, ref peerAddr,
                                             callback, state);
             }
@@ -301,7 +311,16 @@ namespace IceInternal
             int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
             try
             {
-                EndPoint peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                EndPoint peerAddr;
+                if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                }
+                else
+                {
+                    Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
+                    peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                }
                 int ret = _fd.EndReceiveFrom(result, ref peerAddr);
                 if(ret == 0)
                 {
@@ -560,6 +579,7 @@ namespace IceInternal
                     }
                     else
                     {
+                        Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
                         Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, port));
                     }
                     Network.setMcastGroup(_fd, _addr.Address, mcastInterface);

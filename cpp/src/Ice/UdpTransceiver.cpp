@@ -379,7 +379,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             // so we bind to INADDR_ANY (0.0.0.0) instead.
             //
             struct sockaddr_storage addr;
-            getAddressForServer("", port, addr, instance->protocolSupport());
+            getAddressForServer("", port, addr, _addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
             doBind(_fd, addr);
 #else
             doBind(_fd, _addr);
