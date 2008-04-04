@@ -9,41 +9,20 @@
 
 namespace IceInternal
 {
-    using System.Runtime.InteropServices;
+    using System.Diagnostics;
 
     public sealed class Time
     {
-#if MANAGED
-        public static long currentMonotonicTimeMillis()
+        static Time()
         {
-            return System.DateTime.Now.Ticks / 10000;
+            _stopwatch.Start();
         }
-#else
-        [DllImport("Kernel32.dll")]
-        private static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
-
-        [DllImport("Kernel32.dll")]
-        private static extern bool QueryPerformanceFrequency(out long lpFrequency);
 
         public static long currentMonotonicTimeMillis()
         {
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
-            {
-                if(_frequency == -1)
-                {
-                    QueryPerformanceFrequency(out _frequency);
-                }
-                long current;
-                QueryPerformanceCounter(out current);
-                return (long)(1000.0 / _frequency * current);
-            }
-            else
-            {
-                return System.DateTime.Now.Ticks / 10000;
-            }
+            return _stopwatch.ElapsedMilliseconds;
         }
 
-        private static long _frequency = -1;
-#endif
+        private static Stopwatch _stopwatch = new Stopwatch();
     }
 }
