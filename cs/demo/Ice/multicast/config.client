@@ -14,9 +14,9 @@ DiscoverReply.Endpoints=tcp
 #
 # Alternative IPv6 configuration
 #
-Ice.IPv6=1
-Discover.Proxy=discover:udp -h "ff01::1:1" -p 10000
-DiscoverReply.Endpoints=tcp -h "::1"
+#Ice.IPv6=1
+#Discover.Proxy=discover:udp -h "ff01::1:1" -p 10000
+#DiscoverReply.Endpoints=tcp -h "::1"
 
 #
 # Warn about connection exceptions
