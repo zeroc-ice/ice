@@ -150,8 +150,6 @@ install:: all
 endif
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); \
-	 $(call installassembly,$(POLICY_TARGET),); \
-	 $(call installassembly,$(POLICY),))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)))
 
 include .depend
