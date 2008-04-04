@@ -41,6 +41,8 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installassembly,$(POLICY_TARGET),))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); \
+	 $(call installassembly,$(POLICY_TARGET),); \
+	 $(call installassembly,$(POLICY),))
 
 include .depend
