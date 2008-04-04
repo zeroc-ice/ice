@@ -93,6 +93,8 @@ replica2.waitTestSuccess()
 runtest()
 print "ok"
 
+print "completing shutdown...", 
+sys.stdout.flush()
 admin.sendline('node shutdown node1')
 admin.expect('>>>')
 node1.waitTestSuccess(timeout=120)
@@ -106,4 +108,5 @@ admin.expect('>>>')
 master.waitTestSuccess()
 
 admin.sendline('exit')
-admin.waitTestSuccess()
+admin.waitTestSuccess(timeout=120)
+print "ok"

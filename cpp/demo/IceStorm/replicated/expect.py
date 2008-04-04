@@ -76,13 +76,13 @@ def matchpat(e, pat, timeout=60):
         matched.append(m)
     assert len(matched) == len(pat)
 
-matchpat(node, [ 'Election: node 1: reporting for duty in group 3:[-0-9A-F]+ with coordinator 3',
-                 'Election: node 2: reporting for duty in group 3:[-0-9A-F]+ with coordinator 3',
-                 'Election: node 3: reporting for duty in group 3:[-0-9A-F]+ as coordinator' ])
+matchpat(node, [ 'Election: node 1: reporting for duty in group 3:[-0-9A-Fa-f]+ with coordinator 3',
+                 'Election: node 2: reporting for duty in group 3:[-0-9A-Fa-f]+ with coordinator 3',
+                 'Election: node 3: reporting for duty in group 3:[-0-9A-Fa-f]+ as coordinator' ])
          
-matchpat(node, ['DemoIceStorm-3: Topic: time: subscribeAndGetPublisher: [-0-9A-F]+',
-                'DemoIceStorm-1: Topic: time: add replica observer: [-0-9A-F]+',
-                'DemoIceStorm-2: Topic: time: add replica observer: [-0-9A-F]+' ])
+matchpat(node, ['DemoIceStorm-3: Topic: time: subscribeAndGetPublisher: [-0-9A-Fa-f]+',
+                'DemoIceStorm-1: Topic: time: add replica observer: [-0-9A-Fa-f]+',
+                'DemoIceStorm-2: Topic: time: add replica observer: [-0-9A-Fa-f]+' ])
 
 sub.expect('.* ready')
 
@@ -97,9 +97,9 @@ sub.waitTestSuccess()
 pub.kill(signal.SIGINT)
 pub.waitTestSuccess()
 
-matchpat(node, [ 'DemoIceStorm-1: Topic: time: remove replica observer: [-0-9A-F]+',
-                 'DemoIceStorm-2: Topic: time: remove replica observer: [-0-9A-F]+' ,
-                 'DemoIceStorm-3: Topic: time: unsubscribe: [-0-9A-F]+' ]) 
+matchpat(node, [ 'DemoIceStorm-1: Topic: time: remove replica observer: [-0-9A-Fa-f]+',
+                 'DemoIceStorm-2: Topic: time: remove replica observer: [-0-9A-Fa-f]+' ,
+                 'DemoIceStorm-3: Topic: time: unsubscribe: [-0-9A-Fa-f]+' ]) 
 
 admin.sendline('registry shutdown Master')
 admin.sendline('exit')
