@@ -73,8 +73,7 @@ The following C++ compilers are supported:
   In order to build the MFC demos, you need to install the MFC
   "Shared Libraries for Unicode".
 
-- CodeGear C++Builder 2007 R2 Version 11.0.2902.10471 with
-  December 2007 Update
+- CodeGear C++Builder 2007 R2 with December 2007 Update
 
 
 Visual C++ 2005 Express Setup
