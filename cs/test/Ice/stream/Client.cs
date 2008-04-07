@@ -177,6 +177,41 @@ public class Client
         Console.Out.Flush();
 
         {
+            byte[] data = new byte[0];
+            @in = Ice.Util.createInputStream(communicator, data);
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            @out.startEncapsulation();
+            @out.writeBool(true);
+            @out.endEncapsulation();
+            byte[] data = @out.finished();
+            @out.destroy();
+
+            @in = Ice.Util.createInputStream(communicator, data);
+            @in.startEncapsulation();
+            test(@in.readBool());
+            @in.endEncapsulation();
+            @in.destroy();
+        }
+
+        {
+            byte[] data = new byte[0];
+            @in = Ice.Util.createInputStream(communicator, data);
+            try
+            {
+                @in.readBool();
+                test(false);
+            }
+            catch(Ice.UnmarshalOutOfBoundsException)
+            {
+            }
+            @in.destroy();
+        }
+
+        {
             @out = Ice.Util.createOutputStream(communicator);
             @out.writeBool(true);
             byte[] data = @out.finished();

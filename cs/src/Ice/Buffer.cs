@@ -18,7 +18,7 @@ namespace IceInternal
     {
         public Buffer(int maxCapacity)
         {
-            b = null;
+            b = _emptyBuffer;
             _size = 0;
             _capacity = 0;
             _maxCapacity = maxCapacity;
@@ -36,7 +36,7 @@ namespace IceInternal
 
         public void clear()
         {
-            b = null;
+            b = _emptyBuffer;
             _size = 0;
             _capacity = 0;
         }
@@ -49,7 +49,7 @@ namespace IceInternal
         //
         public void expand(int n)
         {
-            int sz = b == null ? n : b.position() + n;
+            int sz = (b == _emptyBuffer) ? n : b.position() + n;
             if(sz > _size)
             {
                 resize(sz, false);
@@ -98,7 +98,7 @@ namespace IceInternal
                 _shrinkCounter = 0;
             }
             _size = 0;
-            if(b != null)
+            if(b != _emptyBuffer)
             {
                 b.limit(b.capacity());
                 b.position(0);
@@ -125,7 +125,7 @@ namespace IceInternal
             {
                 ByteBuffer buf = ByteBuffer.allocate(_capacity);
 
-                if(b == null)
+                if(b == _emptyBuffer)
                 {
                     b = buf;
                 }
@@ -151,6 +151,8 @@ namespace IceInternal
         }
 
         public ByteBuffer b;
+        // Sentinel used for null buffer.
+        static private ByteBuffer _emptyBuffer = new ByteBuffer();
 
         private int _size;
         private int _capacity; // Cache capacity to avoid excessive method calls.

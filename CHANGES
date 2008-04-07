@@ -1,4 +1,26 @@
 ======================================================================
+Changes since version 3.3b
+======================================================================
+
+Java Changes
+============
+
+- Fixed a NullPointerException thrown when allocating an InputStream
+  with an empty buffer.
+
+- Fixed a NullPointerException thrown when calling startEncapsulation
+  on an OutputStream.
+
+C# Changes
+============
+
+- Fixed a NullReferenceException thrown when allocating an InputStream
+  with an empty buffer.
+
+- Fixed a NullReferenceException thrown when calling
+  startEncapsulation on an OutputStream.
+
+======================================================================
 Changes since version 3.2.1
 ======================================================================
 

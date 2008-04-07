@@ -149,6 +149,38 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     cout << "testing primitive types... " << flush;
 
     {
+        vector<Ice::Byte> byte;
+        in = Ice::createInputStream(communicator, byte);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->writeBool(true);
+        out->endEncapsulation();
+        out->finished(data);
+        out = 0;
+
+        in = Ice::createInputStream(communicator, data);
+        in->startEncapsulation();
+        test(in->readBool());
+        in->endEncapsulation();
+    }
+
+    {
+        vector<Ice::Byte> byte;
+        in = Ice::createInputStream(communicator, byte);
+        try
+        {
+            in->readBool();
+            test(false);
+        }
+        catch(const Ice::UnmarshalOutOfBoundsException&)
+        {
+        }
+    }
+
+    {
         out = Ice::createOutputStream(communicator);
         out->writeBool(true);
         out->finished(data);

@@ -204,9 +204,12 @@ namespace IceInternal
                 throw new ArgumentOutOfRangeException("length", length,
                                                       "insufficient data beyond given offset in source array");
             }
-            checkOverflow(length);
-            System.Buffer.BlockCopy(b, offset, _bytes, _position, length);
-            _position += length;
+            if(length > 0)
+            {
+                checkOverflow(length);
+                System.Buffer.BlockCopy(b, offset, _bytes, _position, length);
+                _position += length;
+            }
             return this;
         }
 

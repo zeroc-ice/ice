@@ -18,7 +18,7 @@ public class Buffer
     public
     Buffer(int maxCapacity)
     {
-        b = null;
+        b = _emptyBuffer;
         _size = 0;
         _capacity = 0;
         _maxCapacity = maxCapacity;
@@ -39,7 +39,7 @@ public class Buffer
     public void
     clear()
     {
-        b = null;
+        b = _emptyBuffer;
         _size = 0;
         _capacity = 0;
     }
@@ -53,7 +53,7 @@ public class Buffer
     public void
     expand(int n)
     {
-        final int sz = b == null ? n : b.position() + n;
+        final int sz = (b == _emptyBuffer) ? n : b.position() + n;
         if(sz > _size)
         {
             resize(sz, false);
@@ -104,7 +104,7 @@ public class Buffer
             _shrinkCounter = 0;
         }
         _size = 0;
-        if(b != null)
+        if(b != _emptyBuffer)
         {
             b.limit(b.capacity());
             b.position(0);
@@ -141,7 +141,7 @@ public class Buffer
                 buf = java.nio.ByteBuffer.allocate(_capacity);
             }
 
-            if(b == null)
+            if(b == _emptyBuffer)
             {
                 b = buf;
             }
@@ -168,6 +168,8 @@ public class Buffer
     }
 
     public java.nio.ByteBuffer b;
+    // Sentinel used for null buffer.
+    public java.nio.ByteBuffer _emptyBuffer = java.nio.ByteBuffer.allocate(0);
 
     private int _size;
     private int _capacity; // Cache capacity to avoid excessive method calls.
