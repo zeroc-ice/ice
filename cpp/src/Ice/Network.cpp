@@ -1717,6 +1717,19 @@ IceInternal::addrToString(const struct sockaddr_storage& addr)
     return s.str();
 }
 
+bool
+IceInternal::isMulticast(const struct sockaddr_storage& addr)
+{
+    if(addr.ss_family == AF_INET)
+    {
+        return IN_MULTICAST(ntohl(reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr.s_addr));
+    }
+    else
+    {
+        return IN6_IS_ADDR_MULTICAST(&reinterpret_cast<const struct sockaddr_in6*>(&addr)->sin6_addr);
+    }
+}
+
 int
 IceInternal::getPort(const struct sockaddr_storage& addr)
 {

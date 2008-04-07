@@ -245,6 +245,27 @@ IceInternal::UdpTransceiver::toString() const
 SocketStatus
 IceInternal::UdpTransceiver::initialize()
 {
+    if(!_incoming)
+    {
+        if(_connect)
+        {
+            //
+            // If we're not connected yet, return NeedConnect. The transceiver will be 
+            // connected once initialize is called again.
+            //
+            _connect = false;
+            return NeedConnect;
+        }
+        else
+        {
+            if(_traceLevels->network >= 1)
+            {
+                Trace out(_logger, _traceLevels->networkCat);
+                out << "starting to send udp packets\n" << toString();
+            }
+            return Finished;
+        }
+    }
     return Finished;
 }
 
@@ -283,29 +304,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         _fd = createSocket(true, _addr.ss_family);
         setBufSize(instance);
         setBlock(_fd, false);
-#if !defined(NDEBUG) && !defined(__hpux)
-        bool connected = doConnect(_fd, _addr);
-        assert(connected);
-#else
-        doConnect(_fd, _addr);
-#endif
-        _connect = false; // We're connected now
 
-        bool multicast = false;
-        int port;
-        if(_addr.ss_family == AF_INET)
+        if(doConnect(_fd, _addr))
         {
-            struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&_addr);
-            multicast = IN_MULTICAST(ntohl(addrin->sin_addr.s_addr));
-            port = ntohs(addrin->sin_port);
+            _connect = false; // We're connected now
         }
-        else
-        {
-            struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&_addr);
-            multicast = IN6_IS_ADDR_MULTICAST(&addrin->sin6_addr);
-            port = ntohs(addrin->sin6_port);
-        }
-        if(multicast)
+
+        if(isMulticast(_addr))
         {
             if(mcastInterface.length() > 0)
             {
@@ -315,12 +320,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             {
                 setMcastTtl(_fd, mcastTtl, _addr.ss_family == AF_INET);
             }
-        }
-
-        if(_traceLevels->network >= 1)
-        {
-            Trace out(_logger, _traceLevels->networkCat);
-            out << "starting to send udp packets\n" << toString();
         }
     }
     catch(...)
@@ -355,21 +354,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             Trace out(_logger, _traceLevels->networkCat);
             out << "attempting to bind to udp socket " << addrToString(_addr);
         }
-        bool multicast = false;
-        int port;
-        if(_addr.ss_family == AF_INET)
-        {
-            struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&_addr);
-            multicast = IN_MULTICAST(ntohl(addrin->sin_addr.s_addr));
-            port = ntohs(addrin->sin_port);
-        }
-        else
-        {
-            struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&_addr);
-            multicast = IN6_IS_ADDR_MULTICAST(&addrin->sin6_addr);
-            port = ntohs(addrin->sin6_port);
-        }
-        if(multicast)
+
+        if(isMulticast(_addr))
         {
             setReuseAddress(_fd, true);
 
@@ -379,7 +365,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             // so we bind to INADDR_ANY (0.0.0.0) instead.
             //
             struct sockaddr_storage addr;
-            getAddressForServer("", port, addr, _addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
+            getAddressForServer("", getPort(_addr), addr, _addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
             doBind(_fd, addr);
 #else
             doBind(_fd, _addr);
