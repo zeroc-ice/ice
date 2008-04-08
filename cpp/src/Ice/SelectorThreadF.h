@@ -18,7 +18,7 @@ namespace IceInternal
 {
 
 class SelectorThread;
-IceUtil::Shared* upCast(SelectorThread*);
+ICE_API IceUtil::Shared* upCast(SelectorThread*);
 typedef Handle<SelectorThread> SelectorThreadPtr;
 
 }

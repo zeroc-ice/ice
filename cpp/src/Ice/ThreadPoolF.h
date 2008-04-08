@@ -18,7 +18,7 @@ namespace IceInternal
 {
 
 class ThreadPool;
-IceUtil::Shared* upCast(ThreadPool*);
+ICE_API IceUtil::Shared* upCast(ThreadPool*);
 typedef Handle<ThreadPool> ThreadPoolPtr;
 
 }

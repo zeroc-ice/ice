@@ -18,11 +18,11 @@ namespace IceInternal
 {
 
 class EventHandler;
-IceUtil::Shared* upCast(EventHandler*);
+ICE_API IceUtil::Shared* upCast(EventHandler*);
 typedef Handle<EventHandler> EventHandlerPtr;
 
 class ThreadPoolWorkItem;
-IceUtil::Shared* upCast(ThreadPoolWorkItem*);
+ICE_API IceUtil::Shared* upCast(ThreadPoolWorkItem*);
 typedef Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
 
 }

@@ -18,7 +18,7 @@ namespace IceInternal
 {
 
 class ServantManager;
-IceUtil::Shared* upCast(ServantManager*);
+ICE_API IceUtil::Shared* upCast(ServantManager*);
 typedef Handle<ServantManager> ServantManagerPtr;
 
 }
