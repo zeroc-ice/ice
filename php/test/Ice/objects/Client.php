@@ -64,12 +64,10 @@ class DI extends Test_D
 
 class EI extends Test_E
 {
-    function construct()
+    function __construct()
     {
-        echo "In EI constructor...\n";
         $this->i = 1;
         $this->s = "hello";
-        echo "Finished with EI constructor.\n";
     }
 
     function checkValues()
@@ -80,7 +78,7 @@ class EI extends Test_E
 
 class FI extends Test_F
 {
-    function construct($e=null)
+    function __construct($e=null)
     {
         $this->e1 = $e;
         $this->e2 = $e;
