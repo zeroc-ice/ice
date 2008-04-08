@@ -1461,6 +1461,7 @@ IcePHP::CodeVisitor::getDefaultValue(const Slice::TypePtr& type)
 
         case Slice::Builtin::KindObject:
         case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
             return "null";
         }
     }
