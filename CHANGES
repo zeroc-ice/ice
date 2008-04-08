@@ -14,13 +14,24 @@ Java Changes
 
 
 C# Changes
-============
+==========
 
 - Fixed a NullReferenceException thrown when allocating an InputStream
   with an empty buffer.
 
 - Fixed a NullReferenceException thrown when calling
   startEncapsulation on an OutputStream.
+
+
+PHP Changes
+===========
+
+- Constructors are now generated for Slice structure, exception, and
+  class types. Constructor parameters supply default values for each
+  data member.
+
+- A null value is now allowed where a sequence or dictionary value is
+  expected.
 
 
 ======================================================================
