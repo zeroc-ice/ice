@@ -49,7 +49,7 @@ SLICE_SRCS	= $(SDIR)/PermissionsVerifierF.ice \
 		  $(SDIR)/SessionF.ice \
 		  $(SDIR)/SSLInfo.ice
 
-HDIR		= $(includedir)/Glacier2
+HDIR		= $(headerdir)/Glacier2
 SDIR		= $(slicedir)/Glacier2
 
 include $(top_srcdir)/config/Make.rules

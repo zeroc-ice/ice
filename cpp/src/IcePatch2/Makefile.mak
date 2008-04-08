@@ -44,7 +44,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
 		  $(CALCOBJS:.obj=.cpp)
 
-HDIR		= $(includedir)\IcePatch2
+HDIR		= $(headerdir)\IcePatch2
 SDIR		= $(slicedir)\IcePatch2
 
 !include $(top_srcdir)\config\Make.rules.mak

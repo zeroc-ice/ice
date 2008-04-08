@@ -91,7 +91,7 @@ SRCS		= $(ADMIN_OBJS:.o=.cpp) \
 
 SLICE_SRCS	= ../IceGrid/Internal.ice
 
-HDIR		= $(includedir)/IceGrid
+HDIR		= $(headerdir)/IceGrid
 LOCAL_HDIR	= ../IceGrid
 LOCAL_SDIR	= ../IceGrid
 

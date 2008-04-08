@@ -28,7 +28,7 @@ OBJS		= AcceptorI.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
-HDIR		= $(includedir)/IceSSL
+HDIR		= $(headerdir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 

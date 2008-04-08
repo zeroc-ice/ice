@@ -97,6 +97,8 @@ ice_require_cpp  = 1
 
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
+headerdir		= $(top_srcdir)\include
+
 !if "$(ice_src_dist)" != ""
 includedir		= $(top_srcdir)\include
 !else

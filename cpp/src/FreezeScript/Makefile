@@ -35,7 +35,7 @@ DUMP_OBJS	= DumpDescriptors.o \
 
 SRCS		= $(COMMON_OBJS:.o=.cpp) $(TRANSFORM_OBJS:.o=.cpp) $(DUMP_OBJS:.o=.cpp)
 
-HDIR		= $(includedir)/FreezeScript
+HDIR		= $(headerdir)/FreezeScript
 
 include $(top_srcdir)/config/Make.rules
 

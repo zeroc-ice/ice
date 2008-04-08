@@ -109,7 +109,7 @@ OBJS		= Acceptor.obj \
 
 SRCS		= $(OBJS:.obj=.cpp)
 
-HDIR		= $(includedir)\Ice
+HDIR		= $(headerdir)\Ice
 SDIR		= $(slicedir)\Ice
 
 !include $(top_srcdir)\config\Make.rules.mak

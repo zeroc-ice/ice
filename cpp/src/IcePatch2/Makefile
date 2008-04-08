@@ -41,7 +41,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 SLICE_SRCS	= $(SDIR)/FileInfo.ice \
 		  $(SDIR)/FileServer.ice
 
-HDIR		= $(includedir)/IcePatch2
+HDIR		= $(headerdir)/IcePatch2
 SDIR		= $(slicedir)/IcePatch2
 
 include $(top_srcdir)/config/Make.rules

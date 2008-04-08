@@ -59,7 +59,7 @@ SLICE_SRCS	= $(SDIR)/BackgroundSaveEvictor.ice \
                   $(SDIR)/Transaction.ice \
 		  ../Freeze/PingObject.ice
 
-HDIR		= $(includedir)/Freeze
+HDIR		= $(headerdir)/Freeze
 SDIR		= $(slicedir)/Freeze
 
 

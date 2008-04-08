@@ -89,7 +89,7 @@ SRCS            = $(ADMIN_OBJS:.obj=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
 
-HDIR		= $(includedir)\IceGrid
+HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)

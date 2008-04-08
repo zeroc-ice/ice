@@ -71,7 +71,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 		  $(AOBJS:.obj=.cpp) \
 		  $(MOBJS:.obj=.cpp)
 
-HDIR		= $(includedir)\IceStorm
+HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
 
 !include $(top_srcdir)\config\Make.rules.mak

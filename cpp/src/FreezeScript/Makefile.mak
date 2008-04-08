@@ -35,7 +35,7 @@ DUMP_OBJS	= DumpDescriptors.obj \
 
 SRCS		= $(COMMON_OBJS:.obj=.cpp) $(TRANSFORM_OBJS:.obj=.cpp) $(DUMP_OBJS:.obj=.cpp)
 
-HDIR		= $(includedir)\FreezeScript
+HDIR		= $(headerdir)\FreezeScript
 
 !include $(top_srcdir)/config/Make.rules.mak
 

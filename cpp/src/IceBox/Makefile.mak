@@ -37,7 +37,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \
 		  $(AOBJS:.obj=.cpp)
 
-HDIR		= $(includedir)\IceBox
+HDIR		= $(headerdir)\IceBox
 SDIR		= $(slicedir)\IceBox
 
 !include $(top_srcdir)\config\Make.rules.mak

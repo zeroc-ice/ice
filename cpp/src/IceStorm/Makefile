@@ -76,7 +76,7 @@ SLICE_SRCS	= $(SDIR)/IceStorm.ice \
 		  ../IceStorm/V32Format.ice \
 		  ../IceStorm/V31Format.ice
 
-HDIR		= $(includedir)/IceStorm
+HDIR		= $(headerdir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)

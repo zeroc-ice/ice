@@ -27,7 +27,7 @@ LIB_OBJS	= Admin.obj \
 
 SRCS		= $(LIB_OBJS:.obj=.cpp)
 
-HDIR		= $(includedir)\IceGrid
+HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
 
 !include $(top_srcdir)\config\Make.rules.mak

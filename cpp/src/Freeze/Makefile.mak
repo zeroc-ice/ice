@@ -46,7 +46,7 @@ OBJS		= BackgroundSaveEvictor.obj \
 
 SRCS		= $(OBJS:.obj=.cpp)
 
-HDIR		= $(includedir)\Freeze
+HDIR		= $(headerdir)\Freeze
 SDIR		= $(slicedir)\Freeze
 
 !include $(top_srcdir)/config/Make.rules.mak

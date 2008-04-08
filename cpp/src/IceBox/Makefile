@@ -33,7 +33,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 SLICE_SRCS	= $(SDIR)/IceBox.ice
 
-HDIR		= $(includedir)/IceBox
+HDIR		= $(headerdir)/IceBox
 SDIR		= $(slicedir)/IceBox
 
 

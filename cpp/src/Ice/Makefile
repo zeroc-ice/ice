@@ -145,7 +145,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/StatsF.ice \
 		  $(SDIR)/Stats.ice
 
-HDIR		= $(includedir)/Ice
+HDIR		= $(headerdir)/Ice
 SDIR		= $(slicedir)/Ice
 
 include $(top_srcdir)/config/Make.rules
