@@ -12,8 +12,15 @@ using Test;
 public class RemoteCommunicatorI : RemoteCommunicatorDisp_
 {
     public override RemoteObjectAdapterPrx
-    createObjectAdapter(string name, string endpoints, Ice.Current current)
+    createObjectAdapter(string name, string endpts, Ice.Current current)
     {
+        string endpoints = endpts;
+        if(endpoints.IndexOf("-p") < 0)
+        {
+            // Use a fixed port if none is specified (bug 2896)
+            endpoints = endpoints + " -h 127.0.0.1 -p " + _nextPort++;
+        }
+
         Ice.Communicator com = current.adapter.getCommunicator();
         com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
         Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
@@ -32,4 +39,6 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
     {
         current.adapter.getCommunicator().shutdown();
     }
+
+    private int _nextPort = 10001;
 };

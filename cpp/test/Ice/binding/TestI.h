@@ -16,10 +16,16 @@ class RemoteCommunicatorI : public Test::RemoteCommunicator
 {
 public:
 
+    RemoteCommunicatorI();
+
     virtual Test::RemoteObjectAdapterPrx createObjectAdapter(const std::string&, const std::string&, 
                                                              const Ice::Current&);
     virtual void deactivateObjectAdapter(const Test::RemoteObjectAdapterPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
+
+private:
+
+    int _nextPort;
 };
 
 class RemoteObjectAdapterI : public Test::RemoteObjectAdapter

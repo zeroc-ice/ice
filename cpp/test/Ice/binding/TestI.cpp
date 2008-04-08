@@ -14,9 +14,21 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-RemoteObjectAdapterPrx
-RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpoints, const Current& current)
+RemoteCommunicatorI::RemoteCommunicatorI() : _nextPort(10001)
 {
+}
+
+RemoteObjectAdapterPrx
+RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpts, const Current& current)
+{
+    string endpoints = endpts;
+    if(endpoints.find("-p") == string::npos)
+    {
+        // Use a fixed port if none is specified (bug 2896)
+        ostringstream os;
+        os << endpoints << " -h 127.0.0.1 -p " << _nextPort++;
+    }
+
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     com->getProperties()->setProperty(name + ".ThreadPool.Size", "1");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, endpoints);
