@@ -2,6 +2,7 @@
 Changes since version 3.3b
 ======================================================================
 
+
 Java Changes
 ============
 
@@ -11,6 +12,7 @@ Java Changes
 - Fixed a NullPointerException thrown when calling startEncapsulation
   on an OutputStream.
 
+
 C# Changes
 ============
 
@@ -19,6 +21,7 @@ C# Changes
 
 - Fixed a NullReferenceException thrown when calling
   startEncapsulation on an OutputStream.
+
 
 ======================================================================
 Changes since version 3.2.1

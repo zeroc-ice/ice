@@ -15,17 +15,19 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
+
 About this distribution
 -----------------------
 
-This binary distribution provides all Ice run time services and 
+This binary distribution provides all Ice run time services and
 development tools to build Ice applications in C++ using C++Builder
 2006 R2.
 
 If you want to develop Ice applications in another programming
-language, on with another C++ compiler, please download the 
+language, or with another C++ compiler, please download the 
 corresponding Ice binary distribution from 
-http://www.zeroc.com/download.html.
+
+  http://www.zeroc.com/download.html
 
 
 Supported Windows versions
@@ -34,7 +36,8 @@ Supported Windows versions
 This distribution is supported on
 
   - Windows XP with Service Pack 2
-  - Windows Vista.
+  - Windows Vista
+
 
 Monotonic clock
 ---------------
@@ -67,15 +70,16 @@ the demos
 
   > nmake /f Makefile.mak
 
-Note that this requires Microsoft NMAKE. If you do not already have this
-installed, you can download it as part of the Windows Platform SDK:
+Note that this requires Microsoft NMAKE. If you do not already have
+NMAKE installed, you can download it as part of the Windows Platform
+SDK:
 
   http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
 
-set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin;%PATH%
 
 Next, open a Command Prompt, change to the desired demo subdirectory,
 and type 'server' to start the server. In a separate Command Prompt
@@ -90,15 +94,15 @@ Binary compatibility
 
 Ice patch releases are binary compatible. For example, Ice version 
 <x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
-built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without having 
-to recompile or relink this application.
+built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without
+having to recompile or relink this application.
 
 Please refer to the RELEASE_NOTES.txt file included in this
 distribution for detailed upgrade instructions.
 
 
-Acknowledgements
-----------------
+Acknowledgments
+---------------
 
 This product includes software developed by the OpenSSL Project for
 use in the OpenSSL Toolkit (http://www.openssl.org/).
