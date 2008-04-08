@@ -55,7 +55,11 @@ public:
     virtual void visitConst(const Slice::ConstPtr&);
 
 private:
+
     string getTypeHint(const Slice::TypePtr&);
+    string getDefaultValue(const Slice::TypePtr&);
+    void writeConstructorParameter(const Slice::DataMemberPtr&);
+    void writeConstructorAssignment(const Slice::DataMemberPtr&);
 
     ostream& _out;
     Profile::ClassMap& _classes;
@@ -970,6 +974,7 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
     _classes[flat] = p;
 
     Slice::ClassList bases = p->bases();
+    Slice::ClassDefPtr base;
 
     if(p->isInterface())
     {
@@ -1001,6 +1006,7 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
         if(!bases.empty() && !bases.front()->isInterface())
         {
             _out << " extends " << flatten(bases.front()->scoped());
+            base = bases.front();
             bases.pop_front();
         }
         else if(!p->isLocal())
@@ -1022,6 +1028,59 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
     }
 
     _out << endl << '{' << endl;
+
+    if(!p->isInterface())
+    {
+        Slice::DataMemberList baseMembers;
+        if(base)
+        {
+            baseMembers = base->allDataMembers();
+        }
+
+        Slice::DataMemberList members = p->dataMembers();
+        Slice::DataMemberList::const_iterator q;
+
+        //
+        // Generate a constructor.
+        //
+        _out << "function __construct(";
+        for(q = baseMembers.begin(); q != baseMembers.end(); ++q)
+        {
+            if(q != baseMembers.begin())
+            {
+                _out << ", ";
+            }
+            writeConstructorParameter(*q);
+        }
+        for(q = members.begin(); q != members.end(); ++q)
+        {
+            if(!baseMembers.empty() || q != members.begin())
+            {
+                _out << ", ";
+            }
+            writeConstructorParameter(*q);
+        }
+        _out << ')' << endl;
+        _out << '{' << endl;
+        if(base)
+        {
+            _out << "    parent::__construct(";
+            for(q = baseMembers.begin(); q != baseMembers.end(); ++q)
+            {
+                if(q != baseMembers.begin())
+                {
+                    _out << ", ";
+                }
+                _out << '$' << fixIdent((*q)->name());
+            }
+            _out << ");" << endl;
+        }
+        for(q = members.begin(); q != members.end(); ++q)
+        {
+            writeConstructorAssignment(*q);
+        }
+        _out << "}" << endl;
+    }
 
     return true;
 }
@@ -1058,9 +1117,41 @@ IcePHP::CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
 
     _out << baseName << endl << '{' << endl;
 
-    _out << "function __construct($message = '')" << endl;
-    _out << "{" << endl;
-    _out << "    " << baseName << "::__construct($message);" << endl;
+    Slice::DataMemberList baseMembers;
+    if(base)
+    {
+        baseMembers = base->allDataMembers();
+    }
+
+    Slice::DataMemberList members = p->dataMembers();
+    Slice::DataMemberList::const_iterator q;
+
+    //
+    // Generate a constructor.
+    //
+    _out << "function __construct($_message=''";
+    for(q = baseMembers.begin(); q != baseMembers.end(); ++q)
+    {
+        _out << ", ";
+        writeConstructorParameter(*q);
+    }
+    for(q = members.begin(); q != members.end(); ++q)
+    {
+        _out << ", ";
+        writeConstructorParameter(*q);
+    }
+    _out << ')' << endl;
+    _out << '{' << endl;
+    _out << "    " << baseName << "::__construct($_message";
+    for(q = baseMembers.begin(); q != baseMembers.end(); ++q)
+    {
+        _out << ", $" << fixIdent((*q)->name());
+    }
+    _out << ");" << endl;
+    for(q = members.begin(); q != members.end(); ++q)
+    {
+        writeConstructorAssignment(*q);
+    }
     _out << "}" << endl;
 
     return true;
@@ -1079,6 +1170,28 @@ IcePHP::CodeVisitor::visitStructStart(const Slice::StructPtr& p)
 
     _out << "class " << flatten(p->scoped()) << endl;
     _out << '{' << endl;
+
+    //
+    // Generate a constructor.
+    //
+    Slice::DataMemberList members = p->dataMembers();
+    Slice::DataMemberList::const_iterator q;
+    _out << "function __construct(";
+    for(q = members.begin(); q != members.end(); ++q)
+    {
+        if(q != members.begin())
+        {
+            _out << ", ";
+        }
+        writeConstructorParameter(*q);
+    }
+    _out << ')' << endl;
+    _out << '{' << endl;
+    for(q = members.begin(); q != members.end(); ++q)
+    {
+        writeConstructorAssignment(*q);
+    }
+    _out << '}' << endl;
 
     return true;
 }
@@ -1174,7 +1287,7 @@ IcePHP::CodeVisitor::visitEnum(const Slice::EnumPtr& p)
     for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
     {
         string name = fixIdent((*q)->name());
-        _out << "const " << fixIdent((*q)->name()) << " = " << i << ';' << endl;
+        _out << "    const " << fixIdent((*q)->name()) << " = " << i << ';' << endl;
     }
 
     _out << '}' << endl;
@@ -1320,4 +1433,96 @@ IcePHP::CodeVisitor::getTypeHint(const Slice::TypePtr& type)
     }
 
     return string();
+}
+
+string
+IcePHP::CodeVisitor::getDefaultValue(const Slice::TypePtr& type)
+{
+    Slice::BuiltinPtr builtin = Slice::BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindLong:
+            return "0";
+
+        case Slice::Builtin::KindBool:
+            return "false";
+
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+            return "0.0";
+
+        case Slice::Builtin::KindString:
+            return "''";
+
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+            return "null";
+        }
+    }
+
+    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        //
+        // Use the first enumerator.
+        //
+        string flat = flatten(en->scoped());
+        Slice::EnumeratorList l = en->getEnumerators();
+        string name = fixIdent(l.front()->name());
+        return flat + "::" + name;
+    }
+
+    Slice::StructPtr str = Slice::StructPtr::dynamicCast(type);
+    if(str)
+    {
+        return "new " + flatten(str->scoped()) + "()";
+    }
+
+    return "null";
+}
+
+void
+IcePHP::CodeVisitor::writeConstructorParameter(const Slice::DataMemberPtr& member)
+{
+    _out << '$' << fixIdent(member->name()) << '=';
+    //
+    // Structure types must be handled specially.
+    //
+    if(Slice::StructPtr::dynamicCast(member->type()))
+    {
+        //
+        // If a data member is a structure, we want to initialize it to a new instance of the
+        // structure type. However, PHP does not allow a call to "new" in the default value of
+        // a function argument, so we assign a marker value now and create the instance in the
+        // constructor body.
+        //
+        _out << "-1";
+    }
+    else
+    {
+        _out << getDefaultValue(member->type());
+    }
+}
+
+void
+IcePHP::CodeVisitor::writeConstructorAssignment(const Slice::DataMemberPtr& member)
+{
+    //
+    // Structure types are instantiated in the constructor body.
+    //
+    string name = fixIdent(member->name());
+    if(Slice::StructPtr::dynamicCast(member->type()))
+    {
+        _out << "    $this->" << name << " = $" << name << " == -1 ? " << getDefaultValue(member->type())
+             << " : $" << name << ';' << endl;
+    }
+    else
+    {
+        _out << "    $this->" << name << " = $" << name << ';' << endl;
+    }
 }

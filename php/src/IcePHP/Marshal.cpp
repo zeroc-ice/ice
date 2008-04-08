@@ -751,11 +751,17 @@ IcePHP::SequenceMarshaler::SequenceMarshaler(const Slice::SequencePtr& type TSRM
 bool
 IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
-    if(Z_TYPE_P(zv) != IS_ARRAY)
+    if(Z_TYPE_P(zv) != IS_ARRAY && Z_TYPE_P(zv) != IS_NULL)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected array value but received %s", s.c_str());
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected array or null for sequence but received %s", s.c_str());
         return false;
+    }
+
+    if(Z_TYPE_P(zv) == IS_NULL)
+    {
+        os->writeSize(0);
+        return true;
     }
 
     HashTable* arr = Z_ARRVAL_P(zv);
@@ -1449,11 +1455,17 @@ IcePHP::NativeDictionaryMarshaler::NativeDictionaryMarshaler(const Slice::TypePt
 bool
 IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
-    if(Z_TYPE_P(zv) != IS_ARRAY)
+    if(Z_TYPE_P(zv) != IS_ARRAY && Z_TYPE_P(zv) != IS_NULL)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected array value but received %s", s.c_str());
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected array or null for dictionary but received %s", s.c_str());
         return false;
+    }
+
+    if(Z_TYPE_P(zv) == IS_NULL)
+    {
+        os->writeSize(0);
+        return true;
     }
 
     HashTable* arr = Z_ARRVAL_P(zv);

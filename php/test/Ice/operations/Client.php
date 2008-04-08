@@ -80,6 +80,15 @@ function twoways($communicator, $p)
     }
 
     {
+        //
+        // Verify that null is accepted for strings.
+        //
+        $r = $p->opString(null, null, $s);
+        test($s == " ");
+        test($r == " ");
+    }
+
+    {
         $r = $p->opString("hello", "world", $s);
         test($s == "world hello");
         test($r == "hello world");
@@ -134,6 +143,15 @@ function twoways($communicator, $p)
         test($so->e == Test_MyEnum::enum3);
         test($so->s->s == "a new string");
         $so->p->opVoid();
+    }
+
+    {
+        //
+        // Verify that null is accepted for sequences.
+        //
+        $rso = $p->opByteS(null, null, $bso);
+        test(count($bso) == 0);
+        test(count($rso) == 0);
     }
 
     {
@@ -303,6 +321,15 @@ function twoways($communicator, $p)
         test($rso[0][0] == "xyz");
         test(count($rso[1]) == 0);
         test(count($rso[2]) == 0);
+    }
+
+    {
+        //
+        // Verify that null is accepted for dictionaries.
+        //
+        $ro = $p->opByteBoolD(null, null, $_do);
+        test(count($_do) == 0);
+        test(count($ro) == 0);
     }
 
     {
