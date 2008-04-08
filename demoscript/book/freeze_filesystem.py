@@ -16,6 +16,8 @@ def run(client, server):
     client.expect('Created README')
     server.expect('added')
     client.expect('Contents of filesystem:')
+    server.expect('added')
+    server.expect('added')
     server.expect('locate')
     client.expect('Contents of file')
     server.expect('locate')
