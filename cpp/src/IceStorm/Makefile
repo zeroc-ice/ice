@@ -87,7 +87,7 @@ CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_STORM_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
-SVCLINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lFreeze -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
+SVCLINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lGlacier2 -lFreeze -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
