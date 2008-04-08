@@ -170,7 +170,7 @@ RegistryService::usage(const string& appName)
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
-        "--nowarn             Don't print any security warnings."
+        "--nowarn             Don't print any security warnings.\n"
         "--readonly           Start the master registry in read-only mode.";
 #ifndef _WIN32
     options.append(
