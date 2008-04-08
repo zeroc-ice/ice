@@ -29,9 +29,9 @@ public:
         _cb->ice_response(ok, outParams);
     }
     
-    virtual void ice_exception(const Ice::Exception& ex)
+    virtual void ice_exception(const Ice::Exception&)
     {
-        _cb->ice_exception(ex);
+        _cb->ice_exception(ObjectNotExistException(__FILE__, __LINE__)); // Callback object is unreachable.
     }
     
 private:
