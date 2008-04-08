@@ -33,7 +33,10 @@ base = 12340
 
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverPipe = os.popen(TestUtil.getCommandLine(server, TestUtil.DriverConfig("server")) + " %d" % (base + i) + " 2>&1")
+    commandLine = TestUtil.getCommandLine(server, TestUtil.DriverConfig("server")) + " %d" % (base + i)
+    if TestUtil.isDebug():
+        print "(" + commandLine + ")",
+    serverPipe = os.popen(commandLine + " 2>&1")
     TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)
     print "ok"
@@ -43,7 +46,10 @@ for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 
 print "starting client...",
-clientPipe = os.popen(TestUtil.getCommandLine(client, TestUtil.DriverConfig("client")) + " " + ports + " 2>&1")
+commandLine = TestUtil.getCommandLine(client, TestUtil.DriverConfig("client")) + " " + ports
+if TestUtil.isDebug():
+    print "(" + commandLine + ")",
+clientPipe = os.popen(commandLine + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

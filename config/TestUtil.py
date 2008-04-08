@@ -944,6 +944,9 @@ def getDefaultCollocatedFile():
     if lang == "java":
         return "Collocated"
 
+def isDebug():
+    return debug
+
 def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
                                         serverName, clientName):
     lang = getDefaultMapping()
