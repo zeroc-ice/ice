@@ -35,9 +35,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="agclr" />
-    <Reference Include="icesl, Version=0.1.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="IceSL, Version=0.1.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bin\icesl.dll</HintPath>
+      <HintPath>..\..\..\bin\IceSL.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />

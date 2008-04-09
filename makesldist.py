@@ -30,6 +30,7 @@ filesToRemove = [
 # List of files & subdirectories to keep, all others are removed.
 filesToKeep = [
     "./config/Make.common.rules.mak",
+    "./config/IceDevKey.snk",
     "./cpp/Makefile.mak",
     "./cpp/config/Make.rules.mak.icesl",
     "./cpp/config/Make.rules.msvc",

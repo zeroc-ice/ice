@@ -102,7 +102,7 @@ type cannot be found by the Ice for Silverlight runtime an
 Ice.UnmarshalOutOfBounds exception will be raised.
 
 The easiest way to ensure that the Ice for Silverlight runtime can
-find the relevant types is to merge the icesl.dll assembly with
+find the relevant types is to merge the IceSL.dll assembly with
 your application code assembly. This can be done using the ILMerge
 tool provided by Microsoft. Please see the link below for more
 information:

@@ -26,6 +26,6 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2SLFLAGS	:= $(SLICE2SLFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icesl) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,IceSL) $(subst /,$(DSEP),$^)
 
 include .depend

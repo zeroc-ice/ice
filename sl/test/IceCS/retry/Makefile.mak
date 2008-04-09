@@ -10,6 +10,7 @@
 top_srcdir	= ..\..\..
 
 TARGETS		= client.exe
+TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= AllTests.cs Client.cs 
 
@@ -26,6 +27,6 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 SLICE2SLFLAGS	= $(SLICE2SLFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icesl.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\IceSL.dll $(C_SRCS) $(GEN_SRCS)
 
 !include .depend

@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("icesl")]
+[assembly: AssemblyTitle("IceSL")]
 [assembly: AssemblyDescription("Ice for Silverlight core run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]

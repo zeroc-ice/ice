@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..
 
-PKG		= icesl
+PKG		= IceSL
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
 
@@ -80,7 +80,7 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
-MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IceslKey.snk
+MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 SLICE2SLFLAGS	= $(SLICE2SLFLAGS) --ice -I$(slicedir)
 
