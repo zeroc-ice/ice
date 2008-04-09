@@ -16,7 +16,7 @@ LIBNAME		= $(call mklibname,Slice)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= Scanner.o \
-		  Grammar.o \
+		  ../Slice/Grammar.o \
 		  Parser.o \
 		  CPlusPlusUtil.o \
 		  CsUtil.o \
@@ -56,11 +56,6 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 endif
-
-#
-# The .y rule does not work well with parallel builds; need to investigate
-#
-.NOTPARALLEL:
 
 clean::
 	-rm -f Grammar.cpp Grammar.h

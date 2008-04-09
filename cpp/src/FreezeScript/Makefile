@@ -14,7 +14,7 @@ DUMPDB		= $(top_srcdir)/bin/dumpdb
 
 TARGETS		= $(TRANSFORMDB) $(DUMPDB)
 
-COMMON_OBJS	= Grammar.o \
+COMMON_OBJS	= ../FreezeScript/Grammar.o \
 		  Scanner.o \
 		  AssignVisitor.o \
 		  Data.o \
@@ -49,6 +49,7 @@ $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(DUMP_OBJS) $(COMMON_OBJS) -lSlice $(EXPAT_RPATH_LINK) -lIceXML $(DB_RPATH_LINK) -lFreeze $(LIBS) $(DB_LIBS)
+
 
 clean::
 	-rm -f Grammar.cpp Grammar.h
