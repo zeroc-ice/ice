@@ -62,17 +62,6 @@ Binary and source distributions are available at
   http://www.zeroc.com/labs/download.html
 
 
-nmake and Message Compiler (MC.EXE)
------------------------------------
-
-To build Ice for Silverlight, you need the Microsoft nmake and
-Message Compiler utilities. These are included in all full Microsoft
-C++ compiler distributions. If you are using Visual C++ 2008 Express,
-you can download them as part of the Windows Platform SDK:
- 
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
-
-
 Third-party libraries
 ---------------------
 
@@ -83,7 +72,7 @@ following third-party library:
 
 If you want to build the slice2sl translator yourself, you do not need
 to build mcpp yourself, as ZeroC supplies a Windows installer for the
-VC8 compiler that contains release and debug libraries for all of the
+VC9 compiler that contains release and debug libraries for all of the
 third-party dependencies.
 
 If you intend to build the third-party dependencies from source, we
@@ -116,8 +105,8 @@ If you have not already downloaded the slice2sl binary distribution,
 as mentioned above, you may follow these steps to build the translator
 yourself:
 
-1) Change to the cpp subdirectory of the Ice for Silverlight source
-   distribution.
+1) In a Visual Studio 2008 command prompt, change to the cpp subdirectory
+   of the Ice for Silverlight source distribution.
 
 2) Open config\Make.rules.mak and review the comments that describe
    the settings you can modify.
