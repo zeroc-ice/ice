@@ -277,6 +277,10 @@ ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
 # We build mono all the time because we include iceboxnet.exe in a arch-specific package;
 # we also include GAC symlinks is another arch-specific package
 #
+#
+# Define the env variable KEYFILE to strong-name sign with your own key file
+#
+
 %if %{mono}
 cd $RPM_BUILD_DIR/Ice-%{version}/cs/src
 make %{makeopts} OPTIMIZE=yes
@@ -416,7 +420,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 %endif
 
 #temporary
-rm -f $RPM_BUILD_ROOT%{_bindir}/ImportKey.class
 rm -f $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
 
 %if !%{mono}
@@ -584,7 +587,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_defaultdocdir}/%{name}-%{version}
 %{_defaultdocdir}/%{name}-%{version}/help
 %dir %{_datadir}/Ice-%{version}
-#%{_datadir}/Ice-%{version}/ImportKey.class
+%{_datadir}/Ice-%{version}/ImportKey.class
 %attr(755,root,root) %{_datadir}/Ice-%{version}/convertssl.py*
 
 %post utils -p /sbin/ldconfig
@@ -750,8 +753,8 @@ fi
 
 %changelog
 
-* Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3.0-1
-- Updates for Ice 3.3.0 release:
+* Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3b-1
+- Updates for Ice 3.3b release:
  - Split main ice rpm into ice noarch (license and Slice files), ice-libs 
    (C++ runtime libraries), ice-utils (admin tools & utilities), ice-servers
    (icegridregistry, icebox etc.). This way, ice-libs 3.3.0 can coexist with
