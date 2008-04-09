@@ -86,7 +86,7 @@ private:
     Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectPtr&, 
                                                    const LocatorPrx&);
 
-    void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
+    void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const LocatorPrx&,
                                                             const std::string&, const std::string&);
 
@@ -103,7 +103,7 @@ private:
 
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;
-    Ice::ObjectAdapterPtr _adminCallbackRouterAdapter;
+    Ice::ObjectAdapterPtr _serverAdapter;
     WellKnownObjectsManagerPtr _wellKnownObjects;
     std::string _instanceName;
     bool _master;

@@ -36,7 +36,6 @@ def run(clientStr, desc = 'application'):
                                  language="C++")
     node.expect('IceGrid.Registry.Internal ready')
     node.expect('IceGrid.Registry.Server ready')
-    node.expect('IceGrid.Registry.AdminCallbackRouter ready')
     node.expect('IceGrid.Registry.Client ready')
     if demoscript.Util.defaultLanguage == "C++":
         node.expect('IceGrid.Registry.AdminSessionManager ready')

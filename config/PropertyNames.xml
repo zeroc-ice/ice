@@ -408,7 +408,6 @@ generated from the section label.
         <property name="Node.UserAccounts" />
         <property name="Node.UserAccountMapper" class="proxy" />
         <property name="Node.WaitTime" />
-        <property name="Registry.AdminCallbackRouter" class="objectadapter" />
         <property name="Registry.AdminCryptPasswords" />
         <property name="Registry.AdminPermissionsVerifier" class="proxy" />
         <property name="Registry.AdminSessionFilters" />

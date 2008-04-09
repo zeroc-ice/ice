@@ -52,7 +52,7 @@ else:
 print "starting icegridnode...",
 sys.stdout.flush()
 node = demoscript.Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
-node.expect('IceGrid.Registry.Server ready\r{1,2}\nIceGrid.Registry.AdminCallbackRouter ready\r{1,2}\nIceGrid.Registry.Client ready\r{1,2}\nIceGrid.Node ready')
+node.expect('IceGrid.Registry.Server ready\r{1,2}\nIceGrid.Registry.Client ready\r{1,2}\nIceGrid.Node ready')
 print "ok"
 
 print "deploying application...",

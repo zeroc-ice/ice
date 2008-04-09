@@ -184,7 +184,7 @@ IceInternal::OutgoingAsyncMessageCallback::__warning(const InstancePtr& instance
     if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
     {
         Warning out(instance->initializationData().logger);
-        const Exception* ex = dynamic_cast<const ObjectNotExistException*>(&exc);
+        const Exception* ex = dynamic_cast<const Exception*>(&exc);
         if(ex)
         {
             out << "Ice::Exception raised by AMI callback:\n" << ex;

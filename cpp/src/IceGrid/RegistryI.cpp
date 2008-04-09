@@ -252,10 +252,9 @@ RegistryI::start()
 
     setupThreadPool(properties, "Ice.ThreadPool.Client", 1, 100);
     setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
-    setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10, true); // Serialize for admin callbacks
     setupThreadPool(properties, "IceGrid.Registry.SessionManager.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Internal.ThreadPool", 1, 100);
-    setupThreadPool(properties, "IceGrid.Registry.AdminCallbackRouter.ThreadPool", 1, 1);
 
     _replicaName = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
     _master = _replicaName == "Master";
@@ -383,13 +382,13 @@ RegistryI::start()
         registerNodes(internalRegistry, _session.getNodes(nodes));
     }
 
-    ObjectAdapterPtr serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
+    _serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
     _clientAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Client");
 
     Ice::Identity dummy;
     dummy.name = "dummy";
     _wellKnownObjects->addEndpoint("Client", _clientAdapter->createDirectProxy(dummy));
-    _wellKnownObjects->addEndpoint("Server", serverAdapter->createDirectProxy(dummy));
+    _wellKnownObjects->addEndpoint("Server", _serverAdapter->createDirectProxy(dummy));
     _wellKnownObjects->addEndpoint("Internal", registryAdapter->createDirectProxy(dummy));
 
     setupNullPermissionsVerifier(registryAdapter);
@@ -401,15 +400,8 @@ RegistryI::start()
     QueryPrx query = setupQuery(_clientAdapter);
     RegistryPrx registry = setupRegistry(_clientAdapter);
 
-    Ice::LocatorRegistryPrx locatorRegistry = setupLocatorRegistry(serverAdapter);
+    Ice::LocatorRegistryPrx locatorRegistry = setupLocatorRegistry(_serverAdapter);
     LocatorPrx internalLocator = setupLocator(_clientAdapter, registryAdapter, locatorRegistry, registry, query);
-
-    AdminCallbackRouterPtr adminCallbackRouter;
-
-    if(!properties->getProperty("IceGrid.Registry.AdminCallbackRouter.Endpoints").empty())
-    {
-        adminCallbackRouter = new AdminCallbackRouter;
-    }
 
     //
     // Create the session servant manager. The session servant manager is responsible
@@ -418,17 +410,13 @@ RegistryI::start()
     // also takes care of providing the router servant for server admin objects.
     //
     ObjectPtr serverAdminRouter = new RegistryServerAdminRouter(_database);
+    AdminCallbackRouterPtr adminCallbackRouter = new AdminCallbackRouter;
 
     _servantManager = new SessionServantManager(_clientAdapter, _instanceName, true, getServerAdminCategory(), 
                                                 serverAdminRouter, adminCallbackRouter);
+
     _clientAdapter->addServantLocator(_servantManager, "");
-
-
-    if(adminCallbackRouter != 0)
-    {
-        _adminCallbackRouterAdapter = _communicator->createObjectAdapter("IceGrid.Registry.AdminCallbackRouter");
-        _adminCallbackRouterAdapter->addServantLocator(new DefaultServantLocator(adminCallbackRouter), "");
-    }
+    _serverAdapter->addServantLocator(new DefaultServantLocator(adminCallbackRouter), "");
     
     ObjectAdapterPtr sessionAdpt = setupClientSessionFactory(registryAdapter, internalLocator);
     ObjectAdapterPtr admSessionAdpt = setupAdminSessionFactory(registryAdapter, serverAdminRouter, internalLocator);
@@ -446,11 +434,7 @@ RegistryI::start()
     //
     // We are ready to go!
     //
-    serverAdapter->activate();
-    if(_adminCallbackRouterAdapter != 0)
-    {
-        _adminCallbackRouterAdapter->activate();
-    }
+    _serverAdapter->activate();
     _clientAdapter->activate();
   
     if(sessionAdpt)
@@ -990,18 +974,11 @@ RegistryI::shutdown()
 Ice::ObjectPrx 
 RegistryI::createAdminCallbackProxy(const Identity& id) const
 {
-    if(_adminCallbackRouterAdapter != 0)
-    {
-        return _adminCallbackRouterAdapter->createProxy(id);
-    }
-    else
-    {
-        return 0;
-    }
+    return _serverAdapter->createProxy(id);
 }
 
 void
-RegistryI::setupThreadPool(const PropertiesPtr& properties, const string& name, int size, int sizeMax)
+RegistryI::setupThreadPool(const PropertiesPtr& properties, const string& name, int size, int sizeMax, bool serialize)
 {
     if(properties->getPropertyAsIntWithDefault(name + ".Size", 0) < size)
     {
@@ -1024,6 +1001,11 @@ RegistryI::setupThreadPool(const PropertiesPtr& properties, const string& name, 
         ostringstream os;
         os << sizeMax;
         properties->setProperty(name + ".SizeMax", os.str());
+    }
+
+    if(serialize)
+    {
+        properties->setProperty(name + ".Serialize", "1");
     }
 }
 

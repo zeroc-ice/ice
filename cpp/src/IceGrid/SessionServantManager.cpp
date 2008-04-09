@@ -24,8 +24,7 @@ SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapte
 					     bool checkConnection,
                                              const string& serverAdminCategory,
                                              const Ice::ObjectPtr& serverAdminRouter,
-                                             const AdminCallbackRouterPtr& adminCallbackRouter
-    ) : 
+                                             const AdminCallbackRouterPtr& adminCallbackRouter) : 
     _adapter(adapter),
     _instanceName(instanceName),
     _checkConnection(checkConnection),
