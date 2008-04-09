@@ -70,8 +70,8 @@
     <None Include="TestPage.html" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ClientBin\icesl.dll" />
-    <Content Include="ClientBin\icesl.pdb" />
+    <Content Include="ClientBin\IceSL.dll" />
+    <Content Include="ClientBin\IceSL.pdb" />
     <Content Include="Page.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -20,6 +20,16 @@
 
 OPTIMIZE		= yes
 
+
+#
+# Set the key file used to sign assemblies.
+#
+
+!if "$(KEYFILE)" == ""
+KEYFILE			= $(top_srcdir)\..\config\IceDevKey.snk
+!endif
+
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -36,7 +46,7 @@ slice_translator = slice2sl.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-SILVERLIGHT		= yes
+#SILVERLIGHT		= yes
 
 bindir			= $(top_srcdir)\bin
 
@@ -70,7 +80,7 @@ SLICE2SL		= "$(ice_dir)\bin\slice2sl.exe"
 SLICE2SL                = slice2sl.exe
 !endif
 
-EVERYTHING		= all clean
+EVERYTHING		= all clean config
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
@@ -81,10 +91,12 @@ EVERYTHING		= all clean
 {$(SDIR)\}.ice{$(GDIR)}.cs:
 	$(SLICE2SL) --output-dir $(GDIR) $(SLICE2SLFLAGS) $<
 
-all:: $(TARGETS)
+all:: $(TARGETS) $(TARGETS_CONFIG)
 
 clean::
-	del /q $(TARGETS) *.pdb
+	del /q $(TARGETS) $(TARGETS_CONFIG) *.pdb
+
+config:: $(TARGETS_CONFIG)
 
 !if "$(GEN_SRCS)" != ""
 clean::
@@ -105,4 +117,37 @@ clean::
 !if "$(SAMD_GEN_SRCS)" != ""
 clean::
 	del /q $(SAMD_GEN_SRCS)
+!endif
+
+!if "$(TARGETS_CONFIG)" != ""
+
+!if "$(PUBLIC_KEY_TOKEN)" == ""
+
+$(TARGETS_CONFIG):
+        @sn -q -p $(KEYFILE) tmp.pub && \
+        sn -q -t tmp.pub > tmp.publicKeyToken && \
+        set /P TMP_TOKEN= < tmp.publicKeyToken && \
+        cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
+        del tmp.pub tmp.publicKeyToken && \
+        nmake /nologo /f Makefile.mak config"
+
+!else
+
+publicKeyToken = $(PUBLIC_KEY_TOKEN: =)
+$(TARGETS_CONFIG):
+        @echo "Generating" <<$@ "..."
+<?xml version="1.0"?>
+  <configuration>
+    <runtime>
+      <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+        <dependentAssembly>
+          <assemblyIdentity name="IceSL" culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+          <codeBase version="0.1.1.0" href="$(bindir)\IceSL.dll"/>
+        </dependentAssembly>    </assemblyBinding>
+  </runtime>
+</configuration>
+<<KEEP
+
+!endif
+
 !endif
