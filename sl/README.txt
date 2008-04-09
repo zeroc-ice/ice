@@ -90,20 +90,21 @@ AMI call could be implemented similar to the following:
     }
 
 
-User Exceptions
----------------
+User Exceptions and Object-by-Value
+-----------------------------------
 
-Ice for .NET supports user exceptions through
+Ice for .NET supports user exceptions and objects by value through
 reflection. Unfortunately, Silverlight does not support
 AppDomain.CurrentDomain.GetAssemblies(), which means that the user
-exception types must reside in the same assembly as the Ice for
-Silverlight runtime. If the user exception type cannot be found by the
-Ice for Silverlight runtime an Ice.UnmarshalOutOfBounds exception will
-be raised.
+exception and objects types that are received by value must reside
+in the same assembly as the Ice for Silverlight runtime. If the
+type cannot be found by the Ice for Silverlight runtime an
+Ice.UnmarshalOutOfBounds exception will be raised.
 
 The easiest way to ensure that the Ice for Silverlight runtime can
-find your user exceptions is to merge the icesl.dll assembly with your
-application code assembly. This can be done using the ILMerge tool
-provided by Microsoft. Please see the link below for more information:
+find the relevant types is to merge the icesl.dll assembly with
+your application code assembly. This can be done using the ILMerge
+tool provided by Microsoft. Please see the link below for more
+information:
 
   http://research.microsoft.com/~mbarnett/ILMerge.aspx
