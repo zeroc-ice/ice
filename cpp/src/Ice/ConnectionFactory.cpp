@@ -1415,15 +1415,24 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
     }
 }
 
+//
+// COMPILERFIX: The ConnectionFactory setup is broken out into a separate initialize
+// function because when it was part of the constructor C++Builder 2007 apps would
+// crash if an execption was thrown from any calls within the constructor.
+//
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
                                                                   const EndpointIPtr& endpoint,
-                                                                  const ObjectAdapterPtr& adapter,
-                                                                  const string& adapterName) :
+                                                                  const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
     _endpoint(endpoint),
     _adapter(adapter),
     _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _state(StateHolding)
+{
+}
+
+void
+IceInternal::IncomingConnectionFactory::initialize(const string& adapterName)
 {
     if(_instance->defaultsAndOverrides()->overrideTimeout)
     {
@@ -1472,12 +1481,11 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
         _acceptor->listen();
         _fd = _acceptor->fd();
 
-        __setNoDelete(true);
         try
         {
             adapterImpl->getThreadPool()->incFdsInUse();
         }
-        catch(const IceUtil::Exception& ex)
+        catch(const IceUtil::Exception&)
         {
             try
             {
@@ -1488,16 +1496,14 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
                 // Here we ignore any exceptions in close().
             }
             
-            __setNoDelete(false);
-            ex.ice_throw();
+            throw;
         }
-        __setNoDelete(false);
     }
 }
 
 IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 {
-    assert(_state == StateClosed);
+    //assert(_state == StateClosed);
     assert(!_acceptor);
     assert(_connections.empty());
 }
