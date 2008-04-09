@@ -132,7 +132,9 @@ ice_cpp_header = $(ice_dir)\include\Ice\Ice.h
 #
 slicedir		= $(ice_dir)\slice
 
-install_slicedir	= $(prefix)\slice
+!if exist ($(top_srcdir)\..\slice)
+install_slicedir    	= $(prefix)\slice
+!endif
 
 all::
 
@@ -141,11 +143,13 @@ install-common::
 	    @echo "Creating $(prefix)..." && \
 	    mkdir $(prefix)
 
+!if "$(install_slicedir)" != ""
 	@if not exist $(install_slicedir) \
 	    @echo "Creating $(install_slicedir)..." && \
 	    mkdir $(install_slicedir)
 	@echo "Copying slice files..." && \
 	cmd /c "xcopy /s /y $(top_srcdir)\..\slice $(install_slicedir)" || exit 1
+!endif
 
 	@if exist $(top_srcdir)\..\ICE_LICENSE \
 	    @copy ..\ICE_LICENSE $(prefix)

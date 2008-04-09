@@ -29,7 +29,7 @@ filesToRemove = [
 
 # List of files & subdirectories to keep, all others are removed.
 filesToKeep = [
-    "./config/Make.common.rules.mak.icesl",
+    "./config/Make.common.rules.mak",
     "./cpp/Makefile.mak",
     "./cpp/config/Make.rules.mak.icesl",
     "./cpp/config/Make.rules.msvc",
@@ -279,26 +279,6 @@ def fixMakeRules(file):
 #
 # Fix version in README, INSTALL files
 #
-def fixVersion(file):
-
-    global version
-
-    origfile = file + ".orig"
-    os.rename(file, origfile)
-    oldFile = open(origfile, "r")
-    newFile = open(file, "w")
-    line = oldFile.read();
-    line = re.sub("@ver@", version, line)
-    newFile.write(line)
-    newFile.close()
-    oldFile.close()
-
-    # Preserve the executable permission
-    st = os.stat(origfile)
-    if st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH): 
-        os.chmod(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
-    os.remove(origfile)
-
 def fixFilePermission(file):
 
     patterns = [ \
@@ -415,6 +395,8 @@ def regexpEscape(expr):
 def substitute(file, regexps):
     for line in fileinput.input(file, True):
         for (expr, text) in regexps:
+	    if not expr is re:
+		expr = re.compile(expr)
             line = expr.sub(text, line)
         print line,
 
@@ -543,7 +525,7 @@ for root, dirnames, filesnames in os.walk('.'):
 
             # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
             if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
-                fixVersion(filepath)
+                substitute(filepath, [("@ver@", version)])
             elif fnmatch.fnmatch(f, "*.y"):
                 bisonFiles.append(filepath)
             elif fnmatch.fnmatch(f, "*.l"):
@@ -559,17 +541,9 @@ for root, dirnames, filesnames in os.walk('.'):
 # Note that this "fixes" ICE_STRING_VERSION, but not ICE_INT_VERSION
 # since that is only used by the C++ code generators.
 #
-configFile = "cpp/include/IceUtil/Config.h"
-origConfigFile = configFile + ".orig"
-os.rename(configFile, origConfigFile)
-oldConfigFile = open(origConfigFile, "r")
-newConfigFile = open(configFile, "w")
-line = oldConfigFile.read();
-line = re.sub('ICE_STRING_VERSION "([0-9a-z\.]+)"', 'ICE_STRING_VERSION "%s"' % version, line)
-newConfigFile.write(line)
-newConfigFile.close()
-oldConfigFile.close()
-os.remove(origConfigFile)
+substitute("cpp/include/IceUtil/Config.h",
+    [('ICE_STRING_VERSION "([0-9a-z\.]+)"', 'ICE_STRING_VERSION "%s"' % version)])
+substitute("config/Make.common.rules.mak", [('^VERSION\s+=\s*[a-z0-9\.]+', 'VERSION = %s' % version)])
 
 print "ok"
 
@@ -614,7 +588,6 @@ shutil.move(os.path.join("sl", "INSTALL.txt"), os.path.join("INSTALL.txt"))
 # Move *.icesl to the correct names.
 #
 shutil.move(os.path.join("cpp", "config", "Make.rules.mak.icesl"), os.path.join("cpp", "config", "Make.rules.mak"))
-shutil.move(os.path.join("config", "Make.common.rules.mak.icesl"), os.path.join("config", "Make.common.rules.mak"))
 
 print "ok"
 
