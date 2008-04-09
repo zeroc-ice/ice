@@ -32,6 +32,10 @@ RES_FILE        = ,, Slice2Sl.res
 RES_FILE        = Slice2Sl.res
 !endif
 
+!if "$(STATICLIBS)" == "yes"
+BASELIBS = $(MCPP_LIBS) $(BASELIBS)
+!endif
+
 $(NAME): $(OBJS) Slice2Sl.res
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib \
 		$(BASELIBS) $(RES_FILE)

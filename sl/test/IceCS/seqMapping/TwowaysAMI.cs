@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -61,21 +61,21 @@ public class TwowaysAMI
         private bool _called;
     }
 
-    private class AMI_MyClass_opAByteSI : Test.AMI_MyClass_opAByteS
+    private class AMI_MyClass_opAByteSI 
     {
         public AMI_MyClass_opAByteSI(byte[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(byte[] r, byte[] o)
+        public void response(byte[] r, byte[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -89,21 +89,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLByteSI : Test.AMI_MyClass_opLByteS
+    private class AMI_MyClass_opLByteSI 
     {
         public AMI_MyClass_opLByteSI(List<byte> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<byte> r, List<byte> o)
+        public void response(List<byte> r, List<byte> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -117,21 +117,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKByteSI : Test.AMI_MyClass_opKByteS
+    private class AMI_MyClass_opKByteSI 
     {
         public AMI_MyClass_opKByteSI(LinkedList<byte> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<byte> r, LinkedList<byte> o)
+        public void response(LinkedList<byte> r, LinkedList<byte> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -145,21 +145,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQByteSI : Test.AMI_MyClass_opQByteS
+    private class AMI_MyClass_opQByteSI
     {
         public AMI_MyClass_opQByteSI(Queue<byte> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<byte> r, Queue<byte> o)
+        public void response(Queue<byte> r, Queue<byte> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -173,21 +173,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSByteSI : Test.AMI_MyClass_opSByteS
+    private class AMI_MyClass_opSByteSI 
     {
         public AMI_MyClass_opSByteSI(Stack<byte> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<byte> r, Stack<byte> o)
+        public void response(Stack<byte> r, Stack<byte> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -201,21 +201,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCByteSI : Test.AMI_MyClass_opCByteS
+    private class AMI_MyClass_opCByteSI 
     {
         public AMI_MyClass_opCByteSI(CByteS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CByteS r, CByteS o)
+        public void response(CByteS r, CByteS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -229,21 +229,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opABoolSI : Test.AMI_MyClass_opABoolS
+    private class AMI_MyClass_opABoolSI 
     {
         public AMI_MyClass_opABoolSI(bool[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(bool[] r, bool[] o)
+        public void response(bool[] r, bool[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -257,21 +257,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLBoolSI : Test.AMI_MyClass_opLBoolS
+    private class AMI_MyClass_opLBoolSI 
     {
         public AMI_MyClass_opLBoolSI(List<bool> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<bool> r, List<bool> o)
+        public void response(List<bool> r, List<bool> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -285,21 +285,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKBoolSI : Test.AMI_MyClass_opKBoolS
+    private class AMI_MyClass_opKBoolSI 
     {
         public AMI_MyClass_opKBoolSI(LinkedList<bool> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<bool> r, LinkedList<bool> o)
+        public void response(LinkedList<bool> r, LinkedList<bool> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -313,21 +313,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQBoolSI : Test.AMI_MyClass_opQBoolS
+    private class AMI_MyClass_opQBoolSI 
     {
         public AMI_MyClass_opQBoolSI(Queue<bool> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<bool> r, Queue<bool> o)
+        public void response(Queue<bool> r, Queue<bool> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -341,21 +341,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSBoolSI : Test.AMI_MyClass_opSBoolS
+    private class AMI_MyClass_opSBoolSI 
     {
         public AMI_MyClass_opSBoolSI(Stack<bool> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<bool> r, Stack<bool> o)
+        public void response(Stack<bool> r, Stack<bool> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -369,21 +369,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCBoolSI : Test.AMI_MyClass_opCBoolS
+    private class AMI_MyClass_opCBoolSI 
     {
         public AMI_MyClass_opCBoolSI(CBoolS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CBoolS r, CBoolS o)
+        public void response(CBoolS r, CBoolS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -397,21 +397,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAShortSI : Test.AMI_MyClass_opAShortS
+    private class AMI_MyClass_opAShortSI 
     {
         public AMI_MyClass_opAShortSI(short[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(short[] r, short[] o)
+        public void response(short[] r, short[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -425,21 +425,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLShortSI : Test.AMI_MyClass_opLShortS
+    private class AMI_MyClass_opLShortSI 
     {
         public AMI_MyClass_opLShortSI(List<short> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<short> r, List<short> o)
+        public void response(List<short> r, List<short> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -453,21 +453,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKShortSI : Test.AMI_MyClass_opKShortS
+    private class AMI_MyClass_opKShortSI 
     {
         public AMI_MyClass_opKShortSI(LinkedList<short> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<short> r, LinkedList<short> o)
+        public void response(LinkedList<short> r, LinkedList<short> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -481,21 +481,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQShortSI : Test.AMI_MyClass_opQShortS
+    private class AMI_MyClass_opQShortSI 
     {
         public AMI_MyClass_opQShortSI(Queue<short> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<short> r, Queue<short> o)
+        public void response(Queue<short> r, Queue<short> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -509,21 +509,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSShortSI : Test.AMI_MyClass_opSShortS
+    private class AMI_MyClass_opSShortSI 
     {
         public AMI_MyClass_opSShortSI(Stack<short> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<short> r, Stack<short> o)
+        public void response(Stack<short> r, Stack<short> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -537,21 +537,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCShortSI : Test.AMI_MyClass_opCShortS
+    private class AMI_MyClass_opCShortSI 
     {
         public AMI_MyClass_opCShortSI(CShortS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CShortS r, CShortS o)
+        public void response(CShortS r, CShortS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -565,21 +565,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAIntSI : Test.AMI_MyClass_opAIntS
+    private class AMI_MyClass_opAIntSI 
     {
         public AMI_MyClass_opAIntSI(int[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(int[] r, int[] o)
+        public void response(int[] r, int[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -593,21 +593,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLIntSI : Test.AMI_MyClass_opLIntS
+    private class AMI_MyClass_opLIntSI 
     {
         public AMI_MyClass_opLIntSI(List<int> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<int> r, List<int> o)
+        public void response(List<int> r, List<int> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -621,21 +621,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKIntSI : Test.AMI_MyClass_opKIntS
+    private class AMI_MyClass_opKIntSI 
     {
         public AMI_MyClass_opKIntSI(LinkedList<int> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<int> r, LinkedList<int> o)
+        public void response(LinkedList<int> r, LinkedList<int> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -649,21 +649,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQIntSI : Test.AMI_MyClass_opQIntS
+    private class AMI_MyClass_opQIntSI 
     {
         public AMI_MyClass_opQIntSI(Queue<int> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<int> r, Queue<int> o)
+        public void response(Queue<int> r, Queue<int> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -677,21 +677,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSIntSI : Test.AMI_MyClass_opSIntS
+    private class AMI_MyClass_opSIntSI 
     {
         public AMI_MyClass_opSIntSI(Stack<int> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<int> r, Stack<int> o)
+        public void response(Stack<int> r, Stack<int> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -705,21 +705,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCIntSI : Test.AMI_MyClass_opCIntS
+    private class AMI_MyClass_opCIntSI 
     {
         public AMI_MyClass_opCIntSI(CIntS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CIntS r, CIntS o)
+        public void response(CIntS r, CIntS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -733,21 +733,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opALongSI : Test.AMI_MyClass_opALongS
+    private class AMI_MyClass_opALongSI 
     {
         public AMI_MyClass_opALongSI(long[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(long[] r, long[] o)
+        public void response(long[] r, long[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -761,21 +761,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLLongSI : Test.AMI_MyClass_opLLongS
+    private class AMI_MyClass_opLLongSI 
     {
         public AMI_MyClass_opLLongSI(List<long> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<long> r, List<long> o)
+        public void response(List<long> r, List<long> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -789,21 +789,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKLongSI : Test.AMI_MyClass_opKLongS
+    private class AMI_MyClass_opKLongSI 
     {
         public AMI_MyClass_opKLongSI(LinkedList<long> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<long> r, LinkedList<long> o)
+        public void response(LinkedList<long> r, LinkedList<long> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -817,21 +817,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQLongSI : Test.AMI_MyClass_opQLongS
+    private class AMI_MyClass_opQLongSI 
     {
         public AMI_MyClass_opQLongSI(Queue<long> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<long> r, Queue<long> o)
+        public void response(Queue<long> r, Queue<long> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -845,21 +845,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSLongSI : Test.AMI_MyClass_opSLongS
+    private class AMI_MyClass_opSLongSI 
     {
         public AMI_MyClass_opSLongSI(Stack<long> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<long> r, Stack<long> o)
+        public void response(Stack<long> r, Stack<long> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -873,21 +873,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCLongSI : Test.AMI_MyClass_opCLongS
+    private class AMI_MyClass_opCLongSI 
     {
         public AMI_MyClass_opCLongSI(CLongS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CLongS r, CLongS o)
+        public void response(CLongS r, CLongS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -901,21 +901,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAFloatSI : Test.AMI_MyClass_opAFloatS
+    private class AMI_MyClass_opAFloatSI 
     {
         public AMI_MyClass_opAFloatSI(float[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(float[] r, float[] o)
+        public void response(float[] r, float[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -929,21 +929,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLFloatSI : Test.AMI_MyClass_opLFloatS
+    private class AMI_MyClass_opLFloatSI 
     {
         public AMI_MyClass_opLFloatSI(List<float> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<float> r, List<float> o)
+        public void response(List<float> r, List<float> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -957,21 +957,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKFloatSI : Test.AMI_MyClass_opKFloatS
+    private class AMI_MyClass_opKFloatSI 
     {
         public AMI_MyClass_opKFloatSI(LinkedList<float> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<float> r, LinkedList<float> o)
+        public void response(LinkedList<float> r, LinkedList<float> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -985,21 +985,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQFloatSI : Test.AMI_MyClass_opQFloatS
+    private class AMI_MyClass_opQFloatSI 
     {
         public AMI_MyClass_opQFloatSI(Queue<float> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<float> r, Queue<float> o)
+        public void response(Queue<float> r, Queue<float> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1013,21 +1013,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSFloatSI : Test.AMI_MyClass_opSFloatS
+    private class AMI_MyClass_opSFloatSI 
     {
         public AMI_MyClass_opSFloatSI(Stack<float> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<float> r, Stack<float> o)
+        public void response(Stack<float> r, Stack<float> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1041,21 +1041,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCFloatSI : Test.AMI_MyClass_opCFloatS
+    private class AMI_MyClass_opCFloatSI 
     {
         public AMI_MyClass_opCFloatSI(CFloatS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CFloatS r, CFloatS o)
+        public void response(CFloatS r, CFloatS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1069,21 +1069,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opADoubleSI : Test.AMI_MyClass_opADoubleS
+    private class AMI_MyClass_opADoubleSI 
     {
         public AMI_MyClass_opADoubleSI(double[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(double[] r, double[] o)
+        public void response(double[] r, double[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1097,21 +1097,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLDoubleSI : Test.AMI_MyClass_opLDoubleS
+    private class AMI_MyClass_opLDoubleSI 
     {
         public AMI_MyClass_opLDoubleSI(List<double> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<double> r, List<double> o)
+        public void response(List<double> r, List<double> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1125,21 +1125,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKDoubleSI : Test.AMI_MyClass_opKDoubleS
+    private class AMI_MyClass_opKDoubleSI 
     {
         public AMI_MyClass_opKDoubleSI(LinkedList<double> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<double> r, LinkedList<double> o)
+        public void response(LinkedList<double> r, LinkedList<double> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1153,21 +1153,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQDoubleSI : Test.AMI_MyClass_opQDoubleS
+    private class AMI_MyClass_opQDoubleSI 
     {
         public AMI_MyClass_opQDoubleSI(Queue<double> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<double> r, Queue<double> o)
+        public void response(Queue<double> r, Queue<double> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1181,21 +1181,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSDoubleSI : Test.AMI_MyClass_opSDoubleS
+    private class AMI_MyClass_opSDoubleSI 
     {
         public AMI_MyClass_opSDoubleSI(Stack<double> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<double> r, Stack<double> o)
+        public void response(Stack<double> r, Stack<double> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1209,21 +1209,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCDoubleSI : Test.AMI_MyClass_opCDoubleS
+    private class AMI_MyClass_opCDoubleSI 
     {
         public AMI_MyClass_opCDoubleSI(CDoubleS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CDoubleS r, CDoubleS o)
+        public void response(CDoubleS r, CDoubleS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1237,21 +1237,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAStringSI : Test.AMI_MyClass_opAStringS
+    private class AMI_MyClass_opAStringSI 
     {
         public AMI_MyClass_opAStringSI(string[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(string[] r, string[] o)
+        public void response(string[] r, string[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1265,21 +1265,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLStringSI : Test.AMI_MyClass_opLStringS
+    private class AMI_MyClass_opLStringSI 
     {
         public AMI_MyClass_opLStringSI(List<string> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<string> r, List<string> o)
+        public void response(List<string> r, List<string> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1293,21 +1293,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKStringSI : Test.AMI_MyClass_opKStringS
+    private class AMI_MyClass_opKStringSI 
     {
         public AMI_MyClass_opKStringSI(LinkedList<string> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<string> r, LinkedList<string> o)
+        public void response(LinkedList<string> r, LinkedList<string> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1321,21 +1321,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQStringSI : Test.AMI_MyClass_opQStringS
+    private class AMI_MyClass_opQStringSI 
     {
         public AMI_MyClass_opQStringSI(Queue<string> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<string> r, Queue<string> o)
+        public void response(Queue<string> r, Queue<string> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1349,21 +1349,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSStringSI : Test.AMI_MyClass_opSStringS
+    private class AMI_MyClass_opSStringSI 
     {
         public AMI_MyClass_opSStringSI(Stack<string> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<string> r, Stack<string> o)
+        public void response(Stack<string> r, Stack<string> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1377,21 +1377,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCStringSI : Test.AMI_MyClass_opCStringS
+    private class AMI_MyClass_opCStringSI 
     {
         public AMI_MyClass_opCStringSI(CStringS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CStringS r, CStringS o)
+        public void response(CStringS r, CStringS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1405,14 +1405,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAObjectSI : Test.AMI_MyClass_opAObjectS
+    private class AMI_MyClass_opAObjectSI 
     {
         public AMI_MyClass_opAObjectSI(Ice.Object[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(Ice.Object[] r, Ice.Object[] o)
+        public void response(Ice.Object[] r, Ice.Object[] o)
         {
             System.Collections.IEnumerator eo = o.GetEnumerator();
             System.Collections.IEnumerator er = r.GetEnumerator();
@@ -1426,7 +1426,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1440,14 +1440,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLObjectSI : Test.AMI_MyClass_opLObjectS
+    private class AMI_MyClass_opLObjectSI 
     {
         public AMI_MyClass_opLObjectSI(List<Ice.Object> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<Ice.Object> r, List<Ice.Object> o)
+        public void response(List<Ice.Object> r, List<Ice.Object> o)
         {
             IEnumerator<Ice.Object> eo = o.GetEnumerator();
             IEnumerator<Ice.Object> er = r.GetEnumerator();
@@ -1461,7 +1461,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1475,14 +1475,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCObjectSI : Test.AMI_MyClass_opCObjectS
+    private class AMI_MyClass_opCObjectSI 
     {
         public AMI_MyClass_opCObjectSI(CObjectS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CObjectS r, CObjectS o)
+        public void response(CObjectS r, CObjectS o)
         {
             IEnumerator<Ice.Object> eo = (IEnumerator<Ice.Object>)o.GetEnumerator();
             IEnumerator<Ice.Object> er = (IEnumerator<Ice.Object>)r.GetEnumerator();
@@ -1496,7 +1496,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1510,21 +1510,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAObjectPrxSI : Test.AMI_MyClass_opAObjectPrxS
+    private class AMI_MyClass_opAObjectPrxSI 
     {
         public AMI_MyClass_opAObjectPrxSI(Ice.ObjectPrx[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(Ice.ObjectPrx[] r, Ice.ObjectPrx[] o)
+        public void response(Ice.ObjectPrx[] r, Ice.ObjectPrx[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1538,21 +1538,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLObjectPrxSI : Test.AMI_MyClass_opLObjectPrxS
+    private class AMI_MyClass_opLObjectPrxSI 
     {
         public AMI_MyClass_opLObjectPrxSI(List<Ice.ObjectPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<Ice.ObjectPrx> r, List<Ice.ObjectPrx> o)
+        public void response(List<Ice.ObjectPrx> r, List<Ice.ObjectPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1566,21 +1566,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKObjectPrxSI : Test.AMI_MyClass_opKObjectPrxS
+    private class AMI_MyClass_opKObjectPrxSI 
     {
         public AMI_MyClass_opKObjectPrxSI(LinkedList<Ice.ObjectPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<Ice.ObjectPrx> r, LinkedList<Ice.ObjectPrx> o)
+        public void response(LinkedList<Ice.ObjectPrx> r, LinkedList<Ice.ObjectPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1594,21 +1594,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQObjectPrxSI : Test.AMI_MyClass_opQObjectPrxS
+    private class AMI_MyClass_opQObjectPrxSI 
     {
         public AMI_MyClass_opQObjectPrxSI(Queue<Ice.ObjectPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<Ice.ObjectPrx> r, Queue<Ice.ObjectPrx> o)
+        public void response(Queue<Ice.ObjectPrx> r, Queue<Ice.ObjectPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1622,21 +1622,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSObjectPrxSI : Test.AMI_MyClass_opSObjectPrxS
+    private class AMI_MyClass_opSObjectPrxSI 
     {
         public AMI_MyClass_opSObjectPrxSI(Stack<Ice.ObjectPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<Ice.ObjectPrx> r, Stack<Ice.ObjectPrx> o)
+        public void response(Stack<Ice.ObjectPrx> r, Stack<Ice.ObjectPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1650,21 +1650,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCObjectPrxSI : Test.AMI_MyClass_opCObjectPrxS
+    private class AMI_MyClass_opCObjectPrxSI 
     {
         public AMI_MyClass_opCObjectPrxSI(CObjectPrxS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CObjectPrxS r, CObjectPrxS o)
+        public void response(CObjectPrxS r, CObjectPrxS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1678,21 +1678,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAStructSI : Test.AMI_MyClass_opAStructS
+    private class AMI_MyClass_opAStructSI 
     {
         public AMI_MyClass_opAStructSI(S[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(S[] r, S[] o)
+        public void response(S[] r, S[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1706,21 +1706,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLStructSI : Test.AMI_MyClass_opLStructS
+    private class AMI_MyClass_opLStructSI 
     {
         public AMI_MyClass_opLStructSI(List<S> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<S> r, List<S> o)
+        public void response(List<S> r, List<S> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1734,21 +1734,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKStructSI : Test.AMI_MyClass_opKStructS
+    private class AMI_MyClass_opKStructSI 
     {
         public AMI_MyClass_opKStructSI(LinkedList<S> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<S> r, LinkedList<S> o)
+        public void response(LinkedList<S> r, LinkedList<S> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1762,21 +1762,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQStructSI : Test.AMI_MyClass_opQStructS
+    private class AMI_MyClass_opQStructSI 
     {
         public AMI_MyClass_opQStructSI(Queue<S> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<S> r, Queue<S> o)
+        public void response(Queue<S> r, Queue<S> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1790,21 +1790,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSStructSI : Test.AMI_MyClass_opSStructS
+    private class AMI_MyClass_opSStructSI 
     {
         public AMI_MyClass_opSStructSI(Stack<S> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<S> r, Stack<S> o)
+        public void response(Stack<S> r, Stack<S> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1818,21 +1818,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCStructSI : Test.AMI_MyClass_opCStructS
+    private class AMI_MyClass_opCStructSI 
     {
         public AMI_MyClass_opCStructSI(CStructS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CStructS r, CStructS o)
+        public void response(CStructS r, CStructS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1846,14 +1846,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opACVSI : Test.AMI_MyClass_opACVS
+    private class AMI_MyClass_opACVSI 
     {
         public AMI_MyClass_opACVSI(CV[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(CV[] r, CV[] o)
+        public void response(CV[] r, CV[] o)
         {
             System.Collections.IEnumerator eo = o.GetEnumerator();
             System.Collections.IEnumerator er = r.GetEnumerator();
@@ -1867,7 +1867,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1881,14 +1881,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLCVSI : Test.AMI_MyClass_opLCVS
+    private class AMI_MyClass_opLCVSI 
     {
         public AMI_MyClass_opLCVSI(List<CV> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<CV> r, List<CV> o)
+        public void response(List<CV> r, List<CV> o)
         {
             IEnumerator<CV> eo = o.GetEnumerator();
             IEnumerator<CV> er = r.GetEnumerator();
@@ -1902,7 +1902,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1916,14 +1916,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCCVSI : Test.AMI_MyClass_opCCVS
+    private class AMI_MyClass_opCCVSI 
     {
         public AMI_MyClass_opCCVSI(CCVS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CCVS r, CCVS o)
+        public void response(CCVS r, CCVS o)
         {
             IEnumerator<CV> eo = (IEnumerator<CV>)o.GetEnumerator();
             IEnumerator<CV> er = (IEnumerator<CV>)r.GetEnumerator();
@@ -1937,7 +1937,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1951,21 +1951,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opACVPrxSI : Test.AMI_MyClass_opACVPrxS
+    private class AMI_MyClass_opACVPrxSI 
     {
         public AMI_MyClass_opACVPrxSI(CVPrx[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(CVPrx[] r, CVPrx[] o)
+        public void response(CVPrx[] r, CVPrx[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1979,21 +1979,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLCVPrxSI : Test.AMI_MyClass_opLCVPrxS
+    private class AMI_MyClass_opLCVPrxSI 
     {
         public AMI_MyClass_opLCVPrxSI(List<CVPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<CVPrx> r, List<CVPrx> o)
+        public void response(List<CVPrx> r, List<CVPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2007,21 +2007,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKCVPrxSI : Test.AMI_MyClass_opKCVPrxS
+    private class AMI_MyClass_opKCVPrxSI 
     {
         public AMI_MyClass_opKCVPrxSI(LinkedList<CVPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<CVPrx> r, LinkedList<CVPrx> o)
+        public void response(LinkedList<CVPrx> r, LinkedList<CVPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2035,21 +2035,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQCVPrxSI : Test.AMI_MyClass_opQCVPrxS
+    private class AMI_MyClass_opQCVPrxSI 
     {
         public AMI_MyClass_opQCVPrxSI(Queue<CVPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<CVPrx> r, Queue<CVPrx> o)
+        public void response(Queue<CVPrx> r, Queue<CVPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2063,21 +2063,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSCVPrxSI : Test.AMI_MyClass_opSCVPrxS
+    private class AMI_MyClass_opSCVPrxSI 
     {
         public AMI_MyClass_opSCVPrxSI(Stack<CVPrx> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<CVPrx> r, Stack<CVPrx> o)
+        public void response(Stack<CVPrx> r, Stack<CVPrx> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2091,21 +2091,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCCVPrxSI : Test.AMI_MyClass_opCCVPrxS
+    private class AMI_MyClass_opCCVPrxSI 
     {
         public AMI_MyClass_opCCVPrxSI(CCVPrxS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CCVPrxS r, CCVPrxS o)
+        public void response(CCVPrxS r, CCVPrxS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2119,14 +2119,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opACRSI : Test.AMI_MyClass_opACRS
+    private class AMI_MyClass_opACRSI 
     {
         public AMI_MyClass_opACRSI(CR[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(CR[] r, CR[] o)
+        public void response(CR[] r, CR[] o)
         {
             System.Collections.IEnumerator eo = o.GetEnumerator();
             System.Collections.IEnumerator er = r.GetEnumerator();
@@ -2140,7 +2140,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2154,14 +2154,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLCRSI : Test.AMI_MyClass_opLCRS
+    private class AMI_MyClass_opLCRSI 
     {
         public AMI_MyClass_opLCRSI(List<CR> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<CR> r, List<CR> o)
+        public void response(List<CR> r, List<CR> o)
         {
             IEnumerator<CR> eo = o.GetEnumerator();
             IEnumerator<CR> er = r.GetEnumerator();
@@ -2175,7 +2175,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2189,14 +2189,14 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCCRSI : Test.AMI_MyClass_opCCRS
+    private class AMI_MyClass_opCCRSI 
     {
         public AMI_MyClass_opCCRSI(CCRS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CCRS r, CCRS o)
+        public void response(CCRS r, CCRS o)
         {
             IEnumerator<CR> eo = (IEnumerator<CR>)o.GetEnumerator();
             IEnumerator<CR> er = (IEnumerator<CR>)r.GetEnumerator();
@@ -2210,7 +2210,7 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2224,21 +2224,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opAEnSI : Test.AMI_MyClass_opAEnS
+    private class AMI_MyClass_opAEnSI 
     {
         public AMI_MyClass_opAEnSI(En[] i)
         {
             _i = i;
         }
 
-        public override void ice_response(En[] r, En[] o)
+        public void response(En[] r, En[] o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2252,21 +2252,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opLEnSI : Test.AMI_MyClass_opLEnS
+    private class AMI_MyClass_opLEnSI 
     {
         public AMI_MyClass_opLEnSI(List<En> i)
         {
             _i = i;
         }
 
-        public override void ice_response(List<En> r, List<En> o)
+        public void response(List<En> r, List<En> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2280,21 +2280,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opKEnSI : Test.AMI_MyClass_opKEnS
+    private class AMI_MyClass_opKEnSI 
     {
         public AMI_MyClass_opKEnSI(LinkedList<En> i)
         {
             _i = i;
         }
 
-        public override void ice_response(LinkedList<En> r, LinkedList<En> o)
+        public void response(LinkedList<En> r, LinkedList<En> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2308,21 +2308,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opQEnSI : Test.AMI_MyClass_opQEnS
+    private class AMI_MyClass_opQEnSI 
     {
         public AMI_MyClass_opQEnSI(Queue<En> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Queue<En> r, Queue<En> o)
+        public void response(Queue<En> r, Queue<En> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2336,21 +2336,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opSEnSI : Test.AMI_MyClass_opSEnS
+    private class AMI_MyClass_opSEnSI 
     {
         public AMI_MyClass_opSEnSI(Stack<En> i)
         {
             _i = i;
         }
 
-        public override void ice_response(Stack<En> r, Stack<En> o)
+        public void response(Stack<En> r, Stack<En> o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2364,21 +2364,21 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-    private class AMI_MyClass_opCEnSI : Test.AMI_MyClass_opCEnS
+    private class AMI_MyClass_opCEnSI
     {
         public AMI_MyClass_opCEnSI(CEnS i)
         {
             _i = i;
         }
 
-        public override void ice_response(CEnS r, CEnS o)
+        public void response(CEnS r, CEnS o)
         {
             test(Ice.CollectionComparer.Equals(_i, o));
             test(Ice.CollectionComparer.Equals(_i, r));
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -2404,7 +2404,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAByteSI cb = new AMI_MyClass_opAByteSI(i);
-            p.opAByteS_async(cb, i);
+            p.opAByteS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2416,7 +2416,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLByteSI cb = new AMI_MyClass_opLByteSI(i);
-            p.opLByteS_async(cb, i);
+            p.opLByteS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2428,7 +2428,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKByteSI cb = new AMI_MyClass_opKByteSI(i);
-            p.opKByteS_async(cb, i);
+            p.opKByteS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2440,7 +2440,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQByteSI cb = new AMI_MyClass_opQByteSI(i);
-            p.opQByteS_async(cb, i);
+            p.opQByteS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2452,7 +2452,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSByteSI cb = new AMI_MyClass_opSByteSI(i);
-            p.opSByteS_async(cb, i);
+            p.opSByteS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2464,7 +2464,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCByteSI cb = new AMI_MyClass_opCByteSI(i);
-            p.opCByteS_async(cb, i);
+            p.opCByteS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2476,7 +2476,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opABoolSI cb = new AMI_MyClass_opABoolSI(i);
-            p.opABoolS_async(cb, i);
+            p.opABoolS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2488,7 +2488,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLBoolSI cb = new AMI_MyClass_opLBoolSI(i);
-            p.opLBoolS_async(cb, i);
+            p.opLBoolS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2500,7 +2500,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKBoolSI cb = new AMI_MyClass_opKBoolSI(i);
-            p.opKBoolS_async(cb, i);
+            p.opKBoolS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2512,7 +2512,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQBoolSI cb = new AMI_MyClass_opQBoolSI(i);
-            p.opQBoolS_async(cb, i);
+            p.opQBoolS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2524,7 +2524,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSBoolSI cb = new AMI_MyClass_opSBoolSI(i);
-            p.opSBoolS_async(cb, i);
+            p.opSBoolS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2536,7 +2536,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCBoolSI cb = new AMI_MyClass_opCBoolSI(i);
-            p.opCBoolS_async(cb, i);
+            p.opCBoolS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2548,7 +2548,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAShortSI cb = new AMI_MyClass_opAShortSI(i);
-            p.opAShortS_async(cb, i);
+            p.opAShortS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2560,7 +2560,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLShortSI cb = new AMI_MyClass_opLShortSI(i);
-            p.opLShortS_async(cb, i);
+            p.opLShortS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2572,7 +2572,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKShortSI cb = new AMI_MyClass_opKShortSI(i);
-            p.opKShortS_async(cb, i);
+            p.opKShortS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2584,7 +2584,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQShortSI cb = new AMI_MyClass_opQShortSI(i);
-            p.opQShortS_async(cb, i);
+            p.opQShortS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2596,7 +2596,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSShortSI cb = new AMI_MyClass_opSShortSI(i);
-            p.opSShortS_async(cb, i);
+            p.opSShortS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2608,7 +2608,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCShortSI cb = new AMI_MyClass_opCShortSI(i);
-            p.opCShortS_async(cb, i);
+            p.opCShortS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2620,7 +2620,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAIntSI cb = new AMI_MyClass_opAIntSI(i);
-            p.opAIntS_async(cb, i);
+            p.opAIntS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2632,7 +2632,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLIntSI cb = new AMI_MyClass_opLIntSI(i);
-            p.opLIntS_async(cb, i);
+            p.opLIntS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2644,7 +2644,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKIntSI cb = new AMI_MyClass_opKIntSI(i);
-            p.opKIntS_async(cb, i);
+            p.opKIntS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2656,7 +2656,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQIntSI cb = new AMI_MyClass_opQIntSI(i);
-            p.opQIntS_async(cb, i);
+            p.opQIntS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2668,7 +2668,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSIntSI cb = new AMI_MyClass_opSIntSI(i);
-            p.opSIntS_async(cb, i);
+            p.opSIntS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2680,7 +2680,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCIntSI cb = new AMI_MyClass_opCIntSI(i);
-            p.opCIntS_async(cb, i);
+            p.opCIntS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2692,7 +2692,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opALongSI cb = new AMI_MyClass_opALongSI(i);
-            p.opALongS_async(cb, i);
+            p.opALongS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2704,7 +2704,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLLongSI cb = new AMI_MyClass_opLLongSI(i);
-            p.opLLongS_async(cb, i);
+            p.opLLongS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2716,7 +2716,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKLongSI cb = new AMI_MyClass_opKLongSI(i);
-            p.opKLongS_async(cb, i);
+            p.opKLongS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2728,7 +2728,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQLongSI cb = new AMI_MyClass_opQLongSI(i);
-            p.opQLongS_async(cb, i);
+            p.opQLongS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2740,7 +2740,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSLongSI cb = new AMI_MyClass_opSLongSI(i);
-            p.opSLongS_async(cb, i);
+            p.opSLongS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2752,7 +2752,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCLongSI cb = new AMI_MyClass_opCLongSI(i);
-            p.opCLongS_async(cb, i);
+            p.opCLongS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2764,7 +2764,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAFloatSI cb = new AMI_MyClass_opAFloatSI(i);
-            p.opAFloatS_async(cb, i);
+            p.opAFloatS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2776,7 +2776,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLFloatSI cb = new AMI_MyClass_opLFloatSI(i);
-            p.opLFloatS_async(cb, i);
+            p.opLFloatS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2788,7 +2788,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKFloatSI cb = new AMI_MyClass_opKFloatSI(i);
-            p.opKFloatS_async(cb, i);
+            p.opKFloatS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2800,7 +2800,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQFloatSI cb = new AMI_MyClass_opQFloatSI(i);
-            p.opQFloatS_async(cb, i);
+            p.opQFloatS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2812,7 +2812,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSFloatSI cb = new AMI_MyClass_opSFloatSI(i);
-            p.opSFloatS_async(cb, i);
+            p.opSFloatS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2824,7 +2824,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCFloatSI cb = new AMI_MyClass_opCFloatSI(i);
-            p.opCFloatS_async(cb, i);
+            p.opCFloatS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2836,7 +2836,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opADoubleSI cb = new AMI_MyClass_opADoubleSI(i);
-            p.opADoubleS_async(cb, i);
+            p.opADoubleS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2848,7 +2848,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLDoubleSI cb = new AMI_MyClass_opLDoubleSI(i);
-            p.opLDoubleS_async(cb, i);
+            p.opLDoubleS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2860,7 +2860,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKDoubleSI cb = new AMI_MyClass_opKDoubleSI(i);
-            p.opKDoubleS_async(cb, i);
+            p.opKDoubleS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2872,7 +2872,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQDoubleSI cb = new AMI_MyClass_opQDoubleSI(i);
-            p.opQDoubleS_async(cb, i);
+            p.opQDoubleS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2884,7 +2884,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSDoubleSI cb = new AMI_MyClass_opSDoubleSI(i);
-            p.opSDoubleS_async(cb, i);
+            p.opSDoubleS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2896,7 +2896,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCDoubleSI cb = new AMI_MyClass_opCDoubleSI(i);
-            p.opCDoubleS_async(cb, i);
+            p.opCDoubleS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2908,7 +2908,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAStringSI cb = new AMI_MyClass_opAStringSI(i);
-            p.opAStringS_async(cb, i);
+            p.opAStringS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2920,7 +2920,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLStringSI cb = new AMI_MyClass_opLStringSI(i);
-            p.opLStringS_async(cb, i);
+            p.opLStringS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2932,7 +2932,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKStringSI cb = new AMI_MyClass_opKStringSI(i);
-            p.opKStringS_async(cb, i);
+            p.opKStringS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2944,7 +2944,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQStringSI cb = new AMI_MyClass_opQStringSI(i);
-            p.opQStringS_async(cb, i);
+            p.opQStringS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2956,7 +2956,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSStringSI cb = new AMI_MyClass_opSStringSI(i);
-            p.opSStringS_async(cb, i);
+            p.opSStringS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2968,7 +2968,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCStringSI cb = new AMI_MyClass_opCStringSI(i);
-            p.opCStringS_async(cb, i);
+            p.opCStringS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2980,7 +2980,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAObjectSI cb = new AMI_MyClass_opAObjectSI(i);
-            p.opAObjectS_async(cb, i);
+            p.opAObjectS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -2992,7 +2992,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLObjectSI cb = new AMI_MyClass_opLObjectSI(i);
-            p.opLObjectS_async(cb, i);
+            p.opLObjectS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3004,7 +3004,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCObjectSI cb = new AMI_MyClass_opCObjectSI(i);
-            p.opCObjectS_async(cb, i);
+            p.opCObjectS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3016,7 +3016,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAObjectPrxSI cb = new AMI_MyClass_opAObjectPrxSI(i);
-            p.opAObjectPrxS_async(cb, i);
+            p.opAObjectPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3028,7 +3028,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLObjectPrxSI cb = new AMI_MyClass_opLObjectPrxSI(i);
-            p.opLObjectPrxS_async(cb, i);
+            p.opLObjectPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3040,7 +3040,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKObjectPrxSI cb = new AMI_MyClass_opKObjectPrxSI(i);
-            p.opKObjectPrxS_async(cb, i);
+            p.opKObjectPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3052,7 +3052,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQObjectPrxSI cb = new AMI_MyClass_opQObjectPrxSI(i);
-            p.opQObjectPrxS_async(cb, i);
+            p.opQObjectPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3064,7 +3064,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSObjectPrxSI cb = new AMI_MyClass_opSObjectPrxSI(i);
-            p.opSObjectPrxS_async(cb, i);
+            p.opSObjectPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3076,7 +3076,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCObjectPrxSI cb = new AMI_MyClass_opCObjectPrxSI(i);
-            p.opCObjectPrxS_async(cb, i);
+            p.opCObjectPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3088,7 +3088,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAStructSI cb = new AMI_MyClass_opAStructSI(i);
-            p.opAStructS_async(cb, i);
+            p.opAStructS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3100,7 +3100,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLStructSI cb = new AMI_MyClass_opLStructSI(i);
-            p.opLStructS_async(cb, i);
+            p.opLStructS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3112,7 +3112,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKStructSI cb = new AMI_MyClass_opKStructSI(i);
-            p.opKStructS_async(cb, i);
+            p.opKStructS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3124,7 +3124,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQStructSI cb = new AMI_MyClass_opQStructSI(i);
-            p.opQStructS_async(cb, i);
+            p.opQStructS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3136,7 +3136,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSStructSI cb = new AMI_MyClass_opSStructSI(i);
-            p.opSStructS_async(cb, i);
+            p.opSStructS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3148,7 +3148,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCStructSI cb = new AMI_MyClass_opCStructSI(i);
-            p.opCStructS_async(cb, i);
+            p.opCStructS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3160,7 +3160,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opACVSI cb = new AMI_MyClass_opACVSI(i);
-            p.opACVS_async(cb, i);
+            p.opACVS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3172,7 +3172,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLCVSI cb = new AMI_MyClass_opLCVSI(i);
-            p.opLCVS_async(cb, i);
+            p.opLCVS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3184,7 +3184,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCCVSI cb = new AMI_MyClass_opCCVSI(i);
-            p.opCCVS_async(cb, i);
+            p.opCCVS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3196,7 +3196,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opACVPrxSI cb = new AMI_MyClass_opACVPrxSI(i);
-            p.opACVPrxS_async(cb, i);
+            p.opACVPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3208,7 +3208,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLCVPrxSI cb = new AMI_MyClass_opLCVPrxSI(i);
-            p.opLCVPrxS_async(cb, i);
+            p.opLCVPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3220,7 +3220,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKCVPrxSI cb = new AMI_MyClass_opKCVPrxSI(i);
-            p.opKCVPrxS_async(cb, i);
+            p.opKCVPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3232,7 +3232,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQCVPrxSI cb = new AMI_MyClass_opQCVPrxSI(i);
-            p.opQCVPrxS_async(cb, i);
+            p.opQCVPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3244,7 +3244,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSCVPrxSI cb = new AMI_MyClass_opSCVPrxSI(i);
-            p.opSCVPrxS_async(cb, i);
+            p.opSCVPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3256,7 +3256,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCCVPrxSI cb = new AMI_MyClass_opCCVPrxSI(i);
-            p.opCCVPrxS_async(cb, i);
+            p.opCCVPrxS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3268,7 +3268,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opACRSI cb = new AMI_MyClass_opACRSI(i);
-            p.opACRS_async(cb, i);
+            p.opACRS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3280,7 +3280,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLCRSI cb = new AMI_MyClass_opLCRSI(i);
-            p.opLCRS_async(cb, i);
+            p.opLCRS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3292,7 +3292,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCCRSI cb = new AMI_MyClass_opCCRSI(i);
-            p.opCCRS_async(cb, i);
+            p.opCCRS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3304,7 +3304,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opAEnSI cb = new AMI_MyClass_opAEnSI(i);
-            p.opAEnS_async(cb, i);
+            p.opAEnS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3316,7 +3316,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opLEnSI cb = new AMI_MyClass_opLEnSI(i);
-            p.opLEnS_async(cb, i);
+            p.opLEnS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3328,7 +3328,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opKEnSI cb = new AMI_MyClass_opKEnSI(i);
-            p.opKEnS_async(cb, i);
+            p.opKEnS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3340,7 +3340,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opQEnSI cb = new AMI_MyClass_opQEnSI(i);
-            p.opQEnS_async(cb, i);
+            p.opQEnS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3352,7 +3352,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opSEnSI cb = new AMI_MyClass_opSEnSI(i);
-            p.opSEnS_async(cb, i);
+            p.opSEnS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
 
@@ -3364,7 +3364,7 @@ public class TwowaysAMI
             }
 
             AMI_MyClass_opCEnSI cb = new AMI_MyClass_opCEnSI(i);
-            p.opCEnS_async(cb, i);
+            p.opCEnS_async(cb.response, cb.exception, i);
             test(cb.check());
         }
     }

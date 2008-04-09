@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -94,14 +94,14 @@ public class AllTests
         private bool _called;
     }
 
-    private class AMIRegular : Test.AMI_Retry_op
+    private class AMIRegular 
     {
-        public override void ice_response()
+        public void response()
         {
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -114,16 +114,16 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private class AMIException : Test.AMI_Retry_opkill
+    private class AMIException 
     {
-        public override void ice_response()
+        public void response()
         {
             test(false);
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
-            test(ex is Ice.ObjectNotExistException);
+            test(ex is Ice.UnknownException);
             callback.called();
         }
 
@@ -135,14 +135,14 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private class AMIExceptionError : Test.AMI_Retry_operror
+    private class AMIExceptionError 
     {
-        public override void ice_response()
+        public void response()
         {
             test(false);
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(ex is Ice.SocketException);
             callback.called();
@@ -188,7 +188,7 @@ public class AllTests
             retry2.opkill();
             test(false);
         }
-        catch(Ice.ObjectNotExistException)
+        catch(Ice.UnknownException)
         {
             Console.Out.WriteLine("ok");
         }
@@ -228,12 +228,12 @@ public class AllTests
         AMIExceptionError cb3 = new AMIExceptionError();
 
         Console.Out.Write("calling regular AMI operation... ");
-        retry1.op_async(cb1);
+        retry1.op_async(cb1.response, cb1.exception);
         test(cb1.check());
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("calling AMI operation to cause retry... ");
-        retry2.opkill_async(cb2);
+        retry2.opkill_async(cb2.response, cb2.exception);
         test(cb2.check());
         Console.Out.WriteLine("ok");
 
@@ -243,12 +243,12 @@ public class AllTests
         test(messages[1].StartsWith("cannot retry"));
 
         Console.Out.Write("calling regular AMI operation again... ");
-        retry1.op_async(cb1);
+        retry1.op_async(cb1.response, cb1.exception);
         test(cb1.check());
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("calling AMI operation to cause error... ");
-        retry2.operror_async(cb3);
+        retry2.operror_async(cb3.response, cb3.exception);
         test(cb3.check());
         Console.Out.WriteLine("ok");
 
@@ -256,7 +256,7 @@ public class AllTests
         test(messages.Count == 0);
 
         Console.Out.Write("calling regular AMI operation again... ");
-        retry1.op_async(cb1);
+        retry1.op_async(cb1.response, cb1.exception);
         test(cb1.check());
         Console.Out.WriteLine("ok");
     }

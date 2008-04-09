@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -60,7 +60,7 @@ public class AllTests
         private bool _called;
     }
     
-    private class AMI_Thrower_throwAasAI : AMI_Thrower_throwAasA
+    private class AMI_Thrower_throwAasAI
     {
         public AMI_Thrower_throwAasAI()
         {
@@ -70,12 +70,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -100,7 +100,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwAasAObjectNotExistI : AMI_Thrower_throwAasA
+    private class AMI_Thrower_throwAasAObjectNotExistI
     {
         public AMI_Thrower_throwAasAObjectNotExistI(Ice.Communicator comm)
         {
@@ -111,12 +111,12 @@ public class AllTests
             callback = new Callback();
             communicator = comm;
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -143,14 +143,14 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwAasAFacetNotExistI : AMI_Thrower_throwAasA
+    private class AMI_Thrower_throwAasAFacetNotExistI
     {
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -175,7 +175,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Thrower_throwAorDasAorDI : AMI_Thrower_throwAorDasAorD
+    private class AMI_Thrower_throwAorDasAorDI
     {
         public AMI_Thrower_throwAorDasAorDI()
         {
@@ -185,12 +185,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -219,7 +219,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwBasAI : AMI_Thrower_throwBasA
+    private class AMI_Thrower_throwBasAI
     {
         public AMI_Thrower_throwBasAI()
         {
@@ -229,12 +229,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -260,7 +260,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwCasAI : AMI_Thrower_throwCasA
+    private class AMI_Thrower_throwCasAI
     {
         public AMI_Thrower_throwCasAI()
         {
@@ -270,12 +270,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -302,7 +302,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwBasBI : AMI_Thrower_throwBasB
+    private class AMI_Thrower_throwBasBI
     {
         public AMI_Thrower_throwBasBI()
         {
@@ -312,12 +312,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -343,7 +343,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwCasBI : AMI_Thrower_throwCasB
+    private class AMI_Thrower_throwCasBI
     {
         public AMI_Thrower_throwCasBI()
         {
@@ -353,12 +353,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -385,7 +385,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwCasCI : AMI_Thrower_throwCasC
+    private class AMI_Thrower_throwCasCI
     {
         public AMI_Thrower_throwCasCI()
         {
@@ -395,12 +395,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -427,7 +427,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwUndeclaredAI : AMI_Thrower_throwUndeclaredA
+    private class AMI_Thrower_throwUndeclaredAI
     {
         public AMI_Thrower_throwUndeclaredAI()
         {
@@ -437,12 +437,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -466,7 +466,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwUndeclaredBI : AMI_Thrower_throwUndeclaredB
+    private class AMI_Thrower_throwUndeclaredBI
     {
         public AMI_Thrower_throwUndeclaredBI()
         {
@@ -476,12 +476,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -505,7 +505,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwUndeclaredCI : AMI_Thrower_throwUndeclaredC
+    private class AMI_Thrower_throwUndeclaredCI
     {
         public AMI_Thrower_throwUndeclaredCI()
         {
@@ -515,12 +515,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -544,7 +544,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwLocalExceptionI : AMI_Thrower_throwLocalException
+    private class AMI_Thrower_throwLocalExceptionI
     {
         public AMI_Thrower_throwLocalExceptionI()
         {
@@ -554,12 +554,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -583,7 +583,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwNonIceExceptionI : AMI_Thrower_throwNonIceException
+    private class AMI_Thrower_throwNonIceExceptionI
     {
         public AMI_Thrower_throwNonIceExceptionI()
         {
@@ -593,12 +593,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -622,7 +622,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_WrongOperation_noSuchOperationI : AMI_WrongOperation_noSuchOperation
+    private class AMI_WrongOperation_noSuchOperationI
     {
         public AMI_WrongOperation_noSuchOperationI()
         {
@@ -632,12 +632,12 @@ public class AllTests
         {
             callback = new Callback();
         }
-        public override void ice_response()
+        public void response()
         {
             AllTests.test(false);
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void exception(Ice.Exception exc)
         {
             try
             {
@@ -1080,31 +1080,31 @@ public class AllTests
             
             {
                 AMI_Thrower_throwAasAI cb = new AMI_Thrower_throwAasAI();
-                thrower.throwAasA_async(cb, 1);
+                thrower.throwAasA_async(cb.response, cb.exception, 1);
                 test(cb.check());
             }
             
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
-                thrower.throwAorDasAorD_async(cb, 1);
+                thrower.throwAorDasAorD_async(cb.response, cb.exception, 1);
                 test(cb.check());
             }
             
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
-                thrower.throwAorDasAorD_async(cb, - 1);
+                thrower.throwAorDasAorD_async(cb.response, cb.exception, - 1);
                 test(cb.check());
             }
             
             {
                 AMI_Thrower_throwBasBI cb = new AMI_Thrower_throwBasBI();
-                thrower.throwBasB_async(cb, 1, 2);
+                thrower.throwBasB_async(cb.response, cb.exception, 1, 2);
                 test(cb.check());
             }
             
             {
                 AMI_Thrower_throwCasCI cb = new AMI_Thrower_throwCasCI();
-                thrower.throwCasC_async(cb, 1, 2, 3);
+                thrower.throwCasC_async(cb.response, cb.exception, 1, 2, 3);
                 test(cb.check());
             }
             
@@ -1115,19 +1115,19 @@ public class AllTests
             
             {
                 AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
-                thrower.throwBasA_async(cb, 1, 2);
+                thrower.throwBasA_async(cb.response, cb.exception, 1, 2);
                 test(cb.check());
             }
             
             {
                 AMI_Thrower_throwCasAI cb = new AMI_Thrower_throwCasAI();
-                thrower.throwCasA_async(cb, 1, 2, 3);
+                thrower.throwCasA_async(cb.response, cb.exception, 1, 2, 3);
                 test(cb.check());
             }
             
             {
                 AMI_Thrower_throwCasBI cb = new AMI_Thrower_throwCasBI();
-                thrower.throwCasB_async(cb, 1, 2, 3);
+                thrower.throwCasB_async(cb.response, cb.exception, 1, 2, 3);
                 test(cb.check());
             }
             
@@ -1140,19 +1140,19 @@ public class AllTests
                 
                 {
                     AMI_Thrower_throwUndeclaredAI cb = new AMI_Thrower_throwUndeclaredAI();
-                    thrower.throwUndeclaredA_async(cb, 1);
+                    thrower.throwUndeclaredA_async(cb.response, cb.exception, 1);
                     test(cb.check());
                 }
                 
                 {
                     AMI_Thrower_throwUndeclaredBI cb = new AMI_Thrower_throwUndeclaredBI();
-                    thrower.throwUndeclaredB_async(cb, 1, 2);
+                    thrower.throwUndeclaredB_async(cb.response, cb.exception, 1, 2);
                     test(cb.check());
                 }
                 
                 {
                     AMI_Thrower_throwUndeclaredCI cb = new AMI_Thrower_throwUndeclaredCI();
-                    thrower.throwUndeclaredC_async(cb, 1, 2, 3);
+                    thrower.throwUndeclaredC_async(cb.response, cb.exception, 1, 2, 3);
                     test(cb.check());
                 }
                 
@@ -1166,7 +1166,7 @@ public class AllTests
                 Ice.Identity id = communicator.stringToIdentity("does not exist");
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
                 AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
-                thrower2.throwAasA_async(cb, 1);
+                thrower2.throwAasA_async(cb.response, cb.exception, 1);
                 test(cb.check());
             }
             
@@ -1180,7 +1180,7 @@ public class AllTests
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
                 {
                     AMI_Thrower_throwAasAFacetNotExistI cb = new AMI_Thrower_throwAasAFacetNotExistI();
-                    thrower2.throwAasA_async(cb, 1);
+                    thrower2.throwAasA_async(cb.response, cb.exception, 1);
                     test(cb.check());
                 }
             }
@@ -1197,7 +1197,7 @@ public class AllTests
             {
                 AMI_WrongOperation_noSuchOperationI cb = new AMI_WrongOperation_noSuchOperationI();
                 WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
-                thrower2.noSuchOperation_async(cb);
+                thrower2.noSuchOperation_async(cb.response, cb.exception);
                 test(cb.check());
             }
             
@@ -1208,7 +1208,7 @@ public class AllTests
             
             {
                 AMI_Thrower_throwLocalExceptionI cb = new AMI_Thrower_throwLocalExceptionI();
-                thrower.throwLocalException_async(cb);
+                thrower.throwLocalException_async(cb.response, cb.exception);
                 test(cb.check());
             }
             
@@ -1218,7 +1218,7 @@ public class AllTests
             Console.Out.Flush();
             
             AMI_Thrower_throwNonIceExceptionI cb2 = new AMI_Thrower_throwNonIceExceptionI();
-            thrower.throwNonIceException_async(cb2);
+            thrower.throwNonIceException_async(cb2.response, cb2.exception);
             test(cb2.check());
             
             Console.WriteLine("ok");

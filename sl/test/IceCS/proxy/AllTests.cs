@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -437,6 +437,7 @@ public class AllTests
         Ice.ObjectPrx p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         String pstr = communicator.proxyToString(p1);
         test(pstr.Equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+
 
         // Working?
         p1.ice_ping();

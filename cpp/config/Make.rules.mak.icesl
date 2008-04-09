@@ -20,26 +20,12 @@ prefix			= C:\IceSL-$(VERSION)
 OPTIMIZE		= yes
 
 #
-# Specify your C++ compiler. Supported values are:
-# VC80, VC80_EXPRESS
+# If third party libraries are not installed in the default location
+# or THIRDPARTY_HOME is not set in your environment variables then
+# change the following setting to reflect the installation location.
 #
-!if "$(CPP_COMPILER)" == ""
-CPP_COMPILER		= VC80
-!endif
-
-#
-# For VC80 and VC80 Express it is necessary to set the location of the
-# manifest tool. This must be the 6.x version of mt.exe, not the 5.x
-# version!
-#
-# For VC80 Express mt.exe 6.x is provided by the Windows Platform SDK. 
-# It is necessary to set the location of the Platform SDK through the
-# PDK_HOME environment variable (see INSTALL.WINDOWS for details).
-#
-!if "$(CPP_COMPILER)" == "VC80"
-MT = "$(VS80COMNTOOLS)bin\mt.exe"
-!elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
-MT = "$(PDK_HOME)\bin\mt.exe"
+!if "$(THIRDPARTY_HOME)" == ""
+THIRDPARTY_HOME		= C:\Ice-3.3b-ThirdParty-VC90
 !endif
 
 
@@ -47,18 +33,32 @@ MT = "$(PDK_HOME)\bin\mt.exe"
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+CPP_COMPILER		= VC90
+
+MT = mt.exe
+
+#
+# Common definitions
+#
+ice_language     = cpp
+!if "$(USE_BIN_DIST)" == "yes" || !exist ($(top_srcdir)\..\cpp)
+slice_translator = slice2cpp.exe
+ice_require_cpp  = 1
+!endif
+
 STATICLIBS              = yes
 
-SHELL			= /bin/sh
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
 
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include
-slicedir		= $(top_srcdir)\slice
 
 install_bindir		= $(prefix)\bin
-
-OBJEXT			= .obj
 
 SETARGV			= setargv.obj
 
@@ -74,11 +74,9 @@ LIBSUFFIX	= $(LIBSUFFIX)d
 
 CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
 
-
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
 SLICEPARSERLIB		= $(libdir)\slice$(LIBSUFFIX).lib
-
 
 EVERYTHING		= all clean install
 
@@ -102,6 +100,6 @@ clean::
 !endif
 
 clean::
-	-del /q *.obj *.bak *.ilk *.exp *.pdb *.tds
+	-del /q *.obj *.bak *.ilk *.exp *.pdb *.tds *.idb
 
 install::

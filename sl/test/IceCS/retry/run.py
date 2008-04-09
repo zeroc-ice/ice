@@ -19,11 +19,11 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
-TestUtil.processCmdLine()
+#TestUtil.processCmdLine()
 
-name = os.path.join("Ice", "retry")
+name = os.path.join("retry")
 
-TestUtil.startBridge(os.path.join(toplevel, "test", name))
+TestUtil.startBridge(os.path.join(toplevel, "test", "IceCS", name))
 TestUtil.clientTest(name)
 TestUtil.stopBridge()
 sys.exit(0)

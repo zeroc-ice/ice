@@ -32,54 +32,99 @@ Silverlight Runtime
 
 - Silverlight 1.1 Alpha
 
-  http://msdn2.microsoft.com/en-us/silverlight/bb419317.aspx
+  http://www.microsoft.com/silverlight/resources/LicenseWinDev.aspx
+
+
+Ice for .NET
+------------
+
+To use the Ice for Silverlight bridge, you must also
+install Ice for .NET version 3.3 (Ice.dll).
+
+The Ice distribution can be downloaded here:
+
+  http://www.zeroc.com/download.html
+
+Once downloaded or compiled the DLL must be installed in the GAC:
+
+  gacutil -i Ice.dll
 
 
 Slice-to-Silverlight translator
 --------------------------------
 
-You will need the Slice-to-Silverlight translator (slice2sl) and
-preprocessor (icecpp). You can download a binary distribution from
-the ZeroC web site, or you can build the Slice-to-Silverlight
-translator yourself.
+You will need the Slice-to-Silverlight translator (slice2sl). You can
+download a binary distribution from the ZeroC web site, or you can
+build the Slice-to-Silverlight translator yourself.
 
 Binary and source distributions are available at
 
   http://www.zeroc.com/labs/download.html
 
-The directory containing the translator executables must be added to
-your PATH. For example, if the translator distribution is installed
-in C:\IceSL-@ver@, you must add C:\IceSL-@ver@\bin to your PATH.
+
+nmake and Message Compiler (MC.EXE)
+-----------------------------------
+
+To build Ice for Silverlight, you need the Microsoft nmake and
+Message Compiler utilities. These are included in all full Microsoft
+C++ compiler distributions. If you are using Visual C++ 2008 Express,
+you can download them as part of the Windows Platform SDK:
+ 
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
 
 
-Ice for C#
-----------
+Third-party libraries
+---------------------
 
-In order to use Ice for Silverlight it is necessary to also install
-Ice for C#. Specifically it is necessary to install a patched version
-of the Ice for C# 3.2.1 icecs.dll. You can either download a
-precompiled patched DLL or compile the Ice for C# sources yourself
-after applying the patch to the Ice for C# source distribution.
+The Ice for Silverlight slice2sl compiler has a dependency on the
+following third-party library:
 
-The Ice for C# source distribution can be downloaded here:
+- mcpp 2.6.4 with patch
+
+If you want to build the slice2sl translator yourself, you do not need
+to build mcpp yourself, as ZeroC supplies a Windows installer for the
+VC8 compiler that contains release and debug libraries for all of the
+third-party dependencies.
+
+If you intend to build the third-party dependencies from source, we
+recommend downloading the Ice third-party source archive from
 
   http://www.zeroc.com/download.html
 
-The precompiled DLL and the source patch can be downloaded here:
+This archive contains the source distributions for each of the
+third-party dependencies, as well as required source patches and
+configuration instructions.
 
-  http://www.zeroc.com/labs/download.html
+For more information about this dependency, please refer to the link
+below:
 
-Once downloaded or compiled the DLL must be installed in the GAC:
-
-  gacutil -i icecs.dll
+mcpp           http://mcpp.sourceforge.net
 
 
 ======================================================================
 Compilation
 ======================================================================
 
-Unpack the archive. The sources will be contained in the IceSL-@ver@
+Unpack the archive. The sources are contained in the IceSL-@ver@
 subdirectory.
+
+
+Building the slice2sl translator
+--------------------------------
+
+If you have not already downloaded the slice2sl binary distribution,
+as mentioned above, you may follow these steps to build the translator
+yourself:
+
+1) Change to the cpp subdirectory of the Ice for Silverlight source
+   distribution.
+
+2) Open config\Make.rules.mak and review the comments that describe
+   the settings you can modify.
+
+3) Run nmake:
+
+   > nmake /f Makefile.mak
 
 
 Building the core DLL
@@ -87,14 +132,19 @@ Building the core DLL
 
 Follow these steps to build the source:
 
-1) Change to the top-level directory of the Ice for Silverlight source
+1) Change to the sl subdirectory of the Ice for Silverlight source
    distribution.
 
 2) Open config\Make.rules.cs.mak and review the comments that describe
    the settings you can modify. For example, you may wish to enable
    optimization.
 
-3) Run nmake:
+3) If you do not build the translator yourself, the directory containing
+   the translator executables must be added to your PATH. For example, if
+   the translator distribution is installed in C:\IceSL-@ver@, you must
+   add C:\IceSL-@ver@\bin to your PATH.
+
+4) Run nmake:
 
    > nmake /f Makefile.mak
 
@@ -105,13 +155,18 @@ Building the tests and demos
 Each test and demo is contained in its own separate solution. To
 build the tests and demos do the following:
 
-1) Start the Visual Studio 2008 IDE and open the desired
+1) The directory containing the translator executables must be added
+   to your PATH. For example, if the translator distribution is
+   installed in C:\IceSL-@ver@, you must add C:\IceSL-@ver@\bin to
+   your PATH.
+
+2) Start the Visual Studio 2008 IDE and open the desired
    solution file (demo\Ice\hello\hello.sln for example).
 
-2) Select Build->Build Solution to build both projects in the
+3) Select Build->Build Solution to build both projects in the
    solution.
 
-3) Repeat for each test or demo.
+4) Repeat for each test or demo.
 
 
 ======================================================================
@@ -120,11 +175,11 @@ Running the tests and demos
 
 Since Ice for Silverlight provides client-side functionality only, you
 must use Ice servers from another Ice language mapping in order to run
-the tests and demos. Any of the Ice 3.2.1 mappings that provide
+the tests and demos. Any of the Ice 3.3 mappings that provide
 server-side functionality (C++, Java, C#, Python) can be used.
 
 Note that the Windows binary installer for Ice only contains the Ice
-demos, but not the Ice tests. Therefore to run the tests you will need
+demos, but not the Ice tests. Therefore, to run the tests, you will need
 to download and compile one of the source distributions. They can be
 downloaded here:
 
@@ -132,19 +187,19 @@ downloaded here:
 
 To run a test or demo do the following:
 
-1) Start the corresponding server from Ice 3.2.1 package you compiled.
-   See the instructions in the Ice 3.2.1 distribution for information
-   on how to start the server.
+1) Start the corresponding server from Ice 3.3 package you compiled.
+   See the instructions in the Ice 3.3 distribution for information on
+   how to start the server.
 
 2) Start the Visual Studio 2008 IDE and open the selected
    test or demo solution file.
 
-3) Right click on the WebApplication project and select Properties.
+3) Right-click on the WebApplication project and select Properties.
    Select the Web tab, change the Start Action to be a Specific Page
    and choose TestPage.html.
 
-4) Right click on the WebApplication project and select
-   Debug->Start new instance. This should cause a browser window to be
+4) Right-click on the WebApplication project and select
+   Debug->Start new instance. This causes a browser window to be
    spawned.
 
 5) Click on the button in the browser to run the test or demo.

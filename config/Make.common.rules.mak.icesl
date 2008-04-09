@@ -1,0 +1,122 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+SHELL			= /bin/sh
+VERSION			= 0.1.1
+INTVERSION		= 0.1.1
+SHORT_VERSION           = 0.1
+
+OBJEXT			= .obj
+
+#
+# Ensure ice_language has been set by the file that includes this one.
+#
+!if "$(ice_language)" == ""
+!error ice_language must be defined
+!endif
+
+!if "$(USE_BIN_DIST)" == "yes"
+ice_bin_dist = 1
+!endif
+
+#
+# The following variables might also be defined:
+#
+# - slice_translator: the name of the slice translator required for the build.
+#   Setting this variable is required when building source trees other than the
+#   the source distribution (e.g.: the demo sources).
+#
+# - ice_require_cpp: define this variable to check for the presence of the C++
+#   dev kit and check for the existence of the include/Ice/Config.h header.
+#
+
+#
+# First, check if we're building a source distribution. 
+#
+# If building from a source distribution, ice_dir is defined to the
+# top-level directory of the source distribution and ice_cpp_dir is
+# defined to the directory containing the C++ binaries and headers to
+# use to build the sources.
+#
+!if "$(ice_bin_dist)" == "" && exist ($(top_srcdir)\..\$(ice_language))
+
+ice_dir = $(top_srcdir)\..
+ice_src_dist = 1
+
+#
+# When building a source distribution, if ICE_HOME is specified, it takes precedence over 
+# the source tree for building the language mappings. For example, this can be used to 
+# build the Python language mapping using the translators from the distribution specified
+# by ICE_HOME.
+#
+!if "$(ICE_HOME)" != ""
+
+!if "$(slice_translator)" != ""
+!if !exist ($(ICE_HOME)\bin\$(slice_translator))
+!error Unable to find $(slice_translator) in $(ICE_HOME)\bin, please verify ICE_HOME is properly configured and Ice is correctly installed.
+!endif
+!if exist ($(ice_dir)\cpp\bin\$(slice_translator))
+!message Found $(slice_translator) in both ICE_HOME\bin and $(ice_dir)\cpp\bin, ICE_HOME\bin\$(slice_translator) will be used!
+!endif
+ice_cpp_dir = $(ICE_HOME)
+!else
+!message Ignoring ICE_HOME environment variable to build current source tree.
+ice_cpp_dir = $(ice_dir)\cpp
+!endif
+
+!else
+
+ice_cpp_dir = $(ice_dir)\cpp
+
+!endif
+
+!endif
+
+#
+# Then, check if we're building against a binary distribution.
+#
+!if "$(ice_src_dist)" == ""
+
+!if "$(slice_translator)" == ""
+!error slice_translator must be defined
+!endif
+
+!if "$(ICE_HOME)" != ""
+!if !exist ($(ICE_HOME)\bin\$(slice_translator))
+!error Unable to find $(slice_translator) in $(ICE_HOME)\bin, please verify ICE_HOME is properly configured and Ice is correctly installed.
+!endif
+ice_dir = $(ICE_HOME)
+!elseif exist ($(top_srcdir)/bin/$(slice_translator))
+ice_dir = $(top_srcdir)
+!elseif exist ("C:\Ice-$(VERSION)\bin\$(slice_translator)")
+ice_dir = C:\Ice-$(VERSION)
+!endif
+
+!if "$(ice_dir)" == ""
+!error Unable to find a valid Ice distribution, please verify ICE_HOME is properly configured and Ice is correctly installed.
+!endif
+ice_bin_dist = 1
+!endif
+
+all::
+
+install-common::
+	@if not exist $(prefix) \
+	    @echo "Creating $(prefix)..." && \
+	    mkdir $(prefix)
+
+	@if exist $(top_srcdir)\..\ICE_LICENSE \
+	    @copy ..\ICE_LICENSE $(prefix)
+	@if exist $(top_srcdir)\..\LICENSE \
+	    @copy ..\LICENSE $(prefix)
+

@@ -19,9 +19,9 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
-TestUtil.processCmdLine()
+#TestUtil.processCmdLine()
 
-name = os.path.join("Ice", "exceptions")
+name = os.path.join("exceptions")
 
 TestUtil.startBridge()
 TestUtil.clientServerTestWithOptions(name, "", " --Ice.Warn.Connections=0")

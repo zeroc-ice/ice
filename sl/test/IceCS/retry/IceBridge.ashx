@@ -165,12 +165,13 @@ namespace IceBridge
                 byte replyStatus = 0;
                 if(op == "opkill")
                 {
-                    replyStatus = ReplyStatus.replyObjectNotExist;
-                    Ice.Identity id = proxy.ice_getIdentity();
-                    os.writeString(id.name);
-                    os.writeString(id.category);
-                    os.writeStringSeq(null);
-                    os.writeString(op);
+                    replyStatus = ReplyStatus.replyUnknownException;
+                    //Ice.Identity id = proxy.ice_getIdentity();
+                    //os.writeString(id.name);
+                    //os.writeString(id.category);
+                    //os.writeStringSeq(null);
+                    //os.writeString(op);
+                    os.writeString("foo");
                 }
                 else if(op == "operror")
                 {
@@ -179,8 +180,6 @@ namespace IceBridge
                 }
                 else
                 {
-                    stream.startEncapsulation();
-                    sz = stream.getEncapsulationSize();
                     replyStatus = ReplyStatus.replyOK;
                     os.startEncapsulation();
                     os.writeBlob(new byte[0]);
@@ -190,6 +189,7 @@ namespace IceBridge
                 byte[] replyData = os.finished();
                 context.Response.ContentType = "application/binary";
                 context.Response.OutputStream.Write(Protocol.replyHdr, 0, Protocol.replyHdr.Length);
+                context.Response.OutputStream.Write(BitConverter.GetBytes(replyData.Length + 1), 0, 4);
                 context.Response.OutputStream.WriteByte(replyStatus);
                 context.Response.OutputStream.Write(replyData, 0, replyData.Length);
             }

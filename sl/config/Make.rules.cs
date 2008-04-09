@@ -1,16 +1,11 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-
-#
-# If you are compiling with MONO you must define this symbol.
-#
-MONO = yes
 
 #
 # Select an installation base directory. The directory will be created
@@ -20,14 +15,25 @@ MONO = yes
 prefix			?= /opt/IceSL-$(VERSION)
 
 #
-# The default behavior of 'make install' attempts to add the Ice for C#
-# libraries to the Global Assembly Cache (GAC). If you would prefer not
-# to install these libraries to the GAC, or if you do not have sufficient
-# privileges to do so, then enable no_gac and the libraries will be
-# copied to $(prefix)/bin instead.
+# The default behavior of 'make install' is to install the Ice for .NET
+# libraries in the 'bin' directory. If you would prefer to
+# install these libraries in the GAC, set GACINSTALL to yes.
 #
 
-#no_gac			= 1
+#GACINSTALL             = yes
+
+#
+# Ice invokes unmanaged code to implement the following features:
+#
+# - Protocol compression
+# - Signal processing in the Ice.Application class (Windows only)
+# - Monotonic time (Windows only)
+#
+# Enable MANAGED below if you do not require these features and prefer that
+# the Ice run time use only managed code.
+#
+
+#MANAGED		= yes
 
 #
 # Define DEBUG as yes if you want to build with debug information and
@@ -36,100 +42,73 @@ prefix			?= /opt/IceSL-$(VERSION)
 
 DEBUG			= yes
 
+#
+# Define OPTIMIZE as yes if you want to build with optmization.
+#
+
 #OPTIMIZE		= yes
+
+#
+# Set the key file used to sign assemblies.
+#
+
+KEYFILE                 ?= $(top_srcdir)/../config/IceDevKey.snk
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+#
+# Common definitions
+#
+ice_language = sl
+slice_translator = slice2sl
 
-ifeq ($(MONO), yes)
-	DSEP = /
+ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
+    include $(top_srcdir)/config/Make.common.rules
 else
-	DSEP = \\
+    include $(top_srcdir)/../config/Make.common.rules
 endif
 
-SHELL			= /bin/sh
-VERSION			= 3.3.0
+slicedir = $(top_srcdir)/slice
 
-#
-# Checks for ICE_HOME environment variable.  If it isn't present,
-# attempt to find an Ice installation in /usr or the default install
-# location.
-#
-ifeq ($(ICE_HOME),)
-    ICE_DIR = /usr
-    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-	NEXTDIR = /opt/Ice-$(VERSION)
-	ifneq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
-$(error Unable to locate Ice distribution, please set ICE_HOME!)
-	else
-	    ICE_DIR = $(NEXTDIR)
-	endif
-    else
-	NEXTDIR = /opt/IceCS-$(VERSION)
-	ifeq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
-$(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
-	endif
-    endif
-else
-    ICE_DIR = $(ICE_HOME)
-    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-$(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
-    endif
-endif
+DSEP = /
 
-ifeq ($(LP64),yes)
-    export LD_LIBRARY_PATH := $(ICE_DIR)/lib64:$(LD_LIBRARY_PATH)
-else
-    export LD_LIBRARY_PATH := $(ICE_DIR)/lib:$(LD_LIBRARY_PATH)
-endif
-
-bindir			= $(top_srcdir)/bin
-libdir			= $(top_srcdir)/lib
-
-#
-# If a slice directory is contained along with this distribution -- use it. 
-# Otherwise use paths relative to $(ICE_DIR).
-#
-ifneq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
-    ifeq ($(ICE_DIR),/usr)
-	slicedir = $(ICE_DIR)/share/Ice-$(VERSION)/slice
-    else
-	slicedir = $(top_srcdir)/slice
-    endif
-else
-    slicedir = $(top_srcdir)/slice
-endif
+bindir = $(top_srcdir)/bin
 
 install_bindir		= $(prefix)/bin
-install_libdir		= $(prefix)/lib
-install_slicedir	= $(prefix)/slice
 
-ifneq ($(ICE_DIR),/usr)
-ref = -r:$(bindir)/$(1).dll
+ifneq ($(ice_dir),/usr)
+    ifdef ice_src_dist
+        ref = -r:$(bindir)/$(1).dll
+    else
+        ref = -r:$(ice_dir)/bin/$(1).dll
+    endif
 else
-ref = -pkg:$(1)
+    ref = -pkg:$(1)
 endif
-
-ifdef no_gac
-NOGAC			?= $(no_gac)
-endif
-
-INSTALL			= cp -fp
-INSTALL_PROGRAM		= ${INSTALL}
-INSTALL_LIBRARY		= ${INSTALL}
-INSTALL_DATA		= ${INSTALL}
 
 GACUTIL			= gacutil
 
-ifeq ($(MONO),yes)
-MCS			= gmcs
+ifeq ($(GACINSTALL),yes)
+    ifeq ($(GAC_ROOT),)
+        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt)
+        installpolicy = $(GACUTIL) -i $(1).dll -f
+    else
+        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt -root $(GAC_ROOT))
+        installpolicy = $(GACUTIL) -i $(1).dll -f -root $(GAC_ROOT)
+    endif
 else
-MCS			= csc -nologo
+    installassembly 	= $(INSTALL_LIBRARY) $(1) $(install_bindir); \
+    			  chmod a+rx $(install_bindir)/$(notdir $(1))
+    installpolicy 	= $(INSTALL_LIBRARY) $(1).dll $(install_bindir); \
+                          $(INSTALL_LIBRARY) $(1) $(install_bindir); \
+    			  chmod a+rx $(install_bindir)/$(notdir $(1).dll); \
+    			  chmod a+r $(install_bindir)/$(notdir $(1))
 endif
 
-LIBS			= $(bindir)/icesl.dll
+
+MCS			= gmcs
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 ifeq ($(DEBUG),yes)
@@ -140,27 +119,62 @@ ifeq ($(OPTIMIZE),yes)
     MCSFLAGS := $(MCSFLAGS) -optimize+
 endif
 
-ifeq ($(installdata),)
-    installdata		= $(INSTALL_DATA) $(1) $(2); \
-			  chmod a+r $(2)/$(notdir $(1))
+ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        SLICE2SL = $(ice_cpp_dir)/bin/slice2sl
+    else
+        SLICE2SL = $(ice_cpp_dir)/$(binsubdir)/slice2sl
+    endif
+else
+    SLICE2SL = $(ice_dir)/$(binsubdir)/slice2sl
 endif
 
-ifeq ($(installprogram),)
-    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
+AL              = al
+POLICY          = policy.$(SHORT_VERSION).$(PKG)
+
+ifneq ($(PUBLIC_KEY_TOKEN),)
+    publicKeyToken = $(PUBLIC_KEY_TOKEN)
+else
+    ifneq ($(ice_src_dist),)
+	publicKeyToken = $(shell sn -q -p $(KEYFILE) tmp.pub; \
+			   sn -q -t tmp.pub | sed 's/^.* //'; \
+			   rm tmp.pub)
+    else
+	publicKeyToken = $(shell sn -q -T $(bindir)/Ice.dll >tmp.pub; \
+	                   sed 's/^.* //' <tmp.pub; \
+			   rm tmp.pub)
+    endif
 endif
 
-ifeq ($(installlibrary),)
-    installlibrary	= $(INSTALL_LIBRARY) $(1) $(2); \
-			  chmod a+rx $(2)/$(notdir $(1))
-endif
+ifneq ($(POLICY_TARGET),)
 
-ifeq ($(mkdir),)
-    mkdir		= mkdir $(1) ; \
-			  chmod a+rx $(1)
+$(bindir)/$(POLICY_TARGET):
+	@echo -e " \
+<configuration> \n \
+  <runtime> \n \
+    <assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\"> \n \
+      <dependentAssembly> \n \
+        <assemblyIdentity name=\"Ice\" publicKeyToken=\"$(publicKeyToken)\" culture=\"\"/> \n \
+        <publisherPolicy apply=\"yes\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).2.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).1.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).2.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).2.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).2.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).3.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+      </dependentAssembly> \n \
+    </assemblyBinding> \n \
+  </runtime> \n \
+</configuration>" >$(POLICY)
+	$(AL) /link:$(POLICY) /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	chmod a+r $(POLICY)
+	chmod a+rx $(POLICY_TARGET)
+	mv $(POLICY) $(POLICY_TARGET) $(bindir)
 endif
-
-SLICE2SL		= $(ICE_DIR)/bin/slice2sl
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
@@ -169,7 +183,7 @@ GEN_AMD_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_AMD_SRCS))
 SAMD_GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SAMD_SRCS))))
 
 
-EVERYTHING		= all depend clean install config
+EVERYTHING		= all depend clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
@@ -182,34 +196,30 @@ $(GDIR)/%.cs: $(SDIR)/%.ice
 
 all:: $(TARGETS)
 
+ifneq ($(POLICY_TARGET),)
+all:: $(bindir)/$(POLICY_TARGET)
+endif
+
 depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
 	-rm -f .depend
 	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_C_SRCS)" ; then \
-	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_C_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_C_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_S_SRCS)" ; then \
-	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_S_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_S_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_AMD_SRCS)" ; then \
-	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_AMD_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_AMD_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_SAMD_SRCS)" ; then \
-	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_SAMD_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	    $(SLICE2SL) --depend $(SLICE2SLFLAGS) $(SLICE_SAMD_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
 
 clean::
 	-rm -f $(TARGETS) $(patsubst %,%.mdb,$(TARGETS)) *.bak *.dll *.pdb *.mdb
-
-config::
-	$(top_srcdir)/config/makeconfig.py $(top_srcdir) $(TARGETS)
 
 ifneq ($(SLICE_SRCS),)
 clean::
@@ -233,3 +243,4 @@ clean::
 endif
 
 install::
+	$(shell [ ! -d $(install_bindir) ] && (mkdir -p $(install_bindir); chmod a+rx $(prefix) $(install_bindir)))

@@ -19,9 +19,9 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
-TestUtil.processCmdLine()
+#TestUtil.processCmdLine()
 
-name = os.path.join("Ice", "slicing", "objects")
+name = os.path.join("slicing", "objects")
 
 TestUtil.startBridge()
 TestUtil.clientServerTest(name)

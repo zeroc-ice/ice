@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -24,21 +24,25 @@ OPTIMIZE		= yes
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+#
+# Common definitions
+#
+ice_language = sl
+slice_translator = slice2sl.exe
+
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 SILVERLIGHT		= yes
 
-SHELL			= /bin/sh
-VERSION			= 0.1.0
-
 bindir			= $(top_srcdir)\bin
-libdir			= $(top_srcdir)\lib
 
 slicedir 		= $(top_srcdir)\slice
 
-GACUTIL			= gacutil
-
 MCS			= csc -nologo
-
-LIBS			= $(bindir)/icesl.dll
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 
@@ -54,7 +58,17 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-SLICE2SL		= "slice2sl"
+!if "$(ice_src_dist)" != ""
+SLICE2SL		= "$(ice_cpp_dir)\bin\slice2sl.exe"
+!else
+SLICE2SL		= "$(ice_dir)\bin\slice2sl.exe"
+!endif
+
+# If the translator does not exist, then try to use the one from the
+# PATH.
+!if !exist ($(SLICE2SL))
+SLICE2SL                = slice2sl.exe
+!endif
 
 EVERYTHING		= all clean
 

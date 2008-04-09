@@ -52,14 +52,6 @@ if not isWin32():
     mono = 1
 
 #
-# Check for ICE_HOME.
-#
-ice_home = os.getenv("ICECS_HOME", "")
-if len(ice_home) == 0:
-    print "ICECS_HOME is not defined"
-    sys.exit(1)
-
-#
 # If you don't set "host" below, then the Ice library will try to find
 # out the IP address of this host. For the Ice test suite, it's best
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
@@ -123,7 +115,9 @@ class BridgeReaderThread(Thread):
                 line = self.pipe.readline()
                 if not line: break
                 if not line.startswith("Ice::Communicator::destroy"):
-                    print line,
+                    print "Bridge: %s" % line,
+                    sys.stdout.flush()
+                    pass
         except IOError:
             print "IOError"
             pass
@@ -273,6 +267,10 @@ if isWin32():
     else:
         os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
 
+if not isWin32():
+    os.environ["MONO_PATH"] = os.path.join(toplevel, "bin") + os.pathsep + os.getenv("MONO_PATH", "")
+    os.environ["MONO_PATH"] = os.path.join(toplevel, "..", "cs", "bin") + os.pathsep + os.getenv("MONO_PATH", "")
+
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
 else:
@@ -329,7 +327,10 @@ def startBridge(bwd = None):
     if mono:
 	    print "starting bridge...",
 	    sys.stdout.flush()
-	    bridgeIn, bridgeOut = os.popen2("xsp2 --applications /:" + bwd + " 2>&1")
+	    cmd = "xsp2 --root %s --applications /:." % bwd,
+	    if debug:
+		print "(%s)" % cmd
+	    bridgeIn, bridgeOut = os.popen2("%s 2>&1" % cmd)
 	    while 1:
 		output = bridgeOut.readline().strip()
 		if not output.startswith("Hit Return"):
@@ -384,8 +385,8 @@ def stopBridge():
 def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
                                         serverName, clientName):
 
-    testdir = os.path.join(toplevel, "test", name)
-    server = os.path.join(ice_home, "test", name, serverName)
+    server = os.path.join(toplevel, "..", "cs", "test", "Ice", name, serverName)
+    testdir = os.path.join(toplevel, "test", "IceCS", name)
     client = os.path.join(testdir, clientName)
 
     print createMsg(serverName),
@@ -424,70 +425,9 @@ def clientServerTest(name):
 
     clientServerTestWithOptions(name, "", "")
 
-def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
-
-    testdir = os.path.join(toplevel, "test", name)
-    server = os.path.join(testdir, "server")
-    client = os.path.join(testdir, "client")
-
-    print createMsg("server"),
-    serverCmd = createCmd(server) + clientServerOptions + " " + additionalServerOptions
-    if debug:
-        print "(" + serverCmd + ")",
-    serverPipe = os.popen(serverCmd + " 2>&1")
-    getServerPid(serverPipe)
-    getAdapterReady(serverPipe)
-    print "ok"
-    
-    print createMsg("client"),
-    clientCmd = createCmd(client) + clientServerOptions + " " + additionalClientOptions
-    if debug:
-        print "(" + clientCmd + ")",
-    clientPipe = os.popen(clientCmd + " 2>&1")
-    ignorePid(clientPipe)
-    getAdapterReady(clientPipe, False)
-    print "ok"
-
-    printOutputFromPipe(clientPipe)
-
-    clientStatus = closePipe(clientPipe)
-    if clientStatus:
-        killServers()
-
-    if clientStatus or serverStatus():
-        sys.exit(1)
-
-def mixedClientServerTest(name):
-
-    mixedClientServerTestWithOptions(name, "", "")
-
-def collocatedTestWithOptions(name, additionalOptions):
-
-    testdir = os.path.join(toplevel, "test", name)
-    collocated = os.path.join(testdir, "collocated")
-
-    print createMsg("collocated"),
-    command = createCmd(collocated) + collocatedOptions + " " + additionalOptions
-    if debug:
-        print "(" + command + ")",
-    collocatedPipe = os.popen(command + " 2>&1")
-    print "ok"
-
-    printOutputFromPipe(collocatedPipe)
-
-    collocatedStatus = closePipe(collocatedPipe)
-
-    if collocatedStatus:
-        killServers()
-        sys.exit(1)
-
-def collocatedTest(name):
-
-    collocatedTestWithOptions(name, "")
-
 def clientTestWithOptions(name, additionalOptions):
 
-    testdir = os.path.join(toplevel, "test", name)
+    testdir = os.path.join(toplevel, "test", "IceCS", name)
     client = os.path.join(testdir, "client")
 
     print createMsg("client"),

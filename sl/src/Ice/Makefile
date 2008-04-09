@@ -13,8 +13,7 @@ PKG		= icesl
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 
-SRCS		= Application.cs \
-		  Arrays.cs \
+SRCS		= Arrays.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
 		  Base64.cs \
@@ -33,10 +32,8 @@ SRCS		= Application.cs \
 		  Exception.cs \
 		  ImplicitContextI.cs \
 		  Instance.cs \
-		  LinkedList.cs \
 		  LoggerI.cs \
 		  ObjectFactoryManager.cs \
-		  Options.cs \
 		  OutgoingBase.cs \
 		  Outgoing.cs \
 		  OutgoingAsync.cs \
@@ -55,7 +52,6 @@ SRCS		= Application.cs \
 		  ReplyStatus.cs \
 		  Set.cs \
 		  StringUtil.cs \
-		  Time.cs \
 		  TraceLevels.cs \
 		  UnknownEndpointI.cs \
 		  TcpEndpointI.cs \

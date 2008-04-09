@@ -2678,7 +2678,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << eb;
                 _out << nl << "catch(System.InvalidCastException)";
                 _out << sb;
-                _out << nl << "Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException();";
                 _out << nl << "ret__ = null;";
                 _out << nl << "IceInternal.Ex.throwUOE(ret___PP.type(), ret___PP.value.ice_id());";
                 _out << eb;
@@ -3438,7 +3437,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         {
             _out << nl << "catch(Ice.UserException ex__)";
             _out << sb;
-            _out << nl << "ice_exception(ex__);";
+            _out << nl << "exception_(ex__);";
             _out << nl << "return;";
             _out << eb;
         }
