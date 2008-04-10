@@ -14,7 +14,7 @@ public class FileI extends _FileDisp
     // FileI constructor
 
     public
-    FileI(String name, DirectoryI parent)
+    FileI(Ice.Communicator communicator, String name, DirectoryI parent)
     {
         _name = name;
         _parent = parent;
@@ -23,16 +23,7 @@ public class FileI extends _FileDisp
 
         // Create an identity
         //
-        Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
-
-        // Add the identity to the object adapter
-        //
-        _adapter.add(this, myID);
-
-        // Create a proxy for the new node and add it as a child to the parent
-        //
-        NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
-        _parent.addChild(thisNode);
+        _id = communicator.stringToIdentity(Ice.Util.generateUUID());
     }
 
     // Slice Node::name() operation
@@ -60,8 +51,15 @@ public class FileI extends _FileDisp
         _lines = text;
     }
 
-    public static Ice.ObjectAdapter _adapter;
+    public void
+    activate(Ice.ObjectAdapter a)
+    {
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(a.add(this, _id));
+        _parent.addChild(thisNode);
+    }
+
     private String _name;
     private DirectoryI _parent;
+    private Ice.Identity _id;
     private String[] _lines;
 }

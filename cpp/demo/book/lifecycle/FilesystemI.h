@@ -23,10 +23,13 @@ namespace FilesystemI
     class NodeI : virtual public Filesystem::Node
     {
     public:
+
         virtual std::string name(const Ice::Current&);
         Ice::Identity id() const;
+        Ice::ObjectPrx activate(const Ice::ObjectAdapterPtr&);
 
     protected:
+
         NodeI(const ::std::string&, const DirectoryIPtr&);
 
         const ::std::string _name;
@@ -41,13 +44,15 @@ namespace FilesystemI
     class FileI : virtual public Filesystem::File, virtual public NodeI
     {
     public:
+
         virtual Filesystem::Lines read(const Ice::Current&);
         virtual void write(const Filesystem::Lines&, const Ice::Current&);
         virtual void destroy(const Ice::Current&);
 
-        FileI(const Ice::ObjectAdapterPtr&, const std::string&, const DirectoryIPtr&);
+        FileI(const std::string&, const DirectoryIPtr&);
 
     private:
+
         Filesystem::Lines _lines;
     };
 
@@ -56,13 +61,14 @@ namespace FilesystemI
     class DirectoryI : virtual public NodeI, virtual public Filesystem::Directory
     {
     public:
+
         virtual Filesystem::NodeDescSeq list(const Ice::Current&);
         virtual Filesystem::NodeDesc find(const std::string& name, const Ice::Current&);
         Filesystem::FilePrx createFile(const ::std::string&, const Ice::Current&);
         Filesystem::DirectoryPrx createDirectory(const ::std::string&, const Ice::Current&);
         virtual void destroy(const Ice::Current&);
 
-        DirectoryI(const Ice::ObjectAdapterPtr&, const std::string& = "/", const DirectoryIPtr& = 0);
+        DirectoryI(const std::string& = "/", const DirectoryIPtr& = 0);
         void addChild(const ::std::string&, const NodeIPtr&);
 
         void addReapEntry(const ::std::string&);
@@ -70,6 +76,7 @@ namespace FilesystemI
         static IceUtil::StaticMutex _lcMutex;
 
     private:
+
         typedef ::std::map< ::std::string, NodeIPtr> Contents;
         Contents _contents;
 

@@ -13,13 +13,12 @@ import sys, signal
 def run(client, server):
     print "testing...",
     sys.stdout.flush()
-    client.expect('Created README')
+    client.expect('Created Coleridge/Kubla_Khan')
     server.expect('added')
     client.expect('Contents of filesystem:')
     server.expect('added')
     server.expect('added')
     server.expect('locate')
-    client.expect('Contents of file')
     server.expect('locate')
     client.expect('Down to a sunless sea')
     server.expect('locate')

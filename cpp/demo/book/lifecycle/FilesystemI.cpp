@@ -21,13 +21,13 @@ FilesystemI::DirectoryI::ReapMap FilesystemI::DirectoryI::_reapMap;
 // Slice Node::name() operation.
 
 std::string
-FilesystemI::NodeI::name(const Current&)
+FilesystemI::NodeI::name(const Current& c)
 {
     IceUtil::Mutex::Lock lock(_m);
 
     if(_destroyed)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
     return _name;
@@ -41,21 +41,46 @@ FilesystemI::NodeI::id() const
     return _id;
 }
 
+// Activate the servant and add it to the parent's contents map.
+
+ObjectPrx
+FilesystemI::NodeI::activate(const ObjectAdapterPtr& a)
+{
+    ObjectPrx node = a->add(this, _id);
+    if(_parent)
+    {
+        _parent->addChild(_name, this);
+    }
+    return node;
+}
+
+// NodeI constructor.
+
 FilesystemI::NodeI::NodeI(const string& name, const DirectoryIPtr& parent)
     : _name(name), _parent(parent), _destroyed(false)
 {
+    // Create an identity. The root directory has the fixed identity "RootDir".
+    //
+    if(!parent)
+    {
+        _id.name = "RootDir";
+    }
+    else
+    {
+        _id.name = IceUtil::generateUUID();
+    }
 }
 
 // Slice File::read() operation.
 
 Lines
-FilesystemI::FileI::read(const Current&)
+FilesystemI::FileI::read(const Current& c)
 {
     IceUtil::Mutex::Lock lock(_m);
 
     if(_destroyed)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
     return _lines;
@@ -64,13 +89,13 @@ FilesystemI::FileI::read(const Current&)
 // Slice File::write() operation.
 
 void
-FilesystemI::FileI::write(const Lines& text, const Current&)
+FilesystemI::FileI::write(const Lines& text, const Current& c)
 {
     IceUtil::Mutex::Lock lock(_m);
 
     if(_destroyed)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
     _lines = text;
@@ -86,7 +111,7 @@ FilesystemI::FileI::destroy(const Current& c)
 
         if(_destroyed)
         {
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
         }
         _destroyed = true;
     }
@@ -99,12 +124,9 @@ FilesystemI::FileI::destroy(const Current& c)
 
 // FileI constructor.
 
-FilesystemI::FileI::FileI(const ObjectAdapterPtr& a, const string& name, const DirectoryIPtr& parent)
+FilesystemI::FileI::FileI(const string& name, const DirectoryIPtr& parent)
     : NodeI(name, parent)
 {
-    _id.name = IceUtil::generateUUID();
-    parent->addChild(name, this);
-    a->add(this, _id);
 }
 
 // Slice Directory::list() operation.
@@ -117,7 +139,7 @@ FilesystemI::DirectoryI::list(const Current& c)
 
         if(_destroyed)
         {
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
         }
     }
 
@@ -147,7 +169,7 @@ FilesystemI::DirectoryI::find(const string& name, const Current& c)
 
         if(_destroyed)
         {
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
         }
     }
 
@@ -179,7 +201,7 @@ FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
 
         if(_destroyed)
         {
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
         }
     }
 
@@ -187,13 +209,13 @@ FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
 
     reap();
 
-    if(_contents.find(name) != _contents.end())
+    if(name.empty() || _contents.find(name) != _contents.end())
     {
         throw NameInUse(name);
     }
 
-    FileIPtr f = new FileI(c.adapter, name, this);
-    return FilePrx::uncheckedCast(c.adapter->createProxy(f->id()));
+    FileIPtr f = new FileI(name, this);
+    return FilePrx::uncheckedCast(f->activate(c.adapter));
 }
 
 // Slice Directory::createDirectory() operation.
@@ -206,7 +228,7 @@ FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
 
         if(_destroyed)
         {
-            throw ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
         }
     }
 
@@ -214,13 +236,13 @@ FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
 
     reap();
 
-    if(_contents.find(name) != _contents.end())
+    if(name.empty() || _contents.find(name) != _contents.end())
     {
         throw NameInUse(name);
     }
 
-    DirectoryIPtr d = new DirectoryI(c.adapter, name, this);
-    return DirectoryPrx::uncheckedCast(c.adapter->createProxy(d->id()));
+    DirectoryIPtr d = new DirectoryI(name, this);
+    return DirectoryPrx::uncheckedCast(d->activate(c.adapter));
 }
 
 // Slice Directory::destroy() operation.
@@ -238,7 +260,7 @@ FilesystemI::DirectoryI::destroy(const Current& c)
 
     if(_destroyed)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
     IceUtil::StaticMutex::Lock lcLock(_lcMutex);
@@ -257,19 +279,9 @@ FilesystemI::DirectoryI::destroy(const Current& c)
 
 // DirectoryI constructor.
 
-FilesystemI::DirectoryI::DirectoryI(const ObjectAdapterPtr& a, const string& name, const DirectoryIPtr& parent)
+FilesystemI::DirectoryI::DirectoryI(const string& name, const DirectoryIPtr& parent)
     : NodeI(name, parent)
 {
-    if(!parent)
-    {
-        _id.name = "RootDir";
-    }
-    else
-    {
-        _id.name = IceUtil::generateUUID();
-        _parent->addChild(name, this);
-    }
-    a->add(this, _id);
 }
 
 // Add the passed name-node pair to the _contents map.

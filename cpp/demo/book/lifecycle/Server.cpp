@@ -29,7 +29,8 @@ public:
 
         // Create the root directory.
         //
-        new DirectoryI(adapter);
+        DirectoryIPtr root = new DirectoryI();
+        root->activate(adapter);
 
         // All objects are created, allow client requests now.
         //

@@ -14,18 +14,17 @@ using namespace std;
 //
 // Filesystem::NodeI
 //
-Ice::ObjectAdapterPtr Filesystem::NodeI::_adapter;
 Freeze::EvictorPtr Filesystem::NodeI::_evictor;
 
 Filesystem::NodeI::NodeI()
 #ifdef __SUNPRO_CC
-  : _ID(Ice::Identity())
+  : _id(Ice::Identity())
 #endif
 {
 }
 
 Filesystem::NodeI::NodeI(const Ice::Identity& id)
-    : _ID(id)
+    : _id(id)
 {
 }
 
@@ -42,7 +41,7 @@ void
 Filesystem::FileI::destroy(const Ice::Current&)
 {
     parent->removeNode(nodeName);
-    _evictor->remove(_ID);
+    _evictor->remove(_id);
 }
 
 Filesystem::Lines
@@ -72,24 +71,24 @@ Filesystem::FileI::FileI(const Ice::Identity& id)
 // Filesystem::DirectoryI
 //
 string
-Filesystem::DirectoryI::name(const Ice::Current& current)
+Filesystem::DirectoryI::name(const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(*this);
 
     if(_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
     return nodeName;
 }
 
 void
-Filesystem::DirectoryI::destroy(const Ice::Current& current)
+Filesystem::DirectoryI::destroy(const Ice::Current& c)
 {
     if(!parent)
     {
-        throw Filesystem::PermissionDenied("cannot remove root directory");
+        throw Filesystem::PermissionDenied("cannot destroy root directory");
     }
 
     NodeDict children;
@@ -99,7 +98,7 @@ Filesystem::DirectoryI::destroy(const Ice::Current& current)
 
         if(_destroyed)
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
         }
 
         children = nodes;
@@ -107,7 +106,7 @@ Filesystem::DirectoryI::destroy(const Ice::Current& current)
     }
 
     //
-    // We must iterate over the children outside of synchronization.
+    // We must iterate over the children outside the synchronization.
     //
     for(NodeDict::iterator p = children.begin(); p != children.end(); ++p)
     {
@@ -117,107 +116,65 @@ Filesystem::DirectoryI::destroy(const Ice::Current& current)
     assert(nodes.empty());
 
     parent->removeNode(nodeName);
-    _evictor->remove(_ID);
+    _evictor->remove(_id);
 }
 
-Filesystem::NodeDict
-Filesystem::DirectoryI::list(Filesystem::ListMode mode, const Ice::Current& current)
+Filesystem::NodeDescSeq
+Filesystem::DirectoryI::list(const Ice::Current& c)
 {
-    NodeDict result;
+    IceUtil::Mutex::Lock lock(*this);
+
+    if(_destroyed)
     {
-        IceUtil::Mutex::Lock lock(*this);
-
-        if(_destroyed)
-        {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
-        }
-
-        result = nodes;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    if(mode == RecursiveList)
+    NodeDict::const_iterator p;
+    NodeDescSeq result;
+    for(p = nodes.begin(); p != nodes.end(); ++p)
     {
-        for(NodeDict::iterator p = result.begin(); p != result.end(); ++p)
-        {
-            if(p->second.type == DirType)
-            {
-                DirectoryPrx dir = DirectoryPrx::uncheckedCast(p->second.proxy);
-                NodeDict d = dir->list(mode);
-                for(NodeDict::iterator q = d.begin(); q != d.end(); ++q)
-                {
-                    result[p->second.name + "/" + q->second.name] = q->second;
-                }
-            }
-        }
+        result.push_back(p->second);
     }
-
     return result;
 }
 
 Filesystem::NodeDesc
-Filesystem::DirectoryI::resolve(const string& path, const Ice::Current& current)
+Filesystem::DirectoryI::find(const string& name, const Ice::Current& c)
 {
-    string::size_type pos = path.find('/');
-    string child, remainder;
-    if(pos == string::npos)
-    {
-        child = path;
-    }
-    else
-    {
-        child = path.substr(0, pos);
-        pos = path.find_first_not_of("/", pos);
-        if(pos != string::npos)
-        {
-            remainder = path.substr(pos);
-        }
-    }
-
     IceUtil::Mutex::Lock lock(*this);
 
     if(_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    NodeDict::iterator p = nodes.find(child);
+    NodeDict::iterator p = nodes.find(name);
     if(p == nodes.end())
     {
-        throw NoSuchName("no node exists with name `" + child + "'");
+        throw NoSuchName(name);
     }
-
-    if(remainder.empty())
-    {
-        return p->second;
-    }
-    else
-    {
-        if(p->second.type != DirType)
-        {
-            throw NoSuchName("node `" + child + "' is not a directory");
-        }
-        DirectoryPrx dir = DirectoryPrx::checkedCast(p->second.proxy);
-        assert(dir);
-        return dir->resolve(remainder);
-    }
+    return p->second;
 }
 
 Filesystem::DirectoryPrx
-Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& current)
+Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(*this);
 
     if(_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    checkName(name);
+    if(name.empty() || nodes.find(name) != nodes.end())
+    {
+        throw NameInUse(name);
+    }
 
-    Ice::Identity id = current.adapter->getCommunicator()->stringToIdentity(IceUtil::generateUUID());
+    Ice::Identity id = c.adapter->getCommunicator()->stringToIdentity(IceUtil::generateUUID());
     PersistentDirectoryPtr dir = new DirectoryI(id);
     dir->nodeName = name;
-    dir->parent = PersistentDirectoryPrx::uncheckedCast(current.adapter->createProxy(current.id));
+    dir->parent = PersistentDirectoryPrx::uncheckedCast(c.adapter->createProxy(c.id));
     DirectoryPrx proxy = DirectoryPrx::uncheckedCast(_evictor->add(dir, id));
 
     NodeDesc nd;
@@ -230,21 +187,24 @@ Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& 
 }
 
 Filesystem::FilePrx
-Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& current)
+Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(*this);
 
     if(_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    checkName(name);
+    if(name.empty() || nodes.find(name) != nodes.end())
+    {
+        throw NameInUse(name);
+    }
 
-    Ice::Identity id = current.adapter->getCommunicator()->stringToIdentity(IceUtil::generateUUID());
+    Ice::Identity id = c.adapter->getCommunicator()->stringToIdentity(IceUtil::generateUUID());
     PersistentFilePtr file = new FileI(id);
     file->nodeName = name;
-    file->parent = PersistentDirectoryPrx::uncheckedCast(current.adapter->createProxy(current.id));
+    file->parent = PersistentDirectoryPrx::uncheckedCast(c.adapter->createProxy(c.id));
     FilePrx proxy = FilePrx::uncheckedCast(_evictor->add(file, id));
 
     NodeDesc nd;
@@ -274,23 +234,6 @@ Filesystem::DirectoryI::DirectoryI() :
 Filesystem::DirectoryI::DirectoryI(const Ice::Identity& id) :
     NodeI(id), _destroyed(false)
 {
-}
-
-void
-Filesystem::DirectoryI::checkName(const string& name) const
-{
-    if(name.empty() || name.find('/') != string::npos)
-    {
-        IllegalName e;
-        e.reason = "illegal name `" + name + "'";
-        throw e;
-    }
-
-    NodeDict::const_iterator p = nodes.find(name);
-    if(p != nodes.end())
-    {
-        throw NameInUse("name `" + name + "' is already in use");
-    }
 }
 
 //
@@ -330,5 +273,5 @@ Filesystem::NodeInitializer::initialize(const Ice::ObjectAdapterPtr&,
 {
     NodeIPtr node = NodeIPtr::dynamicCast(obj);
     assert(node);
-    const_cast<Ice::Identity&>(node->_ID) = id;
+    const_cast<Ice::Identity&>(node->_id) = id;
 }

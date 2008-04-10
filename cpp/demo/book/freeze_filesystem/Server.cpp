@@ -31,17 +31,18 @@ public:
         communicator()->addObjectFactory(factory, PersistentDirectory::ice_staticId());
 
         //
-        // Create an object adapter (stored in the NodeI::_adapter static member).
+        // Create an object adapter.
         //
-        NodeI::_adapter = communicator()->createObjectAdapterWithEndpoints("FreezeFilesystem", "default -p 10000");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
+                                                                "FreezeFilesystem", "default -p 10000");
 
         //
         // Create the Freeze evictor (stored in the NodeI::_evictor static member).
         //
         Freeze::ServantInitializerPtr init = new NodeInitializer;
-        NodeI::_evictor = Freeze::createBackgroundSaveEvictor(NodeI::_adapter, _envName, "evictorfs", init);
+        NodeI::_evictor = Freeze::createBackgroundSaveEvictor(adapter, _envName, "evictorfs", init);
 
-        NodeI::_adapter->addServantLocator(NodeI::_evictor, "");
+        adapter->addServantLocator(NodeI::_evictor, "");
 
         //
         // Create the root node if it doesn't exist.
@@ -57,7 +58,7 @@ public:
         //
         // Ready to accept requests now.
         //
-        NodeI::_adapter->activate();
+        adapter->activate();
 
         //
         // Wait until we are done.

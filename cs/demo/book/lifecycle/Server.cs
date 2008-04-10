@@ -34,7 +34,8 @@ public class Server
 
             // Create the root directory.
             //
-            new DirectoryI(adapter);
+            DirectoryI root = new DirectoryI();
+            root.activate(adapter);
 
             // All objects are created, allow client requests now.
             //

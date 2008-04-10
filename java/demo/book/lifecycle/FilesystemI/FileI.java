@@ -72,15 +72,21 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
         }
     }
 
-    public FileI(ObjectAdapter a, String name, DirectoryI parent)
+    public FileI(String name, DirectoryI parent)
     {
         _name = name;
         _parent = parent;
         _destroyed = false;
         _id = new Identity();
         _id.name = Util.generateUUID();
-        _parent.addChild(name, this);
-        a.add(this, _id);
+    }
+
+    public FilePrx
+    activate(Ice.ObjectAdapter a)
+    {
+        FilePrx node = FilePrxHelper.uncheckedCast(a.add(this, _id));
+        _parent.addChild(_name, this);
+        return node;
     }
 
     private String _name;

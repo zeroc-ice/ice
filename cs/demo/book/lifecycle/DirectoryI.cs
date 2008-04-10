@@ -118,8 +118,7 @@ namespace FilesystemI
                 {
                     throw new NameInUse(name);
                 }
-                FileI f = new FileI(c.adapter, name, this);
-                return FilePrxHelper.uncheckedCast(c.adapter.createProxy(f.id()));
+                return new FileI(c.adapter, name, this).activate(c.adapter);
             }
         }
 
@@ -143,8 +142,7 @@ namespace FilesystemI
                 {
                     throw new NameInUse(name);
                 }
-                DirectoryI d = new DirectoryI(c.adapter, name, this);
-                return DirectoryPrxHelper.uncheckedCast(c.adapter.createProxy(d.id()));
+                return new DirectoryI(name, this).activate(c.adapter);
             }
         }
 
@@ -182,14 +180,14 @@ namespace FilesystemI
 
         // DirectoryI constructor for root directory.
 
-        public DirectoryI(ObjectAdapter a)
-            : this(a, "RootDir", null)
+        public DirectoryI()
+            : this("/", null)
         {
         }
 
         // DirectoryI constructor. parent == null indicates root directory.
 
-        public DirectoryI(ObjectAdapter a, string name, DirectoryI parent)
+        public DirectoryI(string name, DirectoryI parent)
         {
             lcMutex = new System.Object();
             _name = name;
@@ -200,14 +198,25 @@ namespace FilesystemI
 
             if(parent == null)
             {
-                _id.name = name;
+                _id.name = "RootDir";
             }
             else
             {
                 _id.name = Util.generateUUID();
-                _parent.addChild(name, this);
             }
-            a.add(this, _id);
+        }
+
+        // Add servant to ASM and to parent's _contents map.
+
+        public DirectoryPrx
+        activate(Ice.ObjectAdapter a)
+        {
+            DirectoryPrx node = DirectoryPrxHelper.uncheckedCast(a.add(this, _id));
+            if(_parent != null)
+            {
+                _parent.addChild(_name, this);
+            }
+            return node;
         }
 
         // Add the name-node pair to the _contents map.

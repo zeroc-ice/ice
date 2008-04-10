@@ -17,21 +17,19 @@ public class Server extends Ice.Application {
         //
         shutdownOnInterrupt();
 
-        // Create an object adapter (stored in the _adapter
-        // static members)
+        // Create an object adapter.
         //
         Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints(
                                         "SimpleFilesystem", "default -p 10000");
-        DirectoryI._adapter = adapter;
-        FileI._adapter = adapter;
 
         // Create the root directory (with name "/" and no parent)
         //
-        DirectoryI root = new DirectoryI("/", null);
+        DirectoryI root = new DirectoryI(communicator(), "/", null);
+        root.activate(adapter);
 
         // Create a file called "README" in the root directory
         //
-        File file = new FileI("README", root);
+        FileI file = new FileI(communicator(), "README", root);
         String[] text;
         text = new String[]{ "This file system contains a collection of poetry." };
         try {
@@ -39,14 +37,16 @@ public class Server extends Ice.Application {
         } catch (GenericError e) {
             System.err.println(e.reason);
         }
+        file.activate(adapter);
 
         // Create a directory called "Coleridge" in the root directory
         //
-        DirectoryI coleridge = new DirectoryI("Coleridge", root);
+        DirectoryI coleridge = new DirectoryI(communicator(), "Coleridge", root);
+        coleridge.activate(adapter);
 
         // Create a file called "Kubla_Khan" in the Coleridge directory
         //
-        file = new FileI("Kubla_Khan", coleridge);
+        file = new FileI(communicator(), "Kubla_Khan", coleridge);
         text = new String[]{ "In Xanadu did Kubla Khan",
                              "A stately pleasure-dome decree:",
                              "Where Alph, the sacred river, ran",
@@ -57,6 +57,7 @@ public class Server extends Ice.Application {
         } catch (GenericError e) {
             System.err.println(e.reason);
         }
+        file.activate(adapter);
 
         // All objects are created, allow client requests now
         //

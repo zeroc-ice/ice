@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <FilesystemI.h>
 
@@ -15,32 +16,34 @@ using namespace Filesystem;
 
 class FilesystemApp : virtual public Ice::Application {
 public:
-    virtual int run(int, char * []) {
+    virtual int run(int, char*[]) {
         // Terminate cleanly on receipt of a signal
         //
         shutdownOnInterrupt();
 
-        // Create an object adapter (stored in the NodeI::_adapter
-        // static member)
+        // Create an object adapter.
         //
-        NodeI::_adapter =
+        Ice::ObjectAdapterPtr adapter =
             communicator()->createObjectAdapterWithEndpoints(
                                 "SimpleFilesystem", "default -p 10000");
 
         // Create the root directory (with name "/" and no parent)
         //
         DirectoryIPtr root = new DirectoryI(communicator(), "/", 0);
+        root->activate(adapter);
 
         // Create a file called "README" in the root directory
         //
-        FilePtr file = new FileI(communicator(), "README", root);
+        FileIPtr file = new FileI(communicator(), "README", root);
         Lines text;
         text.push_back("This file system contains a collection of poetry.");
         file->write(text);
+        file->activate(adapter);
 
         // Create a directory called "Coleridge" in the root directory
         //
         DirectoryIPtr coleridge = new DirectoryI(communicator(), "Coleridge", root);
+        coleridge->activate(adapter);
 
         // Create a file called "Kubla_Khan" in the Coleridge directory
         //
@@ -52,10 +55,11 @@ public:
         text.push_back("Through caverns measureless to man");
         text.push_back("Down to a sunless sea.");
         file->write(text);
+        file->activate(adapter);
 
         // All objects are created, allow client requests now
         //
-        NodeI::_adapter->activate();
+        adapter->activate();
 
         // Wait until we are done
         //
@@ -64,8 +68,6 @@ public:
             cerr << appName()
                  << ": received signal, shutting down" << endl;
         }
-
-        NodeI::_adapter = 0;
 
         return 0;
     };

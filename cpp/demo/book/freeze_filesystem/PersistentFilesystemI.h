@@ -22,7 +22,6 @@ class NodeI : virtual public PersistentNode,
 {
 public:
 
-    static Ice::ObjectAdapterPtr _adapter;
     static Freeze::EvictorPtr _evictor;
 
 protected:
@@ -32,7 +31,7 @@ protected:
 
 public:
 
-    const Ice::Identity _ID;
+    const Ice::Identity _id;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 
@@ -59,8 +58,8 @@ public:
     virtual std::string name(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
-    virtual NodeDict list(ListMode, const Ice::Current&);
-    virtual NodeDesc resolve(const std::string&, const Ice::Current&);
+    virtual NodeDescSeq list(const Ice::Current&);
+    virtual NodeDesc find(const std::string&, const Ice::Current&);
     virtual DirectoryPrx createDirectory(const std::string&, const Ice::Current&);
     virtual FilePrx createFile(const std::string&, const Ice::Current&);
     virtual void removeNode(const std::string&, const Ice::Current&);
@@ -69,8 +68,6 @@ public:
     DirectoryI(const Ice::Identity&);
 
 private:
-
-    void checkName(const std::string&) const;
 
     bool _destroyed;
 };

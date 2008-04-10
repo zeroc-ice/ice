@@ -14,27 +14,17 @@ Ice.loadSlice('Filesystem.ice')
 import Filesystem
 
 class DirectoryI(Filesystem.Directory):
-    def __init__(self, name, parent):
+    def __init__(self, communicator, name, parent):
         self._name = name
         self._parent = parent
         self._contents = []
 
-        # Create an identity. The parent has the fixed identity "RootDir"
+        # Create an identity. The root directory has the fixed identity "RootDir"
         #
         if self._parent:
-            myID = self._adapter.getCommunicator().stringToIdentity(Ice.generateUUID())
+            self._id = communicator.stringToIdentity(Ice.generateUUID())
         else:
-            myID = self._adapter.getCommunicator().stringToIdentity("RootDir")
-
-        # Add the identity to the object adapter
-        #
-        self._adapter.add(self, myID)
-
-        # Create a proxy for the new node and add it as a child to the parent
-        thisNode = Filesystem.NodePrx.uncheckedCast(self._adapter.createProxy(myID))
-
-        if self._parent:
-            self._parent.addChild(thisNode)
+            self._id = communicator.stringToIdentity("RootDir")
 
     # Slice Node::name() operation
 
@@ -52,10 +42,15 @@ class DirectoryI(Filesystem.Directory):
     def addChild(self, child):
         self._contents.append(child)
 
-    _adpater = None
+    # Add servant to ASM and Parent's _contents map.
+
+    def activate(self, a):
+        thisNode = Filesystem.DirectoryPrx.uncheckedCast(a.add(self, self._id))
+        if self._parent:
+            self._parent.addChild(thisNode)
 
 class FileI(Filesystem.File):
-    def __init__(self, name, parent):
+    def __init__(self, communicator, name, parent):
         self._name = name
         self._parent = parent
         self.lines = []
@@ -64,23 +59,14 @@ class FileI(Filesystem.File):
 
         # Create an identity
         #
-        myID = self._adapter.getCommunicator().stringToIdentity(Ice.generateUUID())
-
-        # Add the identity to the object adapter
-        #
-        self._adapter.add(self, myID)
-
-        # Create a proxy for the new node and add it as a child to the parent
-        #
-        thisNode = Filesystem.NodePrx.uncheckedCast(self._adapter.createProxy(myID))
-        self._parent.addChild(thisNode)
+        self._id = communicator.stringToIdentity(Ice.generateUUID())
 
     # Slice Node::name() operation
 
     def name(self, current=None):
         return self._name
 
-    # Slice File::reas() operation
+    # Slice File::read() operation
 
     def read(self, current=None):
         return self._lines
@@ -90,7 +76,12 @@ class FileI(Filesystem.File):
     def write(self, text, current=None):
         self._lines = text
 
-    _adapter = None
+    # Add servant to ASM and Parent's _contents map.
+
+    def activate(self, a):
+        thisNode = Filesystem.FilePrx.uncheckedCast(a.add(self, self._id))
+        self._parent.addChild(thisNode)
+
 
 class Server(Ice.Application):
     def run(self, args):
@@ -98,32 +89,33 @@ class Server(Ice.Application):
         #
         self.shutdownOnInterrupt()
 
-        # Create an object adapter (stored in the _adapter static members)
+        # Create an object adapter
         #
         adapter = self.communicator().createObjectAdapterWithEndpoints("SimpleFileSystem", "default -p 10000")
-        DirectoryI._adapter = adapter
-        FileI._adapter = adapter
 
         # Create the root directory (with name "/" and no parent)
         #
-        root = DirectoryI("/", None)
+        root = DirectoryI(self.communicator(), "/", None)
+        root.activate(adapter)
 
         # Create a file called "README" in the root directory
         #
-        file = FileI("README", root)
+        file = FileI(self.communicator(), "README", root)
         text = [ "This file system contains a collection of poetry." ]
         try:
             file.write(text)
         except Filesystem.GenericError, e:
             print e.reason
+        file.activate(adapter)
 
         # Create a directory called "Coleridge" in the root directory
         #
-        coleridge = DirectoryI("Coleridge", root)
+        coleridge = DirectoryI(self.communicator(), "Coleridge", root)
+        coleridge.activate(adapter)
 
         # Create a file called "Kubla_Khan" in the Coleridge directory
         #
-        file = FileI("Kubla_Khan", coleridge)
+        file = FileI(self.communicator(), "Kubla_Khan", coleridge)
         text = [ "In Xanadu did Kubla Khan",
                  "A stately pleasure-dome decree:",
                  "Where Alph, the sacred river, ran",
@@ -133,6 +125,7 @@ class Server(Ice.Application):
             file.write(text)
         except Filesystem.GenericError, e:
             print e.reason
+        file.activate(adapter)
 
         # All objects are created, allow client requests now
         #

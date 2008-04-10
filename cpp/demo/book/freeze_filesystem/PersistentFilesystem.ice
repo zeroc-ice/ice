@@ -24,6 +24,8 @@ module Filesystem
         Lines text;
     };
 
+    dictionary<string, NodeDesc> NodeDict;
+
     class PersistentDirectory extends PersistentNode implements Directory
     {
         ["freeze:write"]

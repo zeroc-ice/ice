@@ -85,8 +85,14 @@ namespace FilesystemI
             _destroyed = false;
             _id = new Identity();
             _id.name = Util.generateUUID();
-            _parent.addChild(name, this);
-            a.add(this, _id);
+        }
+
+        public FilePrx
+        activate(Ice.ObjectAdapter a)
+        {
+            FilePrx node = FilePrxHelper.uncheckedCast(a.add(this, _id));
+            _parent.addChild(_name, this);
+            return node;
         }
 
         private string _name;

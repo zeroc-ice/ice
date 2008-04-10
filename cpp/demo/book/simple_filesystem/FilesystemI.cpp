@@ -3,7 +3,7 @@
 // Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICE_LICENSE file include, in this distribution.
 //
 // **********************************************************************
 
@@ -12,52 +12,55 @@
 
 using namespace std;
 
-Ice::ObjectAdapterPtr Filesystem::NodeI::_adapter;      // static member
-
 // Slice Node::name() operation
 
 std::string
-Filesystem::NodeI::name(const Ice::Current &)
+Filesystem::NodeI::name(const Ice::Current&)
 {
     return _name;
 }
 
 // NodeI constructor
 
-Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr & ic, const string & name, const DirectoryIPtr & parent) :
+Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr& communicator, const string& name, const DirectoryIPtr& parent) :
     _name(name), _parent(parent)
 {
-    // Create an identity. The parent has the fixed identity "RootDir"
+    // Create an identity. The root directory has the fixed identity "RootDir"
     //
     // COMPILERFIX:
     //
-    // The line below causes a "thread synchronization error" exception on HP-UX (64 bit only):
+    // The line below causes "thread synchronization error" exception on HP-UX (64-bit only):
     //
-    // Ice::Identity myID = Ice::stringToIdentity(parent ? IceUtil::generateUUID() : "RootDir");
+    // _id = communicator->stringToIdentity(parent ? IceUtil::generateUUID() : "RootDir");
     //
     // We've rearranged the code to avoid the problem.
     //
-    Ice::Identity myID;
-    if (parent)
-        myID = ic->stringToIdentity(IceUtil::generateUUID());
+    if(parent)
+    {
+        _id = communicator->stringToIdentity(IceUtil::generateUUID());
+    }
     else
-        myID = ic->stringToIdentity("RootDir");
+    {
+        _id = communicator->stringToIdentity("RootDir");
+    }
+}
 
-    // Create a proxy for the new node and add it as a child to the parent
-    //
-    NodePrx thisNode = NodePrx::uncheckedCast(_adapter->createProxy(myID));
-    if (parent)
-        parent->addChild(thisNode);
+// NodeI activate() member function
 
-    // Activate the servant
-    //
-    _adapter->add(this, myID);
+void
+Filesystem::NodeI::activate(const Ice::ObjectAdapterPtr& a)
+{
+    NodePrx thisNode = NodePrx::uncheckedCast(a->add(this, _id));
+    if(_parent)
+    {
+        _parent->addChild(thisNode);
+    }
 }
 
 // Slice File::read() operation
 
 Filesystem::Lines
-Filesystem::FileI::read(const Ice::Current &)
+Filesystem::FileI::read(const Ice::Current&)
 {
     return _lines;
 }
@@ -65,31 +68,31 @@ Filesystem::FileI::read(const Ice::Current &)
 // Slice File::write() operation
 
 void
-Filesystem::FileI::write(const Filesystem::Lines & text,
-                         const Ice::Current &)
+Filesystem::FileI::write(const Filesystem::Lines& text, const Ice::Current&)
 {
     _lines = text;
 }
 
 // FileI constructor
 
-Filesystem::FileI::FileI(const Ice::CommunicatorPtr & ic, const string & name, const DirectoryIPtr & parent) : 
-    NodeI(ic, name, parent)
+Filesystem::FileI::FileI(const Ice::CommunicatorPtr& communicator, const string& name, const DirectoryIPtr& parent) :
+    NodeI(communicator, name, parent)
 {
 }
 
 // Slice Directory::list() operation
 
 Filesystem::NodeSeq
-Filesystem::DirectoryI::list(const Ice::Current &)
+Filesystem::DirectoryI::list(const Ice::Current& c)
 {
     return _contents;
 }
 
 // DirectoryI constructor
 
-Filesystem::DirectoryI::DirectoryI(const Ice::CommunicatorPtr & ic, const string & name, const DirectoryIPtr & parent) :
-    NodeI(ic, name, parent)
+Filesystem::DirectoryI::DirectoryI(const Ice::CommunicatorPtr& communicator, const string& name,
+                                   const DirectoryIPtr& parent) :
+    NodeI(communicator, name, parent)
 {
 }
 
@@ -97,7 +100,7 @@ Filesystem::DirectoryI::DirectoryI(const Ice::CommunicatorPtr & ic, const string
 // itself to the _contents member of the parent
 
 void
-Filesystem::DirectoryI::addChild(const NodePrx child)
+Filesystem::DirectoryI::addChild(const NodePrx& child)
 {
     _contents.push_back(child);
 }

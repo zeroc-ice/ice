@@ -11,6 +11,33 @@ import Filesystem.*;
 
 public class Client extends Ice.Application
 {
+    // Recursively print the contents of directory "dir" in tree fashion.
+    // For files, show the contents of each file. The "depth"
+    // parameter is the current nesting level (for indentation).
+
+    static void
+    listRecursive(DirectoryPrx dir, int depth)
+    {
+        char[] indentCh = new char[++depth];
+        java.util.Arrays.fill(indentCh, '\t');
+        String indent = new String(indentCh);
+
+        NodeDesc[] contents = dir.list();
+
+        for (int i = 0; i < contents.length; ++i) {
+            DirectoryPrx subdir = DirectoryPrxHelper.checkedCast(contents[i].proxy);
+            FilePrx file = FilePrxHelper.uncheckedCast(contents[i].proxy);
+            System.out.println(indent + contents[i].name + (subdir != null ? " (directory):" : " (file):"));
+            if (subdir != null) {
+                listRecursive(subdir, depth);
+            } else {
+                String[] text = file.read();
+                for (int j = 0; j < text.length; ++j)
+                    System.out.println(indent + "\t" + text[j]);
+            }
+        }
+    }
+
     class ShutdownHook extends Thread
     {
         public void
@@ -78,7 +105,7 @@ public class Client extends Ice.Application
             }
             catch(NameInUse ex)
             {
-                NodeDesc desc = rootDir.resolve("Coleridge");
+                NodeDesc desc = rootDir.find("Coleridge");
                 coleridge = DirectoryPrxHelper.checkedCast(desc.proxy);
                 assert(coleridge != null);
             }
@@ -106,33 +133,16 @@ public class Client extends Ice.Application
             }
 
             System.out.println("Contents of filesystem:");
-            java.util.Map contents = rootDir.list(ListMode.RecursiveList);
-            java.util.Iterator p = contents.keySet().iterator();
-            while(p.hasNext())
-            {
-                System.out.println("  " + (String)p.next());
-            }
-
-            NodeDesc desc = rootDir.resolve("Coleridge/Kubla_Khan");
-            FilePrx file = FilePrxHelper.checkedCast(desc.proxy);
-            assert(file != null);
-            String[] text = file.read();
-            System.out.println("Contents of file Coleridge/Kubla_Khan:");
-            for(int i = 0; i < text.length; ++i)
-            {
-                System.out.println("  " + text[i]);
-            }
+            listRecursive(rootDir, 0);
 
             //
             // Destroy the filesystem.
             //
-            contents = rootDir.list(ListMode.NormalList);
-            p = contents.entrySet().iterator();
-            while(p.hasNext())
+            NodeDesc[] contents = rootDir.list();
+            for(int i = 0; i < contents.length; ++i)
             {
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                NodeDesc d = (NodeDesc)e.getValue();
-                System.out.println("Destroying " + (String)e.getKey() + "...");
+                NodeDesc d = contents[i];
+                System.out.println("Destroying " + d.name);
                 d.proxy.destroy();
             }
         }

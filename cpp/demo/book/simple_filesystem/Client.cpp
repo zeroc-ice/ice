@@ -20,7 +20,7 @@ using namespace Filesystem;
 // parameter is the current nesting level (for indentation).
 
 static void
-listRecursive(const DirectoryPrx & dir, int depth = 0)
+listRecursive(const DirectoryPrx& dir, int depth = 0)
 {
     string indent(++depth, '\t');
 
@@ -41,7 +41,7 @@ listRecursive(const DirectoryPrx & dir, int depth = 0)
 }
 
 int
-main(int argc, char * argv[])
+main(int argc, char* argv[])
 {
     int status = 0;
     Ice::CommunicatorPtr ic;

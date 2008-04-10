@@ -15,7 +15,6 @@ module Filesystem
     };
     exception PermissionDenied extends GenericError {};
     exception NameInUse extends GenericError {};
-    exception IllegalName extends GenericError {};
     exception NoSuchName extends GenericError {};
 
     interface Node
@@ -23,8 +22,7 @@ module Filesystem
         idempotent string name();
 
         ["freeze:write"]
-        void destroy()
-            throws PermissionDenied;
+        void destroy() throws PermissionDenied;
     };
 
     sequence<string> Lines;
@@ -34,8 +32,7 @@ module Filesystem
         idempotent Lines read();
 
         ["freeze:write"]
-        idempotent void write(Lines text)
-            throws GenericError;
+        idempotent void write(Lines text) throws GenericError;
     };
 
     enum NodeType { DirType, FileType };
@@ -47,23 +44,18 @@ module Filesystem
         Node* proxy;
     };
 
-    dictionary<string, NodeDesc> NodeDict;
-
-    enum ListMode { NormalList, RecursiveList };
+    sequence<NodeDesc> NodeDescSeq;
 
     interface Directory extends Node
     {
-        idempotent NodeDict list(ListMode mode);
+        idempotent NodeDescSeq list();
 
-        idempotent NodeDesc resolve(string path)
-            throws NoSuchName;
-
-        ["freeze:write"]
-        File* createFile(string name)
-            throws NameInUse, IllegalName;
+        idempotent NodeDesc find(string name) throws NoSuchName;
 
         ["freeze:write"]
-        Directory* createDirectory(string name)
-            throws NameInUse, IllegalName;
+        File* createFile(string name) throws NameInUse;
+
+        ["freeze:write"]
+        Directory* createDirectory(string name) throws NameInUse;
     };
 };

@@ -14,25 +14,15 @@ public final class DirectoryI extends _DirectoryDisp
     // DirectoryI constructor
 
     public
-    DirectoryI(String name, DirectoryI parent)
+    DirectoryI(Ice.Communicator communicator, String name, DirectoryI parent)
     {
         _name = name;
         _parent = parent;
 
-        // Create an identity. The parent has the fixed identity "RootDir"
+        // Create an identity. The root directory has the fixed identity "RootDir"
         //
-        Ice.Identity myID = 
-            _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
+        _id = communicator.stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
 
-        // Add the identity to the object adapter
-        //
-        _adapter.add(this, myID);
-
-        // Create a proxy for the new node and add it as a child to the parent
-        //
-        NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
-        if (_parent != null)
-            _parent.addChild(thisNode);
     }
 
     // Slice Node::name() operation
@@ -62,8 +52,21 @@ public final class DirectoryI extends _DirectoryDisp
         _contents.add(child);
     }
 
-    public static Ice.ObjectAdapter _adapter;
+    // activate adds the servant to the object adapter and
+    // adds child nodes ot the parent's _contents list.
+
+    public void
+    activate(Ice.ObjectAdapter a)
+    {
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(a.add(this, _id));
+        if(_parent != null)
+        {
+            _parent.addChild(thisNode);
+        }
+    }
+
     private String _name;
     private DirectoryI _parent;
+    private Ice.Identity _id;
     private java.util.List<NodePrx> _contents = new java.util.ArrayList<NodePrx>();
 }

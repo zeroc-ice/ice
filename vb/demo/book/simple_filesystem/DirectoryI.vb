@@ -10,7 +10,7 @@ Public Class DirectoryI
         _parent = parent
 
         ' Create an identity. The
-        ' parent has the fixed identity "/"
+        ' root directory as the fixed identity "RootDir"
         '
         Dim myId As Ice.Identity
         If Not _parent Is Nothing Then

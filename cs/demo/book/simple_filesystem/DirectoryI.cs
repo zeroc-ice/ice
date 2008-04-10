@@ -14,25 +14,14 @@ public class DirectoryI : DirectoryDisp_
 {
     // DirectoryI constructor
 
-    public DirectoryI(string name, DirectoryI parent)
+    public DirectoryI(Ice.Communicator communicator, string name, DirectoryI parent)
     {
         _name = name;
         _parent = parent;
 
-        // Create an identity. The parent has the fixed identity "/"
+        // Create an identity. The root directory has the fixed identity "RootDir"
         //
-        Ice.Identity myID =
-            adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
-
-        // Add the identity to the object adapter
-        //
-        adapter.add(this, myID);
-
-        // Create a proxy for the new node and add it as a child to the parent
-        //
-        NodePrx thisNode = NodePrxHelper.uncheckedCast(adapter.createProxy(myID));
-        if (_parent != null)
-            _parent.addChild(thisNode);
+        _id = communicator.stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
     }
 
     // Slice Node::name() operation
@@ -57,8 +46,19 @@ public class DirectoryI : DirectoryDisp_
         _contents.Add(child);
     }
 
-    public static Ice.ObjectAdapter adapter;
+    // Add servant to ASM and parent's _contents map.
+
+    public void activate(Ice.ObjectAdapter a)
+    {
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(a.add(this, _id));
+        if(_parent != null)
+        {
+            _parent.addChild(thisNode);
+        }
+    }
+
     private string _name;
     private DirectoryI _parent;
+    private Ice.Identity _id;
     private ArrayList _contents = new ArrayList();
 }
