@@ -9,6 +9,7 @@
 
 namespace Ice
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -18,7 +19,7 @@ namespace Ice
         Plugin create(Communicator communicator, string name, string[] args);
     }
 
-    // DEPRECATED
+    [Obsolete("This interface is deprecated, use Ice.LoggerPlugin instead.")]
     public interface LoggerFactory
     {
         Logger create(Communicator communicator, string[] args);
@@ -258,7 +259,9 @@ namespace Ice
                 }
             }
 
-            // DEPRECATED
+            //
+            // The Ice.LoggerPlugin property is deprecated but still supported.
+            //
             string loggerStr = properties.getProperty("Ice.LoggerPlugin");
             if(loggerStr.Length != 0)
             {
@@ -399,7 +402,6 @@ namespace Ice
             {
                 if(isLogger)
                 {
-                    // DEPRECATED
                     loggerFactory = (LoggerFactory)IceInternal.AssemblyUtil.createInstance(c);
                     if(loggerFactory == null)
                     {
@@ -443,7 +445,6 @@ namespace Ice
             //
             if(isLogger)
             {
-                // DEPRECATED
                 try
                 {
                     _logger = loggerFactory.create(_communicator, args);

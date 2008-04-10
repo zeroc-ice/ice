@@ -9,6 +9,9 @@
 
 package Ice;
 
+/**
+ * @deprecated LoggerFactory is deprecated, use Ice.LoggerPlugin instead.
+ **/
 public interface LoggerFactory
 {
     Logger create(Communicator communicator, String[] args);
