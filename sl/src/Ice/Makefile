@@ -95,7 +95,7 @@ install:: all
 else
 
 install:: all
-	$(call installlibrary,$(bindir)/icecs.dll,$(install_bindir))
+	$(call installlibrary,$(bindir)/IceSL.dll,$(install_bindir))
 
 endif
 

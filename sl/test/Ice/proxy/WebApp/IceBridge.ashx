@@ -2,7 +2,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -147,7 +147,7 @@ namespace IceBridge
                     throw new Ice.MarshalException("unexpected mode received: " + mode);
                 }
 
-                Ice.Context ctx = null;
+                Dictionary<string, string> ctx = null;
                 int sz = stream.readSize();
                 while(sz-- > 0)
                 {
@@ -155,7 +155,7 @@ namespace IceBridge
                     string second = stream.readString();
                     if(ctx == null)
                     {
-                        ctx = new Ice.Context();
+                        ctx = new Dictionary<string, string>();
                     }
                     ctx[first] = second;
                 }
