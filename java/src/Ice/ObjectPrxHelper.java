@@ -18,7 +18,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
     }
 
     public static ObjectPrx
-    checkedCast(Ice.ObjectPrx b, java.util.Map ctx)
+    checkedCast(Ice.ObjectPrx b, java.util.Map<String, String> ctx)
     {
         return b;
     }
@@ -46,7 +46,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
     }
 
     public static ObjectPrx
-    checkedCast(Ice.ObjectPrx b, String f, java.util.Map ctx)
+    checkedCast(Ice.ObjectPrx b, String f, java.util.Map<String, String> ctx)
     {
         ObjectPrx d = null;
         if(b != null)

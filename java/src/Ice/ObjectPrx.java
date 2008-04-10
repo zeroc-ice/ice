@@ -18,31 +18,31 @@ public interface ObjectPrx
     String ice_toString();
 
     boolean ice_isA(String __id);
-    boolean ice_isA(String __id, java.util.Map __context);
+    boolean ice_isA(String __id, java.util.Map<String, String> __context);
 
     void ice_ping();
-    void ice_ping(java.util.Map __context);
+    void ice_ping(java.util.Map<String, String> __context);
 
     String[] ice_ids();
-    String[] ice_ids(java.util.Map __context);
+    String[] ice_ids(java.util.Map<String, String> __context);
 
     String ice_id();
-    String ice_id(java.util.Map __context);
+    String ice_id(java.util.Map<String, String> __context);
 
     // Returns true if ok, false if user exception.
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams);
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-                       java.util.Map __context);
+                       java.util.Map<String, String> __context);
 
     boolean ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams);
     boolean ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-                             java.util.Map context);
+                             java.util.Map<String, String> context);
 
     Identity ice_getIdentity();
     ObjectPrx ice_identity(Identity newIdentity);
 
-    java.util.Map ice_getContext();
-    ObjectPrx ice_context(java.util.Map newContext);
+    java.util.Map<String, String> ice_getContext();
+    ObjectPrx ice_context(java.util.Map<String, String> newContext);
     /**
      * @deprecated This method has been replaced with ice_context.
      **/

@@ -12,7 +12,7 @@ package Ice;
 public class _ObjectDelD implements _ObjectDel
 {
     public boolean
-    ice_isA(final String __id, java.util.Map __context)
+    ice_isA(final String __id, java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         final Current __current = new Current();
@@ -62,7 +62,7 @@ public class _ObjectDelD implements _ObjectDel
     }
 
     public void
-    ice_ping(java.util.Map __context)
+    ice_ping(java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         final Current __current = new Current();
@@ -108,7 +108,7 @@ public class _ObjectDelD implements _ObjectDel
     }
 
     public String[]
-    ice_ids(java.util.Map __context)
+    ice_ids(java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         final Current __current = new Current();
@@ -159,7 +159,7 @@ public class _ObjectDelD implements _ObjectDel
     }
 
     public String
-    ice_id(java.util.Map __context)
+    ice_id(java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         final Current __current = new Current();
@@ -210,7 +210,7 @@ public class _ObjectDelD implements _ObjectDel
 
     public boolean
     ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map context)
+               java.util.Map<String, String> context)
     {
         throw new CollocationOptimizationException();
     }
@@ -260,7 +260,7 @@ public class _ObjectDelD implements _ObjectDel
     protected Ice.ObjectAdapter __adapter;
 
     protected final void
-    __initCurrent(Current current, String op, Ice.OperationMode mode, java.util.Map context)
+    __initCurrent(Current current, String op, Ice.OperationMode mode, java.util.Map<String, String> context)
     {
         current.adapter = __adapter;
         current.id = __reference.getIdentity();

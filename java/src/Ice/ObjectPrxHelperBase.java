@@ -45,13 +45,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final boolean
-    ice_isA(String __id, java.util.Map __context)
+    ice_isA(String __id, java.util.Map<String, String> __context)
     {
         return ice_isA(__id, __context, true);
     }
 
     private boolean
-    ice_isA(String __id, java.util.Map __context, boolean __explicitCtx)
+    ice_isA(String __id, java.util.Map<String, String> __context, boolean __explicitCtx)
     {
         if(__explicitCtx && __context == null)
         {
@@ -86,13 +86,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final void
-    ice_ping(java.util.Map __context)
+    ice_ping(java.util.Map<String, String> __context)
     {
         ice_ping(__context, true);
     }
 
     private void
-    ice_ping(java.util.Map __context, boolean __explicitCtx)
+    ice_ping(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
         if(__explicitCtx && __context == null)
         {
@@ -127,13 +127,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final String[]
-    ice_ids(java.util.Map __context)
+    ice_ids(java.util.Map<String, String> __context)
     {
         return ice_ids(__context, true);
     }
 
     private String[]
-    ice_ids(java.util.Map __context, boolean __explicitCtx)
+    ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
         if(__explicitCtx && __context == null)
         {
@@ -168,13 +168,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final String
-    ice_id(java.util.Map __context)
+    ice_id(java.util.Map<String, String> __context)
     {
         return ice_id(__context, true);
     }
 
     private String
-    ice_id(java.util.Map __context, boolean __explicitCtx)
+    ice_id(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
         if(__explicitCtx && __context == null)
         {
@@ -210,14 +210,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map context)
+               java.util.Map<String, String> context)
     {
         return ice_invoke(operation, mode, inParams, outParams, context, true);
     }
     
     private boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map context, boolean explicitCtx)
+               java.util.Map<String, String> context, boolean explicitCtx)
     {
         if(explicitCtx && context == null)
         {
@@ -260,7 +260,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
     public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-                     java.util.Map context)
+                     java.util.Map<String, String> context)
     {
         if(context == null)
         {
@@ -295,14 +295,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public final java.util.Map
+    public final java.util.Map<String, String>
     ice_getContext()
     {
         return _reference.getContext();
     }
 
     public final ObjectPrx
-    ice_context(java.util.Map newContext)
+    ice_context(java.util.Map<String, String> newContext)
     {
         return newInstance(_reference.changeContext(newContext));
     }
@@ -1052,7 +1052,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    protected static final java.util.Map _emptyContext = new java.util.HashMap();
+    protected static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
 
     private IceInternal.Reference _reference;
     private _ObjectDel _delegate;

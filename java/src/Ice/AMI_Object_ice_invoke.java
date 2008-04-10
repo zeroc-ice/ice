@@ -15,7 +15,7 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
     public abstract void ice_exception(LocalException ex);
 
     public final boolean __invoke(Ice.ObjectPrx prx, String operation, OperationMode mode,
-                                  byte[] inParams, java.util.Map context)
+                                  byte[] inParams, java.util.Map<String, String> context)
     {
         __acquireCallback(prx);
         try

@@ -12,7 +12,7 @@ package Ice;
 public class _ObjectDelM implements _ObjectDel
 {
     public boolean
-    ice_isA(String __id, java.util.Map __context)
+    ice_isA(String __id, java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         IceInternal.Outgoing __og = __handler.getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
@@ -59,7 +59,7 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public void
-    ice_ping(java.util.Map __context)
+    ice_ping(java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         IceInternal.Outgoing __og = __handler.getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
@@ -96,7 +96,7 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public String[]
-    ice_ids(java.util.Map __context)
+    ice_ids(java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         IceInternal.Outgoing __og = __handler.getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
@@ -134,7 +134,7 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public String
-    ice_id(java.util.Map __context)
+    ice_id(java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         IceInternal.Outgoing __og = __handler.getOutgoing("ice_id", OperationMode.Nonmutating, __context);
@@ -172,7 +172,7 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public boolean
-    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map<String, String> __context)
         throws IceInternal.LocalExceptionWrapper
     {
         IceInternal.Outgoing __og = __handler.getOutgoing(operation, mode, __context);
