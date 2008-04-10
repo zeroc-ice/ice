@@ -46,7 +46,7 @@ slice_translator = slice2sl.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-#SILVERLIGHT		= yes
+SILVERLIGHT		= yes
 
 bindir			= $(top_srcdir)\bin
 
