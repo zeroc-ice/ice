@@ -1,5 +1,5 @@
 ======================================================================
-Release notes for Ice 3.3b
+Release notes for Ice 3.3
 ======================================================================
 
 The sections below describe the new features and fixes included in
@@ -49,7 +49,7 @@ release.
 Non-blocking AMI
 ----------------
 
-Ice 3.3b includes an important change in the semantics of AMI
+Ice 3.3 includes an important change in the semantics of AMI
 requests: Ice now guarantees that the calling thread will never block
 when issuing an asynchronous invocation.
 
@@ -264,7 +264,7 @@ manual for further details.
 IPv6 and UDP multicast
 ----------------------
 
-Ice 3.3b includes support for IPv6 as well as UDP multicast. Both of
+Ice 3.3 includes support for IPv6 as well as UDP multicast. Both of
 these features are controlled via configuration properties.
 
 IPv6 is disabled by default, and can be enabled using the new property
@@ -527,7 +527,7 @@ additional information.
 5. Upgrading your application
 ======================================================================
 
-Ice 3.3b does not maintain backward binary compatibility with
+Ice 3.3 does not maintain backward binary compatibility with
 applications built using Ice 3.2, but every effort was made to
 preserve source compatibility. Note however that Ice always maintains
 protocol ("on the wire") compatibility with prior releases.
@@ -625,7 +625,7 @@ environments are stored:
 $ cd <new-location>
 
 Next, run the upgradeicegrid.py utility located in the `config'
-directory of your Ice distribution (or in /usr/share/Ice-3.3b if using
+directory of your Ice distribution (or in /usr/share/Ice-3.3.0 if using
 an RPM installation). The first argument is the path to the old
 database environment. The second argument is the path to the new
 database environment.
@@ -640,7 +640,7 @@ The migration is now complete, and the contents of the old database
 environment are now in the db directory.
 
 By default, the migration utility assumes that the servers deployed
-with IceGrid also use Ice 3.3b. If your servers still use an older Ice
+with IceGrid also use Ice 3.3. If your servers still use an older Ice
 version, you need to specify the --server-version command-line option
 when running upgradeicegrid.py:
 

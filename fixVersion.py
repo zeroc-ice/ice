@@ -348,7 +348,7 @@ if not patchIceE:
     #
     icephp_home = os.path.join(ice_dir, "php")
     if icephp_home:
-        print "**** Please update icephp/src/IcePHP/Profile.cpp: too difficult to parse! ****"
+        print "**** Please update php/src/IcePHP/Profile.cpp: too difficult to parse! ****"
         
     #
     # Fix version in IcePy
