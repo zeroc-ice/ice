@@ -146,7 +146,7 @@ namespace IceInternal
                     // Read the reply header.
                     //
                     s = response.GetResponseStream();
-                    readResponse(s, buf, sz, ref position);
+                    readResponse__(s, buf, sz, ref position);
 
                     //
                     // Determine size and read the rest of the reply.
@@ -154,7 +154,7 @@ namespace IceInternal
                     int remaining = BitConverter.ToInt32(buf.toArray(8, 4), 0);
                     is__.resize(sz + remaining, true);
                     buf = is__.prepareRead();
-                    readResponse(s, buf, remaining, ref position);
+                    readResponse__(s, buf, remaining, ref position);
                 }
                 catch(IOException ex)
                 {
@@ -227,27 +227,6 @@ namespace IceInternal
             return os__;
         }
 
-        private void readResponse(Stream s, ByteBuffer buf, int sz, ref int position)
-        {
-            int remaining = sz;
-            while(remaining > 0)
-            {
-                int ret = s.Read(buf.rawBytes(), position, remaining);
-                if(ret == 0)
-                {
-                    throw new Ice.IllegalMessageSizeException("expected " + sz + " bytes, received " +
-                                                              (sz - remaining) + " bytes");
-                }
-                if(traceLevels__.network >= 3)
-                {
-                    string str = "received " + ret + " of " + remaining + " bytes";
-                    logger__.trace(traceLevels__.networkCat, str);
-                }
-                remaining -= ret;
-                buf.position(position += ret);
-            }
-        }
-        
         private bool _oneway;
     }
 }

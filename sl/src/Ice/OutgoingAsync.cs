@@ -46,42 +46,27 @@ namespace IceInternal
                     return;
                 }
 
+                int sz = 12; // Reply header size
+                is__.resize(sz, true);
+                ByteBuffer buf = is__.prepareRead();
+                int position = 0;
+                is__.pos(position);
+
                 try
                 {
+                    //
+                    // Read the reply header.
+                    //
                     Stream stream = _response.GetResponseStream();
-                    int sz = 12; // Reply header size
-                    is__.resize(sz, true);
-                    ByteBuffer buf = is__.prepareRead();
-                    is__.pos(0);
+                    readResponse__(stream, buf, sz, ref position);
 
-                    int read = stream.Read(buf.rawBytes(), 0, sz);
-		    if(read != buf.limit())
-		    {
-			throw new Ice.IllegalMessageSizeException("expected " + buf.limit() + " bytes, received " +
-								  read + " bytes");
-		    }
-                    if(traceLevels__.network >= 3)
-                    {
-                        string str = "received " + read + " of " + read + " bytes";
-                        logger__.trace(traceLevels__.networkCat, str);
-                    }
-
-                    buf.position(sz);
+                    //
+                    // Determine size and read the rest of the reply.
+                    //
                     int remaining = BitConverter.ToInt32(buf.toArray(8, 4), 0);
                     is__.resize(sz + remaining, true);
                     buf = is__.prepareRead();
-
-                    read = stream.Read(buf.rawBytes(), sz, remaining);
-		    if(read != remaining)
-		    {
-			throw new Ice.IllegalMessageSizeException("expected " + remaining + " bytes, received " +
-								  read + " bytes");
-		    }
-                    if(traceLevels__.network >= 3)
-                    {
-                        string str = "received " + read + " of " + read + " bytes";
-                        logger__.trace(traceLevels__.networkCat, str);
-                    }
+                    readResponse__(stream, buf, remaining, ref position);
 
                     IceInternal.TraceUtil.traceReply("received asynchronous reply", is__, logger__, traceLevels__);
 		    bool ok = handleResponse__();

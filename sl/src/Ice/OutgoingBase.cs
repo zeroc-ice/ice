@@ -222,6 +222,28 @@ namespace IceInternal
                 throw new UnknownReplyStatusException();
             }
         }
+
+        protected void readResponse__(Stream s, ByteBuffer buf, int sz, ref int position)
+        {
+            int remaining = sz;
+            while(remaining > 0)
+            {
+                int ret = s.Read(buf.rawBytes(), position, remaining);
+                if(ret == 0)
+                {
+                    throw new Ice.IllegalMessageSizeException("expected " + sz + " bytes, received " +
+                                                              (sz - remaining) + " bytes");
+                }
+                if(traceLevels__.network >= 3)
+                {
+                    string str = "received " + ret + " of " + remaining + " bytes";
+                    logger__.trace(traceLevels__.networkCat, str);
+                }
+                remaining -= ret;
+                buf.position(position += ret);
+            }
+        }
+
         protected Uri bridgeUri__ = null;
         protected Logger logger__ = null;
         protected TraceLevels traceLevels__ = null;
