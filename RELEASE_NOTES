@@ -13,6 +13,7 @@ C++ Ice run time, they automatically benefit from fixes to the C++ Ice
 core even if those language mappings are not explicitly mentioned
 below.
 
+
 Table of Contents
 -----------------
 
@@ -37,6 +38,7 @@ Table of Contents
      - Deprecated APIs
   6. Platform specific notes
      - Solaris x86
+
 
 ======================================================================
 1. New Features

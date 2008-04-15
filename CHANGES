@@ -1,4 +1,21 @@
 ======================================================================
+Introduction
+======================================================================
+
+This file only includes changes since Ice 3.2.1. For the change
+history of prior releases, refer to the CHANGES file in the
+subdirectory of each language mapping (e.g., cpp/CHANGES).
+
+The entries below contain brief descriptions of the changes in a
+release, in no particular order. Some of the entries reflect
+significant new additions, while others represent minor corrections.
+We recommend that you use the release notes included in your Ice
+distribution as a guide for migrating your applications to this
+release, and the Ice manual for complete details on a particular
+aspect of Ice.
+
+
+======================================================================
 Changes since version 3.3b
 ======================================================================
 
@@ -37,18 +54,6 @@ PHP Changes
 ======================================================================
 Changes since version 3.2.1
 ======================================================================
-
-Please note that this file only includes changes since Ice 3.2.1. For
-the change history of prior releases, refer to the CHANGES file in
-the subdirectory of each language mapping (e.g., cpp/CHANGES).
-
-The entries below contain brief descriptions of the changes in this
-release, in no particular order. Some of the entries reflect
-significant new additions, while others represent minor corrections.
-We recommend that you use the release notes included in your Ice
-distribution as a guide for migrating your applications to this
-release, and the Ice manual for complete details on a particular
-aspect of Ice.
 
 
 General Changes
