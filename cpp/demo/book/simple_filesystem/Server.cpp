@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <FilesystemI.h>
 
