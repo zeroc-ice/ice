@@ -291,6 +291,11 @@ or
 
 $ java -jar IceGridGUI.jar
 
+On SuSE Linux Enterprise Server when using the IBM JRE, the GUI might
+warn about not being able to create the system preferences directory.
+To get rid of this warning, you can either run the icegridgui once as
+root or create the /usr/lib/jre/.systemPrefs directory (this directory
+should be world readable).
 
 ======================================================================
 Demos
