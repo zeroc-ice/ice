@@ -19,6 +19,8 @@
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
 
+#include <IceUtil/StringUtil.h>
+
 #include <openssl/err.h>
 
 #include <IceUtil/DisableWarnings.h>
@@ -299,7 +301,7 @@ IceSSL::Instance::initialize()
             if(!certFile.empty())
             {
                 vector<string> files;
-                if(!splitString(certFile, sep, false, files) || files.size() > 2)
+                if(!IceUtilInternal::splitString(certFile, sep, files) || files.size() > 2)
                 {
                     PluginInitializationException ex(__FILE__, __LINE__);
                     ex.reason = "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile;
@@ -359,7 +361,7 @@ IceSSL::Instance::initialize()
             if(!keyFile.empty())
             {
                 vector<string> files;
-                if(!splitString(keyFile, sep, false, files) || files.size() > 2)
+                if(!IceUtilInternal::splitString(keyFile, sep, files) || files.size() > 2)
                 {
                     PluginInitializationException ex(__FILE__, __LINE__);
                     ex.reason = "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile;

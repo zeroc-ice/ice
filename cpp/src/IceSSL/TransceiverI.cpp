@@ -450,9 +450,11 @@ IceSSL::TransceiverI::initialize()
                 {
                     desc = IceInternal::addrToString(remoteAddr);
                 }
+                ostringstream ostr;
+                ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
+                     << " connection:\nremote address = " << desc << "\n" << _instance->sslErrors();
                 ProtocolException ex(__FILE__, __LINE__);
-                ex.reason = "SSL error occurred for new incoming connection:\nremote address = " + desc + "\n" +
-                    _instance->sslErrors();
+                ex.reason = ostr.str();
                 throw ex;
             }
             }

@@ -48,21 +48,6 @@ private:
 #endif
 
 //
-// Wait for a socket to become readable.
-//
-bool selectRead(SOCKET, int);
-
-//
-// Wait for a socket to become writeable.
-//
-bool selectWrite(SOCKET, int);
-
-//
-// Split a string using the given delimiters.
-//
-bool splitString(const std::string&, const std::string&, bool, std::vector<std::string>&);
-
-//
 // Determine if a file or directory exists, with an optional default directory.
 //
 bool checkPath(std::string&, const std::string&, bool);

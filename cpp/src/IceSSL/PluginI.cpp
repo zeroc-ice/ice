@@ -11,12 +11,15 @@
 #include <IceSSL/Instance.h>
 #include <IceSSL/TransceiverI.h>
 #include <IceSSL/Util.h>
+
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
+
 #include <IceUtil/StaticMutex.h>
+#include <IceUtil/StringUtil.h>
 
 #include <Ice/ConnectionI.h> // For implementation of getConnectionInfo.
 
@@ -193,7 +196,7 @@ IceSSL::PluginI::setupSSL(const CommunicatorPtr& communicator)
             const string sep = ":";
 #endif
             string defaultDir = properties->getProperty("IceSSL.DefaultDir");
-            if(!splitString(randFiles, sep, false, files))
+            if(!IceUtilInternal::splitString(randFiles, sep, files))
             {
                 PluginInitializationException ex(__FILE__, __LINE__);
                 ex.reason = "IceSSL: invalid value for IceSSL.Random:\n" + randFiles;
