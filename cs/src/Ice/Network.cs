@@ -592,10 +592,17 @@ namespace IceInternal
             //
             setBlock(fd, fd.Blocking);
 
-            if(addr.Equals(fd.LocalEndPoint))
+            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.NonWindows)
             {
-                closeSocketNoThrow(fd);
-                throw new Ice.ConnectionRefusedException();
+                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to
+                // a server which was just deactivated if the client socket re-uses the same ephemeral
+                // port as the server).
+                //
+                if(addr.Equals(getLocalAddress(fd)))
+                {
+                    throw new Ice.ConnectionRefusedException();
+                }
             }
 
             return true;
@@ -666,29 +673,19 @@ namespace IceInternal
             //
             setBlock(fd, fd.Blocking);
 
-            //
-            // The RemoteEndPoint property can raise a SocketException with WSAENOTCONN
-            // even when EndConnect completes successfully. On Windows this only seems
-            // to occur when using IPv6; we ignore the error in this case.
-            //
-            EndPoint addr = null;
-            try
+            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.NonWindows)
             {
-                addr = fd.RemoteEndPoint;
-            }
-            catch(SocketException ex)
-            {
-                if(fd.AddressFamily != AddressFamily.InterNetworkV6)
+                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to
+                // a server which was just deactivated if the client socket re-uses the same ephemeral
+                // port as the server).
+                //
+                EndPoint remoteAddr = getRemoteAddress(fd);
+                if(remoteAddr != null && remoteAddr.Equals(getLocalAddress(fd)))
                 {
-                    throw new Ice.ConnectFailedException(ex);
+                    throw new Ice.ConnectionRefusedException();
                 }
             }
-
-            if(addr != null && addr.Equals(fd.LocalEndPoint))
-            {
-                throw new Ice.ConnectionRefusedException();
-            }
-
             return fd;
         }
 

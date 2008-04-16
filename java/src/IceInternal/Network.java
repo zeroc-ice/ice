@@ -357,10 +357,18 @@ public final class Network
             throw se;
         }
 
-        if(addr.equals(fd.socket().getLocalSocketAddress()))
+        if(System.getProperty("os.name").equals("Linux"))
         {
-            closeSocketNoThrow(fd);
-            throw new Ice.ConnectionRefusedException();
+            //
+            // Prevent self connect (self connect happens on Linux when a client tries to connect to
+            // a server which was just deactivated if the client socket re-uses the same ephemeral
+            // port as the server).
+            //
+            if(addr.equals(fd.socket().getLocalSocketAddress()))
+            {
+                closeSocketNoThrow(fd);
+                throw new Ice.ConnectionRefusedException();
+            }
         }
         return true;
     }
@@ -379,16 +387,19 @@ public final class Network
             {
                 throw new Ice.ConnectFailedException();
             }
-
-            //
-            // Prevent self connect (self connect happens on Linux when a client tries to connect to
-            // a server which was just deactivated if the client socket re-uses the same ephemeral
-            // port as the server).
-            //
-            java.net.SocketAddress addr = fd.socket().getRemoteSocketAddress();
-            if(addr != null && addr.equals(fd.socket().getLocalSocketAddress()))
+            
+            if(System.getProperty("os.name").equals("Linux"))
             {
-                throw new Ice.ConnectionRefusedException();
+                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to
+                // a server which was just deactivated if the client socket re-uses the same ephemeral
+                // port as the server).
+                //
+                java.net.SocketAddress addr = fd.socket().getRemoteSocketAddress();
+                if(addr != null && addr.equals(fd.socket().getLocalSocketAddress()))
+                {
+                    throw new Ice.ConnectionRefusedException();
+                }
             }
         }
         catch(java.net.ConnectException ex)
