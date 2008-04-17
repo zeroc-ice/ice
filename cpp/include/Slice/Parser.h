@@ -998,7 +998,7 @@ private:
     int _currentLine;
     int _currentIncludeLevel;
     std::string _currentFile;
-    bool _topLevelFileStart;
+    std::string _topLevelFile;
     std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;
     std::stack<ContainerPtr> _containerStack;
