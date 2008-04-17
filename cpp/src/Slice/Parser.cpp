@@ -5095,11 +5095,15 @@ Slice::Unit::scanPosition(const char* s)
 
     if(_currentLine == 0)
     {
-        if(currentFile != _topLevelFile)
+        if(!_topLevelFileStart)
         {
             type = Push;
             line.erase(idx);
             eraseWhiteSpace(line);
+        }
+        else
+        {
+            _topLevelFileStart = false;
         }
     }
     else
@@ -5487,7 +5491,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::Featur
     _currentLine = 1;
     _currentIncludeLevel = 0;
     _featureProfile = profile;
-    _topLevelFile = normalizePath(filename);
+    _topLevelFileStart = true;
     pushContainer(this);
     pushDefinitionContext();
 
