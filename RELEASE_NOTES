@@ -279,6 +279,9 @@ an appropriate IP address for your endpoints.
 Appendix D of the Ice manual explains the syntax for specifying IPv6
 and UDP multicast addresses in endpoints.
 
+Note that IPv6 is not currently supported in Java on Windows due to a
+bug in the JVM.
+
 
 Updated C# mapping
 ------------------
@@ -310,6 +313,7 @@ maps to:
 If you prefer to use the previous .NET 1.1 mapping to DictionaryBase,
 you will need to annotate your Slice definitions with the metadata
 tag "clr:collection".
+
 
 ======================================================================
 2. Ice for .NET
@@ -879,6 +883,7 @@ the use of these APIs as soon as possible.
   This property provided a means of installing a custom logger
   implementation. It has been replaced by the new configuration
   property Ice.Plugin.Logger.
+
 
 ======================================================================
 6. Platform specific notes
