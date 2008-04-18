@@ -173,7 +173,7 @@ icebox, iceboxnet, icepatch2server and related files.
 %package c++-devel
 Summary: Tools, libraries and headers for developing Ice applications in C++
 Group: Development/Tools
-Requires: ice-libs = %{version}-%{release}
+Requires: ice-libs = %{version}-%{release}, nptl-devel
 %description c++-devel
 Tools, libraries and headers for developing Ice applications in C++.
 
