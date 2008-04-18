@@ -20,6 +20,11 @@ using namespace std;
 namespace Ice
 {
 
+UnicodeWstringConverter::UnicodeWstringConverter(ConversionFlags flags) :
+    _conversionFlags(flags)
+{
+}
+
 Byte* 
 UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart, 
                                 const wchar_t* sourceEnd,
@@ -38,7 +43,7 @@ UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart,
 
     while((result =
           convertUTFWstringToUTF8(sourceStart, sourceEnd, 
-                                  targetStart, targetEnd, lenientConversion))
+                                  targetStart, targetEnd, _conversionFlags))
           == targetExhausted)
     {
         targetStart = buffer.getMoreBytes(chunkSize, targetStart);
@@ -74,7 +79,7 @@ UnicodeWstringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd
     }
 
     ConversionResult result = 
-        convertUTF8ToUTFWstring(sourceStart, sourceEnd, target, lenientConversion);
+        convertUTF8ToUTFWstring(sourceStart, sourceEnd, target, _conversionFlags);
 
     switch(result)
     {    

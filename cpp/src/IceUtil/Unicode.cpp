@@ -185,7 +185,7 @@ IceUtil::UTFConversionException::conversionError() const
 
 
 string
-IceUtil::wstringToString(const wstring& wstr)
+IceUtil::wstringToString(const wstring& wstr, ConversionFlags flags)
 {
     string target;
     
@@ -200,7 +200,7 @@ IceUtil::wstringToString(const wstring& wstr)
     ConversionResult cr = 
         convertUTFWstringToUTF8(
             sourceStart, sourceStart + wstr.size(), 
-            targetStart, targetEnd, lenientConversion);
+            targetStart, targetEnd, flags);
         
     if(cr != conversionOK)
     {
@@ -218,14 +218,14 @@ IceUtil::wstringToString(const wstring& wstr)
 }
 
 wstring
-IceUtil::stringToWstring(const string& str)
+IceUtil::stringToWstring(const string& str, ConversionFlags flags)
 {
     wstring result;
     const Byte* sourceStart = reinterpret_cast<const Byte*>(str.data());
     
     ConversionResult cr 
         = convertUTF8ToUTFWstring(sourceStart, sourceStart + str.size(),
-                                  result, lenientConversion);
+                                  result, flags);
 
     if(cr != conversionOK)
     {
@@ -245,27 +245,27 @@ IceUtil::stringToWstring(const string& str)
 
 #   if _MSC_VER < 1400
 string
-IceUtil::wstringToString(const basic_string<__wchar_t>& str)
+IceUtil::wstringToString(const basic_string<__wchar_t>& str, ConversionFlags flags)
 {
-    return wstringToString(*reinterpret_cast<const wstring*>(&str));
+    return wstringToString(*reinterpret_cast<const wstring*>(&str), flags);
 }
 
 basic_string<__wchar_t>
-IceUtil::stringToNativeWstring(const string& str)
+IceUtil::stringToNativeWstring(const string& str, ConversionFlags flags)
 {
-    return reinterpret_cast<basic_string<__wchar_t>& >(stringToWstring(str));
+    return reinterpret_cast<basic_string<__wchar_t>& >(stringToWstring(str, flags));
 }
 #   else
 string
-IceUtil::wstringToString(const basic_string<unsigned short>& str)
+IceUtil::wstringToString(const basic_string<unsigned short>& str, ConversionFlags flags)
 {
-    return wstringToString(*reinterpret_cast<const wstring*>(&str));
+    return wstringToString(*reinterpret_cast<const wstring*>(&str), flags);
 }
 
 basic_string<unsigned short>
-IceUtil::stringToTypedefWstring(const string& str)
+IceUtil::stringToTypedefWstring(const string& str, ConversionFlags flags)
 {
-    return reinterpret_cast<basic_string<unsigned short>& >(stringToWstring(str));
+    return reinterpret_cast<basic_string<unsigned short>& >(stringToWstring(str, flags));
 }
 
 #   endif

@@ -16,6 +16,12 @@
 namespace IceUtil
 {
 
+enum ConversionFlags
+{
+    strictConversion = 0,
+    lenientConversion
+};
+
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
 
 //
@@ -32,54 +38,54 @@ namespace IceUtil
 //
 
 #   if defined(_NATIVE_WCHAR_T_DEFINED)
-ICE_UTIL_API std::string wstringToString(const std::wstring&);
+ICE_UTIL_API std::string wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
 
 #      if _MSC_VER >= 1400
 //
 // Building or using with VC8
 //
-ICE_UTIL_API std::wstring stringToWstring(const std::string&);
-ICE_UTIL_API std::string wstringToString(const std::basic_string<unsigned short>&);
-ICE_UTIL_API std::basic_string<unsigned short> stringToTypedefWstring(const std::string&);
+ICE_UTIL_API std::wstring stringToWstring(const std::string&, ConversionFlags = lenientConversion);
+ICE_UTIL_API std::string wstringToString(const std::basic_string<unsigned short>&, ConversionFlags = lenientConversion);
+ICE_UTIL_API std::basic_string<unsigned short> stringToTypedefWstring(const std::string&, ConversionFlags = lenientConversion);
 #     else
 //
 // Using a VC7.x build with the non-default /Zc
 //
-ICE_UTIL_API std::wstring stringToNativeWstring(const std::string&);
+ICE_UTIL_API std::wstring stringToNativeWstring(const std::string&, ConversionFlags = lenientConversion);
 inline std::wstring 
-stringToWstring(const std::string& str)
+stringToWstring(const std::string& str, ConversionFlags flags = lenientConversion)
 {
-    return stringToNativeWstring(str);
+    return stringToNativeWstring(str, flags);
 }
 #     endif
 
 #   else
-ICE_UTIL_API std::string wstringToString(const std::wstring&);
+ICE_UTIL_API std::string wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
 
 #      if _MSC_VER < 1400
 //
 // Building or using with VC7.x
 //
-ICE_UTIL_API std::wstring stringToWstring(const std::string&);
-ICE_UTIL_API std::string wstringToString(const std::basic_string<__wchar_t>&);
-ICE_UTIL_API std::basic_string<__wchar_t> stringToNativeWstring(const std::string&);
+ICE_UTIL_API std::wstring stringToWstring(const std::string&, ConversionFlags = lenientConversion);
+ICE_UTIL_API std::string wstringToString(const std::basic_string<__wchar_t>&, ConversionFlags = lenientConversion);
+ICE_UTIL_API std::basic_string<__wchar_t> stringToNativeWstring(const std::string&, ConversionFlags = lenientConversion);
 #      else
 //
 // Using a VC8.x build the non-default /Zc
 //
-ICE_UTIL_API std::wstring stringToTypedefWstring(const std::string&);
+ICE_UTIL_API std::wstring stringToTypedefWstring(const std::string&, ConversionFlags = lenientConversion);
 inline std::wstring 
-stringToWstring(const std::string& str)
+stringToWstring(const std::string& str, ConversionFlags flags = lenientConversion)
 {
-    return stringToTypedefWstring(str);
+    return stringToTypedefWstring(str, flags);
 }
 #      endif
 #   endif
 
 #else
 
-ICE_UTIL_API std::string wstringToString(const std::wstring&);
-ICE_UTIL_API std::wstring stringToWstring(const std::string&);
+ICE_UTIL_API std::string wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
+ICE_UTIL_API std::wstring stringToWstring(const std::string&, ConversionFlags = lenientConversion);
 
 #endif
 
@@ -128,13 +134,6 @@ namespace IceUtilInternal
 // unicode.org
 //
 
-
-enum ConversionFlags 
-{
-    strictConversion = 0,
-    lenientConversion
-};
-
 enum ConversionResult
 {
         conversionOK,           /* conversion successful */
@@ -145,15 +144,15 @@ enum ConversionResult
 
 ICE_UTIL_API ConversionResult 
 convertUTFWstringToUTF8(const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
-                        IceUtil::Byte*& targetStart, IceUtil::Byte* targetEnd, ConversionFlags flags);
+                        IceUtil::Byte*& targetStart, IceUtil::Byte* targetEnd, IceUtil::ConversionFlags flags);
 
 ICE_UTIL_API ConversionResult
 convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd, 
-                        wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
+                        wchar_t*& targetStart, wchar_t* targetEnd, IceUtil::ConversionFlags flags);
 
 ICE_UTIL_API ConversionResult 
 convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd, 
-                        std::wstring& target, ConversionFlags flags);
+                        std::wstring& target, IceUtil::ConversionFlags flags);
 
 }
 

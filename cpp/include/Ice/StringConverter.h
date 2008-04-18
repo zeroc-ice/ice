@@ -14,6 +14,7 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
+#include <IceUtil/Unicode.h>
 
 #include <string>
 
@@ -70,9 +71,14 @@ class ICE_API UnicodeWstringConverter : public WstringConverter
 {
 public:
 
+    UnicodeWstringConverter(IceUtil::ConversionFlags = IceUtil::lenientConversion);
+
     virtual Byte* toUTF8(const wchar_t*, const wchar_t*, UTF8Buffer&) const;
 
     virtual void fromUTF8(const Byte*, const Byte*, std::wstring&) const;
+
+private:
+    const IceUtil::ConversionFlags _conversionFlags;
 };
 
 #ifdef _WIN32
