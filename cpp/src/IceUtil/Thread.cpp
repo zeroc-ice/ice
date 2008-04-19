@@ -148,15 +148,11 @@ WINAPI startHook(void* arg)
         rawThread->__decRef();
         thread->run();
     }
-    catch(const IceUtil::Exception& e)
-    {
-        cerr << "IceUtil::Thread::run(): uncaught exception: ";
-        cerr << e << endl;
-    } 
     catch(...)
     {
-        cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
+        std::terminate();
     }
+
     thread->_done();
    
     return 0;
@@ -366,15 +362,11 @@ startHook(void* arg)
         rawThread->__decRef();
         thread->run();
     }
-    catch(const IceUtil::Exception& e)
-    {
-        cerr << "IceUtil::Thread::run(): uncaught exception: ";
-        cerr << e << endl;
-    }
     catch(...)
     {
-        cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
+        std::terminate();
     }
+
     thread->_done();
     
     return 0;
