@@ -17,7 +17,7 @@ using namespace IceRuby;
 
 extern "C"
 VALUE
-IceRuby_version(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
+IceRuby_stringVersion(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
@@ -28,10 +28,23 @@ IceRuby_version(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
     return Qnil;
 }
 
+extern "C"
+VALUE
+IceRuby_intVersion(int /*argc*/, VALUE* /*argv*/, VALUE /*self*/)
+{
+    ICE_RUBY_TRY
+    {
+        return INT2FIX(ICE_INT_VERSION);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
 void
 IceRuby::initUtil(VALUE iceModule)
 {
-    rb_define_module_function(iceModule, "version", CAST_METHOD(IceRuby_version), -1);
+    rb_define_module_function(iceModule, "stringVersion", CAST_METHOD(IceRuby_stringVersion), -1);
+    rb_define_module_function(iceModule, "intVersion", CAST_METHOD(IceRuby_intVersion), -1);
 }
 
 IceRuby::RubyException::RubyException()

@@ -23,6 +23,11 @@ Changes since version 3.3b
 Java Changes
 ============
 
+- Deprecated the class IceUtil.Version.
+
+- Added the methods stringVersion and intVersion to Ice.Util for
+  obtaining the Ice version.
+
 - Fixed a NullPointerException thrown when allocating an InputStream
   with an empty buffer.
 
@@ -32,6 +37,9 @@ Java Changes
 
 C# Changes
 ==========
+
+- Added the methods stringVersion and intVersion to Ice.Util for
+  obtaining the Ice version.
 
 - Fixed a NullReferenceException thrown when allocating an InputStream
   with an empty buffer.
@@ -49,6 +57,23 @@ PHP Changes
 
 - A null value is now allowed where a sequence or dictionary value is
   expected.
+
+- Replaced the Ice_version method with Ice_stringVersion, and added
+  Ice_intVersion.
+
+
+Python Changes
+==============
+
+- Replaced the Ice.version method with Ice.stringVersion, and added
+  Ice.intVersion.
+
+
+Ruby Changes
+============
+
+- Replaced the Ice::version method with Ice::stringVersion, and added
+  Ice::intVersion.
 
 
 ======================================================================

@@ -29,8 +29,10 @@ extern "C" PyObject* Ice_registerTypes(PyObject*, PyObject*);
 
 static PyMethodDef methods[] =
 {
-    { STRCAST("version"), reinterpret_cast<PyCFunction>(IcePy_version), METH_NOARGS,
-        PyDoc_STR(STRCAST("version() -> string")) },
+    { STRCAST("stringVersion"), reinterpret_cast<PyCFunction>(IcePy_stringVersion), METH_NOARGS,
+        PyDoc_STR(STRCAST("stringVersion() -> string")) },
+    { STRCAST("intVersion"), reinterpret_cast<PyCFunction>(IcePy_intVersion), METH_NOARGS,
+        PyDoc_STR(STRCAST("intVersion() -> int")) },
     { STRCAST("generateUUID"), reinterpret_cast<PyCFunction>(IcePy_generateUUID), METH_NOARGS,
         PyDoc_STR(STRCAST("generateUUID() -> string")) },
     { STRCAST("createProperties"), reinterpret_cast<PyCFunction>(IcePy_createProperties), METH_VARARGS,

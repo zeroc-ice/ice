@@ -876,10 +876,17 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 
 extern "C"
 PyObject*
-IcePy_version(PyObject* /*self*/)
+IcePy_stringVersion(PyObject* /*self*/)
 {
     string s = ICE_STRING_VERSION;
     return IcePy::createString(s);
+}
+
+extern "C"
+PyObject*
+IcePy_intVersion(PyObject* /*self*/)
+{
+    return PyInt_FromLong(ICE_INT_VERSION);
 }
 
 extern "C"

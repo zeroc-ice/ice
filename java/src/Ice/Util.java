@@ -340,6 +340,18 @@ public final class Util
         }
     }
 
+    public static String
+    stringVersion()
+    {
+        return "3.3.0"; // "A.B.C", with A=major, B=minor, C=patch
+    }
+
+    public static int
+    intVersion()
+    {
+        return 30300; // AABBCC, with AA=major, BB=minor, CC=patch
+    }
+
     private static String _localAddress = null;
     private static java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger = null;

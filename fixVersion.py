@@ -298,6 +298,10 @@ if not patchIceE:
                             [("ICE_STRING_VERSION = \"" + vpatMatch +"\"", version), \
                              ("ICE_INT_VERSION = ([0-9]*)", intVersion(version))])
 
+        fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "Util.java"),
+                            [("return \"" + vpatMatch +"\".*A=major", version), \
+                             ("return ([0-9]*).*AA=major", intVersion(version))])
+
         fileMatchAndReplace(os.path.join(icej_home, "demo", "IceStorm", "clock", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
@@ -326,6 +330,10 @@ if not patchIceE:
                                 [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0",
                                  majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))],
                                 False) # Disable warnings as many files might not have SSL configuration
+
+        fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
+                            [("return \"" + vpatMatch +"\".*A=major", version), \
+                             ("return ([0-9]*).*AA=major", intVersion(version))])
 
 
     #
