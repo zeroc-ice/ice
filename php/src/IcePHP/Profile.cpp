@@ -81,9 +81,6 @@ private:
 // necessary to IcePHP::throwException.
 //
 static const char* _coreTypes =
-    "define(\"ICE_STRING_VERSION\", \"3.3.0\");\n"
-    "define(\"ICE_INT_VERSION\", 30300);\n"
-    "\n"
     "abstract class Ice_Exception extends Exception\n"
     "{\n"
     "    function __construct($message = '')\n"

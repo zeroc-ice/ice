@@ -354,10 +354,9 @@ if not patchIceE:
     #
     # Fix version in PHP sources
     #
-    icephp_home = os.path.join(ice_dir, "php")
-    if icephp_home:
-        print "**** Please update php/src/IcePHP/Profile.cpp: too difficult to parse! ****"
-        
+    #icephp_home = os.path.join(ice_dir, "php")
+    #if icephp_home:
+
     #
     # Fix version in IcePy
     #
@@ -371,11 +370,10 @@ if not patchIceE:
         fileMatchAndReplace(os.path.join(icepy_home, "demo", "Ice", "bidir", "Client.py"),
                             [("Ice-" + vpatMatch, version)])
 
-
     #
     # Fix version in IceRuby
     #
-    #icerb_home = os.path.join(ice_dir, "rb", os.path.join("src", "IceRuby", "Config.h"))
+    #icerb_home = os.path.join(ice_dir, "rb")
     #if icerb_home:
 
     sys.exit(0)

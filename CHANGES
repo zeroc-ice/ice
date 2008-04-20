@@ -61,6 +61,9 @@ PHP Changes
 - Replaced the Ice_version method with Ice_stringVersion, and added
   Ice_intVersion.
 
+- Removed the undocumented PHP constants ICE_STRING_VERSION and
+  ICE_INT_VERSION.
+
 
 Python Changes
 ==============
