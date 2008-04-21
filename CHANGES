@@ -19,6 +19,10 @@ aspect of Ice.
 Changes since version 3.3b
 ======================================================================
 
+C++ Changes
+===========
+
+- Fixed potential Slice parser assert.
 
 Java Changes
 ============

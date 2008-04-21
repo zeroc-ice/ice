@@ -7,17 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef _SLICE_UTIL_H
-#define _SLICEP_UTIL_H
+#ifndef SLICE_UTIL_H
+#define SLICE_UTIL_H
 
 #include <Slice/Parser.h>
 
 namespace Slice
 {
 
-SLICE_API std::string getCwd();
 SLICE_API bool isAbsolute(const std::string&);
-SLICE_API std::string normalizePath(const std::string&, bool = false);
+SLICE_API std::string fullPath(const std::string&);
+SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
 
 }
 

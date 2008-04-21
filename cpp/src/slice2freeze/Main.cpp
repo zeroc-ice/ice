@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <Slice/SignalHandler.h>
@@ -1848,10 +1849,7 @@ main(int argc, char* argv[])
         {
             for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
             {
-                if(p->length() && (*p)[p->length() - 1] != '/')
-                {
-                    *p += '/';
-                }
+                *p = fullPath(*p);
             }
         }
 

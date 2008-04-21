@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Gen.h>
+#include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <Slice/SignalHandler.h>
 #include <IceUtil/Functional.h>
@@ -89,10 +90,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
 
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
-        if(p->length() && (*p)[p->length() - 1] != '/')
-        {
-            *p += '/';
-        }
+        *p = fullPath(*p);
     }
 
     string::size_type pos = _base.find_last_of("/\\");
