@@ -19,6 +19,7 @@ aspect of Ice.
 Changes since version 3.3b
 ======================================================================
 
+
 C++ Changes
 ===========
 
@@ -28,6 +29,9 @@ C++ Changes
 
 - The IceUtil::Timer schedule and scheduleRepeated methods now throw
   IceUtil::IllegalArgumentException if the timer is destroyed.
+
+- Fixed potential Slice parser assert.
+
 
 Java Changes
 ============

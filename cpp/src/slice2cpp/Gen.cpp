@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Gen.h>
+#include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
@@ -68,10 +69,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
 
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
-        if(p->length() && (*p)[p->length() - 1] != '/')
-        {
-            *p += '/';
-        }
+        *p = fullPath(*p);
     }
 
     string::size_type pos = _base.find_last_of("/\\");
@@ -155,8 +153,8 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
 
     printHeader(H);
     printHeader(C);
-    H << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
-    C << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
+    H << "\n// Generated from file `" << _base << ".ice'\n";
+    C << "\n// Generated from file `" << _base << ".ice'\n";
 
     string s = fileH;
     if(_include.size())

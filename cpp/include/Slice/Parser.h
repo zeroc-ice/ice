@@ -999,6 +999,7 @@ private:
     int _currentIncludeLevel;
     std::string _currentFile;
     std::string _topLevelFile;
+    std::map<std::string, std::string> _fullPaths;
     std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;
     std::stack<ContainerPtr> _containerStack;

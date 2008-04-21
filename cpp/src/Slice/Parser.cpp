@@ -5087,7 +5087,15 @@ Slice::Unit::scanPosition(const char* s)
         }
     }
 
-    currentFile = normalizePath(currentFile, false);
+    //
+    // Cache full paths to avoid too many full path computations.
+    //
+    map<string, string>::const_iterator p = _fullPaths.find(currentFile);
+    if(p == _fullPaths.end())
+    {
+        p =  _fullPaths.insert(make_pair(currentFile, fullPath(currentFile))).first;
+    }
+    currentFile = p->second;
 
     enum LineType { File, Push, Pop };
 
@@ -5487,7 +5495,8 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::Featur
     _currentLine = 1;
     _currentIncludeLevel = 0;
     _featureProfile = profile;
-    _topLevelFile = normalizePath(filename);
+    _topLevelFile = fullPath(filename);
+    _fullPaths[filename] = _topLevelFile;
     pushContainer(this);
     pushDefinitionContext();
 

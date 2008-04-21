@@ -1600,46 +1600,6 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
     }
 }
 
-static string
-changeInclude(const string& inc, const vector<string>& includePaths)
-{
-    string orig = normalizePath(inc);
-    string curr = orig; // The current shortest pathname.
-    string cwd = getCwd();
-
-    //
-    // Compare the pathname of the included file against each of the include directories.
-    // If any of the include directories match the leading part of the included file,
-    // then select the include directory whose removal results in the shortest pathname.
-    //
-    for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
-    {
-        string includePath = *p;
-        if(isAbsolute(orig) && !isAbsolute(includePath))
-        {
-            includePath = cwd + "/" + includePath;
-        }
-        includePath = normalizePath(includePath);
-
-        if(orig.compare(0, includePath.size(), includePath) == 0)
-        {
-            string s = orig.substr(includePath.size());
-            if(s.size() < curr.size())
-            {
-                curr = s;
-            }
-        }
-    }
-
-    string::size_type pos = curr.rfind('.');
-    if(pos != string::npos)
-    {
-        curr.erase(pos);
-    }
-
-    return curr;
-}
-
 void
 Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
@@ -1650,11 +1610,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<s
         vector<string> paths = includePaths;
         for(vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
         {
-            if(p->size() && (*p)[p->size() - 1] != '/')
-            {
-                *p += '/';
-            }
-            *p = normalizePath(*p);
+            *p = fullPath(*p);
         }
 
         StringList includes = un->includeFiles();
