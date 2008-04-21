@@ -560,7 +560,10 @@ Glacier2::CreateSession::sessionCreated(const SessionPrx& session)
     }
     catch(const Ice::Exception& ex)
     {
-        session->destroy_async(new DestroyCB(0, 0));
+        if(session)
+        {
+            session->destroy_async(new DestroyCB(0, 0));
+        }
         unexpectedCreateSessionException(ex);
         return;
     }
