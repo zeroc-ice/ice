@@ -55,7 +55,7 @@ public final class Timer extends Thread
     {
         if(_instance == null)
         {
-            return;
+            throw new Ice.CommunicatorDestroyedException();
         }
 
         final Token token = new Token(IceInternal.Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
@@ -75,7 +75,7 @@ public final class Timer extends Thread
     {
         if(_instance == null)
         {
-            return;
+            throw new Ice.CommunicatorDestroyedException();
         }
 
         final Token token = new Token(IceInternal.Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);

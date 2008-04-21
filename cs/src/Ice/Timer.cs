@@ -45,7 +45,7 @@ namespace IceInternal
             {
                 if(_instance == null)
                 {
-                    return;
+                    throw new Ice.CommunicatorDestroyedException();
                 }
 
                 Token token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
@@ -73,7 +73,7 @@ namespace IceInternal
             {
                 if(_instance == null)
                 {
-                    return;
+                    throw new Ice.CommunicatorDestroyedException();
                 }
 
                 Token token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);

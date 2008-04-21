@@ -98,6 +98,44 @@ private:
 };
 typedef IceUtil::Handle<TestTask> TestTaskPtr;
 
+
+class DestroyTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    DestroyTask(const IceUtil::TimerPtr& timer) : _timer(timer), _run(false)
+    {
+    }
+
+    virtual void 
+    runTimerTask()
+    {
+        Lock sync(*this);
+        _timer->destroy();
+        _run = true;
+        notify();
+    }
+
+    virtual void
+    waitForRun()
+    {
+        Lock sync(*this);
+        while(!_run)
+        {
+            if(!timedWait(IceUtil::Time::seconds(10)))
+            {
+                test(false); // Timeout.
+            }
+        }
+    }
+
+private:
+
+    IceUtil::TimerPtr _timer;
+    bool _run;
+};
+typedef IceUtil::Handle<DestroyTask> DestroyTaskPtr;
+
 int main(int argc, char* argv[])
 {
     cout << "testing timer... " << flush;
@@ -183,5 +221,39 @@ int main(int argc, char* argv[])
         timer->destroy();
     }
     cout << "ok" << endl;
+
+    cout << "testing timer destroy... " << flush;
+    {
+        {
+            IceUtil::TimerPtr timer = new IceUtil::Timer();
+            DestroyTaskPtr destroyTask = new DestroyTask(timer);
+            timer->schedule(destroyTask, IceUtil::Time());
+            destroyTask->waitForRun();
+            try
+            {
+                timer->schedule(destroyTask, IceUtil::Time());
+            }
+            catch(const IceUtil::IllegalArgumentException&)
+            {
+                // Expected;
+            }
+        }
+        {
+            IceUtil::TimerPtr timer = new IceUtil::Timer();
+            TestTaskPtr testTask = new TestTask();
+            timer->schedule(testTask, IceUtil::Time());
+            timer->destroy();
+            try
+            {
+                timer->schedule(testTask, IceUtil::Time());
+            }
+            catch(const IceUtil::IllegalArgumentException&)
+            {
+                // Expected;
+            }
+        }
+    }
+    cout << "ok" << endl;
+
     return EXIT_SUCCESS;
 }

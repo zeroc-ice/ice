@@ -32,7 +32,15 @@ Timer::destroy()
         _tasks.clear();
         _tokens.clear();
     }
-    getThreadControl().join();
+
+    if(getThreadControl() == ThreadControl())
+    {
+        getThreadControl().detach();
+    }
+    else
+    {
+        getThreadControl().join();
+    }
 }
 
 void
@@ -41,7 +49,7 @@ Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& delay)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     if(_destroyed)
     {
-        return;
+        throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
     }
 
     IceUtil::Time time = IceUtil::Time::now(IceUtil::Time::Monotonic) + delay;
@@ -64,7 +72,7 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     if(_destroyed)
     {
-        return;
+        throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
     }
 
     const Token token(IceUtil::Time::now(IceUtil::Time::Monotonic) + delay, delay, task);

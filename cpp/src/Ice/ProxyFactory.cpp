@@ -248,7 +248,14 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
     {
         if(out)
         {
-            _instance->timer()->schedule(new RetryTask(out), IceUtil::Time::milliSeconds(interval));
+            try
+            {
+                _instance->timer()->schedule(new RetryTask(out), IceUtil::Time::milliSeconds(interval));
+            }
+            catch(const IceUtil::IllegalArgumentException&) // Expected if the communicator destroyed the timer.
+            {
+                throw CommunicatorDestroyedException(__FILE__, __LINE__); 
+            }
         }
         else
         {
