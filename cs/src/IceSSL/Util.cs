@@ -194,8 +194,15 @@ namespace IceSSL
             ConnectionInfo info = new ConnectionInfo();
             info.certs = certs;
             info.cipher = stream.CipherAlgorithm.ToString();
-            info.localAddr = (System.Net.IPEndPoint)fd.LocalEndPoint;
-            info.remoteAddr = (System.Net.IPEndPoint)fd.RemoteEndPoint;
+            try
+            {
+                info.localAddr = (System.Net.IPEndPoint)fd.LocalEndPoint;
+                info.remoteAddr = (System.Net.IPEndPoint)fd.RemoteEndPoint;
+            }
+            catch(System.Net.Sockets.SocketException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
             info.incoming = incoming;
             info.adapterName = adapterName;
             return info;

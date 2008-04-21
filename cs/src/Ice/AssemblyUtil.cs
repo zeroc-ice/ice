@@ -44,11 +44,15 @@ namespace IceInternal
             {
                 runtime_ = Runtime.DotNET;
             }
+
             System.Version v = System.Environment.Version;
             runtimeMajor_ = v.Major;
             runtimeMinor_ = v.Minor;
             runtimeBuild_ = v.Build;
             runtimeRevision_ = v.Revision;
+
+            v = System.Environment.OSVersion.Version;
+            xp_ = v.Major == 5 && v.Minor == 1; // Are we running on XP?
         }
 
         public static Type findType(string csharpId)
@@ -183,6 +187,7 @@ namespace IceInternal
         public readonly static int runtimeRevision_;
 
         public readonly static Platform platform_;
+        public readonly static bool xp_;
     }
 
 }

@@ -799,8 +799,19 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection_async(
     try
     {
         IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(current.con);
-        sslinfo.remotePort = IceInternal::getPort(info.remoteAddr);
-        sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
+        if(info.remoteAddr.ss_family == AF_UNSPEC)
+        {
+            //
+            // The remote address may not be available on Windows XP SP2 when using IPv6.
+            //
+            sslinfo.remotePort = 0;
+            sslinfo.remoteHost = "";
+        }
+        else
+        {
+            sslinfo.remotePort = IceInternal::getPort(info.remoteAddr);
+            sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
+        }
         sslinfo.localPort = IceInternal::getPort(info.localAddr);
         sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr);
 

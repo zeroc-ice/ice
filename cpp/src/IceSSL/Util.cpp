@@ -358,9 +358,23 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd, const string& adapterName, b
 
     if(!IceInternal::fdToRemoteAddress(fd, info.remoteAddr))
     {
+#ifdef _WIN32
+        //
+        // A bug exists in Windows XP Service Pack 2 that causes getpeername to return a
+        // "socket not connected" error when using IPv6. See the following bug report:
+        //
+        // https://connect.microsoft.com/WNDP/feedback/ViewFeedback.aspx?FeedbackID=338445
+        //
+        // As a workaround, we do not raise a socket exception, but instead return a
+        // "null" value for the remote address.
+        //
+        memset(&info.remoteAddr, 0, sizeof(info.remoteAddr));
+        info.remoteAddr.ss_family = AF_UNSPEC;
+#else
         SocketException ex(__FILE__, __LINE__);
         ex.error = IceInternal::getSocketErrno();
         throw ex;       
+#endif
     }
 
     return info;

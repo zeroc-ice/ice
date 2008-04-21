@@ -445,7 +445,7 @@ IceSSL::TransceiverI::initialize()
             case SSL_ERROR_SSL:
             {
                 struct sockaddr_storage remoteAddr;
-                string desc;
+                string desc = "<not available>";
                 if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
                 {
                     desc = IceInternal::addrToString(remoteAddr);

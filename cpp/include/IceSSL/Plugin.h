@@ -381,6 +381,12 @@ struct ConnectionInfo
     //
     // The remote TCP/IP host & port.
     //
+    // NOTE:
+    //
+    // This value may not be available when using IPv6 on Windows XP SP2 due to a bug in
+    // the IPv6 implementation. In this case, remoteAddr.ss_family is set to AF_UNSPEC and
+    // the remainder of the value is filled with zeroes.
+    //
     struct sockaddr_storage remoteAddr;
 
     //

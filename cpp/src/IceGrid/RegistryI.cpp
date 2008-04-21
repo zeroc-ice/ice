@@ -1227,16 +1227,29 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     try
     {
         IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(connection);
-        if(info.remoteAddr.ss_family == AF_INET)
+
+        if(info.remoteAddr.ss_family == AF_UNSPEC)
         {
-            sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in*>(&info.remoteAddr)->sin_port);
+            //
+            // The remote address may not be available on Windows XP SP2 when using IPv6.
+            //
+            sslinfo.remotePort = 0;
+            sslinfo.remoteHost = "";
         }
         else
         {
-            sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in6*>(&info.remoteAddr)->sin6_port);
+            if(info.remoteAddr.ss_family == AF_INET)
+            {
+                sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in*>(&info.remoteAddr)->sin_port);
+            }
+            else
+            {
+                sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in6*>(&info.remoteAddr)->sin6_port);
+            }
+            sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
         }
-        sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
-        if(info.remoteAddr.ss_family == AF_INET)
+
+        if(info.localAddr.ss_family == AF_INET)
         {
             sslinfo.localPort = ntohs(reinterpret_cast<sockaddr_in*>(&info.localAddr)->sin_port);
         }

@@ -107,14 +107,38 @@ TrustManager::verify(const ConnectionInfo& info)
                       << "subject = " << string(subject) << '\n'
                       << "adapter = " << info.adapterName << '\n'
                       << "local addr = " << IceInternal::addrToString(info.localAddr) << '\n'
-                      << "remote addr = " << IceInternal::addrToString(info.remoteAddr);
+                      << "remote addr = ";
+                if(info.remoteAddr.ss_family == AF_UNSPEC)
+                {
+                    //
+                    // The remote address may not be available when using Windows XP Service Pack 2
+                    // and IPv6 (see populateConnectionInfo).
+                    //
+                    trace << "<not available>";
+                }
+                else
+                {
+                    trace << IceInternal::addrToString(info.remoteAddr);
+                }
             }
             else
             {
                 trace << "trust manager evaluating server:\n"
                       << "subject = " << string(subject) << '\n'
                       << "local addr = " << IceInternal::addrToString(info.localAddr) << '\n'
-                      << "remote addr = " << IceInternal::addrToString(info.remoteAddr);
+                      << "remote addr = ";
+                if(info.remoteAddr.ss_family == AF_UNSPEC)
+                {
+                    //
+                    // The remote address may not be available when using Windows XP Service Pack 2
+                    // and IPv6 (see populateConnectionInfo).
+                    //
+                    trace << "<not available>";
+                }
+                else
+                {
+                    trace << IceInternal::addrToString(info.remoteAddr);
+                }
             }
         }
         
