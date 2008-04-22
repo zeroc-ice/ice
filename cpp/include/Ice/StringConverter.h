@@ -11,6 +11,8 @@
 #define ICE_STRING_CONVERTER_H
 
 #include <Ice/Config.h>
+#include <Ice/CommunicatorF.h>
+#include <Ice/Plugin.h>
 #include <IceUtil/Exception.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -102,6 +104,25 @@ private:
     UnicodeWstringConverter _unicodeWstringConverter;
 };
 #endif
+
+
+//
+// A special plugin that sets stringConverter and wstringConverter during
+// construction (when the provided stringConverter resp. wstringConverter
+// are not null). Both initialize and destroy are no-op. See Ice::InitializationData.
+//
+
+class ICE_API StringConverterPlugin : public Ice::Plugin
+{
+public:
+
+    StringConverterPlugin(const CommunicatorPtr& communicator, 
+                          const StringConverterPtr&, const WstringConverterPtr& = 0);
+
+    virtual void initialize();
+
+    virtual void destroy();
+};
 
 }
 #endif

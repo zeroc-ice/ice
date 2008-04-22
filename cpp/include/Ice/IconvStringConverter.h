@@ -73,7 +73,7 @@ private:
 #else    
     mutable pthread_key_t _key;
 #endif
-    const char* _internalCode;
+    const std::string _internalCode;
 };
 
 //
@@ -159,7 +159,7 @@ IconvStringConverter<charT>::createDescriptors() const
 
     const char* externalCode = "UTF-8";
 
-    cdp.first = iconv_open(_internalCode, externalCode);
+    cdp.first = iconv_open(_internalCode.c_str(), externalCode);
     if(cdp.first == iconv_t(-1))
     {
 	throw Ice::StringConversionException(
@@ -168,7 +168,7 @@ IconvStringConverter<charT>::createDescriptors() const
 	    + externalCode + " to " + _internalCode);			   
     }
     
-    cdp.second = iconv_open(externalCode, _internalCode);
+    cdp.second = iconv_open(externalCode, _internalCode.c_str());
     if(cdp.second == iconv_t(-1))
     {
 	iconv_close(cdp.first);
@@ -271,7 +271,14 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
 
     if(count == size_t(-1))
     {
-	throw Ice::StringConversionException(__FILE__, __LINE__);
+       std::string msg = "Unknown error";
+#ifndef ICE_NO_ERRNO
+        if(errno != 0)
+        {
+            msg = strerror(errno);
+        }
+#endif
+	throw Ice::StringConversionException(__FILE__, __LINE__, msg);
     }
     return outbuf;
 }
@@ -341,8 +348,15 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 
     if(count == size_t(-1))
     {
+        std::string msg = "Unknown error";
+#ifndef ICE_NO_ERRNO
+        if(errno != 0)
+        {
+            msg = strerror(errno);
+        }
+#endif
 	free(buf);
-	throw Ice::StringConversionException(__FILE__, __LINE__);
+	throw Ice::StringConversionException(__FILE__, __LINE__, msg);
     }
     
     size_t length = (bufsize - outbytesleft) / sizeof(charT);

@@ -96,6 +96,9 @@ public:
     void setDefaultLocator(const Ice::LocatorPrx&);
     void setDefaultRouter(const Ice::RouterPrx&);
 
+    void setStringConverter(const Ice::StringConverterPtr&);
+    void setWstringConverter(const Ice::WstringConverterPtr&);
+
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);

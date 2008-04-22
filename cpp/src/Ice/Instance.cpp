@@ -739,6 +739,24 @@ IceInternal::Instance::setDefaultRouter(const Ice::RouterPrx& defaultRouter)
     _referenceFactory = _referenceFactory->setDefaultRouter(defaultRouter);
 }
 
+void
+IceInternal::Instance::setStringConverter(const Ice::StringConverterPtr& stringConverter)
+{
+    //
+    // No locking, as it can only be called during plugin loading
+    //
+    _initData.stringConverter = stringConverter;
+}
+
+void
+IceInternal::Instance::setWstringConverter(const Ice::WstringConverterPtr& wstringConverter)
+{
+    //
+    // No locking, as it can only be called during plugin loading
+    //
+    _initData.wstringConverter = wstringConverter;
+}
+
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),

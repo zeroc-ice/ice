@@ -11,6 +11,8 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/ScopedArray.h>
+#include <Ice/Initialize.h>
+#include <Ice/Instance.h>
 #include <Ice/LocalException.h>
 
 using namespace IceUtil;
@@ -179,5 +181,36 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 }
 
 #endif
+
+StringConverterPlugin::StringConverterPlugin(const CommunicatorPtr& communicator,
+                                             const StringConverterPtr& stringConverter, 
+                                             const WstringConverterPtr& wstringConverter)
+{
+    if(communicator == 0)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+    }
+    
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+
+    if(stringConverter != 0)
+    {
+        instance->setStringConverter(stringConverter);
+    }
+    if(wstringConverter != 0)
+    {
+        instance->setWstringConverter(wstringConverter);
+    }
+}
+
+void
+StringConverterPlugin::initialize()
+{
+}
+
+void
+StringConverterPlugin::destroy()
+{
+}
 
 }
