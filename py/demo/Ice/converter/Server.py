@@ -14,8 +14,14 @@ Ice.loadSlice('Greet.ice')
 import Demo
 
 def decodeString(str):
-    # TODO: implement properly!
-    return str
+    ret = ""
+    for i in range(0, len(str)):
+        n = ord(str[i])
+        if n < 32 or n > 126:
+            ret += "\\" + oct(n)[1:] # Skip leading '0'
+        else:
+            ret += str[i]
+    return ret
 
 class GreatI(Demo.Greet):
     def exchangeGreeting(self, msg, current=None):
@@ -25,7 +31,6 @@ class GreatI(Demo.Greet):
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
-        
 
 class Server(Ice.Application):
     def run(self, args):

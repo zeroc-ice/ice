@@ -24,8 +24,14 @@ x: exit
 """
 
 def decodeString(str):
-    # TODO: implement properly!
-    return str
+    ret = ""
+    for i in range(0, len(str)):
+        n = ord(str[i])
+        if n < 32 or n > 126:
+            ret += "\\" + oct(n)[1:] # Skip leading '0'
+        else:
+            ret += str[i]
+    return ret
 
 communicator1 = None
 communicator2 = None
@@ -78,8 +84,6 @@ class Client:
 
         return 0
 
-
-
 status = 0
 
 try:
@@ -104,7 +108,6 @@ try:
 except:
     traceback.print_exc()
     status = 1
-
 
 if communicator1:
     try:
