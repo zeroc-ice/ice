@@ -7,6 +7,12 @@
 //
 // **********************************************************************
 
+//
+// NOTE: We don't use C# timers, the API is quite a bit different from
+// the C++ & Java timers and it's not clear what is the cost of
+// scheduling and cancelling timers.
+//
+
 namespace IceInternal
 {
     using System.Diagnostics;

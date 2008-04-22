@@ -9,6 +9,15 @@
 
 package IceInternal;
 
+//
+// NOTE: We don't use the java.util.Timer class for few reasons. The
+// Java TimerTask is a class not an interface making it more difficult
+// to use. The API is also a bit different, cancel() is a TimerTask
+// method not a Timer method and calling purge() on the timer on a
+// regular basis is required to allow canceled timer task objects to
+// be garbage collected.
+//
+
 interface TimerTask
 {
     void runTimerTask();
