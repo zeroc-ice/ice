@@ -9,60 +9,47 @@
 
 top_srcdir	= ..\..
 
-LIBNAME     	= $(top_srcdir)\lib\icessl$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icessl$(SOVERSION)$(LIBSUFFIX).dll
+LIBNAME     	= $(top_srcdir)\lib\icestringconverter$(LIBSUFFIX).lib
+DLLNAME		= $(top_srcdir)\bin\icestringconverter$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= AcceptorI.obj \
-		  Certificate.obj \
-                  ConnectorI.obj \
-                  EndpointI.obj \
-                  Instance.obj \
-                  PluginI.obj \
-                  TransceiverI.obj \
-                  Util.obj \
-		  RFC2253.obj \
-		  TrustManager.obj
+OBJS		=  Plugin.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
-HDIR		= $(headerdir)\IceSSL
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
-!if "$(CPP_COMPILER)" != "BCC2007"
-LINKWITH	= $(LINKWITH) ws2_32.lib
-!endif
+LINKWITH        = $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
 !if "$(CPP_COMPILER)" == "BCC2007"
-RES_FILE        = ,, IceSSL.res
+RES_FILE        = ,, IceStringConverter.res
 !else
-RES_FILE        = IceSSL.res
+RES_FILE        = IceStringConverter.res
 !endif
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS) IceSSL.res
+$(DLLNAME): $(OBJS) IceStringConverter.res
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-IceSSL.res: IceSSL.rc
-	rc.exe $(RCFLAGS) IceSSL.rc
+IceStringConverter.res: IceStringConverter.rc
+	rc.exe $(RCFLAGS) IceStringConverter.rc
 
 clean::
 	del /q $(DLLNAME:.dll=.*)
-	del /q IceSSL.res
+	del /q IceStringConverter.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

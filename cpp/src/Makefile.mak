@@ -26,6 +26,7 @@ SUBDIRS		= IceUtil \
 		  slice2sl \
 		  slice2html \
 		  Ice \
+                  IceStringConverter \
 		  IceXML \
 		  IceSSL \
 		  IceBox \

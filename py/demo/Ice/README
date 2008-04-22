@@ -19,6 +19,10 @@ Demos in this directory:
   call back into an object provided by the client as part of that
   invocation.
 
+- converter
+
+  This demo shows how to use string converters.
+
 - hello
 
   This demo illustrates how to invoke ordinary (twoway) operations, as

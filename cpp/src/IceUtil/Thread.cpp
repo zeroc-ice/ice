@@ -20,6 +20,7 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>
 #include <climits>
+#include <exception>
 
 using namespace std;
 
@@ -150,7 +151,11 @@ WINAPI startHook(void* arg)
     }
     catch(...)
     {
-        std::terminate();
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+        terminate();
+#else
+	std::terminate();
+#endif
     }
 
     thread->_done();

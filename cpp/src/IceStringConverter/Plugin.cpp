@@ -40,7 +40,7 @@ createStringConverter(const CommunicatorPtr& communicator, const string& name, c
         {
             if(args[i].find("windows=") == 0)
             {
-                cp = atoi(args[i].substr(strlen("windows=")));
+	        cp = atoi(args[i].substr(strlen("windows=")).c_str());
             }
             else if(args[i].find("iconv=") != 0)
             {
