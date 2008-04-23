@@ -343,7 +343,7 @@ public:
     virtual void
     authorize()
     {
-        assert(_sessionRouter->_verifier);
+        assert(_sessionRouter->_sslVerifier);
 
         AMI_SSLPermissionsVerifier_authorizePtr cb = new AuthorizeCB(this, _sessionRouter->_sessionManager);
         _sessionRouter->_sslVerifier->authorize_async(cb, _sslInfo, _current.ctx);

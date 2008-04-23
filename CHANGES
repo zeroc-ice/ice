@@ -23,6 +23,9 @@ Changes since version 3.3b
 C++ Changes
 ===========
 
+- Fixed Glacier2 assert which would occur if only the ssl permissions
+  was configured.
+
 - The IceUtil::Timer destroy method no longer joins with the timer
   execution thread if it's called from a timer task. Instead, the 
   thread is detached.
