@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= allocate sessionActivation simple replication icebox
+SUBDIRS		= allocate sessionActivation simple replication icebox secure
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

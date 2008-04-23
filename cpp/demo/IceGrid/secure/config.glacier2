@@ -1,0 +1,26 @@
+#
+# The Glacier2 instance name
+#
+Glacier2.InstanceName=DemoGlacier2
+
+Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
+Glacier2.Server.Endpoints=ssl -h 127.0.0.1
+
+Glacier2.SSLSessionManager=DemoIceGrid/AdminSSLSessionManager
+Glacier2.SSLPermissionsVerifier=DemoGlacier2/NullSSLPermissionsVerifier
+
+Glacier2.SessionTimeout=30
+
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -p 4062
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=certs
+IceSSL.CertAuthFile=ca_cert.pem
+IceSSL.CertFile=glacier2_cert.pem
+IceSSL.KeyFile=glacier2_key.pem
+
+IceSSL.TrustOnly.Client=CN="IceGrid Registry"
+IceSSL.TrustOnly.Server.Glacier2.Server.Endpoints=CN="IceGrid Registry";CN="Ice Server All"

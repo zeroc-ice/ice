@@ -15,7 +15,8 @@ SUBDIRS		= simple \
 		  sessionActivation \
 		  allocate \
 		  replication \
-                  icebox
+                  icebox \
+		  secure
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

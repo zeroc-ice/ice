@@ -23,6 +23,9 @@ Changes since version 3.3b
 C++ Changes
 ===========
 
+- Added IceGrid secure demo to demonstrate the setup of a secure
+  IceGrid deployment.
+
 - Fixed Glacier2 assert which would occur if only the ssl permissions
   was configured.
 

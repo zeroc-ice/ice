@@ -48,6 +48,7 @@ demos = [
     "IceGrid/sessionActivation",
     "IceGrid/replication",
     "IceGrid/icebox",
+    "IceGrid/secure",
     "Glacier2/chat",
     "Glacier2/callback",
     "Freeze/bench",

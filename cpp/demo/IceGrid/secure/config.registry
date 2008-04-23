@@ -1,0 +1,40 @@
+#
+# The IceGrid instance name.
+#
+IceGrid.InstanceName=DemoIceGrid
+
+#
+# IceGrid registry configuration.
+#
+IceGrid.Registry.Client.Endpoints=tcp -p 4061 -t 10000:ssl -p 4062 -t 10000
+IceGrid.Registry.Server.Endpoints=ssl -t 10000
+IceGrid.Registry.Internal.Endpoints=ssl -t 10000
+IceGrid.Registry.Data=db/registry
+
+#
+# IceGrid admin clients must use a secure connection to connect to the
+# registry or use Glacier2.
+#
+IceGrid.Registry.AdminSessionManager.Endpoints=ssl -t 10000
+IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
+
+#
+# Trace properties.
+#
+Ice.ProgramName=Registry
+IceGrid.Registry.Trace.Node=2
+IceGrid.Registry.Trace.Replica=2
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.CertAuthFile=ca_cert.pem
+IceSSL.CertFile=registry_cert.pem
+IceSSL.KeyFile=registry_key.pem
+IceSSL.DefaultDir=certs
+
+IceSSL.TrustOnly.Client=CN="IceGrid Registry";CN="IceGrid Node All";CN="Ice Server Glacier2 Admin"
+IceSSL.TrustOnly.Server.IceGrid.Registry.Server=CN="Ice Server All"
+IceSSL.TrustOnly.Server.IceGrid.Registry.Internal=CN="IceGrid Node All";CN="IceGrid Registry"
+IceSSL.TrustOnly.Server.IceGrid.Registry.AdminSessionManager=CN="Ice Server Glacier2 Admin"
