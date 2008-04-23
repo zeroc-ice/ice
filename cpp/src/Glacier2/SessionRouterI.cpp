@@ -345,7 +345,7 @@ public:
     {
         assert(_sessionRouter->_sslVerifier);
 
-        AMI_SSLPermissionsVerifier_authorizePtr cb = new AuthorizeCB(this, _sessionRouter->_sessionManager);
+        AMI_SSLPermissionsVerifier_authorizePtr cb = new AuthorizeCB(this, _sessionRouter->_sslSessionManager);
         _sessionRouter->_sslVerifier->authorize_async(cb, _sslInfo, _current.ctx);
     }
 
@@ -357,7 +357,7 @@ public:
             string reason;
             if(_sessionRouter->_sslVerifier->authorize(_sslInfo, reason, _current.ctx))
             {
-                authorized(_sessionRouter->_sessionManager);
+                authorized(_sessionRouter->_sslSessionManager);
             }
             else
             {

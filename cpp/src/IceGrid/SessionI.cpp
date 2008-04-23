@@ -319,9 +319,9 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
     int timeout = 0;
     if(ctl)
     {
-        if(_filters)
+        try
         {
-            try
+            if(_filters)
             {
                 Ice::IdentitySeq ids;
                 Ice::Identity queryId;
@@ -331,13 +331,19 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 
                 _servantManager->setSessionControl(session, ctl, ids);
             }
-            catch(const Ice::LocalException&)
-            {
-                session->destroy(Ice::Current());
-                return 0;
-            }
+            timeout = ctl->getSessionTimeout();
         }
-        timeout = ctl->getSessionTimeout();
+        catch(const Ice::LocalException& ex)
+        {
+            session->destroy(Ice::Current());
+
+            Ice::Warning out(_database->getTraceLevels()->logger);
+            out << "Failed to callback Glacier2 session control object:\n" << ex;
+
+            Glacier2::CannotCreateSessionException ex;
+            ex.reason = "internal server error";
+            throw ex;
+        }
     }
 
     _reaper->add(new SessionReapable<SessionI>(_database->getTraceLevels()->logger, session), timeout);
@@ -388,7 +394,10 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
             // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
             Ice::Error out(_factory->getTraceLevels()->logger);
             out << "SSL session manager couldn't decode SSL certificates:\n" << ex;
-            return 0;
+
+            Glacier2::CannotCreateSessionException ex;
+            ex.reason = "internal server error";
+            throw ex;
         }
     }
         

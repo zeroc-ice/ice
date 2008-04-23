@@ -631,6 +631,16 @@ Client::run(int argc, char* argv[])
         cout << "permission denied:\n" << ex.reason << endl;
         return EXIT_FAILURE;
     }
+    catch(const Glacier2::PermissionDeniedException& ex)
+    {
+        cout << "permission denied:\n" << ex.reason << endl;
+        return EXIT_FAILURE;
+    }
+    catch(const Glacier2::CannotCreateSessionException& ex)
+    {
+        cout << "session creation failed:\n" << ex.reason << endl;
+        return EXIT_FAILURE;
+    }
     catch(...)
     {
         if(keepAlive)
