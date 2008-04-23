@@ -32,6 +32,13 @@ C++ Changes
 
 - Fixed potential Slice parser assert.
 
+- Added an HA IceStorm template to config/templates.xml.
+
+- Removed the index parameter from the IceStorm template.
+
+- It is now possible to manually configure the node proxies when
+  using HA IceStorm in conjunction with IceGrid.
+
 
 Java Changes
 ============

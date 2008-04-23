@@ -172,7 +172,7 @@ ServiceI::start(
         // proxies.
         map<int, NodePrx> nodes;
 
-        bool iceGridDeployment = true;
+        string topicManagerAdapterId = properties->getProperty(name + ".TopicManager.AdapterId");
 
         // We support two possible deployments. The first is a manual
         // deployment, the second is IceGrid.
@@ -182,7 +182,6 @@ ServiceI::start(
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
         if(!props.empty())
         {
-            iceGridDeployment = false;
             for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
             {
                 int nodeid = atoi(p->first.substr(prefix.size()).c_str());
@@ -191,64 +190,77 @@ ServiceI::start(
         }
         else
         {
-            // If adapter id's are defined for the topic manager or node
-            // adapters then we consider this an IceGrid based deployment.
-            string adapterid = properties->getProperty(name + ".TopicManager.AdapterId");
-            string nodeid = properties->getProperty(name + ".Node.AdapterId");
+            // If adapter id's are defined for the topic manager or
+            // node adapters then we consider this an IceGrid based
+            // deployment.
+            string nodeAdapterId = properties->getProperty(name + ".Node.AdapterId");
 
-            // Here I must validate first that the adapter ids match
-            // for the node and the topic manager otherwise some other
-            // deployment is being used.
+            // Validate first that the adapter ids match for the node
+            // and the topic manager otherwise some other deployment
+            // is being used.
             const string suffix = ".TopicManager";
-            if(adapterid.empty() || nodeid.empty() ||
-               adapterid.replace(adapterid.find(suffix), suffix.size(), ".Node") != nodeid)
+            if(topicManagerAdapterId.empty() || nodeAdapterId.empty() ||
+               topicManagerAdapterId.replace(
+                   topicManagerAdapterId.find(suffix), suffix.size(), ".Node") != nodeAdapterId)
             {
                 Ice::Error error(communicator->getLogger());
-                error << "IceGrid deployment is incorrect";
+                error << "deployment error: `" << topicManagerAdapterId << "' prefix does not match `"
+                      << nodeAdapterId << "'";
                 throw "IceGrid deployment is incorrect";
             }
 
-            // This is a deployment using IceGrid.
+            // Determine the set of node id and node proxies.
             //
-            // In this case we first locate all replicas for the topic
-            // manager.  The topic manager adapter ids will be
-            // something like:
-            // "Inst1-1.IceStorm.IceStorm.TopicManager". This is
-            // <instance>-<node-id>.<name>.<endpoint>. From this we
-            // can extract node id and create the correct adapter id
-            // for the election node.
+            // This is determined by locating all topic manager
+            // replicas, and then working out the node for that
+            // replica.
+            //
+            // We work out the node id by removing the instance
+            // name. The node id must follow.
+            //
             IceGrid::LocatorPrx locator = IceGrid::LocatorPrx::checkedCast(communicator->getDefaultLocator());
             assert(locator);
             IceGrid::QueryPrx query = locator->getLocalQuery();
             Ice::ObjectProxySeq replicas = query->findAllReplicas(
                 communicator->stringToProxy(instanceName + "/TopicManager"));
+
             for(Ice::ObjectProxySeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
             {
-                adapterid = (*p)->ice_getAdapterId();
+                string adapterid = (*p)->ice_getAdapterId();
 
                 // Replace TopicManager with the node endpoint.
                 adapterid = adapterid.replace(adapterid.find(suffix), suffix.size(), ".Node");
 
-                // Now look for the node identity. This will be
-                // <prefix>-<id>.<name>.<name>.Node... For example, if
-                // the service name is IceStorm it will be
-                // ".IceStorm.IceStorm.Node"
-                string::size_type end = adapterid.find( "." + name + "." + name + ".Node");
-                if(end == string::npos)
+                // The adapter id must start with the instance name.
+                if(adapterid.find(instanceName) != 0)
                 {
                     Ice::Error error(communicator->getLogger());
-                    error << "IceGrid deployment is incorrect: " << adapterid;
+                    error << "deployment error: `" << adapterid << "' does not start with `" << instanceName << "'";
                     throw "IceGrid deployment is incorrect";
                 }
 
-                string::size_type start = adapterid.rfind("-", end);
-                if(start == string::npos)
+                // The node id follows. We find the first digit (the
+                // start of the node id, and then the end of the
+                // digits).
+                string::size_type start = instanceName.size();
+                while(start < adapterid.size() && !isdigit(adapterid[start]))
                 {
+                    ++start;
+                }
+                string::size_type end = start;
+                while(end < adapterid.size() && isdigit(adapterid[end]))
+                {
+                    ++end;
+                }
+                if(start == end)
+                {
+                    // We must have at least one digit, otherwise there is
+                    // some sort of deployment error.
                     Ice::Error error(communicator->getLogger());
-                    error << "IceGrid deployment is incorrect: " << adapterid;
+                    error << "deployment error: node id does not follow instance name. instance name:"
+                          << instanceName << " adapter id: " << adapterid;
                     throw "IceGrid deployment is incorrect";
                 }
-                ++start;
 
                 int nodeid = atoi(adapterid.substr(start, end-start).c_str());
                 ostringstream os;
@@ -282,8 +294,8 @@ ServiceI::start(
             }
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
-            _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, iceGridDeployment,
-                                     nodeAdapter, nodes[id]);
+            _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, nodeAdapter,
+                                     nodes[id]);
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
             
             // Trace replication information.
@@ -298,7 +310,7 @@ ServiceI::start(
                 }
             }
 
-            if(!iceGridDeployment)
+            if(topicManagerAdapterId.empty())
             {
                 // We're not using an IceGrid deployment. Here we need
                 // a proxy which is used to create proxies to the

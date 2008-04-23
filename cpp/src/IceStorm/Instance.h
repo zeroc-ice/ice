@@ -47,7 +47,7 @@ class Instance : public IceUtil::Shared
 public:
 
     Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&,
-             const Ice::ObjectAdapterPtr&, bool = false, const Ice::ObjectAdapterPtr& = 0,
+             const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0,
              const IceStormElection::NodePrx& = 0);
     ~Instance();
 

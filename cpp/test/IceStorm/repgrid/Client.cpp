@@ -60,11 +60,11 @@ typedef IceUtil::Handle<SingleI> SingleIPtr;
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
-    ObjectPrx base = communicator->stringToProxy("DemoIceStorm/TopicManager");
+    ObjectPrx base = communicator->stringToProxy("Test.IceStorm/TopicManager");
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << argv[0] << ": `DemoIceStorm/TopicManager' is not running" << endl;
+        cerr << argv[0] << ": `Test.IceStorm/TopicManager' is not running" << endl;
         return EXIT_FAILURE;
     }
 
@@ -93,10 +93,10 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     // correctly.
     Ice::ObjectPrx p1 = topic->getPublisher();
     Ice::ObjectPrx p2 = topic->getNonReplicatedPublisher();
-    test(p1->ice_getAdapterId() == "DemoIceStorm-PublishReplicaGroup");
-    test(p2->ice_getAdapterId() == "DemoIceStorm-1.IceStormServiceName.IceStormServiceName.Publish" ||
-         p2->ice_getAdapterId() == "DemoIceStorm-2.IceStormServiceName.IceStormServiceName.Publish" ||
-         p2->ice_getAdapterId() == "DemoIceStorm-3.IceStormServiceName.IceStormServiceName.Publish");
+    test(p1->ice_getAdapterId() == "PublishReplicaGroup");
+    test(p2->ice_getAdapterId() == "Test.IceStorm1.Publish" ||
+         p2->ice_getAdapterId() == "Test.IceStorm2.Publish" ||
+         p2->ice_getAdapterId() == "Test.IceStorm3.Publish");
 
     //
     // Get a publisher object, create a twoway proxy and then cast to

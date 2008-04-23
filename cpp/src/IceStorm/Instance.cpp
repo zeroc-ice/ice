@@ -26,7 +26,6 @@ Instance::Instance(
     const Ice::CommunicatorPtr& communicator,
     const Ice::ObjectAdapterPtr& publishAdapter,
     const Ice::ObjectAdapterPtr& topicAdapter,
-    bool iceGridDeployment,
     const Ice::ObjectAdapterPtr& nodeAdapter,
     const NodePrx& nodeProxy) :
     _instanceName(instanceName),
@@ -48,9 +47,9 @@ Instance::Instance(
     {
         __setNoDelete(true);
 
-        if(!iceGridDeployment)
+        Ice::PropertiesPtr properties = communicator->getProperties();
+        if(properties->getProperty(name + ".TopicManager.AdapterId").empty())
         {
-            Ice::PropertiesPtr properties = communicator->getProperties();
             string p = properties->getProperty(name + ".ReplicatedTopicManagerEndpoints");
             if(!p.empty())
             {
