@@ -333,12 +333,12 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
             }
             timeout = ctl->getSessionTimeout();
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException& e)
         {
             session->destroy(Ice::Current());
 
             Ice::Warning out(_database->getTraceLevels()->logger);
-            out << "Failed to callback Glacier2 session control object:\n" << ex;
+            out << "Failed to callback Glacier2 session control object:\n" << e;
 
             Glacier2::CannotCreateSessionException ex;
             ex.reason = "internal server error";
@@ -389,11 +389,11 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
             IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
             userDN = cert->getSubjectDN();
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception& e)
         {
             // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
             Ice::Error out(_factory->getTraceLevels()->logger);
-            out << "SSL session manager couldn't decode SSL certificates:\n" << ex;
+            out << "SSL session manager couldn't decode SSL certificates:\n" << e;
 
             Glacier2::CannotCreateSessionException ex;
             ex.reason = "internal server error";
