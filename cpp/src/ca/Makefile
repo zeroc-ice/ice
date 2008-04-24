@@ -9,11 +9,20 @@
 
 top_srcdir	= ../..
 
+CA_FILES	=  iceca
+
+CLASS_FILES	= ImportKey.class
+
+TARGETS		= $(top_srcdir)/bin/iceca \
+		  $(top_srcdir)/lib/ImportKey.class
+
 include $(top_srcdir)/config/Make.rules
 
-CA_FILES =  iceca
+$(top_srcdir)/bin/iceca: iceca
+	cp iceca $@
 
-CLASS_FILES = ImportKey.class
+$(top_srcdir)/lib/ImportKey.class: ImportKey.class
+	cp ImportKey.class $@
 
 install::
 	@for subdir in $(prefix)/bin $(prefix)/lib; \

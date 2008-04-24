@@ -9,12 +9,25 @@
 
 top_srcdir	= ..\..
 
-!include $(top_srcdir)/config/Make.rules.mak
+CA_FILES        = iceca \
+                  iceca.bat 
 
-CA_FILES =  iceca \
-            iceca.bat 
+CLASS_FILES     = ImportKey.class
 
-CLASS_FILES=ImportKey.class
+TARGETS		= $(top_srcdir)\bin\iceca \
+                  $(top_srcdir)\bin\iceca.bat \
+		  $(top_srcdir)\lib\ImportKey.class
+
+!include $(top_srcdir)\config\Make.rules.mak
+
+$(top_srcdir)\bin\iceca: iceca
+	copy iceca $@
+
+$(top_srcdir)\bin\iceca.bat: iceca.bat
+	copy iceca.bat $@
+
+$(top_srcdir)\lib\ImportKey.class: ImportKey.class
+	copy ImportKey.class $@
 
 install::
 	@for %i in ( $(CA_FILES) ) do \

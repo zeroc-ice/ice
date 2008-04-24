@@ -20,27 +20,13 @@ def iceca(args):
     if os.system(cmd):
         sys.exit(1)
 
-def createCertificate(type, filename = None):
-
-    if not filename:
-        filename = type
+def createCertificate(filename, cn):
 
     print "======= Creating " + filename + " certificate ======="
 
-    # Generate the certificate in a temporary directory
-    os.mkdir("tmpcerts")
-    os.chdir("tmpcerts")
-    iceca("request --" + type + nopassword)
-    iceca("sign --in " + type + "_req.pem --out " + type + "_cert.pem")
-    os.chdir("..")
-
-    # Move and rename the generated certificate
-    os.rename(os.path.join("tmpcerts", type + "_key.pem"), filename + "_key.pem")
-    os.rename(os.path.join("tmpcerts", type + "_cert.pem"), filename + "_cert.pem")
-    
-    # Remove the temporary directory
-    os.remove(os.path.join("tmpcerts", type + "_req.pem"))
-    os.rmdir("tmpcerts")
+    iceca("request --no-password --overwrite %s \"%s\"" % (filename, cn))
+    iceca("sign --in %s_req.pem --out %s_cert.pem" % (filename, filename))
+    os.remove("%s_req.pem" % filename)
 
     print
     print
@@ -52,7 +38,6 @@ if not os.path.exists("certs") or os.path.basename(cwd) != "secure":
     sys.exit(1)
 
 os.environ["ICE_CA_HOME"] = os.path.abspath("certs")
-nopassword = " --no-password"
 
 os.chdir("certs")
 
@@ -60,18 +45,22 @@ os.chdir("certs")
 # First, create the certificate authority.
 #
 print "======= Creating Certificate Authority ======="
-iceca("init --overwrite" + nopassword)
+iceca("init --overwrite --no-password")
 print
 print
 
-createCertificate("registry")
-createCertificate("node")
-createCertificate("server", "glacier2")
-createCertificate("server")
-createCertificate("server", "admin")
+createCertificate("registry", "IceGrid Registry")
+createCertificate("node", "IceGrid Node")
+createCertificate("glacier2", "Glacier2")
+createCertificate("server", "Server")
+createCertificate("admin", "Admin")
 
 print "======= Creating Java Key Store ======="
 
+try:
+    os.remove("certs.jks")
+except OSError:
+    pass
 iceca("import --java admin admin_cert.pem admin_key.pem certs.jks")
 
 os.chdir("..")

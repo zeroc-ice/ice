@@ -72,7 +72,7 @@ if sys.argv[script] == "import":
 	sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[2:], "", [ "overwrite", "java", "cs"])
+	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "java", "cs"])
     except getopt.GetoptError:
 	usage()
 
@@ -166,6 +166,7 @@ if sys.argv[script] == "import":
 	    	alias + " -passout file:" + keypassfile1 + " -certfile " + os.path.join(home, "ca_cert.pem")
 
 	print "converting to pkcs12 format... ",
+        sys.stdout.flush()
 	if verbose: print cmd
 	status = os.system(cmd)
 	if status != 0:
@@ -184,6 +185,7 @@ if sys.argv[script] == "import":
 
 	#print cmd
 	print "importing into the keystore...", 
+        sys.stdout.flush()
 	if verbose: print cmd
 	status = os.system(cmd)
 	if status != 0:
@@ -234,6 +236,7 @@ if sys.argv[script] == "import":
 	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -passout pass:"
 
 	print "converting to pkcs12 format...",
+        sys.stdout.flush()
 	if verbose: print cmd
 	status = os.system(cmd)
 	if keypassfile1 != None:
@@ -463,6 +466,7 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
     print "Generating configuration files... ",
 
     print "ca.cnf",
+    sys.stdout.flush()
     temp, cacnfname = tempfile.mkstemp(".cnf", "ca")
     os.write(temp, config["ca.cnf"])
     for k,v in DNelements.iteritems():
@@ -472,6 +476,7 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
 
     file = 'sign.cnf'
     print " " + file,
+    sys.stdout.flush()
     cnf = open(os.path.join(caroot, file), "w")
     cnf.write(config[file])
     cnf.write("[ ca_policy ]\n");
@@ -486,6 +491,7 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
 
     file = "req.cnf"
     print file,
+    sys.stdout.flush()
     cnf = open(os.path.join(home, file), "w")
     cnf.write(config[file])
     for k,v in DNelements.iteritems():
@@ -528,70 +534,41 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
 
 if sys.argv[script] == "request":
     def usage():
-	print "usage: " + sys.argv[script] + " [--overwrite] [--node|--registry|--server|--user] [--no-password]"
+	print "usage: " + sys.argv[script] + " [--overwrite] [--no-password] file common-name [email]"
 	sys.exit(1)
 
-    def setType(type):
-	keyfile = type + "_key.pem"
-	reqfile = type + "_req.pem"
-	if not overwrite:
-	    if os.path.exists(keyfile):
-		print keyfile + ": exists"
-		sys.exit(1)
-	    if os.path.exists(reqfile):
-		print reqfile + ": exists"
-		sys.exit(1)
-	return type, keyfile, reqfile
-
     try:
-	opts, args = getopt.getopt(sys.argv[script+1:], "", \
-				   [ "overwrite", "node", "registry", "server", "user", "no-password" ])
+	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "no-password" ])
     except getopt.GetoptError:
 	usage()
 
-    if args:
-	usage()
-
-    type = None
-    commonName = None
-    email = None
     nopassphrase = False
     overwrite = False
     for o, a in opts:
 	if o == "--overwrite":
 	    overwrite = True
-	if o == "--node":
-	    if type != None:
-		usage()
-	    type, keyfile, reqfile = setType("node")
-	    while not commonName or len(commonName) == 0:
-		commonName = raw_input("Enter the node name: ")
-	    commonName = "IceGrid Node " + commonName
-	elif o == "--registry":
-	    if type != None:
-		usage()
-	    type, keyfile, reqfile = setType("registry")
-	    commonName = "IceGrid Registry"
-	elif o == "--server":
-	    if type != None:
-		usage()
-	    type, keyfile, reqfile = setType("server")
-	    while not commonName or len(commonName) == 0:
-		commonName = raw_input("Enter the server name: ")
-	    commonName = "Ice Server " + commonName
-	elif o == "--user":
-	    if type != None:
-		usage()
-	    type, keyfile, reqfile = setType("user")
-	    while not commonName or len(commonName) == 0:
-		commonName = raw_input("Enter the user's full name: ")
-	    while not email or len(email) == 0:
-		email = raw_input("Enter the user's email address: ")
 	elif o == "--no-password":
 	    nopassphrase = True
 
-    if not type:
+    if len(args) < 2 or len(args) > 3:
 	usage()
+
+    keyfile = args[0] + "_key.pem"
+    reqfile = args[0] + "_req.pem"
+    if not overwrite:
+        if os.path.exists(keyfile):
+            print keyfile + ": exists"
+            sys.exit(1)
+        if os.path.exists(reqfile):
+            print reqfile + ": exists"
+            sys.exit(1)
+
+    commonName = args[1]
+
+    if len(args) == 3:
+        email = args[2]
+    else:
+        email = None
 
     #
     # Create a temporary configuration file.

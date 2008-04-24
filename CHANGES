@@ -45,6 +45,15 @@ C++ Changes
 - It is now possible to manually configure the node proxies when
   using HA IceStorm in conjunction with IceGrid.
 
+- iceca and associated ImportKey.class are now copied into bin and lib
+  respectively.
+
+- iceca did not correctly support the --verbose flag with the import command.
+
+- iceca request has been simplified. The command now takes the name of
+  the file to generate, the common name, and an optional email
+  address.
+
 
 Java Changes
 ============

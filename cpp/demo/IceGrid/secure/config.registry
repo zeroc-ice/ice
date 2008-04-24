@@ -34,7 +34,7 @@ IceSSL.CertFile=registry_cert.pem
 IceSSL.KeyFile=registry_key.pem
 IceSSL.DefaultDir=certs
 
-IceSSL.TrustOnly.Client=CN="IceGrid Registry";CN="IceGrid Node All";CN="Ice Server Glacier2 Admin"
-IceSSL.TrustOnly.Server.IceGrid.Registry.Server=CN="Ice Server All"
-IceSSL.TrustOnly.Server.IceGrid.Registry.Internal=CN="IceGrid Node All";CN="IceGrid Registry"
-IceSSL.TrustOnly.Server.IceGrid.Registry.AdminSessionManager=CN="Ice Server Glacier2 Admin"
+IceSSL.TrustOnly.Client=CN="IceGrid Registry";CN="IceGrid Node";CN="Glacier2"
+IceSSL.TrustOnly.Server.IceGrid.Registry.Server=CN="Server"
+IceSSL.TrustOnly.Server.IceGrid.Registry.Internal=CN="IceGrid Node";CN="IceGrid Registry"
+IceSSL.TrustOnly.Server.IceGrid.Registry.AdminSessionManager=CN="Glacier2"

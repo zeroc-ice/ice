@@ -20,20 +20,15 @@ Run the makecerts.py script to create the certificates:
 
 $ makecerts.py
 
-And follow the instructions from the script. You should use the node
-name "All" to create the node certificate, the server name "Glacier2
-Admin" for the glacier2 certificate, "All" for the server certificate
-and "IceGrid Admin" for the admin certificate.
+And follow the instructions from the script. For Java Key Store it
+is recommended that you use the password "password". If you do
+otherwise, you'll need to edit the config.admin configuration file.
 
-You will also be prompted for a password to protect the Java Key
-Store, use "password" if you want to use the IceGrid Admin GUI with
-the config.admin configuration file.
-
-For simplicity, the certificate authority and certificates created by
-makecerts.py are not protected with passwords. In a real world
-deployment, you would typically use passwords to ensure that only
-people knowning the passwords can create new certificates or start the
-IceGrid components.
+For simplicity, the certificates created by makecerts.py are not
+protected with a password. In a real world deployment, you would
+typically use a password on all certifications to ensure that only
+priviledged users can create new certificates and start the IceGrid
+components.
 
 Once the certificates are generated, you can start the IceGrid
 registry, node and Glacier2 router:
