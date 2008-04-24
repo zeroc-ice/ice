@@ -16,7 +16,7 @@ IceGrid.Registry.Data=db/registry
 # registry or use Glacier2.
 #
 IceGrid.Registry.AdminSessionManager.Endpoints=ssl -t 10000
-IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
+IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 
 #
 # Trace properties.
@@ -29,10 +29,17 @@ IceGrid.Registry.Trace.Replica=2
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=certs
 IceSSL.CertAuthFile=ca_cert.pem
 IceSSL.CertFile=registry_cert.pem
 IceSSL.KeyFile=registry_key.pem
-IceSSL.DefaultDir=certs
+
+#
+# Don't require certificates. This is useful for admin clients that don't
+# use certificate but still need to establish a secure connection for the
+# username/password authentication
+#
+IceSSL.VerifyPeer=1
 
 IceSSL.TrustOnly.Client=CN="IceGrid Registry";CN="IceGrid Node";CN="Glacier2"
 IceSSL.TrustOnly.Server.IceGrid.Registry.Server=CN="Server"

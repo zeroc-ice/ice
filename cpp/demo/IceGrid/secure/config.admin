@@ -1,8 +1,8 @@
-# Use SSL to authenticate with IceGrid or Glacier2
-IceGridAdmin.AuthenticateUsingSSL=1
-
 Ice.Default.Locator=DemoIceGrid/Locator:ssl -p 4062
 #Ice.Default.Router=DemoGlacier2/router:ssl -p 4064
+
+IceGridAdmin.Username=demo
+IceGridAdmin.Password=dummy
 
 #
 # Trace properties.
@@ -14,13 +14,13 @@ Ice.Default.Locator=DemoIceGrid/Locator:ssl -p 4062
 # SSL Configuration
 #
 IceSSL.DefaultDir=certs
+IceSSL.TrustOnly.Client=CN="IceGrid Registry";CN="Glacier2"
 
+# C++ configuration
 Ice.Plugin.IceSSL.cpp=IceSSL:createIceSSL
 IceSSL.CertAuthFile=ca_cert.pem
-IceSSL.CertFile=admin_cert.pem
-IceSSL.KeyFile=admin_key.pem
 
+# Java configuration
 Ice.Plugin.IceSSL.java=IceSSL.PluginFactory
-IceSSL.Alias=admin
-IceSSL.Password=password
+IceSSL.Alias=ca_cert
 IceSSL.Keystore=certs.jks

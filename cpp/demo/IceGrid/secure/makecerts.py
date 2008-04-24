@@ -53,7 +53,6 @@ createCertificate("registry", "IceGrid Registry")
 createCertificate("node", "IceGrid Node")
 createCertificate("glacier2", "Glacier2")
 createCertificate("server", "Server")
-createCertificate("admin", "Admin")
 
 print "======= Creating Java Key Store ======="
 
@@ -61,6 +60,7 @@ try:
     os.remove("certs.jks")
 except OSError:
     pass
-iceca("import --java admin admin_cert.pem admin_key.pem certs.jks")
+
+iceca("import --java ca_cert ca/db/ca_cert.pem ca/db/ca_key.pem certs.jks")
 
 os.chdir("..")

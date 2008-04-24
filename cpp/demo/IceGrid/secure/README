@@ -1,34 +1,36 @@
-This demo demonstrates a secure IceGrid deployment. The IceGrid
-registry and node use secure connections to communicate and restrict
-access to their endpoints to only authorized clients. The Ice.Admin
-endpoint for Ice servers managed by IceGrid is also secured to ensure
-that only IceGrid nodes can connect to the server administrative
-facility.
+This demo shows how to prevent unauthorized access to the IceGrid
+registry and node, to the Glacier2 administrative router and the
+Ice.Admin functionality of IceGrid managed servers. These components
+use IceSSL secure connections to communicate and restrict access to
+their endpoints.
 
-The demo also includes configuration for Glacier2 to allow IceGrid
-administrative clients to connect through a router.
-
-Note that only the IceGrid and Glacier2 components are secured. The
-client and server are using a regular tcp endpoint to communicate. Of
-course, they could use a secure endpoint as well if necessary.
+The client and server are using a regular tcp endpoint to
+communicate. Of course, they could also use a secure endpoint if
+necessary.
 
 To run the demo, you first need to generate certificates for the
-IceGrid registry, node, Glacier2 administrative router, servers and
-administrative clients. 
+IceGrid registry and node, the Glacier2 administrative router and the
+server.
 
 Run the makecerts.py script to create the certificates:
 
 $ makecerts.py
 
-And follow the instructions from the script. For Java Key Store it
-is recommended that you use the password "password". If you do
-otherwise, you'll need to edit the config.admin configuration file.
+And follow the instructions from the script.
 
 For simplicity, the certificates created by makecerts.py are not
-protected with a password. In a real world deployment, you would
-typically use a password on all certifications to ensure that only
-priviledged users can create new certificates and start the IceGrid
-components.
+protected with a password. In a real world deployment, to ensure that
+only priviledged users can create new certificates and start the
+IceGrid components, you would typically use a password for the
+certificate authority, the IceGrid registry and node certificates and
+the Glacier2 certificate. 
+
+You could also protect the server certificate with a password and
+specify the password in the server configuration in clear text however
+this wouldn't be more secure as you would still rely on filesystem
+permissions to restrict access to the configuration file (so you might
+just as well use a certificate without password and rely on the
+filesystem persmissions to restrict access to the certificate).
 
 Once the certificates are generated, you can start the IceGrid
 registry, node and Glacier2 router:
@@ -60,7 +62,7 @@ the GUI Login dialog:
 
 - To connect directly to IceGrid, in the "Direct" tab:
 
-  * Check the "Use SSL for authentication" checkbox
+  * Check the "Enable IceSSL" checkbox
   * Set the IceGrid instance name to "DemoIceGrid"
   * Set the IceGrid registry endpoints to "ssl -p 4062"
   * In the SSL configuration section, select the "Basic" tab
@@ -71,7 +73,7 @@ the GUI Login dialog:
 
 - To connect directly to Glacier2, in the "Routed" tab:
 
-  * Check the "Use SSL for authentication" checkbox
+  * Check the "Enable IceSSL" checkbox
   * Set the Glacier2 instance name to "DemoGlacier2"
   * Set the Glacier2 router endpoints to "ssl -p 4064"
   * In the SSL configuration section, select the "Basic" tab
@@ -79,3 +81,10 @@ the GUI Login dialog:
     directory of this demo.
   * Set the password to Java Key Store password specified with
     makecerts.py
+
+The IceGrid registry and Glacier2 router are configured to use the
+"null permissions verifier" so you can use any username/password to
+login with the admin tools. In a real world deployment, you would
+instead typically use the file-based permissions verifier or a custom
+permissions verifier implementation.
+

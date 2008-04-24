@@ -20,12 +20,11 @@ IceGrid.Node.Trace.Activator=1
 #
 # SSL Configuration
 #
-
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=certs
 IceSSL.CertAuthFile=ca_cert.pem
 IceSSL.CertFile=node_cert.pem
 IceSSL.KeyFile=node_key.pem
-IceSSL.DefaultDir=certs
 
 IceSSL.TrustOnly.Client=CN="Server";CN="IceGrid Registry";CN="Glacier2"
 IceSSL.TrustOnly.Server=CN="IceGrid Registry"
