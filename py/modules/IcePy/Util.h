@@ -55,6 +55,16 @@ inline PyObject* createString(const std::string& str)
 }
 
 //
+// Obtain a string from a string object; None is also legal.
+//
+std::string getString(PyObject*);
+
+//
+// Validate and retrieve a string argument.
+//
+bool getStringArg(PyObject*, const std::string&, std::string&);
+
+//
 // Invokes Py_DECREF on a Python object.
 //
 class PyObjectHandle

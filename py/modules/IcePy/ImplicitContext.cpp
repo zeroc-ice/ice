@@ -129,8 +129,14 @@ extern "C"
 static PyObject*
 implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
 {
-    char* key;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    PyObject* keyObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
     {
         return 0;
     }
@@ -155,8 +161,14 @@ extern "C"
 static PyObject*
 implicitContextGet(ImplicitContextObject* self, PyObject* args)
 {
-    char* key;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    PyObject* keyObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
     {
         return 0;
     }
@@ -180,9 +192,20 @@ extern "C"
 static PyObject*
 implicitContextPut(ImplicitContextObject* self, PyObject* args)
 {
-    char* key;
-    char* val;
-    if(!PyArg_ParseTuple(args, STRCAST("ss"), &key, &val))
+    PyObject* keyObj;
+    PyObject* valueObj;
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &keyObj, &valueObj))
+    {
+        return 0;
+    }
+
+    string key;
+    string value;
+    if(!getStringArg(keyObj, "key", key))
+    {
+        return 0;
+    }
+    if(!getStringArg(valueObj, "value", value))
     {
         return 0;
     }
@@ -190,7 +213,7 @@ implicitContextPut(ImplicitContextObject* self, PyObject* args)
     string oldVal;
     try
     {
-        (*self->implicitContext)->put(key, val);
+        oldVal = (*self->implicitContext)->put(key, value);
     }
     catch(const Ice::Exception& ex)
     {
@@ -206,8 +229,14 @@ extern "C"
 static PyObject*
 implicitContextRemove(ImplicitContextObject* self, PyObject* args)
 {
-    char* key;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    PyObject* keyObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
     {
         return 0;
     }

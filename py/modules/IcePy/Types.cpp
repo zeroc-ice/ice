@@ -75,6 +75,38 @@ struct ExceptionInfoObject
 extern PyTypeObject TypeInfoType;
 extern PyTypeObject ExceptionInfoType;
 
+bool
+writeString(PyObject* p, const Ice::OutputStreamPtr& os)
+{
+    if(p == Py_None)
+    {
+        os->writeString(string());
+    }
+    else if(PyString_Check(p))
+    {
+        os->writeString(string(PyString_AS_STRING(p), PyString_GET_SIZE(p)));
+    }
+    else if(PyUnicode_Check(p))
+    {
+        //
+        // Convert a Unicode object to a UTF-8 string and write it without manipulation from
+        // a C++ string converter.
+        //
+        PyObjectHandle h = PyUnicode_AsUTF8String(p);
+        if(!h.get())
+        {
+            return false;
+        }
+        os->writeString(string(PyString_AS_STRING(h.get()), PyString_GET_SIZE(h.get())), false);
+    }
+    else
+    {
+        assert(false);
+    }
+
+    return true;
+}
+
 }
 
 #ifdef WIN32
@@ -362,7 +394,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     }
     case PrimitiveInfo::KindString:
     {
-        if(p != Py_None && !PyString_Check(p))
+        if(p != Py_None && !PyString_Check(p) && !PyUnicode_Check(p))
         {
             return false;
         }
@@ -503,17 +535,10 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     }
     case PrimitiveInfo::KindString:
     {
-        string val;
-        if(PyString_Check(p))
+        if(!writeString(p, os))
         {
-            val = string(PyString_AS_STRING(p), PyString_GET_SIZE(p));
+            throw AbortMarshaling();
         }
-        else if(p != Py_None)
-        {
-            assert(false); // validate() should have caught this.
-        }
-
-        os->writeString(val);
         break;
     }
     }
@@ -1324,7 +1349,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindString:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::StringSeq seq(sz);
+        os->writeSize(static_cast<int>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
@@ -1333,21 +1358,18 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-            string val;
-            if(PyString_Check(item))
-            {
-                val = string(PyString_AS_STRING(item), PyString_GET_SIZE(item));
-            }
-            else if(p != Py_None)
+            if(item != Py_None && !PyString_Check(item) && !PyUnicode_Check(item))
             {
                 PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"),
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
 
-            seq[i] = val;
+            if(!writeString(item, os))
+            {
+                throw AbortMarshaling();
+            }
         }
-        os->writeStringSeq(seq);
         break;
     }
     }
@@ -2784,7 +2806,7 @@ convertDataMembers(PyObject* members, DataMemberList& l)
         PyObject* t = PyTuple_GET_ITEM(m, 2); // Member type.
 
         DataMemberPtr member = new DataMember;
-        member->name = string(PyString_AS_STRING(name), PyString_GET_SIZE(name));
+        member->name = getString(name);
 #ifndef NDEBUG
         bool b =
 #endif

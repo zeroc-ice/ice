@@ -68,6 +68,9 @@ def twoways(communicator, p):
     r, s = p.opString("hello", "world")
     test(s == "world hello")
     test(r == "hello world")
+    r, s = p.opString(u"hello", u"world")
+    test(s == "world hello")
+    test(r == "hello world")
 
     #
     # opMyEnum
