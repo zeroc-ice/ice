@@ -211,9 +211,9 @@ extern "C"
 static PyObject*
 proxyIceIsA(ProxyObject* self, PyObject* args)
 {
-    char* type;
+    PyObject* type;
     PyObject* ctx = Py_None;
-    if(!PyArg_ParseTuple(args, STRCAST("s|O!"), &type, &PyDict_Type, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("O|O!"), &type, &PyDict_Type, &ctx))
     {
         return 0;
     }
@@ -221,7 +221,7 @@ proxyIceIsA(ProxyObject* self, PyObject* args)
     //
     // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
     //
-    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((s), O)"), type, ctx);
+    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((O), O)"), type, ctx);
 
     return iceIsA(*self->proxy, newArgs.get());
 }
@@ -457,8 +457,14 @@ extern "C"
 static PyObject*
 proxyIceFacet(ProxyObject* self, PyObject* args)
 {
-    char* facet;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &facet))
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -507,8 +513,14 @@ extern "C"
 static PyObject*
 proxyIceAdapterId(ProxyObject* self, PyObject* args)
 {
-    char* id;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &id))
+    PyObject* idObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &idObj))
+    {
+        return 0;
+    }
+
+    string id;
+    if(!getStringArg(idObj, "id", id))
     {
         return 0;
     }
@@ -1359,8 +1371,14 @@ extern "C"
 static PyObject*
 proxyIceConnectionId(ProxyObject* self, PyObject* args)
 {
-    char* connectionId;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &connectionId))
+    PyObject* idObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &idObj))
+    {
+        return 0;
+    }
+
+    string id;
+    if(!getStringArg(idObj, "id", id))
     {
         return 0;
     }
@@ -1370,7 +1388,7 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-        newProxy = (*self->proxy)->ice_connectionId(connectionId);
+        newProxy = (*self->proxy)->ice_connectionId(id);
     }
     catch(const Ice::Exception& ex)
     {
@@ -1621,7 +1639,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
     }
     else
     {
-        char* facetStr = PyString_AS_STRING(facet);
+        string facetStr = getString(facet);
         target = (*p->proxy)->ice_facet(facetStr);
     }
 
@@ -1845,8 +1863,8 @@ static PyObject*
 proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
-    char* facet = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("O|z"), &obj, &facet))
+    PyObject* facetObj = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("O|O"), &obj, &facetObj))
     {
         return 0;
     }
@@ -1857,6 +1875,15 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
         return Py_None;
     }
 
+    string facet;
+    if(facetObj)
+    {
+        if(!getStringArg(facetObj, "facet", facet))
+        {
+            return 0;
+        }
+    }
+
     if(!checkProxy(obj))
     {
         PyErr_Format(PyExc_ValueError, STRCAST("uncheckedCast requires a proxy argument"));
@@ -1865,7 +1892,7 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
     ProxyObject* p = reinterpret_cast<ProxyObject*>(obj);
 
-    if(facet)
+    if(facetObj)
     {
         return createProxy((*p->proxy)->ice_facet(facet), *p->communicator);
     }

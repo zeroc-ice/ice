@@ -23,11 +23,17 @@ Changes since version 3.3b
 C++ Changes
 ===========
 
-- Added IceGrid secure demo to demonstrate the setup of a secure
+- Changed the string methods in InputStream and OutputStream to accept
+  an optional boolean argument. If true (the default), strings are
+  processed by the string converter (if any) before marshaling or
+  unmarshaling. If false, the string converter is bypassed. No source
+  code changes are necessary for existing programs.
+
+- Added IceGrid secure demo to demonstrate how to setup a secure
   IceGrid deployment.
 
-- Fixed Glacier2 assert which would occur if only the ssl permissions
-  was configured.
+- Fixed a Glacier2 assert that would occur if the configuration
+  defined only the SSL permissions verifier.
 
 - The IceUtil::Timer destroy method no longer joins with the timer
   execution thread if it's called from a timer task. Instead, the 
@@ -48,7 +54,8 @@ C++ Changes
 - iceca and associated ImportKey.class are now copied into bin and lib
   respectively.
 
-- iceca did not correctly support the --verbose flag with the import command.
+- iceca did not correctly support the --verbose flag with the import
+  command.
 
 - iceca request has been simplified. The command now takes the name of
   the file to generate, the common name, and an optional email
@@ -105,6 +112,10 @@ Python Changes
 
 - Replaced the Ice.version method with Ice.stringVersion, and added
   Ice.intVersion.
+
+- Unicode objects are now accepted as arguments (or data members of
+  arguments) to remote Slice operations. The local Ice API still uses
+  8-bit strings.
 
 
 Ruby Changes

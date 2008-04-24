@@ -121,8 +121,14 @@ extern "C"
 static PyObject*
 loggerPrint(LoggerObject* self, PyObject* args)
 {
-    char* message;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &message))
+    PyObject* messageObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
+    {
+        return 0;
+    }
+
+    string message;
+    if(!getStringArg(messageObj, "message", message))
     {
         return 0;
     }
@@ -148,9 +154,20 @@ extern "C"
 static PyObject*
 loggerTrace(LoggerObject* self, PyObject* args)
 {
-    char* category;
-    char* message;
-    if(!PyArg_ParseTuple(args, STRCAST("ss"), &category, &message))
+    PyObject* categoryObj;
+    PyObject* messageObj;
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &categoryObj, &messageObj))
+    {
+        return 0;
+    }
+
+    string category;
+    string message;
+    if(!getStringArg(categoryObj, "category", category))
+    {
+        return 0;
+    }
+    if(!getStringArg(messageObj, "message", message))
     {
         return 0;
     }
@@ -176,8 +193,14 @@ extern "C"
 static PyObject*
 loggerWarning(LoggerObject* self, PyObject* args)
 {
-    char* message;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &message))
+    PyObject* messageObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
+    {
+        return 0;
+    }
+
+    string message;
+    if(!getStringArg(messageObj, "message", message))
     {
         return 0;
     }
@@ -203,8 +226,14 @@ extern "C"
 static PyObject*
 loggerError(LoggerObject* self, PyObject* args)
 {
-    char* message;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &message))
+    PyObject* messageObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &messageObj))
+    {
+        return 0;
+    }
+
+    string message;
+    if(!getStringArg(messageObj, "message", message))
     {
         return 0;
     }

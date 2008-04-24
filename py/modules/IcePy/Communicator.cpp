@@ -436,8 +436,14 @@ extern "C"
 static PyObject*
 communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
 {
-    char* str;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    {
+        return 0;
+    }
+
+    string str;
+    if(!getStringArg(strObj, "str", str))
     {
         return 0;
     }
@@ -492,8 +498,14 @@ extern "C"
 static PyObject*
 communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
 {
-    char* str;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    {
+        return 0;
+    }
+
+    string str;
+    if(!getStringArg(strObj, "property", str))
     {
         return 0;
     }
@@ -519,8 +531,14 @@ extern "C"
 static PyObject*
 communicatorStringToIdentity(CommunicatorObject* self, PyObject* args)
 {
-    char* str;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    {
+        return 0;
+    }
+
+    string str;
+    if(!getStringArg(strObj, "str", str))
     {
         return 0;
     }
@@ -694,8 +712,14 @@ communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
     assert(factoryType);
 
     PyObject* factory;
-    char* id;
-    if(!PyArg_ParseTuple(args, STRCAST("O!s"), factoryType, &factory, &id))
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), factoryType, &factory, &strObj))
+    {
+        return 0;
+    }
+
+    string id;
+    if(!getStringArg(strObj, "id", id))
     {
         return 0;
     }
@@ -728,8 +752,14 @@ extern "C"
 static PyObject*
 communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
 {
-    char* id;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &id))
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    {
+        return 0;
+    }
+
+    string id;
+    if(!getStringArg(strObj, "id", id))
     {
         return 0;
     }
@@ -840,8 +870,14 @@ extern "C"
 static PyObject*
 communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
 {
-    char* name;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &name))
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
+    {
+        return 0;
+    }
+
+    string name;
+    if(!getStringArg(strObj, "name", name))
     {
         return 0;
     }
@@ -879,9 +915,20 @@ extern "C"
 static PyObject*
 communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject* args)
 {
-    char* name;
-    char* endpoints;
-    if(!PyArg_ParseTuple(args, STRCAST("ss"), &name, &endpoints))
+    PyObject* nameObj;
+    PyObject* endpointsObj;
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &nameObj, &endpointsObj))
+    {
+        return 0;
+    }
+
+    string name;
+    string endpoints;
+    if(!getStringArg(nameObj, "name", name))
+    {
+        return 0;
+    }
+    if(!getStringArg(endpointsObj, "endpoints", endpoints))
     {
         return 0;
     }
@@ -919,9 +966,15 @@ extern "C"
 static PyObject*
 communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* args)
 {
-    char* name;
+    PyObject* nameObj;
     PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("sO"), &name, &proxy))
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &nameObj, &proxy))
+    {
+        return 0;
+    }
+
+    string name;
+    if(!getStringArg(nameObj, "name", name))
     {
         return 0;
     }
@@ -935,7 +988,7 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
     }
     else if(proxy != Py_None)
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("ice_createObjectAdapterWithRouter requires None or Ice.RouterPrx"));
+        PyErr_Format(PyExc_ValueError, STRCAST("createObjectAdapterWithRouter requires None or Ice.RouterPrx"));
         return 0;
     }
 
@@ -1018,7 +1071,7 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
     }
     else if(proxy != Py_None)
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultRouter requires None or Ice.RouterPrx"));
+        PyErr_Format(PyExc_ValueError, STRCAST("setDefaultRouter requires None or Ice.RouterPrx"));
         return 0;
     }
 
@@ -1087,7 +1140,7 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
     }
     else if(proxy != Py_None)
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultLocator requires None or Ice.LocatorPrx"));
+        PyErr_Format(PyExc_ValueError, STRCAST("setDefaultLocator requires None or Ice.LocatorPrx"));
         return 0;
     }
 

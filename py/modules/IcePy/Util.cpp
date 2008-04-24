@@ -15,9 +15,47 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/UUID.h>
 #include <Slice/PythonUtil.h>
+#include <frameobject.h>
 
 using namespace std;
 using namespace Slice::Python;
+
+string
+IcePy::getString(PyObject* p)
+{
+    assert(p == Py_None || PyString_Check(p));
+
+    string str;
+    if(p != Py_None)
+    {
+        str.assign(PyString_AS_STRING(p), PyString_GET_SIZE(p));
+    }
+    return str;
+}
+
+bool
+IcePy::getStringArg(PyObject* p, const string& arg, string& val)
+{
+    if(PyString_Check(p))
+    {
+        val = getString(p);
+    }
+    else if(p != Py_None)
+    {
+        //
+        // Get name of current function.
+        //
+        PyFrameObject *f = PyThreadState_GET()->frame;
+        PyObjectHandle code = PyObject_GetAttrString(reinterpret_cast<PyObject*>(f), STRCAST("f_code"));
+        assert(code.get());
+        PyObjectHandle func = PyObject_GetAttrString(code.get(), STRCAST("co_name"));
+        assert(func.get());
+        string funcName = getString(func.get());
+        PyErr_Format(PyExc_ValueError, STRCAST("%s expects a string for argument '%s'"), funcName.c_str(), arg.c_str());
+        return false;
+    }
+    return true;
+}
 
 IcePy::PyObjectHandle::PyObjectHandle(PyObject* p) :
     _p(p)
@@ -116,7 +154,7 @@ IcePy::PyException::raise()
             }
             else
             {
-                e.unknown = PyString_AS_STRING(name.get());
+                e.unknown = getString(name.get());
             }
         }
         throw e;
@@ -195,12 +233,13 @@ IcePy::PyException::raiseLocalException()
         member = PyObject_GetAttrString(ex.get(), STRCAST("facet"));
         if(member.get() && PyString_Check(member.get()))
         {
-            e.facet = PyString_AS_STRING(member.get());
+            // TODO: Support unicode for the facet name.
+            e.facet = getString(member.get());
         }
         member = PyObject_GetAttrString(ex.get(), STRCAST("operation"));
         if(member.get() && PyString_Check(member.get()))
         {
-            e.operation = PyString_AS_STRING(member.get());
+            e.operation = getString(member.get());
         }
         throw;
     }
@@ -224,9 +263,9 @@ IcePy::PyException::raiseLocalException()
     {
         IcePy::PyObjectHandle member;
         member = PyObject_GetAttrString(ex.get(), STRCAST("unknown"));
-        if(member.get() && PyString_Check(member.get()) && strlen(PyString_AS_STRING(member.get())) > 0)
+        if(member.get() && PyString_Check(member.get()))
         {
-            e.unknown = PyString_AS_STRING(member.get());
+            e.unknown = getString(member.get());
         }
         throw;
     }
@@ -327,12 +366,17 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
         {
             return false;
         }
-        if(!PyString_Check(item))
+        string str;
+        if(PyString_Check(item))
+        {
+            str = getString(item);
+        }
+        else if(item != Py_None)
         {
             PyErr_Format(PyExc_ValueError, STRCAST("list element must be a string"));
             return false;
         }
-        seq.push_back(string(PyString_AS_STRING(item), PyString_GET_SIZE(item)));
+        seq.push_back(str);
     }
 
     return true;
@@ -376,12 +420,17 @@ IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
         {
             return false;
         }
-        if(!PyString_Check(item))
+        string str;
+        if(PyString_Check(item))
+        {
+            str = getString(item);
+        }
+        else if(item != Py_None)
         {
             PyErr_Format(PyExc_ValueError, STRCAST("tuple element must be a string"));
             return false;
         }
-        seq.push_back(string(PyString_AS_STRING(item), PyString_GET_SIZE(item)));
+        seq.push_back(str);
     }
 
     return true;
@@ -397,18 +446,28 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
     PyObject* value;
     while(PyDict_Next(dict, &pos, &key, &value))
     {
-        char* keystr = PyString_AsString(key);
-        if(!keystr)
+        string keystr;
+        if(PyString_Check(key))
+        {
+            keystr = getString(key);
+        }
+        else if(key != Py_None)
         {
             PyErr_Format(PyExc_ValueError, STRCAST("context key must be a string"));
             return false;
         }
-        char* valuestr = PyString_AsString(value);
-        if(!valuestr)
+
+        string valuestr;
+        if(PyString_Check(value))
+        {
+            valuestr = getString(value);
+        }
+        else if(value != Py_None)
         {
             PyErr_Format(PyExc_ValueError, STRCAST("context value must be a string"));
             return false;
         }
+
         context.insert(Ice::Context::value_type(keystr, valuestr));
     }
 

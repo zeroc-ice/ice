@@ -208,18 +208,18 @@ Ice::InputStreamI::readDoubleSeq(pair<const Double*, const Double*>& p)
 }
 
 string
-Ice::InputStreamI::readString()
+Ice::InputStreamI::readString(bool convert)
 {
     string v;
-    _is->read(v);
+    _is->read(v, convert);
     return v;
 }
 
 vector<string>
-Ice::InputStreamI::readStringSeq()
+Ice::InputStreamI::readStringSeq(bool convert)
 {
     vector<string> v;
-    _is->read(v);
+    _is->read(v, convert);
     return v;
 }
 
@@ -522,13 +522,13 @@ Ice::OutputStreamI::writeDoubleSeq(const Double* begin, const Double* end)
 }
 
 void
-Ice::OutputStreamI::writeString(const string& v)
+Ice::OutputStreamI::writeString(const string& v, bool convert)
 {
-    _os->write(v);
+    _os->write(v, convert);
 }
 
 void
-Ice::OutputStreamI::writeStringSeq(const vector<string>& v)
+Ice::OutputStreamI::writeStringSeq(const vector<string>& v, bool convert)
 {
     if(v.size() == 0)
     {
@@ -536,7 +536,7 @@ Ice::OutputStreamI::writeStringSeq(const vector<string>& v)
     }
     else
     {
-        _os->write(&v[0], &v[0] + v.size());
+        _os->write(&v[0], &v[0] + v.size(), convert);
     }
 }
 
