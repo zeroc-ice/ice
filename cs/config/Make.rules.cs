@@ -76,6 +76,10 @@ bindir = $(top_srcdir)/bin
 
 install_bindir		= $(prefix)/bin
 
+install_libdir		= $(prefix)/$(libsubdir)
+
+install_pkgconfigdir    = $(prefix)/$(libsubdir)/pkgconfig
+
 ifneq ($(ice_dir),/usr)
     ifdef ice_src_dist
         ref = -r:$(bindir)/$(1).dll

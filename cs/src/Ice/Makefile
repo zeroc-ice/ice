@@ -144,7 +144,10 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
 	$(INSTALL) $(LIBNAME).config $(bindir)
 
-ifneq ($(GACINSTALL),yes)
+ifeq ($(GACINSTALL),yes)
+install:: all
+	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
+else
 install:: all
 	$(call installdata,$(TARGETS).config,$(install_bindir))
 endif

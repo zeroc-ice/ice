@@ -34,4 +34,9 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 install:: all
 	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)))
 
+ifeq ($(GACINSTALL),yes)
+install:: all
+	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
+endif
+
 include .depend

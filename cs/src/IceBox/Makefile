@@ -44,4 +44,10 @@ install:: all
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))
 
+ifeq ($(GACINSTALL),yes)
+install:: all
+	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
+endif
+
+
 include .depend

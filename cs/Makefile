@@ -20,6 +20,23 @@ install:: install-common
 	    $(call mkdir,$(install_bindir)) ; \
 	fi
 
+ifeq ($(GACINSTALL),yes)
+install:: install-common
+	@if test ! -d $(install_libdir) ; \
+	then \
+	    echo "Creating $(install_libdir)..." ; \
+	    $(call mkdir,$(install_libdir)) ; \
+	fi
+	@if test ! -d $(install_pkgconfigdir) ; \
+	then \
+	    echo "Creating $(install_pkgconfigdir)..." ; \
+	    $(call mkdir,$(install_pkgconfigdir)) ; \
+	fi
+
+endif
+
+
+
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \
