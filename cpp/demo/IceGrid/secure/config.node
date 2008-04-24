@@ -26,5 +26,5 @@ IceSSL.CertAuthFile=ca_cert.pem
 IceSSL.CertFile=node_cert.pem
 IceSSL.KeyFile=node_key.pem
 
-IceSSL.TrustOnly.Client=CN="Server";CN="IceGrid Registry";CN="Glacier2"
+IceSSL.TrustOnly.Client=CN="Server";CN="IceGrid Registry"
 IceSSL.TrustOnly.Server=CN="IceGrid Registry"
