@@ -9,26 +9,13 @@
 
 top_srcdir	= ..\..
 
-LIBNAME		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestorm$(SOVERSION)$(LIBSUFFIX).dll
-
 SVCLIBNAME	= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
 SVCDLLNAME	= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX).dll
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 
-!ifdef BUILD_UTILS
-
 TARGETS         = $(SVCLIBNAME) $(SVCDLLNAME) $(ADMIN) $(MIGRATE)
-
-!else
-
-TARGETS         = $(LIBNAME) $(DLLNAME)
-
-!endif
-
-OBJS		= IceStorm.obj
 
 SERVICE_OBJS	= NodeI.obj \
 		  Observers.obj \
@@ -84,43 +71,23 @@ MLINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm -I.. -I$(slicedir)
 
-!ifdef BUILD_UTILS
-
 CPPFLAGS	= $(CPPFLAGS) -DICE_STORM_API_EXPORTS
 
-!else
-
-CPPFLAGS	= $(CPPFLAGS) -DICE_STORM_LIB_API_EXPORTS
-
-!endif
-
 !if "$(GENERATE_PDB)" == "yes"
-PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 SPDBFLAGS       = /pdb:$(SVCDLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 !endif
 
 !if "$(CPP_COMPILER)" == "BCC2007"
-RES_FILE        = ,, IceStorm.res
 SRES_FILE       = ,, IceStormService.res
 ARES_FILE       = ,, IceStormAdmin.res
 MRES_FILE       = ,, IceStormMigrate.res
 !else
-RES_FILE        = IceStorm.res
 SRES_FILE       = IceStormService.res
 ARES_FILE       = IceStormAdmin.res
 MRES_FILE       = IceStormMigrate.res
 !endif
-
-$(LIBNAME): $(DLLNAME)
-
-$(DLLNAME): $(OBJS) IceStorm.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
-	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
-	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(SVCLIBNAME): $(SVCDLLNAME)
 
@@ -195,9 +162,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-IceStorm.res: IceStorm.rc
-	rc.exe $(RCFLAGS) IceStorm.rc
-
 IceStormService.res: IceStormService.rc
 	rc.exe $(RCFLAGS) IceStormService.rc
 
@@ -206,8 +170,6 @@ IceStormAdmin.res: IceStormAdmin.rc
 
 IceStormMigrate.res: IceStormMigrate.rc
 	rc.exe $(RCFLAGS) IceStormMigrate.rc
-
-!ifdef BUILD_UTILS
 
 clean::
 	del /q LLUMap.h LLUMap.cpp
@@ -222,19 +184,16 @@ clean::
 	del /q LinkRecord.cpp LinkRecord.h
 	del /q Election.cpp Election.h
 	del /q SubscriberRecord.cpp SubscriberRecord.h
-	del /q $(DLLNAME:.dll=.*)
 	del /q $(SVCDLLNAME:.dll=.*)
 	del /q $(ADMIN:.exe=.*)
 	del /q $(MIGRATE:.exe=.*)
-	del /q IceStormAdmin.res IceStormMigrate.res IceStorm.res IceStormService.res
+	del /q IceStormAdmin.res IceStormMigrate.res IceStormService.res
 
 clean::
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
 	copy $(SVCLIBNAME) $(install_libdir)
 	copy $(SVCDLLNAME) $(install_bindir)
 	copy $(ADMIN) $(install_bindir)
@@ -245,7 +204,6 @@ install:: all
 !if "$(CPP_COMPILER)" == "BCC2007"
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 	copy $(SVCDLLNAME:.dll=.tds) $(install_bindir)
 	copy $(ADMIN:.exe=.tds) $(install_bindir)
 	copy $(MIGRATE:.exe=.tds) $(install_bindir)
@@ -253,21 +211,11 @@ install:: all
 !else
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 	copy $(SVCDLLNAME:.dll=.pdb) $(install_bindir)
 	copy $(ADMIN:.exe=.pdb) $(install_bindir)
 	copy $(MIGRATE:.exe=.pdb) $(install_bindir)
 
 !endif
-
-!endif
-
-!else
-
-install:: all
-
-$(EVERYTHING)::
-	$(MAKE) -nologo /f Makefile.mak BUILD_UTILS=1 $@
 
 !endif
 

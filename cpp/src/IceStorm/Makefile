@@ -9,10 +9,6 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IceStorm,$(VERSION))
-SONAME          = $(call mksoname,IceStorm,$(SOVERSION))  
-LIBNAME		= $(call mklibname,IceStorm)
-
 SVCLIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
 SVCSONAME       = $(call mksoname,IceStormService,$(SOVERSION))  
 SVCLIBNAME	= $(call mklibname,IceStormService)
@@ -20,17 +16,13 @@ SVCLIBNAME	= $(call mklibname,IceStormService)
 ADMIN		= $(top_srcdir)/bin/icestormadmin
 MIGRATE		= $(top_srcdir)/bin/icestormmigrate
 
-LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 SVCLIBTARGETS   = $(call mklibtargets,$(libdir)/$(SVCLIBFILENAME),$(libdir)/$(SVCSONAME),$(libdir)/$(SVCLIBNAME))
-TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN) $(MIGRATE)
-
-OBJS		= IceStorm.o
+TARGETS         = $(SVCLIBTARGETS) $(ADMIN) $(MIGRATE)
 
 SERVICE_OBJS	= NodeI.o \
 		  Observers.o \
 		  LLUMap.o \
 		  Election.o \
-		  IceStorm.o \
 		  Instance.o \
 		  TraceLevels.o \
 		  Subscriber.o \
@@ -68,8 +60,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
 		  $(MOBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/IceStorm.ice \
-		  ../IceStorm/Election.ice \
+SLICE_SRCS	= ../IceStorm/Election.ice \
 		  ../IceStorm/IceStormInternal.ice \
 		  ../IceStorm/SubscriberRecord.ice \
 		  ../IceStorm/LinkRecord.ice \
@@ -85,21 +76,9 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_STORM_API_EXPORTS $(READLINE_FLAGS) 
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --checksum --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
-SVCLINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lGlacier2 -lFreeze -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
-
-$(libdir)/$(LIBFILENAME): $(OBJS)
-	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
-
-$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
-	rm -f $@
-	ln -s $(LIBFILENAME) $@
-
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
-	rm -f $@
-	ln -s $(SONAME) $@
+SVCLINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lGlacier2 -lFreeze -lIceBox -lIceStorm $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(SVCLIBFILENAME): $(SERVICE_OBJS)
 	rm -f $@
@@ -156,7 +135,6 @@ clean::
 	-rm -f Scanner.cpp
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installlib,$(install_libdir),$(libdir),$(SVCLIBFILENAME),$(SVCSONAME),$(SVCLIBNAME))
 	$(call installprogram,$(ADMIN),$(install_bindir))
 	$(call installprogram,$(MIGRATE),$(install_bindir))

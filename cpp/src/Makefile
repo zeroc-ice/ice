@@ -35,6 +35,7 @@ SUBDIRS		= IceUtil \
 		  Glacier2 \
 		  IcePatch2 \
 		  IceGridLib \
+		  IceStormLib \
 		  IceStorm \
 		  IceGrid \
 		  ca
