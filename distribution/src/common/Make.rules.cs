@@ -33,10 +33,15 @@ include $(top_srcdir)/config/Make.common.rules
 
 DSEP = /
 
-ifneq ($(ice_dir),/usr)
-    ref = -r:$(ice_dir)/bin/$(1).dll
-else
+ifeq ($(ice_dir),/usr)
     ref = -pkg:$(1)
+else
+    ifeq ($(shell test -d $(ice_dir)/lib/pkgconfig && echo 0),0)
+        export PKG_CONFIG_PATH := $(ice_dir)/lib/pkgconfig:$(PKG_CONFIG_PATH)
+        ref = -pkg:$(1)
+    else
+        ref = -r:$(ice_dir)/bin/$(1).dll
+    endif
 endif
 
 MCS			= gmcs
