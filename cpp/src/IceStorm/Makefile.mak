@@ -141,10 +141,6 @@ LinkRecord.cpp ..\IceStorm\LinkRecord.h: ..\IceStorm\LinkRecord.ice
 SubscriberRecord.cpp ..\IceStorm\SubscriberRecord.h: ..\IceStorm\SubscriberRecord.ice
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\SubscriberRecord.ice
 
-IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice
-	$(SLICE2CPP) --dll-export ICE_STORM_LIB_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice
-	move IceStorm.h $(HDIR)
-
 Election.cpp ..\IceStorm\Election.h: ..\IceStorm\Election.ice
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\Election.ice
 
