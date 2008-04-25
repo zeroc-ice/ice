@@ -897,15 +897,26 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         iceVersion = getMMVersion(info.descriptor->iceVersion);
     }
 
+    server->processRegistered = false;
     if(iceVersion == 0 || iceVersion >= 30300)
     {
         props.push_back(createProperty("Ice.Admin.ServerId", info.descriptor->id));
-        server->processRegistered = getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "";
+        if(hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
+        {
+            if(getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "")
+            {
+                server->processRegistered = true;
+            }
+        }
+        else
+        {
+            props.push_back(createProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1"));
+            server->processRegistered = true;
+        }
     }
     else
     {
         props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
-        server->processRegistered = false; // Assigned for each communicator (see below)
     }
 
     props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));
@@ -924,11 +935,15 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             props.push_back(createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config=\"" + path + "\""));
             servicesStr += s->name + " ";
         }
+        if(!hasProperty(info.descriptor->propertySet.properties, "IceBox.InstanceName"))
+        {
+            props.push_back(createProperty("IceBox.InstanceName", server->id));
+        }
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
 
         if(iceVersion != 0 && iceVersion < 30300)
         {
-            if(isSet(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess"))
+            if(hasProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess"))
             {
                 if(getProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess") != "0")
                 {
@@ -940,7 +955,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                 props.push_back(createProperty("IceBox.ServiceManager.RegisterProcess", "1"));
                 server->processRegistered = true;
             }
-            if(!isSet(iceBox->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
+            if(!hasProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
             {
                 props.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
             }
