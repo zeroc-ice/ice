@@ -232,6 +232,8 @@ namespace Ice
                         name = name.Substring(0, dotPos);
                         loadPlugin(name, val, ref cmdArgs, false);
                         plugins.Remove(key);
+                        plugins.Remove("Ice.Plugin." + name);
+        
                     }
                     else
                     {

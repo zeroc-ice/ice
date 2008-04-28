@@ -223,6 +223,8 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
                 name = name.substr(0, dotPos);
                 loadPlugin(name, p->second, cmdArgs);
                 plugins.erase(p);
+                
+                plugins.erase("Ice.Plugin." + name);
             }
             else
             {
