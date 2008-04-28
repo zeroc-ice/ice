@@ -172,8 +172,14 @@ extern "C"
 static PyObject*
 propertiesGetProperty(PropertiesObject* self, PyObject* args)
 {
-    char* key;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    PyObject* keyObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
     {
         return 0;
     }
@@ -199,9 +205,20 @@ extern "C"
 static PyObject*
 propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
 {
-    char* key;
-    char* def;
-    if(!PyArg_ParseTuple(args, STRCAST("ss"), &key, &def))
+    PyObject* keyObj;
+    PyObject* defObj;
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &keyObj, &defObj))
+    {
+        return 0;
+    }
+
+    string key;
+    string def;
+    if(!getStringArg(keyObj, "key", key))
+    {
+        return 0;
+    }
+    if(!getStringArg(defObj, "value", def))
     {
         return 0;
     }
@@ -227,8 +244,14 @@ extern "C"
 static PyObject*
 propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
 {
-    char* key;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    PyObject* keyObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
     {
         return 0;
     }
@@ -254,9 +277,15 @@ extern "C"
 static PyObject*
 propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
 {
-    char* key;
+    PyObject* keyObj;
     int def;
-    if(!PyArg_ParseTuple(args, STRCAST("si"), &key, &def))
+    if(!PyArg_ParseTuple(args, STRCAST("Oi"), &keyObj, &def))
+    {
+        return 0;
+    }
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
     {
         return 0;
     }
@@ -282,8 +311,14 @@ extern "C"
 static PyObject*
 propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
 {
-    char* key;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    PyObject* keyObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &keyObj))
+    {
+        return 0;
+    }
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
     {
         return 0;
     }
@@ -319,13 +354,19 @@ extern "C"
 static PyObject*
 propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
 {
-    char* key;
+    PyObject* keyObj;
     PyObject* defList;
-    if(!PyArg_ParseTuple(args, STRCAST("sO!"), &key, &PyList_Type, &defList))
+    if(!PyArg_ParseTuple(args, STRCAST("OO!"), &keyObj, &PyList_Type, &defList))
     {
         return 0;
     }
-    
+
+    string key;
+    if(!getStringArg(keyObj, "key", key))
+    {
+        return 0;
+    }
+
     assert(self->properties);
     Ice::StringSeq def;
     if(!listToStringSeq(defList, def))
@@ -365,8 +406,14 @@ extern "C"
 static PyObject*
 propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
 {
-    char* prefix;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &prefix))
+    PyObject* prefixObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &prefixObj))
+    {
+        return 0;
+    }
+
+    string prefix;
+    if(!getStringArg(prefixObj, "prefix", prefix))
     {
         return 0;
     }
@@ -406,9 +453,20 @@ extern "C"
 static PyObject*
 propertiesSetProperty(PropertiesObject* self, PyObject* args)
 {
-    char* key;
-    char* value;
-    if(!PyArg_ParseTuple(args, STRCAST("ss"), &key, &value))
+    PyObject* keyObj;
+    PyObject* valueObj;
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &keyObj, &valueObj))
+    {
+        return 0;
+    }
+
+    string key;
+    string value;
+    if(!getStringArg(keyObj, "key", key))
+    {
+        return 0;
+    }
+    if(!getStringArg(valueObj, "value", value))
     {
         return 0;
     }
@@ -465,15 +523,21 @@ extern "C"
 static PyObject*
 propertiesParseCommandLineOptions(PropertiesObject* self, PyObject* args)
 {
-    char* prefix;
+    PyObject* prefixObj;
     PyObject* options;
-    if(!PyArg_ParseTuple(args, STRCAST("sO!"), &prefix, &PyList_Type, &options))
+    if(!PyArg_ParseTuple(args, STRCAST("OO!"), &prefixObj, &PyList_Type, &options))
     {
         return 0;
     }
 
     Ice::StringSeq seq;
     if(!listToStringSeq(options, seq))
+    {
+        return 0;
+    }
+
+    string prefix;
+    if(!getStringArg(prefixObj, "prefix", prefix))
     {
         return 0;
     }
@@ -552,8 +616,14 @@ extern "C"
 static PyObject*
 propertiesLoad(PropertiesObject* self, PyObject* args)
 {
-    char* file;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &file))
+    PyObject* fileObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &fileObj))
+    {
+        return 0;
+    }
+
+    string file;
+    if(!getStringArg(fileObj, "file", file))
     {
         return 0;
     }

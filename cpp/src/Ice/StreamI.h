@@ -59,8 +59,8 @@ public:
     virtual std::vector< Ice::Double > readDoubleSeq();
     virtual Ice::Double* readDoubleSeq(std::pair<const Ice::Double*, const Ice::Double*>&);
 
-    virtual std::string readString();
-    virtual std::vector< std::string > readStringSeq();
+    virtual std::string readString(bool = true);
+    virtual std::vector< std::string > readStringSeq(bool = true);
 
     virtual std::wstring readWstring();
     virtual std::vector< std::wstring > readWstringSeq();
@@ -132,8 +132,8 @@ public:
     virtual void writeDoubleSeq(const std::vector< Ice::Double >&);
     virtual void writeDoubleSeq(const Ice::Double*, const Ice::Double*);
 
-    virtual void writeString(const std::string&);
-    virtual void writeStringSeq(const std::vector< std::string >&);
+    virtual void writeString(const std::string&, bool = true);
+    virtual void writeStringSeq(const std::vector< std::string >&, bool = true);
 
     virtual void writeWstring(const std::wstring&);
     virtual void writeWstringSeq(const std::vector< std::wstring >&);

@@ -672,8 +672,8 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* servant;
     PyObject* id;
-    char* facet;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O!s"), objectType, &servant, identityType, &id, &facet))
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O!O"), objectType, &servant, identityType, &id, &facetObj))
     {
         return 0;
     }
@@ -686,6 +686,12 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
 
     ServantWrapperPtr wrapper= createServantWrapper(servant);
     if(PyErr_Occurred())
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -747,14 +753,20 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* objectType = lookupType("Ice.Object");
     PyObject* servant;
-    char* facet;
-    if(!PyArg_ParseTuple(args, STRCAST("O!s"), objectType, &servant, &facet))
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), objectType, &servant, &facetObj))
     {
         return 0;
     }
 
     ServantWrapperPtr wrapper= createServantWrapper(servant);
     if(PyErr_Occurred())
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -824,14 +836,20 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    char* facet;
-    if(!PyArg_ParseTuple(args, STRCAST("O!s"), identityType, &id, &facet))
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &id, &facetObj))
     {
         return 0;
     }
 
     Ice::Identity ident;
     if(!getIdentity(id, ident))
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -960,14 +978,20 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     PyObject* id;
-    char* facet;
-    if(!PyArg_ParseTuple(args, STRCAST("O!s"), identityType, &id, &facet))
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &id, &facetObj))
     {
         return 0;
     }
 
     Ice::Identity ident;
     if(!getIdentity(id, ident))
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
     {
         return 0;
     }
@@ -1092,13 +1116,19 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* locatorType = lookupType("Ice.ServantLocator");
     PyObject* locator;
-    char* category;
-    if(!PyArg_ParseTuple(args, STRCAST("O!s"), locatorType, &locator, &category))
+    PyObject* categoryObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), locatorType, &locator, &categoryObj))
     {
         return 0;
     }
 
     ServantLocatorWrapperPtr wrapper = new ServantLocatorWrapper(locator);
+
+    string category;
+    if(!getStringArg(categoryObj, "category", category))
+    {
+        return 0;
+    }
 
     assert(self->adapter);
     try
@@ -1121,8 +1151,14 @@ extern "C"
 static PyObject*
 adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
 {
-    char* category;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &category))
+    PyObject* categoryObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
+    {
+        return 0;
+    }
+
+    string category;
+    if(!getStringArg(categoryObj, "category", category))
     {
         return 0;
     }

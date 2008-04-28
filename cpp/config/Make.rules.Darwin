@@ -78,10 +78,10 @@ endif
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         = -lpthread
-ICE_OS_LIBS             = -ldl
-
 ICONV_LIB               = -liconv
+
+ICEUTIL_OS_LIBS         = -lpthread
+ICE_OS_LIBS             = -ldl $(ICONV_LIB)
 
 
 PLATFORM_HAS_READLINE   := no

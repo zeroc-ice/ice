@@ -76,18 +76,23 @@ bindir = $(top_srcdir)/bin
 
 install_bindir		= $(prefix)/bin
 
-install_libdir		= $(prefix)/$(libsubdir)
+install_libdir		= $(prefix)/lib
 
-install_pkgconfigdir    = $(prefix)/$(libsubdir)/pkgconfig
+install_pkgconfigdir    = $(prefix)/lib/pkgconfig
 
-ifneq ($(ice_dir),/usr)
+ifeq ($(ice_dir),/usr)
+    ref = -pkg:$(1)
+else
     ifdef ice_src_dist
         ref = -r:$(bindir)/$(1).dll
     else
-        ref = -r:$(ice_dir)/bin/$(1).dll
+        ifeq ($(shell test -d $(ice_dir)/lib/pkgconfig && echo 0),0)
+            export PKG_CONFIG_PATH := $(ice_dir)/lib/pkgconfig:$(PKG_CONFIG_PATH)
+            ref = -pkg:$(1)
+        else
+            ref = -r:$(ice_dir)/bin/$(1).dll
+        endif
     endif
-else
-    ref = -pkg:$(1)
 endif
 
 GACUTIL			= gacutil

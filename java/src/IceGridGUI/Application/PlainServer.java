@@ -64,12 +64,9 @@ class PlainServer extends Communicator implements Server
 
     static public ServerDescriptor newServerDescriptor()
     {
-        java.util.LinkedList properties = new java.util.LinkedList();
-        properties.add(new PropertyDescriptor("Ice.Admin.Endpoints", "tcp -h 127.0.0.1"));
-
         return new ServerDescriptor(
             new java.util.LinkedList(),
-            new PropertySetDescriptor(new String[0], properties),
+            new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
             new java.util.LinkedList(),
             new String[0],
             "",
@@ -90,13 +87,9 @@ class PlainServer extends Communicator implements Server
 
     static public IceBoxDescriptor newIceBoxDescriptor()
     {
-        java.util.LinkedList properties = new java.util.LinkedList();
-        properties.add(new PropertyDescriptor("IceBox.InstanceName", "${server}"));
-        properties.add(new PropertyDescriptor("Ice.Admin.Endpoints", "tcp -h 127.0.0.1"));
-
         return new IceBoxDescriptor(
             new java.util.LinkedList(),
-            new PropertySetDescriptor(new String[0], properties),
+            new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
             new java.util.LinkedList(),
             new String[0],
             "",

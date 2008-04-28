@@ -841,16 +841,6 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->iceVersion = attrs("ice-version", "");
 }
 
-void
-ServerDescriptorBuilder::finish()
-{
-    if(!isSet(_descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
-    {
-        _hiddenProperties.push_back(createProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1"));
-    }
-    CommunicatorDescriptorBuilder::finish();
-}
-
 ServiceDescriptorBuilder*
 ServerDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 {
@@ -913,21 +903,6 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
 {
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
-}
-
-void
-IceBoxDescriptorBuilder::finish()
-{
-    if(!isSet(_descriptor->propertySet.properties, "IceBox.InstanceName"))
-    {
-        _hiddenProperties.push_back(createProperty("IceBox.InstanceName", "${server}"));
-    }
-    
-    //
-    // The NodeCache takes care of setting Endpoints and RegisterProcess for old IceBox servers
-    //
-
-    ServerDescriptorBuilder::finish();
 }
 
 ServiceDescriptorBuilder*

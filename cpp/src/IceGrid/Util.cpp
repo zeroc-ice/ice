@@ -76,18 +76,16 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
 }
 
 bool
-IceGrid::isSet(const PropertyDescriptorSeq& properties, const string& name)
+IceGrid::hasProperty(const PropertyDescriptorSeq& properties, const string& name)
 {    
-    bool result = false;
-
     for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
         if(q->name == name)
         {
-            result = (q->value != "");
+            return true;
         }
     }
-    return result;
+    return false;
 }
 
 PropertyDescriptor
@@ -98,7 +96,6 @@ IceGrid::createProperty(const string& name, const string& value)
     prop.value = value;
     return prop;
 }
-
 
 int
 IceGrid::getMMVersion(const string& o)

@@ -2458,14 +2458,14 @@ public class Coordinator
         else
         {
             BareBonesBrowserLaunch.openURL("http://www.zeroc.com/doc/Ice-" 
-                                           + IceUtil.Version.ICE_STRING_VERSION + "/IceGridAdmin/index.html");
+                                           + Ice.Util.stringVersion() + "/IceGridAdmin/index.html");
         }
     }
 
     private void about()
     {
         String text = "IceGrid Admin version " 
-            + IceUtil.Version.ICE_STRING_VERSION + "\n"
+            + Ice.Util.stringVersion() + "\n"
             + "Copyright \u00A9 2005-2008 ZeroC, Inc. All rights reserved.\n";
             
         JOptionPane.showMessageDialog(
