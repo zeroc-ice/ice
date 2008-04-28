@@ -205,6 +205,11 @@ public final class PluginManagerI implements PluginManager
                     name = name.substring(0, dotPos);
                     loadPlugin(name, entry.getValue(), cmdArgs, false);
                     p.remove();
+                    
+                    //
+                    // Don't want to load this one if it's there!
+                    // 
+                    plugins.remove("Ice.Plugin." + name);
                 }
                 else
                 {

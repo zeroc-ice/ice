@@ -354,17 +354,6 @@ class SessionKeeper
         {
             _connectionPrefs = connectionPrefs;
 
-            String prop = System.getProperty("java.net.ssl.keyStorePassword");
-            if(prop != null)
-            {
-                keystorePassword = prop.toCharArray();
-            }
-            prop = System.getProperty("java.net.ssl.trustStorePassword");
-            if(prop != null)
-            {
-                truststorePassword = prop.toCharArray();
-            }
-
             Ice.Properties properties = coordinator.getProperties();
 
             //
@@ -404,7 +393,6 @@ class SessionKeeper
                     _connectionPrefs.get("registry.endpoints", registryEndpoints);
             }
             connectToMaster = _connectionPrefs.getBoolean("registry.connectToMaster", connectToMaster);
-
             
             //
             // Glacier2 properties
@@ -470,14 +458,52 @@ class SessionKeeper
             //
             // SSL Configuration
             //
-            keystore = properties.getPropertyWithDefault("IceSSL.Keystore",
-                                                         _connectionPrefs.get("keystore", keystore));      
+
+            final File defaultDir = new File(properties.getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
             
+            keystore = properties.getPropertyWithDefault("IceSSL.Keystore",
+                                                         _connectionPrefs.get("keystore", keystore));
+
+            if(keystore != null && keystore.length() > 0)
+            {
+                if(new File(keystore).isAbsolute() == false)
+                {
+                    keystore = new File(defaultDir, keystore).getAbsolutePath();
+                }
+            }
+
+            String prop = properties.getProperty("IceSSL.Password");
+            if(prop.length() > 0)
+            {
+                keyPassword = prop.toCharArray();
+            }
+
+            prop = properties.getPropertyWithDefault("IceSSL.KeystorePassword", System.getProperty("java.net.ssl.keyStorePassword"));
+
+            if(prop != null && prop.length() > 0)
+            {
+                keystorePassword = prop.toCharArray();
+            }
+            
+            prop = properties.getPropertyWithDefault("IceSSL.TruststorePassword", System.getProperty("java.net.ssl.trustStorePassword"));
+            if(prop != null && prop.length() > 0)
+            {
+                truststorePassword = prop.toCharArray();
+            }
+
             alias = properties.getPropertyWithDefault("IceSSL.Alias",
                                                       _connectionPrefs.get("alias", ""));
 
             truststore = properties.getPropertyWithDefault("IceSSL.Truststore",
-                                                           _connectionPrefs.get("truststore", truststore));           
+                                                           _connectionPrefs.get("truststore", truststore));
+
+            if(truststore != null && truststore.length() > 0)
+            {
+                if(new File(truststore).isAbsolute() == false)
+                {
+                    truststore = new File(defaultDir, truststore).getAbsolutePath();
+                }
+            }
         }
 
         void save()
@@ -536,6 +562,7 @@ class SessionKeeper
         String alias;
         String truststore = System.getProperty("java.net.ssl.trustStore");
         char[] truststorePassword;
+
         private Preferences _connectionPrefs;
     }
 
@@ -546,7 +573,7 @@ class SessionKeeper
             super(_coordinator.getMainFrame(), "Login - IceGrid Admin", true);
             setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
-            final File defaultDir = new java.io.File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir"));
+            final File defaultDir = new File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
             _keystoreType = 
                 _coordinator.getProperties().getPropertyWithDefault("IceSSL.KeystoreType", 
                                                                     java.security.KeyStore.getDefaultType());
@@ -619,8 +646,8 @@ class SessionKeeper
             _routerSSLEnabled = new JCheckBox(routerSSLEnabled);
 
 
-            _keystore.setEditable(false);
-            _advancedKeystore.setEditable(false);
+            _keystore.setEditable(true);
+            _advancedKeystore.setEditable(true);
             Action chooseKeystore = new AbstractAction("...")
                 {
                     public void actionPerformed(ActionEvent e) 
@@ -654,7 +681,7 @@ class SessionKeeper
                     private JFileChooser _fileChooser = new JFileChooser(); 
                 };
 
-            _truststore.setEditable(false);
+            _truststore.setEditable(true);
             Action chooseTruststore = new AbstractAction("...")
                 {
                     public void actionPerformed(ActionEvent e) 
@@ -897,7 +924,22 @@ class SessionKeeper
                 {
                     updateAlias(new File(_loginInfo.keystore), _loginInfo.alias);
                 }
+                
+                if(_loginInfo.keyPassword != null)
+                {
+                    _keyPassword.setText(new String(_loginInfo.keyPassword));
+                }
+                if(_loginInfo.keystorePassword != null)
+                {
+                    _keystorePassword.setText(new String(_loginInfo.keystorePassword));
+                }
+
                 _truststore.setText(_loginInfo.truststore);
+
+                if(_loginInfo.truststorePassword != null)
+                {
+                    _truststorePassword.setText(new String(_loginInfo.truststorePassword));
+                }
 
                 if(_loginInfo.routed)
                 {
@@ -936,7 +978,14 @@ class SessionKeeper
             _loginInfo.routerInstanceName = _routerInstanceName.getText();
             _loginInfo.routerEndpoints = _routerEndpoints.getText();
 
+            final File defaultDir = new File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
+
             _loginInfo.keystore = _keystore.getText();
+            if(_loginInfo.keystore != null && _loginInfo.keystore.length() > 0 && new File(_loginInfo.keystore).isAbsolute() == false)
+            {
+                _loginInfo.keystore = new File(defaultDir, _loginInfo.keystore).getAbsolutePath();
+            }
+
             _loginInfo.keyPassword = _keyPassword.getPassword();
             _loginInfo.keystorePassword = _keystorePassword.getPassword();
             if(_alias.getSelectedItem() == null)
@@ -948,6 +997,10 @@ class SessionKeeper
                 _loginInfo.alias = _alias.getSelectedItem().toString();
             }
             _loginInfo.truststore = _truststore.getText();
+            if(_loginInfo.truststore != null && _loginInfo.truststore.length() > 0 && new File(_loginInfo.truststore).isAbsolute() == false)
+            {
+                _loginInfo.truststore = new File(defaultDir, _loginInfo.truststore).getAbsolutePath();
+            }
             _loginInfo.truststorePassword = _truststorePassword.getPassword();
         }
 

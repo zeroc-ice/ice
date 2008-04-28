@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.Icon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -80,12 +81,21 @@ public class Main extends JFrame
         {
             System.err.println(e.toString());
         }
-        
-        //
-        // Create and set up the window.
-        //
-        new Main(args);
-     
+
+        try
+        {
+            //
+            // Create and set up the window.
+            //
+            new Main(args);
+        }
+        catch(Ice.LocalException e)
+        {
+            JOptionPane.showMessageDialog(null,
+                                          e.toString(),
+                                          "Initialization failed",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private Coordinator _coordinator;

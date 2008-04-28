@@ -37,7 +37,7 @@ public class Root extends ListArrayTreeNode
         _coordinator = coordinator;
         _childrenArray[0] = _slaves;
         _childrenArray[1] = _nodes;
-        _messageSizeMax = Ice.Util.getInstance(_coordinator.getCommunicator()).messageSizeMax();
+        _messageSizeMax = computeMessageSizeMax(_coordinator.getProperties().getPropertyAsInt("Ice.MessageSizeMax"));
 
         _tree = new JTree(this, true);
         _treeModel = (DefaultTreeModel)_tree.getModel();
@@ -1061,6 +1061,24 @@ public class Root extends ListArrayTreeNode
             _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
         }
     }
+    
+    public static int computeMessageSizeMax(int num)
+    {
+        if(num <= 0)
+        {
+            num = 1024;
+        }
+        
+        if(num > 0x7fffffff / 1024)
+        {
+            return 0x7fffffff;
+        }
+        else
+        {
+            return num * 1024; // num is in kilobytes, returned value in bytes
+        }
+    }
+
   
     private final Coordinator _coordinator;
     private String _instanceName = "";

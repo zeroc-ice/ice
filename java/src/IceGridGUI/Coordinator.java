@@ -623,17 +623,7 @@ public class Coordinator
     {
         if(_communicator == null)
         {
-            try
-            {
-                _communicator = Ice.Util.initialize(_initData);
-            }
-            catch(Ice.LocalException e)
-            {
-                JOptionPane.showMessageDialog(null,
-                                              e.toString(),
-                                              "Communicator initialization failed",
-                                              JOptionPane.ERROR_MESSAGE);
-            }
+            _communicator = Ice.Util.initialize(_initData); 
         }
         return _communicator;
     }
