@@ -1,0 +1,300 @@
+diff -N -r -c ../mcpp-2.7-old/noconfig/bc59.dif ./noconfig/bc59.dif
+*** ../mcpp-2.7-old/noconfig/bc59.dif	1969-12-31 20:30:00.000000000 -0330
+--- ./noconfig/bc59.dif	2008-04-28 09:36:41.000000000 -0230
+***************
+*** 0 ****
+--- 1,44 ----
++ *** noconfig.H	2007-01-30 00:29:12.000000000 +0900
++ --- noconfig.H.bc59	2007-01-30 01:41:40.000000000 +0900
++ ***************
++ *** 15,21 ****
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_FREEBSD
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ --- 15,21 ----
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_WIN32
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ ***************
++ *** 26,36 ****
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       GNUC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "GCC 3.4"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ --- 26,36 ----
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       BORLANDC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "BCC V.5.9"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
+diff -N -r -c ../mcpp-2.7-old/noconfig/vc6.dif ./noconfig/vc6.dif
+*** ../mcpp-2.7-old/noconfig/vc6.dif	1969-12-31 20:30:00.000000000 -0330
+--- ./noconfig/vc6.dif	2008-04-28 09:35:32.000000000 -0230
+***************
+*** 0 ****
+--- 1,67 ----
++ *** noconfig.H	2008-02-21 17:24:21.000000000 +0900
++ --- noconfig.H.vc2002	2008-02-21 17:30:24.000000000 +0900
++ ***************
++ *** 15,21 ****
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_FREEBSD
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ --- 15,21 ----
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_WIN32
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ ***************
++ *** 26,36 ****
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       GNUC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "GCC 3.4"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ --- 26,36 ----
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       MSC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "Visual C 6"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ ***************
++ *** 266,275 ****
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1200"
++       /* VC 2002: "1300", VC 2003: "1310", VC 2005: "1400", VC 2008: "1500"   */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "12008804"
++       /* VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320" */
++       /* VC 2008 "150021022"  */
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
++ --- 266,275 ----
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1200"
++       /* VC 2002: "1300", VC 2003: "1310", VC 2005: "1400", VC 2008: "1500"   */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "12008804"
++       /* VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320" */
++       /* VC 2008 "150021022"  */
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
+diff -N -r -c ../mcpp-2.7-old/noconfig/visualc.mak ./noconfig/visualc.mak
+*** ../mcpp-2.7-old/noconfig/visualc.mak	2008-03-07 06:24:53.000000000 -0330
+--- ./noconfig/visualc.mak	2008-04-28 09:44:15.000000000 -0230
+***************
+*** 85,94 ****
+  LIBDIR = "$(VCINSTALLDIR)"\lib
+  CFLAGS = $(CFLAGS) -DMCPP_LIB
+  
+  mcpplib: mcpplib_lib mcpplib_dll
+  
+  mcpplib_lib:	$(OBJS)
+! 	lib -out:mcpp.lib $(OBJS)
+  
+  # DLL
+  DLL_VER = 0
+--- 85,101 ----
+  LIBDIR = "$(VCINSTALLDIR)"\lib
+  CFLAGS = $(CFLAGS) -DMCPP_LIB
+  
++ !ifdef DEBUG
++ CFLAGS = $(CFLAGS) -MDd -D_DEBUG
++ LIBSUFFIX = d
++ !else
++ CFLAGS = $(CFLAGS) -O2 -MD -DNDEBUG
++ !endif
++ 
+  mcpplib: mcpplib_lib mcpplib_dll
+  
+  mcpplib_lib:	$(OBJS)
+! 	lib -out:mcpp$(LIBSUFFIX).lib $(OBJS)
+  
+  # DLL
+  DLL_VER = 0
+***************
+*** 97,111 ****
+  .c.so	:
+  	$(CC) $(CFLAGS) $(CPPFLAGS) $(MEM_MACRO) -DDLL_EXPORT -TC -Fo$*.so $<
+  mcpplib_dll:	$(SOBJS)
+! 	$(CC) -LD -Femcpp$(DLL_VER) $(SOBJS) $(MEMLIB)
+  mcpplib_install:
+! 	copy mcpp.lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER).lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER).dll $(BINDIR)
+  
+  mcpplib_uninstall:
+! 	del $(LIBDIR)\mcpp.lib $(LIBDIR)\mcpp$(DLL_VER).lib \
+! 			$(BINDIR)\mcpp$(DLL_VER).dll
+  
+  # use mcpp as a subroutine from testmain.c
+  NAME = testmain
+--- 104,118 ----
+  .c.so	:
+  	$(CC) $(CFLAGS) $(CPPFLAGS) $(MEM_MACRO) -DDLL_EXPORT -TC -Fo$*.so $<
+  mcpplib_dll:	$(SOBJS)
+! 	$(CC) -LD -Femcpp$(DLL_VER)$(LIBSUFFIX) $(SOBJS) $(MEMLIB)
+  mcpplib_install:
+! 	copy mcpp$(LIBSUFFIX).lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER)$(LIBSUFFIX).lib $(LIBDIR)
+! 	copy mcpp$(DLL_VER)$(LIBSUFFIX).dll $(BINDIR)
+  
+  mcpplib_uninstall:
+! 	del $(LIBDIR)\mcpp$(LIBSUFFIX).lib $(LIBDIR)\mcpp$(DLL_VER)$(LIBSUFFIX).lib \
+! 			$(BINDIR)\mcpp$(DLL_VER)$(LIBSUFFIX).dll
+  
+  # use mcpp as a subroutine from testmain.c
+  NAME = testmain
+diff -N -r -c ../mcpp-2.7-old/src/eval.c ./src/eval.c
+*** ../mcpp-2.7-old/src/eval.c	2008-03-17 01:16:53.000000000 -0230
+--- ./src/eval.c	2008-04-28 09:37:40.000000000 -0230
+***************
+*** 196,202 ****
+  #define S_PDOUBLE   (sizeof (double *))
+  #define S_PFPTR     (sizeof (int (*)()))
+  #if HAVE_LONG_LONG
+! #if HOST_COMPILER == BORLANDC
+  #define S_LLINT     (sizeof (__int64))
+  #define S_PLLINT    (sizeof (__int64 *))
+  #else
+--- 196,202 ----
+  #define S_PDOUBLE   (sizeof (double *))
+  #define S_PFPTR     (sizeof (int (*)()))
+  #if HAVE_LONG_LONG
+! #if (HOST_COMPILER == BORLANDC) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+  #define S_LLINT     (sizeof (__int64))
+  #define S_PLLINT    (sizeof (__int64 *))
+  #else
+diff -N -r -c ../mcpp-2.7-old/src/main.c ./src/main.c
+*** ../mcpp-2.7-old/src/main.c	2008-03-11 13:35:19.000000000 -0230
+--- ./src/main.c	2008-04-28 09:25:05.000000000 -0230
+***************
+*** 371,377 ****
+  
+      /* Open input file, "-" means stdin.    */
+      if (in_file != NULL && ! str_eq( in_file, "-")) {
+!         if (freopen( in_file, "r", fp_in) == NULL) {
+              mcpp_fprintf( ERR, "Can't open input file \"%s\".\n", in_file);
+  #if MCPP_LIB
+              goto  fatal_error_exit;
+--- 371,377 ----
+  
+      /* Open input file, "-" means stdin.    */
+      if (in_file != NULL && ! str_eq( in_file, "-")) {
+!         if ((fp_in = fopen( in_file, "r")) == NULL) {
+              mcpp_fprintf( ERR, "Can't open input file \"%s\".\n", in_file);
+  #if MCPP_LIB
+              goto  fatal_error_exit;
+***************
+*** 384,390 ****
+      }
+      /* Open output file, "-" means stdout.  */
+      if (out_file != NULL && ! str_eq( out_file, "-")) {
+!         if (freopen( out_file, "w", fp_out) == NULL) {
+              mcpp_fprintf( ERR, "Can't open output file \"%s\".\n", out_file);
+  #if MCPP_LIB
+              goto  fatal_error_exit;
+--- 384,390 ----
+      }
+      /* Open output file, "-" means stdout.  */
+      if (out_file != NULL && ! str_eq( out_file, "-")) {
+!         if ((fp_out = fopen( out_file, "w")) == NULL) {
+              mcpp_fprintf( ERR, "Can't open output file \"%s\".\n", out_file);
+  #if MCPP_LIB
+              goto  fatal_error_exit;
+***************
+*** 394,400 ****
+          }
+      }
+      if (option_flags.q) {                   /* Redirect diagnostics */
+!         if (freopen( "mcpp.err", "a", fp_err) == NULL) {
+              mcpp_fprintf( OUT, "Can't open \"mcpp.err\"\n");
+  #if MCPP_LIB
+              goto  fatal_error_exit;
+--- 394,400 ----
+          }
+      }
+      if (option_flags.q) {                   /* Redirect diagnostics */
+!         if ((fp_err = fopen( "mcpp.err", "a")) == NULL) {
+              mcpp_fprintf( OUT, "Can't open \"mcpp.err\"\n");
+  #if MCPP_LIB
+              goto  fatal_error_exit;
+***************
+*** 430,435 ****
+--- 430,442 ----
+      clear_symtable();
+  #endif
+  
++     if(fp_in != stdin)
++         fclose( fp_in);
++     if(fp_out != stdout)
++         fclose( fp_out);
++     if(fp_err != stderr)
++         fclose( fp_err);
++ 
+      if (mcpp_debug & MEMORY)
+          print_heap();
+      if (errors > 0 && option_flags.no_source_line == FALSE) {
+diff -N -r -c ../mcpp-2.7-old/src/system.c ./src/system.c
+*** ../mcpp-2.7-old/src/system.c	2008-03-18 06:35:57.000000000 -0230
+--- ./src/system.c	2008-04-28 09:25:25.000000000 -0230
+***************
+*** 3349,3355 ****
+           * The state will be restored by get_line() on end of the included.
+           */
+          file->pos = ftell( file->fp);
+!         fclose( file->fp);
+          /* In case of failure, re-open the includer */
+          if ((fp = fopen( fullname, "r")) == NULL) {
+              file->fp = fopen( cur_fullname, "r");
+--- 3349,3356 ----
+           * The state will be restored by get_line() on end of the included.
+           */
+          file->pos = ftell( file->fp);
+!         if(file->fp != stdin)
+!             fclose( file->fp);
+          /* In case of failure, re-open the includer */
+          if ((fp = fopen( fullname, "r")) == NULL) {
+              file->fp = fopen( cur_fullname, "r");
