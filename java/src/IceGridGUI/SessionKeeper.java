@@ -546,7 +546,7 @@ class SessionKeeper
             super(_coordinator.getMainFrame(), "Login - IceGrid Admin", true);
             setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
-            final File defaultDir = new java.io.File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir"));
+            final File defaultDir = new java.io.File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
             _keystoreType = 
                 _coordinator.getProperties().getPropertyWithDefault("IceSSL.KeystoreType", 
                                                                     java.security.KeyStore.getDefaultType());
