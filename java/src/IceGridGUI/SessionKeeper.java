@@ -574,6 +574,7 @@ class SessionKeeper
             setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
             final File defaultDir = new File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
+
             _keystoreType = 
                 _coordinator.getProperties().getPropertyWithDefault("IceSSL.KeystoreType", 
                                                                     java.security.KeyStore.getDefaultType());

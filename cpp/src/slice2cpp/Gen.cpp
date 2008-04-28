@@ -4986,7 +4986,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << ',' << nl << "const Ice::Current&";
             H.restoreIndent();
 
-            bool isConst = (op->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const");
+            bool isConst = (op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const");
 
             H << ")" << (isConst ? " const" : "") << ';';
 
@@ -5089,7 +5089,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             H.restoreIndent();
 
-            bool isConst = (op->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const");
+            bool isConst = (op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const");
 
             H << ")" << (isConst ? " const" : "") << ';';
 
