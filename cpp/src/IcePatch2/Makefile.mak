@@ -16,15 +16,7 @@ SERVER		= $(top_srcdir)\bin\icepatch2server.exe
 CLIENT		= $(top_srcdir)\bin\icepatch2client.exe
 CALC		= $(top_srcdir)\bin\icepatch2calc.exe
 
-!ifdef BUILD_UTILS
-
-TARGETS         = $(SERVER) $(CLIENT) $(CALC)
-
-!else
-
-TARGETS         = $(LIBNAME) $(DLLNAME)
-
-!endif
+TARGETS         = $(LIBNAME) $(DLLNAME) $(SERVER) $(CLIENT) $(CALC)
 
 OBJS		= Util.obj \
 		  ClientUtil.obj \
@@ -49,15 +41,7 @@ SDIR		= $(slicedir)\IcePatch2
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-!ifdef BUILD_UTILS
-
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-
-!else
-
-CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
-
-!endif
 
 SLICE2CPPFLAGS	= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 
@@ -120,8 +104,6 @@ IcePatch2Client.res: IcePatch2Client.rc
 IcePatch2Calc.res: IcePatch2Calc.rc
 	rc.exe $(RCFLAGS) IcePatch2Calc.rc
 
-!ifdef BUILD_UTILS
-
 clean::
 	del /q FileInfo.cpp $(HDIR)\FileInfo.h
 	del /q FileServer.cpp $(HDIR)\FileServer.h
@@ -157,15 +139,6 @@ install:: all
 	copy $(CALC:.exe=.pdb) $(install_bindir)
 
 !endif
-
-!endif
-
-!else
-
-install:: all
-
-$(EVERYTHING)::
-	@$(MAKE) -nologo /f Makefile.mak BUILD_UTILS=1 $@
 
 !endif
 

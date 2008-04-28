@@ -15,15 +15,7 @@ DLLNAME		= $(top_srcdir)\bin\icebox$(SOVERSION)$(LIBSUFFIX).dll
 SERVER		= $(top_srcdir)\bin\icebox$(LIBSUFFIX).exe
 ADMIN		= $(top_srcdir)\bin\iceboxadmin.exe
 
-!ifdef BUILD_UTILS
-
-TARGETS         = $(SERVER) $(ADMIN)
-
-!else
-
-TARGETS         = $(LIBNAME) $(DLLNAME)
-
-!endif
+TARGETS         = $(LIBNAME) $(DLLNAME) $(SERVER) $(ADMIN)
 
 OBJS		= IceBox.obj \
 		  Exception.obj
@@ -42,15 +34,7 @@ SDIR		= $(slicedir)\IceBox
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-!ifdef BUILD_UTILS
-
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-
-!else
-
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_BOX_API_EXPORTS 
-
-!endif
 
 SLICE2CPPFLAGS	= --checksum --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
 
@@ -100,8 +84,6 @@ IceBoxExe.res: IceBoxExe.rc
 IceBoxAdmin.res: IceBoxAdmin.rc
 	rc.exe $(RCFLAGS) IceBoxAdmin.rc
 
-!ifdef BUILD_UTILS
-
 clean::
 	del /q IceBox.cpp $(HDIR)\IceBox.h
 	del /q $(DLLNAME:.dll=.*)
@@ -132,15 +114,6 @@ install:: all
 	copy $(ADMIN:.exe=.pdb) $(install_bindir)
 
 !endif
-
-!endif
-
-!else
-
-install:: all
-
-$(EVERYTHING)::
-	@$(MAKE) -nologo /f Makefile.mak BUILD_UTILS=1 $@
 
 !endif
 

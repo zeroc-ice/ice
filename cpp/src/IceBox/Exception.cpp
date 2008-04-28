@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#define ICE_BOX_API_EXPORTS
 #include <IceBox/IceBox.h>
 
 using namespace std;

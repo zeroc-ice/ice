@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#define ICE_PATCH2_API_EXPORTS
 #include <OS.h>
 #include <IceUtil/Unicode.h>
 #include <climits>

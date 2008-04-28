@@ -18,7 +18,7 @@ using namespace std;
 namespace IceUtil
 {
 
-bool ICE_UTIL_API nullHandleAbort = false;
+bool ICE_DECLSPEC_EXPORT nullHandleAbort = false;
 
 };
 

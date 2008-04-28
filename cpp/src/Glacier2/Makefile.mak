@@ -14,15 +14,7 @@ DLLNAME		= $(top_srcdir)\bin\glacier2$(SOVERSION)$(LIBSUFFIX).dll
 
 ROUTER		= $(top_srcdir)\bin\glacier2router.exe
 
-!ifdef BUILD_UTILS
-
-TARGETS         = $(ROUTER)
-
-!else
-
-TARGETS         = $(LIBNAME) $(DLLNAME)
-
-!endif
+TARGETS         = $(LIBNAME) $(DLLNAME) $(ROUTER)
 
 OBJS		= PermissionsVerifier.obj \
 		  Router.obj \
@@ -51,18 +43,10 @@ SDIR		= $(slicedir)\Glacier2
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-!ifdef BUILD_UTILS
-
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
 !if "$(CPP_COMPILER)" != "BCC2007"
 LINKWITH	= $(LINKWITH) ws2_32.lib
-!endif
-
-!else
-
-CPPFLAGS	= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS
-
 !endif
 
 !if "$(GENERATE_PDB)" == "yes"
@@ -100,8 +84,6 @@ Glacier2.res: Glacier2.rc
 Glacier2Router.res: Glacier2Router.rc
 	rc.exe $(RCFLAGS) Glacier2Router.rc
 
-!ifdef BUILD_UTILS
-
 clean::
 	del /q PermissionsVerifierF.cpp $(HDIR)\PermissionsVerifierF.h
 	del /q PermissionsVerifier.cpp $(HDIR)\PermissionsVerifier.h
@@ -134,15 +116,6 @@ install:: all
 	copy $(ROUTER:.exe=.pdb) $(install_bindir)
 
 !endif
-
-!endif
-
-!else
-
-install:: all
-
-$(EVERYTHING)::
-	@$(MAKE) -nologo /f Makefile.mak BUILD_UTILS=1 $@
 
 !endif
 

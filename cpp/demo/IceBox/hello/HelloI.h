@@ -12,11 +12,7 @@
 
 #include <Hello.h>
 
-#ifndef HELLO_API
-#   define HELLO_API ICE_DECLSPEC_EXPORT
-#endif
-
-class HELLO_API HelloI : public Demo::Hello
+class HelloI : public Demo::Hello
 {
 public:
 

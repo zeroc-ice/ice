@@ -35,7 +35,7 @@ SDIR		= $(slicedir)\IceGrid
 LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
-CPPFLAGS        = -I.. -DICE_GRID_API_EXPORTS $(CPPFLAGS)
+CPPFLAGS        = -I.. $(CPPFLAGS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
@@ -59,6 +59,7 @@ $(DLLNAME): $(LIB_OBJS) IceGrid.res
 IceGrid.res: IceGrid.rc
 	rc.exe $(RCFLAGS) IceGrid.rc
 clean::
+	del /q FileParser.cpp $(HDIR)\FileParser.h
 	del /q Admin.cpp $(HDIR)\Admin.h
 	del /q Descriptor.cpp $(HDIR)\Descriptor.h
 	del /q Exception.cpp $(HDIR)\Exception.h

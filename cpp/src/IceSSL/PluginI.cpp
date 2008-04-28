@@ -39,7 +39,7 @@ using namespace IceSSL;
 extern "C"
 {
 
-ICE_SSL_API Ice::Plugin*
+ICE_DECLSPEC_EXPORT Ice::Plugin*
 createIceSSL(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
     PluginI* plugin = new PluginI(communicator);

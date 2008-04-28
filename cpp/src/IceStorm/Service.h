@@ -14,11 +14,7 @@
 #include <IceStorm/IceStorm.h>
 
 #ifndef ICE_STORM_API
-#   ifdef ICE_STORM_API_EXPORTS
-#       define ICE_STORM_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_STORM_API ICE_DECLSPEC_IMPORT
-#   endif
+#   define ICE_STORM_API ICE_DECLSPEC_IMPORT
 #endif
 
 // This API is internal to Ice, and should not be used by external
@@ -29,11 +25,11 @@ namespace IceStormInternal
 class Service;
 typedef ::IceInternal::Handle< IceStormInternal::Service> ServicePtr;
 
-class ICE_STORM_API Service : public ::IceBox::Service
+class Service : public ::IceBox::Service
 {
 public:
 
-    static ServicePtr create(const Ice::CommunicatorPtr&,
+    ICE_STORM_API static ServicePtr create(const Ice::CommunicatorPtr&,
                              const Ice::ObjectAdapterPtr&,
                              const Ice::ObjectAdapterPtr&,
                              const std::string&,
@@ -42,7 +38,7 @@ public:
 
     virtual void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) = 0;
 
-    virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;
+    ICE_STORM_API virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;
 
     virtual void stop() = 0;
 };

@@ -11,15 +11,10 @@
 #include <IceBox/IceBox.h>
 #include <TestI.h>
 
-#ifndef TEST_SERVICE_API
-#   define TEST_SERVICE_API ICE_DECLSPEC_EXPORT
-#endif
-
-
 using namespace std;
 using namespace Ice;
 
-class TEST_SERVICE_API ServiceI : public ::IceBox::Service
+class ServiceI : public ::IceBox::Service
 {
 public:
 
@@ -39,7 +34,7 @@ extern "C"
 //
 // Factory function
 //
-TEST_SERVICE_API ::IceBox::Service*
+ICE_DECLSPEC_EXPORT ::IceBox::Service*
 create(CommunicatorPtr communicator)
 {
     return new ServiceI;

@@ -20,7 +20,7 @@ namespace IceInternal
 FactoryTableWrapper factoryTableWrapper;        // Single global instance of the wrapper object that
                                                 // initializes factoryTable.
 
-ICE_API FactoryTableDef* factoryTable;          // Single global instance of the factory table for
+ICE_DECLSPEC_EXPORT FactoryTableDef* factoryTable;          // Single global instance of the factory table for
                                                 // non-local exceptions and non-abstract classes
 }
 

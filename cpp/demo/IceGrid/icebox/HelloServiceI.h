@@ -12,11 +12,7 @@
 
 #include <IceBox/IceBox.h>
 
-#ifndef HELLO_API
-#   define HELLO_API ICE_DECLSPEC_EXPORT
-#endif
-
-class HELLO_API HelloServiceI : public ::IceBox::Service
+class HelloServiceI : public ::IceBox::Service
 {
 public:
 

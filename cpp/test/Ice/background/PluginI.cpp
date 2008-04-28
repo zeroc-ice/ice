@@ -15,10 +15,6 @@
 #include <PluginI.h>
 #include <EndpointFactory.h>
 
-#ifndef TEST_TRANSPORT_API
-#   define TEST_TRANSPORT_API ICE_DECLSPEC_EXPORT
-#endif
-
 using namespace std;
 
 class TestPluginI : public PluginI
@@ -45,7 +41,7 @@ private:
 extern "C"
 {
 
-TEST_TRANSPORT_API Ice::Plugin*
+ICE_DECLSPEC_EXPORT Ice::Plugin*
 createTestTransport(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq& args)
 {
     return new TestPluginI(communicator);

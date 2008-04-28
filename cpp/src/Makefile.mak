@@ -34,7 +34,6 @@ SUBDIRS		= IceUtil \
 		  Freeze \
 		  FreezeScript \
 		  IceGridLib \
-		  IceStormLib \
 		  IceStorm \
 		  IceGrid \
                   iceserviceinstall \

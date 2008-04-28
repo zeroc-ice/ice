@@ -202,6 +202,13 @@ Slice::Gen::generate(const UnitPtr& p)
 
     writeExtraHeaders(C);
 
+    if(_dllExport.size())
+    {
+	C << "\n#ifndef " << _dllExport << "_EXPORTS";
+	C << "\n#   define " << _dllExport << "_EXPORTS";
+	C << "\n#endif";
+    }
+
     C << "\n#include <";
     if(_include.size())
     {
@@ -1811,7 +1818,9 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 	// To export the virtual table
 	//
 	C << nl << "#ifdef __SUNPRO_CC";
-	C << nl << "class " << _dllExport << "IceProxy" << scoped << ";";
+	C << nl << "class "
+	    << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+	    << "IceProxy" << scoped << ";";
 	C << nl << "#endif";
     }
 
@@ -3872,7 +3881,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         string name = p->name();
 
-        C << sp << nl << "void " << _dllExport;
+        C << sp << nl << "void "
+	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ");
         C << nl << scope.substr(2) << "__patch__" << name << "Ptr(void* __addr, ::Ice::ObjectPtr& v)";
         C << sb;
         C << nl << scope << name << "Ptr* p = static_cast< " << scope << name << "Ptr*>(__addr);";
@@ -4557,13 +4567,19 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << sp;
     if(!p->isLocal())
     {
-        C << nl << _dllExport << "::Ice::Object* IceInternal::upCast(" << scoped << "* p) { return p; }";
-        C << nl << _dllExport << "::IceProxy::Ice::Object* IceInternal::upCast(::IceProxy" << scoped
+        C << nl
+	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+	  << "::Ice::Object* IceInternal::upCast(" << scoped << "* p) { return p; }";
+        C << nl
+	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+	  << "::IceProxy::Ice::Object* IceInternal::upCast(::IceProxy" << scoped
           << "* p) { return p; }";
     }
     else
     {
-        C << nl << _dllExport << "::Ice::LocalObject* IceInternal::upCast(" << scoped << "* p) { return p; }";
+        C << nl
+	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+	  << "::Ice::LocalObject* IceInternal::upCast(" << scoped << "* p) { return p; }";
     }
 
     return true;

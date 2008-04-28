@@ -68,7 +68,7 @@ static string identForOpenlog;
 namespace IceUtil
 {
 
-extern bool ICE_UTIL_API nullHandleAbort;
+extern bool ICE_DECLSPEC_IMPORT nullHandleAbort;
 
 }
 

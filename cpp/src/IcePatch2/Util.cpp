@@ -18,6 +18,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
+#define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/Util.h>
 #include <openssl/sha.h>
 #include <bzlib.h>

@@ -12,7 +12,10 @@
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TransientTopicManagerI.h>
 #include <IceStorm/Instance.h>
+
+#define ICE_STORM_API ICE_DECLSPEC_EXPORT
 #include <IceStorm/Service.h>
+
 #include <IceStorm/Observers.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceUtil/StringUtil.h>
@@ -70,7 +73,7 @@ private:
 extern "C"
 {
 
-ICE_STORM_API ::IceBox::Service*
+ICE_DECLSPEC_EXPORT ::IceBox::Service*
 createIceStorm(CommunicatorPtr communicator)
 {
     return new ServiceI;
