@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace IceInternal
 {
@@ -48,6 +49,7 @@ namespace IceInternal
             ret._limit = capacity;
             ret._capacity = capacity;
             ret._bytes = new byte[capacity];
+            ret._valBytes = new ValBytes();
             return ret;
         }
 
@@ -114,7 +116,7 @@ namespace IceInternal
         {
             int len = remaining();
             byte[] rc = new byte[len];
-            Buffer.BlockCopy(_bytes, 0, rc, 0, len);
+            System.Buffer.BlockCopy(_bytes, 0, rc, 0, len);
             return rc;
         }
 
@@ -137,7 +139,7 @@ namespace IceInternal
                 throw new ArgumentException("startIndex + length must not exceed end mark of buffer");
             }
             byte[] rc = new byte[length];
-            Buffer.BlockCopy(_bytes, startIndex, rc, 0, length);
+            System.Buffer.BlockCopy(_bytes, startIndex, rc, 0, length);
             return rc;
         }
 
@@ -145,7 +147,7 @@ namespace IceInternal
         {
             int len = buf.remaining();
             checkOverflow(len);
-            Buffer.BlockCopy(buf._bytes, buf._position, _bytes, _position, len);
+            System.Buffer.BlockCopy(buf._bytes, buf._position, _bytes, _position, len);
             _position += len;
             return this;
         }
@@ -153,12 +155,12 @@ namespace IceInternal
         public byte get()
         {
             checkUnderflow(1);
-            return Buffer.GetByte(_bytes, _position++);
+            return System.Buffer.GetByte(_bytes, _position++);
         }
 
         public ByteBuffer get(byte[] b)
         {
-            return get(b, 0, Buffer.ByteLength(b));
+            return get(b, 0, System.Buffer.ByteLength(b));
         }
 
         public ByteBuffer get(byte[] b, int offset, int length)
@@ -167,13 +169,13 @@ namespace IceInternal
             {
                 throw new ArgumentOutOfRangeException("offset", "offset must be non-negative");
             }
-            if(offset + length > Buffer.ByteLength(b))
+            if(offset + length > System.Buffer.ByteLength(b))
             {
                 throw new ArgumentOutOfRangeException("length",
                                                       "insufficient room beyond given offset in destination array");
             }
             checkUnderflow(length);
-            Buffer.BlockCopy(_bytes, _position, b, offset, length);
+            System.Buffer.BlockCopy(_bytes, _position, b, offset, length);
             _position += length;
             return this;
         }
@@ -181,13 +183,13 @@ namespace IceInternal
         public ByteBuffer put(byte b)
         {
             checkOverflow(1);
-            Buffer.SetByte(_bytes, _position++, b);
+            System.Buffer.SetByte(_bytes, _position++, b);
             return this;
         }
 
         public ByteBuffer put(byte[] b)
         {
-            return put(b, 0, Buffer.ByteLength(b));
+            return put(b, 0, System.Buffer.ByteLength(b));
         }
 
         public ByteBuffer put(byte[]b, int offset, int length)
@@ -196,14 +198,17 @@ namespace IceInternal
             {
                 throw new ArgumentOutOfRangeException("offset", "offset must be non-negative");
             }
-            if(offset + length > Buffer.ByteLength(b))
+            if(offset + length > System.Buffer.ByteLength(b))
             {
                 throw new ArgumentOutOfRangeException("length",
                                                       "insufficient data beyond given offset in source array");
             }
-            checkOverflow(length);
-            Buffer.BlockCopy(b, offset, _bytes, _position, length);
-            _position += length;
+            if(length > 0)
+            {
+                checkOverflow(length);
+                System.Buffer.BlockCopy(b, offset, _bytes, _position, length);
+                _position += length;
+            }
             return this;
         }
 
@@ -214,9 +219,9 @@ namespace IceInternal
 
         public void getBoolSeq(bool[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
-            Buffer.BlockCopy(_bytes, _position, seq, 0, len);
+            System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             _position += len;
         }
 
@@ -227,50 +232,83 @@ namespace IceInternal
 
         public ByteBuffer putBoolSeq(bool[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
-            Buffer.BlockCopy(seq, 0, _bytes, _position, len);
+            System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             _position += len;
             return this;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        struct ValBytes
+        {
+            [FieldOffset(0)]
+            public short shortVal;
+
+            [FieldOffset(0)]
+            public int intVal;
+
+            [FieldOffset(0)]
+            public long longVal;
+
+            [FieldOffset(0)]
+            public float floatVal;
+
+            [FieldOffset(0)]
+            public double doubleVal;
+
+            [FieldOffset(0)]
+            public byte b0;
+            [FieldOffset(1)]
+            public byte b1;
+            [FieldOffset(2)]
+            public byte b2;
+            [FieldOffset(3)]
+            public byte b3;
+            [FieldOffset(4)]
+            public byte b4;
+            [FieldOffset(5)]
+            public byte b5;
+            [FieldOffset(6)]
+            public byte b6;
+            [FieldOffset(7)]
+            public byte b7;
         }
 
         public short getShort()
         {
             checkUnderflow(2);
-            short ret;
             if(NO._o == _order)
             {
-                ret = BitConverter.ToInt16(_bytes, _position);
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
             }
             else
             {
-                byte[] bytes = new byte[2];
-                bytes[0] = Buffer.GetByte(_bytes, _position + 1);
-                bytes[1] = Buffer.GetByte(_bytes, _position);
-                ret = BitConverter.ToInt16(bytes, 0);
+                _valBytes.b1 = _bytes[_position];
+                _valBytes.b0 = _bytes[_position + 1];
             }
             _position += 2;
-            return ret;
+            return _valBytes.shortVal;
         }
 
         public void getShortSeq(short[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(_bytes, _position, seq, 0, len);
+                System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                byte[] bytes = new byte[2];
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 2;
-                    bytes[0] = Buffer.GetByte(_bytes, _position + index + 1);
-                    bytes[1] = Buffer.GetByte(_bytes, _position + index);
-                    seq[i] = BitConverter.ToInt16(bytes, 0);
-                };
+                    int index = _position + i * 2;
+                    _valBytes.b1 = _bytes[index];
+                    _valBytes.b0 = _bytes[index + 1];
+                    seq[i] = _valBytes.shortVal;
+                }
             }
             _position += len;
         }
@@ -278,82 +316,82 @@ namespace IceInternal
         public ByteBuffer putShort(short val)
         {
             checkOverflow(2);
-
-            byte[] bytes = BitConverter.GetBytes(val);
+            _valBytes.shortVal = val;
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(bytes, 0, _bytes, _position, 2);
-                _position += 2;
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
             }
             else
             {
-                Buffer.SetByte(_bytes, _position++, bytes[1]);
-                Buffer.SetByte(_bytes, _position++, bytes[0]);
+                _bytes[_position + 1] = _valBytes.b0;
+                _bytes[_position] = _valBytes.b1;
             }
+            _position += 2;
             return this;
         }
 
         public ByteBuffer putShortSeq(short[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(seq, 0, _bytes, _position, len);
-                _position += len;
+                System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 2;
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 1));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index));
+                    int index = _position + i * 2;
+                    _valBytes.shortVal = seq[i];
+                    _bytes[index + 1] = _valBytes.b0;
+                    _bytes[index] = _valBytes.b1;
                 }
             }
+            _position += len;
             return this;
         }
 
         public int getInt()
         {
             checkUnderflow(4);  
-            int ret;
             if(NO._o == _order)
             {
-                ret = BitConverter.ToInt32(_bytes, _position);
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
             }
             else
             {
-                byte[] bytes = new byte[4];
-                bytes[0] = Buffer.GetByte(_bytes, _position + 3);
-                bytes[1] = Buffer.GetByte(_bytes, _position + 2);
-                bytes[2] = Buffer.GetByte(_bytes, _position + 1);
-                bytes[3] = Buffer.GetByte(_bytes, _position);
-                ret = BitConverter.ToInt32(bytes, 0);
+                _valBytes.b3 = _bytes[_position];
+                _valBytes.b2 = _bytes[_position + 1];
+                _valBytes.b1 = _bytes[_position + 2];
+                _valBytes.b0 = _bytes[_position + 3];
             }
             _position += 4;
-            return ret;
+            return _valBytes.intVal;
         }
 
         public void getIntSeq(int[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(_bytes, _position, seq, 0, len);
+                System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                byte[] bytes = new byte[4];
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 4;
-                    bytes[0] = Buffer.GetByte(_bytes, _position + index + 3);
-                    bytes[1] = Buffer.GetByte(_bytes, _position + index + 2);
-                    bytes[2] = Buffer.GetByte(_bytes, _position + index + 1);
-                    bytes[3] = Buffer.GetByte(_bytes, _position + index);
-                    seq[i] = BitConverter.ToInt32(bytes, 0);
+                    int index = _position + i * 4;
+                    _valBytes.b3 = _bytes[index];
+                    _valBytes.b2 = _bytes[index + 1];
+                    _valBytes.b1 = _bytes[index + 2];
+                    _valBytes.b0 = _bytes[index + 3];
+                    seq[i] = _valBytes.intVal;
                 }
             }
             _position += len;
@@ -376,93 +414,99 @@ namespace IceInternal
             {
                 throw new ArgumentOutOfRangeException("pos", "position must be less than limit - 4");
             }
-
-            byte[] bytes = BitConverter.GetBytes(val);
+            _valBytes.intVal = val;
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(bytes, 0, _bytes, pos, 4);
+                _bytes[pos] = _valBytes.b0;
+                _bytes[pos + 1] = _valBytes.b1;
+                _bytes[pos + 2] = _valBytes.b2;
+                _bytes[pos + 3] = _valBytes.b3;
             }
             else
             {
-                Buffer.SetByte(_bytes, pos    , bytes[3]);
-                Buffer.SetByte(_bytes, pos + 1, bytes[2]);
-                Buffer.SetByte(_bytes, pos + 2, bytes[1]);
-                Buffer.SetByte(_bytes, pos + 3, bytes[0]);
+                _bytes[pos + 3] = _valBytes.b0;
+                _bytes[pos + 2] = _valBytes.b1;
+                _bytes[pos + 1] = _valBytes.b2;
+                _bytes[pos] = _valBytes.b3;
             }
             return this;
         }
 
         public ByteBuffer putIntSeq(int[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(seq, 0, _bytes, _position, len);
-                _position += len;
+                System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 4;
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 3));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 2));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 1));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index));
+                    int index = _position + i * 4;
+                    _valBytes.intVal = seq[i];
+                    _bytes[index + 3] = _valBytes.b0;
+                    _bytes[index + 2] = _valBytes.b1;
+                    _bytes[index + 1] = _valBytes.b2;
+                    _bytes[index] = _valBytes.b3;
                 }
             }
+            _position += len;
             return this;
         }
 
         public long getLong()
         {
             checkUnderflow(8);  
-            long ret;
             if(NO._o == _order)
             {
-                ret = BitConverter.ToInt64(_bytes, _position);
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
+                _valBytes.b4 = _bytes[_position + 4];
+                _valBytes.b5 = _bytes[_position + 5];
+                _valBytes.b6 = _bytes[_position + 6];
+                _valBytes.b7 = _bytes[_position + 7];
             }
             else
             {
-                byte[] bytes = new byte[8];
-                bytes[0] = Buffer.GetByte(_bytes, _position + 7);
-                bytes[1] = Buffer.GetByte(_bytes, _position + 6);
-                bytes[2] = Buffer.GetByte(_bytes, _position + 5);
-                bytes[3] = Buffer.GetByte(_bytes, _position + 4);
-                bytes[4] = Buffer.GetByte(_bytes, _position + 3);
-                bytes[5] = Buffer.GetByte(_bytes, _position + 2);
-                bytes[6] = Buffer.GetByte(_bytes, _position + 1);
-                bytes[7] = Buffer.GetByte(_bytes, _position);
-                ret = BitConverter.ToInt64(bytes, 0);
+                _valBytes.b7 = _bytes[_position];
+                _valBytes.b6 = _bytes[_position + 1];
+                _valBytes.b5 = _bytes[_position + 2];
+                _valBytes.b4 = _bytes[_position + 3];
+                _valBytes.b3 = _bytes[_position + 4];
+                _valBytes.b2 = _bytes[_position + 5];
+                _valBytes.b1 = _bytes[_position + 6];
+                _valBytes.b0 = _bytes[_position + 7];
             }
             _position += 8;
-            return ret;
+            return _valBytes.longVal;
         }
 
         public void getLongSeq(long[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(_bytes, _position, seq, 0, len);
+                System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                byte[] bytes = new byte[8];
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 8;
-                    bytes[0] = Buffer.GetByte(_bytes, _position + index + 7);
-                    bytes[1] = Buffer.GetByte(_bytes, _position + index + 6);
-                    bytes[2] = Buffer.GetByte(_bytes, _position + index + 5);
-                    bytes[3] = Buffer.GetByte(_bytes, _position + index + 4);
-                    bytes[4] = Buffer.GetByte(_bytes, _position + index + 3);
-                    bytes[5] = Buffer.GetByte(_bytes, _position + index + 2);
-                    bytes[6] = Buffer.GetByte(_bytes, _position + index + 1);
-                    bytes[7] = Buffer.GetByte(_bytes, _position + index);
-                    seq[i] = BitConverter.ToInt64(_bytes, _position);
+                    int index = _position + i * 8;
+                    _valBytes.b7 = _bytes[index];
+                    _valBytes.b6 = _bytes[index + 1];
+                    _valBytes.b5 = _bytes[index + 2];
+                    _valBytes.b4 = _bytes[index + 3];
+                    _valBytes.b3 = _bytes[index + 4];
+                    _valBytes.b2 = _bytes[index + 5];
+                    _valBytes.b1 = _bytes[index + 6];
+                    _valBytes.b0 = _bytes[index + 7];
+                    seq[i] = _valBytes.longVal;
                 }
             }
             _position += len;
@@ -471,93 +515,100 @@ namespace IceInternal
         public ByteBuffer putLong(long val)
         {
             checkOverflow(8);
-            byte[] bytes = BitConverter.GetBytes(val);
+            _valBytes.longVal = val;
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(bytes, 0, _bytes, _position, 8);
-                _position += 8;
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
+                _bytes[_position + 2] = _valBytes.b2;
+                _bytes[_position + 3] = _valBytes.b3;
+                _bytes[_position + 4] = _valBytes.b4;
+                _bytes[_position + 5] = _valBytes.b5;
+                _bytes[_position + 6] = _valBytes.b6;
+                _bytes[_position + 7] = _valBytes.b7;
             }
             else
             {
-                Buffer.SetByte(_bytes, _position++, bytes[7]);
-                Buffer.SetByte(_bytes, _position++, bytes[6]);
-                Buffer.SetByte(_bytes, _position++, bytes[5]);
-                Buffer.SetByte(_bytes, _position++, bytes[4]);
-                Buffer.SetByte(_bytes, _position++, bytes[3]);
-                Buffer.SetByte(_bytes, _position++, bytes[2]);
-                Buffer.SetByte(_bytes, _position++, bytes[1]);
-                Buffer.SetByte(_bytes, _position++, bytes[0]);
+                _bytes[_position + 7] = _valBytes.b0;
+                _bytes[_position + 6] = _valBytes.b1;
+                _bytes[_position + 5] = _valBytes.b2;
+                _bytes[_position + 4] = _valBytes.b3;
+                _bytes[_position + 3] = _valBytes.b4;
+                _bytes[_position + 2] = _valBytes.b5;
+                _bytes[_position + 1] = _valBytes.b6;
+                _bytes[_position] = _valBytes.b7;
             }
+            _position += 8;
             return this;
         }
 
         public ByteBuffer putLongSeq(long[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(seq, 0, _bytes, _position, len);
-                _position += len;
+                System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 8;
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 7));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 6));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 5));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 4));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 3));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 2));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 1));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index));
+                    int index = _position + i * 8;
+                    _valBytes.longVal = seq[i];
+                    _bytes[index + 7] = _valBytes.b0;
+                    _bytes[index + 6] = _valBytes.b1;
+                    _bytes[index + 5] = _valBytes.b2;
+                    _bytes[index + 4] = _valBytes.b3;
+                    _bytes[index + 3] = _valBytes.b4;
+                    _bytes[index + 2] = _valBytes.b5;
+                    _bytes[index + 1] = _valBytes.b6;
+                    _bytes[index] = _valBytes.b7;
                 }
             }
+            _position += len;
             return this;
         }
 
         public float getFloat()
         {
             checkUnderflow(4);  
-            float ret;
             if(NO._o == _order)
             {
-                ret = BitConverter.ToSingle(_bytes, _position);
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
             }
             else
             {
-                byte[] bytes = new byte[4];
-                bytes[0] = Buffer.GetByte(_bytes, _position + 3);
-                bytes[1] = Buffer.GetByte(_bytes, _position + 2);
-                bytes[2] = Buffer.GetByte(_bytes, _position + 1);
-                bytes[3] = Buffer.GetByte(_bytes, _position);
-                ret = BitConverter.ToSingle(bytes, 0);
+                _valBytes.b3 = _bytes[_position];
+                _valBytes.b2 = _bytes[_position + 1];
+                _valBytes.b1 = _bytes[_position + 2];
+                _valBytes.b0 = _bytes[_position + 3];
             }
             _position += 4;
-            return ret;
+            return _valBytes.floatVal;
         }
 
         public void getFloatSeq(float[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(_bytes, _position, seq, 0, len);
+                System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                byte[] bytes = new byte[4];
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 4;
-                    bytes[0] = Buffer.GetByte(_bytes, _position + index + 3);
-                    bytes[1] = Buffer.GetByte(_bytes, _position + index + 2);
-                    bytes[2] = Buffer.GetByte(_bytes, _position + index + 1);
-                    bytes[3] = Buffer.GetByte(_bytes, _position + index);
-                    seq[i] = BitConverter.ToSingle(bytes, 0);
+                    int index = _position + i * 4;
+                    _valBytes.b3 = _bytes[index];
+                    _valBytes.b2 = _bytes[index + 1];
+                    _valBytes.b1 = _bytes[index + 2];
+                    _valBytes.b0 = _bytes[index + 3];
+                    seq[i] = _valBytes.floatVal;
                 }
             }
             _position += len;
@@ -566,93 +617,100 @@ namespace IceInternal
         public ByteBuffer putFloat(float val)
         {
             checkOverflow(4);
-            byte[] bytes = BitConverter.GetBytes(val);
+            _valBytes.floatVal = val;
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(bytes, 0, _bytes, _position, 4);
-                _position += 4;
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
+                _bytes[_position + 2] = _valBytes.b2;
+                _bytes[_position + 3] = _valBytes.b3;
             }
             else
             {
-                Buffer.SetByte(_bytes, _position++, bytes[3]);
-                Buffer.SetByte(_bytes, _position++, bytes[2]);
-                Buffer.SetByte(_bytes, _position++, bytes[1]);
-                Buffer.SetByte(_bytes, _position++, bytes[0]);
+                _bytes[_position + 3] = _valBytes.b0;
+                _bytes[_position + 2] = _valBytes.b1;
+                _bytes[_position + 1] = _valBytes.b2;
+                _bytes[_position] = _valBytes.b3;
             }
+            _position += 4;
             return this;
         }
 
         public ByteBuffer putFloatSeq(float[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(seq, 0, _bytes, _position, len);
-                _position += len;
+                System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 4;
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 3));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 2));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 1));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index));
+                    int index = _position + i * 4;
+                    _valBytes.floatVal = seq[i];
+                    _bytes[index + 3] = _valBytes.b0;
+                    _bytes[index + 2] = _valBytes.b1;
+                    _bytes[index + 1] = _valBytes.b2;
+                    _bytes[index] = _valBytes.b3;
                 }
             }
+            _position += len;
             return this;
         }
 
         public double getDouble()
         {
             checkUnderflow(8);  
-            double ret;
             if(NO._o == _order)
             {
-                ret = BitConverter.ToDouble(_bytes, _position);
+                _valBytes.b0 = _bytes[_position];
+                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b2 = _bytes[_position + 2];
+                _valBytes.b3 = _bytes[_position + 3];
+                _valBytes.b4 = _bytes[_position + 4];
+                _valBytes.b5 = _bytes[_position + 5];
+                _valBytes.b6 = _bytes[_position + 6];
+                _valBytes.b7 = _bytes[_position + 7];
             }
             else
             {
-                byte[] bytes = new byte[8];
-                bytes[0] = Buffer.GetByte(_bytes, _position + 7);
-                bytes[1] = Buffer.GetByte(_bytes, _position + 6);
-                bytes[2] = Buffer.GetByte(_bytes, _position + 5);
-                bytes[3] = Buffer.GetByte(_bytes, _position + 4);
-                bytes[4] = Buffer.GetByte(_bytes, _position + 3);
-                bytes[5] = Buffer.GetByte(_bytes, _position + 2);
-                bytes[6] = Buffer.GetByte(_bytes, _position + 1);
-                bytes[7] = Buffer.GetByte(_bytes, _position);
-                ret = BitConverter.ToDouble(bytes, 0);
+                _valBytes.b7 = _bytes[_position];
+                _valBytes.b6 = _bytes[_position + 1];
+                _valBytes.b5 = _bytes[_position + 2];
+                _valBytes.b4 = _bytes[_position + 3];
+                _valBytes.b3 = _bytes[_position + 4];
+                _valBytes.b2 = _bytes[_position + 5];
+                _valBytes.b1 = _bytes[_position + 6];
+                _valBytes.b0 = _bytes[_position + 7];
             }
             _position += 8;
-            return ret;
+            return _valBytes.doubleVal;
         }
 
         public void getDoubleSeq(double[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkUnderflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(_bytes, _position, seq, 0, len);
+                System.Buffer.BlockCopy(_bytes, _position, seq, 0, len);
             }
             else
             {
-                byte[] bytes = new byte[8];
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 8;
-                    bytes[0] = Buffer.GetByte(_bytes, _position + index + 7);
-                    bytes[1] = Buffer.GetByte(_bytes, _position + index + 6);
-                    bytes[2] = Buffer.GetByte(_bytes, _position + index + 5);
-                    bytes[3] = Buffer.GetByte(_bytes, _position + index + 4);
-                    bytes[4] = Buffer.GetByte(_bytes, _position + index + 3);
-                    bytes[5] = Buffer.GetByte(_bytes, _position + index + 2);
-                    bytes[6] = Buffer.GetByte(_bytes, _position + index + 1);
-                    bytes[7] = Buffer.GetByte(_bytes, _position + index);
-                    seq[i] = BitConverter.ToDouble(bytes, 0);
+                    int index = _position + i * 8;
+                    _valBytes.b7 = _bytes[index];
+                    _valBytes.b6 = _bytes[index + 1];
+                    _valBytes.b5 = _bytes[index + 2];
+                    _valBytes.b4 = _bytes[index + 3];
+                    _valBytes.b3 = _bytes[index + 4];
+                    _valBytes.b2 = _bytes[index + 5];
+                    _valBytes.b1 = _bytes[index + 6];
+                    _valBytes.b0 = _bytes[index + 7];
+                    seq[i] = _valBytes.doubleVal;
                 }
             }
             _position += len;
@@ -661,50 +719,58 @@ namespace IceInternal
         public ByteBuffer putDouble(double val)
         {
             checkOverflow(8);
-            byte[] bytes = BitConverter.GetBytes(val);
+            _valBytes.doubleVal = val;
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(bytes, 0, _bytes, _position, 8);
-                _position += 8;
+                _bytes[_position] = _valBytes.b0;
+                _bytes[_position + 1] = _valBytes.b1;
+                _bytes[_position + 2] = _valBytes.b2;
+                _bytes[_position + 3] = _valBytes.b3;
+                _bytes[_position + 4] = _valBytes.b4;
+                _bytes[_position + 5] = _valBytes.b5;
+                _bytes[_position + 6] = _valBytes.b6;
+                _bytes[_position + 7] = _valBytes.b7;
             }
             else
             {
-                Buffer.SetByte(_bytes, _position++, bytes[7]);
-                Buffer.SetByte(_bytes, _position++, bytes[6]);
-                Buffer.SetByte(_bytes, _position++, bytes[5]);
-                Buffer.SetByte(_bytes, _position++, bytes[4]);
-                Buffer.SetByte(_bytes, _position++, bytes[3]);
-                Buffer.SetByte(_bytes, _position++, bytes[2]);
-                Buffer.SetByte(_bytes, _position++, bytes[1]);
-                Buffer.SetByte(_bytes, _position++, bytes[0]);
+                _bytes[_position + 7] = _valBytes.b0;
+                _bytes[_position + 6] = _valBytes.b1;
+                _bytes[_position + 5] = _valBytes.b2;
+                _bytes[_position + 4] = _valBytes.b3;
+                _bytes[_position + 3] = _valBytes.b4;
+                _bytes[_position + 2] = _valBytes.b5;
+                _bytes[_position + 1] = _valBytes.b6;
+                _bytes[_position] = _valBytes.b7;
             }
+            _position += 8;
             return this;
         }
 
         public ByteBuffer putDoubleSeq(double[] seq)
         {
-            int len = Buffer.ByteLength(seq);
+            int len = System.Buffer.ByteLength(seq);
             checkOverflow(len);
             if(NO._o == _order)
             {
-                Buffer.BlockCopy(seq, 0, _bytes, _position, len);
-                _position += len;
+                System.Buffer.BlockCopy(seq, 0, _bytes, _position, len);
             }
             else
             {
                 for(int i = 0; i < seq.Length; ++i)
                 {
-                    int index = i * 8;
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 7));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 6));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 5));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 4));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 3));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 2));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index + 1));
-                    Buffer.SetByte(_bytes, _position++, Buffer.GetByte(seq, index));
+                    int index = _position + i * 8;
+                    _valBytes.doubleVal = seq[i];
+                    _bytes[index + 7] = _valBytes.b0;
+                    _bytes[index + 6] = _valBytes.b1;
+                    _bytes[index + 5] = _valBytes.b2;
+                    _bytes[index + 4] = _valBytes.b3;
+                    _bytes[index + 3] = _valBytes.b4;
+                    _bytes[index + 2] = _valBytes.b5;
+                    _bytes[index + 1] = _valBytes.b6;
+                    _bytes[index] = _valBytes.b7;
                 }
             }
+            _position += len;
             return this;
         }
 
@@ -744,17 +810,16 @@ namespace IceInternal
         private int _limit;
         private int _capacity;
         private byte[] _bytes;
+        private ValBytes _valBytes;
         private ByteOrder _order;
 
         private class NO // Native Order
         {
             static NO()
             {
-                byte[] b = BitConverter.GetBytes((int)1);
-                _o = b[0] == 1 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+                _o = BitConverter.IsLittleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
             }
             internal static readonly ByteOrder _o;
         }
     }
-
 }
