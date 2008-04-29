@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Filesystem;
 
-class FilesystemClient : virtual public Ice::Application
+class FilesystemClient : public Ice::Application
 {
 public:
     FilesystemClient() :
