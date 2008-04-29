@@ -81,12 +81,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-TransformDB.res: TransformDB.rc
-	rc.exe $(RCFLAGS) TransformDB.rc
-
-DumpDB.res: DumpDB.rc
-	rc.exe $(RCFLAGS) DumpDB.rc
-
 clean::
 	del /q $(TRANSFORMDB:.exe=.*)
 	del /q $(DUMPDB:.exe=.*)

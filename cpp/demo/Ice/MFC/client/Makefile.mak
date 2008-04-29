@@ -34,9 +34,6 @@ $(CLIENT): $(OBJS) $(COBJS) HelloClient.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-HelloClient.res: HelloClient.rc
-	rc.exe HelloClient.rc
-
 clean::
 	del /q Hello.cpp Hello.h
 	del /q HelloClient.res

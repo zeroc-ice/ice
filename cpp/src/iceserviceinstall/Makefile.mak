@@ -44,10 +44,6 @@ $(TOOL): $(OBJS) IceServiceInstall.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest $(EXTRA_MANIFEST) -outputresource:$@;#1 && del /q $@.manifest
 
-IceServiceInstall.res: IceServiceInstall.rc
-	rc.exe $(RCFLAGS) IceServiceInstall.rc
-
-
 clean::
 	del /q $(TOOL:.exe=.*)
 	del /q IceServiceInstall.res

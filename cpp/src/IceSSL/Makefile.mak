@@ -57,9 +57,6 @@ $(DLLNAME): $(OBJS) IceSSL.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-IceSSL.res: IceSSL.rc
-	rc.exe $(RCFLAGS) IceSSL.rc
-
 clean::
 	del /q $(DLLNAME:.dll=.*)
 	del /q IceSSL.res

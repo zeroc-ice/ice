@@ -154,7 +154,7 @@ SLICE2DOCBOOK		= $(ice_dir)\bin$(x64suffix)\slice2docbook.exe
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.ice .cpp .c .obj
+.SUFFIXES:		.ice .cpp .c .obj .res .rc
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
@@ -171,6 +171,10 @@ EVERYTHING		= all clean install
 .ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
+
+.rc.res:
+	rc $(RCFLAGS) $<
+
 
 all:: $(SRCS) $(TARGETS)
 

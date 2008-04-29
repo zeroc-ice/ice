@@ -90,9 +90,6 @@ $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequence
 clean::
 	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
 
-Freeze.res: Freeze.rc
-	rc.exe $(RCFLAGS) Freeze.rc
-
 clean::
 	del /q $(DLLNAME:.dll=.*)
 	del /q DB.cpp $(HDIR)\DB.h

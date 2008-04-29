@@ -80,9 +80,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-Slice.res: Slice.rc
-	rc.exe $(RCFLAGS) Slice.rc
-
 clean::
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp

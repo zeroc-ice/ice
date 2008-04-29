@@ -169,18 +169,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-IceStorm.res: IceStorm.rc
-	rc.exe $(RCFLAGS) IceStorm.rc
-
-IceStormService.res: IceStormService.rc
-	rc.exe $(RCFLAGS) IceStormService.rc
-
-IceStormAdmin.res: IceStormAdmin.rc
-	rc.exe $(RCFLAGS) IceStormAdmin.rc
-
-IceStormMigrate.res: IceStormMigrate.rc
-	rc.exe $(RCFLAGS) IceStormMigrate.rc
-
 clean::
 	del /q LLUMap.h LLUMap.cpp
 	del /q SubscriberMap.h SubscriberMap.cpp

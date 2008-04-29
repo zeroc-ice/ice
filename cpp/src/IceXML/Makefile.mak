@@ -43,9 +43,6 @@ $(DLLNAME): $(OBJS) IceXML.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-IceXML.res: IceXML.rc
-	rc.exe $(RCFLAGS) IceXML.rc
-
 clean::
 	del /q $(DLLNAME:.dll=.*)
 	del /q IceXML.res

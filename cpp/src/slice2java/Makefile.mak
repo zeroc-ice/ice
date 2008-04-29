@@ -38,9 +38,6 @@ $(NAME): $(OBJS) Slice2Java.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Slice2Java.res: Slice2Java.rc
-	rc.exe $(RCFLAGS) Slice2Java.rc
-
 clean::
 	del /q $(NAME:.exe=.*)
 	del /q Slice2Java.res

@@ -75,15 +75,6 @@ $(ADMIN): $(AOBJS) IceBoxAdmin.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-IceBox.res: IceBox.rc
-	rc.exe $(RCFLAGS) IceBox.rc
-
-IceBoxExe.res: IceBoxExe.rc
-	rc.exe $(RCFLAGS) IceBoxExe.rc
-
-IceBoxAdmin.res: IceBoxAdmin.rc
-	rc.exe $(RCFLAGS) IceBoxAdmin.rc
-
 clean::
 	del /q IceBox.cpp $(HDIR)\IceBox.h
 	del /q $(DLLNAME:.dll=.*)

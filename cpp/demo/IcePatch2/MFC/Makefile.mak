@@ -34,9 +34,6 @@ $(CLIENT): $(OBJS) $(COBJS) PatchClient.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
             $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-PatchClient.res: PatchClient.rc
-	rc.exe PatchClient.rc
-
 clean::
 	del /q PatchClient.res
 

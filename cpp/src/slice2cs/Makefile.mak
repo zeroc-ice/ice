@@ -38,9 +38,6 @@ $(NAME): $(OBJS) Slice2Cs.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Slice2Cs.res: Slice2Cs.rc
-	rc.exe $(RCFLAGS) Slice2Cs.rc
-
 clean::
 	del /q $(NAME:.exe=.*)
 	del /q Slice2Cs.res

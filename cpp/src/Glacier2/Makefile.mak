@@ -78,12 +78,6 @@ $(ROUTER): $(ROBJS) Glacier2Router.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Glacier2.res: Glacier2.rc
-	rc.exe $(RCFLAGS) Glacier2.rc
-
-Glacier2Router.res: Glacier2Router.rc
-	rc.exe $(RCFLAGS) Glacier2Router.rc
-
 clean::
 	del /q PermissionsVerifierF.cpp $(HDIR)\PermissionsVerifierF.h
 	del /q PermissionsVerifier.cpp $(HDIR)\PermissionsVerifier.h

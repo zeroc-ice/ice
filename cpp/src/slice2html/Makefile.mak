@@ -38,9 +38,6 @@ $(NAME): $(OBJS) Slice2Html.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Slice2Html.res: Slice2Html.rc
-	rc.exe $(RCFLAGS) Slice2Html.rc
-
 clean::
 	del /q $(NAME:.exe=.*)
 	del /q Slice2Html.res

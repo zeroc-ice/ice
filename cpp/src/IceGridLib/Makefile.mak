@@ -56,8 +56,6 @@ $(DLLNAME): $(LIB_OBJS) IceGrid.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-IceGrid.res: IceGrid.rc
-	rc.exe $(RCFLAGS) IceGrid.rc
 clean::
 	del /q FileParser.cpp $(HDIR)\FileParser.h
 	del /q Admin.cpp $(HDIR)\Admin.h

@@ -37,9 +37,6 @@ $(NAME): $(OBJS) Slice2Py.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Slice2Py.res: Slice2Py.rc
-	rc.exe $(RCFLAGS) Slice2Py.rc
-
 clean::
 	del /q $(NAME:.exe=.*)
 	del /q Slice2Py.res

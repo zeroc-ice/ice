@@ -72,9 +72,6 @@ $(DLLNAME): $(OBJS) IceUtil.res
 
 !endif
 
-IceUtil.res: IceUtil.rc
-	rc.exe $(RCFLAGS) IceUtil.rc
-
 clean::
 	del /q $(DLLNAME:.dll=.*)
 	del /q IceUtil.res

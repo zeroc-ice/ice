@@ -92,18 +92,6 @@ $(CALC): $(CALCOBJS) IcePatch2Calc.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-IcePatch2.res: IcePatch2.rc
-	rc.exe $(RCFLAGS) IcePatch2.rc
-
-IcePatch2Server.res: IcePatch2Server.rc
-	rc.exe $(RCFLAGS) IcePatch2Server.rc
-
-IcePatch2Client.res: IcePatch2Client.rc
-	rc.exe $(RCFLAGS) IcePatch2Client.rc
-
-IcePatch2Calc.res: IcePatch2Calc.rc
-	rc.exe $(RCFLAGS) IcePatch2Calc.rc
-
 clean::
 	del /q FileInfo.cpp $(HDIR)\FileInfo.h
 	del /q FileServer.cpp $(HDIR)\FileServer.h

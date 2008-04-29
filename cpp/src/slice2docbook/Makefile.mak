@@ -38,9 +38,6 @@ $(NAME): $(OBJS) Slice2Docbook.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Slice2Docbook.res: Slice2Docbook.rc
-	rc.exe $(RCFLAGS) Slice2Docbook.rc
-
 clean::
 	del /q $(NAME:.exe=.*)
 	del /q Slice2Docbook.res

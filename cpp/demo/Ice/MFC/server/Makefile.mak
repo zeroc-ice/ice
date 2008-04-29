@@ -36,9 +36,6 @@ $(SERVER): $(OBJS) $(COBJS) HelloServer.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-HelloServer.res: HelloServer.rc
-	rc.exe HelloServer.rc
-
 clean::
 	del /q Hello.cpp Hello.h
 	del /q HelloServer.res

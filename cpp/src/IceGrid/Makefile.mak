@@ -175,15 +175,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-IceGridAdmin.res: IceGridAdmin.rc
-	rc.exe $(RCFLAGS) IceGridAdmin.rc
-
-IceGridNode.res: IceGridNode.rc
-	rc.exe $(RCFLAGS) IceGridNode.rc
-
-IceGridRegistry.res: IceGridRegistry.rc
-	rc.exe IceGridRegistry.rc
-
 clean::
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp

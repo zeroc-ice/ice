@@ -37,9 +37,6 @@ $(NAME): $(OBJS) Slice2Freeze.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Slice2Freeze.res: Slice2Freeze.rc
-	rc.exe $(RCFLAGS) Slice2Freeze.rc
-
 clean::
 	del /q $(NAME:.exe=.*)
 	del /q Slice2Freeze.res

@@ -150,8 +150,7 @@ EventLoggerI.obj: EventLoggerMsg.h
 EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
 	mc EventLoggerMsg.mc
 
-Ice.res: Ice.rc EventLoggerMsg.rc
-	rc.exe $(RCFLAGS) Ice.rc
+Ice.res: EventLoggerMsg.rc
 
 clean::
 	del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
