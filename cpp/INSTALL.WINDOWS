@@ -28,8 +28,9 @@ Ice has been extensively tested on:
 - Windows 2003 Server x86 and x64
 - Windows Vista x86 and x64
 
-Ice does not work on Windows 2000; however porting Ice to Windows 2000
-should be fairly simple if you do not require UDP multicast or IPv6.
+Ice does not work on Windows 2000. However, porting Ice to Windows
+2000 should be fairly simple if you do not require UDP multicast or
+IPv6.
 
 There are several Ice binary distributions available for Windows, each
 built with a different C++ compiler. These distributions can be 
@@ -138,10 +139,10 @@ to build applications using Ice.
 NMAKE and Message Compiler (MC.EXE)
 -----------------------------------
 
-In order to build Ice you need the Microsoft NMAKE and Message Compiler 
-utilities. These are included in all full Microsoft C++ compiler distributions.
-If you are using C++Builder or Visual C++ 2008 Express, you can download them
-as part of the Windows Platform SDK:
+In order to build Ice, you will need the Microsoft NMAKE and Message
+Compiler utilities. These are included in all full Microsoft C++
+compiler distributions. If you are using C++Builder or Visual C++ 2008
+Express, you can download them as part of the Windows Platform SDK:
  
   http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
 
