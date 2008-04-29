@@ -9,6 +9,9 @@
 
 #include <Ice/LoggerUtil.h>
 #include <Ice/Logger.h>
+#include <Ice/Plugin.h>
+#include <Ice/LocalException.h>
+#include <Ice/Instance.h>
 
 using namespace std;
 using namespace Ice;
@@ -149,4 +152,30 @@ Ice::operator<<(Trace& out, ios_base& (*val)(ios_base&))
 {
     out.__str() << val;
     return out;
+}
+
+Ice::IceLoggerPlugin::IceLoggerPlugin(const CommunicatorPtr& communicator,
+                                      const LoggerPtr& logger)
+{
+    if(communicator == 0)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+    }
+
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+
+    if(logger != 0)
+    {
+        instance->setLogger(logger);
+    }
+}
+
+void
+Ice::IceLoggerPlugin::initialize()
+{
+}
+
+void
+Ice::IceLoggerPlugin::destroy()
+{
 }

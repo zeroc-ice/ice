@@ -757,6 +757,14 @@ IceInternal::Instance::setWstringConverter(const Ice::WstringConverterPtr& wstri
     _initData.wstringConverter = wstringConverter;
 }
 
+void
+IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
+{
+    //
+    // No locking, as it can only be called during plugin loading
+    //
+    _initData.logger = logger;
+}
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),

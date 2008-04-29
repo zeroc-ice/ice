@@ -11,6 +11,8 @@
 #define ICE_LOGGER_UTIL_H
 
 #include <Ice/LoggerF.h>
+#include <Ice/CommunicatorF.h>
+#include <Ice/Plugin.h>
 
 namespace Ice
 {
@@ -146,6 +148,22 @@ template<class Y>
 }
 
 ICE_API Trace& operator<<(Trace&, std::ios_base& (*)(std::ios_base&));
+
+//
+// A special plugin that sets logger during construction (when the provided logger is not
+// null). Both initialize and destroy are no-op. See Ice::InitializationData.
+//
+
+class ICE_API IceLoggerPlugin : public Ice::Plugin
+{
+public:
+
+    IceLoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr&);
+
+    virtual void initialize();
+
+    virtual void destroy();
+};
 
 }
 
