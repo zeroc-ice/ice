@@ -29,7 +29,7 @@ $(CLIENT): $(OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
+IntSMap.h IntSMap.cpp: TestOld.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f IntSMap.h IntSMap.cpp
 	$(SLICE2FREEZE) --dict IntSMap,int,::Test::S IntSMap TestOld.ice
 

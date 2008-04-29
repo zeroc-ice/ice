@@ -53,7 +53,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE)
+Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q Database.h Database.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 

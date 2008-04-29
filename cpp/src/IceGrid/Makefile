@@ -92,6 +92,7 @@ SRCS		= $(ADMIN_OBJS:.o=.cpp) \
 SLICE_SRCS	= ../IceGrid/Internal.ice
 
 HDIR		= $(headerdir)/IceGrid
+SDIR		= $(slicedir)/IceGrid
 LOCAL_HDIR	= ../IceGrid
 LOCAL_SDIR	= ../IceGrid
 
@@ -99,9 +100,9 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_GRID_API_EXPORTS $(OPENSSL_FLAGS) $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. $(OPENSSL_FLAGS) $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 LINKWITH        := -lGlacier2 $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
@@ -119,7 +120,7 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 -lIcePatch2 \
 	$(DB_RPATH_LINK) -lFreeze $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
 
-$(LOCAL_HDIR)/StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE2FREEZE)
+$(LOCAL_HDIR)/StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(LOCAL_SDIR)/Internal.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo \
 	StringApplicationInfoDict $(LOCAL_SDIR)/Internal.ice
@@ -127,7 +128,7 @@ $(LOCAL_HDIR)/StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE
 clean::
 	-rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 
-$(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZE)
+$(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(slicedir)/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
 	--dict-index IceGrid::IdentityObjectInfoDict,type \
@@ -136,10 +137,10 @@ $(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZ
 clean::
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 
-$(LOCAL_HDIR)/StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SLICE2FREEZE)
+$(LOCAL_HDIR)/StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
-	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(slicedir)/IceGrid/Admin.ice
+	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)/Admin.ice
 
 clean::
 	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp

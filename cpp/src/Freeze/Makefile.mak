@@ -12,9 +12,7 @@ top_srcdir	= ..\..
 LIBNAME     	= $(top_srcdir)\lib\freeze$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\freeze$(SOVERSION)$(LIBSUFFIX).dll
 
-
 TARGETS		= $(LIBNAME) $(DLLNAME)
-
 
 OBJS		= BackgroundSaveEvictor.obj \
                   BackgroundSaveEvictorI.obj \
@@ -74,26 +72,26 @@ $(DLLNAME): $(OBJS) Freeze.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
+$(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q $(HDIR)\Catalog.h Catalog.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
 	Catalog $(slicedir)/Freeze/CatalogData.ice
 	move Catalog.h $(HDIR)
+
 clean::
 	del /q $(HDIR)\Catalog.h Catalog.cpp
 
-
-$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(SLICE2FREEZE) $(slicedir)/Ice/BuiltinSequences.ice
+$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
 	CatalogIndexList $(slicedir)/Ice/BuiltinSequences.ice
 	move CatalogIndexList.h $(HDIR)
 
-Freeze.res: Freeze.rc
-	rc.exe $(RCFLAGS) Freeze.rc
-
 clean::
 	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
+
+Freeze.res: Freeze.rc
+	rc.exe $(RCFLAGS) Freeze.rc
 
 clean::
 	del /q $(DLLNAME:.dll=.*)

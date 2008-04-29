@@ -68,7 +68,7 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)
+LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q LibraryTypes.h LibraryTypes.cpp
 	$(SLICE2FREEZE) --ice -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
 

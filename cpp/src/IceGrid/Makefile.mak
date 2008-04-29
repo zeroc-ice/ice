@@ -91,6 +91,8 @@ SRCS            = $(ADMIN_OBJS:.obj=.cpp) \
 
 HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
+LOCAL_HDIR	= ..\IceGrid
+LOCAL_SDIR	= ..\IceGrid
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
 
@@ -143,18 +145,18 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) IceGridNode.res
 	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE2FREEZE)
+StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(LOCAL_SDIR)\Internal.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo \
-	StringApplicationInfoDict Internal.ice
+	StringApplicationInfoDict $(LOCAL_SDIR)\Internal.ice
 
-IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZE)
+IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(slicedir)\Ice\Identity.ice $(LOCAL_SDIR)\Internal.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
 	--dict-index IceGrid::IdentityObjectInfoDict,type \
-	IdentityObjectInfoDict $(slicedir)\Ice\Identity.ice Internal.ice
+	IdentityObjectInfoDict $(slicedir)\Ice\Identity.ice $(LOCAL_SDIR)\Internal.ice
 
-StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SLICE2FREEZE)
+StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SDIR)\Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
 	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)\Admin.ice

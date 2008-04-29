@@ -27,7 +27,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
+BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f BenchTypes.h BenchTypes.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2 \
 	--dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1 \

@@ -30,7 +30,7 @@ $(CLIENT): $(OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE)
+IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q IntLongMap.h IntLongMap.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict IntLongMap,int,long IntLongMap
 

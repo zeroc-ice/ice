@@ -30,7 +30,7 @@ $(CLIENT): $(OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
+BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q BenchTypes.h BenchTypes.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2 \
 	--dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1 \

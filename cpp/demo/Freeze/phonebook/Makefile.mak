@@ -67,7 +67,7 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
+NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q NameIndex.h NameIndex.cpp
 	$(SLICE2FREEZE) $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 

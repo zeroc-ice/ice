@@ -15,7 +15,6 @@ LIBNAME		= $(call mklibname,Freeze)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-
 OBJS		= BackgroundSaveEvictor.o \
                   BackgroundSaveEvictorI.o \
                   CatalogData.o \
@@ -62,15 +61,13 @@ SLICE_SRCS	= $(SDIR)/BackgroundSaveEvictor.ice \
 HDIR		= $(headerdir)/Freeze
 SDIR		= $(slicedir)/Freeze
 
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS) 
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(DB_LIBS)
 
-
-$(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
+$(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f  $(HDIR)/Catalog.h Catalog.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
 	Catalog $(slicedir)/Freeze/CatalogData.ice
@@ -79,7 +76,7 @@ $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 clean::
 	-rm -f $(HDIR)/Catalog.h Catalog.cpp
 
-$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(SLICE2FREEZE) $(slicedir)/Ice/BuiltinSequences.ice
+$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f  $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
 	CatalogIndexList ../../../slice/Ice/BuiltinSequences.ice

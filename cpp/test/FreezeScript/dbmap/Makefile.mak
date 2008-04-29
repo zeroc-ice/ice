@@ -34,7 +34,7 @@ $(CLIENT): $(OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
+IntSMap.h IntSMap.cpp: TestOld.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q IntSMap.h IntSMap.cpp
 	$(SLICE2FREEZE) --dict IntSMap,int,::Test::S IntSMap TestOld.ice
 

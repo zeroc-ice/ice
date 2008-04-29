@@ -27,7 +27,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE)
+IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f IntLongMap.h IntLongMap.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict IntLongMap,int,long IntLongMap
 

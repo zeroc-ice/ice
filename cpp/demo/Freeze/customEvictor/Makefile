@@ -45,7 +45,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE)
+Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f Database.h Database.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 

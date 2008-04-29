@@ -35,31 +35,31 @@ $(CLIENT): $(OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
+ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q ByteIntMap.h ByteIntMap.cpp
 	$(SLICE2FREEZE) --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap,sort ByteIntMap
 
-IntIdentityMap.h IntIdentityMap.cpp: $(SLICE2FREEZE)
+IntIdentityMap.h IntIdentityMap.cpp: $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q IntIdentityMap.h IntIdentityMap.cpp
 	$(SLICE2FREEZE) --ice $(SLICE2CPPFLAGS)  --dict Test::IntIdentityMap,int,Ice::Identity IntIdentityMap $(slicedir)\Ice\Identity.ice
 
-IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp: $(SLICE2FREEZE)
+IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp: $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
 	$(SLICE2FREEZE) --ice $(SLICE2CPPFLAGS) --dict Test::IntIdentityMapWithIndex,int,Ice::Identity --dict-index Test::IntIdentityMapWithIndex,category IntIdentityMapWithIndex $(slicedir)\Ice\Identity.ice
 
-SortedMap.h SortedMap.cpp: $(SLICE2FREEZE)
+SortedMap.h SortedMap.cpp: $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q SortedMap.h SortedMap.cpp
 	$(SLICE2FREEZE)  --ice $(SLICE2CPPFLAGS) --dict Test::SortedMap,int,Ice::Identity,sort SortedMap --dict-index "Test::SortedMap,category,sort,std::greater<std::string>" $(slicedir)\Ice\Identity.ice
 
-WstringWstringMap.h WstringWstringMap.cpp: $(SLICE2FREEZE)
+WstringWstringMap.h WstringWstringMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q WstringWstringMap.h WstringWstringMap.cpp
 	$(SLICE2FREEZE) --dict Test::WstringWstringMap,[\"cpp:type:wstring\"]string,[\"cpp:type:wstring\"]string --dict-index Test::WstringWstringMap WstringWstringMap
 
 clean::
-
-clean::
-	del /q ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp
-	del /q IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp SortedMap.h SortedMap.cpp
+	del /q ByteIntMap.h ByteIntMap.cpp
+        del /q IntIdentityMap.h IntIdentityMap.cpp
+	del /q IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
+        del /q SortedMap.h SortedMap.cpp
 	del /q WstringWstringMap.h WstringWstringMap.cpp
 	for %f in (db\*) do if not %f == db\.gitignore del /q %f
 

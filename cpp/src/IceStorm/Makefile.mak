@@ -69,7 +69,8 @@ SDIR		= $(slicedir)\IceStorm
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS) -I..
+ICECPPFLAGS	= $(ICECPPFLAGS) -I..
+SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib
 ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib
 MLINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib
@@ -123,47 +124,38 @@ $(MIGRATE): $(MOBJS) IceStormMigrate.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-LLUMap.h LLUMap.cpp: $(SLICE2FREEZE) ..\IceStorm\Election.ice
+LLUMap.h LLUMap.cpp: ..\IceStorm\Election.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q LLUMap.h LLUMap.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::LLUMap,string,IceStormElection::LogUpdate LLUMap ..\IceStorm\Election.ice
 
-..\IceStorm\SubscriberMap.h SubscriberMap.cpp: ..\IceStorm\SubscriberRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE)
+..\IceStorm\SubscriberMap.h SubscriberMap.cpp: ..\IceStorm\SubscriberRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q SubscriberMap.h SubscriberMap.cpp
 	$(SLICE2FREEZECMD) \
 	--dict IceStorm::SubscriberMap,IceStorm::SubscriberRecordKey,IceStorm::SubscriberRecord,sort \
 	SubscriberMap ..\IceStorm\SubscriberRecord.ice
 
 # Needed for migration.
-V32FormatDB.h V32FormatDB.cpp: ..\IceStorm\V32Format.ice $(SLICE2FREEZE)
+V32FormatDB.h V32FormatDB.cpp: ..\IceStorm\V32Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q V32FormatDB.h V32FormatDB.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::V32Format,Ice::Identity,IceStorm::LinkRecordSeq \
 	V32FormatDB ..\IceStorm\V32Format.ice
 
-V31FormatDB.h V31FormatDB.cpp: ..\IceStorm\V31Format.ice $(SLICE2FREEZE)
+V31FormatDB.h V31FormatDB.cpp: ..\IceStorm\V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q V31FormatDB.h V31FormatDB.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::V31Format,string,IceStorm::LinkRecordDict \
 	V31FormatDB ..\IceStorm\V31Format.ice
 
-V32Migrate.cpp ..\IceStorm\V32Migrate.h: ..\IceStorm\V32Migrate.ice
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\V32Migrate.ice
-
-V31Migrate.cpp ..\IceStorm\V31Migrate.h: ..\IceStorm\V31Migrate.ice
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\V31Migrate.ice
-
-LinkRecord.cpp ..\IceStorm\LinkRecord.h: ..\IceStorm\LinkRecord.ice
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\LinkRecord.ice
-
-SubscriberRecord.cpp ..\IceStorm\SubscriberRecord.h: ..\IceStorm\SubscriberRecord.ice
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\SubscriberRecord.ice
-
-IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice
-	$(SLICE2CPP) --dll-export ICE_STORM_LIB_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice
+IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	del /q $(HDIR)\IceStorm.h IceStorm.cpp
+	$(SLICE2CPP) --checksum --dll-export ICE_STORM_LIB_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice
 	move IceStorm.h $(HDIR)
 
-Election.cpp ..\IceStorm\Election.h: ..\IceStorm\Election.ice
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) ..\IceStorm\Election.ice
+# Implicit rule to build the private IceStorm .ice files.
+{..\IceStorm\}.ice{..\IceStorm\}.h:
+	del /q $(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 
-Scanner.cpp : Scanner.l
+Scanner.cpp: Scanner.l
 	flex Scanner.l
 	del /q $@
 	echo #include "IceUtil/Config.h" > Scanner.cpp

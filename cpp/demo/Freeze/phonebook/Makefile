@@ -61,7 +61,7 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS) $(READLINE_LIBS)
 
-NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
+NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f NameIndex.h NameIndex.cpp
 	$(SLICE2FREEZE) $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 
