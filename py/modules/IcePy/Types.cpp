@@ -86,6 +86,7 @@ writeString(PyObject* p, const Ice::OutputStreamPtr& os)
     {
         os->writeString(string(PyString_AS_STRING(p), PyString_GET_SIZE(p)));
     }
+#if Py_USING_UNICODE
     else if(PyUnicode_Check(p))
     {
         //
@@ -99,6 +100,7 @@ writeString(PyObject* p, const Ice::OutputStreamPtr& os)
         }
         os->writeString(string(PyString_AS_STRING(h.get()), PyString_GET_SIZE(h.get())), false);
     }
+#endif
     else
     {
         assert(false);
@@ -394,7 +396,11 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     }
     case PrimitiveInfo::KindString:
     {
+#if Py_USING_UNICODE
         if(p != Py_None && !PyString_Check(p) && !PyUnicode_Check(p))
+#else
+        if(p != Py_None && !PyString_Check(p))
+#endif
         {
             return false;
         }
@@ -1358,7 +1364,11 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
+#if Py_USING_UNICODE
             if(item != Py_None && !PyString_Check(item) && !PyUnicode_Check(item))
+#else
+            if(item != Py_None && !PyString_Check(item))
+#endif
             {
                 PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"),
                              static_cast<int>(i));
