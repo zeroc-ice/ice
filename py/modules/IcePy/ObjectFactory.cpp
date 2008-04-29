@@ -30,7 +30,20 @@ IcePy::ObjectFactory::~ObjectFactory()
 Ice::ObjectPtr
 IcePy::ObjectFactory::create(const string& id)
 {
-    Lock sync(*this);
+    PyObject* factory = 0;
+
+    //
+    // Check if the application has registered a factory for this id.
+    //
+    {
+        Lock sync(*this);
+
+        FactoryMap::iterator p = _factoryMap.find(id);
+        if(p != _factoryMap.end())
+        {
+            factory = p->second;
+        }
+    }
 
     //
     // Get the type information.
@@ -41,16 +54,12 @@ IcePy::ObjectFactory::create(const string& id)
         return 0;
     }
 
-    //
-    // Check if the application has registered a factory for this id.
-    //
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p != _factoryMap.end())
+    if(factory)
     {
         //
         // Invoke the create method on the Python factory object.
         //
-        PyObjectHandle obj = PyObject_CallMethod(p->second, STRCAST("create"), STRCAST("s"), id.c_str());
+        PyObjectHandle obj = PyObject_CallMethod(factory, STRCAST("create"), STRCAST("s"), id.c_str());
         if(!obj.get())
         {
             throw AbortMarshaling();
@@ -87,7 +96,13 @@ IcePy::ObjectFactory::create(const string& id)
 void
 IcePy::ObjectFactory::destroy()
 {
-    Lock sync(*this);
+    FactoryMap factories;
+
+    {
+        Lock sync(*this);
+        factories = _factoryMap;
+        _factoryMap.clear();
+    }
 
     //
     // We release the GIL before calling communicator->destroy(), so we must
@@ -95,7 +110,7 @@ IcePy::ObjectFactory::destroy()
     //
     AdoptThread adoptThread;
 
-    for(FactoryMap::iterator p = _factoryMap.begin(); p != _factoryMap.end(); ++p)
+    for(FactoryMap::iterator p = factories.begin(); p != factories.end(); ++p)
     {
         //
         // Invoke the destroy method on each registered Python factory.
@@ -104,7 +119,6 @@ IcePy::ObjectFactory::destroy()
         PyErr_Clear();
         Py_DECREF(p->second);
     }
-    _factoryMap.clear();
 }
 
 bool
