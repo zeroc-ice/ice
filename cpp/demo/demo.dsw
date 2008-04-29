@@ -1086,6 +1086,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "secureC"=.\IceGrid\secure\secureC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "secureS"=.\IceGrid\secure\secureS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "sessionActivationC"=.\IceGrid\sessionActivation\sessionActivationC.dsp - Package Owner=<4>
 
 Package=<5>
