@@ -58,7 +58,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: db46-devel >= 4.6.21, db46-java >= 4.6.21
 BuildRequires: jpackage-utils
-BuildRequires: mcpp-devel >= 2.6.4
+BuildRequires: mcpp-devel >= 2.7
 
 #
 # We also need a recent version of ant, %{_javadir}/jgoodies-forms-%{formsversion}.jar,

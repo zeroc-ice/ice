@@ -4,10 +4,10 @@
 
 Summary: mcpp, a portable C/C++ preprocessor
 Name: mcpp-devel
-Version: 2.6.4
+Version: 2.7
 Release: 1ice%{?dist}
-Source0: http://prdownloads.sourceforge.net/mcpp/mcpp-2.6.4.tar.gz
-Patch1: mcpp-2.6.4.patch
+Source0: http://prdownloads.sourceforge.net/mcpp/mcpp-2.7.tar.gz
+Patch1: mcpp-2.7.patch
 URL: http://mcpp.sourceforge.net/
 License: BSD
 Group: System Environment/Libraries

@@ -156,7 +156,7 @@ Ice has dependencies on a number of third-party libraries:
 - expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
-- mcpp 2.6.4 with patch
+- mcpp 2.7 with patch
 
 You do not need to build these packages yourself, as ZeroC supplies a
 Windows installer for each supported compiler that contains release

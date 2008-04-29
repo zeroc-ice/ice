@@ -69,7 +69,7 @@ Third-party libraries
 The Ice for Silverlight compiler (slice2sl) has a dependency on the
 following third-party library:
 
-- mcpp 2.6.4 with patch
+- mcpp 2.7 with patch
 
 If you want to build the slice2sl translator yourself, you do not need
 to build mcpp yourself, as ZeroC supplies a Windows installer for the

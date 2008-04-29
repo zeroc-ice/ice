@@ -57,14 +57,14 @@ top-level directory and apply the patch as shown below:
 mcpp
 ----
 
-The file mcpp-2.4.6.patch in this archive contains several important
+The file mcpp-2.7.patch in this archive contains several important
 fixes required by Ice. We expect that these changes will be included
 in a future release of mcpp.
 
 After extracting the mcpp source distribution, change to the top-level
 directory and apply the patch as shown below:
 
-  > patch -p0 < mcpp-2.6.4.patch
+  > patch -p0 < mcpp-2.7.patch
 
 
 ======================================================================
@@ -154,7 +154,7 @@ Follow these instructions for building mcpp:
 
 - Change to the mcpp src directory:
 
-  > cd mcpp-2.6.4\src
+  > cd mcpp-2.7\src
 
 - Apply the patch for noconfig.H appropriate for your compiler from
   the noconfig directory. For example, for VS2005 you would run:
