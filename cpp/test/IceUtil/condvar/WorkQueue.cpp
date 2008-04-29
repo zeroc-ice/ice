@@ -20,6 +20,38 @@ using namespace std;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+class CountDown : public Monitor<Mutex>, public Shared
+{
+public:
+
+    CountDown(int count) : _count(count) { }
+
+    void decrement()
+    {
+        Monitor<Mutex>::Lock lock(*this);
+	assert(_count > 0);
+	--_count;
+	if(_count == 0)
+	{
+	    notifyAll();
+	}
+    }
+
+    void waitZero()
+    {
+        Monitor<Mutex>::Lock lock(*this);
+	while(_count > 0)
+	{
+	    wait();
+	}
+    }
+
+private:
+
+    int _count;
+};
+typedef Handle<CountDown> CountDownPtr;
+
 class Queue: public Monitor<Mutex>, public Shared
 {
 public:
@@ -111,14 +143,11 @@ public:
 
         while(true)
         {
-            timedWait(Time::milliSeconds(500));
-            if(_terminate)
+            timedWait(Time::milliSeconds(1000));
+            if(!_terminate && _touches == 0)
             {
-                return;
-            }
-            if(_touches == 0)
-            {
-                cout << "DEADLOCK DETECTED" << endl;
+		cout << _overallTouches << "/" << _overallTimeout
+		     << ": DEADLOCK DETECTED" << endl;
                 abort();
             }
 
@@ -131,6 +160,10 @@ public:
             _overallTimeout += _timeout;
             _touches = 0;
             _timeout = 0;
+            if(_terminate)
+            {
+                return;
+            }
         }
     }
 
@@ -174,18 +207,19 @@ class TestThread : public Thread
 {
 public:
 
-    TestThread(const WatchDogPtr& dog, const QueuePtr& q) :
-        _dog(dog), _q(q)
+    TestThread(const CountDownPtr& cd, const WatchDogPtr& dog, const QueuePtr& q) :
+        _cd(cd), _dog(dog), _q(q)
     {
     }
     virtual void
     run()
     {
+	_cd->decrement();
         while(true)
         {
             int res = 0;
             // This is a poll.
-            bool tout = _q->timedGet(res, Time::seconds(0));
+            bool tout = _q->timedGet(res, Time::milliSeconds(1));
             _dog->touch(!tout);
             if(res == -1)
             {
@@ -195,6 +229,7 @@ public:
     }
 
 private:
+    const CountDownPtr _cd;
     const WatchDogPtr _dog;
     const QueuePtr _q;
 };
@@ -204,14 +239,15 @@ class EnqueueThread : public Thread
 {
 public:
 
-    EnqueueThread(const QueuePtr& q, int v) :
-        _q(q), _v(v)
+    EnqueueThread(const CountDownPtr& cd, const QueuePtr& q, int v) :
+        _cd(cd), _q(q), _v(v)
     {
     }
 
     virtual void
     run()
     {
+	_cd->decrement();
         // Forever
         if(_v == 0)
         {
@@ -219,7 +255,7 @@ public:
             {
                 _q->put(_v);
             }
-            //ThreadControl::sleep(Time::milliSeconds(1));
+            ThreadControl::yield();
         }
         else
         {
@@ -227,13 +263,14 @@ public:
             {
                 _q->put(_v);
                 --_v;
-                //ThreadControl::sleep(Time::milliSeconds(1));
+                ThreadControl::yield();
             }
         }
     }
 
 private:
 
+    const CountDownPtr _cd;
     const QueuePtr _q;
     int _v;
 };
@@ -272,35 +309,37 @@ main(int argc, char** argv)
     QueuePtr broadcastQ = new Queue(true);
     WatchDogPtr broadcastDog = new WatchDog(verbose);
 
+    CountDownPtr cd = new CountDown(210);
     list<TestThreadPtr> testThreads;
     list<EnqueueThreadPtr> enqThreads;
     int i;
 
     for(i = 0; i < 100; i++)
     {
-        TestThreadPtr p = new TestThread(signalDog, signalQ);
+        TestThreadPtr p = new TestThread(cd, signalDog, signalQ);
         p->start();
         testThreads.push_back(p);
     }
     for(i = 0; i < 5; i++)
     {
-        EnqueueThreadPtr p = new EnqueueThread(signalQ, n);
+        EnqueueThreadPtr p = new EnqueueThread(cd, signalQ, n);
         p->start();
         enqThreads.push_back(p);
     }
 
     for(i = 0; i < 100; i++)
     {
-        TestThreadPtr p = new TestThread(broadcastDog, broadcastQ);
+        TestThreadPtr p = new TestThread(cd, broadcastDog, broadcastQ);
         p->start();
         testThreads.push_back(p);
     }
     for(i = 0; i < 5; i++)
     {
-        EnqueueThreadPtr p = new EnqueueThread(broadcastQ, n);
+        EnqueueThreadPtr p = new EnqueueThread(cd, broadcastQ, n);
         p->start();
         enqThreads.push_back(p);
     }
+    cd->waitZero();
 
     signalDog->start();
     broadcastDog->start();
