@@ -29,6 +29,19 @@ C++ Changes
   unmarshaling. If false, the string converter is bypassed. No source
   code changes are necessary for existing programs.
 
+- The new Ice::StringConverterPlugin class allows you to plug-in
+  a custom string-converter and/or wstring-converter during
+  communicator initialization.
+
+- The Ice shared library is now providing a string-converter plugin
+  factory: createStringConverter. See the Ice manual for details.
+
+- IceUtil::stringToWstring and IceUtil::wstringToString now take
+  an second argument, ConversionFlags. It can be either
+  strictConversion or lenientConversion. The default is
+  lenientConversion for compatibility with previous releases. See
+  the Ice manual for further details.
+
 - Added IceGrid secure demo to demonstrate how to setup a secure
   IceGrid deployment.
 
@@ -117,6 +130,9 @@ Python Changes
   arguments) to remote Slice operations. The local Ice API still uses
   8-bit strings.
 
+- Added new Ice/converter demo to illustrate how to use the new
+  Ice for C++ string converter plugin. This demo is very similar
+  to the Ice/converter C++ demo.
 
 Ruby Changes
 ============
