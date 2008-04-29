@@ -15,6 +15,7 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/UUID.h>
 #include <Slice/PythonUtil.h>
+#include <compile.h>
 #include <frameobject.h>
 
 using namespace std;
