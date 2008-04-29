@@ -154,28 +154,28 @@ Ice::operator<<(Trace& out, ios_base& (*val)(ios_base&))
     return out;
 }
 
-Ice::IceLoggerPlugin::IceLoggerPlugin(const CommunicatorPtr& communicator,
-                                      const LoggerPtr& logger)
+Ice::LoggerPlugin::LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger)
 {
     if(communicator == 0)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
     }
 
-    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-
-    if(logger != 0)
+    if(logger == 0)
     {
-        instance->setLogger(logger);
+        throw PluginInitializationException(__FILE__, __LINE__, "Logger cannot be null");
     }
+
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    instance->setLogger(logger);
 }
 
 void
-Ice::IceLoggerPlugin::initialize()
+Ice::LoggerPlugin::initialize()
 {
 }
 
 void
-Ice::IceLoggerPlugin::destroy()
+Ice::LoggerPlugin::destroy()
 {
 }

@@ -22,7 +22,6 @@ using namespace IceInternal;
 const char * const Ice::PluginManagerI::_kindOfObject = "plugin";
 
 typedef Ice::Plugin* (*PLUGIN_FACTORY)(const CommunicatorPtr&, const string&, const StringSeq&);
-typedef Ice::Logger* (*LOGGER_FACTORY)(const CommunicatorPtr&, const StringSeq&); // DEPRECATED
 
 void
 Ice::PluginManagerI::initializePlugins()
@@ -126,7 +125,6 @@ Ice::PluginManagerI::destroy()
             r->second = 0;
         }
         
-        _logger = 0;
         _communicator = 0;
     }
 
@@ -252,13 +250,6 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
         }
     }
 
-    // DEPRECATED
-    string loggerStr = properties->getProperty("Ice.LoggerPlugin");
-    if(loggerStr.length() != 0)
-    {
-        loadPlugin("Logger", loggerStr, cmdArgs, true);
-    }
-
     stringSeqToArgs(cmdArgs, argc, argv);
 
     //
@@ -273,7 +264,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
 }
 
 void
-Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs, bool isLogger)
+Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs)
 {
     assert(_communicator);
 
@@ -341,57 +332,20 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // Invoke the factory function. No exceptions can be raised
     // by the factory function because it's declared extern "C".
     //
-    if(isLogger)
+    PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
+    plugin = factory(_communicator, name, args);
+    if(!plugin)
     {
-        // DEPRECATED
-        LOGGER_FACTORY factory = (LOGGER_FACTORY)sym;
-        _logger = factory(_communicator, args);
-        if(!_logger)
-        {
-            PluginInitializationException e(__FILE__, __LINE__);
-            ostringstream out;
-            out << "failure in entry point `" << entryPoint << "'";
-            e.reason = out.str();
-            throw e;
-        }
+        PluginInitializationException e(__FILE__, __LINE__);
+        ostringstream out;
+        out << "failure in entry point `" << entryPoint << "'";
+        e.reason = out.str();
+        throw e;
     }
-    else
-    {
-        PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
-        plugin = factory(_communicator, name, args);
-        if(!plugin)
-        {
-            PluginInitializationException e(__FILE__, __LINE__);
-            ostringstream out;
-            out << "failure in entry point `" << entryPoint << "'";
-            e.reason = out.str();
-            throw e;
-        }
 
-        if(name == "Logger")
-        {
-            LoggerPluginPtr loggerPlugin = dynamic_cast<LoggerPlugin*>(plugin.get());
-            if(!loggerPlugin)
-            {
-                PluginInitializationException e(__FILE__, __LINE__);
-                ostringstream out;
-                out << "Ice.Plugin.Logger does not implement an Ice::LoggerPlugin";
-                e.reason = out.str();
-                throw e;
-            }
-            _logger = loggerPlugin->getLogger();
-        }
-
-        _plugins[name] = plugin;
-        _initOrder.push_back(plugin);
-    }
+    _plugins[name] = plugin;
+    _initOrder.push_back(plugin);
 
     _libraries->add(library);
-}
-
-Ice::LoggerPtr
-Ice::PluginManagerI::getLogger() const
-{
-    return _logger;
 }
 

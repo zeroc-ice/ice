@@ -9,7 +9,7 @@ ImplicitContext.cs: $(slicedir)/Ice/ImplicitContext.ice $(slicedir)/Ice/LocalExc
 LocalException.cs: $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/BuiltinSequences.ice
 Locator.cs: $(slicedir)/Ice/Locator.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/ProcessF.ice
 Logger.cs: $(slicedir)/Ice/Logger.ice
-ObjectAdapter.cs: $(slicedir)/Ice/ObjectAdapter.ice $(slicedir)/Ice/CommunicatorF.ice $(slicedir)/Ice/ServantLocatorF.ice $(slicedir)/Ice/RouterF.ice $(slicedir)/Ice/LocatorF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/FacetMap.ice
+ObjectAdapter.cs: $(slicedir)/Ice/ObjectAdapter.ice $(slicedir)/Ice/CommunicatorF.ice $(slicedir)/Ice/ServantLocatorF.ice $(slicedir)/Ice/LocatorF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/FacetMap.ice
 ObjectFactory.cs: $(slicedir)/Ice/ObjectFactory.ice
 Plugin.cs: $(slicedir)/Ice/Plugin.ice $(slicedir)/Ice/LoggerF.ice
 Process.cs: $(slicedir)/Ice/Process.ice

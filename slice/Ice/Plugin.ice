@@ -44,18 +44,6 @@ local interface Plugin
 
 /**
  *
- * Special communicator plugin used to set the logger.
- * Can only be used in conjunction with Ice.Plugin.Logger
- * property.
- *
- **/
-local interface LoggerPlugin extends Plugin
-{
-    Logger getLogger();
-};
-
-/**
- *
  * Each communicator has a plugin manager to administer the set of
  * plugins.
  *

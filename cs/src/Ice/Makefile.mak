@@ -50,6 +50,7 @@ SRCS		= Acceptor.cs \
 		  LocalObject.cs \
 		  LocatorInfo.cs \
 		  LoggerI.cs \
+		  LoggerPlugin.cs \
 		  Network.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \

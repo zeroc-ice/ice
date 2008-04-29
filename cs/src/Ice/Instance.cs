@@ -580,6 +580,15 @@ namespace IceInternal
             }
         }
 
+        public void
+        setLogger(Ice.Logger logger)
+        {
+            //
+            // No locking, as it can only be called during plugin loading
+            //
+            _initData.logger = logger;
+        }
+
         //
         // Only for use by Ice.CommunicatorI
         //
@@ -759,11 +768,6 @@ namespace IceInternal
             //
             Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
             pluginManagerImpl.loadPlugins(ref args);
-            Ice.Logger logger = pluginManagerImpl.getLogger();
-            if(logger != null)
-            {
-                _initData.logger = logger;
-            }
             
             //
             // Get default router and locator proxies. Don't move this

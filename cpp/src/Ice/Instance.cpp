@@ -1079,12 +1079,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
 
-    LoggerPtr logger = pluginManagerImpl->getLogger();
-    if(logger)
-    {
-        _initData.logger = logger;
-    }
-
     //
     // Get default router and locator proxies. Don't move this
     // initialization before the plug-in initialization!!! The proxies
