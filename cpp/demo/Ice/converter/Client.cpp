@@ -32,7 +32,7 @@ string decodeString(const string& str)
     ostringstream result;
     for(string::const_iterator p = str.begin(); p != str.end(); ++p)
     {
-        if(isprint(static_cast<unsigned char>(*p)))
+        if(*p >= 32 && *p <= 126)
         {
             result << *p;
         }
