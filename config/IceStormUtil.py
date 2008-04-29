@@ -64,6 +64,7 @@ class IceStormUtil(object):
         status = TestUtil.closePipe(pipe)
         if status:
             print "non-zero status! %d" % status
+            print out
             TestUtil.killServers()
             sys.exit(1)
         return out
