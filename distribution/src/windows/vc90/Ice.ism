@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING42##</title>
-		<subject>Ice 3.3b for Visual Studio 2008</subject>
+		<subject>Ice 3.3.0 for Visual Studio 2008</subject>
 		<author>##COMPANY_NAME##</author>
-		<keywords>Installer,MSI,Database</keywords>
+		<keywords>Ice</keywords>
 		<comments>##ID_STRING32##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{FC13E4BC-1638-4561-9AD6-06DCE9EAE534}</revnumber>
+		<revnumber>{B3A171DD-6AAB-4936-932D-B00A7D7323C7}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1060,7 +1060,7 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GAC</td><td>ASSEMBLY</td><td>GAC</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.3.0</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3b-VC90</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.0</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3.0-VC90</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.3.0</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1756,11 +1756,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3b-VC90</td></row>
-		<row><td>ZEROC</td><td>PackageCode</td><td>{FB9CABD8-791B-414B-B522-979C9067DA54}</td></row>
-		<row><td>ZEROC</td><td>ProductCode</td><td>{2F494683-75F7-462A-9411-EA019DC47192}</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-VC90</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{DC0EBBC4-C965-4732-9C3D-E85EDD120761}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{00155523-5130-438D-843D-B97CF08432DC}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
-		<row><td>ZEROC</td><td>UpgradeCode</td><td>{10CD6890-22A7-4443-8166-6DC393CB22A0}</td></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{BC238606-E3B4-4B4A-A253-983E23C37EFD}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2419,9 +2419,9 @@
 		<row><td>ID_STRING30</td><td>1033</td><td>NOTE: You must be an Admin user and have the .NET 2.0 Framework installed in order to correctly install Ice for .NET.</td><td>0</td><td/><td>1234811028</td></row>
 		<row><td>ID_STRING31</td><td>1033</td><td>InstallShield has detected that you are not an Admin user. You will not be able to install the Ice for .NET assemblies in the GAC as a result.</td><td>0</td><td/><td>563929711</td></row>
 		<row><td>ID_STRING32</td><td>1033</td><td>The Internet Communications Engine (Ice) runtimes, tools, files and libraries for developing Ice applications.</td><td>0</td><td/><td>1234812724</td></row>
-		<row><td>ID_STRING33</td><td>1033</td><td>Ice 3.3b for Visual Studio 2008</td><td>0</td><td/><td>890860527</td></row>
+		<row><td>ID_STRING33</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2008</td><td>0</td><td/><td>890860527</td></row>
 		<row><td>ID_STRING34</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234802195</td></row>
-		<row><td>ID_STRING35</td><td>1033</td><td>Ice 3.3b for Visual Studio 2008</td><td>0</td><td/><td>1712981485</td></row>
+		<row><td>ID_STRING35</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2008</td><td>0</td><td/><td>1712981485</td></row>
 		<row><td>ID_STRING36</td><td>1033</td><td>Ice for C++, Java and .NET</td><td>0</td><td/><td>563881742</td></row>
 		<row><td>ID_STRING37</td><td>1033</td><td>All you need to run and develop Ice for C++, Java and .NET applications</td><td>0</td><td/><td>563879726</td></row>
 		<row><td>ID_STRING38</td><td>1033</td><td>Ice for .NET assemblies (GAC)</td><td>0</td><td/><td>563886389</td></row>
@@ -2429,7 +2429,7 @@
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING40</td><td>1033</td><td>Microsoft C/C++ runtime x86</td><td>0</td><td/><td>563925071</td></row>
 		<row><td>ID_STRING41</td><td>1033</td><td>Install this feature to run Ice for C++ executables on a system without Visual Studio</td><td>0</td><td/><td>1369226160</td></row>
-		<row><td>ID_STRING42</td><td>1033</td><td>Ice 3.3b for Visual Studio 2008</td><td>0</td><td/><td>1369200943</td></row>
+		<row><td>ID_STRING42</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2008</td><td>0</td><td/><td>1369200943</td></row>
 		<row><td>ID_STRING43</td><td>1033</td><td>support@zeroc.com</td><td>0</td><td/><td>1369178447</td></row>
 		<row><td>ID_STRING44</td><td>1033</td><td>http://www.zeroc.com/support.html</td><td>0</td><td/><td>1369192815</td></row>
 		<row><td>ID_STRING45</td><td>1033</td><td>+1 561 283-1480</td><td>0</td><td/><td>1369205103</td></row>
@@ -2839,11 +2839,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>NewProperty1</td><td>0</td><td/></row>
 		<row><td>NewProperty2</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{FA25A705-C7CA-4A51-9E4B-ABA5257ABE54}</td><td/></row>
+		<row><td>ProductCode</td><td>{DF734099-0006-4BCC-96E8-E0BBB7EA0BBA}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3b for Visual Studio 2008</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.51</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3.0 for Visual Studio 2008</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2852,7 +2852,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{6B00E74E-10AC-401E-9213-36C38E2B58CD}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{F4937DB5-D8D5-4ACD-B359-8E467012832F}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

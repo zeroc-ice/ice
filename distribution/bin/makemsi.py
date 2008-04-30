@@ -12,7 +12,7 @@ import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
 import textwrap
 
-iceVersion = '3.3b'
+iceVersion = '3.3.0'
 looksVersion = '2.1.4'
 formsVersion = '1.2.0'
 
@@ -551,14 +551,6 @@ libraries."""
                     os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "RELEASE_NOTES.txt"))
         shutil.copy(os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "CHANGES"),
                     os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "CHANGES.txt"))
-
-        # Temporary! Copy build.demo.properties from git
-        javaConfigDir = os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "java", "config")
-        if not os.path.exists(os.path.join(javaConfigDir, "demo")):
-            os.mkdir(os.path.join(javaConfigDir, "demo"))
-            gitJavaConfigDir = os.path.join(installDir, "..", "java", "config")
-            shutil.copy(os.path.join(gitJavaConfigDir, "build.demo.properties"),
-                        os.path.join(javaConfigDir, "demo", "build.properties")) 
 
         #
         # Build the Ice distributions.
