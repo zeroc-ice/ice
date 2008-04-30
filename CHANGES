@@ -78,6 +78,10 @@ C++ Changes
 Java Changes
 ============
 
+- Fixed the slice2java ant task to recompile all of the files in the
+  file list if at least one of the files has changed and checksums are
+  being generated.
+
 - Deprecated the class IceUtil.Version.
 
 - Added the methods stringVersion and intVersion to Ice.Util for
