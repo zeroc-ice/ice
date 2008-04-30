@@ -145,6 +145,9 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
 	$(INSTALL) $(LIBNAME).config $(bindir)
 
+clean::
+	-rm -f $(bindir)/$(LIBNAME).config
+
 ifeq ($(GACINSTALL),yes)
 install:: all
 	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))

@@ -191,6 +191,9 @@ policy:
 	move $(POLICY) $(bindir)
 	move $(POLICY_TARGET) $(bindir)
 
+clean::
+	del /q $(bindir)\$(POLICY) $(bindir)\$(POLICY_TARGET)
+
 !endif
 
 
@@ -208,14 +211,14 @@ $(TARGETS_CONFIG):
 	sn -q -t tmp.pub > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
-	del tmp.pub tmp.publicKeyToken && \
+	del /q tmp.pub tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak config"
 !else
 $(TARGETS_CONFIG):
 	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
-	del tmp.pub tmp.publicKeyToken && \
+	del /q tmp.pub tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak config"
 !endif
 

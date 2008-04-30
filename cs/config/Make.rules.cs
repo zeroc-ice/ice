@@ -181,7 +181,12 @@ $(bindir)/$(POLICY_TARGET):
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
 	mv $(POLICY) $(POLICY_TARGET) $(bindir)
+
+clean::
+	-rm -f $(bindir)/$(POLICY) $(bindir)/$(POLICY_TARGET)
+
 endif
+
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))

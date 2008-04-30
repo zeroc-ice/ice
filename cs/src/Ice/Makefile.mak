@@ -144,6 +144,11 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(SRCS) $(GEN_SRCS)
 
+!if "$(DEBUG)" == "yes"
+clean::
+	del /q $(bindir)\$(PKG).pdb
+!endif
+
 install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)

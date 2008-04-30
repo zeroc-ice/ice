@@ -31,6 +31,11 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
+!if "$(DEBUG)" == "yes"
+clean::
+	del /q $(bindir)\$(PKG).pdb
+!endif
+
 install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)
