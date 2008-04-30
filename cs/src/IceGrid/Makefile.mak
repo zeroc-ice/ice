@@ -48,5 +48,8 @@ install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)
 	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
+!if "$(DEBUG)" == "yes"
+	copy $(bindir)\$(PKG).pdb $(install_bindir)
+!endif
 
 !include .depend

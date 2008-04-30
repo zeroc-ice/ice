@@ -33,7 +33,8 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
+	 $(call installmdb,$(LIBNAME).mdb))
 
 ifeq ($(GACINSTALL),yes)
 install:: all

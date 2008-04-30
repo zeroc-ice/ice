@@ -97,6 +97,10 @@ endif
 
 GACUTIL			= gacutil
 
+# MDB files are generated only for debug builds. For debug, with a GAC
+# install gacutil installs the .mdb into the GAC.
+installmdb    =
+
 ifeq ($(GACINSTALL),yes)
     ifeq ($(GAC_ROOT),)
         installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt)
@@ -112,8 +116,11 @@ else
                           $(INSTALL_LIBRARY) $(1) $(install_bindir); \
     			  chmod a+rx $(install_bindir)/$(notdir $(1).dll); \
     			  chmod a+r $(install_bindir)/$(notdir $(1))
+    ifeq ($(DEBUG),yes)
+        installmdb          = $(INSTALL_LIBRARY) $(1) $(install_bindir); \
+    			      chmod a+rx $(install_bindir)/$(notdir $(1))
+    endif
 endif
-
 
 MCS			= gmcs
 

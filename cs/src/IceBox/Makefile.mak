@@ -48,8 +48,14 @@ install:: all
 	copy $(LIBNAME) $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)
 	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
+!if "$(DEBUG)" == "yes"
+	copy $(bindir)\$(PKG).pdb $(install_bindir)
+!endif
 
 install:: all
 	copy $(ICEBOXNET) $(install_bindir)
+!if "$(DEBUG)" == "yes"
+	copy $(bindir)\iceboxnet.pdb $(install_bindir)
+!endif
 
 !include .depend

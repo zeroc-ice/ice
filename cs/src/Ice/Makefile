@@ -157,6 +157,7 @@ install:: all
 endif
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
+	 $(call installmdb,$(LIBNAME).mdb))
 
 include .depend
