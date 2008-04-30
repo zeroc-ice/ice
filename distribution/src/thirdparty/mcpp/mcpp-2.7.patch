@@ -103,10 +103,10 @@ diff -N -r -c ../mcpp-2.7-old/noconfig/vc6.dif ./noconfig/vc6.dif
 +   #define ONE_PASS            TRUE
 +   #endif
 +   #define COMPILER_EXT        "_MSC_VER"
-+ ! #define COMPILER_EXT_VAL    "1200"
++ ! #define COMPILER_EXT_VAL    "1500"
 +       /* VC 2002: "1300", VC 2003: "1310", VC 2005: "1400", VC 2008: "1500"   */
 +   #define COMPILER_EXT2       "_MSC_FULL_VER"
-+ ! #define COMPILER_EXT2_VAL   "12008804"
++ ! #define COMPILER_EXT2_VAL   "150021022"
 +       /* VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320" */
 +       /* VC 2008 "150021022"  */
 +   #define COMPILER_SP1        "_MSC_EXTENSIONS"
