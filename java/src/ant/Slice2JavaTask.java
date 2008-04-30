@@ -118,6 +118,7 @@ public class Slice2JavaTask extends SliceTask
         // last updated or a slice file it depends on changed).
         //
         java.util.Vector buildList = new java.util.Vector();
+        java.util.Vector skipList = new java.util.Vector();
         java.util.Iterator p = _fileSets.iterator();
         while(p.hasNext())
         {
@@ -137,7 +138,24 @@ public class Slice2JavaTask extends SliceTask
                 }
                 else
                 {
-                    log("skipping " + files[i]);
+                    skipList.addElement(slice);
+                }
+            }
+
+            if(_checksum != null && _checksum.length() > 0 && !buildList.isEmpty())
+            {
+                //
+                // Recompile all Slice files when checksums are used.
+                //
+                buildList.addAll(skipList);
+            }
+            else 
+            {
+                java.util.Iterator i = skipList.iterator();
+                while(i.hasNext())
+                {
+                    File file = (File)i.next();
+                    log("skipping " + file.getName());
                 }
             }
         }
