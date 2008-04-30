@@ -27,6 +27,8 @@ namespace Filesystem {
         std::string _name;
         Ice::Identity _id;
         DirectoryIPtr _parent;
+        NodeI(const NodeI&);            // Copy forbidden
+        void operator=(const NodeI&);   // Assignment forbidden
     };
 
     typedef IceUtil::Handle<NodeI> NodeIPtr;
