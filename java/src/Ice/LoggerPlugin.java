@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class LoggerPlugin implements Ice.Plugin
+public class LoggerPlugin implements Ice.Plugin
 {
     public 
     LoggerPlugin(Communicator communicator, Logger logger)
