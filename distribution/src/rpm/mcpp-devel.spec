@@ -8,6 +8,7 @@ Version: 2.7
 Release: 1ice%{?dist}
 Source0: http://prdownloads.sourceforge.net/mcpp/mcpp-2.7.tar.gz
 Patch1: mcpp-2.7.patch
+Patch2: mcpp-2.7.patch2
 URL: http://mcpp.sourceforge.net/
 License: BSD
 Group: System Environment/Libraries
@@ -40,6 +41,7 @@ It is probably number one C/C++ preprocessor now available in the world.
 
 %setup -q -n mcpp-%{version}
 %patch1 -p0
+%patch2 -p0
 
 %build
 
@@ -62,5 +64,8 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %changelog
 
-* Thu Feb 7 2008 Bernard Normier <bernard@zeroc.com>
+* Wed Apr 30 2008 Bernard Normier <bernard@zeroc.com>
+- mcpp 2.7 update
+
+* Thu Feb 7 2008  Bernard Normier <bernard@zeroc.com>
 - Initial version

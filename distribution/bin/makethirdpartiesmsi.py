@@ -16,17 +16,17 @@ resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "s
 sys.path.append(resources)
 import components
 
-iceVersion = '3.3b'
+iceVersion = '3.3.0'
 
 #
 # Current default third party library versions.
 #
 OpenSSLVer = '0.9.8g'
-Bzip2Ver = '1.0.4'
+Bzip2Ver = '1.0.5'
 STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
 DBVer = '4.6.21'
-MCPPVer = '2.6.4'
+MCPPVer = '2.7'
 
 timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
 

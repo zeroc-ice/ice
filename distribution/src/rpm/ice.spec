@@ -303,7 +303,6 @@ rm -rf $RPM_BUILD_ROOT
 # C++
 #
 
-# Temporary
 mkdir -p $RPM_BUILD_ROOT/lib
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
@@ -392,14 +391,9 @@ mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 # .NET spec files (for mono-devel)
 #
 if test ! -d $RPM_BUILD_ROOT%{_libdir}/pkgconfig
-then 
-    mkdir $RPM_BUILD_ROOT%{_libdir}/pkgconfig
+then
+    mv $RPM_BUILD_ROOT/lib/pkgconfig $RPM_BUILD_ROOT%{_libdir}
 fi
-
-for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
-do 
-    cp $RPM_BUILD_DIR/Ice-%{version}/cs/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig 
-done
 %endif
 
 #
@@ -496,6 +490,8 @@ for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do 
      rm -r $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f
 done
+
+rm -r $RPM_BUILD_ROOT/lib/pkgconfig
 
 %endif
 
