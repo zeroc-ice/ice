@@ -1,0 +1,30 @@
+diff -N -r -c ../mcpp-2.7-old/src/internal.H ./src/internal.H
+*** ../mcpp-2.7-old/src/internal.H	2008-03-11 13:34:07.000000000 -0230
+--- ./src/internal.H	2008-04-30 18:28:52.000000000 -0230
+***************
+*** 526,532 ****
+                  /* Do the final commands        */
+  extern void     print_heap( void);
+                  /* Print blocks of heap memory  */
+! #if ! HOST_HAVE_STPCPY || HOST_COMPILER == GNUC
+  extern char *   stpcpy( char * dest, const char * src);
+                  /* Non-Standard library function*/
+  #endif
+--- 526,532 ----
+                  /* Do the final commands        */
+  extern void     print_heap( void);
+                  /* Print blocks of heap memory  */
+! #if ! HOST_HAVE_STPCPY
+  extern char *   stpcpy( char * dest, const char * src);
+                  /* Non-Standard library function*/
+  #endif
+***************
+*** 552,554 ****
+--- 552,558 ----
+  #pragma GCC visibility pop
+  #endif
+  #endif
++ 
++ #if HOST_HAVE_STPCPY 
++ extern char *   stpcpy( char * dest, const char * src); 
++ #endif
