@@ -519,7 +519,7 @@ public final class Instance
         return result;
     }
 
-    public void
+    public synchronized void
     setDefaultLocator(Ice.LocatorPrx locator)
     {
         if(_state == StateDestroyed)
@@ -530,7 +530,7 @@ public final class Instance
         _referenceFactory = _referenceFactory.setDefaultLocator(locator);
     }
 
-    public void
+    public synchronized void
     setDefaultRouter(Ice.RouterPrx router)
     {
         if(_state == StateDestroyed)
