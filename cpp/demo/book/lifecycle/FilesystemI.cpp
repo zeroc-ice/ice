@@ -61,14 +61,7 @@ FilesystemI::NodeI::NodeI(const string& name, const DirectoryIPtr& parent)
 {
     // Create an identity. The root directory has the fixed identity "RootDir".
     //
-    if(!parent)
-    {
-        _id.name = "RootDir";
-    }
-    else
-    {
-        _id.name = IceUtil::generateUUID();
-    }
+    _id.name = parent ? IceUtil::generateUUID() : "RootDir";
 }
 
 // Slice File::read() operation.
