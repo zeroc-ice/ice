@@ -19,7 +19,7 @@ public final class FileI extends PersistentFile
     public
     FileI(Ice.Identity id)
     {
-        _ID = id;
+        _id = id;
     }
 
     public String
@@ -33,7 +33,7 @@ public final class FileI extends PersistentFile
         throws PermissionDenied
     {
         parent.removeNode(nodeName);
-        _evictor.remove(_ID);
+        _evictor.remove(_id);
     }
 
     public synchronized String[]
@@ -49,7 +49,6 @@ public final class FileI extends PersistentFile
         this.text = text;
     }
 
-    public static Ice.ObjectAdapter _adapter;
     public static Freeze.Evictor _evictor;
-    public Ice.Identity _ID;
+    public Ice.Identity _id;
 }

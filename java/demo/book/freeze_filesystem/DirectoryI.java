@@ -20,7 +20,7 @@ public final class DirectoryI extends PersistentDirectory
     public
     DirectoryI(Ice.Identity id)
     {
-        _ID = id;
+        _id = id;
         nodes = new java.util.HashMap();
         _destroyed = false;
     }
@@ -71,7 +71,7 @@ public final class DirectoryI extends PersistentDirectory
         assert(nodes.isEmpty());
 
         parent.removeNode(nodeName);
-        _evictor.remove(_ID);
+        _evictor.remove(_id);
     }
 
     public synchronized NodeDesc[]
@@ -118,7 +118,10 @@ public final class DirectoryI extends PersistentDirectory
             throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
         }
 
-        checkName(name);
+        if(name.length() == 0 || nodes.containsKey(name))
+        {
+            throw new NameInUse(name);
+        }
 
         Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
         PersistentDirectory dir = new DirectoryI(id);
@@ -144,7 +147,10 @@ public final class DirectoryI extends PersistentDirectory
             throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
         }
 
-        checkName(name);
+        if(name.length() == 0 || nodes.containsKey(name))
+        {
+            throw new NameInUse(name);
+        }
 
         Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
         PersistentFile file = new FileI(id);
@@ -168,18 +174,7 @@ public final class DirectoryI extends PersistentDirectory
         nodes.remove(name);
     }
 
-    private
-    void checkName(String name)
-        throws NameInUse
-    {
-        if(name.length() == 0 || nodes.containsKey(name))
-        {
-            throw new NameInUse(name);
-        }
-    }
-
-    public static Ice.ObjectAdapter _adapter;
     public static Freeze.Evictor _evictor;
-    public Ice.Identity _ID;
+    public Ice.Identity _id;
     private boolean _destroyed;
 }

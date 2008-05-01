@@ -28,13 +28,10 @@ public class Server extends Ice.Application
         communicator().addObjectFactory(factory, PersistentDirectory.ice_staticId());
 
         //
-        // Create an object adapter (stored in the _adapter
-        // static member).
+        // Create an object adapter.
         //
         Ice.ObjectAdapter adapter =
             communicator().createObjectAdapterWithEndpoints("FreezeFilesystem", "default -p 10000");
-        DirectoryI._adapter = adapter;
-        FileI._adapter = adapter;
 
         //
         // Create the Freeze evictor (stored in the _evictor

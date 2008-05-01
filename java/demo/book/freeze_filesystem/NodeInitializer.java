@@ -16,11 +16,11 @@ public class NodeInitializer implements Freeze.ServantInitializer
     {
         if(obj instanceof FileI)
         {
-            ((FileI)obj)._ID = id;
+            ((FileI)obj)._id = id;
         }
         else if(obj instanceof DirectoryI)
         {
-            ((DirectoryI)obj)._ID = id;
+            ((DirectoryI)obj)._id = id;
         }
     }
 }
