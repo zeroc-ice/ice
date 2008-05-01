@@ -1943,7 +1943,7 @@
 		<col def="I4">TimeStamp</col>
 		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC, Inc.</td><td>0</td><td/><td>1234816852</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td>	</td><td>479664453</td></row>
-		<row><td>ICE_VERSION</td><td>1033</td><td>3.3.51</td><td>0</td><td/><td>1973063787</td></row>
+		<row><td>ICE_VERSION</td><td>1033</td><td>3.3.0</td><td>0</td><td/><td>1973063787</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>The operating system is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>

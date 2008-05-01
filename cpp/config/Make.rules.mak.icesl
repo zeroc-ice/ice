@@ -25,7 +25,7 @@ OPTIMIZE		= yes
 # change the following setting to reflect the installation location.
 #
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Ice-3.3b-ThirdParty-VC90
+THIRDPARTY_HOME		= C:\Ice-3.3.0-ThirdParty-VC90
 !endif
 
 
