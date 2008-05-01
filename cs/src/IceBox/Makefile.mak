@@ -38,12 +38,24 @@ $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) -r:$(refdir)\Ice.dll $(L_SRCS) $(GEN_SRCS)
 
+!if "$(DEBUG)" == "yes"
+clean::
+	del /q $(bindir)\$(PKG).pdb
+	del /q $(bindir)\iceboxnet.pdb
+!endif
+
 install:: all
 	copy $(LIBNAME) $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)
 	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
+!if "$(DEBUG)" == "yes"
+	copy $(bindir)\$(PKG).pdb $(install_bindir)
+!endif
 
 install:: all
 	copy $(ICEBOXNET) $(install_bindir)
+!if "$(DEBUG)" == "yes"
+	copy $(bindir)\iceboxnet.pdb $(install_bindir)
+!endif
 
 !include .depend

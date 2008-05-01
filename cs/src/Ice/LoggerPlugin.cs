@@ -9,7 +9,7 @@
 
 namespace Ice
 {
-    public sealed class LoggerPlugin : Ice.Plugin
+    public class LoggerPlugin : Ice.Plugin
     {
         public 
         LoggerPlugin(Communicator communicator, Logger logger)

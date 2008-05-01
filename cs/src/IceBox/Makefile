@@ -39,10 +39,12 @@ $(bindir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
+	 $(call installmdb,$(LIBNAME).mdb))
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))
+	$(call installmdb,$(ICEBOXNET).mdb)
 
 ifeq ($(GACINSTALL),yes)
 install:: all

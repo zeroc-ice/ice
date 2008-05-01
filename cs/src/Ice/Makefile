@@ -145,6 +145,9 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(subst /,$(DSEP),$^)
 	$(INSTALL) $(LIBNAME).config $(bindir)
 
+clean::
+	-rm -f $(bindir)/$(LIBNAME).config
+
 ifeq ($(GACINSTALL),yes)
 install:: all
 	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
@@ -154,6 +157,7 @@ install:: all
 endif
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)))
+	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
+	 $(call installmdb,$(LIBNAME).mdb))
 
 include .depend
