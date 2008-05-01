@@ -248,6 +248,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name replicated2S
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name secureC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name secureS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1094,6 +1100,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name secureS
+    End Project Dependency
 }}}
 
 ###############################################################################
