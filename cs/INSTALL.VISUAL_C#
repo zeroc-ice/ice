@@ -115,16 +115,16 @@ See the README file in each demo directory for a description of the
 demo.
 
 Note that in demos that use IceSSL, the IceSSL plugin configuration
-does not contain the FQN for the IceSSL assembly. Instead it just
-contains the partial name:
+does not contain the fully-qualified name (FQN) for the IceSSL
+assembly. Instead it just contains the partial name:
 
   Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory
 
 The FQN is found in the *.exe.config files that are generated when the
-demos are built. If you want you run an application using the IceSSL
-assembly installed in the GAC without the use of the *.exe.config file
-then you have to add the FQN to the IceSSL plugin configuration, similar
-to the following:
+demos are built. If you want to run an application using the IceSSL
+assembly installed in the GAC without the use of the *.exe.config
+files, you must add the FQN to the IceSSL plugin configuration, as
+shown below:
 
   Ice.Plugin.IceSSL=IceSSL, Version=@ver@.0, Culture=neutral, PublicKeyToken=1f998c50fec78381:IceSSL.PluginFactory
 
