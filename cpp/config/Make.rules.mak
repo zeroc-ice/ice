@@ -89,7 +89,7 @@ slice_translator = slice2cpp.exe
 ice_require_cpp  = 1
 !endif
 
-!if exist ($(top_srcdir)\..\config\Make.common.rules)
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
 !else
 !include $(top_srcdir)\config\Make.common.rules.mak
