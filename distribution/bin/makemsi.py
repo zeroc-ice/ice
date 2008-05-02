@@ -73,7 +73,7 @@ def usage():
 
 def environmentCheck(target):
     """Warning: uses global environment."""
-    required = ["SOURCES", "BUILD_DIR", "THIRDPARTY_HOME"]
+    required = ["BUILD_DIR", "THIRDPARTY_HOME"]
 
     if target == "vc60":
         required.extend(["PHP_HOME", "PHP_SRC_HOME"])
@@ -368,7 +368,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
-                "logfile", "vc60", "vc80", "vc90", "thirdpartyhome=", "sources=", "buildDir=", "pfxfile=", "pfxpassword="])
+                "logfile", "vc60", "vc80", "vc90", "bcc", "thirdpartyhome=", "sources=", "buildDir=", "pfxfile=", "pfxpassword="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -405,6 +405,8 @@ def main():
                 target = 'vc80'
             elif o == '--vc90':
                 target = 'vc90'
+            elif o == '--bcc':
+                target = 'bcc'  
             elif o == '--pfxfile':
                 os.environ['PFX_FILE'] = a
             elif o == '--pfxpassword':
@@ -461,7 +463,8 @@ def main():
 
         logging.debug(environToString(os.environ))
 
-        checkSources(buildDir, os.environ['SOURCES'])
+        if build:
+            checkSources(buildDir, os.environ['SOURCES'])
 
         defaults = os.environ
         defaults['dbver'] = '46'
@@ -475,6 +478,11 @@ def main():
         else:
             defaults['installdir'] = "C:\\Ice-%s-%s" % (iceVersion, target.upper())
 
+        if target == 'bcc':
+            defaults['pdb'] = 'tds'
+        else:
+            defaults['pdb'] = 'pdb'
+            
         defaults['OutDir'] = ''
         defaults['timeStampingURL'] = timeStampingURL
 
@@ -529,22 +537,23 @@ libraries."""
             if not os.path.exists(os.path.join(buildDir, "release-x64")):
                 os.mkdir(os.path.join(buildDir, "release-x64"))
 
-        for z in DistPrefixes:
-            #
-            # TODO: See if this can be replaced by ZipFile and native
-            # Python code somehow.
-            #
-            filename = os.path.join(os.environ['SOURCES'], z % iceVersion + ".zip")
-            if not os.path.exists(os.path.join(buildDir, "debug", z %  iceVersion)):
-                runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug")))
-            if not os.path.exists(os.path.join(buildDir, "release", z %  iceVersion)):
-                runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release")))
+        if build:
+            for z in DistPrefixes:
+                #
+                # TODO: See if this can be replaced by ZipFile and native
+                # Python code somehow.
+                #
+                filename = os.path.join(os.environ['SOURCES'], z % iceVersion + ".zip")
+                if not os.path.exists(os.path.join(buildDir, "debug", z %  iceVersion)):
+                    runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug")))
+                if not os.path.exists(os.path.join(buildDir, "release", z %  iceVersion)):
+                    runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release")))
         
-            if target == "vc80" or target == "vc90":
-                if not os.path.exists(os.path.join(buildDir, "debug-x64", z %  iceVersion)):
-                    runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug-x64")))
-                if not os.path.exists(os.path.join(buildDir, "release-x64", z %  iceVersion)):
-                    runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release-x64")))
+                if target == "vc80" or target == "vc90":
+                    if not os.path.exists(os.path.join(buildDir, "debug-x64", z %  iceVersion)):
+                        runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug-x64")))
+                    if not os.path.exists(os.path.join(buildDir, "release-x64", z %  iceVersion)):
+                        runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release-x64")))
 
         # Need .txt version
         shutil.copy(os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "RELEASE_NOTES"),

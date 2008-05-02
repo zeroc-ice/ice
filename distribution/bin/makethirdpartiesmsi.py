@@ -130,16 +130,17 @@ def convertLicensesToRTF(toolDir, installTarget):
     core = [ berkeleydb, bzip2, openssl, expat, mcpp ]
 
     collection = core
-    jgoodies =[(os.path.join(os.environ["JGOODIES_FORMS"], "license.txt"), "JGoodies Forms",
-                            "JGOODIES_FORMS_LICENSE.rtf"),
-               (os.path.join(os.environ["JGOODIES_LOOKS"], "license.txt"), "JGoodies Looks",
-                            "JGOODIES_LOOKS_LICENSE.rtf")]
-    if installTarget == "vc60":
-        collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),
-                           "STLport", "STLPORT_LICENSE.rtf"))
-        collection.extend(jgoodies)
-    elif installTarget in ["vc71", "vc80", "vc90"]:
-        collection.extend(jgoodies)
+    if installTarget != "bcc":
+        jgoodies =[(os.path.join(os.environ["JGOODIES_FORMS"], "license.txt"), "JGoodies Forms",
+                    "JGOODIES_FORMS_LICENSE.rtf"),
+                   (os.path.join(os.environ["JGOODIES_LOOKS"], "license.txt"), "JGoodies Looks",
+                    "JGOODIES_LOOKS_LICENSE.rtf")]
+        if installTarget == "vc60":
+            collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),
+                               "STLport", "STLPORT_LICENSE.rtf"))
+            collection.extend(jgoodies)
+        elif installTarget in ["vc71", "vc80", "vc90"]:
+            collection.extend(jgoodies)
 
     third_party_sources_file_hdr = """Source Code
 -----------
@@ -247,10 +248,13 @@ def buildMergeModules(startDir, stageDir, iceVersion, installVersion):
         ("ExpatRuntime", "EXPAT_RUNTIME"),
         ("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
         ("OpenSSLRuntime", "OPENSSL_RUNTIME"),
-        ("JGoodies", "JGOODIES_RUNTIME"),
-        ("BerkeleyDBJava", "BERKELEYDB_JAVA"),
         ("MCPPDevKit", "MCPP_DEV_KIT"),
     ]
+
+    if installVersion != "bcc":
+        javaExtras = [ ("JGoodies", "JGOODIES_RUNTIME"),  ("BerkeleyDBJava", "BERKELEYDB_JAVA") ]
+        modules.extend(javaExtras)
+
     if installVersion == "vc60":
         extras = [ ("STLPortDevKit", "STLPORT_DEV_KIT"), ("STLPortRuntime", "STLPORT_RUNTIME") ]
         modules.extend(extras)
@@ -340,7 +344,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
-                "logfile", "vc60", "vc80", "vc90", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
+                "logfile", "vc60", "vc80", "vc90", "bcc", "sslhome=", "expathome=", "dbhome=", "stlporthome=",
                 "bzip2home=", "mcpphome=", "jgoodiesformshome=", "jgoodieslookshome=", "pfxfile=", "pfxpassword="])
         except getopt.GetoptError:
             usage()
@@ -372,6 +376,8 @@ def main():
                 target = 'vc80'
             elif o == '--vc90':
                 target = 'vc90'
+            elif o == '--bcc':
+                target = 'bcc'
             elif o == '--pfxfile':
                 os.environ['PFX_FILE'] = a
             elif o == '--pfxpassword':
