@@ -236,37 +236,3 @@ IceUtil::stringToWstring(const string& str, ConversionFlags flags)
     }
     return result;
 }
-
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1300)
-//
-// See comments in IceUtil/Unicode.h
-//
-
-#   if _MSC_VER < 1400
-string
-IceUtil::wstringToString(const basic_string<__wchar_t>& str, ConversionFlags flags)
-{
-    return wstringToString(*reinterpret_cast<const wstring*>(&str), flags);
-}
-
-basic_string<__wchar_t>
-IceUtil::stringToNativeWstring(const string& str, ConversionFlags flags)
-{
-    return reinterpret_cast<basic_string<__wchar_t>& >(stringToWstring(str, flags));
-}
-#   else
-string
-IceUtil::wstringToString(const basic_string<unsigned short>& str, ConversionFlags flags)
-{
-    return wstringToString(*reinterpret_cast<const wstring*>(&str), flags);
-}
-
-basic_string<unsigned short>
-IceUtil::stringToTypedefWstring(const string& str, ConversionFlags flags)
-{
-    return reinterpret_cast<basic_string<unsigned short>& >(stringToWstring(str, flags));
-}
-
-#   endif
-#endif

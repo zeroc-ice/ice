@@ -22,72 +22,8 @@ enum ConversionFlags
     lenientConversion
 };
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1300)
-
-//
-// With Visual C++ 7.x, wchar_t is either a typedef unsigned short or a 
-// native type (when /Zc:wchar_t is used).
-// Since wstring is a typedef basic_string<wchar_t>, its type is also 
-// different depending on whether /Zc:wchar_t is used or not.
-//
-// With Visual C++ 7.x, the default is typedef; with Visual C++ 8.0,
-// the default is native type.
-//
-// Ice is always built with the default, but provides wstringToString() 
-// and stringToWstring() implementations for both flavors of wstring.
-//
-
-#   if defined(_NATIVE_WCHAR_T_DEFINED)
-ICE_UTIL_API std::string wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
-
-#      if _MSC_VER >= 1400
-//
-// Building or using with VC8
-//
-ICE_UTIL_API std::wstring stringToWstring(const std::string&, ConversionFlags = lenientConversion);
-ICE_UTIL_API std::string wstringToString(const std::basic_string<unsigned short>&, ConversionFlags = lenientConversion);
-ICE_UTIL_API std::basic_string<unsigned short> stringToTypedefWstring(const std::string&, ConversionFlags = lenientConversion);
-#     else
-//
-// Using a VC7.x build with the non-default /Zc
-//
-ICE_UTIL_API std::wstring stringToNativeWstring(const std::string&, ConversionFlags = lenientConversion);
-inline std::wstring 
-stringToWstring(const std::string& str, ConversionFlags flags = lenientConversion)
-{
-    return stringToNativeWstring(str, flags);
-}
-#     endif
-
-#   else
-ICE_UTIL_API std::string wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
-
-#      if _MSC_VER < 1400
-//
-// Building or using with VC7.x
-//
-ICE_UTIL_API std::wstring stringToWstring(const std::string&, ConversionFlags = lenientConversion);
-ICE_UTIL_API std::string wstringToString(const std::basic_string<__wchar_t>&, ConversionFlags = lenientConversion);
-ICE_UTIL_API std::basic_string<__wchar_t> stringToNativeWstring(const std::string&, ConversionFlags = lenientConversion);
-#      else
-//
-// Using a VC8.x build the non-default /Zc
-//
-ICE_UTIL_API std::wstring stringToTypedefWstring(const std::string&, ConversionFlags = lenientConversion);
-inline std::wstring 
-stringToWstring(const std::string& str, ConversionFlags flags = lenientConversion)
-{
-    return stringToTypedefWstring(str, flags);
-}
-#      endif
-#   endif
-
-#else
-
 ICE_UTIL_API std::string wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
 ICE_UTIL_API std::wstring stringToWstring(const std::string&, ConversionFlags = lenientConversion);
-
-#endif
 
 typedef unsigned char Byte;
 
