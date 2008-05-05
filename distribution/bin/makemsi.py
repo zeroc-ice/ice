@@ -118,23 +118,29 @@ def checkSources(buildDir, sourceDir):
 
 def setMakefileOption(filename, optionName, value):
     optre = re.compile("^\#?\s*?%s\s*?=.*" % optionName)
-    optionString = "no"
-    if value:
-        optionString = "yes"
     f = fileinput.input(filename, True)
     for line in f:
         l = line.rstrip('\n')
         if optre.search(l):
-            print "%s = %s" % (optionName, optionString)
+            print "%s = %s" % (optionName, value)
         else:
             print l
     f.close()
 
+def setMakefileYesNoOption(filename, optionName, value):
+    optionString = "no"
+    if value:
+        optionString = "yes"
+    setMakefileOption(filename, optionName, value)
+
 def setOptimize(filename, optimizeOn):
-    setMakefileOption(filename, "OPTIMIZE", optimizeOn)
+    setMakefileYesNoOption(filename, "OPTIMIZE", optimizeOn)
+
+def setDefaultCompiler(filename, compiler):
+    setMakefileOption(filename, "CPP_COMPILER", compiler)
 
 def setDebug(filename, debugOn):
-    setMakefileOption(filename, "DEBUG", debugOn)
+    setMakefileYesNoOption(filename, "DEBUG", debugOn)
 
 def buildIceDists(stageDir, sourcesDir, iceVersion, installVersion):
     """Build all Ice distributions."""
@@ -566,6 +572,9 @@ libraries."""
         #
         if build:
             buildIceDists(stageDir, buildDir, iceVersion, target)
+
+        if target == "bcc":
+            setDefaultCompiler(os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "cpp", "config", "Make.rules.mak"), "BCC2007")
 
         #
         # Stage Ice!
