@@ -48,7 +48,12 @@ CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
 CPPFLAGS	= $(CPPFLAGS) -Od -v -k -D_DEBUG
 !endif
 
-LDFLAGS		= $(LDFLAGS) -L"$(libdir)" -L"$(BDS)\lib" -q -Gn -v -x
+!if "$(ice_src_dist)" != ""
+LDFLAGS		= $(LDFLAGS) -L"$(libdir)"
+!else
+LDFLAGS		= $(LDFLAGS) -L"$(ice_dir)\lib"
+!endif
+LDFLAGS		= $(LDFLAGS) -L"$(BDS)\lib" -q -Gn -v -x
 
 LD_DLLFLAGS	= $(LDFLAGS) -Gi -Tpd c0d32.obj
 LD_EXEFLAGS	= $(LDFLAGS) -Tpe c0x32.obj

@@ -76,9 +76,9 @@ CPPFLAGS        = $(CPPFLAGS) -DICE_STATIC_LIBS
 !endif
 
 !if "$(ice_src_dist)" != ""
-LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo /FIXED:no
+LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)"
 !else
-LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(ice_dir)\lib$(x64suffix)" /nologo /FIXED:no
+LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(ice_dir)\lib$(x64suffix)"
 !endif
 LDFLAGS		= $(LDFLAGS) /nologo /FIXED:no
 
