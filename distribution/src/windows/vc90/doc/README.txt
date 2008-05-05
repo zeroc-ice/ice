@@ -107,7 +107,7 @@ Setting up Visual C++ 2008 Express Edition
 
 Visual C++ 2008 Express is available for download from:
 
-  http://msdn.microsoft.com/vstudio/express/visualc/
+  http://www.microsoft.com/express/vc
 
 In addition to the steps listed above for setting up Visual Studio
 2008, users of Visual C++ 2008 Express Edition must also install
