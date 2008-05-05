@@ -252,7 +252,7 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
     char* inbuf = reinterpret_cast<char*>(const_cast<charT*>(sourceStart));
 #endif
     size_t inbytesleft = (sourceEnd - sourceStart) * sizeof(charT);
-    Ice::Byte* outbuf  = 0;
+    char* outbuf  = 0;
   
     size_t count = 0; 
     //
@@ -261,8 +261,8 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
     do
     {
 	size_t howMany = std::max(inbytesleft, size_t(4));
-	outbuf = buf.getMoreBytes(howMany, outbuf);
-	count = iconv(cd, &inbuf, &inbytesleft, reinterpret_cast<char**>(&outbuf), &howMany);
+	outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany, reinterpret_cast<Ice::Byte*>(outbuf)));
+	count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &howMany);
 #ifdef ICE_NO_ERRNO
     } while(count == size_t(-1));
 #else
@@ -280,7 +280,7 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
 #endif
 	throw Ice::StringConversionException(__FILE__, __LINE__, msg);
     }
-    return outbuf;
+    return reinterpret_cast<Ice::Byte*>(outbuf);
 }
   
 template<typename charT> void
