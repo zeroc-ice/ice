@@ -19,8 +19,8 @@ OCCI is only available for some C++ compilers. Make sure to select a
 platform and C++ compiler supported by both Ice and OCCI.
 
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
-  With Oracle server 10.2, the corresponding SQL script is 
-  $ORACLE_HOME/rdbms/admin/utilsamp.sql.
+  With Oracle server 10.2 and 11.1, the corresponding SQL script is 
+  $ORACLE_HOME/rdbms/admin/utlsampl.sql.
 
 - Ensure that your user (by default, scott) has the CREATE VIEW
   privilege.
@@ -54,7 +54,7 @@ platform and C++ compiler supported by both Ice and OCCI.
 
     (make sure to list msvc\vc8 before msvc)
 
- - Executable files: 
+  - Executable files: 
 
     $(ORACLE_HOME)\oci\lib\msvc\vc8;$(ORACLE_HOME)\bin
 

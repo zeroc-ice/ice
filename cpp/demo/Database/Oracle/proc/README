@@ -35,8 +35,8 @@ Running the demo
 ----------------
 
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
-  With Oracle server 10.2, the corresponding SQL script is 
-  $ORACLE_HOME/rdbms/admin/utilsamp.sql.
+  With Oracle server 10.2 or 11.1, the corresponding SQL script is 
+  $ORACLE_HOME/rdbms/admin/utlsampl.sql.
 
 - Review the Oracle.ConnectInfo property in the config.server file.
   You may need to change it to connect to your Oracle instance.

@@ -8,10 +8,9 @@ Rem
 Rem Create object types and views for the DEPT and EMP tables
 Rem
 
-Rem SET TERMOUT OFF
-SET ECHO 
+SET ECHO ON 
 
-CONNECT SCOTT/TIGER@ORCL
+CONNECT scott/tiger@orcl
 
 DROP VIEW EMP_VIEW;
 DROP VIEW DEPT_VIEW;
