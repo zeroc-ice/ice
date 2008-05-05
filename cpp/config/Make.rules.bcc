@@ -30,9 +30,14 @@ PRELIBS		= ,,
 
 SETARGV		= wildargs.obj
 
+!if "$(ice_src_dist)" != ""
+
+# If building a source distribution, use THIRDPARTY_HOME for the 3rd party libraries
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
 LDFLAGS		= -L"$(THIRDPARTY_HOME)\lib"
+!endif
+
 !endif
 
 CPPFLAGS	= $(CPPFLAGS) -q -w-par -w-lvc -w-rch -vi- -tWM -c -DNO_STRICT;_NO_VCL;_RTLDLL
