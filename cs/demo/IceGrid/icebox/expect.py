@@ -26,4 +26,7 @@ import demoscript.Util
 demoscript.Util.defaultLanguage = "C#"
 import demoscript.IceGrid.icebox
 
-demoscript.IceGrid.icebox.run('client.exe')
+if demoscript.Util.isMono():
+    print "Not supported yet with mono!"
+else:
+    demoscript.IceGrid.icebox.run('client.exe')
