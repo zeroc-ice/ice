@@ -97,6 +97,31 @@ IceGrid::createProperty(const string& name, const string& value)
     return prop;
 }
 
+string
+IceGrid::escapeProperty(const string& s)
+{
+    string result;
+    for(unsigned int i = 0; i < s.size(); ++i)
+    {
+        char c = s[i];
+        switch(c)
+        {
+          case '\\':
+          case ' ':
+          case '#':
+          case '=':
+            result.push_back('\\');
+            result.push_back(c);
+            break;
+
+          default:
+            result.push_back(c);
+            break;
+        }
+    }
+    return result;
+}
+
 int
 IceGrid::getMMVersion(const string& o)
 {
