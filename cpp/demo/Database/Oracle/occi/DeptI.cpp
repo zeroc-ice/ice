@@ -135,7 +135,6 @@ DeptI::findAll(const Ice::Current& current)
             Ice::Identity empId;
             empId.category = _factory->getCategory();
             empId.name = encodeRef(rs->getRef(1), _factory->getEnv());
-            
             result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
         }
     }

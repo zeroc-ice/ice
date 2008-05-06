@@ -42,12 +42,26 @@ EmpI::getDesc(const Ice::Current& current)
     
     if(!empRef->getSal().isNull())
     {
-        result.sal = empRef->getSal().toText(env, "99999.99");
+        try
+        {
+            result.sal = empRef->getSal().toText(env, "99999.99");
+        }
+        catch(const std::exception&)
+        {
+            cerr << "sal overflow" << endl;
+        }
     }
     
     if(!empRef->getComm().isNull())
     {
-        result.comm = empRef->getComm().toText(env, "0.999");
+        try
+        {
+            result.comm = empRef->getComm().toText(env, "99999.99");
+        }
+        catch(const std::exception&)
+        {
+            cerr << "comm overflow" << endl;
+        }
     }
     
     Ref<DEPT_T> deptRef = empRef->getDeptref();
