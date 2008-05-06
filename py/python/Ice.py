@@ -131,7 +131,7 @@ def getSliceDir():
     if os.path.exists(dir):
         return os.path.normpath(dir)
 
-    iceVer = version()
+    iceVer = stringVersion()
 
     #
     # Check platform-specific locations.
