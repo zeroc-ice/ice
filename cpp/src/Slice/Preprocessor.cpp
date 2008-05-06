@@ -184,7 +184,10 @@ Slice::Preprocessor::preprocess(bool keepComments)
         ::fputs(err, stderr);
     }
 
-    mcpp_use_mem_buffers(0);
+    //
+    // Calling this again causes the memory buffers to be freed.
+    //
+    mcpp_use_mem_buffers(1);
 
     return _cppHandle;
 }
@@ -232,7 +235,11 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     {
         ::fputs(err, stderr);
     }
-    mcpp_use_mem_buffers(0);
+
+    //
+    // Calling this again causes the memory buffers to be freed.
+    //
+    mcpp_use_mem_buffers(1);
 
     //
     // We now need to massage then result to get desire output.
