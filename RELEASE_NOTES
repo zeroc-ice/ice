@@ -900,3 +900,11 @@ available as of this Ice release).
 
 Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
 more information.
+
+Mono
+----
+
+Mono requires the hostname to be correctly setup and to resolve to an
+IP address. Otherwise, it can't figure out the local IP addresses and
+the creation of object adapters listening on INADDR_ANY/0.0.0.0 fails
+with an Ice::DNSException.
