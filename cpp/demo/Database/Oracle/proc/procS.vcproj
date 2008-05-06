@@ -71,7 +71,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
-				AdditionalDependencies="orasql10.lib Ice.lib IceUtil.lib setargv.obj"
+				AdditionalDependencies="orasql11.lib Ice.lib IceUtil.lib setargv.obj"
 				OutputFile="server.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -164,7 +164,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
-				AdditionalDependencies="orasql10.lib Iced.lib IceUtild.lib setargv.obj"
+				AdditionalDependencies="orasql11.lib Iced.lib IceUtild.lib setargv.obj"
 				OutputFile="server.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
