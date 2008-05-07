@@ -26,6 +26,6 @@ name = os.path.join("IceGrid", "activation")
 
 
 IceGridAdmin.iceGridTest(os.path.dirname(os.path.abspath(__file__)), name, "application.xml", "", \
-                         ' \\"properties-override=' + \
-                         TestUtil.getCommandLine("", TestUtil.DriverConfig("colloc")).replace("--", "") + '\\"')
+                         ' \'properties-override=' + \
+                         TestUtil.getCommandLine("", TestUtil.DriverConfig("colloc")).replace("--", "") + '\'')
 sys.exit(0)
