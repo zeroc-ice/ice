@@ -266,9 +266,9 @@ def run(tests, root = False):
 
     for testFilter, removeFilter in filters:
         if removeFilter:
-            tests = [ x for x in tests if not testFilter.search(x) ]
+            tests = [ (x, y) for x,y in tests if not testFilter.search(x) ]
         else:
-            tests = [ x for x in tests if testFilter.search(x) ]
+            tests = [ (x, y) for x,y in tests if testFilter.search(x) ]
 
     args =  []
     if all:
@@ -290,7 +290,7 @@ def run(tests, root = False):
         args.append(arg)
 
     if not root:
-        tests = [ os.path.join(getDefaultMapping(), "test", x) for x in tests ]
+        tests = [ (os.path.join(getDefaultMapping(), "test", x), y) for x, y in tests ]
 
     if loop:
         num = 1

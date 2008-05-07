@@ -94,7 +94,7 @@ if TestUtil.isCygwin() == 0:
       ]
 
 if TestUtil.isWin32():
-    tests.insert(0, "IceUtil/condvar")
+    tests.insert(0, ("IceUtil/condvar", True))
 
 if __name__ == "__main__":
     TestUtil.run(tests)

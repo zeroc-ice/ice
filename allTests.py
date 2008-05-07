@@ -23,8 +23,8 @@ for d in [ "cpp", "java", "cs", "py", "rb", "php" ]:
     f.close()
 
     tests = []
-    for t, runonce in current_mod.tests:
-        tests.append((os.path.join(d, "test", t), runonce))
+
+    tests = [ (os.path.join(d, "test", x), y) for x, y in current_mod.tests ]
     if len(tests) > 0:
         testGroups.extend(tests)
 

@@ -55,7 +55,7 @@ tests = [
     ]
 
 if not TestUtil.mono:
-    tests += ["IceSSL/configuration"]
+    tests += [("IceSSL/configuration", False)]
 
 if __name__ == "__main__":
     TestUtil.run(tests)
