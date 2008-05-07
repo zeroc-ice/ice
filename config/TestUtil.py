@@ -28,9 +28,9 @@ javaCmd = "java"                # Default java loader
 # The folowing tests are not supported with IPv6
 #
 ipv6Skip = [
-        "IceBox/configuration",
-        "IceStorm/repstress",
-        "Glacier2/staticFiltering"
+        os.path.join("IceBox", "configuration"),
+        os.path.join("IceStorm", "repstress"),
+        os.path.join("Glacier2", "staticFiltering")
         ]
 
 #
