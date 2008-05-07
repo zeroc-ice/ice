@@ -13,7 +13,6 @@
 #include <IceSSL/Plugin.h>
 #include <IceSSL/InstanceF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/Plugin.h>
 
 namespace IceSSL
 {
@@ -39,9 +38,6 @@ public:
     virtual void setPasswordPrompt(const PasswordPromptPtr&);
 
 private:
-
-    void setupSSL(const Ice::CommunicatorPtr&);
-    void cleanupSSL();
 
     InstancePtr _instance;
 };

@@ -19,8 +19,10 @@
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
 
+#include <IceUtil/StaticMutex.h>
 #include <IceUtil/StringUtil.h>
 
+#include <openssl/rand.h>
 #include <openssl/err.h>
 
 #include <IceUtil/DisableWarnings.h>
@@ -31,8 +33,51 @@ using namespace IceSSL;
 
 IceUtil::Shared* IceInternal::upCast(IceSSL::Instance* p) { return p; }
 
+static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static int instanceCount = 0;
+static IceUtil::Mutex* locks = 0;
+
 extern "C"
 {
+
+//
+// OpenSSL mutex callback.
+//
+void
+IceSSL_opensslLockCallback(int mode, int n, const char* file, int line)
+{
+    if(mode & CRYPTO_LOCK)
+    {
+        locks[n].lock();
+    }
+    else
+    {
+        locks[n].unlock();
+    }
+}
+
+//
+// OpenSSL thread id callback.
+//
+unsigned long
+IceSSL_opensslThreadIdCallback()
+{
+#if defined(_WIN32)
+    return static_cast<unsigned long>(GetCurrentThreadId());
+#elif defined(__FreeBSD__) || defined(__APPLE__) || defined(__osf1__)
+    //
+    // On some platforms, pthread_t is a pointer to a per-thread structure.
+    //
+    return reinterpret_cast<unsigned long>(pthread_self());
+#elif (defined(__linux) || defined(__sun) || defined(__hpux)) || defined(_AIX)
+    //
+    // On Linux, Solaris, HP-UX and AIX, pthread_t is an integer.
+    //
+    return static_cast<unsigned long>(pthread_self());
+#else
+#   error "Unknown platform"
+#endif
+}
 
 int
 IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
@@ -87,6 +132,99 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
 {
     __setNoDelete(true);
 
+    //
+    // Initialize OpenSSL if necessary.
+    //
+    IceUtil::StaticMutex::Lock sync(staticMutex);
+    instanceCount++;
+
+    if(instanceCount == 1)
+    {
+        PropertiesPtr properties = communicator->getProperties();
+
+        //
+        // Create the mutexes and set the callbacks.
+        //
+        locks = new IceUtil::Mutex[CRYPTO_num_locks()];
+        CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
+        CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
+
+        //
+        // Load human-readable error messages.
+        //
+        SSL_load_error_strings();
+
+        //
+        // Initialize the SSL library.
+        //
+        SSL_library_init();
+
+        //
+        // Initialize the PRNG.
+        //
+#ifdef WINDOWS
+        RAND_screen(); // Uses data from the screen if possible.
+#endif
+        char randFile[1024];
+        if(RAND_file_name(randFile, sizeof(randFile))) // Gets the name of a default seed file.
+        {
+            RAND_load_file(randFile, 1024);
+        }
+        string randFiles = properties->getProperty("IceSSL.Random");
+        if(!randFiles.empty())
+        {
+            vector<string> files;
+#ifdef _WIN32
+            const string sep = ";";
+#else
+            const string sep = ":";
+#endif
+            string defaultDir = properties->getProperty("IceSSL.DefaultDir");
+            if(!IceUtilInternal::splitString(randFiles, sep, files))
+            {
+                PluginInitializationException ex(__FILE__, __LINE__);
+                ex.reason = "IceSSL: invalid value for IceSSL.Random:\n" + randFiles;
+                throw ex;
+            }
+            for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+            {
+                string file = *p;
+                if(!checkPath(file, defaultDir, false))
+                {
+                    PluginInitializationException ex(__FILE__, __LINE__);
+                    ex.reason = "IceSSL: entropy data file not found:\n" + file;
+                    throw ex;
+                }
+                if(!RAND_load_file(file.c_str(), 1024))
+                {
+                    PluginInitializationException ex(__FILE__, __LINE__);
+                    ex.reason = "IceSSL: unable to load entropy data from " + file;
+                    throw ex;
+                }
+            }
+        }
+#ifndef _WIN32
+        //
+        // The Entropy Gathering Daemon (EGD) is not available on Windows.
+        // The file should be a Unix domain socket for the daemon.
+        //
+        string entropyDaemon = properties->getProperty("IceSSL.EntropyDaemon");
+        if(!entropyDaemon.empty())
+        {
+            if(RAND_egd(entropyDaemon.c_str()) <= 0)
+            {
+                PluginInitializationException ex(__FILE__, __LINE__);
+                ex.reason = "IceSSL: EGD failure using file " + entropyDaemon;
+                throw ex;
+            }
+        }
+#endif
+        if(!RAND_status())
+        {
+            communicator->getLogger()->warning("IceSSL: insufficient data to initialize PRNG");
+        }
+    }
+
     _facade = IceInternal::getProtocolPluginFacade(communicator);
     _securityTraceLevel = communicator->getProperties()->getPropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
@@ -100,6 +238,27 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
     _facade->addEndpointFactory(new EndpointFactoryI(this));
 
     __setNoDelete(false);
+}
+
+IceSSL::Instance::~Instance()
+{
+    //
+    // Clean up OpenSSL resources.
+    //
+    IceUtil::StaticMutex::Lock sync(staticMutex);
+
+    if(--instanceCount == 0)
+    {
+        CRYPTO_set_locking_callback(0);
+        CRYPTO_set_id_callback(0);
+        delete[] locks;
+        locks = 0;
+
+        CRYPTO_cleanup_all_ex_data();
+        RAND_cleanup();
+        ERR_free_strings();
+        EVP_cleanup();
+    }
 }
 
 void
