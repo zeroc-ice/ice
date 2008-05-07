@@ -37,7 +37,10 @@ CPPFLAGS	= -I. -I"$(ORACLE_HOME)\precomp\public" -DSQLCA_NONE $(CPPFLAGS) -DWIN3
 
 GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
 
-ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\precomp\lib" orasql10.lib
+#
+# Change to orasql10.lib if you're linking with Oracle 10
+#
+ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\precomp\lib" orasql11.lib
 
 .SUFFIXES:
 .SUFFIXES:		.ice .pc .cpp .c .obj

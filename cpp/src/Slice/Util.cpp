@@ -93,6 +93,7 @@ Slice::fullPath(const string& path)
             result = string(cwdbuf) + '/' + result;
         }
     }
+
     result = normalizePath(result);
 
     string::size_type beg = 0;
@@ -115,7 +116,14 @@ Slice::fullPath(const string& path)
         if(len > 0)
         {
             buf[len] = '\0';
-            result = normalizePath(buf) + (next != string::npos ? result.substr(next) : string());
+            string linkpath = buf;
+            if(!isAbsolute(linkpath)) // Path relative to the location of the link
+            {
+                string::size_type pos = subpath.rfind('/');
+                assert(pos != string::npos);
+                linkpath = subpath.substr(0, pos + 1) + linkpath;
+            }
+            result = normalizePath(linkpath) + (next != string::npos ? result.substr(next) : string());
             beg = 0;
             next = 0;
         }

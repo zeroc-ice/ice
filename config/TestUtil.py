@@ -28,9 +28,9 @@ javaCmd = "java"                # Default java loader
 # The folowing tests are not supported with IPv6
 #
 ipv6Skip = [
-        "IceBox/configuration",
-        "IceStorm/repstress",
-        "Glacier2/staticFiltering"
+        os.path.join("IceBox", "configuration"),
+        os.path.join("IceStorm", "repstress"),
+        os.path.join("Glacier2", "staticFiltering")
         ]
 
 #
@@ -206,6 +206,7 @@ def run(tests, root = False):
           --ipv6                  Use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
+          --script                Generate a script to run the tests.
         """
         sys.exit(2)
 
@@ -213,7 +214,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug",
                                     "protocol=", "compress", "host=", "serialize", "continue", "ipv6",
-                                    "ice-home=", "x64"])
+                                    "ice-home=", "x64", "script"])
     except getopt.GetoptError:
         usage()
 
@@ -224,6 +225,7 @@ def run(tests, root = False):
     loop = False
     all = False
     arg = ""
+    script = False
 
     filters = []
     for o, a in opts:
@@ -240,13 +242,15 @@ def run(tests, root = False):
         elif o == "--all" :
             all = True
         elif o in ('--start', "--start-after"):
-            start = index(tests, re.compile(a))
+            start = index([ x for x,y in tests], re.compile(a))
             if start == -1:
                 print "test %s not found. no tests to run" % (a)
                 sys.exit(2)
             if o == "--start-after":
                 start += 1
             tests = tests[start:]
+        elif o == "--script":
+            script = True
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
@@ -262,36 +266,32 @@ def run(tests, root = False):
 
     for testFilter, removeFilter in filters:
         if removeFilter:
-            tests = [ x for x in tests if not testFilter.search(x) ]
+            tests = [ (x, y) for x,y in tests if not testFilter.search(x) ]
         else:
-            tests = [ x for x in tests if testFilter.search(x) ]
+            tests = [ (x, y) for x,y in tests if testFilter.search(x) ]
 
     args =  []
     if all:
-        protocols = ["tcp", "ssl"]
-        for proto in protocols:
-            for compress in [0, 1]:
-                for serialize in [0, 1]:
-                    testarg = ""
-                    if compress:
-                        testarg += "--compress"
-                    if serialize:
-                        testarg += " --serialize"
-                    testarg += " --protocol %s" % (proto)
-                    args.append(testarg + arg)
+        args.append('--protocol=tcp %s'  % arg)
+        args.append('--protocol=ssl %s'  % arg)
+        args.append('--protocol=tcp --compress %s'  % arg)
+        args.append('--protocol=tcp --serialize %s'  % arg)
+        # Add ipv6 tests for tcp & ssl.
+        args.append("--ipv6 --protocol=tcp" + arg)
+        args.append("--ipv6 --protocol=ssl" + arg)
     else:
         args.append(arg)
 
     if not root:
-        tests = [ os.path.join(getDefaultMapping(), "test", x) for x in tests ]
+        tests = [ (os.path.join(getDefaultMapping(), "test", x), y) for x, y in tests ]
 
     if loop:
         num = 1
         while 1:
-            runTests(args, tests, num)
+            runTests(args, tests, num, script = script)
             num += 1
     else:
-        runTests(args, tests)
+        runTests(args, tests, script = script)
 
     global testErrors
     if len(testErrors) > 0:
@@ -842,7 +842,7 @@ def getCommandLine(exe, config, env=None):
 
     return commandline
 
-def runTests(configs, tests, num = 0):
+def runTests(configs, tests, num = 0, script = False):
     #
     # The configs argument is a list containing one or more test configurations.
     #
@@ -851,7 +851,9 @@ def runTests(configs, tests, num = 0):
         #
         # Run each of the tests.
         #
-        for i in tests:
+        for i, runonce in tests:
+            if runonce and configCount > 1:
+                continue
             # If this is python and we're running ssl protocol tests
             # then skip. This occurs when using --all.
             if mono and i.startswith("cs/test") and args.find("--protocol ssl") != -1:
@@ -862,15 +864,22 @@ def runTests(configs, tests, num = 0):
             print
             if num > 0:
                 print "[" + str(num) + "]",
-            print "*** running tests in " + dir
-            print "*** configuration:",
+            if script:
+                prefix = "echo \""
+                suffix = "\""
+            else:
+                prefix = ""
+                suffix = ""
+
+            print "%s*** running tests in %s%s" % (prefix, dir, suffix)
+            print "%s*** configuration:" % prefix,
             if len(args.strip()) == 0:
                 print "Default",
             else:
                 print args.strip(),
             if len(configs) > 1:
                 print "[ " + str(configCount) + " of " + str(len(configs)) + " ]",
-            print
+            print suffix
             
             #
             # Skip tests not supported with IPv6 if necessary
@@ -882,31 +891,39 @@ def runTests(configs, tests, num = 0):
                         match = True
                         break
                 if match:    
-                    print "*** test not supported with IPv6"
+                    print "%s*** test not supported with IPv6" % prefix
                     continue
 
-            print "*** test started:", time.strftime("%x %X")
-            sys.stdout.flush()
+            if script:
+                print "echo \"*** test started: `date`\""
+                print "cd %s" % dir
+            else:
+                print "*** test started:", time.strftime("%x %X")
+                sys.stdout.flush()
 
-            os.chdir(dir)
+                os.chdir(dir)
 
-            status = os.system("python " + os.path.join(dir, "run.py " + args))
-            #print "python " + os.path.join(dir, "run.py " + args)
-            #status = 0
+            global keepGoing
+            if script:
+                print "if ! python %s %s; then" % (os.path.join(dir, "run.py"), args)
+                print "  echo 'test in %s failed'" % os.path.abspath(dir)
+                if not keepGoing:
+                    print "  exit 1"
+                print "fi"
+            else:
+                status = os.system("python " + os.path.join(dir, "run.py " + args))
 
-            if status:
-                if(num > 0):
-                    print "[" + str(num) + "]",
-                message = "test in " + os.path.abspath(dir) + " failed with exit status", status,
-                print message
-                global keepGoing
-                if keepGoing == 0:
-                    sys.exit(status)
-                else:
-                    print " ** Error logged and will be displayed again when suite is completed **"
-                    global testErrors
-                    testErrors.append(message)
-
+                if status:
+                    if(num > 0):
+                        print "[" + str(num) + "]",
+                    message = "test in " + os.path.abspath(dir) + " failed with exit status", status,
+                    print message
+                    if keepGoing == 0:
+                        sys.exit(status)
+                    else:
+                        print " ** Error logged and will be displayed again when suite is completed **"
+                        global testErrors
+                        testErrors.append(message)
         configCount += 1
 
 def getDefaultServerFile():

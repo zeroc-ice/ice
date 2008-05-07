@@ -43,8 +43,8 @@ std::string toString(const Ice::Exception&);
 
 std::string getProperty(const PropertyDescriptorSeq&, const std::string&, const std::string& = std::string());
 bool hasProperty(const PropertyDescriptorSeq&, const std::string&);
-
 PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
+std::string escapeProperty(const std::string&);
 
 int getMMVersion(const std::string&);
 
