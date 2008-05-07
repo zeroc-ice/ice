@@ -272,17 +272,10 @@ def run(tests, root = False):
 
     args =  []
     if all:
-        protocols = ["tcp", "ssl"]
-        for proto in protocols:
-            for compress in [0, 1]:
-                for serialize in [0, 1]:
-                    testarg = ""
-                    if compress:
-                        testarg += "--compress"
-                    if serialize:
-                        testarg += " --serialize"
-                    testarg += " --protocol %s" % (proto)
-                    args.append(testarg + arg)
+        args.append('--protocol=tcp %s'  % arg)
+        args.append('--protocol=ssl %s'  % arg)
+        args.append('--protocol=tcp --compress %s'  % arg)
+        args.append('--protocol=tcp --serialize %s'  % arg)
         # Add ipv6 tests for tcp & ssl.
         args.append("--ipv6 --protocol=tcp" + arg)
         args.append("--ipv6 --protocol=ssl" + arg)
