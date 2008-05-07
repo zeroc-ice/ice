@@ -26,6 +26,10 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- It is now possible to use UNC paths on Windows in configuration of
+  Ice services. For example, the setting of IceGrid.Node.Data for a
+  IceGrid node.
+
 - Fixed bug in slice2html that cause incorrect hyperlinks to be generated
   if nested modules were used.
 
