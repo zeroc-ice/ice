@@ -602,7 +602,7 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
 void
 Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 {
-    ContainerPtr container = ModulePtr::dynamicCast(c) ? c->container() : ContainerPtr::dynamicCast(c);
+    ContainerPtr container = ContainerPtr::dynamicCast(c);
     string scoped = c->scoped();
     ContainedList::const_iterator prev = _symbols.end();
     ContainedList::const_iterator pos = _symbols.begin();
@@ -618,7 +618,23 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 
     bool isFirst = prev == _symbols.end();
     bool isLast = next == _symbols.end();
-    bool hasParent = ContainedPtr::dynamicCast(container) || EnumPtr::dynamicCast(c);
+    bool hasParent = false;
+    if(EnumPtr::dynamicCast(c))
+    {
+        hasParent = true;
+    }
+    else if(ModulePtr::dynamicCast(c))
+    {
+         ModulePtr m = ModulePtr::dynamicCast(c);
+         if(ModulePtr::dynamicCast(m->container()))
+         {
+             hasParent = true;
+         }
+    }
+    else if(ContainedPtr::dynamicCast(c))
+    {
+        hasParent = true;
+    }
 
     bool onEnumPage = EnumPtr::dynamicCast(c);
 
@@ -626,7 +642,23 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     string prevClass;
     if(!isFirst)
     {
-        prevLink = getLinkPath(*prev, container, false, onEnumPage) + ".html";
+        prevLink = getLinkPath(*prev, container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
+        if(ModulePtr::dynamicCast(c))
+        {
+            //
+            // If we are writing the header/footer for a module page,
+            // and the target is up from the current scope,
+            // we need to step up an extra level because modules
+            // are documented one directory up, at the same level as
+            // the module directory.
+            //
+            StringList source = getContainer(c);
+            StringList target = getContainer(*prev);
+            if(target.size() < source.size())
+            {
+                prevLink = "../" + prevLink;
+            }
+        }
         prevClass = "Button";
     }
     else
@@ -638,7 +670,23 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     string nextClass;
     if(!isLast)
     {
-        nextLink = getLinkPath(*next, container, false, onEnumPage) + ".html";
+        nextLink = getLinkPath(*next, container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
+        if(ModulePtr::dynamicCast(c))
+        {
+            //
+            // If we are writing the header/footer for a module page,
+            // and the target is up from the current scope,
+            // we need to step up an extra level because modules
+            // are documented one directory up, at the same level as
+            // the module directory.
+            //
+            StringList source = getContainer(c);
+            StringList target = getContainer(*next);
+            if(target.size() < source.size())
+            {
+                nextLink = "../" + nextLink;
+            }
+        }
         nextClass = "Button";
     }
     else
@@ -650,7 +698,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     string upClass;
     if(hasParent)
     {
-        upLink = getLinkPath(c->container(), container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
+        upLink = getLinkPath(c->container(), container, false, onEnumPage) + ".html";
         upClass = "Button";
     }
     else
@@ -658,14 +706,14 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
         upClass = "ButtonGrey";
     }
 
-    string homeLink = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
+    string homeLink = getLinkPath(0, container, false, onEnumPage);
     if(!homeLink.empty())
     {
         homeLink += "/";
     }
     homeLink += "index.html";
 
-    string indexLink = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
+    string indexLink = getLinkPath(0, container, false, onEnumPage);
     if(!indexLink.empty())
     {
         indexLink += "/";
@@ -683,7 +731,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 
     if(!imageDir.empty())
     {
-        string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
+        string path = getLinkPath(0, container, false, onEnumPage);
         if(!path.empty())
         {
             path += "/";
@@ -802,7 +850,7 @@ Slice::GeneratorBase::printLogo(const ContainedPtr& c, const ContainerPtr& conta
     string imageDir = getImageDir();
     if(!imageDir.empty())
     {
-        string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), forEnum);
+        string path = getLinkPath(0, container, false, forEnum);
         if(!path.empty())
         {
             path += "/";
