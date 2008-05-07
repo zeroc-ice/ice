@@ -242,7 +242,7 @@ def run(tests, root = False):
         elif o == "--all" :
             all = True
         elif o in ('--start', "--start-after"):
-            start = index(tests, re.compile(a))
+            start = index([ x for x,y in tests], re.compile(a))
             if start == -1:
                 print "test %s not found. no tests to run" % (a)
                 sys.exit(2)
