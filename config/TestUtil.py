@@ -283,6 +283,9 @@ def run(tests, root = False):
                         testarg += " --serialize"
                     testarg += " --protocol %s" % (proto)
                     args.append(testarg + arg)
+        # Add ipv6 tests for tcp & ssl.
+        args.append("--ipv6 --protocol=tcp" + arg)
+        args.append("--ipv6 --protocol=ssl" + arg)
     else:
         args.append(arg)
 
