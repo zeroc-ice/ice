@@ -16,7 +16,7 @@ and the Java demos use the Apache Foundation's ant build tool.
 
 NOTE: The Ruby, Python and PHP demos do not need to be built.
 
-The makefiles for C++ and C# require GNU gmake 3.80 or later. If your
+The makefiles for C++ and C# require GNU make 3.80 or later. If your
 system does not come with GNU make, you can find information on how
 to acquire it at the following link:
 
@@ -56,11 +56,11 @@ To build the demos you need to:
 
     # C++ demos
     cd Ice-@ver@-demos/demo
-    gmake
+    make
 
     # C# demos
     cd Ice-@ver@-demos/democs
-    gmake
+    make
 
     # Java demos
     cd Ice-@ver@-demos/demoj
@@ -113,28 +113,18 @@ $ java Client
 Running the C# demos
 ====================
 
-The C# demos are only supported on SuSE Enterprise Linux Server, and
-the Ice for .NET run time is included only in the binary
-distributions for this platform.
+The C# demos are only supported on SuSE Enterprise Linux Server but
+may work on other platforms. Note however that the Ice for .NET run
+time is included only in the binary distributions for SuSE Enterprise
+Linux Server.
 
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
 
-$ ./server.exe
+$ mono server.exe
 
 To run the client, open another terminal window, also change to the
 desired demo directory, and run:
-
-$ ./client.exe
-
-When using Mono on Linux, the compiled programs may not be directly
-executable unless you have configured Linux as described in the
-installation instructions included with the Ice distribution. As a
-result, you will need to start Mono executables as shown below:
-
-$ mono server.exe
-
-In another window:
 
 $ mono client.exe
 
