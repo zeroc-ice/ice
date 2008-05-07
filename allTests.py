@@ -22,7 +22,9 @@ for d in [ "cpp", "java", "cs", "py", "rb", "php" ]:
     current_mod = imp.load_module("allTests", f, filename, (".py", "r", imp.PY_SOURCE)) 
     f.close()
 
-    tests = [ os.path.join(d, "test", x) for x in current_mod.tests ]
+    tests = []
+    for t, runonce in current_mod.tests:
+        tests.append((os.path.join(d, "test", t), runonce))
     if len(tests) > 0:
         testGroups.extend(tests)
 
