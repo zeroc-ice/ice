@@ -225,7 +225,9 @@ public:
 
 protected:
 
+#if defined(__sun)
     using ServerHelper::instantiateImpl;
+#endif
 
     void instantiateImpl(const IceBoxDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&,
                          const PropertySetDescriptorDict&) const;
