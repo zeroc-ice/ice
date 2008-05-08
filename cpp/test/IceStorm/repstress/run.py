@@ -59,7 +59,6 @@ def runcontrol(proxy):
 import IceStormUtil
 
 icestorm = IceStormUtil.init(toplevel, testdir, "replicated", replicatedPublisher=True, additional =
-                             ' --Ice.ServerIdleTime=0 ' +
                              ' --IceStorm.Election.MasterTimeout=2' +
                              ' --IceStorm.Election.ElectionTimeout=2' +
                              ' --IceStorm.Election.ResponseTimeout=2')

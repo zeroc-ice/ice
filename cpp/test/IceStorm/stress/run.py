@@ -83,10 +83,8 @@ def runAdmin(cmd, desc = None):
 
 def runtest(type):
     # Clear the idle timeout otherwise the IceBox ThreadPool will timeout.
-    server1 = IceStormUtil.init(toplevel, testdir, type, additional = '--Ice.ServerIdleTime=0',
-                                  dbDir = "db", instanceName = "TestIceStorm1", port = 12000)
-    server2 = IceStormUtil.init(toplevel, testdir, type, additional = '--Ice.ServerIdleTime=0',
-                                  dbDir = "db2", instanceName = "TestIceStorm2", port = 12500)
+    server1 = IceStormUtil.init(toplevel, testdir, type, dbDir = "db", instanceName = "TestIceStorm1", port = 12000)
+    server2 = IceStormUtil.init(toplevel, testdir, type, dbDir = "db2", instanceName = "TestIceStorm2", port = 12500)
     global adminIceStormReference
     adminIceStormReference = ' --IceStormAdmin.TopicManager.Proxy="%s" --IceStormAdmin.TopicManager.Proxy2="%s"' % (
         server1.proxy(), server2.proxy())

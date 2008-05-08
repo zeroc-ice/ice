@@ -103,7 +103,6 @@ def rununsub2(replica = -1, terminateOnError=True):
 import IceStormUtil
 
 icestorm = IceStormUtil.init(toplevel, testdir, "replicated", replicatedPublisher=True, additional =
-                             ' --Ice.ServerIdleTime=0 ' +
                              ' --IceStorm.Election.MasterTimeout=2' +
                              ' --IceStorm.Election.ElectionTimeout=2' +
                              ' --IceStorm.Election.ResponseTimeout=2')
