@@ -854,9 +854,7 @@ def runTests(start, expanded, num = 0, script = False):
     # The configs argument is a list containing one or more test configurations.
     #
     index = 0
-    configCount = 0
     for tests in expanded:
-        configCount = configCount + 1
         for i, args, config in tests:
             index = index + 1
             if index < start:
@@ -880,8 +878,6 @@ def runTests(start, expanded, num = 0, script = False):
                 print "Default",
             else:
                 print args.strip(),
-            if len(expanded) > 1:
-                print "[ " + str(configCount) + " of " + str(len(expanded)) + " ]",
             print suffix
 
             #
