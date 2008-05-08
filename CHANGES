@@ -26,12 +26,12 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
-- It is now possible to use UNC paths on Windows in configuration of
-  Ice services. For example, the setting of IceGrid.Node.Data for a
-  IceGrid node.
+- It is now possible to use UNC paths on Windows in the configuration
+  of Ice services, such as in the value of the IceGrid.Node.Data
+  property for an IceGrid node.
 
-- Fixed bug in slice2html that cause incorrect hyperlinks to be generated
-  if nested modules were used.
+- Fixed bug in slice2html that caused incorrect hyperlinks to be
+  generated if nested modules were used.
 
 - Added support for non-blocking AMI and batch requests. Activities
   such as DNS lookups, endpoint resolution, connection establishment,
@@ -490,6 +490,9 @@ C++ Changes
 
 Java Changes
 ============
+
+- Fixed the slice2java ant task to redirect stderr output so that
+  messages from the preprocessor are not interpreted as dependencies.
 
 - Fixed the slice2java ant task to recompile all of the files in the
   file list if at least one of the files has changed and checksums are
