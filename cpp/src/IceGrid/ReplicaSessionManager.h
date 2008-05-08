@@ -37,8 +37,8 @@ public:
     {
     public:
 
-        Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master) : 
-            SessionKeepAliveThread<ReplicaSessionPrx>(master),
+        Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master, const Ice::LoggerPtr& logger) : 
+            SessionKeepAliveThread<ReplicaSessionPrx>(master, logger),
             _manager(manager)
         {
         }

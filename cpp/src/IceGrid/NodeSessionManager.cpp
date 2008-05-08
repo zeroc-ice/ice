@@ -19,7 +19,7 @@ using namespace IceGrid;
 NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx& registry,
                                                        const NodeIPtr& node,
                                                        const vector<QueryPrx>& queryObjects) : 
-    SessionKeepAliveThread<NodeSessionPrx>(registry),
+    SessionKeepAliveThread<NodeSessionPrx>(registry, node->getTraceLevels()->logger),
     _node(node),
     _queryObjects(queryObjects)
 {

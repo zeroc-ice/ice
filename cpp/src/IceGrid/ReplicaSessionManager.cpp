@@ -300,7 +300,7 @@ ReplicaSessionManager::create(const string& name,
             _queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
         }
 
-        _thread = new Thread(*this, _master);
+        _thread = new Thread(*this, _master, _traceLevels->logger);
         _thread->start();
         notifyAll();
     }    
