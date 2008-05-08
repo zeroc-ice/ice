@@ -25,15 +25,6 @@ x64 = False                     # Binary distribution is 64-bit
 javaCmd = "java"                # Default java loader
 
 #
-# The folowing tests are not supported with IPv6
-#
-ipv6Skip = [
-        os.path.join("IceBox", "configuration"),
-        os.path.join("IceStorm", "repstress"),
-        os.path.join("Glacier2", "staticFiltering")
-        ]
-
-#
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
 #
 phpCmd = "php"
@@ -191,9 +182,8 @@ def index(l, re):
 def run(tests, root = False):
     def usage():
         print "usage: " + sys.argv[0] + """
-          --all                   Run all permutations of the tests.
-          --start=<regex>         Start running the tests at the given test.
-          --start-after=<regex>   Start running the tests after the given test.
+          --all                   Run all sensible permutations of the tests.
+          --start=index           Start running the tests at the given index.
           --loop                  Run the tests in a loop.
           --filter=<regex>        Run all the tests that match the given regex.
           --rfilter=<regex>       Run all the tests that do not match the given regex.
@@ -241,14 +231,8 @@ def run(tests, root = False):
                 filters.append((testFilter, False))
         elif o == "--all" :
             all = True
-        elif o in ('--start', "--start-after"):
-            start = index([ x for x,y in tests], re.compile(a))
-            if start == -1:
-                print "test %s not found. no tests to run" % (a)
-                sys.exit(2)
-            if o == "--start-after":
-                start += 1
-            tests = tests[start:]
+        elif o in '--start':
+            start = int(a)
         elif o == "--script":
             script = True
         elif o == "--protocol":
@@ -270,28 +254,47 @@ def run(tests, root = False):
         else:
             tests = [ (x, y) for x,y in tests if testFilter.search(x) ]
 
-    args =  []
-    if all:
-        args.append('--protocol=tcp %s'  % arg)
-        args.append('--protocol=ssl %s'  % arg)
-        args.append('--protocol=tcp --compress %s'  % arg)
-        args.append('--protocol=tcp --serialize %s'  % arg)
-        # Add ipv6 tests for tcp & ssl.
-        args.append("--ipv6 --protocol=tcp" + arg)
-        args.append("--ipv6 --protocol=ssl" + arg)
-    else:
-        args.append(arg)
-
     if not root:
         tests = [ (os.path.join(getDefaultMapping(), "test", x), y) for x, y in tests ]
+
+    # Expand all the tests and argument combinations.
+    expanded = []
+    if all:
+        expanded.append([(test, arg, config) for test,config in tests if "once" in config ])
+
+        a = '--protocol=tcp %s'  % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
+        a = '--protocol=ssl %s'  % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
+        a = '--protocol=tcp --compress %s'  % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
+        a = "--ipv6 --protocol=tcp %s" % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
+        a = "--ipv6 --protocol=ssl %s" % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
+        a = "--protocol=tcp %s" % arg
+        expanded.append([ (test, a, config) for test,config in tests if "service" in config])
+
+        a = "--protocol=ssl --ipv6 %s" % arg
+        expanded.append([ (test, a, config) for test,config in tests if "service" in config])
+
+        a = "--protocol=tcp --serialize %s" % arg
+        expanded.append([ (test, a, config) for test,config in tests if "stress" in config])
+    else:
+        expanded.append([ (test, arg, config) for test,config in tests])
 
     if loop:
         num = 1
         while 1:
-            runTests(args, tests, num, script = script)
+            runTests(start, expanded, num, script = script)
             num += 1
     else:
-        runTests(args, tests, script = script)
+        runTests(start, expanded, script = script)
 
     global testErrors
     if len(testErrors) > 0:
@@ -842,21 +845,21 @@ def getCommandLine(exe, config, env=None):
 
     return commandline
 
-def runTests(configs, tests, num = 0, script = False):
+def runTests(start, expanded, num = 0, script = False):
+    total = 0
+    for tests in expanded:
+        for i, args, config in tests:
+            total = total + 1
     #
     # The configs argument is a list containing one or more test configurations.
     #
-    configCount = 1
-    for args in configs:
-        #
-        # Run each of the tests.
-        #
-        for i, runonce in tests:
-            if runonce and configCount > 1:
-                continue
-            # If this is python and we're running ssl protocol tests
-            # then skip. This occurs when using --all.
-            if mono and i.startswith("cs/test") and args.find("--protocol ssl") != -1:
+    index = 0
+    configCount = 0
+    for tests in expanded:
+        configCount = configCount + 1
+        for i, args, config in tests:
+            index = index + 1
+            if index < start:
                 continue
             i = os.path.normpath(i)
             dir = os.path.join(toplevel, i)
@@ -871,28 +874,28 @@ def runTests(configs, tests, num = 0, script = False):
                 prefix = ""
                 suffix = ""
 
-            print "%s*** running tests in %s%s" % (prefix, dir, suffix)
+            print "%s*** running tests %d/%d in %s%s" % (prefix, index, total, dir, suffix)
             print "%s*** configuration:" % prefix,
             if len(args.strip()) == 0:
                 print "Default",
             else:
                 print args.strip(),
-            if len(configs) > 1:
-                print "[ " + str(configCount) + " of " + str(len(configs)) + " ]",
+            if len(expanded) > 1:
+                print "[ " + str(configCount) + " of " + str(len(expanded)) + " ]",
             print suffix
-            
+
             #
             # Skip tests not supported with IPv6 if necessary
             #
-            if args.find("ipv6") != -1:
-                match = False
-                for j in ipv6Skip:
-                    if i.endswith(j):
-                        match = True
-                        break
-                if match:    
-                    print "%s*** test not supported with IPv6" % prefix
-                    continue
+            if args.find("ipv6") != -1 and "noipv6" in config:
+                print "%s*** test not supported with IPv6%s" % (prefix, suffix)
+                continue
+
+            # If this is python and we're running ssl protocol tests
+            # then skip. This occurs when using --all.
+            if mono and i.find(os.path.join("cs","test")) != -1 and args.find("ssl") != -1:
+                print "%s*** test not supported with mono%s" % (prefix, suffix)
+                continue
 
             if script:
                 print "echo \"*** test started: `date`\""
@@ -924,7 +927,6 @@ def runTests(configs, tests, num = 0, script = False):
                         print " ** Error logged and will be displayed again when suite is completed **"
                         global testErrors
                         testErrors.append(message)
-        configCount += 1
 
 def getDefaultServerFile():
     lang = getDefaultMapping()
