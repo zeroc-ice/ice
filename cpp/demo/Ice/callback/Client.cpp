@@ -84,7 +84,8 @@ CallbackClient::run(int argc, char* argv[])
     CallbackSenderPrx batchDatagram = CallbackSenderPrx::uncheckedCast(twoway->ice_batchDatagram());
     
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
-    adapter->add(new CallbackReceiverI, communicator()->stringToIdentity("callbackReceiver"));
+    CallbackReceiverPtr cr = new CallbackReceiverI;
+    adapter->add(cr, communicator()->stringToIdentity("callbackReceiver"));
     adapter->activate();
 
     CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(

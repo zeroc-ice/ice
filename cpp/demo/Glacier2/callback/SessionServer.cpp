@@ -36,8 +36,10 @@ SessionServer::run(int argc, char* argv[])
     }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionServer");
-    adapter->add(new DummyPermissionsVerifierI, communicator()->stringToIdentity("verifier"));
-    adapter->add(new SessionManagerI, communicator()->stringToIdentity("sessionmanager"));
+    Glacier2::PermissionsVerifierPtr dpv = new DummyPermissionsVerifierI;
+    adapter->add(dpv, communicator()->stringToIdentity("verifier"));
+    Glacier2::SessionManagerPtr sm = new SessionManagerI;
+    adapter->add(sm, communicator()->stringToIdentity("sessionmanager"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

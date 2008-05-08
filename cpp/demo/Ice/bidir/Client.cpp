@@ -59,7 +59,8 @@ CallbackClient::run(int argc, char* argv[])
     Ice::Identity ident;
     ident.name = IceUtil::generateUUID();
     ident.category = "";
-    adapter->add(new CallbackReceiverI, ident);
+    CallbackReceiverPtr cr = new CallbackReceiverI;
+    adapter->add(cr, ident);
     adapter->activate();
     server->ice_getConnection()->setAdapter(adapter);
     server->addClient(ident);

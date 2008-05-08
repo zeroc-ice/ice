@@ -163,8 +163,9 @@ public:
         callbackReceiverIdent.category = _router->getCategoryForClient();
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Chat.Client");
+        ChatCallbackPtr cb = new ChatCallbackI;
         ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
-            adapter->add(new ChatCallbackI, callbackReceiverIdent));
+            adapter->add(cb, callbackReceiverIdent));
         adapter->activate();
 
         session->setCallback(callback);

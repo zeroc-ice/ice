@@ -49,7 +49,8 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
-        adapter->add(new HelloI, communicator->stringToIdentity("hello"));
+        Demo::HelloPtr hello = new HelloI;
+        adapter->add(hello, communicator->stringToIdentity("hello"));
         adapter->activate();
         communicator->waitForShutdown();
     }

@@ -45,7 +45,8 @@ AsyncServer::run(int argc, char* argv[])
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
     _workQueue = new WorkQueue();
-    adapter->add(new HelloI(_workQueue), communicator()->stringToIdentity("hello"));
+    Demo::HelloPtr hello = new HelloI(_workQueue);
+    adapter->add(hello, communicator()->stringToIdentity("hello"));
 
     _workQueue->start();
     adapter->activate();
