@@ -993,8 +993,16 @@ namespace IceInternal
         addressesToString(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
-            s.Append("local address = " + localEndpoint.Address);
-            s.Append(":" + localEndpoint.Port);
+            if(localEndpoint == null)
+            {
+                // This might occur if connect was not called yet, see also comments in doBeginConnectAsync
+                s.Append("local address = <not bound>");
+            }
+            else
+            {
+                s.Append("local address = " + localEndpoint.Address);
+                s.Append(":" + localEndpoint.Port);
+            }
 
             if(remoteEndpoint == null)
             {
