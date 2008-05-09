@@ -664,6 +664,12 @@ Java Changes
 Python Changes
 ==============
 
+- Fixed a bug that occurred when converting an Ice.Identity object to
+  a string via str(). In prior releases, this conversion used the
+  global method Ice.identityToString, but that method is no longer
+  supported. As a result, the output now resembles that of other
+  user-defined types.
+
 - Added the methods Ice.stringVersion and Ice.intVersion.
 
 - Unicode objects are now accepted as arguments (or data members of
