@@ -444,6 +444,15 @@ final class UdpTransceiver implements Transceiver
             c.setAccessible(true);
             java.net.DatagramSocketImpl socketImpl = (java.net.DatagramSocketImpl)c.newInstance((Object[])null);
 
+            //
+            // We have to invoke the protected create() method on the PlainDatagramSocketImpl object so
+            // that this hack works properly when IPv6 is enabled on Windows.
+            //
+            java.lang.reflect.Method m =
+                Class.forName("java.net.PlainDatagramSocketImpl").getDeclaredMethod("create", (Class[])null);
+            m.setAccessible(true);
+            m.invoke(socketImpl);
+
             java.lang.reflect.Field channelFd = 
                 Class.forName("sun.nio.ch.DatagramChannelImpl").getDeclaredField("fd");
             channelFd.setAccessible(true);
@@ -468,7 +477,7 @@ final class UdpTransceiver implements Transceiver
                 if(group != null)
                 {
                     Class[] types = new Class[]{ java.net.SocketAddress.class, java.net.NetworkInterface.class };
-                    java.lang.reflect.Method m = socketImpl.getClass().getDeclaredMethod("joinGroup", types);
+                    m = socketImpl.getClass().getDeclaredMethod("joinGroup", types);
                     m.setAccessible(true);
                     Object[] args = new Object[]{ group, intf };
                     m.invoke(socketImpl, args);
@@ -476,7 +485,7 @@ final class UdpTransceiver implements Transceiver
                 else if(intf != null)
                 {
                     Class[] types = new Class[]{ Integer.TYPE, Object.class };
-                    java.lang.reflect.Method m = socketImpl.getClass().getDeclaredMethod("setOption", types);
+                    m = socketImpl.getClass().getDeclaredMethod("setOption", types);
                     m.setAccessible(true);
                     Object[] args = new Object[]{ new Integer(java.net.SocketOptions.IP_MULTICAST_IF2), intf };
                     m.invoke(socketImpl, args);
@@ -485,8 +494,7 @@ final class UdpTransceiver implements Transceiver
                 if(ttl != -1)
                 {
                     Class[] types = new Class[]{ Integer.TYPE };
-                    java.lang.reflect.Method m = 
-                        java.net.DatagramSocketImpl.class.getDeclaredMethod("setTimeToLive", types);
+                    m = java.net.DatagramSocketImpl.class.getDeclaredMethod("setTimeToLive", types);
                     m.setAccessible(true);
                     Object[] args = new Object[]{ new Integer(ttl) };
                     m.invoke(socketImpl, args);
