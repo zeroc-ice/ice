@@ -1065,14 +1065,6 @@ Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, Operatio
 IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', object, (), False, None, (), ())
 
 #
-# Annotate Ice::Identity.
-#
-def Identity__str__(self):
-    return IcePy.identityToString(self)
-Identity.__str__ = Identity__str__
-del Identity__str__
-
-#
 # Annotate some exceptions.
 #
 def SyscallException__str__(self):
