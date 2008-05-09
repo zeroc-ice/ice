@@ -81,7 +81,7 @@ SLICEPARSERLIB		= $(libdir)\slice$(LIBSUFFIX).lib
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.ice .cpp .c .obj
+.SUFFIXES:		.ice .cpp .c .obj .res .rc
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
@@ -89,6 +89,8 @@ EVERYTHING		= all clean install
 .c.obj:
 	$(CC) /c $(CPPFLAGS) $(CFLAGS) $<
 
+.rc.res:
+	rc $(RCFLAGS) $<
 
 all:: $(SRCS) $(TARGETS)
 
