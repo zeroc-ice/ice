@@ -42,8 +42,9 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 
 public:
 
-    SessionKeepAliveThread(const InternalRegistryPrx& registry) : 
+    SessionKeepAliveThread(const InternalRegistryPrx& registry, const Ice::LoggerPtr& logger) : 
         _registry(registry),
+        _logger(logger),
         _state(InProgress),
         _nextAction(None)
     {
@@ -57,108 +58,122 @@ public:
         IceUtil::Time timeout = IceUtil::Time::seconds(15); 
         Action action = Connect;
 
-        while(true)
+        try
         {
+            while(true)
             {
-                Lock sync(*this);
-                if(_state == Destroyed)
                 {
-                    break;
-                }
-
-                //
-                // Update the current state.
-                //
-                assert(_state == InProgress);
-                _state = session ? Connected : Disconnected;
-                _session = session;
-                if(_session)
-                {
-                    _registry = registry;
-                }
-
-                if(_nextAction == Connect && _state == Connected)
-                {
-                    _nextAction = KeepAlive;
-                }
-                else if(_nextAction == Disconnect && _state == Disconnected)
-                {
-                    _nextAction = None;
-                }
-                else if(_nextAction == KeepAlive && _state == Disconnected)
-                {
-                    _nextAction = Connect;
-                }
-                notifyAll();
-
-                //
-                // Wait if there's nothing to do and if we are
-                // connected or if we've just tried to connect.
-                //
-                if(_nextAction == None)
-                {
-                    if(_state == Connected || action == Connect || action == KeepAlive)
+                    Lock sync(*this);
+                    if(_state == Destroyed)
                     {
-                        IceUtil::Time wakeTime = IceUtil::Time::now() + timeout;
-                        while(_state != Destroyed && _nextAction == None)
-                        {
-                            if(!timedWait(wakeTime - IceUtil::Time::now()))
-                            {
-                                break;
-                            }
-                        }
+                        break;
                     }
+
+                    //
+                    // Update the current state.
+                    //
+                    assert(_state == InProgress);
+                    _state = session ? Connected : Disconnected;
+                    _session = session;
+                    if(_session)
+                    {
+                        _registry = registry;
+                    }
+
+                    if(_nextAction == Connect && _state == Connected)
+                    {
+                        _nextAction = KeepAlive;
+                    }
+                    else if(_nextAction == Disconnect && _state == Disconnected)
+                    {
+                        _nextAction = None;
+                    }
+                    else if(_nextAction == KeepAlive && _state == Disconnected)
+                    {
+                        _nextAction = Connect;
+                    }
+                    notifyAll();
+
+                    //
+                    // Wait if there's nothing to do and if we are
+                    // connected or if we've just tried to connect.
+                    //
                     if(_nextAction == None)
                     {
-                        _nextAction = session ? KeepAlive : Connect;
+                        if(_state == Connected || action == Connect || action == KeepAlive)
+                        {
+                            IceUtil::Time now = IceUtil::Time::now();
+                            IceUtil::Time wakeTime = now + timeout;
+                            while(_state != Destroyed && _nextAction == None && wakeTime > now)
+                            {
+                                timedWait(wakeTime - now);
+                                now = IceUtil::Time::now();
+                            }
+                        }
+                        if(_nextAction == None)
+                        {
+                            _nextAction = session ? KeepAlive : Connect;
+                        }
                     }
+
+                    if(_state == Destroyed)
+                    {
+                        break;
+                    }
+                
+                    assert(_nextAction != None);
+                
+                    action = _nextAction;
+                    registry = InternalRegistryPrx::uncheckedCast(
+                        _registry->ice_timeout(static_cast<int>(timeout.toMilliSeconds())));
+                    _nextAction = None;
+                    _state = InProgress;
+                    notifyAll();
                 }
 
-                if(_state == Destroyed)
+                switch(action)
                 {
-                    break;
-                }
-                
-                assert(_nextAction != None);
-                
-                action = _nextAction;
-                registry = InternalRegistryPrx::uncheckedCast(
-                    _registry->ice_timeout(static_cast<int>(timeout.toMilliSeconds())));
-                _nextAction = None;
-                _state = InProgress;
-                notifyAll();
-            }
-
-            switch(action)
-            {
-            case Connect:
-                assert(!session);
-                session = createSession(registry, timeout);
-                break;
-            case Disconnect:
-                assert(session);
-                destroySession(session);
-                session = 0;
-                break;
-            case KeepAlive:
-                assert(session);
-                if(!keepAlive(session))
-                {
+                case Connect:
+                    assert(!session);
                     session = createSession(registry, timeout);
+                    break;
+                case Disconnect:
+                    assert(session);
+                    destroySession(session);
+                    session = 0;
+                    break;
+                case KeepAlive:
+                    assert(session);
+                    if(!keepAlive(session))
+                    {
+                        session = createSession(registry, timeout);
+                    }
+                    break;
+                case None:
+                default:
+                    assert(false);
                 }
-                break;
-            case None:
-            default:
-                assert(false);
+            }
+        
+            //
+            // Destroy the session.
+            //
+            if(_nextAction == Disconnect && session)
+            {
+                destroySession(session);
             }
         }
-        
-        //
-        // Destroy the session.
-        //
-        if(_nextAction == Disconnect && session)
+        catch(const std::exception& ex)
         {
-            destroySession(session);
+            Ice::Error out(_logger);
+            out << "unknown exception in session manager keep alive thread:\n" << ex.what();
+            throw;
+        }
+        catch(...)
+        {
+            Ice::Error out(_logger);
+            out << "unknown exception in session manager keep alive thread";
+            throw;
         }
     }
 
@@ -274,6 +289,7 @@ public:
 protected:
 
     InternalRegistryPrx _registry;
+    Ice::LoggerPtr _logger;
     TPrx _session;
     State _state;
     Action _nextAction;

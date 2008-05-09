@@ -56,7 +56,8 @@ NestedClient::run(int argc, char* argv[])
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Client");
     NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(communicator()->stringToIdentity("nestedClient")));
-    adapter->add(new NestedI(self), communicator()->stringToIdentity("nestedClient"));
+    NestedPtr servant = new NestedI(self);
+    adapter->add(servant, communicator()->stringToIdentity("nestedClient"));
     adapter->activate();
 
     cout << "Note: The maximum nesting level is sz * 2, with sz being\n"

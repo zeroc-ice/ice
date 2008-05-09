@@ -1368,7 +1368,7 @@ ServerI::activate()
     //
     Ice::StringSeq options;
     copy(desc->options.begin(), desc->options.end(), back_inserter(options));
-    options.push_back("--Ice.Config=" + _serverDir + "/config/config");
+    options.push_back("--Ice.Config=" + escapeProperty(_serverDir + "/config/config"));
 
     Ice::StringSeq envs;
     transform(desc->envs.begin(), desc->envs.end(), back_inserter(envs), EnvironmentEval());
@@ -2143,7 +2143,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                 }
                 else
                 {
-                    configfile << r->name << "=" << r->value << endl;
+                    configfile << escapeProperty(r->name) << "=" << escapeProperty(r->value) << endl;
                 }
             }
             configfile.close();

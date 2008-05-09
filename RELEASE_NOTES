@@ -351,7 +351,7 @@ Basic projects.
 
 Below is an abbreviated list of changes included in this release that
 were not already discussed in "New Features". For a complete list of
-changes, please refer to the CHANGES.txt file included in your Ice
+changes, please refer to the CHANGES file included in your Ice
 distribution.
 
 * An IceBox service can now recursively start and stop other IceBox
@@ -499,6 +499,15 @@ distribution.
   properties that were set but whose values were never read.
 
 * Ice for Java now supports the ICE_CONFIG environment variable.
+
+* It is now possible to use UNC paths on Windows in the configuration
+  of Ice services.
+
+* A string converter plugin has been added to Ice for C++, which is
+  particularly useful for the scripting language extensions.
+
+* Ice for Python now accepts Unicode objects as arguments to remote
+  operations.
 
 
 ======================================================================
@@ -799,6 +808,12 @@ in this release.
     their names. For example, ice_newIdentity was replaced by
     ice_identity.
 
+* Ice.LoggerPlugin
+
+  This property provided a way to install a custom logger
+  implementation. It has been replaced by a more generalized facility
+  for installing custom loggers.
+
 
 Deprecated APIs
 ---------------
@@ -878,12 +893,6 @@ the use of these APIs as soon as possible.
   facility (see "New Features"), therefore these adapters (and their
   associated configuration properties) are deprecated.
 
-* Ice.LoggerPlugin
-
-  This property provided a means of installing a custom logger
-  implementation. It has been replaced by the new configuration
-  property Ice.Plugin.Logger.
-
 
 ======================================================================
 6. Platform specific notes
@@ -900,6 +909,7 @@ available as of this Ice release).
 
 Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
 more information.
+
 
 Mono
 ----

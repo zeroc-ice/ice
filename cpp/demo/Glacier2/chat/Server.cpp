@@ -40,7 +40,8 @@ public:
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
         
-        adapter->add(new ChatSessionManagerI, communicator()->stringToIdentity("ChatSessionManager"));
+        Glacier2::SessionManagerPtr csm = new ChatSessionManagerI;
+        adapter->add(csm, communicator()->stringToIdentity("ChatSessionManager"));
         adapter->activate();
         communicator()->waitForShutdown();
         

@@ -28,6 +28,6 @@ testdir = os.path.dirname(os.path.abspath(__file__))
 TestUtil.addLdPath(testdir)
 
 IceGridAdmin.iceGridTest(testdir, name, "application.xml", "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"", \
-                         ' \\"properties-override=' + \
-                         TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "") + '\\"')
+                         ' \'properties-override=' + \
+                         TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "") + '\'')
 sys.exit(0)

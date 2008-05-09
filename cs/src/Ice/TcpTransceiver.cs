@@ -54,6 +54,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_result != null);
                     Network.doEndConnectAsync(_result);
+                    _result = null;
                     _state = StateConnected;
                     _desc = Network.fdToString(_fd);
                     if(_traceLevels.network >= 1)

@@ -16,140 +16,6 @@ aspect of Ice.
 
 
 ======================================================================
-Changes since version 3.3b
-======================================================================
-
-
-C++ Changes
-===========
-
-- Changed the string methods in InputStream and OutputStream to accept
-  an optional boolean argument. If true (the default), strings are
-  processed by the string converter (if any) before marshaling or
-  unmarshaling. If false, the string converter is bypassed. No source
-  code changes are necessary for existing programs.
-
-- The new Ice::StringConverterPlugin class allows you to install a
-  custom string converter and/or wstring converter during communicator
-  initialization.
-
-- The Ice shared library now provides a string converter plugin
-  factory: createStringConverter. See the Ice manual for details.
-
-- IceUtil::stringToWstring and IceUtil::wstringToString now take
-  a second argument of type ConversionFlags. It can be either
-  strictConversion or lenientConversion. The default is
-  lenientConversion for compatibility with previous releases. See
-  the Ice manual for further details.
-
-- Added IceGrid secure demo to demonstrate how to setup a secure
-  IceGrid deployment.
-
-- Fixed a Glacier2 assert that would occur if the configuration
-  defined only the SSL permissions verifier.
-
-- The IceUtil::Timer destroy method no longer joins with the timer
-  execution thread if it's called from a timer task. Instead, the 
-  thread is detached.
-
-- The IceUtil::Timer schedule and scheduleRepeated methods now throw
-  IceUtil::IllegalArgumentException if the timer is destroyed.
-
-- Fixed potential Slice parser assert.
-
-- Added an HA IceStorm template to config/templates.xml.
-
-- Removed the index parameter from the IceStorm template.
-
-- It is now possible to manually configure the node proxies when
-  using HA IceStorm in conjunction with IceGrid.
-
-- iceca and associated ImportKey.class are now copied into bin and lib
-  respectively.
-
-- iceca did not correctly support the --verbose flag with the import
-  command.
-
-- iceca request has been simplified. The command now takes the name of
-  the file to generate, the common name, and an optional email
-  address.
-
-
-Java Changes
-============
-
-- Fixed the slice2java ant task to recompile all of the files in the
-  file list if at least one of the files has changed and checksums are
-  being generated.
-
-- Deprecated the class IceUtil.Version.
-
-- Added the methods stringVersion and intVersion to Ice.Util for
-  obtaining the Ice version.
-
-- Fixed a NullPointerException thrown when allocating an InputStream
-  with an empty buffer.
-
-- Fixed a NullPointerException thrown when calling startEncapsulation
-  on an OutputStream.
-
-
-C# Changes
-==========
-
-- Added the methods stringVersion and intVersion to Ice.Util for
-  obtaining the Ice version.
-
-- Fixed a NullReferenceException thrown when allocating an InputStream
-  with an empty buffer.
-
-- Fixed a NullReferenceException thrown when calling
-  startEncapsulation on an OutputStream.
-
-
-PHP Changes
-===========
-
-- Constructors are now generated for Slice structure, exception, and
-  class types. Constructor parameters supply default values for each
-  data member.
-
-- A null value is now allowed where a sequence or dictionary value is
-  expected.
-
-- Replaced the Ice_version method with Ice_stringVersion, and added
-  Ice_intVersion.
-
-- Removed the undocumented PHP constants ICE_STRING_VERSION and
-  ICE_INT_VERSION.
-
-
-Python Changes
-==============
-
-- Replaced the Ice.version method with Ice.stringVersion, and added
-  Ice.intVersion.
-
-- Unicode objects are now accepted as arguments (or data members of
-  arguments) to remote Slice operations. The local Ice API still uses
-  8-bit strings.
-
-- Added new Ice/converter demo to illustrate how to use the new Ice
-  for C++ string converter plugin. This demo is very similar to the
-  C++ demo.
-
-- Fixed a deadlock bug that could occur when a multithreaded client
-  executes Slice operations that return abstract objects by value.
-
-
-Ruby Changes
-============
-
-- Replaced the Ice::version method with Ice::stringVersion, and added
-  Ice::intVersion.
-
-
-======================================================================
 Changes since version 3.2.1
 ======================================================================
 
@@ -159,6 +25,13 @@ General Changes
 
 These entries apply to all relevant language mappings unless otherwise
 noted.
+
+- It is now possible to use UNC paths on Windows in the configuration
+  of Ice services, such as in the value of the IceGrid.Node.Data
+  property for an IceGrid node.
+
+- Fixed bug in slice2html that caused incorrect hyperlinks to be
+  generated if nested modules were used.
 
 - Added support for non-blocking AMI and batch requests. Activities
   such as DNS lookups, endpoint resolution, connection establishment,
@@ -499,6 +372,59 @@ noted.
 C++ Changes
 ===========
 
+- Fixed icepatch2server crash on exit bug.
+
+- Changed the string methods in InputStream and OutputStream to accept
+  an optional boolean argument. If true (the default), strings are
+  processed by the string converter (if any) before marshaling or
+  unmarshaling. If false, the string converter is bypassed. No source
+  code changes are necessary for existing programs.
+
+- The new Ice::StringConverterPlugin class allows you to install a
+  custom string converter and/or wstring converter during communicator
+  initialization.
+
+- The Ice shared library now provides a string converter plugin
+  factory: createStringConverter. See the Ice manual for details.
+
+- IceUtil::stringToWstring and IceUtil::wstringToString now take
+  a second argument of type ConversionFlags. It can be either
+  strictConversion or lenientConversion. The default is
+  lenientConversion for compatibility with previous releases. See
+  the Ice manual for further details.
+
+- Added IceGrid secure demo to demonstrate how to setup a secure
+  IceGrid deployment.
+
+- Fixed a Glacier2 assert that would occur if the configuration
+  defined only the SSL permissions verifier.
+
+- The IceUtil::Timer destroy method no longer joins with the timer
+  execution thread if it's called from a timer task. Instead, the 
+  thread is detached.
+
+- The IceUtil::Timer schedule and scheduleRepeated methods now throw
+  IceUtil::IllegalArgumentException if the timer is destroyed.
+
+- Fixed potential Slice parser assert.
+
+- Added an HA IceStorm template to config/templates.xml.
+
+- Removed the index parameter from the IceStorm template.
+
+- It is now possible to manually configure the node proxies when
+  using HA IceStorm in conjunction with IceGrid.
+
+- iceca and associated ImportKey.class are now copied into bin and lib
+  respectively.
+
+- iceca did not correctly support the --verbose flag with the import
+  command.
+
+- iceca request has been simplified. The command now takes the name of
+  the file to generate, the common name, and an optional email
+  address.
+
 - The iceca ImportKey.class utility is now installed in
   /usr/share/Ice-3.3.0 for an RPM install or ${prefix}/lib otherwise.
 
@@ -567,6 +493,24 @@ C++ Changes
 Java Changes
 ============
 
+- Fixed the slice2java ant task to redirect stderr output so that
+  messages from the preprocessor are not interpreted as dependencies.
+
+- Fixed the slice2java ant task to recompile all of the files in the
+  file list if at least one of the files has changed and checksums are
+  being generated.
+
+- Deprecated the class IceUtil.Version.
+
+- Added the methods stringVersion and intVersion to Ice.Util for
+  obtaining the Ice version.
+
+- Fixed a NullPointerException thrown when allocating an InputStream
+  with an empty buffer.
+
+- Fixed a NullPointerException thrown when calling startEncapsulation
+  on an OutputStream.
+
 - The following APIs were deprecated in Ice 3.1 and have been removed:
 
   Application.main(String, String[], String, Logger)
@@ -605,6 +549,15 @@ Java Changes
 
 .NET Changes
 ============
+
+- Added the methods stringVersion and intVersion to Ice.Util for
+  obtaining the Ice version.
+
+- Fixed a NullReferenceException thrown when allocating an InputStream
+  with an empty buffer.
+
+- Fixed a NullReferenceException thrown when calling
+  startEncapsulation on an OutputStream.
 
 - Changed Ice.Exception to derive from System.Exception rather than
   System.ApplicationException in accordance with Microsoft's
@@ -711,6 +664,19 @@ Java Changes
 Python Changes
 ==============
 
+- Added the methods Ice.stringVersion and Ice.intVersion.
+
+- Unicode objects are now accepted as arguments (or data members of
+  arguments) to remote Slice operations. The local Ice API still uses
+  8-bit strings.
+
+- Added new Ice/converter demo to illustrate how to use the new Ice
+  for C++ string converter plugin. This demo is very similar to the
+  C++ demo.
+
+- Fixed a deadlock bug that could occur when a multithreaded client
+  executes Slice operations that return abstract objects by value.
+
 - Removed "#!/usr/bin/env python" where unnecessary.
 
 - Added ice_staticId() method to generated Slice classes.
@@ -729,9 +695,6 @@ Python Changes
   ObjectPrx.ice_newAdapterId
   ObjectPrx.ice_newEndpoints
   ObjectPrx.ice_connection
-
-- Added the Ice.version() function to return the Ice version as a
-  string.
 
 - Fixed a bug where returning an AMD servant from a ServantLocator
   would cause a deadlock in the IcePy extension.
@@ -753,12 +716,11 @@ Python Changes
 Ruby Changes
 ============
 
+- Added the methods Ice::stringVersion and Ice::intVersion.
+
 - Removed "#!/usr/bin/env ruby" where unnecessary.
 
 - Added ice_staticId() method to generated Slice classes.
-
-- Added the Ice::version() function to return the Ice version as a
-  string.
 
 - Fixed a code generation bug with slice2rb where the reserved words
   BEGIN and END would generate classes, modules and constants named
@@ -772,8 +734,17 @@ Ruby Changes
 PHP Changes
 ===========
 
-- Added the Ice_version() function to return the Ice version as a
-  string.
+- Constructors are now generated for Slice structure, exception, and
+  class types. Constructor parameters supply default values for each
+  data member.
+
+- A null value is now allowed where a sequence or dictionary value is
+  expected.
+
+- Added the methods Ice_stringVersion and Ice_intVersion.
+
+- Removed the undocumented PHP constants ICE_STRING_VERSION and
+  ICE_INT_VERSION.
 
 - LocalObject is now mapped to PHP's base object type. The interface
   Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now

@@ -28,6 +28,7 @@ class Instance : public IceUtil::Shared
 public:
 
     Instance(const Ice::CommunicatorPtr&);
+    ~Instance();
 
     void initialize();
     void context(SSL_CTX*);

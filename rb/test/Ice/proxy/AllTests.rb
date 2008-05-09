@@ -547,54 +547,55 @@ def allTests(communicator)
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     # Working?
-    ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
-    if !ssl
-        p1.ice_ping();
+    if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0:
+        ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
+        if !ssl
+            p1.ice_ping();
+        end
+
+      # Two legal TCP endpoints expressed as opaque endpoints
+      p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+      pstr = communicator.proxyToString(p1);
+      test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+
+      #
+      # Test that an SSL endpoint and a nonsense endpoint get written
+      # back out as an opaque endpoint.
+      #
+      p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+      pstr = communicator.proxyToString(p1);
+      if !ssl
+          test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+      else
+          test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+      end
+
+      #
+      # Try to invoke on the SSL endpoint to verify that we get a
+      # NoEndpointException (or ConnectionRefusedException when
+      # running with SSL).
+      #
+      begin
+          p1.ice_ping();
+          test(false);
+      rescue Ice::NoEndpointException
+      rescue Ice::ConnectionRefusedException
+      end
+
+      #
+      # Test that the proxy with an SSL endpoint and a nonsense
+      # endpoint (which the server doesn't understand either) can be
+      # sent over the wire and returned by the server without losing
+      # the opaque endpoints.
+      #
+      p2 = derived.echo(p1);
+      pstr = communicator.proxyToString(p2);
+      if !ssl
+          test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+      else
+          test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+      end
     end
-
-    # Two legal TCP endpoints expressed as opaque endpoints
-    p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
-    pstr = communicator.proxyToString(p1);
-    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
-
-    #
-    # Test that an SSL endpoint and a nonsense endpoint get written
-    # back out as an opaque endpoint.
-    #
-    p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-    pstr = communicator.proxyToString(p1);
-    if !ssl
-        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-    else
-        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
-    end
-
-    #
-    # Try to invoke on the SSL endpoint to verify that we get a
-    # NoEndpointException (or ConnectionRefusedException when
-    # running with SSL).
-    #
-    begin
-        p1.ice_ping();
-        test(false);
-    rescue Ice::NoEndpointException
-    rescue Ice::ConnectionRefusedException
-    end
-
-    #
-    # Test that the proxy with an SSL endpoint and a nonsense
-    # endpoint (which the server doesn't understand either) can be
-    # sent over the wire and returned by the server without losing
-    # the opaque endpoints.
-    #
-    p2 = derived.echo(p1);
-    pstr = communicator.proxyToString(p2);
-    if !ssl
-        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-    else
-        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
-    end
-
     puts "ok"
 
     return cl

@@ -191,7 +191,8 @@ Subscriber::run(int argc, char* argv[])
     {
         subId.name = IceUtil::generateUUID();
     }
-    Ice::ObjectPrx subscriber = adapter->add(new ClockI, subId);
+    ClockPtr  clock = new ClockI;
+    Ice::ObjectPrx subscriber = adapter->add(clock, subId);
 
     IceStorm::QoS qos;
     if(!retryCount.empty())

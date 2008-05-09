@@ -40,7 +40,8 @@ Server::run(int argc, char* argv[])
     Ice::PropertiesPtr properties = communicator()->getProperties();
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
     Ice::Identity id = communicator()->stringToIdentity(properties->getProperty("Identity"));
-    adapter->add(new HelloI(properties->getProperty("Ice.ProgramName")), id);
+    Demo::HelloPtr hello = new HelloI(properties->getProperty("Ice.ProgramName"));
+    adapter->add(hello, id);
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

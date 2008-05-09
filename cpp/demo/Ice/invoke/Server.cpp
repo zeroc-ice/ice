@@ -36,7 +36,8 @@ InvokeServer::run(int argc, char* argv[])
     }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Printer");
-    adapter->add(new PrinterI, communicator()->stringToIdentity("printer"));
+    Ice::ObjectPtr printer = new PrinterI;
+    adapter->add(printer, communicator()->stringToIdentity("printer"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

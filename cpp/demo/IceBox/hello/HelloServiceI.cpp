@@ -39,7 +39,8 @@ void
 HelloServiceI::start(const string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
 {
     _adapter = communicator->createObjectAdapter(name);
-    _adapter->add(new HelloI, communicator->stringToIdentity("hello"));
+    Demo::HelloPtr hello = new HelloI;
+    _adapter->add(hello, communicator->stringToIdentity("hello"));
     _adapter->activate();
 }
 

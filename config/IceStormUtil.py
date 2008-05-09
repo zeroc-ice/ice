@@ -19,11 +19,12 @@ origIceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p %d" --Ice.
 
 # Turn off the dispatch and connection warnings -- they are expected
 # when using a replicated IceStorm.
-origIceStormService = " --IceBox.Service.IceStorm=IceStormService,"+ TestUtil.getIceSoVersion() +":createIceStorm" + \
+origIceStormService = ' --IceBox.Service.IceStorm=IceStormService,' + TestUtil.getIceSoVersion() + ':createIceStorm' + \
                   ' --IceStorm.TopicManager.Endpoints="default -p %d"' + \
-                  " --IceBox.PrintServicesReady=IceStorm" + \
-                  " --IceBox.InheritProperties=1" + \
-                  " --Ice.Warn.Dispatch=0 --Ice.Warn.Connections=0"
+                  ' --IceBox.PrintServicesReady=IceStorm' + \
+                  ' --IceBox.InheritProperties=1' + \
+                  ' --Ice.Warn.Dispatch=0 --Ice.Warn.Connections=0' + \
+                  ' --Ice.ServerIdleTime=0'
 origIceStormProxy = '%s/TopicManager:default -p %d'
 origIceStormReference = ' --IceStormAdmin.TopicManager.Default="%s"'
 

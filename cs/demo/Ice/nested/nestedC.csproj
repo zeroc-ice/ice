@@ -78,6 +78,7 @@
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -104,16 +105,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice"
-          Inputs="Nested.ice"
-          Outputs="generated\Nested.cs">
-    <Exec Condition="Exists('..\..\..\slice')"
-          Command="..\..\..\bin\slice2cs.exe --output-dir generated Nested.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')"
-          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Nested.ice"/>
+  <Target Name="CompileSlice" Inputs="Nested.ice" Outputs="generated\Nested.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Nested.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Nested.ice" />
   </Target>
   <Target Name="AfterClean">
-    <Delete Files="generated\Nested.cs"/>
+    <Delete Files="generated\Nested.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

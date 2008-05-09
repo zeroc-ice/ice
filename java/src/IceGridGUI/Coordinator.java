@@ -1867,8 +1867,17 @@ public class Coordinator
                     destroyCommunicator();
                 }
             };
-        Runtime.getRuntime().addShutdownHook(_shutdownHook);
 
+        try
+        {
+            Runtime.getRuntime().addShutdownHook(_shutdownHook);
+        }
+        catch(IllegalStateException e)
+        {
+            //
+            // Shutdown in progress, ignored
+            //
+        }
 
         _saveXMLChooser = new JFileChooser(
             _prefs.get("current directory", null));

@@ -23,39 +23,39 @@ import TestUtil
 #
 # List of all basic tests.
 #
-tests = [ \
-    "Slice/keyword", \
-    "IceUtil/inputUtil", \
-    "Ice/proxy", \
-    "Ice/operations", \
-    "Ice/exceptions", \
-    "Ice/inheritance", \
-    "Ice/facets", \
-    "Ice/hold", \
-    "Ice/objects", \
-    "Ice/binding", \
-    "Ice/faultTolerance", \
-    "Ice/location", \
-    "Ice/adapterDeactivation", \
-    "Ice/slicing/exceptions", \
-    "Ice/slicing/objects", \
-    "Ice/checksum", \
-    "Ice/stream", \
-    "Ice/retry", \
-    "Ice/timeout", \
-    "Ice/servantLocator", \
-    "Ice/interceptor", \
-    "Ice/dictMapping", \
-    "Ice/seqMapping", \
-    "Ice/background", \
-    "IceBox/configuration", \
-    "Glacier2/router", \
-    "Glacier2/attack", \
-    "IceGrid/simple" \
+tests = [
+    ("Slice/keyword", ["once"]),
+    ("IceUtil/inputUtil", ["once"]),
+    ("Ice/proxy", ["core"]),
+    ("Ice/operations", ["core"]),
+    ("Ice/exceptions", ["core"]),
+    ("Ice/inheritance", ["core"]),
+    ("Ice/facets", ["core"]),
+    ("Ice/hold", ["core"]),
+    ("Ice/objects", ["core"]),
+    ("Ice/binding", ["core"]),
+    ("Ice/faultTolerance", ["core"]),
+    ("Ice/location", ["core"]),
+    ("Ice/adapterDeactivation", ["core"]),
+    ("Ice/slicing/exceptions", ["core"]),
+    ("Ice/slicing/objects", ["core"]),
+    ("Ice/checksum", ["core"]),
+    ("Ice/stream", ["core"]),
+    ("Ice/retry", ["core"]),
+    ("Ice/timeout", ["core"]),
+    ("Ice/servantLocator", ["core"]),
+    ("Ice/interceptor", ["core"]),
+    ("Ice/dictMapping", ["core"]),
+    ("Ice/seqMapping", ["core"]),
+    ("Ice/background", ["core"]),
+    ("IceBox/configuration", ["core", "noipv6"]),
+    ("Glacier2/router", ["service"]),
+    ("Glacier2/attack", ["service"]),
+    ("IceGrid/simple", ["service"]),
     ]
 
 if not TestUtil.mono:
-    tests += ["IceSSL/configuration"]
+    tests += [("IceSSL/configuration", ["core"])]
 
 if __name__ == "__main__":
     TestUtil.run(tests)

@@ -78,6 +78,7 @@
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -104,16 +105,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice"
-          Inputs="Printer.ice"
-          Outputs="generated\Printer.cs">
-    <Exec Condition="Exists('..\..\..\slice')"
-          Command="..\..\..\bin\slice2cs.exe --stream --output-dir generated Printer.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')"
-          Command="..\..\..\..\cpp\bin\slice2cs.exe --stream --output-dir generated Printer.ice"/>
+  <Target Name="CompileSlice" Inputs="Printer.ice" Outputs="generated\Printer.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --stream --output-dir generated Printer.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --stream --output-dir generated Printer.ice" />
   </Target>
   <Target Name="AfterClean">
-    <Delete Files="generated\Printer.cs"/>
+    <Delete Files="generated\Printer.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

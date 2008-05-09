@@ -682,15 +682,14 @@ Activator::activate(const string& name,
 
         for(int i = 0; i < env.argc; i++)
         {
-            if(putenv(env.argv[i]) != 0)
+            //
+            // Each env is leaked on purpose ... see man putenv().
+            //
+            if(putenv(strdup(env.argv[i])) != 0)
             {
                 reportChildError(errno, fds[1], "cannot set environment variable",  env.argv[i]); 
             }
         }
-        //
-        // Each env is leaked on purpose ... see man putenv().
-        //
-        env.setNoDelete();
 
         //
         // Change working directory.
@@ -701,7 +700,7 @@ Activator::activate(const string& name,
             {
                 reportChildError(errno, fds[1], "cannot change working directory to",  pwdCStr);
             }
-        }       
+        }
 
         if(execvp(av.argv[0], av.argv) == -1)
         {

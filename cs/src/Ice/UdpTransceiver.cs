@@ -31,9 +31,39 @@ namespace IceInternal
 
         public bool initialize(AsyncCallback callback)
         {
-            //
-            // Nothing to do.
-            //
+            if(!_incoming)
+            {
+                if(_connect)
+                {
+                    Debug.Assert(callback != null);
+                    Debug.Assert(_addr != null);
+                        
+                    _connect = false;
+                    _result = Network.doBeginConnectAsync(_fd, _addr, callback);
+                        
+                    if(!_result.CompletedSynchronously)
+                    {
+                        //
+                        // Return now if the I/O request needs an asynchronous callback.
+                        //
+                        return false;
+                    }
+                }
+                    
+                if(!_connect)
+                {
+                    Debug.Assert(_result != null);
+                    Network.doEndConnectAsync(_result);
+                    _result = null;
+                    if(_traceLevels.network >= 1)
+                    {
+                        string s = "starting to send udp packets\n" + ToString();
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
+                }
+                
+                Debug.Assert(!_connect);
+            }
             return true;
         }
 
@@ -516,15 +546,15 @@ namespace IceInternal
             _stats = instance.initializationData().stats;
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _addr = addr;
-            _connect = false;
+            _connect = true;
+            _incoming = false;
 
             try
             {
                 _fd = Network.createSocket(true, _addr.AddressFamily);
                 setBufSize(instance);
                 Network.setBlock(_fd, false);
-                bool connected = Network.doConnect(_fd, _addr);
-                Debug.Assert(connected);
+
                 if(Network.isMulticast(_addr))
                 {
                     Network.setMcastGroup(_fd, _addr.Address, mcastInterface);
@@ -533,12 +563,6 @@ namespace IceInternal
                     {
                         Network.setMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
                     }
-                }
-
-                if(_traceLevels.network >= 1)
-                {
-                    string s = "starting to send udp packets\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
                 }
             }
             catch(Ice.LocalException)
@@ -558,6 +582,7 @@ namespace IceInternal
             _stats = instance.initializationData().stats;
             _connect = connect;
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+            _incoming = true;
 
             try
             {
@@ -692,12 +717,14 @@ namespace IceInternal
         private Ice.Logger _logger;
         private Ice.Stats _stats;
         private bool _connect;
+        private bool _incoming;
         private readonly bool _warn;
         private int _rcvSize;
         private int _sndSize;
         private Socket _fd;
         private IPEndPoint _addr;
         private bool _mcastServer = false;
+        private IAsyncResult _result;
 
         //
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header

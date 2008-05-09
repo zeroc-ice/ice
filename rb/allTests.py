@@ -24,20 +24,20 @@ import TestUtil
 # List of all basic tests.
 #
 tests = [
-    "Slice/keyword",
-    "Ice/binding",
-    "Ice/checksum",
-    "Ice/exceptions",
-    "Ice/facets",
-    "Ice/inheritance",
-    "Ice/location",
-    "Ice/objects",
-    "Ice/proxy",
-    "Ice/operations",
-    "Ice/retry",
-    "Ice/timeout",
-    "Ice/slicing/exceptions",
-    "Ice/slicing/objects",
+    ("Slice/keyword", ["once"]),
+    ("Ice/binding", ["core"]),
+    ("Ice/checksum", ["core"]),
+    ("Ice/exceptions", ["core"]),
+    ("Ice/facets", ["core"]),
+    ("Ice/inheritance", ["core"]),
+    ("Ice/location", ["core"]),
+    ("Ice/objects", ["core"]),
+    ("Ice/proxy", ["core"]),
+    ("Ice/operations", ["core"]),
+    ("Ice/retry", ["core"]),
+    ("Ice/timeout", ["core"]),
+    ("Ice/slicing/exceptions", ["core"]),
+    ("Ice/slicing/objects", ["core"])
     ]
 
 if __name__ == "__main__":

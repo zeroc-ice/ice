@@ -72,7 +72,8 @@ Server::run(int argc, char* argv[])
     // Create the servant to receive the events.
     //
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Counter");
-    adapter->add(new CounterI(topic), communicator()->stringToIdentity("counter"));
+    Demo::CounterPtr counter = new CounterI(topic);
+    adapter->add(counter, communicator()->stringToIdentity("counter"));
     adapter->activate();
 
     communicator()->waitForShutdown();

@@ -36,7 +36,8 @@ HelloServer::run(int argc, char* argv[])
     }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
-    adapter->add(new HelloI, communicator()->stringToIdentity("hello"));
+    Demo::HelloPtr hello = new HelloI;
+    adapter->add(hello, communicator()->stringToIdentity("hello"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

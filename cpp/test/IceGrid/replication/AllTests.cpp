@@ -209,7 +209,7 @@ bool
 waitAndPing(const Ice::ObjectPrx& obj)
 {
     int nRetry = 0;
-    while(nRetry < 30)
+    while(nRetry < 100)
     {
         try
         {

@@ -357,6 +357,7 @@ public class Slice2JavaTask extends SliceTask
             // unique property name here. Perhaps we should output the dependencies to a file instead.
             //
             final String outputProperty = "slice2java.depend." + System.currentTimeMillis();
+            final String errorProperty = "slice2java.error." + System.currentTimeMillis();
 
             task = (ExecTask)getProject().createTask("exec");
             addLdLibraryPath(task);
@@ -365,6 +366,7 @@ public class Slice2JavaTask extends SliceTask
             arg.setLine(cmd.toString());
             task.setExecutable(translator);
             task.setOutputproperty(outputProperty);
+            task.setErrorProperty(errorProperty);
             task.execute();
 
             //
@@ -377,7 +379,7 @@ public class Slice2JavaTask extends SliceTask
                 SliceDependency dep = (SliceDependency)p.next();
                 dependencies.put(getTargetKey(dep._dependencies[0]), dep);
             }
-                
+
             writeDependencies(dependencies);
         }
     }
