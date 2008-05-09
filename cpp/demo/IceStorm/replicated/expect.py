@@ -32,7 +32,7 @@ if demoscript.Util.mode == 'debug':
     desc = 'tmp_application.xml'
     fo = open(desc, "w")
     for l in fi:
-        if l.find('exe="icebox"'):
+        if l.find('exe="icebox"') != -1:
             l = l.replace('exe="icebox"', 'exe="iceboxd.exe"')
         fo.write(l)
     fi.close()
@@ -97,9 +97,11 @@ sub.waitTestSuccess()
 pub.kill(signal.SIGINT)
 pub.waitTestSuccess()
 
-matchpat(node, [ 'DemoIceStorm-1: Topic: time: remove replica observer: [-0-9A-Fa-f]+',
-                 'DemoIceStorm-2: Topic: time: remove replica observer: [-0-9A-Fa-f]+' ,
-                 'DemoIceStorm-3: Topic: time: unsubscribe: [-0-9A-Fa-f]+' ]) 
+# With Cygwin SIGINT isn't intercepted.
+if not demoscript.Util.isCygwin():
+    matchpat(node, [ 'DemoIceStorm-1: Topic: time: remove replica observer: [-0-9A-Fa-f]+',
+		     'DemoIceStorm-2: Topic: time: remove replica observer: [-0-9A-Fa-f]+' ,
+		     'DemoIceStorm-3: Topic: time: unsubscribe: [-0-9A-Fa-f]+' ]) 
 
 admin.sendline('registry shutdown Master')
 admin.sendline('exit')

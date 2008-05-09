@@ -56,9 +56,9 @@ def run(clientStr, desc = 'application'):
     sys.stdout.flush()
 
     for s in [ "Homer", "Marge", "Bart", "Lisa", "Maggie" ]:
-        client = demoscript.Util.spawn(clientStr)
-        node.expect("Hello from %s" % s)
-        client.waitTestSuccess(timeout=1)
+	client = demoscript.Util.spawn(clientStr)
+	node.expect("Hello from %s" % s)
+	client.waitTestSuccess(timeout=1)
 
     print "ok"
 
@@ -121,12 +121,16 @@ def run(clientStr, desc = 'application'):
     admin.expect('>>>')
     admin.sendline('exit')
 
-    admin = demoscript.Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"', language="C++")
-    admin.expect('user id:')
-    admin.sendline('foo')
-    admin.expect('password:')
-    admin.sendline('foo')
-    admin.expect('>>>')
+    # Cygwin seems to have problems with the password input.
+    if demoscript.Util.isCygwin():
+	admin = demoscript.Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063" -u foo -p foo', language="C++")
+    else:
+	admin = demoscript.Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"', language="C++")
+	admin.expect('user id:')
+	admin.sendline('foo')
+	admin.expect('password:')
+	admin.sendline('foo')
+    admin.expect('>>>', timeout=100)
 
     admin.sendline("service start IceBox Homer")
     admin.expect('>>>')

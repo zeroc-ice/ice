@@ -10,6 +10,7 @@
 
 import sys, time, signal, demoscript
 import demoscript.pexpect as pexpect
+import demoscript.Util as Util
 
 def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
     print "testing pub%s/sub%s..." % (pubargs, subargs),
@@ -30,10 +31,13 @@ def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
 
     sub.kill(signal.SIGINT)
     sub.waitTestSuccess()
-    try:
-        icestorm.expect('unsubscribe:')
-    except pexpect.TIMEOUT:
-        print "(Wait for Unsubscribe failed, expected for Mono)",
+
+    # With Cygwin SIGINT isn't intercepted.
+    if not Util.isCygwin():
+	try:
+	    icestorm.expect('unsubscribe:')
+	except pexpect.TIMEOUT:
+	    print "(Wait for Unsubscribe failed, expected for Mono)",
     print "ok"
 
 def run(subCmd, pubCmd):

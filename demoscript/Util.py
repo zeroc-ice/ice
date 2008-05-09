@@ -41,16 +41,17 @@ import getopt, os, signal
 import demoscript.pexpect as pexpect
 
 def usage():
-    print "usage: " + sys.argv[0] + " --fast --trace --debug --host host --mode=[debug|release]"
+    print "usage: " + sys.argv[0] + " --fast --trace --debug --host host --mode=[debug|release] --python=<path>"
     sys.exit(2)
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "", ["fast", "trace", "debug", "host=", "mode="])
+    opts, args = getopt.getopt(sys.argv[1:], "", ["fast", "trace", "debug", "host=", "mode=", "python="])
 except getopt.GetoptError:
     usage()
 
 fast = False
 trace = False
 mode = 'release'
+pythonhome = "/c/python25"
 for o, a in opts:
     if o == "--debug":
         debug = True
@@ -60,6 +61,8 @@ for o, a in opts:
         host = a
     if o == "--fast":
         fast = True
+    if o == "--python":
+        pythonhome = a
     if o == "--mode":
         mode = a
         if mode != 'debug' and mode != 'release':
@@ -83,9 +86,19 @@ def isMono():
 
 def python():
     if isCygwin():
-        return "python -u "
+        return "%s/python -u " % pythonhome
     else:
         return "python "
+
+def cygpath(path):
+    if not isCygwin():
+	return path
+    child = os.popen("cygpath -w %s" % path)
+    path = child.read().strip()
+    err = child.close()
+    if err:
+	raise "cygpath failed"
+    return path
 
 def getIceBox():
     if isCygwin():
@@ -159,17 +172,12 @@ class spawn(pexpect.spawn):
         else:
             self.expect(pexpect.EOF, timeout)
         status = self.wait()
-        if self.language == "C++" or self.language == "Python" or self.language == "Ruby" or self.language == "PHP" or self.language == "VB":
+        if self.language != "Java":
             if isCygwin() and self.sentKill:
                 assert self.signalstatus == self.sentKill
             else:
                 assert status == exitstatus
-        elif self.language == "C#":
-            if isCygwin() and self.sentKill:
-                assert self.signalstatus == self.sentKill
-            else:
-                assert status == exitstatus
-        elif self.language == "Java":
+        else: # self.language == "Java":
             if self.sentKill:
                 if isCygwin():
                     assert self.signalstatus == self.sentKill
@@ -180,13 +188,6 @@ class spawn(pexpect.spawn):
                         assert False
             else:
                 assert status == exitstatus
-        else:
-            # Unknown language
-            print "Warning: unknown language"
-            if not self.sentKill:
-                assert status == exitstatus
-            else:
-                assert status == exitstatus or status == 130 or self.signalstatus == self.sentKill
 
 def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG"]:

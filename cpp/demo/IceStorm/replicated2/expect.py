@@ -73,9 +73,11 @@ sub.waitTestSuccess()
 pub.kill(signal.SIGINT)
 pub.waitTestSuccess()
 
-ib1.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
-ib2.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
-ib3.expect('Topic: time: unsubscribe: [-0-9A-Fa-f]+')
+# With Cygwin SIGINT isn't intercepted.
+if not demoscript.Util.isCygwin():
+    ib1.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
+    ib2.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
+    ib3.expect('Topic: time: unsubscribe: [-0-9A-Fa-f]+')
 
 admin = demoscript.Util.spawn('iceboxadmin --Ice.Config=config.ib1 shutdown')
 admin.waitTestSuccess()

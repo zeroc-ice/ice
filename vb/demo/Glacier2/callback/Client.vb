@@ -114,7 +114,7 @@ Module Glacier2callbackC
                     ElseIf line.Equals("o") Then
                         Dim context As Dictionary(Of String, String) = New Dictionary(Of String, String)()
                         context("_fwd") = "o"
-                        If override Is Nothing Then
+                        If Not override Is Nothing Then
                             context("_ovrd") = override
                         End If
                         oneway.initiateCallback(onewayR, context)
@@ -163,6 +163,7 @@ Module Glacier2callbackC
             Loop While Not line.Equals("x")
 
             Try
+		router.destroySession()
             Catch ex As Glacier2.SessionNotExistException
                 Console.Error.WriteLine(ex)
             Catch ex As Ice.ConnectionLostException

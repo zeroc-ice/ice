@@ -76,9 +76,23 @@ def configurePaths():
     os.environ["PATH"] = binDir + os.pathsep + os.pathsep + os.getenv("PATH", "")
 
     javaDir = getIceDir("java")
-    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib", "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
-    os.environ["CLASSPATH"] = os.path.join(javaDir, "lib") + os.pathsep + os.getenv("CLASSPATH", "")
-    os.environ["CLASSPATH"] = os.path.join("classes") + os.pathsep + os.getenv("CLASSPATH", "")
+    def translate(path):
+	if not isCygwin():
+	    return path
+	child = os.popen("cygpath -w %s" % path)
+	path = child.read().strip()
+	err = child.close()
+	if err:
+	    raise "cygpath failed"
+	return path
+	
+    if isCygwin():
+	sep = ';'
+    else:
+	sep = os.pathsep
+    os.environ["CLASSPATH"] = translate(os.path.join(javaDir, "lib", "Ice.jar")) + sep + os.getenv("CLASSPATH", "")
+    os.environ["CLASSPATH"] = translate(os.path.join(javaDir, "lib")) + sep + os.getenv("CLASSPATH", "")
+    os.environ["CLASSPATH"] = translate(os.path.join("classes")) + sep + os.getenv("CLASSPATH", "")
 
     # 
     # On Windows, C# assemblies are found thanks to the .exe.config files.
@@ -90,11 +104,11 @@ def configurePaths():
     # On Windows x64, set PYTHONPATH to python/x64.
     #
     if isCygwin() and x64:
-        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python", "x64") + os.pathsep + \
+        os.environ["PYTHONPATH"] = translate(os.path.join(getIceDir("py"), "python", "x64")) + sep + \
             os.getenv("PYTHONPATH", "")
     else:
-        os.environ["PYTHONPATH"] = os.path.join(getIceDir("py"), "python") + os.pathsep + os.getenv("PYTHONPATH", "")
-    os.environ["RUBYLIB"] = os.path.join(getIceDir("rb"), "ruby") + os.pathsep + os.getenv("RUBYLIB", "")
+        os.environ["PYTHONPATH"] = translate(os.path.join(getIceDir("py"), "python")) + sep + os.getenv("PYTHONPATH", "")
+    os.environ["RUBYLIB"] = translate(os.path.join(getIceDir("rb"), "ruby")) + sep + os.getenv("RUBYLIB", "")
 
 def findTopLevel():
     global toplevel
@@ -238,11 +252,10 @@ def run(demos):
     if args:
         usage()
 
-    demoFilter = None
-    removeFilter = False
     start = 0
     loop = False
     arg = ""
+    filters = []
     for o, a in opts:
         if o in ("-l", "--loop"):
             loop = True
@@ -255,9 +268,11 @@ def run(demos):
         elif o in ("-c", "--continue"):
             keepGoing = True
         elif o in ("-r", "-R", "--filter", '--rfilter'):
-            demoFilter = re.compile(a)
+            testFilter = re.compile(a)
             if o in ("--rfilter", "-R"):
-                removeFilter = True
+                filters.append((testFilter, True))
+            else:
+                filters.append((testFilter, False))
         elif o in ("--host", "--fast", "--trace", "--debug", "--mode"):
             if o == "--mode":
                 if a not in ( "debug", "release"):
@@ -285,12 +300,13 @@ def run(demos):
 
     configurePaths()
 
-    if demoFilter != None:
+
+    for testFilter, removeFilter in filters:
         if removeFilter:
-            demos = [ x for x in demos if not demoFilter.search(x) ]
+            demos = [ x for x in demos if not testFilter.search(x) ]
         else:
-            demos = [ x for x in demos if demoFilter.search(x) ]
-            
+            demos = [ x for x in demos if testFilter.search(x) ]
+
     if loop:
         num = 1
         while 1:

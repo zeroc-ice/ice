@@ -26,7 +26,19 @@ import demoscript.Util
 demoscript.Util.defaultLanguage = "C++"
 import demoscript.IceGrid.icebox
 
+desc = 'application.xml'
+if demoscript.Util.mode == 'debug':
+    fi = open(desc, "r")
+    desc = 'tmp_application.xml'
+    fo = open(desc, "w")
+    for l in fi:
+        if l.find('exe="icebox"') != -1:
+            l = l.replace('exe="icebox"', 'exe="iceboxd.exe"')
+        fo.write(l)
+    fi.close()
+    fo.close()
+
 directory = os.path.dirname(os.path.abspath(__file__))
 demoscript.Util.addLdPath(directory)
 
-demoscript.IceGrid.icebox.run('./client')
+demoscript.IceGrid.icebox.run('./client', desc[0:len(desc)-4])
