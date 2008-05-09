@@ -372,6 +372,8 @@ noted.
 C++ Changes
 ===========
 
+- Fixed icepatch2server crash on exit bug.
+
 - Changed the string methods in InputStream and OutputStream to accept
   an optional boolean argument. If true (the default), strings are
   processed by the string converter (if any) before marshaling or

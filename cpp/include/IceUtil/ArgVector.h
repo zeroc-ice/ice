@@ -27,19 +27,13 @@ public:
     ArgVector& operator=(const ArgVector&);
     ~ArgVector();
 
-    void setNoDelete();
-
     int argc;
     char** argv;
 
 private:
 
-    int _origArgc;
-    bool _noDelete;
-
-    void copyVec(int, int, char**);
-    void copyVec(const ::std::vector< ::std::string>&);
-    void swap(ArgVector&) throw();
+    ::std::vector< ::std::string> _args;
+    void setupArgcArgv();
 };
 
 }

@@ -709,9 +709,7 @@ int
 Ice::Service::main(StringSeq& args, const InitializationData& initData)
 {
     IceUtilInternal::ArgVector av(args);
-    int rc = main(av.argc, av.argv, initData);
-    argsToStringSeq(av.argc, av.argv);
-    return rc;
+    return main(av.argc, av.argv, initData);
 }
 
 Ice::CommunicatorPtr
