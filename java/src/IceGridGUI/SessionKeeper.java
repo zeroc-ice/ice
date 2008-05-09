@@ -111,6 +111,7 @@ class SessionKeeper
             }
 
             _thread = new Pinger(_session, keepAliveperiod);
+            _thread.setDaemon(true);
             _thread.start();
             
             try
@@ -205,18 +206,6 @@ class SessionKeeper
             if(_thread != null)
             {
                 _thread.done();
-                
-                for(;;)
-                {
-                    try
-                    {
-                        _thread.join();
-                        break;
-                    }
-                    catch(InterruptedException e)
-                    {
-                    }
-                }
             }
             
             if(_adapter != null)
@@ -1192,40 +1181,61 @@ class SessionKeeper
             }
         }
 
-        public synchronized void run()
+        public void run()
         {
+            boolean done = false;
+
             do
             {
-                try
+                synchronized(this)
                 {
-                    _session.keepAlive();
+                    done = _done;
                 }
-                catch(final Ice.LocalException e)
-                {
-                    _done = true;
-                  
-                    SwingUtilities.invokeLater(new Runnable() 
-                        {
-                            public void run() 
-                            {
-                                sessionLost("Failed to contact the IceGrid registry: " 
-                                            + e.toString());
-                            }
-                        });
-                }
-                
-                if(!_done)
+
+                if(!done)
                 {
                     try
                     {
-                        wait(_period);
+                        _session.keepAlive();
                     }
-                    catch(InterruptedException e)
+                    catch(final Exception e)
                     {
-                        // Ignored
+                        synchronized(this)
+                        {
+                            done = _done;
+                            _done = true;
+                        }
+                  
+                        if(!done)
+                        {
+                            SwingUtilities.invokeLater(new Runnable() 
+                                {
+                                    public void run() 
+                                    {
+                                        sessionLost("Failed to contact the IceGrid registry: " 
+                                                    + e.toString());
+                                    }
+                                });
+                        }
                     }
                 }
-            } while(!_done);
+                
+                synchronized(this)
+                {
+                    if(!_done)
+                    {
+                        try
+                        {
+                            wait(_period);
+                        }
+                        catch(InterruptedException e)
+                        {
+                            // Ignored
+                        }
+                    }
+                    done = _done;
+                }
+            } while(!done);
         }
         
         public synchronized void done()
