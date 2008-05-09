@@ -1537,12 +1537,24 @@ public class Coordinator
             {
                 Glacier2.RouterPrx gr 
                     = Glacier2.RouterPrxHelper.uncheckedCast(router);
-                gr.destroySession();
+
+                Glacier2.AMI_Router_destroySession cb = new Glacier2.AMI_Router_destroySession()
+                    {
+                        public void ice_response()
+                        {
+                        }
+                        
+                        public void ice_exception(Ice.LocalException ex)
+                        {
+                        }
+
+                        public void ice_exception(Ice.UserException ex)
+                        {
+                        }
+                    };
+
+                gr.destroySession_async(cb);
             }
-        }
-        catch(Glacier2.SessionNotExistException e)
-        {
-            // Ignored
         }
         catch(Ice.LocalException e)
         {
