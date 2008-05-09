@@ -281,7 +281,7 @@ class CommunicatorI(Communicator):
         # the specified timeout in order to give us a chance to handle
         # signals.
         #
-        while not self._impl.waitForShutdown(1000):
+        while not self._impl.waitForShutdown(500):
             pass
 
     def isShutdown(self):
