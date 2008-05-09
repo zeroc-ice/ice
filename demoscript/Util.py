@@ -51,7 +51,7 @@ except getopt.GetoptError:
 fast = False
 trace = False
 mode = 'release'
-pythonhome = "/c/python25"
+pythonhome = "/cygdrive/c/python25"
 for o, a in opts:
     if o == "--debug":
         debug = True

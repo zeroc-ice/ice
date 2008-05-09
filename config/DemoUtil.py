@@ -229,6 +229,7 @@ def usage():
     print "  --continue              Keep running when a demo fails."
     print "  --ice-home=<path>       Use the binary distribution from the given path."
     print "  --x64                   Binary distribution is 64-bit."
+    print "  --python=<path>         Path of python binary distribution."
     sys.exit(2)
 
 def index(l, re):
@@ -244,7 +245,7 @@ def run(demos):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start-after=", "start=", "loop", "fast", "trace", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64"])
+                "continue", "ice-home=", "x64", "python="])
     except getopt.GetoptError:
         usage()
 
@@ -273,7 +274,7 @@ def run(demos):
                 filters.append((testFilter, True))
             else:
                 filters.append((testFilter, False))
-        elif o in ("--host", "--fast", "--trace", "--debug", "--mode"):
+        elif o in ("--host", "--fast", "--trace", "--debug", "--mode", "--python"):
             if o == "--mode":
                 if a not in ( "debug", "release"):
                     usage()
