@@ -22,7 +22,6 @@ filesToRemove = [
     "sl/allTests.py",
     "sl/config/TestUtil.py",
     "sl/config/Make.rules.cs",
-    "sl/config/makeconfig.py",
     "sl/config/makedepend.py",
     "sl/test/Makefile.mak",
 ]
