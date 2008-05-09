@@ -19,6 +19,14 @@ $ publisher
 While the publisher continues to run, "tick" messages should be
 displayed in the subscriber window.
 
+With three replicas, any single replica can become unavailable, and
+IceStorm will continue to function. However, should two replicas
+become unavailable, replication will halt until another instance comes
+back online.
+
+For more information on the configuration of HA IceStorm please see
+the Ice manual.
+
 Other than configuration, the subscribers and publishers do not have
 to do anything special to take advantage of the replication. The
 subscriber and publisher are identical to those contained in the clock

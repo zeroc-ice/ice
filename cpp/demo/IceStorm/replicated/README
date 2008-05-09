@@ -19,11 +19,13 @@ While the publisher continues to run, "tick" messages should be
 displayed in the subscriber window.
 
 The IceGrid application described in `application.xml' deploys three
-IceStorm service replicas. The IceStorm topic manager must be members
-of a replica group and, if publishing is to be replicated, the
-publisher endpoints must be part of another replica group. The node
-endpoints, used for election of the coordinator, must not be members
-of any replica group.
+IceStorm service replicas. With three replicas, any single replica can
+become unavailable, and IceStorm will continue to function. However,
+should two replicas become unavailable, replication will halt until another
+instance comes back online.
+
+For more information on the configuration of HA IceStorm please see
+the Ice manual.
 
 Other than configuration, the subscribers and publishers do not have
 to do anything special to take advantage of the replication. The
