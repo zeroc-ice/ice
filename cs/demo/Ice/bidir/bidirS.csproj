@@ -78,6 +78,7 @@
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -104,16 +105,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice"
-          Inputs="Callback.ice"
-          Outputs="generated\Callback.cs">
-    <Exec Condition="Exists('..\..\..\slice')" 
-          Command="..\..\..\bin\slice2cs.exe -I..\..\..\slice --output-dir generated Callback.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')" 
-          Command="..\..\..\..\cpp\bin\slice2cs.exe -I..\..\..\..\slice --output-dir generated Callback.ice"/>
+  <Target Name="CompileSlice" Inputs="Callback.ice" Outputs="generated\Callback.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe -I..\..\..\slice --output-dir generated Callback.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe -I..\..\..\..\slice --output-dir generated Callback.ice" />
   </Target>
   <Target Name="AfterClean">
-    <Delete Files="generated\Callback.cs"/>
+    <Delete Files="generated\Callback.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

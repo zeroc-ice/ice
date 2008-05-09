@@ -78,10 +78,12 @@
     <Reference Include="Glacier2">
       <Name>Glacier2</Name>
       <HintPath>..\..\..\bin\Glacier2.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>

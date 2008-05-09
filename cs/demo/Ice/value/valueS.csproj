@@ -78,6 +78,7 @@
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -110,16 +111,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice"
-          Inputs="Value.ice"
-          Outputs="generated\Value.cs">
-    <Exec Condition="Exists('..\..\..\slice')"
-          Command="..\..\..\bin\slice2cs.exe --output-dir generated Value.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')"
-          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Value.ice"/>
+  <Target Name="CompileSlice" Inputs="Value.ice" Outputs="generated\Value.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Value.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Value.ice" />
   </Target>
   <Target Name="AfterClean">
-    <Delete Files="generated\Value.cs"/>
+    <Delete Files="generated\Value.cs" />
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

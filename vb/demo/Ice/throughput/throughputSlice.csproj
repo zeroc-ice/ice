@@ -31,6 +31,7 @@
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
@@ -55,10 +56,8 @@
     </PostBuildEvent>
   </PropertyGroup>
   <Target Name="CompileSlice" Inputs="Throughput.ice" Outputs="generated\Throughput.cs">
-    <Exec Condition="Exists('..\..\..\slice')"
-          Command="..\..\..\bin\slice2cs.exe --output-dir generated Throughput.ice"/>
-    <Exec Condition="Exists('..\..\..\..\slice')"
-          Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Throughput.ice"/>
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Throughput.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Throughput.ice" />
   </Target>
   <Target Name="AfterClean">
     <Delete Files="generated\Throughput.cs" />

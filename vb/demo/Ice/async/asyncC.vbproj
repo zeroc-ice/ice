@@ -74,6 +74,7 @@
     <Reference Include="Ice">
       <Name>Ice</Name>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
