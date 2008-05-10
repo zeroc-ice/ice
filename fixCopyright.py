@@ -51,7 +51,7 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
 
     if commentBegin == "":
         for x in oldLines:
-            if not commentFound and not x.startswith(commentMark):
+            if not commentFound and (not x.startswith(commentMark) or x.startswith("#!/usr/bin/env")):
                 beforeCopyrightLines.append(x)
             elif not done and x.startswith(commentMark):
                 commentFound = 1
@@ -140,12 +140,8 @@ def replaceAllCopyrights(path, patchIceE):
     mcCopyright = copyright("; //", patchIceE)
     makefileCopyright = copyright("#", patchIceE)
     vbCopyright = copyright("'", patchIceE)
-    pythonCopyright = []
-    pythonCopyright.append("#!/usr/bin/env python\n");
-    pythonCopyright.extend(makefileCopyright)
-    rubyCopyright = []
-    rubyCopyright.append("#!/usr/bin/env ruby\n");
-    rubyCopyright.extend(makefileCopyright)
+    pythonCopyright = makefileCopyright
+    rubyCopyright = makefileCopyright
     xmlCopyright = []
     xmlCopyright.append("<!--\n");
     xmlCopyright.extend(copyright("", patchIceE))
@@ -231,6 +227,10 @@ if patchIceE:
     if iceje_home:
         replaceAllCopyrights(iceje_home, True)
 else:
+    slice_home = os.path.join(ice_dir, "slice")
+    if slice_home:
+        replaceAllCopyrights(slice_home, False)
+            
     ice_home = os.path.join(ice_dir, "cpp")
     if ice_home:
         replaceAllCopyrights(ice_home, False)

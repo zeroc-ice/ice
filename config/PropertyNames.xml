@@ -8,7 +8,9 @@ This copy of Ice is licensed to you under the terms described in the
 ICE_LICENSE file included in this distribution.
 
 **********************************************************************
+-->
 
+<!--
 This file defines the valid properties that are used by various Ice
 components. It is used to generate source code using the makeprops.py
 utility, so we do not need to redundantly maintain the same property
