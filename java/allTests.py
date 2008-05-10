@@ -56,7 +56,7 @@ tests = [
     ("Glacier2/router", ["service"]),
     ("Glacier2/attack", ["service"]),
     ("IceGrid/simple", ["service"]),
-    ("IceSSL/configuration", ["core"]),
+    ("IceSSL/configuration", ["once"]),
     ]
 
 if __name__ == "__main__":

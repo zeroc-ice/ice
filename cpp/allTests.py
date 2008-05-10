@@ -24,6 +24,7 @@ import TestUtil
 # List of all basic tests.
 #
 tests = [ 
+    ("IceUtil/condvar", ["once", "win32only"]),
     ("IceUtil/thread",  ["once"]),
     ("IceUtil/unicode", ["once"]),
     ("IceUtil/inputUtil",  ["once"]),
@@ -54,7 +55,7 @@ tests = [
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core"]),
     ("Ice/stringConverter", ["core"]),
-    ("IceSSL/configuration", ["core"]),
+    ("IceSSL/configuration", ["once"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),
@@ -85,16 +86,6 @@ tests = [
     ("Glacier2/dynamicFiltering", ["service"]),
     ("Glacier2/staticFiltering", ["service", "noipv6"]),
     ]
-
-#
-# These tests are currently disabled on cygwin
-#
-if TestUtil.isCygwin() == 0:
-    tests += [
-      ]
-
-if TestUtil.isWin32():
-    tests.insert(0, ("IceUtil/condvar", ["once"]))
 
 if __name__ == "__main__":
     TestUtil.run(tests)

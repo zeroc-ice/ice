@@ -887,9 +887,17 @@ def runTests(start, expanded, num = 0, script = False):
                 print "%s*** test not supported with IPv6%s" % (prefix, suffix)
                 continue
 
+            if isVista() and "novista" in config:
+                print "%s*** test not supported under Vista%s" % (prefix, suffix)
+                continue
+
+            if not isWin32() and "win32only" in config:
+                print "%s*** test only supported under Win32%s" % (prefix, suffix)
+                continue
+
             # If this is python and we're running ssl protocol tests
             # then skip. This occurs when using --all.
-            if mono and i.find(os.path.join("cs","test")) != -1 and args.find("ssl") != -1:
+            if mono and ("nomono" in config or (i.find(os.path.join("cs","test")) != -1 and args.find("ssl") != -1)):
                 print "%s*** test not supported with mono%s" % (prefix, suffix)
                 continue
 

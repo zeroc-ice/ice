@@ -52,10 +52,8 @@ tests = [
     ("Glacier2/router", ["service"]),
     ("Glacier2/attack", ["service"]),
     ("IceGrid/simple", ["service"]),
+    ("IceSSL/configuration", ["once", "novista", "nomono"]),
     ]
-
-if not TestUtil.mono:
-    tests += [("IceSSL/configuration", ["core"])]
 
 if __name__ == "__main__":
     TestUtil.run(tests)
