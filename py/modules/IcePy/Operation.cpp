@@ -1399,9 +1399,10 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args)
     // Use the array API to avoid copying the data.
     //
 #if PY_VERSION_HEX < 0x02050000
-    const Ice::Byte* mem;
+    const char* charBuf = 0;
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
-        inParams, 0, reinterpret_cast<const char**>(&mem));
+        inParams, 0, &charBuf);
+    const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
 #else
     Ice::Byte* mem;
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
@@ -1523,9 +1524,10 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args)
     // Use the array API to avoid copying the data.
     //
 #if PY_VERSION_HEX < 0x02050000
-    const Ice::Byte* mem;
+    const char* charBuf = 0;
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
-        inParams, 0, reinterpret_cast<const char**>(&mem));
+        inParams, 0, &charBuf);
+    const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
 #else
     Ice::Byte* mem;
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
@@ -2198,8 +2200,10 @@ IcePy::BlobjectUpcall::response(PyObject* args)
     }
 
 #if PY_VERSION_HEX < 0x02050000
-    const Ice::Byte* mem;
-    Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, reinterpret_cast<const char**>(&mem));
+    const char* charBuf = 0;
+    Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, &charBuf);
+    const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
+
 #else
     Ice::Byte* mem;
     Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, reinterpret_cast<char**>(&mem));
