@@ -52,7 +52,7 @@ IceUtilInternal::ArgVector::~ArgVector()
 void
 IceUtilInternal::ArgVector::setupArgcArgv()
 {
-    argc = _args.size();
+    argc = static_cast<int>(_args.size());
     if((argv = new char*[argc + 1]) == 0)
     {
         throw ::std::bad_alloc();
