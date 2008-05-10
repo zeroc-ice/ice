@@ -131,7 +131,7 @@ def setMakefileYesNoOption(filename, optionName, value):
     optionString = "no"
     if value:
         optionString = "yes"
-    setMakefileOption(filename, optionName, value)
+    setMakefileOption(filename, optionName, optionString)
 
 def setOptimize(filename, optimizeOn):
     setMakefileYesNoOption(filename, "OPTIMIZE", optimizeOn)
