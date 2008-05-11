@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= printer simple_filesystem lifecycle freeze_filesystem
+SUBDIRS		= printer simple_filesystem lifecycle map_filesystem evictor_filesystem
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

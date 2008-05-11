@@ -13,3 +13,8 @@ db/bet
 db/bank
 db/player
 db/log.*
+db/__catalog
+db/bet
+db/bank
+db/player
+db/log.*
