@@ -56,7 +56,7 @@ public:
     virtual void write(const Filesystem::Lines&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
-    FileI(const Ice::CommunicatorPtr&, const Ice::Identity&,
+    FileI(const Ice::ObjectAdapterPtr&, const Ice::Identity&,
           const Filesystem::PersistentFilePtr&, const DirectoryIPtr&);
 
 private:
@@ -78,7 +78,7 @@ public:
     virtual Filesystem::DirectoryPrx createDirectory(const ::std::string&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
-    DirectoryI(const Ice::CommunicatorPtr&, const Ice::Identity&,
+    DirectoryI(const Ice::ObjectAdapterPtr&, const Ice::Identity&,
                const Filesystem::PersistentDirectoryPtr&, const DirectoryIPtr&);
 
     void addReapEntry(const std::string&);

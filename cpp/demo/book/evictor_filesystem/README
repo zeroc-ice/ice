@@ -9,3 +9,5 @@ $ server
 Then run the client in a separate window:
 
 $ client
+
+Type "help" at the client prompt to see a list of commands.

@@ -24,7 +24,7 @@ except ImportError:
 
 import demoscript.Util
 demoscript.Util.defaultLanguage = "Java"
-import demoscript.book.freeze_filesystem
+import demoscript.book.map_filesystem
 
 print "cleaning databases...",
 sys.stdout.flush()
@@ -35,4 +35,4 @@ server = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
 server.expect('.* ready')
 client = demoscript.Util.spawn('java Client')
 
-demoscript.book.freeze_filesystem.run(client, server)
+demoscript.book.map_filesystem.run(client, server)

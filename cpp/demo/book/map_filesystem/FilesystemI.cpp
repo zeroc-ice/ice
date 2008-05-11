@@ -140,9 +140,9 @@ FilesystemI::FileI::destroy(const Current& c)
 
 // FileI constructor
 
-FilesystemI::FileI::FileI(const CommunicatorPtr& communicator, const Identity& id,
+FilesystemI::FileI::FileI(const ObjectAdapterPtr& adapter, const Identity& id,
                           const PersistentFilePtr& file, const DirectoryIPtr& parent) :
-    NodeI(communicator, id, parent), _file(file)
+    NodeI(adapter->getCommunicator(), id, parent), _file(file)
 {
 }
 
@@ -204,6 +204,51 @@ FilesystemI::DirectoryI::find(const std::string& name, const Current& c)
     return i->second;
 }
 
+// Slice Directory::createFile() operation
+
+FilePrx
+FilesystemI::DirectoryI::createFile(const std::string& name, const Current& c)
+{
+    {
+        IceUtil::Mutex::Lock lock(_m);
+
+        if(_destroyed)
+        {
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
+        }
+    }
+
+    IceUtil::StaticMutex::Lock lock(_lcMutex);
+
+    reap();
+
+    if(name.empty() || _dir->nodes.find(name) != _dir->nodes.end())
+    {
+	throw NameInUse(name);
+    }
+
+    PersistentFilePtr persistentFile = new PersistentFile;
+    persistentFile->name = name;
+    CommunicatorPtr communicator = c.adapter->getCommunicator();
+    FileIPtr file = new FileI(c.adapter, communicator->stringToIdentity(IceUtil::generateUUID()),
+                              persistentFile, this);
+    assert(findNode(file->id()) == 0);
+    _map.put(IdentityNodeMap::value_type(file->id(), persistentFile));
+
+    FilePrx proxy = FilePrx::uncheckedCast(c.adapter->createProxy(file->id()));
+
+    NodeDesc nd;
+    nd.name = name;
+    nd.type = FileType;
+    nd.proxy = proxy;
+    _dir->nodes[name] = nd;
+    _map.put(IdentityNodeMap::value_type(_id, _dir));
+
+    file->activate(c.adapter);
+
+    return proxy;
+}
+
 // Slice Directory::createDirectory() operation
 
 DirectoryPrx
@@ -230,7 +275,7 @@ FilesystemI::DirectoryI::createDirectory(const std::string& name, const Current&
     PersistentDirectoryPtr persistentDir = new PersistentDirectory;
     persistentDir->name = name;
     CommunicatorPtr communicator = c.adapter->getCommunicator();
-    DirectoryIPtr dir = new DirectoryI(communicator, communicator->stringToIdentity(IceUtil::generateUUID()),
+    DirectoryIPtr dir = new DirectoryI(c.adapter, communicator->stringToIdentity(IceUtil::generateUUID()),
                                        persistentDir, this);
     assert(findNode(dir->_id) == 0);
     _map.put(IdentityNodeMap::value_type(dir->_id, persistentDir));
@@ -249,51 +294,6 @@ FilesystemI::DirectoryI::createDirectory(const std::string& name, const Current&
     return proxy;
 }
 
-// Slice Directory::createFile() operation
-
-FilePrx
-FilesystemI::DirectoryI::createFile(const std::string& name, const Current& c)
-{
-    {
-        IceUtil::Mutex::Lock lock(_m);
-
-        if(_destroyed)
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-        }
-    }
-
-    IceUtil::StaticMutex::Lock lock(_lcMutex);
-
-    if(name.empty() || _dir->nodes.find(name) != _dir->nodes.end())
-    {
-	throw NameInUse(name);
-    }
-
-    reap();
-
-    PersistentFilePtr persistentFile = new PersistentFile;
-    persistentFile->name = name;
-    CommunicatorPtr communicator = c.adapter->getCommunicator();
-    FileIPtr file = new FileI(communicator, communicator->stringToIdentity(IceUtil::generateUUID()),
-                              persistentFile, this);
-    assert(findNode(file->id()) == 0);
-    _map.put(IdentityNodeMap::value_type(file->id(), persistentFile));
-
-    FilePrx proxy = FilePrx::uncheckedCast(c.adapter->createProxy(file->id()));
-
-    NodeDesc nd;
-    nd.name = name;
-    nd.type = FileType;
-    nd.proxy = proxy;
-    _dir->nodes[name] = nd;
-    _map.put(IdentityNodeMap::value_type(_id, _dir));
-
-    file->activate(c.adapter);
-
-    return proxy;
-}
-
 // Slice Directory::destroy() operation (inherited from Node)
 
 void
@@ -301,7 +301,7 @@ FilesystemI::DirectoryI::destroy(const Current& c)
 {
     if(!_parent)
     {
-        throw Filesystem::PermissionDenied("cannot destroy root directory");
+        throw Filesystem::PermissionDenied("Cannot destroy root directory");
     }
 
     IceUtil::Mutex::Lock lock(_m);
@@ -328,9 +328,9 @@ FilesystemI::DirectoryI::destroy(const Current& c)
 
 // DirectoryI constructor
 
-FilesystemI::DirectoryI::DirectoryI(const CommunicatorPtr& communicator, const Identity& id,
+FilesystemI::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter, const Identity& id,
                                     const PersistentDirectoryPtr& dir, const DirectoryIPtr& parent)
-    : NodeI(communicator, id, parent), _dir(dir)
+    : NodeI(adapter->getCommunicator(), id, parent), _dir(dir)
 {
     //
     // Instantiate the child nodes
@@ -341,20 +341,22 @@ FilesystemI::DirectoryI::DirectoryI(const CommunicatorPtr& communicator, const I
     {
 	Identity id = p->second.proxy->ice_getIdentity();
 	PersistentNodePtr node = findNode(id);
+        NodeIPtr servant;
         if(node)
         {
             if(p->second.type == DirType)
             {
                 PersistentDirectoryPtr pDir = PersistentDirectoryPtr::dynamicCast(node);
                 assert(pDir);
-                DirectoryIPtr d = new DirectoryI(communicator, id, pDir, this);
+                servant = new DirectoryI(adapter, id, pDir, this);
             }
             else
             {
                 PersistentFilePtr pFile = PersistentFilePtr::dynamicCast(node);
                 assert(pFile);
-                FileIPtr f = new FileI(communicator, id, pFile, this);
+                servant = new FileI(adapter, id, pFile, this);
             }
+            servant->activate(adapter);
         }
         else
         {

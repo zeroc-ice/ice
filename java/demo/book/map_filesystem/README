@@ -4,10 +4,10 @@ the Freeze chapter of the Ice manual.
 
 To run it, start the server in a window:
 
-$ server
+$ java Server
 
 Then run the client in a separate window:
 
-$ client
+$ java Client
 
 Type "help" at the client prompt to see a list of commands.

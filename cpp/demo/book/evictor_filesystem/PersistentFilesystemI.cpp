@@ -88,7 +88,7 @@ Filesystem::DirectoryI::destroy(const Ice::Current& c)
 {
     if(!parent)
     {
-        throw Filesystem::PermissionDenied("cannot destroy root directory");
+        throw Filesystem::PermissionDenied("Cannot destroy root directory");
     }
 
     NodeDict children;

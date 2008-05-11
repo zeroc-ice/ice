@@ -27,7 +27,7 @@ public:
     virtual int run(int, char*[])
     {
         //
-        // Terminate cleanly on receipt of a signal
+        // Terminate cleanly on receipt of a signal.
         //
         shutdownOnInterrupt();
 
@@ -70,7 +70,7 @@ public:
                 pRoot->name = "/";
                 persistentMap.insert(IdentityNodeMap::value_type(rootId, pRoot));
             }
-            DirectoryIPtr dir = new DirectoryI(communicator(), rootId, pRoot, 0);
+            DirectoryIPtr dir = new DirectoryI(adapter, rootId, pRoot, 0);
             dir->activate(adapter);
         }
 

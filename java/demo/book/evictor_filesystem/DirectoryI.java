@@ -42,7 +42,7 @@ public final class DirectoryI extends PersistentDirectory
     {
         if(parent == null)
         {
-            throw new PermissionDenied("cannot remove root directory");
+            throw new PermissionDenied("Cannot remove root directory");
         }
 
         java.util.Map children = null;
@@ -52,6 +52,11 @@ public final class DirectoryI extends PersistentDirectory
             if(_destroyed)
             {
                 throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
+            }
+
+            if(!nodes.isEmpty())
+            {
+                throw new PermissionDenied("Cannot destroy non-empty directory");
             }
 
             children = (java.util.Map)((java.util.HashMap)nodes).clone();
