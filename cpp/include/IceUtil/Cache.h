@@ -142,7 +142,7 @@ Cache<Key, Value>::unpin(typename Cache::Position p)
 {
     //
     // There is no risk to erase a 'being loaded' position,
-    // since such position nevr got outside yet!
+    // since such position never got outside yet!
     //
     Mutex::Lock sync(_mutex);
     _map.erase(p);
@@ -287,71 +287,80 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
     }
     catch(...)
     {
-        {
-            Mutex::Lock sync(_mutex);
-            latch = p->second.latch;
-            p->second.latch = 0;
-            _map.erase(p);
-        }
+        Mutex::Lock sync(_mutex);
+        latch = p->second.latch;
+        p->second.latch = 0;
+        _map.erase(p);
         if(latch != 0)  
-        { 
+        {
+            //
+            // It is necessary to call countDown() within the sync
+            // because countDown may not be atomic, and we don't
+            // want the "await" thread to delete the latch while
+            // this thread is still in countDown().
+            //
             assert(latch->getCount() == 1);
             latch->countDown();
         }
         throw;
     }
 
+    Mutex::Lock sync(_mutex);
+    
+    //
+    // p is still valid here -- nobody knows about it. See also unpin().
+    //
+    latch = p->second.latch;
+    p->second.latch = 0;
+    
+    try
     {
-        Mutex::Lock sync(_mutex);
-        
-        //
-        // p is still valid here -- nobody knows about it. See also unpin().
-        //
-        latch = p->second.latch;
-        p->second.latch = 0;
-        
-        try
-        {
-            if(obj != 0) 
-            {  
-                p->second.obj = obj;
-                pinned(obj, p);
-            } 
-            else 
-            { 
-                if(newObj == 0)
-                {
-                    //
-                    // pin() did not find the object
-                    //
-                    
-                    // 
-                    // The waiting threads will have to call load() to see by themselves. 
-                    // 
-                    _map.erase(p);
-                }
-                else
-                {
-                    //
-                    // putIfAbsent() inserts key/newObj
-                    //
-                    p->second.obj = newObj;
-                    pinned(newObj, p);
-                }
+        if(obj != 0) 
+        {  
+            p->second.obj = obj;
+            pinned(obj, p);
+        } 
+        else 
+        { 
+            if(newObj == 0)
+            {
+                //
+                // pin() did not find the object
+                //
+                
+                // 
+                // The waiting threads will have to call load() to see by themselves. 
+                // 
+                _map.erase(p);
             }
-        }
-        catch(...)
-        {
-            if(latch != 0)  
-            { 
-                assert(latch->getCount() == 1);
-                latch->countDown();
+            else
+            {
+                //
+                // putIfAbsent() inserts key/newObj
+                //
+                p->second.obj = newObj;
+                pinned(newObj, p);
             }
-            throw;
         }
     }
+    catch(...)
+    {
+        if(latch != 0)  
+        {  
+            //
+            // Must be called within sync; see ->countDown() note above.
+            //
+            assert(latch->getCount() == 1);
+            latch->countDown();
+        }
+        throw;
+    }
+  
     if(latch != 0)  
-    { 
+    {
+        //
+        // Must be called within sync; see ->countDown() note above.
+        //
         assert(latch->getCount() == 1);
         latch->countDown();
     }
