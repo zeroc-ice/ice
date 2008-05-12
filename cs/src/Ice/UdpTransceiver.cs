@@ -37,10 +37,10 @@ namespace IceInternal
                 {
                     Debug.Assert(callback != null);
                     Debug.Assert(_addr != null);
-                        
+
                     _connect = false;
                     _result = Network.doBeginConnectAsync(_fd, _addr, callback);
-                        
+
                     if(!_result.CompletedSynchronously)
                     {
                         //
@@ -49,19 +49,30 @@ namespace IceInternal
                         return false;
                     }
                 }
-                    
+
                 if(!_connect)
                 {
                     Debug.Assert(_result != null);
                     Network.doEndConnectAsync(_result);
                     _result = null;
+
+                    if(Network.isMulticast(_addr))
+                    {
+                        Network.setMcastGroup(_fd, _addr.Address, _mcastInterface);
+
+                        if(_mcastTtl != -1)
+                        {
+                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
+                        }
+                    }
+
                     if(_traceLevels.network >= 1)
                     {
                         string s = "starting to send udp packets\n" + ToString();
                         _logger.trace(_traceLevels.networkCat, s);
                     }
                 }
-                
+
                 Debug.Assert(!_connect);
             }
             return true;
@@ -546,6 +557,8 @@ namespace IceInternal
             _stats = instance.initializationData().stats;
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _addr = addr;
+            _mcastInterface = mcastInterface;
+            _mcastTtl = mcastTtl;
             _connect = true;
             _incoming = false;
 
@@ -554,16 +567,6 @@ namespace IceInternal
                 _fd = Network.createSocket(true, _addr.AddressFamily);
                 setBufSize(instance);
                 Network.setBlock(_fd, false);
-
-                if(Network.isMulticast(_addr))
-                {
-                    Network.setMcastGroup(_fd, _addr.Address, mcastInterface);
-
-                    if(mcastTtl != -1)
-                    {
-                        Network.setMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
-                    }
-                }
             }
             catch(Ice.LocalException)
             {
@@ -723,6 +726,8 @@ namespace IceInternal
         private int _sndSize;
         private Socket _fd;
         private IPEndPoint _addr;
+        private string _mcastInterface = null;
+        private int _mcastTtl = -1;
         private bool _mcastServer = false;
         private IAsyncResult _result;
 
