@@ -230,7 +230,7 @@ public class AllTests
             // Expect TimeoutException.
             //
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
-            to.holdAdapter(750);
+            to.holdAdapter(2000);
             try
             {
                 byte[] seq = new byte[100000];

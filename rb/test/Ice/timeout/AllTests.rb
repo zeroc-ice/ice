@@ -74,7 +74,7 @@ def allTests(communicator)
     # Expect TimeoutException.
     #
     to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(500))
-    to.holdAdapter(750)
+    to.holdAdapter(2000)
     seq = "\0" * 100000 # 100,000 entries
     begin
         to.sendData(seq)

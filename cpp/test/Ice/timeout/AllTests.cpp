@@ -208,7 +208,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Expect TimeoutException.
         //
         TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(500));
-        to->holdAdapter(750);
+        to->holdAdapter(2000);
         try
         {
             ByteSeq seq(100000);

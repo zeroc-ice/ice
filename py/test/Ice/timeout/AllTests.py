@@ -120,7 +120,7 @@ def allTests(communicator, collocated):
     # Expect TimeoutException.
     #
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
-    to.holdAdapter(750)
+    to.holdAdapter(2000)
     seq = []
     seq[0:100000] = range(0, 100000) # add 100,000 entries.
     seq = ['\x00' for x in seq] # set them all to \x00
