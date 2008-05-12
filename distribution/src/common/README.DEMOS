@@ -167,10 +167,10 @@ Running the PHP demos
 Two PHP demos are provided in the demophp directory.
 
 The Ice extension for PHP is provided as a dynamically-loadable shared
-library (lib/IcePHP.so) in the Linux binary distribution. On all other
-Unix platforms, you'll need to build PHP and the Ice extension from
-source code. Please refer to the INSTALL file included in the IcePHP
-source distribution for more information.
+library in Linux RPM distributions. On all other Unix platforms,
+you'll need to build PHP and the Ice extension from source
+code. Please refer to the php/INSTALL file included in the Ice source
+distribution for more information.
 
 The example in demophp/Ice/hello demonstrates the use of the Ice
 extension for PHP in a dynamic Web page, whereas the example in
