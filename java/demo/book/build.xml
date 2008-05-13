@@ -23,7 +23,6 @@
         <ant dir="simple_filesystem" target="clean"/>
         <ant dir="lifecycle" target="clean"/>
         <ant dir="freeze_filesystem" target="clean"/>
-        <ant dir="lifecycle" target="clean"/>
     </target>
 
 </project>
