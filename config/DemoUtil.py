@@ -194,7 +194,7 @@ def runDemos(args, demos, num = 0):
         print
         if(num > 0):
             print "[" + str(num) + "]",
-        print "*** running demo in " + dir,
+        print "*** running demo in " + dir + args,
         print
 
         if isCygwin():
@@ -266,6 +266,7 @@ def run(demos):
         elif o == "--x64":
             global x64
             x64 = True
+            arg += " " + o
         elif o in ("-c", "--continue"):
             keepGoing = True
         elif o in ("-r", "-R", "--filter", '--rfilter'):
@@ -300,7 +301,6 @@ def run(demos):
         x64 = isCygwin() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
 
     configurePaths()
-
 
     for testFilter, removeFilter in filters:
         if removeFilter:

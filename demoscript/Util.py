@@ -17,6 +17,7 @@ if sys.platform == "win32":
 # Timeout after the initial spawn.
 #
 initialTimeout = 10
+
 #
 # Default timeout on subsequent expect calls.
 #
@@ -41,16 +42,17 @@ import getopt, os, signal
 import demoscript.pexpect as pexpect
 
 def usage():
-    print "usage: " + sys.argv[0] + " --fast --trace --debug --host host --mode=[debug|release] --python=<path>"
+    print "usage: " + sys.argv[0] + " --x64 --fast --trace --debug --host host --mode=[debug|release] --python=<path>"
     sys.exit(2)
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "", ["fast", "trace", "debug", "host=", "mode=", "python="])
+    opts, args = getopt.getopt(sys.argv[1:], "", ["x64", "fast", "trace", "debug", "host=", "mode=", "python="])
 except getopt.GetoptError:
     usage()
 
 fast = False
 trace = False
 mode = 'release'
+x64 = False
 pythonhome = "/cygdrive/c/python25"
 for o, a in opts:
     if o == "--debug":
@@ -61,6 +63,8 @@ for o, a in opts:
         host = a
     if o == "--fast":
         fast = True
+    if o == "--x64":
+        x64 = True
     if o == "--python":
         pythonhome = a
     if o == "--mode":
@@ -83,6 +87,9 @@ def isDarwin():
 
 def isMono():
     return not isCygwin()
+
+def isSolaris():
+    return sys.platform == "sunos5"
 
 def python():
     if isCygwin():
@@ -114,8 +121,6 @@ class spawn(pexpect.spawn):
     def __init__(self, command, language = None):
         if defaultHost:
             command = '%s %s' % (command, defaultHost)
-        if debug:
-            print '(%s)' % (command)
         if not language:
             self.language = defaultLanguage
         else:
@@ -135,6 +140,11 @@ class spawn(pexpect.spawn):
             command = python() + command
         if self.language == "VB":
             command = "./" + command
+        if self.language == "Java":
+            if isSolaris() and x64:
+                command = command.replace("java", "java -d64")
+        if debug:
+            print '(%s)' % (command)
         pexpect.spawn.__init__(self, command, logfile = logfile)
 
     def expect(self, pattern, timeout = defaultTimeout, searchwindowsize=None):
