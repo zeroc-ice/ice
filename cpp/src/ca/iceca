@@ -72,7 +72,7 @@ if sys.argv[script] == "import":
 	sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "--key-pass=", "--store-pass=", "java", "cs"])
+	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "key-pass=", "store-pass=", "java", "cs"])
     except getopt.GetoptError:
 	usage()
 
@@ -121,10 +121,10 @@ if sys.argv[script] == "import":
 	key = args[2]
 	store = args[3]
 
-	if not keyPass:
+	if keyPass is None:
 	    keyPass = getpass.getpass("Enter private key passphrase:")
 
-	while not storePass or len(storePass) == 0:
+	while storePass is None or len(storePass) == 0:
 	    storePass = getpass.getpass("Enter keystore password:")
 
 	#
@@ -208,8 +208,9 @@ if sys.argv[script] == "import":
     if cs:
 	if len(args) != 3:
 	    usage()
-	if storePass:
-	    usage()
+	if storePass is not None:
+	    print 'Usage: %s:  "--store-pass" is only supported with --java' % sys.argv[script]
+	    sys.exit(1)
 
 	cert = args[0]
 	key = args[1]
@@ -218,7 +219,7 @@ if sys.argv[script] == "import":
 	    print pkcs12cert + ": file exists"
 	    sys.exit(1)
 
-	if not keyPass:
+	if keyPass is None:
 	    keyPass = getpass.getpass("Enter private key passphrase:")
 
 	#

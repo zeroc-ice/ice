@@ -66,6 +66,7 @@ makecerts.expect("Sign the certificate?")
 makecerts.sendline("y")
 makecerts.expect("1 out of 1 certificate requests certified, commit?")
 makecerts.sendline("y")
+makecerts.waitTestSuccess()
 print "ok"
 
 print "starting icegrid...",
