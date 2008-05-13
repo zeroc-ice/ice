@@ -39,7 +39,7 @@ Table of Contents
   6. Platform specific notes
      - Solaris x86
      - Mono
-     - IBM JDKs
+     - IBM JDK
 
 ======================================================================
 1. New Features
@@ -920,10 +920,10 @@ IP address. Otherwise, it can't figure out the local IP addresses and
 the creation of object adapters listening on INADDR_ANY/0.0.0.0 fails
 with an Ice::DNSException.
 
-IBM JDKs
+IBM JDK
 --------
 
-The IBM JDKs ship with limited jurisdiction policy files for the
+The IBM JDK ships with limited jurisdiction policy files for the
 cryptographic libraries. This creates an issue with iceca when using
 iceca java --import. The import fails with an error similar to:
 
