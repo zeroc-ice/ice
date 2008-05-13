@@ -19,5 +19,4 @@ exclude=**/*Makefile*
 exclude=**/Debug/**
 exclude=**/Release/**
 exclude=Database/**
-exclude=**/UpgradeLog.XML
 

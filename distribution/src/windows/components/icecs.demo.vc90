@@ -19,3 +19,4 @@ exclude=**/Debug/**
 exclude=**/Release/**
 exclude=**/obj/**
 exclude=_UpgradeReport_Files/**
+exclude=UpgradeLog.XML
