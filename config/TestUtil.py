@@ -13,13 +13,13 @@ from threading import Thread
 
 # Global flags and their default values.
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp" or "ssl".
-compress = 0                    # Set to 1 to enable bzip2 compression.
-serialize = 0                   # Set to 1 to have tests use connection serialization
+compress = False                # Set to True to enable bzip2 compression.
+serialize = False               # Set to True to have tests use connection serialization
 host = "127.0.0.1"              # Default to loopback.
-debug = 0                       # Set to 1 to enable test suite debugging.
-mono =  0                       # Set to 1 when not on Windows
-keepGoing = 0                   # Set to 1 to have the tests continue on failure.
-ipv6 = 0                        # Default to use IPv4 only
+debug = False                   # Set to True to enable test suite debugging.
+mono = False                    # Set to True when not on Windows
+keepGoing = False               # Set to True to have the tests continue on failure.
+ipv6 = False                    # Default to use IPv4 only
 ice_home = None                 # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
 javaCmd = "java"                # Default java loader
@@ -155,6 +155,7 @@ def isSolaris():
 def isSparc():
     p = os.popen("uname -m")
     l = p.readline().strip()
+    p.close()
     if l == "sun4u":
         return True
     else:
@@ -220,7 +221,7 @@ def run(tests, root = False):
     filters = []
     for o, a in opts:
         if o == "--continue":
-            keepGoing = 1
+            keepGoing = True
         elif o in ("-l", "--loop"):
             loop = True
         elif o in ("-r", "-R", "--filter", '--rfilter'):
@@ -303,7 +304,7 @@ def run(tests, root = False):
             print x
 
 if not isWin32():
-    mono = 1
+    mono = True
     
 toplevel = None 
 
@@ -725,8 +726,8 @@ class DriverConfig:
     mono = False
     type = None
     overrides = None
-    ipv6 = 0
-    x64 = 0
+    ipv6 = False
+    x64 = False
 
     def __init__(self, type = None):
         global protocol
@@ -802,7 +803,7 @@ def getCommandLine(exe, config, env=None):
     if config.type == "server":
         components.append("--Ice.PrintProcessId=1 --Ice.PrintAdapterReady=1 --Ice.ServerIdleTime=30")
 
-    if config.ipv6 == 1:
+    if config.ipv6:
         components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1 --Ice.IPv6=1")
     elif config.host != None and len(config.host) != 0:
         components.append("--Ice.Default.Host=%s" % config.host)
@@ -833,7 +834,7 @@ def getCommandLine(exe, config, env=None):
         print >>output, "%s -ea" % javaCmd,
         if isSolaris() and config.x64:
             print >>output, "-d64",
-        if config.ipv6 != 1:
+        if not config.ipv6:
             print >>output, "-Djava.net.preferIPv4Stack=true",
         print >>output,  exe,
     elif config.lang == "py":
@@ -935,7 +936,7 @@ def runTests(start, expanded, num = 0, script = False):
                         print "[" + str(num) + "]",
                     message = "test in " + os.path.abspath(dir) + " failed with exit status", status,
                     print message
-                    if keepGoing == 0:
+                    if not keepGoing:
                         sys.exit(status)
                     else:
                         print " ** Error logged and will be displayed again when suite is completed **"
@@ -1222,19 +1223,19 @@ def processCmdLine():
             x64 = True
         elif o == "--compress":
             global compress
-            compress = 1
+            compress = True
         elif o == "--serialize":
             global serialize
-            serialize = 1
+            serialize = True
         elif o == "--host":
             global host
             host = a
         elif o == "--ipv6":
             global ipv6
-            ipv6 = 1
+            ipv6 = True
         elif o == "--debug":
             global debug
-            debug = 1
+            debug = True
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
