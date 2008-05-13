@@ -726,6 +726,7 @@ class DriverConfig:
     type = None
     overrides = None
     ipv6 = 0
+    x64 = 0
 
     def __init__(self, type = None):
         global protocol
@@ -734,6 +735,7 @@ class DriverConfig:
         global host 
         global mono
         global ipv6
+        global x64
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -742,6 +744,7 @@ class DriverConfig:
         self.mono = mono
         self.type = type
         self.ipv6 = ipv6
+        self.x64 = x64
         
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -828,6 +831,8 @@ def getCommandLine(exe, config, env=None):
         print >>output, "ruby", exe,
     elif config.lang == "java":
         print >>output, "%s -ea" % javaCmd,
+        if isSolaris() and config.x64:
+            print >>output, "-d64",
         if config.ipv6 != 1:
             print >>output, "-Djava.net.preferIPv4Stack=true",
         print >>output,  exe,
