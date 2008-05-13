@@ -39,6 +39,10 @@ if demoscript.Util.defaultHost:
 else:
     args = ''
 
+# If this is cygwin add the location of the real python to the PATH.
+if demoscript.Util.isCygwin():
+    os.environ["PATH"] = demoscript.Util.pythonhome + os.pathsep + os.environ["PATH"]
+
 print "creating certificates...",
 sys.stdout.flush()
 makecerts = demoscript.Util.spawn('python makecerts.py')
@@ -62,10 +66,6 @@ makecerts.expect("Sign the certificate?")
 makecerts.sendline("y")
 makecerts.expect("1 out of 1 certificate requests certified, commit?")
 makecerts.sendline("y")
-makecerts.expect("Enter private key passphrase:")
-makecerts.sendline("password")
-makecerts.expect("Enter keystore password:")
-makecerts.sendline("password")
 print "ok"
 
 print "starting icegrid...",

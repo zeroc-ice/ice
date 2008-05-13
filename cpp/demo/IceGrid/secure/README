@@ -67,8 +67,7 @@ the GUI Login dialog:
   * In the SSL configuration section, select the "Basic" tab
   * Set the Keystore file to the certs.jks file from the certs
     directory of this demo
-  * Set the password to the Java keystore password you specified when
-    running makecerts.py
+  * Set the password to the Java keystore password to "password"
 
 - To connect via Glacier2, in the "Routed" tab:
 
@@ -77,9 +76,8 @@ the GUI Login dialog:
   * Set the Glacier2 router endpoints to "ssl -p 4064"
   * In the SSL configuration section, select the "Basic" tab
   * Set the Keystore file to the certs.jks file from the certs
-    directory of this demo.
-  * Set the password to the Java keystore password you specified when
-    running makecerts.py
+    directory of this demo
+  * Set the password to the Java keystore password to "password"
 
 The IceGrid registry and Glacier2 router are configured to use the
 "null permissions verifier" so you can use any username/password to

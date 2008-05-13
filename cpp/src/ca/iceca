@@ -68,20 +68,26 @@ for o, a in opts:
 
 if sys.argv[script] == "import":
     def usage():
-	print "usage: " + sys.argv[script] + " [--overwrite] [--java alias cert key keystore] [--cs cert key out-file]"
+	print "usage: " + sys.argv[script] + " [--overwrite] [--key-pass password] [--store-pass password] [--java alias cert key keystore ] [--cs cert key out-file]"
 	sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "java", "cs"])
+	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "--key-pass=", "--store-pass=", "java", "cs"])
     except getopt.GetoptError:
 	usage()
 
     java = False
     cs = False
+    keyPass = None
+    storePass = None
     overwrite = False
     for o, a in opts:
 	if o == "--overwrite":
 	    overwrite = True
+	if o == "--key-pass":
+	    keyPass = a
+	if o == "--store-pass":
+	    storePass = a
 	if o == "--java":
 	    java = True
 	if o == "--cs":
@@ -115,10 +121,10 @@ if sys.argv[script] == "import":
 	key = args[2]
 	store = args[3]
 
-	keyPass = getpass.getpass("Enter private key passphrase:")
+	if not keyPass:
+	    keyPass = getpass.getpass("Enter private key passphrase:")
 
-	storePass = ""
-	while len(storePass) == 0:
+	while not storePass or len(storePass) == 0:
 	    storePass = getpass.getpass("Enter keystore password:")
 
 	#
@@ -202,6 +208,8 @@ if sys.argv[script] == "import":
     if cs:
 	if len(args) != 3:
 	    usage()
+	if storePass:
+	    usage()
 
 	cert = args[0]
 	key = args[1]
@@ -210,7 +218,8 @@ if sys.argv[script] == "import":
 	    print pkcs12cert + ": file exists"
 	    sys.exit(1)
 
-	keyPass = getpass.getpass("Enter private key passphrase:")
+	if not keyPass:
+	    keyPass = getpass.getpass("Enter private key passphrase:")
 
 	#
 	# We use secure temporary files to transfer the password to

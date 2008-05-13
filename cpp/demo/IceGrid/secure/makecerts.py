@@ -61,6 +61,6 @@ try:
 except OSError:
     pass
 
-iceca("import --java ca_cert ca/db/ca_cert.pem ca/db/ca_key.pem certs.jks")
+iceca("import --key-pass password --store-pass password --java ca_cert ca/db/ca_cert.pem ca/db/ca_key.pem certs.jks")
 
 os.chdir("..")
