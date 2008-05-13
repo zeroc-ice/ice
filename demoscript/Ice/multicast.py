@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python:
 # **********************************************************************
 #
 # Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
@@ -53,9 +53,12 @@ def run(clientCmd, serverCmd):
     runDemo(clientCmd, serverCmd)
     print "ok"
 
-    print "testing multicast discovery (IPv6)...",
-    sys.stdout.flush()
-    serverCmd += " --Ice.IPv6=1 --Discover.Endpoints='udp -h \"ff01::1:1\" -p 10000'"
-    clientCmd += " --Ice.IPv6=1 --Discover.Proxy='discover:udp -h \"ff01::1:1\" -p 10000'"
-    runDemo(clientCmd, serverCmd)
+    if demoscript.Util.defaultLanguage == "Java" and demoscript.Util.isCygwin():
+        print "skipping testing multicast discovery (IPv6) under windows...",
+    else:
+        print "testing multicast discovery (IPv6)...",
+        sys.stdout.flush()
+        serverCmd += " --Ice.IPv6=1 --Discover.Endpoints='udp -h \"ff01::1:1\" -p 10000'"
+        clientCmd += " --Ice.IPv6=1 --Discover.Proxy='discover:udp -h \"ff01::1:1\" -p 10000'"
+        runDemo(clientCmd, serverCmd)
     print "ok"
