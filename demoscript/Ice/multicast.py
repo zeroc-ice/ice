@@ -1,4 +1,4 @@
-#!/usr/bin/env python:
+#!/usr/bin/env python
 # **********************************************************************
 #
 # Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.

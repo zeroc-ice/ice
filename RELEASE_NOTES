@@ -932,7 +932,7 @@ iceca java --import. The import fails with an error similar to:
 
 To solve this problem you must install the unlimited jurisdiction
 policy files.  You can find full details, including a link to download
-the policy files for both JDK 1.4.2 and JDK 1.5, at:
+the policy files at:
 
   http://www.ibm.com/developerworks/java/jdk/security/50/
 
