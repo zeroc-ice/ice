@@ -196,23 +196,20 @@ install:: all
 	copy $(NODE_SERVER) $(install_bindir)
 	copy $(REGISTRY_SERVER) $(install_bindir)
 
-!if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(ADMIN:.exe=.tds) $(install_bindir)
 	copy $(NODE_SERVER:.exe=.tds) $(install_bindir)
 	copy $(REGISTRY_SERVER:.exe=.tds) $(install_bindir)
 
-!else
+!elseif "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(ADMIN:.exe=.pdb) $(install_bindir)
 	copy $(NODE_SERVER:.exe=.pdb) $(install_bindir)
 	copy $(REGISTRY_SERVER:.exe=.pdb) $(install_bindir)
-
-!endif
 
 !endif
 

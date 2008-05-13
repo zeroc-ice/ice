@@ -108,9 +108,8 @@ install:: all
 	copy $(CLIENT) $(install_bindir)
 	copy $(CALC) $(install_bindir)
 
-!if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)
@@ -118,15 +117,13 @@ install:: all
 	copy $(CLIENT:.exe=.tds) $(install_bindir)
 	copy $(CALC:.exe=.tds) $(install_bindir)
 
-!else
+!elseif "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 	copy $(SERVER:.exe=.pdb) $(install_bindir)
 	copy $(CLIENT:.exe=.pdb) $(install_bindir)
 	copy $(CALC:.exe=.pdb) $(install_bindir)
-
-!endif
 
 !endif
 

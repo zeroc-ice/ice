@@ -51,19 +51,16 @@ clean::
 install:: all
 	copy $(TOOL) $(install_bindir)
 
-!if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(TOOL:.exe=.tds) $(install_bindir)
 
-!else
+!elseif "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(TOOL:.exe=.pdb) $(install_bindir)
-
-!endif
 
 !endif
 

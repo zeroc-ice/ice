@@ -92,21 +92,18 @@ install:: all
 	copy $(TRANSFORMDB) $(install_bindir)
 	copy $(DUMPDB) $(install_bindir)
 
-!if "$(OPTIMIZE)" != "yes"
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(TRANSFORMDB:.exe=.tds) $(install_bindir)
 	copy $(DUMPDB:.exe=.tds) $(install_bindir)
 
-!else
+!elseif "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(TRANSFORMDB:.exe=.pdb) $(install_bindir)
 	copy $(DUMPDB:.exe=.pdb) $(install_bindir)
-
-!endif
 
 !endif
 
