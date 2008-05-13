@@ -20,12 +20,7 @@ Demos in this directory:
 
   An implementation of the file system that supports life cycle operations.
 
-- map_filesystem
+- freeze_filesystem
 
   An implementation of the persistent version of the file system
-  based on Freeze maps as described in the Freeze chapter.
-
-- evictor_filesystem
-
-  An implementation of the persistent version of the file system
-  based on a background-save evictor as described in the Freeze chapter.
+  example described in the Freeze chapter.

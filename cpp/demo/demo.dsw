@@ -192,16 +192,10 @@ Package=<4>
     Project_Dep_Name replicationS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name mapfsC
+    Project_Dep_Name freezefsC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name mapfsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name evictorfsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name evictorfsS
+    Project_Dep_Name freezefsS
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name lifecyclefsC
@@ -558,7 +552,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mapfsC"=".\book\map_filesystem\mapfsC.dsp" - Package Owner=<4>
+Project: "freezefsC"=".\book\freeze_filesystem\freezefsC.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -567,40 +561,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name mapfsS
+    Project_Dep_Name freezefsS
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "mapfsS"=".\book\map_filesystem\mapfsS.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "evictorfsC"=".\book\evictor_filesystem\evictorfsC.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name evictorfsS
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "evictorfsS"=".\book\evictor_filesystem\evictorfsS.dsp" - Package Owner=<4>
+Project: "freezefsS"=".\book\freeze_filesystem\freezefsS.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -14,7 +14,7 @@ previous = ""
 
 commentre = re.compile("^#")
 
-for top_srcdir in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
+for top_srcdir in [".", "..", "../..", "../../..", "../../../.."]:
     top_srcdir = os.path.normpath(top_srcdir)
     if os.path.exists(os.path.join(top_srcdir, "..", "config", "TestUtil.py")):
         break
