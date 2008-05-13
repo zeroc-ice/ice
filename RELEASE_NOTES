@@ -39,6 +39,7 @@ Table of Contents
   6. Platform specific notes
      - Solaris x86
      - Mono
+     - IBM JDKs
 
 ======================================================================
 1. New Features
@@ -918,3 +919,22 @@ Mono requires the hostname to be correctly setup and to resolve to an
 IP address. Otherwise, it can't figure out the local IP addresses and
 the creation of object adapters listening on INADDR_ANY/0.0.0.0 fails
 with an Ice::DNSException.
+
+IBM JDKs
+--------
+
+The IBM JDKs ship with limited jurisdiction policy files for the
+cryptographic libraries. This creates an issue with iceca when using
+iceca java --import. The import fails with an error similar to:
+
+   "java.lang.SecurityException: Unsupported keysize or algorithm
+   parameters"
+
+To solve this problem you must install the unlimited jurisdiction
+policy files.  You can find full details, including a link to download
+the policy files for both JDK 1.4.2 and JDK 1.5, at:
+
+  http://www.ibm.com/developerworks/java/jdk/security/50/
+
+Once you have downloaded the policy files, you must unpack them into
+the jre/lib/security directory.
