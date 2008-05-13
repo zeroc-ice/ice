@@ -191,11 +191,11 @@ namespace IceInternal
 
         public static bool connectionLost(System.IO.IOException ex)
         {
-            string msg = ex.Message.ToLower();
-            return msg.IndexOf("connection was forcibly closed") >= 0 ||
-                   msg.IndexOf("remote party has closed the transport stream") >= 0 ||
-                   msg.IndexOf("established connection was aborted") >= 0 ||
-                   msg.IndexOf("received an unexpected eof or 0 bytes from the transport stream") >= 0;
+            if(ex.InnerException != null && ex.InnerException is Win32Exception)
+            {
+                return connectionLost(ex.InnerException as Win32Exception);
+            }
+            return false;
         }
 
         public static bool connectionRefused(Win32Exception ex)
@@ -224,6 +224,10 @@ namespace IceInternal
 
         public static bool timeout(System.IO.IOException ex)
         {
+            //
+            // TODO: Instead of testing for an English substring, we need to examine the inner
+            // exception (if there is one).
+            //
             return ex.Message.IndexOf("period of time") >= 0;
         }
 
