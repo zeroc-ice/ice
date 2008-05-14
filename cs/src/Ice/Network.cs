@@ -191,10 +191,34 @@ namespace IceInternal
 
         public static bool connectionLost(System.IO.IOException ex)
         {
+            //
+            // In some cases the IOException has an inner exception that we can pass directly
+            // to the other overloading of connectionLost().
+            //
             if(ex.InnerException != null && ex.InnerException is Win32Exception)
             {
                 return connectionLost(ex.InnerException as Win32Exception);
             }
+
+            //
+            // In other cases the IOException has no inner exception. We could examine the
+            // exception's message, but that is fragile due to localization issues. We
+            // resort to extracting the value of the protected HResult member via reflection.
+            //
+            int hr = (int)ex.GetType().GetProperty("HResult",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).GetValue(ex, null);
+
+            //
+            // This value corresponds to the following errors:
+            //
+            // "Authentication failed because the remote party has closed the transport stream"
+            //
+            if(hr == -2146232800)
+            {
+                return true;
+            }
+
             return false;
         }
 
