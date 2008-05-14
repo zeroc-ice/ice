@@ -649,7 +649,6 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             //
             // Create new ACL
             //
-            PACL newAcl = 0;
             res = SetEntriesInAcl(1, &ea, acl, &newAcl);
             if(res != ERROR_SUCCESS)
             {
@@ -673,12 +672,12 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     }
     catch(...)
     {
-        LocalFree(acl);
+        LocalFree(sd);
         LocalFree(newAcl);
         throw;
     }
 
-    LocalFree(acl);
+    LocalFree(sd);
     LocalFree(newAcl);
 }
 
