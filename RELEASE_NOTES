@@ -40,6 +40,7 @@ Table of Contents
      - Solaris x86
      - Mono
      - IBM JDK
+     - Red Hat Enterprise Linux 5.1
 
 ======================================================================
 1. New Features
@@ -938,3 +939,15 @@ the policy files at:
 
 Once you have downloaded the policy files, you must unpack them into
 the jre/lib/security directory.
+
+Red Hat Enterprise Linux 5.1
+----------------------------
+
+On Red Hat Enterprise Linux 5.1 systems, Ice connection establishment
+to inactive ports of the IPv6 loopback address might hang instead of
+reporting immediately "connection refused" (ECONNREFUSED). The hang
+can last for several minutes and is similar to hangs you would get if
+you try to connect to an unreachable address. We are still
+investigating the exact cause of this hang but so far we believe this
+is a Linux issue that occurs only with the IPv6 implementation of
+RHEL51.
