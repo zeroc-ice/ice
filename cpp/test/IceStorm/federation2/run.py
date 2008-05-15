@@ -337,6 +337,11 @@ def runtest(type, **args):
     print "verifying that the link has been destroyed...",
     sys.stdout.flush()
     line = admin(adminIceStormReference, "links TestIceStorm1")
+    nRetry = 5
+    while len(line) > 0 and nRetry > 0:
+        line = admin(adminIceStormReference, "links TestIceStorm1")
+        time.sleep(1) # Give more time for unsubscription to propagate.
+        nRetry -= 1
     if len(line) > 0:
         print line
         TestUtil.killServers()
