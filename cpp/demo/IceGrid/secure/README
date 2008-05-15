@@ -15,7 +15,8 @@ Run the makecerts.py script to create the certificates:
 
 $ makecerts.py
 
-And follow the instructions from the script.
+And follow the instructions from the script. Note that to run the
+script you must have java (Java5 or greater) in your path.
 
 For simplicity, the certificates created by makecerts.py are not
 protected with a password. In a real world deployment, to ensure that
