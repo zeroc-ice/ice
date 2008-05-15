@@ -29,7 +29,7 @@ public:
 
         // Create the root directory.
         //
-        DirectoryIPtr root = new DirectoryI();
+        DirectoryIPtr root = new DirectoryI;
         root->activate(adapter);
 
         // All objects are created, allow client requests now.
