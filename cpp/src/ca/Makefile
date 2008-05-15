@@ -40,11 +40,9 @@ install::
 	    $(INSTALL_PROGRAM) $$i $(prefix)/bin ;\
 	    chmod a+x $(prefix)/bin/$$i ;\
 	done
-        ifneq ($(UNAME),HP-UX)
-	    @for i in $(CLASS_FILES) ; \
-	    do \
-		echo "Installing $$i" ; \
-		$(INSTALL_PROGRAM) $$i $(prefix)/lib ;\
-		chmod a+x $(prefix)/lib/$$i ;\
-	    done
-        endif
+	@for i in $(CLASS_FILES) ; \
+	do \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_PROGRAM) $$i $(prefix)/lib ;\
+	    chmod a+x $(prefix)/lib/$$i ;\
+	done
