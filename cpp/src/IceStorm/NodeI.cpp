@@ -303,6 +303,7 @@ NodeI::check()
     // the election/reorg will re-schedule the check.
     if(_destroy || _state == NodeStateElection || _state == NodeStateReorganization || _coord != _id)
     {
+        _checkTask = 0;
         return;
     }
 
