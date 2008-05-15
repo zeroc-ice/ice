@@ -11,6 +11,12 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
+#
+# Parallel builds are not supported because multiple executions of slice2py could
+# attempt to modify the __init__.py file simultaneously.
+#
+.NOTPARALLEL:
+
 ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_Communicator_ice.py \
 		  Ice_CommunicatorF_ice.py \
