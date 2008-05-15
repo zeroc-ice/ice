@@ -34,7 +34,7 @@ public:
             Lock sync(*this);
             while(!_called)
             {
-                timedWait(IceUtil::Time::seconds(5));
+                timedWait(IceUtil::Time::seconds(30));
                 if(!_called)
                 {
                     return false; // Must be timeout.

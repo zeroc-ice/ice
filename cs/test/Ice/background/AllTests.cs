@@ -37,7 +37,7 @@ public class AllTests
                 {
                     while(!_called)
                     {
-                        Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
+                        Monitor.Wait(this, TimeSpan.FromMilliseconds(30000));
 
                         if(!_called)
                         {
