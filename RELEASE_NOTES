@@ -37,10 +37,12 @@ Table of Contents
      - Removed APIs
      - Deprecated APIs
   6. Platform specific notes
-     - Solaris x86
-     - Mono
      - IBM JDK
+     - Java and IPv6
+     - Mono
      - Red Hat Enterprise Linux 5.1
+     - Solaris x86
+
 
 ======================================================================
 1. New Features
@@ -280,9 +282,6 @@ an appropriate IP address for your endpoints.
 
 Appendix D of the Ice manual explains the syntax for specifying IPv6
 and UDP multicast addresses in endpoints.
-
-Note that IPv6 is not currently supported in Java on Windows due to a
-bug in the JVM.
 
 
 Updated C# mapping
@@ -901,6 +900,59 @@ the use of these APIs as soon as possible.
 ======================================================================
 
 
+IBM JDK
+--------
+
+The IBM JDK ships with limited jurisdiction policy files for the
+cryptographic libraries. This creates an issue for Ice's certificate
+authority script (iceca) when running with the command-line options
+"iceca java --import". The import fails with an error similar to:
+
+  "java.lang.SecurityException: Unsupported keysize or algorithm
+  parameters"
+
+To solve this problem you must install the unlimited jurisdiction
+policy files. For more information, including a link to download
+the policy files, see:
+
+  http://www.ibm.com/developerworks/java/jdk/security/50/
+
+Once you have downloaded the policy files, you must unpack them into
+the jre/lib/security directory.
+
+
+Java and IPv6
+-------------
+
+IPv6 is not currently supported in Java on Windows due to a bug in the
+JVM. Refer to the bug database for more information:
+
+  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6230761
+
+
+Mono
+----
+
+Mono requires that a system's host name be correctly configured and
+that it resolves to an IP address. Otherwise, Mono is unable to
+determine the local IP addresses, which causes the creation of object
+adapters that listen on INADDR_ANY/0.0.0.0 to fail with an
+Ice::DNSException.
+
+
+Red Hat Enterprise Linux 5.1
+----------------------------
+
+On Red Hat Enterprise Linux 5.1 systems, Ice connection establishment
+to inactive ports of the IPv6 loopback address might hang instead of
+immediately reporting "connection refused" (ECONNREFUSED). The hang
+can last for several minutes and is similar to hangs you would get if
+you try to connect to an unreachable address. We are still
+investigating the exact cause of this hang but so far we believe this
+is a Linux issue that occurs only with the IPv6 implementation of
+RHEL 5.1.
+
+
 Solaris 10 x86
 --------------
 
@@ -911,43 +963,3 @@ available as of this Ice release).
 
 Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
 more information.
-
-
-Mono
-----
-
-Mono requires the hostname to be correctly setup and to resolve to an
-IP address. Otherwise, it can't figure out the local IP addresses and
-the creation of object adapters listening on INADDR_ANY/0.0.0.0 fails
-with an Ice::DNSException.
-
-IBM JDK
---------
-
-The IBM JDK ships with limited jurisdiction policy files for the
-cryptographic libraries. This creates an issue with iceca when using
-iceca java --import. The import fails with an error similar to:
-
-   "java.lang.SecurityException: Unsupported keysize or algorithm
-   parameters"
-
-To solve this problem you must install the unlimited jurisdiction
-policy files.  You can find full details, including a link to download
-the policy files at:
-
-  http://www.ibm.com/developerworks/java/jdk/security/50/
-
-Once you have downloaded the policy files, you must unpack them into
-the jre/lib/security directory.
-
-Red Hat Enterprise Linux 5.1
-----------------------------
-
-On Red Hat Enterprise Linux 5.1 systems, Ice connection establishment
-to inactive ports of the IPv6 loopback address might hang instead of
-reporting immediately "connection refused" (ECONNREFUSED). The hang
-can last for several minutes and is similar to hangs you would get if
-you try to connect to an unreachable address. We are still
-investigating the exact cause of this hang but so far we believe this
-is a Linux issue that occurs only with the IPv6 implementation of
-RHEL51.
