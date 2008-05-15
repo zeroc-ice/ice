@@ -33,14 +33,14 @@ CPP_COMPILER            = VC60
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.2.5
+PHP_HOME		= C:\php-5.2.6
 !endif
 
 #
 # Set PHP_BIN_HOME to your PHP binary installation directory.
 #
 !if "$(PHP_BIN_HOME)" == ""
-PHP_BIN_HOME		= C:\php-5.2.5-Win32
+PHP_BIN_HOME		= C:\php-5.2.6-Win32
 !endif
 
 #
