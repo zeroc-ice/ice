@@ -54,6 +54,7 @@ Ice_StatsF_ice.py
 Ice_Stats_ice.py
 Glacier2_SSLInfo_ice.py
 IceGrid_FileParser_ice.py
+IceGrid_Locator_ice.py
 IceGrid_Registry_ice.py
 IceGrid_Session_ice.py
 IceGrid_UserAccountMapper_ice.py
