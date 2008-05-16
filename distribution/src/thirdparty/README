@@ -196,7 +196,7 @@ If you have not already applied the patch for mcpp, please read the
 Ice requires the library version of mcpp, so configure mcpp as shown
 below:
 
-  $ ./configure --enable-mcpplib --disable-shared
+  $ ./configure CFLAGS=-fno-common --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
 
