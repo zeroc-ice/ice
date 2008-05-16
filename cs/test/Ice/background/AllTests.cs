@@ -841,10 +841,11 @@ public class AllTests
         }
 
         background.ice_ping();
+        configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
         configuration.readException(new Ice.SocketException());
         if(!background.op_async(cbEx))
         {
-            cbEx.sent(true);
+            test(cbEx.sent(true));
         }
         test(cbEx.exception(true));
         configuration.readException(null);
