@@ -222,6 +222,9 @@ IceGrid_Exception_ice.py: $(slicedir)/IceGrid/Exception.ice
 IceGrid_FileParser_ice.py: $(slicedir)/IceGrid/FileParser.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/FileParser.ice
 
+IceGrid_Locator_ice.py: $(slicedir)/IceGrid/Locator.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Locator.ice
+
 IceGrid_Observer_ice.py: $(slicedir)/IceGrid/Observer.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Observer.ice
 
