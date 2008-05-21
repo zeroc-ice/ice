@@ -49,35 +49,49 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 
 ifneq ($(PYTHON_HOME),)
-    PYTHON_VERSION	= $(notdir $(wildcard $(PYTHON_HOME)/include/python2*))
+    #
+    # If multiple versions of Python are installed and you want a specific
+    # version used for building the Ice extension, then set PYTHON_VERSION
+    # to "python2.3", "python2.4", or "python2.5".
+    #
+    PYTHON_VERSION	?= $(notdir $(wildcard $(PYTHON_HOME)/include/python2*))
+
+    ifeq ($(words $(PYTHON_VERSION)),0)
+        $(error No Python version found in PYTHON_HOME=$(PYTHON_HOME). See config/Make.rules)
+    endif
+    ifneq ($(words $(PYTHON_VERSION)),1)
+        $(error More than one Python version found in PYTHON_HOME=$(PYTHON_HOME). Select a version by setting PYTHON_VERSION. See config/Make.rules)
+    endif
 
     PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
-    #
-    # The Python shared library is installed in $(PYTHON_HOME)/lib on HP-UX
-    # rather than $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config.
-    #
-    PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib
+
+    ifeq ($(UNAME), HP-UX)
+        #
+        # The Python shared library is installed in $(PYTHON_HOME)/lib on HP-UX
+        # rather than $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config.
+        #
+        PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib
+    else
+        PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
+    endif
 else
     #
     # If multiple versions of Python are installed and you want a specific
     # version used for building the Ice extension, then set PYTHON_VERSION
-    # to "python2.3" or "python2.4".
+    # to "python2.3", "python2.4", or "python2.5".
     #
     PYTHON_VERSION	?= $(word 1,$(notdir $(wildcard /usr/include/python2.[345]*)))
     ifeq ($(PYTHON_VERSION),)
       python_darwin_home = /System/Library/Frameworks/Python.framework/Versions/Current
       PYTHON_VERSION 	= $(word 1,$(notdir $(wildcard $(python_darwin_home)/include/python2.[345]*)))
     endif
-    PYTHON_INCLUDE_DIR	= /usr/include/$(PYTHON_VERSION)
-    PYTHON_LIB_DIR	= /usr/lib/$(PYTHON_VERSION)/config
-endif
 
-ifeq ($(PYTHON_VERSION),)
-    ifneq ($(PYTHON_HOME),)
-        $(error Unable to find a Python interpreter at PYTHON_HOME=$(PYTHON_HOME). See config/Make.rules)
-    else
+    ifeq ($(PYTHON_VERSION),)
         $(error Unable to find Python 2.3, 2.4, or 2.5. See config/Make.rules)
     endif
+
+    PYTHON_INCLUDE_DIR	= /usr/include/$(PYTHON_VERSION)
+    PYTHON_LIB_DIR	= /usr/lib/$(PYTHON_VERSION)/config
 endif
 
 PYTHON_FLAGS	?= -I$(PYTHON_INCLUDE_DIR)
