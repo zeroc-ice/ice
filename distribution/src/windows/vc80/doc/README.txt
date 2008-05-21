@@ -159,8 +159,10 @@ your PATH, as shown below:
 
 set PATH=<Ice installation root directory>\bin;%PATH%
 
-If you built an x64 configuration, use this setting instead:
+If you built an x64 configuration, use this setting instead (the
+x64 directory must come first in your PATH):
 
+set PATH=<Ice installation root directory>\bin;%PATH%
 set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
 Change to the desired demo subdirectory and review the README file if
