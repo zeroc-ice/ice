@@ -296,6 +296,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _stats(instance->initializationData().stats),
     _incoming(false),
     _addr(addr),
+    _mcastServer(false),
     _connect(true),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
@@ -340,6 +341,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _incoming(true),
+    _mcastServer(false),
     _connect(connect),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
