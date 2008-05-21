@@ -284,7 +284,7 @@ if sys.argv[script] == "init":
 	    # If the CA exists then destroy it.
 	    if os.path.exists(os.path.join(home, caroot)):
 		print "Warning: running this command will destroy your existing CA setup!"
-		choice = raw_input("Do you want to continue? (y/n)")
+		choice = raw_input("Do you want to continue? (y/n)").strip()
 		if choice != 'y' and choice != 'Y':
 		    sys.exit(1)
 		shutil.rmtree(os.path.join(home, caroot))
@@ -334,15 +334,16 @@ if sys.argv[script] == "init":
 		first = False
 	print
 
-	input = raw_input("Do you want to keep this as the CA subject name? (y/n) [y]")
+	input = raw_input("Do you want to keep this as the CA subject name? (y/n) [y]").strip()
 	if input == 'n':
 	    for v in DNelements.values():
-		v[2] = raw_input(v[1] + ":")
+		v[2] = raw_input(v[1] + ":").strip()
 	else:
 	    break
 
     while True:
-	DNelements['emailAddress'] = ['emailAddress', '', raw_input("Enter the email address of the CA: "), 'optional']
+	DNelements['emailAddress'] = ['emailAddress', '', raw_input("Enter the email address of the CA: ").strip(),
+                                      'optional']
 	if DNelements['emailAddress'][2] and len(DNelements['emailAddress'][2]) > 0:
 	    break
 
