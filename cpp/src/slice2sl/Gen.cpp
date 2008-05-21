@@ -596,7 +596,7 @@ Slice::Gen::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// This copy of Ice is licensed to you under the terms described in the\n"
 "// ICE_LICENSE file included in this distribution.\n"
@@ -605,7 +605,7 @@ Slice::Gen::printHeader()
         ;
 
     _out << header;
-    _out << "\n// Ice version " << ICE_STRING_VERSION;
+    _out << "\n// IceSL version " << ICESL_STRING_VERSION;
 }
 
 Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out) :
