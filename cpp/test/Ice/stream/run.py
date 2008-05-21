@@ -24,7 +24,7 @@ TestUtil.processCmdLine()
 client = os.path.join(os.path.dirname(os.path.abspath(__file__)), "client")
 
 print "starting test...",
-clientPipe = os.popen(TestUtil.getCommandLine(client, TestUtil.DriverConfig("client")) + " 2>&1")
+clientPipe = TestUtil.startClient(client, "")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
