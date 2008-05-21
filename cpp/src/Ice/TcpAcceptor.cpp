@@ -91,7 +91,8 @@ IceInternal::TcpAcceptor::effectivePort() const
 IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->initializationData().logger)
+    _logger(instance->initializationData().logger),
+    _addr(getAddressForServer(host, port, instance->protocolSupport()))
 {
 #ifdef SOMAXCONN
     _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
@@ -101,7 +102,6 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
 
     try
     {
-        getAddressForServer(host, port, _addr, _instance->protocolSupport());
         _fd = createSocket(false, _addr.ss_family);
         setBlock(_fd, false);
         setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
@@ -125,7 +125,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
             Trace out(_logger, _traceLevels->networkCat);
             out << "attempting to bind to tcp socket " << toString();
         }
-        doBind(_fd, _addr);
+        doBind(_fd, const_cast<struct sockaddr_storage&>(_addr));
     }
     catch(...)
     {

@@ -43,12 +43,13 @@ private:
     virtual ~TcpAcceptor();
     friend class TcpEndpointI;
 
-    InstancePtr _instance;
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
+    const InstancePtr _instance;
+    const TraceLevelsPtr _traceLevels;
+    const ::Ice::LoggerPtr _logger;
+    const struct sockaddr_storage _addr;
+
     SOCKET _fd;
     int _backlog;
-    struct sockaddr_storage _addr;
 };
 
 }

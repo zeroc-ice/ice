@@ -341,13 +341,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _incoming(true),
-    _mcastServer(false),
+    _addr(getAddressForServer(host, port, instance->protocolSupport())),
+    _mcastServer(isMulticast(_addr)),
     _connect(connect),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     try
     {
-        getAddressForServer(host, port, _addr, instance->protocolSupport());
         _fd = createSocket(true, _addr.ss_family);
         setBufSize(instance);
         setBlock(_fd, false);
@@ -367,13 +367,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             // so we bind to INADDR_ANY (0.0.0.0) instead.
             //
             struct sockaddr_storage addr;
-            getAddressForServer("", getPort(_addr), addr, _addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
+            addr = getAddressForServer("", getPort(_addr), _addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
             doBind(_fd, addr);
 #else
-            doBind(_fd, _addr);
+            doBind(_fd, const_cast<struct sockaddr_storage&>(_addr));
 #endif
             setMcastGroup(_fd, _addr, mcastInterface);
-            _mcastServer = true;
         }
         else
         {
@@ -392,7 +391,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             //
             setReuseAddress(_fd, true);
 #endif
-            doBind(_fd, _addr);
+            doBind(_fd, const_cast<struct sockaddr_storage&>(_addr));
         }
 
         if(_traceLevels->network >= 1)

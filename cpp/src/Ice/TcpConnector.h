@@ -47,7 +47,7 @@ private:
     const InstancePtr _instance;
     const TraceLevelsPtr _traceLevels;
     const ::Ice::LoggerPtr _logger;
-    struct sockaddr_storage _addr;
+    const struct sockaddr_storage _addr;
     const Ice::Int _timeout;
     const std::string _connectionId;
 };

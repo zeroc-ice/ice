@@ -99,12 +99,12 @@ ICE_API void setReuseAddress(SOCKET, bool);
 
 ICE_API void doBind(SOCKET, struct sockaddr_storage&);
 ICE_API void doListen(SOCKET, int);
-ICE_API bool doConnect(SOCKET, struct sockaddr_storage&);
+ICE_API bool doConnect(SOCKET, const struct sockaddr_storage&);
 ICE_API void doFinishConnect(SOCKET);
 ICE_API SOCKET doAccept(SOCKET);
 
-ICE_API void getAddressForServer(const std::string&, int, struct sockaddr_storage&, ProtocolSupport);
-ICE_API void getAddress(const std::string&, int, struct sockaddr_storage&, ProtocolSupport);
+ICE_API struct sockaddr_storage getAddressForServer(const std::string&, int, ProtocolSupport);
+ICE_API struct sockaddr_storage getAddress(const std::string&, int, ProtocolSupport);
 ICE_API std::vector<struct sockaddr_storage> getAddresses(const std::string&, int, ProtocolSupport, bool);
 
 ICE_API int compareAddress(const struct sockaddr_storage&, const struct sockaddr_storage&);

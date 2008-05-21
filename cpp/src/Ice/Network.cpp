@@ -264,9 +264,11 @@ getLocalAddresses(ProtocolSupport protocol)
     return result;
 }
 
-void
-getAddressImpl(const string& host, int port, struct sockaddr_storage& addr, ProtocolSupport protocol, bool server)
+struct sockaddr_storage
+getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool server)
 {
+    struct sockaddr_storage addr;
+
     //
     // We now use getaddrinfo() on Windows.
     //
@@ -366,6 +368,7 @@ getAddressImpl(const string& host, int port, struct sockaddr_storage& addr, Prot
         throw ex;
     }
     freeaddrinfo(info);
+    return addr;
 }
 
 bool
@@ -373,8 +376,7 @@ isWildcard(const string& host, ProtocolSupport protocol)
 {
     try
     {
-        sockaddr_storage addr;
-        getAddressImpl(host, 0, addr, protocol, false);
+        sockaddr_storage addr = getAddressImpl(host, 0, protocol, false);
         if(addr.ss_family == AF_INET)
         {
             struct sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
@@ -937,8 +939,7 @@ IceInternal::setMcastGroup(SOCKET fd, const struct sockaddr_storage& group, cons
             mreq.imr_interface = getInterfaceAddress(interface);
             if(mreq.imr_interface.s_addr == INADDR_ANY)
             {
-                struct sockaddr_storage addr;
-                getAddressForServer(interface, 0, addr, EnableIPv4);
+                struct sockaddr_storage addr = getAddressForServer(interface, 0, EnableIPv4);
                 mreq.imr_interface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
             }
         }
@@ -990,8 +991,7 @@ IceInternal::setMcastInterface(SOCKET fd, const string& interface, bool IPv4)
         struct in_addr iface = getInterfaceAddress(interface);
         if(iface.s_addr == INADDR_ANY)
         {
-            struct sockaddr_storage addr;
-            getAddressForServer(interface, 0, addr, EnableIPv4);
+            struct sockaddr_storage addr = getAddressForServer(interface, 0, EnableIPv4);
             iface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
         }
         rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&iface, int(sizeof(iface)));
@@ -1075,7 +1075,7 @@ IceInternal::doBind(SOCKET fd, struct sockaddr_storage& addr)
         size = 0; // Keep the compiler happy.
     }
 
-    if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), size) == SOCKET_ERROR)
+    if(bind(fd, reinterpret_cast<const struct sockaddr*>(&addr), size) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -1111,7 +1111,7 @@ repeatListen:
 }
 
 bool
-IceInternal::doConnect(SOCKET fd, struct sockaddr_storage& addr)
+IceInternal::doConnect(SOCKET fd, const struct sockaddr_storage& addr)
 {
 repeatConnect:
     int size;
@@ -1129,7 +1129,7 @@ repeatConnect:
         size = 0; // Keep the compiler happy.
     }
 
-    if(::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), size) == SOCKET_ERROR)
+    if(::connect(fd, reinterpret_cast<const struct sockaddr*>(&addr), size) == SOCKET_ERROR)
     {
         if(interrupted())
         {
@@ -1278,16 +1278,16 @@ repeatAccept:
     return ret;
 }
 
-void
-IceInternal::getAddressForServer(const string& host, int port, struct sockaddr_storage& addr, ProtocolSupport protocol)
+struct sockaddr_storage
+IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol)
 {
-    getAddressImpl(host, port, addr, protocol, true);
+    return getAddressImpl(host, port, protocol, true);
 }
 
-void
-IceInternal::getAddress(const string& host, int port, struct sockaddr_storage& addr, ProtocolSupport protocol)
+struct sockaddr_storage
+IceInternal::getAddress(const string& host, int port, ProtocolSupport protocol)
 {
-    getAddressImpl(host, port, addr, protocol, false);
+    return getAddressImpl(host, port, protocol, false);
 }
 
 vector<struct sockaddr_storage>

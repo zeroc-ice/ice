@@ -134,7 +134,8 @@ IceSSL::AcceptorI::effectivePort() const
 IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterName, const string& host, int port) :
     _instance(instance),
     _adapterName(adapterName),
-    _logger(instance->communicator()->getLogger())
+    _logger(instance->communicator()->getLogger()),
+    _addr(IceInternal::getAddressForServer(host, port, instance->protocolSupport()))
 {
 #ifdef SOMAXCONN
     _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
@@ -144,7 +145,6 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
 
     try
     {
-        IceInternal::getAddressForServer(host, port, _addr, _instance->protocolSupport());
         _fd = IceInternal::createSocket(false, _addr.ss_family);
         IceInternal::setBlock(_fd, false);
         IceInternal::setTcpBufSize(_fd, _instance->communicator()->getProperties(), _logger);

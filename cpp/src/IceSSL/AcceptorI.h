@@ -45,10 +45,10 @@ private:
 
     const InstancePtr _instance;
     const std::string _adapterName;
-    Ice::LoggerPtr _logger;
+    const Ice::LoggerPtr _logger;
+    struct sockaddr_storage _addr;
     SOCKET _fd;
     int _backlog;
-    struct sockaddr_storage _addr;
 };
 
 }
