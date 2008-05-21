@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re, glob, time, fileinput
+import os, sys, shutil, fnmatch, re, glob, time, fileinput, getopt
 from stat import *
 from shutil import copytree, rmtree
 
@@ -83,8 +83,9 @@ def usage():
     print "Usage: " + sys.argv[0] + " [options] tag"
     print
     print "Options:"
-    print "-h    Show this message."
-    print "-v    Be verbose."
+    print "-h      Show this message."
+    print "-v      Be verbose."
+    print "-k key  Specify Ice public key token."
 
 #
 # Remove file or directory, warn if it doesn't exist.
@@ -405,19 +406,29 @@ def substitute(file, regexps):
 #
 verbose = 0
 tag = "HEAD"
-for x in sys.argv[1:]:
-    if x == "-h":
+publickey = "cdd571ade22f2f16"
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hvk:")
+except getopt.GetoptError:
+    usage()
+    sys.exit(1)
+
+for o, a in opts:
+    if o == "-h":
         usage()
         sys.exit(0)
-    elif x == "-v":
+    elif o == "-v":
         verbose = 1
-    elif x.startswith("-"):
-        print sys.argv[0] + ": unknown option `" + x + "'"
-        print
-        usage()
-        sys.exit(1)
-    else:
-        tag = x
+    elif o == "-k":
+        publickey = a
+
+if len(args) > 1:
+    usage()
+    sys.exit(1)
+
+if len(args) == 1:
+    tag = args[0]
 
 if verbose:
     quiet = "v"
@@ -573,6 +584,17 @@ for root, dirnames, filesnames in os.walk('.'):
     for f in filesnames:
         if f == "Makefile":
             os.remove(os.path.join(root, f))
+print "ok"
+
+#
+# Change the public key token in web.config files
+#
+print "Changing the PublicKeyToken in web.config files to " + publickey + "...",
+for root, dirnames, filesnames in os.walk('.'):
+    for f in filesnames:
+        if f == "web.config":
+            
+            substitute(os.path.join(root, f), [('PublicKeyToken=[a-z0-9]+', 'PublicKeyToken=%s' % publickey)])
 print "ok"
 
 #

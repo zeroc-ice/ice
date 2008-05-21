@@ -605,7 +605,7 @@ Slice::Gen::printHeader()
         ;
 
     _out << header;
-    _out << "\n// IceSL version " << ICESL_STRING_VERSION;
+    _out << "\n// Ice for Silverlight version " << ICESL_STRING_VERSION;
 }
 
 Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out) :
