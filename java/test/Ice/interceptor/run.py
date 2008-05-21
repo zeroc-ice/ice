@@ -26,7 +26,7 @@ testdir = os.path.dirname(os.path.abspath(__file__))
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
 print "starting client...",
-clientPipe = os.popen(TestUtil.javaCmd + " -ea Client --Ice.Warn.Dispatch=0 2>&1")
+clientPipe = TestUtil.startClient("Client", "--Ice.Warn.Dispatch=0")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

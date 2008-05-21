@@ -28,7 +28,7 @@ client = os.path.join(testdir, "client")
 
 print "starting client...",
 seedfile = testdir + "/seed"
-clientPipe = os.popen(TestUtil.getCommandLine(client, TestUtil.DriverConfig("client"), TestUtil.getTestEnv()) + " " + seedfile + " 2>&1")
+clientPipe = TestUtil.startClient(client, seedfile)
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
