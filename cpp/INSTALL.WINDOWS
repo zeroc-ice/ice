@@ -60,7 +60,7 @@ The following C++ compilers are supported:
 
   http://msdn2.microsoft.com/en-us/vstudio/bb265237.aspx
 
-  Visual C++ 2005 Express is available for download from:
+  Visual C++ 2005 Express and SP1 is available for download from:
 
   http://www.microsoft.com/express/2005/
 
@@ -77,10 +77,10 @@ The following C++ compilers are supported:
 - CodeGear C++Builder 2007 R2 with December 2007 Update
 
 
-Visual C++ 2005 Express Setup
------------------------------
+Visual C++ 2005 Express SP1 Setup
+---------------------------------
 
-Users of Visual C++ 2005 Express need to install the Microsoft
+Users of Visual C++ 2005 Express SP1 need to install the Microsoft
 Platform SDK:
 
   http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en

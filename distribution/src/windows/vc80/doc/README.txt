@@ -22,8 +22,9 @@ About this distribution
 This binary distribution provides all Ice run time services and 
 development tools to build Ice applications:
 
- - in C++, using Visual Studio 2005 or Visual C++ 2005 Express Edition
- - in .NET, using Visual Studio 2005
+ - in C++, using Visual Studio 2005 SP1 or Visual C++ 2005 Express
+   Edition SP1
+ - in .NET, using Visual Studio 2005 SP1
  - in Java, using Java 5 or Java 6
  - in Python, using Python 2.5.2
 
@@ -92,7 +93,7 @@ of deploying the Visual C++ 8.0 run time:
 http://msdn2.microsoft.com/en-us/library/ms235291(VS.80).aspx
 
 
-Setting up Visual Studio 2005 to build Ice applications in C++
+Setting up Visual Studio 2005 SP1 to build Ice applications in C++
 --------------------------------------------------------------
 
 Before you can use Ice in your C++ applications, you first need to
@@ -122,10 +123,10 @@ libraries, and executables.
   For x64 binaries add <Ice installation root directory>\bin\x64
 
 
-Setting up Visual C++ 2005 Express Edition
-------------------------------------------
+Setting up Visual C++ 2005 Express Edition SP1
+----------------------------------------------
 
-Visual C++ 2005 Express is available for download from:
+Visual C++ 2005 Express and SP1 is available for download from:
 
   http://www.microsoft.com/express/2005/
 
