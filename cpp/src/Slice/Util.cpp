@@ -49,9 +49,17 @@ normalizePath(const string& path)
             ++pos;
         }
     }
-    if(result[result.size() - 1] == '/') // Remove trailing '/'
+
+    if(result.size() > 1) // Remove trailing "/" or "/."
     {
-        result.erase(result.size() - 1);
+        if(result[result.size() - 1] == '/')
+        {
+            result.erase(result.size() - 1);
+        }
+        else if(result[result.size() - 2] == '/' && result[result.size() - 1] == '.')
+        {
+            result.erase(result.size() - (result.size() == 2 ? 1 : 2));
+        }
     }
     return result;
 }

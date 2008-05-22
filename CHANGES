@@ -16,6 +16,17 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 
 
 ======================================================================
+Changes since version 3.3.0
+======================================================================
+
+C++ Changes
+===========
+
+- Fixed a bug where slice2cpp would generate absolute include paths
+  if the command line option "-I." was used.
+
+
+======================================================================
 Changes since version 3.2.1
 ======================================================================
 
