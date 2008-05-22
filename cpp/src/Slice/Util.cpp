@@ -167,6 +167,15 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
         }
     }
 
+    if(result == file)
+    {
+        //
+        // Don't return a full path if we couldn't reduce the given path, instead
+        // return the normalized given path.
+        //
+        result = normalizePath(orig);
+    }
+
     string::size_type pos;
     if((pos = result.rfind('.')) != string::npos)
     {
