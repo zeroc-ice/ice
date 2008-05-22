@@ -208,16 +208,9 @@ final public class Transceiver
 	    }
 	    catch(java.io.IOException ex)
 	    {
-		if(Network.connectionLost(ex))
-		{
-		    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-		    se.initCause(ex);
-		    throw se;
-		}
-		
-		Ice.SocketException se = new Ice.SocketException();
-		se.initCause(ex);
-		throw se;
+                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+                se.initCause(ex);
+                throw se;
 	    }
 	}
 

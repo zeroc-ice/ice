@@ -85,8 +85,8 @@ final class TransceiverI implements IceInternal.Transceiver
                     try
                     {
                         //
-                        // Note: we can't block to send the close_notify message. In some cases, the 
-                        // close_notify message might therefore not be receieved by the peer. This is 
+                        // Note: we can't block to send the close_notify message. In some cases, the
+                        // close_notify message might therefore not be receieved by the peer. This is
                         // not a big issue since the Ice protocol isn't subject to truncation attacks.
                         //
                         flushNonBlocking();
@@ -160,8 +160,8 @@ final class TransceiverI implements IceInternal.Transceiver
     read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
         //
-        // If the handshake isn't completed yet, we shouldn't be reading (read can be 
-        // called by the thread pool when the connection is registered/unregistered 
+        // If the handshake isn't completed yet, we shouldn't be reading (read can be
+        // called by the thread pool when the connection is registered/unregistered
         // with the pool to be closed).
         //
         if(_state < StateHandshakeComplete)
@@ -471,7 +471,7 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         if(!_incoming)
         {
-            int verifyPeer = 
+            int verifyPeer =
                 _instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
             if(verifyPeer > 0)
             {
@@ -652,14 +652,7 @@ final class TransceiverI implements IceInternal.Transceiver
             }
             catch(java.io.IOException ex)
             {
-                if(IceInternal.Network.connectionLost(ex))
-                {
-                    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                    se.initCause(ex);
-                    throw se;
-                }
-
-                Ice.SocketException se = new Ice.SocketException();
+                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
                 se.initCause(ex);
                 throw se;
             }
@@ -677,7 +670,6 @@ final class TransceiverI implements IceInternal.Transceiver
 
         return status;
     }
-
 
     private IceInternal.SocketStatus
     readNonBlocking()
@@ -706,14 +698,7 @@ final class TransceiverI implements IceInternal.Transceiver
             }
             catch(java.io.IOException ex)
             {
-                if(IceInternal.Network.connectionLost(ex))
-                {
-                    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                    se.initCause(ex);
-                    throw se;
-                }
-
-                Ice.SocketException se = new Ice.SocketException();
+                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
                 se.initCause(ex);
                 throw se;
             }

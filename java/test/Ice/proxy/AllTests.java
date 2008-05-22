@@ -597,7 +597,7 @@ public class AllTests
 
             //
             // Try to invoke on the SSL endpoint to verify that we get a
-            // NoEndpointException (or ConnectionRefusedException when
+            // NoEndpointException (or ConnectFailedException when
             // running with SSL).
             //
             try
@@ -609,7 +609,7 @@ public class AllTests
             {
                 test(!ssl);
             }
-            catch(Ice.ConnectionRefusedException ex)
+            catch(Ice.ConnectFailedException ex)
             {
                 test(ssl);
             }

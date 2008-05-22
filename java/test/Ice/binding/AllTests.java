@@ -123,8 +123,12 @@ public class AllTests
                 test3.ice_ping();
                 test(false);
             }
-            catch(Ice.ConnectionRefusedException ex)
+            catch(Ice.ConnectFailedException ex)
             {
+                //
+                // Usually the actual type of this exception is ConnectionRefusedException,
+                // but not always. See bug 3179.
+                //
             }
         }
         System.out.println("ok");
@@ -390,8 +394,12 @@ public class AllTests
             {
                 test.getAdapterName();
             }
-            catch(Ice.ConnectionRefusedException ex)
+            catch(Ice.ConnectFailedException ex)
             {
+                //
+                // Usually the actual type of this exception is ConnectionRefusedException,
+                // but not always. See bug 3179.
+                //
             }
 
             Ice.Endpoint[] endpoints = test.ice_getEndpoints();
@@ -439,8 +447,12 @@ public class AllTests
                 test(test3.ice_getConnection() == test1.ice_getConnection());
                 test(false);
             }
-            catch(Ice.ConnectionRefusedException ex)
+            catch(Ice.ConnectFailedException ex)
             {
+                //
+                // Usually the actual type of this exception is ConnectionRefusedException,
+                // but not always. See bug 3179.
+                //
             }
         }
         System.out.println("ok");
@@ -553,8 +565,12 @@ public class AllTests
             {
                 test.getAdapterName();
             }
-            catch(Ice.ConnectionRefusedException ex)
+            catch(Ice.ConnectFailedException ex)
             {
+                //
+                // Usually the actual type of this exception is ConnectionRefusedException,
+                // but not always. See bug 3179.
+                //
             }
 
             Ice.Endpoint[] endpoints = test.ice_getEndpoints();
@@ -613,8 +629,12 @@ public class AllTests
             {
                 test.getAdapterName();
             }
-            catch(Ice.ConnectionRefusedException ex)
+            catch(Ice.ConnectFailedException ex)
             {
+                //
+                // Usually the actual type of this exception is ConnectionRefusedException,
+                // but not always. See bug 3179.
+                //
             }
 
             Ice.Endpoint[] endpoints = test.ice_getEndpoints();
@@ -708,8 +728,12 @@ public class AllTests
                     testSecure.ice_ping();
                     test(false);
                 }
-                catch(Ice.ConnectionRefusedException ex)
+                catch(Ice.ConnectFailedException ex)
                 {
+                    //
+                    // Usually the actual type of this exception is ConnectionRefusedException,
+                    // but not always. See bug 3179.
+                    //
                 }
 
                 deactivate(com, adapters);

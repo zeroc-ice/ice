@@ -17,45 +17,6 @@ public final class Network
     public final static int EnableBoth = 2;
 
     public static boolean
-    connectionLost(java.io.IOException ex)
-    {
-        //
-        // TODO: The JDK raises a generic IOException for certain
-        // cases of connection loss. Unfortunately, our only choice is
-        // to search the exception message for distinguishing phrases.
-        //
-        String msg = ex.getMessage();
-        if(msg != null)
-        {
-            msg = msg.toLowerCase();
-
-            final String[] msgs =
-            {
-                "connection reset by peer", // ECONNRESET
-                "cannot send after socket shutdown", // ESHUTDOWN (Win32)
-                "cannot send after transport endpoint shutdown", // ESHUTDOWN (Linux)
-                "software caused connection abort", // ECONNABORTED
-                "an existing connection was forcibly closed", // unknown
-                "connection closed by remote host", // unknown
-                "an established connection was aborted by the software in your host machine", // unknown (Win32)
-                "broken pipe", // EPIPE
-                "there is no process to read data written to a pipe", // EPIPE? (AIX JDK 1.4.2)
-                "socket is closed" // unknown (AIX JDK 1.4.2)
-            };
-
-            for(int i = 0; i < msgs.length; i++)
-            {
-                if(msg.indexOf(msgs[i]) != -1)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public static boolean
     connectionRefused(java.net.ConnectException ex)
     {
         //
@@ -1158,9 +1119,7 @@ public final class Network
     public static boolean
     interrupted(java.io.IOException ex)
     {
-        return ex instanceof java.io.InterruptedIOException ||
-            ex.getMessage().indexOf("Interrupted system call") >= 0 ||
-            ex.getMessage().indexOf("A system call received an interrupt") >= 0; // AIX JDK 1.4.2
+        return ex instanceof java.io.InterruptedIOException;
     }
 
     private static java.net.InetSocketAddress
