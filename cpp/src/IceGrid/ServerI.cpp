@@ -85,13 +85,16 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         assert(!name.empty());
         free(namelist[i]);
 
-        if(name != ".." && name != ".")
+        if(name == ".")
         {
-            name = path + "/" + name;
-            if(chown(name.c_str(), uid, gid) != 0)
+            if(chown(path.c_str(), uid, gid) != 0)
             {
                 throw "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString();
             }
+        }
+        else if(name != "..")
+        {
+            name = path + "/" + name;
 
             OS::structstat buf;
             if(OS::osstat(name, &buf) == -1)
@@ -102,6 +105,13 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
             if(S_ISDIR(buf.st_mode))
             {
                 chownRecursive(name, uid, gid);
+            }
+            else
+            {
+                if(chown(name.c_str(), uid, gid) != 0)
+                {
+                    throw "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString();
+                }
             }
         }
     }
@@ -1888,6 +1898,11 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         _timerTask = 0;
     }   
 
+#ifndef _WIN32
+    _uid = getuid();
+    _gid = getgid();
+#endif
+
     //
     // Don't change the user if the server has the session activation
     // mode and if it's not currently owned by a session.
@@ -1901,7 +1916,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         // Check if the node is running as root, if that's the case we
         // make sure that a user is set for the process.
         //
-        if(getuid() == 0 && user.empty())
+        if(_uid == 0 && user.empty())
         {
             //
             // If no user is configured and if this server is owned by
@@ -1912,10 +1927,6 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         }
 #endif
     }
-
-#ifndef _WIN32
-    bool newUser = false;
-#endif
 
     if(!user.empty())
     {
@@ -1981,8 +1992,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         // running the node we throw, a regular user can't run a
         // process as another user.
         //
-        uid_t uid = getuid();
-        if(uid != 0 && pw->pw_uid != uid)
+        if(_uid != 0 && pw->pw_uid != _uid)
         {
             throw "node has insufficient privileges to load server under user account `" + user + "'";
         }
@@ -1994,25 +2004,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
 	    throw "running server as `root' is not allowed";
 	}
 
-        newUser = _uid != pw->pw_uid || _gid != pw->pw_gid;
         _uid = pw->pw_uid;
         _gid = pw->pw_gid;
 #endif
     }
-#ifndef _WIN32
-    else
-    {    
-        //
-        // If no user is specified, we'll run the process as the
-        // current user.
-        //
-        uid_t uid = getuid();
-        uid_t gid = getgid();
-        newUser = _uid != uid || _gid != gid;
-        _uid = uid;
-        _gid = gid;
-    }
-#endif
 
     istringstream at(_desc->activationTimeout);
     if(!(at >> _activationTimeout) || !at.eof() || _activationTimeout == 0)
@@ -2234,12 +2229,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     }
 
 #ifndef _WIN32
-    if(newUser)
-    {
-        chownRecursive(_serverDir + "/config", _uid, _gid);
-        chownRecursive(_serverDir + "/dbs", _uid, _gid);
-        chownRecursive(_serverDir + "/distrib", _uid, _gid);
-    }
+    chownRecursive(_serverDir, _uid, _gid);
 #endif
 }
 
@@ -2627,12 +2617,6 @@ ServerI::createOrUpdateDirectory(const string& dir)
     catch(const string&)
     {
     }
-#ifndef _WIN32
-    if(chown(dir.c_str(), _uid, _gid) != 0)
-    {
-        throw "can't set permissions on directory `" + dir + "'";
-    }    
-#endif
 }
 
 ServerState
