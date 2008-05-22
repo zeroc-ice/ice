@@ -65,7 +65,7 @@ private:
 
     SOCKET _fd;
     struct sockaddr_storage _addr;
-    bool _mcastServer;
+    struct sockaddr_storage _mcastAddr;
 #ifdef _WIN32
     fd_set _rFdSet;
     fd_set _wFdSet;

@@ -230,11 +230,9 @@ IceInternal::UdpTransceiver::type() const
 string
 IceInternal::UdpTransceiver::toString() const
 {
-    if(_mcastServer && _fd != INVALID_SOCKET)
+    if(_mcastAddr.ss_family != AF_UNSPEC && _fd != INVALID_SOCKET)
     {
-        struct sockaddr_storage remoteAddr;
-        bool peerConnected = fdToRemoteAddress(_fd, remoteAddr);
-        return addressesToString(_addr, remoteAddr, peerConnected);
+        return fdToString(_fd) + "\nmulticast address = " + addrToString(_mcastAddr);
     }
     else
     {
@@ -296,12 +294,14 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _stats(instance->initializationData().stats),
     _incoming(false),
     _addr(addr),
-    _mcastServer(false),
     _connect(true),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     try
     {
+        // AF_UNSPEC means not multicast.
+        _mcastAddr.ss_family = AF_UNSPEC;
+
         _fd = createSocket(true, _addr.ss_family);
         setBufSize(instance);
         setBlock(_fd, false);
@@ -341,7 +341,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _incoming(true),
-    _mcastServer(false),
     _connect(connect),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
@@ -360,20 +359,19 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         if(isMulticast(_addr))
         {
             setReuseAddress(_fd, true);
+            _mcastAddr = _addr;
 
 #ifdef _WIN32
             //
             // Windows does not allow binding to the mcast address itself
             // so we bind to INADDR_ANY (0.0.0.0) instead.
             //
-            struct sockaddr_storage addr;
-            getAddressForServer("", getPort(_addr), addr, _addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
-            doBind(_fd, addr);
-#else
-            doBind(_fd, _addr);
+            getAddressForServer("", getPort(_mcastAddr), _addr,
+                                _mcastAddr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
 #endif
-            setMcastGroup(_fd, _addr, mcastInterface);
-            _mcastServer = true;
+
+            doBind(_fd, _addr);
+            setMcastGroup(_fd, _mcastAddr, mcastInterface);
         }
         else
         {
@@ -393,6 +391,9 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             setReuseAddress(_fd, true);
 #endif
             doBind(_fd, _addr);
+
+            // AF_UNSPEC means not multicast.
+            _mcastAddr.ss_family = AF_UNSPEC;
         }
 
         if(_traceLevels->network >= 1)
