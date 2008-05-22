@@ -168,7 +168,7 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
             Trace out(_logger, _instance->networkTraceCategory());
             out << "attempting to bind to ssl socket " << toString();
         }
-        IceInternal::doBind(_fd, _addr);
+        const_cast<struct sockaddr_storage&>(_addr) = IceInternal::doBind(_fd, _addr);
     }
     catch(...)
     {

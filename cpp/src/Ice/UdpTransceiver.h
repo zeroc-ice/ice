@@ -62,8 +62,8 @@ private:
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
     const bool _incoming;
-    const sockaddr_storage _addr;
-    const bool _mcastServer;
+    const struct sockaddr_storage _addr;
+    struct sockaddr_storage _mcastAddr;
 
     SOCKET _fd;
 #ifdef _WIN32

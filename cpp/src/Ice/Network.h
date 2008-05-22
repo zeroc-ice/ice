@@ -97,7 +97,7 @@ ICE_API void setMcastInterface(SOCKET, const std::string&, bool);
 ICE_API void setMcastTtl(SOCKET, int, bool);
 ICE_API void setReuseAddress(SOCKET, bool);
 
-ICE_API void doBind(SOCKET, struct sockaddr_storage&);
+ICE_API struct sockaddr_storage doBind(SOCKET, const struct sockaddr_storage&);
 ICE_API void doListen(SOCKET, int);
 ICE_API bool doConnect(SOCKET, const struct sockaddr_storage&);
 ICE_API void doFinishConnect(SOCKET);

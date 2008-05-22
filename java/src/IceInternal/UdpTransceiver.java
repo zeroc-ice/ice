@@ -226,10 +226,9 @@ final class UdpTransceiver implements Transceiver
     public String
     toString()
     {
-        if(mcastServer && _fd != null)
+        if(_mcastAddr != null && _fd != null)
         {
-            return Network.addressesToString(_addr.getAddress(), _addr.getPort(), 
-                                             _fd.socket().getInetAddress(), _fd.socket().getPort());
+            return Network.fdToString(_fd) + "\nmulticast address = " + Network.addrToString(_mcastAddr);
         }
         else
         {
@@ -321,9 +320,9 @@ final class UdpTransceiver implements Transceiver
             if(_addr.getAddress().isMulticastAddress())
             {
                 Network.setReuseAddress(_fd, true);
-                Network.doBind(_fd, Network.getAddress("0.0.0.0", port, Network.EnableIPv4));
-                configureMulticast(_addr, mcastInterface, -1);
-                mcastServer = true;
+                _mcastAddr = _addr;
+                _addr = Network.doBind(_fd, Network.getAddress("0.0.0.0", port, Network.EnableIPv4));
+                configureMulticast(_mcastAddr, mcastInterface, -1);
             }
             else
             {
@@ -537,7 +536,7 @@ final class UdpTransceiver implements Transceiver
     private int _sndSize;
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
-    private boolean mcastServer = false;
+    private java.net.InetSocketAddress _mcastAddr = null;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header

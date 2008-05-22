@@ -46,7 +46,7 @@ private:
     const InstancePtr _instance;
     const std::string _adapterName;
     const Ice::LoggerPtr _logger;
-    struct sockaddr_storage _addr;
+    const struct sockaddr_storage _addr;
     SOCKET _fd;
     int _backlog;
 };

@@ -1057,8 +1057,8 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
     }
 }
 
-void
-IceInternal::doBind(SOCKET fd, struct sockaddr_storage& addr)
+struct sockaddr_storage
+IceInternal::doBind(SOCKET fd, const struct sockaddr_storage& addr)
 {
     int size;
     if(addr.ss_family == AF_INET)
@@ -1083,13 +1083,15 @@ IceInternal::doBind(SOCKET fd, struct sockaddr_storage& addr)
         throw ex;
     }
 
-    socklen_t len = static_cast<socklen_t>(sizeof(addr));
+    struct sockaddr_storage local;
+    socklen_t len = static_cast<socklen_t>(sizeof(local));
 #ifdef NDEBUG
-    getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len);
+    getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
 #else
-    int ret = getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len);
+    int ret = getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
     assert(ret != SOCKET_ERROR);
 #endif
+    return local;
 }
 
 void
@@ -1511,7 +1513,7 @@ IceInternal::createPipe(SOCKET fds[2])
     addrin->sin_port = htons(0);
     addrin->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-    doBind(fd, addr);
+    addr = doBind(fd, addr);
     doListen(fd, 1);
 
     try

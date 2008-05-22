@@ -532,9 +532,9 @@ namespace IceInternal
 
         public override string ToString()
         {
-            if(_mcastServer && _fd != null)
+            if(_mcastAddr != null && _fd != null)
             {
-                return Network.addressesToString(_addr, Network.getRemoteAddress(_fd));
+                return Network.fdToString(_fd) + "\nmulticast address = " + Network.addrToString(_mcastAddr);
             }
             else
             {
@@ -601,17 +601,17 @@ namespace IceInternal
                 if(Network.isMulticast(_addr))
                 {
                     Network.setReuseAddress(_fd, true);
-                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                    _mcastAddr = _addr;
+                    if(_mcastAddr.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
+                        _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
                     }
                     else
                     {
-                        Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
-                        Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, port));
+                        Debug.Assert(_mcastAddr.AddressFamily == AddressFamily.InterNetworkV6);
+                        _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, port));
                     }
-                    Network.setMcastGroup(_fd, _addr.Address, mcastInterface);
-                    _mcastServer = true;
+                    Network.setMcastGroup(_fd, _mcastAddr.Address, mcastInterface);
                 }
                 else
                 {
@@ -726,9 +726,9 @@ namespace IceInternal
         private int _sndSize;
         private Socket _fd;
         private IPEndPoint _addr;
+        private IPEndPoint _mcastAddr = null;
         private string _mcastInterface = null;
         private int _mcastTtl = -1;
-        private bool _mcastServer = false;
         private IAsyncResult _result;
 
         //

@@ -125,7 +125,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
             Trace out(_logger, _traceLevels->networkCat);
             out << "attempting to bind to tcp socket " << toString();
         }
-        doBind(_fd, const_cast<struct sockaddr_storage&>(_addr));
+        const_cast<struct sockaddr_storage&>(_addr) = doBind(_fd, _addr);
     }
     catch(...)
     {
