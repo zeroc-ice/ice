@@ -40,6 +40,7 @@ struct SessionTuple
 
         session = rhs.session;
         sessionControl = rhs.sessionControl;
+        configured = rhs.configured;
         return *this;
     }
 };

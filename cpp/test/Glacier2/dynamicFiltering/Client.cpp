@@ -16,8 +16,6 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-static Ice::InitializationData initData;
-
 class SessionControlClient : public Application
 {
 public:
@@ -28,6 +26,9 @@ public:
 int
 main(int argc, char* argv[])
 {
+    SessionControlClient app;
+
+    Ice::InitializationData initData;
     initData.properties = Ice::createProperties(argc, argv);
     
     //
@@ -37,7 +38,6 @@ main(int argc, char* argv[])
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
         
-    SessionControlClient app;
     return app.main(argc, argv, initData);
 }
 
@@ -49,12 +49,17 @@ SessionControlClient::run(int argc, char* argv[])
     // to bypass the router for test control operations.
     //
     cout << "accessing test controller... " << flush;
+    Ice::InitializationData initData;
+    initData.properties = communicator()->getProperties();
     Ice::CommunicatorPtr controlComm = Ice::initialize(argc, argv, initData);
     TestControllerPrx controller = TestControllerPrx::checkedCast(
         controlComm->stringToProxy("testController:tcp -p 12013"));
     test(controller);
     TestToken currentState;
     TestToken newState;
+    currentState.expectedResult = false;
+    currentState.config = 0;
+    currentState.caseIndex = 0;
     currentState.code = Initial;
     controller->step(0, currentState, newState);
     currentState = newState;
@@ -176,6 +181,16 @@ SessionControlClient::run(int argc, char* argv[])
     catch(const Ice::LocalException&)
     {
         cout << "ok" << endl;
+    }
+
+    try
+    {
+        controlComm->destroy();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
     }
 
     return EXIT_SUCCESS;

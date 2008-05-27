@@ -23,6 +23,7 @@ ipv6 = False                    # Default to use IPv4 only
 ice_home = None                 # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
 javaCmd = "java"                # Default java loader
+valgrind = False                # Set to True to use valgrind for C++ executables.
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -192,6 +193,7 @@ def run(tests, root = False):
           --protocol=tcp|ssl      Run with the given protocol.
           --compress              Run the tests with protocol compression.
           --host=host             Set --Ice.Default.Host=<host>.
+          --valgrind              Run the test with valgrind.
           --serialize             Run with connection serialization.
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
@@ -204,7 +206,7 @@ def run(tests, root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug",
-                                    "protocol=", "compress", "host=", "serialize", "continue", "ipv6",
+                                    "protocol=", "compress", "valgrind", "host=", "serialize", "continue", "ipv6",
                                     "ice-home=", "x64", "script"])
     except getopt.GetoptError:
         usage()
@@ -243,7 +245,7 @@ def run(tests, root = False):
                 print "SSL is not supported with mono"
                 sys.exit(1)
 
-        if o in ( "--protocol", "--host", "--debug", "--compress", "--serialize", "--ipv6", \
+        if o in ( "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--ice-home", "--x64"):
             arg += " " + o
             if len(a) > 0:
@@ -724,6 +726,7 @@ class DriverConfig:
     serialize = 0
     host = None 
     mono = False
+    valgrind = False
     type = None
     overrides = None
     ipv6 = False
@@ -735,6 +738,7 @@ class DriverConfig:
         global serialize
         global host 
         global mono
+        global valgrind
         global ipv6
         global x64
         self.lang = getDefaultMapping()
@@ -743,6 +747,7 @@ class DriverConfig:
         self.serialize = serialize
         self.host = host
         self.mono = mono
+        self.valgrind = valgrind
         self.type = type
         self.ipv6 = ipv6
         self.x64 = x64
@@ -841,6 +846,11 @@ def getCommandLine(exe, config, env=None):
         print >>output, "python", exe,
     elif config.lang == "php" and config.type == "client":
         print >>output, phpCmd, "-c tmp.ini -f", exe, " -- ",
+    elif config.lang == "cpp" and config.valgrind:
+        # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
+        # forks a process with execv failing (invalid exe name).
+        print >>output, "valgrind -q --child-silent-after-fork=yes --leak-check=full ",
+        print >>output, "--suppressions=" + os.path.join(findTopLevel(), "config", "valgrind.sup"), exe,
     else:
         print >>output, exe,
 
@@ -912,6 +922,11 @@ def runTests(start, expanded, num = 0, script = False):
                 print "%s*** test not supported under windows%s" % (prefix, suffix)
                 continue
 
+            # Skip tests not supported by valgrind
+            if args.find("valgrind") and ("novalgrind" in config or args.find("ssl") != -1):
+                print "%s*** test not supported with valgrind%s" % (prefix, suffix)
+                continue
+            
             if script:
                 print "echo \"*** test started: `date`\""
                 print "cd %s" % dir
@@ -1196,6 +1211,7 @@ def processCmdLine():
           --debug                 Display debugging information on each test.
           --protocol=tcp|ssl      Run with the given protocol.
           --compress              Run the tests with protocol compression.
+          --valgrind              Run the tests with valgrind.
           --host=host             Set --Ice.Default.Host=<host>.
           --serialize             Run with connection serialization.
           --ipv6                  Use IPv6 addresses.
@@ -1206,7 +1222,7 @@ def processCmdLine():
 
     try:
         opts, args = getopt.getopt(
-            sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "serialize", "ipv6", \
+            sys.argv[1:], "", ["debug", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                               "ice-home=", "x64"])
     except getopt.GetoptError:
         usage()
@@ -1230,6 +1246,9 @@ def processCmdLine():
         elif o == "--host":
             global host
             host = a
+        elif o == "--valgrind":
+            global valgrind
+            valgrind = True
         elif o == "--ipv6":
             global ipv6
             ipv6 = True

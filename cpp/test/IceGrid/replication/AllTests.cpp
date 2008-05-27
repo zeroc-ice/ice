@@ -922,6 +922,8 @@ allTests(const Ice::CommunicatorPtr& comm)
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        server->applicationDistrib = false;
+        server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";
         AdapterDescriptor adapter;
@@ -1095,6 +1097,8 @@ allTests(const Ice::CommunicatorPtr& comm)
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        server->applicationDistrib = false;
+        server->allocatable = false;
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";
         AdapterDescriptor adapter;
@@ -1198,4 +1202,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     removeServer(admin, "Slave1");
     masterAdmin->shutdown();
     removeServer(admin, "Master");
+
+    keepAlive->destroy();
+    keepAlive->getThreadControl().join();
 }

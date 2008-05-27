@@ -18,6 +18,26 @@ class Twoways
         }
     }
 
+    static class PerThreadContextInvokeThread extends Thread
+    {
+        public PerThreadContextInvokeThread(Test.MyClassPrx proxy)
+        {
+            _proxy = proxy;
+        }
+
+        public void
+        run()
+        {
+            java.util.Map<String, String> ctx = _proxy.ice_getCommunicator().getImplicitContext().getContext();
+            test(ctx.isEmpty());
+            ctx.put("one", "ONE");
+            _proxy.ice_getCommunicator().getImplicitContext().setContext(ctx);
+            test(_proxy.opContext().equals(ctx));
+        }
+        
+        final private Test.MyClassPrx _proxy;
+    }
+
     static void
     twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
@@ -717,6 +737,20 @@ class Twoways
                 test(p3.opContext().equals(combined));
 
                 test(ic.getImplicitContext().remove("one").equals("ONE"));
+
+                if(impls[i].equals("PerThread"))
+                {
+                    Thread thread = new PerThreadContextInvokeThread(
+                        Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(null)));
+                    thread.start();
+                    try
+                    {
+                        thread.join();
+                    }
+                    catch(InterruptedException ex)
+                    {
+                    }
+                }
 
                 ic.destroy();
             }

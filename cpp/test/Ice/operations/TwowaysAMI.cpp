@@ -1411,7 +1411,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                     p->opContext_async(cb);
                     test(cb->check());
                 }
-                
+
+                ic->getImplicitContext()->setContext(Ice::Context());
                 ic->destroy();
             }
         }

@@ -1768,6 +1768,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
         server->options.push_back("--nowarn");
         server->pwd = ".";
+        server->applicationDistrib = false;
+        server->allocatable = false;
         addProperty(server, "IceGrid.Node.Name", "node-1");
         addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
         addProperty(server, "IceGrid.Node.Endpoints", "default");
@@ -1817,6 +1819,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->id = "Server";
         server->exe = properties->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        server->applicationDistrib = false;
+        server->allocatable = false;
         AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";

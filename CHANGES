@@ -29,6 +29,10 @@ C++ Changes
   transaction of an asynchronous method dispatch to be rolled back on
   the first try and only if rollback on user exception was enabled.
 
+- Fixed a bug which could cause the first invocation on a proxy to
+  incorrectly be sent compressed or not compressed.
+
+
 ======================================================================
 Changes since version 3.2.1
 ======================================================================

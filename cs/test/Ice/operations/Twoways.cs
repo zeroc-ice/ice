@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 class Twoways
 {
@@ -20,6 +21,37 @@ class Twoways
         }
     }
     
+    class PerThreadContextInvokeThread
+    {
+        public PerThreadContextInvokeThread(Test.MyClassPrx proxy)
+        {
+            _proxy = proxy;
+        }
+
+        public void Join()
+        {
+            _thread.Join();
+        }
+
+        public void Start()
+        {
+            _thread = new Thread(new ThreadStart(Run));
+            _thread.Start();
+        }
+
+        public void Run()
+        {
+            Dictionary<string, string> ctx = _proxy.ice_getCommunicator().getImplicitContext().getContext();
+            test(ctx.Count == 0);
+            ctx["one"] =  "ONE";
+            _proxy.ice_getCommunicator().getImplicitContext().setContext(ctx);
+            test(Ice.CollectionComparer.Equals(_proxy.opContext(), ctx));
+        }
+        
+        private Test.MyClassPrx _proxy;
+        private Thread _thread;
+    }
+
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
@@ -704,6 +736,13 @@ class Twoways
                 
                 test(ic.getImplicitContext().remove("one").Equals("ONE"));
 
+                if(impls[i].Equals("PerThread"))
+                {
+                    PerThreadContextInvokeThread thread = new PerThreadContextInvokeThread(
+                        Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(null)));
+                    thread.Start();
+                    thread.Join();
+                }
                 ic.destroy();
             }
         }

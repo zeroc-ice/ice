@@ -707,6 +707,8 @@ allTests(const Ice::CommunicatorPtr& comm)
     ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
     server->id = "test";
     server->exe = "${test.dir}/server";
+    server->applicationDistrib = false;
+    server->allocatable = false;
     ApplicationDescriptor desc;
     desc.name = "App";
     desc.serverTemplates["ServerTemplate"] = templ;
