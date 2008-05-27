@@ -137,7 +137,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Expect ConnectTimeoutException.
         //
-        TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(500));
+        TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(250));
         to->holdAdapter(750);
         to->ice_getConnection()->close(true); // Force a reconnect.
         try

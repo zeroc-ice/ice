@@ -66,6 +66,7 @@ public:
             throw ex;
         }
         epoll_event event;
+        memset(&event, 0, sizeof(epoll_event));
         event.events = EPOLLIN;
         event.data.ptr = 0;
         if(epoll_ctl(_queueFd, EPOLL_CTL_ADD, _fdIntrRead, &event) != 0)
@@ -146,6 +147,7 @@ public:
 #if defined(ICE_USE_EPOLL) || defined(ICE_USE_KQUEUE)
 #if defined(ICE_USE_EPOLL)
         epoll_event event;
+        memset(&event, 0, sizeof(epoll_event));
         event.events = status == NeedRead ? EPOLLIN : EPOLLOUT;
         event.data.ptr = handler;
         if(epoll_ctl(_queueFd, EPOLL_CTL_ADD, handler->_fd, &event) != 0)
@@ -187,6 +189,7 @@ public:
         assert(newStatus != Finished);
 #if defined(ICE_USE_EPOLL)
         epoll_event event;
+        memset(&event, 0, sizeof(epoll_event));
         event.events = newStatus == NeedRead ? EPOLLIN : EPOLLOUT;
         event.data.ptr = handler;
         if(epoll_ctl(_queueFd, EPOLL_CTL_MOD, handler->_fd, &event) != 0)
@@ -206,6 +209,7 @@ public:
 #if defined(ICE_USE_EPOLL) || defined(ICE_USE_KQUEUE)
 #if defined(ICE_USE_EPOLL)
         epoll_event event;
+        memset(&event, 0, sizeof(epoll_event));
         event.events = 0;
         int rs = epoll_ctl(_queueFd, EPOLL_CTL_DEL, handler->_fd, &event);
 #else // ICE_USE_KQUEUE

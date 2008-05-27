@@ -154,10 +154,6 @@ private:
 
     struct OutgoingMessage
     {
-        OutgoingMessage()
-	{
-	}
-
         OutgoingMessage(IceInternal::BasicStream* str, bool comp) : 
 	    stream(str), out(0), compress(comp), response(false), adopted(false)
 	{

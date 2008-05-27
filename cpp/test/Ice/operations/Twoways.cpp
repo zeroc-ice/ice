@@ -24,6 +24,34 @@
 
 using namespace std;
 
+namespace
+{
+
+class PerThreadContextInvokeThread : public IceUtil::Thread
+{
+public:
+    
+PerThreadContextInvokeThread(const Test::MyClassPrx& proxy) : _proxy(proxy)
+{
+}
+    
+virtual void
+run()
+{
+    Ice::Context ctx = _proxy->ice_getCommunicator()->getImplicitContext()->getContext();
+    test(ctx.empty());
+    ctx["one"] = "UN";
+    _proxy->ice_getCommunicator()->getImplicitContext()->setContext(ctx);
+    test(_proxy->opContext() == ctx);
+}
+    
+private:
+    
+    Test::MyClassPrx _proxy;
+};
+
+}
+    
 void
 twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
@@ -739,7 +767,15 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 test(p->opContext() == combined);
 
                 test(ic->getImplicitContext()->remove("one") == "ONE");
-                
+
+                if(impls[i] == "PerThread")
+                {
+                    IceUtil::ThreadPtr thread = new PerThreadContextInvokeThread(p->ice_context(Ice::Context()));
+                    thread->start();
+                    thread->getThreadControl().join();
+                }
+
+                ic->getImplicitContext()->setContext(Ice::Context()); // Clear the context to avoid leak report.
                 ic->destroy();
             }
         }

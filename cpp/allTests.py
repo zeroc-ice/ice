@@ -39,7 +39,7 @@ tests = [
     ("Ice/facets", ["core"]),
     ("Ice/objects", ["core"]),
     ("Ice/binding", ["core"]),
-    ("Ice/faultTolerance", ["core"]),
+    ("Ice/faultTolerance", ["core", "novalgrind"]), # valgrind reports leak with aborted servers
     ("Ice/location", ["core"]),
     ("Ice/adapterDeactivation", ["core"]),
     ("Ice/slicing/exceptions", ["core"]),
@@ -55,7 +55,7 @@ tests = [
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core"]),
     ("Ice/stringConverter", ["core"]),
-    ("IceSSL/configuration", ["once"]),
+    ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),
@@ -82,7 +82,7 @@ tests = [
     ("Glacier2/router", ["service"]),
     ("Glacier2/attack", ["service"]),
     ("Glacier2/sessionControl", ["service"]),
-    ("Glacier2/ssl", ["service"]),
+    ("Glacier2/ssl", ["service", "novalgrind"]), # valgrind doesn't work well with openssl
     ("Glacier2/dynamicFiltering", ["service"]),
     ("Glacier2/staticFiltering", ["service", "noipv6"]),
     ]

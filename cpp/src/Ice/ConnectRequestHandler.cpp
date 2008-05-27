@@ -212,7 +212,10 @@ ConnectRequestHandler::abortBatchRequest()
 Ice::ConnectionI*
 ConnectRequestHandler::sendRequest(Outgoing* out)
 {
-    if(!getConnection(true)->sendRequest(out, _compress, _response) || _response)
+    // Must be called first, _compress might not be initialized before this returns.
+    Ice::ConnectionIPtr connection = getConnection(true);
+    assert(connection);
+    if(!connection->sendRequest(out, _compress, _response) || _response)
     {
         return _connection.get(); // The request has been sent or we're expecting a response.
     }
