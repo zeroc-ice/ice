@@ -65,7 +65,8 @@ Freeze::TransactionalEvictorDeadlockException::ice_print(ostream& out) const
 
 Freeze::TransactionalEvictorContext::TransactionalEvictorContext(const SharedDbEnvPtr& dbEnv) :
     _tx((new ConnectionI(dbEnv))->beginTransactionI()),
-    _deadlockExceptionDetected(false)
+    _deadlockExceptionDetected(false),
+    _userExceptionDetected(false)
 { 
     _tx->setPostCompletionCallback(this);
 }
