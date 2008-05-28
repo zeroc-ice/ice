@@ -109,15 +109,15 @@ public:
             return EXIT_FAILURE;
         }
 
+        Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
+        if(!defaultRouter)
+        {
+            cerr << argv[0] << ": no default router set" << endl;
+            return EXIT_FAILURE;
+        }
+
         {
             IceUtil::Mutex::Lock sync(_mutex);
-            Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
-            if(!defaultRouter)
-            {
-                cerr << argv[0] << ": no default router set" << endl;
-                return EXIT_FAILURE;
-            }
-            
             _router = Glacier2::RouterPrx::checkedCast(defaultRouter);
             if(!_router)
             {
@@ -162,7 +162,7 @@ public:
         callbackReceiverIdent.name = "callbackReceiver";
         callbackReceiverIdent.category = _router->getCategoryForClient();
 
-        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Chat.Client");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithRouter("Chat.Client", defaultRouter);
         ChatCallbackPtr cb = new ChatCallbackI;
         ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
             adapter->add(cb, callbackReceiverIdent));

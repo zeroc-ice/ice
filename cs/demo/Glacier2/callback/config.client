@@ -9,13 +9,6 @@
 Ice.Default.Router=DemoGlacier2/router:tcp -p 4063 -h 127.0.0.1:ssl -p 4064 -h 127.0.0.1
 
 #
-# The proxy for the Glacier2 router, installed in the client's
-# object adapter named Callback.Client. This router proxy must
-# match the value of Glacier2.Client.Endpoints.
-#
-Callback.Client.Router=DemoGlacier2/router:tcp -p 4063 -h 127.0.0.1: ssl -p 4064 -h 127.0.0.1
-
-#
 # We don't need any endpoints for the client if we use a
 # router. Incoming requests are received through connections
 # established from the client to the router.

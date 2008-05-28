@@ -101,7 +101,7 @@ public class Client
             CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
             CallbackPrx batchOneway = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
-            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Client");
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithRouter("Callback.Client", defaultRouter);
             adapter.add(new CallbackReceiverI(), callbackReceiverIdent);
             adapter.add(new CallbackReceiverI(), callbackReceiverFakeIdent);
             adapter.activate();
