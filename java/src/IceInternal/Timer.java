@@ -17,12 +17,6 @@ package IceInternal;
 // regular basis is required to allow canceled timer task objects to
 // be garbage collected.
 //
-
-interface TimerTask
-{
-    void runTimerTask();
-}
-
 public final class Timer extends Thread
 {
     //
