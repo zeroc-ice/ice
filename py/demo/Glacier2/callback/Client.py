@@ -70,7 +70,7 @@ class Client(Ice.Application):
         oneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_oneway())
         batchOneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_batchOneway())
 
-        adapter = self.communicator().createObjectAdapter("Callback.Client")
+        adapter = self.communicator().createObjectAdapterWithRouter("Callback.Client", defaultRouter)
         adapter.add(CallbackReceiverI(), callbackReceiverIdent)
         adapter.add(CallbackReceiverI(), callbackReceiverFakeIdent)
         adapter.activate()

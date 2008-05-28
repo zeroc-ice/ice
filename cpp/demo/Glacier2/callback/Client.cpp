@@ -113,7 +113,7 @@ CallbackClient::run(int argc, char* argv[])
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
     
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithRouter("Callback.Client", defaultRouter);
     adapter->add(new CallbackReceiverI, callbackReceiverIdent);
     adapter->add(new CallbackReceiverI, callbackReceiverFakeIdent); // Should never be called for the fake identity. 
     adapter->activate();
