@@ -2,7 +2,7 @@
 # The server creates a multi-cast object adapter with the name
 # "Discover". The following line sets the endpoints for this adapter.
 #
-Discover.Endpoints=udp -h 224.0.0.5 -p 10000
+Discover.Endpoints=udp -h 239.255.1.1 -p 10000
 
 #
 # The server creates an object adapter with the name "Hello". The
