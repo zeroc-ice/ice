@@ -779,10 +779,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindBool:
         {
             Ice::BoolSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -796,10 +797,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindByte:
         {
             Ice::ByteSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -815,10 +817,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindShort:
         {
             Ice::ShortSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -834,10 +837,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindInt:
         {
             Ice::IntSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -853,10 +857,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindLong:
         {
             Ice::LongSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -885,10 +890,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindFloat:
         {
             Ice::FloatSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -903,10 +909,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindDouble:
         {
             Ice::DoubleSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -921,10 +928,11 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
         case Slice::Builtin::KindString:
         {
             Ice::StringSeq seq(sz);
-            zval** val;
             Ice::Int i = 0;
-            while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+            void* data;
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
             {
+                zval** val = reinterpret_cast<zval**>(data);
                 if(!pm->validate(*val TSRMLS_CC))
                 {
                     return false;
@@ -955,9 +963,10 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
     {
         os->writeSize(sz);
 
-        zval** val;
-        while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+        void* data;
+        while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
         {
+            zval** val = reinterpret_cast<zval**>(data);
             if(!_elementMarshaler->marshal(*val, os, m TSRMLS_CC))
             {
                 return false;
@@ -1231,14 +1240,14 @@ IcePHP::MemberMarshaler::MemberMarshaler(const string& name, const MarshalerPtr&
 bool
 IcePHP::MemberMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
-    zval** val;
-    if(zend_hash_find(Z_OBJPROP_P(zv), const_cast<char*>(_name.c_str()), _name.length() + 1,
-                      reinterpret_cast<void**>(&val)) == FAILURE)
+    void* data;
+    if(zend_hash_find(Z_OBJPROP_P(zv), const_cast<char*>(_name.c_str()), _name.length() + 1, &data) == FAILURE)
     {
         php_error_docref(0 TSRMLS_CC, E_ERROR, "member `%s' is not defined", _name.c_str());
         return false;
     }
 
+    zval** val = reinterpret_cast<zval**>(data);
     return _marshaler->marshal(*val, os, m TSRMLS_CC);;
 }
 
@@ -1470,13 +1479,15 @@ IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr&
 
     HashTable* arr = Z_ARRVAL_P(zv);
     HashPosition pos;
-    zval** val;
+    void* data;
 
     os->writeSize(zend_hash_num_elements(arr));
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+    while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
     {
+        zval** val = reinterpret_cast<zval**>(data);
+
         //
         // Get the key (which can be a long or a string).
         //

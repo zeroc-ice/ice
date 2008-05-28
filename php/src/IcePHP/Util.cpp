@@ -114,14 +114,16 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     //
     // Category is optional, but name is required.
     //
-    zval** categoryVal = 0;
-    zval** nameVal;
-    if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), reinterpret_cast<void**>(&nameVal)) == FAILURE)
+    void* categoryData = 0;
+    void* nameData;
+    if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), &nameData) == FAILURE)
     {
         php_error_docref(0 TSRMLS_CC, E_ERROR, "identity value does not contain member `name'");
         return false;
     }
-    zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), reinterpret_cast<void**>(&categoryVal));
+    zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), &categoryData);
+    zval** categoryVal = reinterpret_cast<zval**>(categoryData);
+    zval** nameVal = reinterpret_cast<zval**>(nameData);
 
     if(Z_TYPE_PP(nameVal) != IS_STRING)
     {
@@ -179,12 +181,14 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     }
 
     HashTable* arr = Z_ARRVAL_P(zv);
+    void* data;
     HashPosition pos;
-    zval** val;
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+    while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
     {
+        zval** val = reinterpret_cast<zval**>(data);
+
         //
         // Get the key (which can be a long or a string).
         //
