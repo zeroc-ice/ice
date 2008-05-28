@@ -26,8 +26,8 @@ C++ Changes
   if the command line option "-I." was used.
 
 - Fixed Freeze transactional evictor bug which could cause the
-  transaction of an asynchronous method dispatch to be rolled back on
-  the first try and only if rollback on user exception was enabled.
+  transaction of an asynchronous method dispatch to be rolled back if
+  rollback on user exception was enabled.
 
 - Fixed a bug which could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
