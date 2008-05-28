@@ -919,11 +919,13 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints)
 
     HashTable* arr = Z_ARRVAL_P(zv);
     HashPosition pos;
-    zval** val;
+    void* data;
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
+    while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
     {
+        zval** val = reinterpret_cast<zval**>(data);
+
         if(Z_TYPE_PP(val) != IS_OBJECT)
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "expected an element of type Ice_Endpoint");
