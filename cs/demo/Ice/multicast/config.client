@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "Discover" object in the server.
 #
-Discover.Proxy=discover:udp -h 224.0.0.5 -p 10000
+Discover.Proxy=discover:udp -h 239.255.1.1 -p 10000
 
 #
 # The client creates an object adapter with the name
