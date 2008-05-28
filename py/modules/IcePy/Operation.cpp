@@ -1400,14 +1400,11 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args)
     //
 #if PY_VERSION_HEX < 0x02050000
     const char* charBuf = 0;
-    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
-        inParams, 0, &charBuf);
-    const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
 #else
-    Ice::Byte* mem;
-    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
-        inParams, 0, reinterpret_cast<char**>(&mem));
+    char* charBuf = 0;
 #endif
+    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(inParams, 0, &charBuf);
+    const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
     pair<const ::Ice::Byte*, const ::Ice::Byte*> in(0, 0);
     if(sz > 0)
     {
@@ -1525,14 +1522,11 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args)
     //
 #if PY_VERSION_HEX < 0x02050000
     const char* charBuf = 0;
-    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
-        inParams, 0, &charBuf);
-    const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
 #else
-    Ice::Byte* mem;
-    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
-        inParams, 0, reinterpret_cast<char**>(&mem));
+    char* charBuf = 0;
 #endif
+    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(inParams, 0, &charBuf);
+    const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
     pair<const ::Ice::Byte*, const ::Ice::Byte*> in(0, 0);
     if(sz > 0)
     {
@@ -2201,13 +2195,11 @@ IcePy::BlobjectUpcall::response(PyObject* args)
 
 #if PY_VERSION_HEX < 0x02050000
     const char* charBuf = 0;
+#else
+    char* charBuf = 0;
+#endif
     Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, &charBuf);
     const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
-
-#else
-    Ice::Byte* mem;
-    Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, reinterpret_cast<char**>(&mem));
-#endif
     const pair<const ::Ice::Byte*, const ::Ice::Byte*> bytes(mem, mem + sz);
 
     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
