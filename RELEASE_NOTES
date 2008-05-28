@@ -944,13 +944,14 @@ Red Hat Enterprise Linux 5.1
 ----------------------------
 
 On Red Hat Enterprise Linux 5.1 systems, Ice connection establishment
-to inactive ports of the IPv6 loopback address might hang instead of
+to an inactive port of an IPv6 interface might hang instead of
 immediately reporting "connection refused" (ECONNREFUSED). The hang
 can last for several minutes and is similar to hangs you would get if
-you try to connect to an unreachable address. We are still
-investigating the exact cause of this hang but so far we believe this
-is a Linux issue that occurs only with the IPv6 implementation of
-RHEL 5.1.
+you try to connect to an unreachable address. This is a RHEL 5.1
+kernel issue which has been fixed in the RHEL 5.2 kernel.
+
+Refer to https://bugzilla.redhat.com/show_bug.cgi?id=248052 for more
+information.
 
 
 Solaris 10 x86
