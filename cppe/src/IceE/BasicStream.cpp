@@ -1269,6 +1269,21 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
             *dest-- = *src++;
             dest += 2 * sizeof(Double);
         }
+#  elif defined(__arm__) && defined(__linux)
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]);
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            dest[4] = *src++;
+            dest[5] = *src++;
+            dest[6] = *src++;
+            dest[7] = *src++;
+            dest[0] = *src++;
+            dest[1] = *src++;
+            dest[2] = *src++;
+            dest[3] = *src++;
+            dest += sizeof(Double);
+        }
 #  else
         copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
