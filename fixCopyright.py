@@ -129,6 +129,12 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
         newFile.close()        
         print "------ Replaced copyright in " + file + " -------"
 
+        #
+        # Make sure Windows Makefiles are kept in DOS format.
+        #
+        if fnmatch.fnmatch(file, "*.mak*") or fnmatch.fnmatch(file, "*Make.rules.bcc") or fnmatch.fnmatch(file, "*Make.rules.msvc")):
+            os.popen("unix2dos file");
+
     return copyrightFound
 
 #
@@ -270,3 +276,7 @@ else:
     config_home = os.path.join(ice_dir, "config")
     if config_home:
         replaceAllCopyrights(config_home, False)
+
+    certs_home = os.path.join(ice_dir, "certs")
+    if certs_home:
+        replaceAllCopyrights(certs_home, False)
