@@ -18,12 +18,13 @@ ifneq ($(PYTHON_HOME),)
     ifeq ($(shell test ! -f $(PYTHON_HOME)/Python && echo 0),0)
         $(error Unable to find Python framework See config/Make.rules.Darwin)
     endif
+    PYTHON_LIBS		= -F$(patsubst %/Python.framework/Versions/,%,$(dir $(PYTHON_HOME))) -framework Python
 else
     PYTHON_HOME		= /System/Library/Frameworks/Python.framework/Versions/Current
+    PYTHON_LIBS		= -framework Python
 endif
 
 PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
-PYTHON_LIBS		= -F$(PYTHON_HOME) -framework Python
 
 CXX	                = c++
 
