@@ -124,7 +124,6 @@ install_libdir		= $(prefix)/python
 #
 ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
     include $(top_srcdir)/config/Make.rules.$(UNAME)
-
 else
     include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 endif 

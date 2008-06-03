@@ -20,33 +20,10 @@ RC		= rc.exe
 
 PREOUT		= /out:
 PRELIBS		=
+PRELIBPATH      = /LIBPATH:
 
 !if "$(OPTIMIZE)" != "yes" || "$(RELEASEPDBS)" == "yes"
 GENERATE_PDB	= yes
-!endif
-
-!if "$(ice_src_dist)" != ""
-
-# If building a source distribution, use THIRDPARTY_HOME for the 3rd party libraries
-!if "$(THIRDPARTY_HOME)" != ""
-CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
-LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib$(x64suffix)"
-
-!if "$(CPP_COMPILER)" == "VC60"
-CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
-!endif
-
-!endif
-
-!else
-
-# If building against a binary distribution, the 3rd party headers are located in
-# the same include directory as Ice headers so there's nothing special to do,
-# except for STLport if building w/ VC6.
-!if "$(CPP_COMPILER)" == "VC60"
-CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
-!endif
-
 !endif
 
 CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc -FD -D_CONSOLE
@@ -75,11 +52,6 @@ CPPFLAGS        = $(CPPFLAGS) -RTC1
 CPPFLAGS        = $(CPPFLAGS) -DICE_STATIC_LIBS
 !endif
 
-!if "$(ice_src_dist)" != ""
-LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)"
-!else
-LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(ice_dir)\lib$(x64suffix)"
-!endif
 LDFLAGS		= $(LDFLAGS) /nologo /FIXED:no
 
 !if "$(OPTIMIZE)" != "yes"
