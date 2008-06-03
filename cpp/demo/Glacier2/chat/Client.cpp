@@ -116,14 +116,11 @@ public:
             return EXIT_FAILURE;
         }
 
+        _router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+        if(!_router)
         {
-            IceUtil::Mutex::Lock sync(_mutex);
-            _router = Glacier2::RouterPrx::checkedCast(defaultRouter);
-            if(!_router)
-            {
-                cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
-                return EXIT_FAILURE;
-            }
+            cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
+            return EXIT_FAILURE;
         }
 
         ChatSessionPrx session;
@@ -152,11 +149,8 @@ public:
             }
         }
 
-        {
-            IceUtil::Mutex::Lock sync(_mutex);
-            _ping = new SessionPingThread(session, (long)_router->getSessionTimeout() / 2);
-            _ping->start();
-        }
+        _ping = new SessionPingThread(session, (long)_router->getSessionTimeout() / 2);
+        _ping->start();
 
         Ice::Identity callbackReceiverIdent;
         callbackReceiverIdent.name = "callbackReceiver";
@@ -215,7 +209,6 @@ private:
     void
     cleanup()
     {
-        IceUtil::Mutex::Lock sync(_mutex);
         if(_router)
         {
             try
@@ -256,7 +249,6 @@ private:
         return s;
     }
 
-    IceUtil::Mutex _mutex;
     Glacier2::RouterPrx _router;
     SessionPingThreadPtr _ping;
 };
