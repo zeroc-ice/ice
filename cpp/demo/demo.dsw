@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "Freeze.backup.client"=.\Freeze\backup\Freeze.backup.client.dsp - Package Owner=<4>
+Project: "Freeze.backup"=.\Freeze\backup\Freeze.backup.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.bench.client"=.\Freeze\bench\Freeze.bench.client.dsp - Package Owner=<4>
+Project: "Freeze.bench"=.\Freeze\bench\Freeze.bench.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -972,7 +972,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceUtil.workqueue.client"=.\IceUtil\workqueue\IceUtil.workqueue.client.dsp - Package Owner=<4>
+Project: "IceUtil.workqueue"=.\IceUtil\workqueue\IceUtil.workqueue.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1257,10 +1257,10 @@ Package=<4>
     Project_Dep_Name book.simple_filesystem.server
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.backup.client
+    Project_Dep_Name Freeze.backup
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.bench.client
+    Project_Dep_Name Freeze.bench
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Freeze.casino.client
@@ -1473,7 +1473,7 @@ Package=<4>
     Project_Dep_Name IceStorm.replicated2.subscriber
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceUtil.workqueue.client
+    Project_Dep_Name IceUtil.workqueue
     End Project Dependency
 }}}
 

@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Freeze.backup.client" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Freeze.bench" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Freeze.backup.client - Win32 Debug
+CFG=Freeze.bench - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Freeze.backup.client.mak".
+!MESSAGE NMAKE /f "Freeze.bench.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Freeze.backup.client.mak" CFG="Freeze.backup.client - Win32 Debug"
+!MESSAGE NMAKE /f "Freeze.bench.mak" CFG="Freeze.bench - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Freeze.backup.client - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Freeze.backup.client - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.bench - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.bench - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=Freeze.backup.client - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Freeze.backup.client - Win32 Release"
+!IF  "$(CFG)" == "Freeze.bench - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug
 
-!ELSEIF  "$(CFG)" == "Freeze.backup.client - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.bench - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,18 +84,22 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Freeze.backup.client - Win32 Release"
-# Name "Freeze.backup.client - Win32 Debug"
+# Name "Freeze.bench - Win32 Release"
+# Name "Freeze.bench - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\BenchTypes.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntLongMap.cpp
+SOURCE=.\Test.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -103,7 +107,11 @@ SOURCE=.\IntLongMap.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\IntLongMap.h
+SOURCE=.\BenchTypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Test.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -111,37 +119,53 @@ SOURCE=.\IntLongMap.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\dummy.ice
+SOURCE=.\Test.ice
 
-!IF  "$(CFG)" == "Freeze.backup.client - Win32 Release"
+!IF  "$(CFG)" == "Freeze.bench - Win32 Release"
 
-USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
-InputPath=.\dummy.ice
+InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe -I..\..\..\..\slice --dict IntLongMap,int,long IntLongMap
+	..\..\..\bin\slice2cpp.exe Test.ice \
+	..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice \
+	
 
-"IntLongMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IntLongMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"BenchTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"BenchTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Freeze.backup.client - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.bench - Win32 Debug"
 
-USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\dummy.ice
+InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe -I..\..\..\..\slice --dict IntLongMap,int,long IntLongMap
+	..\..\..\bin\slice2cpp.exe Test.ice \
+	..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice \
+	
 
-"IntLongMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IntLongMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"BenchTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"BenchTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
