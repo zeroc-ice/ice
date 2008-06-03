@@ -1198,7 +1198,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Marshalling & dispatch support.
     //
-    if(!p->isInterface())
+    if(!p->isInterface() && !p->isLocal())
     {
         writeDispatch(out, p);
     }
@@ -2099,6 +2099,11 @@ Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) :
 bool
 Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     //
     // Proxy helper
     //
@@ -2830,7 +2835,7 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir) :
 bool
 Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isInterface())
+    if(p->isLocal() || !p->isInterface())
     {
         return false;
     }
