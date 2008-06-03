@@ -66,13 +66,22 @@ libdir			= $(top_srcdir)\ruby
 install_rubydir		= $(prefix)\ruby
 install_libdir		= $(prefix)\ruby
 
-THIRDPARTY_HOME 	= $(STLPORT_HOME)
-
 !if "$(CPP_COMPILER)" != "VC60"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
+
+!if "$(ice_src_dist)" != ""
+!if "$(STLPORT_HOME)" != ""
+CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
+LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib$(x64suffix)" $(LDFLAGS)
+!endif
+!else
+!if "$(CPP_COMPILER)" == "VC60"
+CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
+!endif
+!endif
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d

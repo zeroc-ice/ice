@@ -113,6 +113,9 @@ install_configdir	= $(prefix)\config
 
 SETARGV			= setargv.obj
 
+#
+# Compiler specific definitions
+#
 !if "$(CPP_COMPILER)" == "BCC2007"
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
@@ -121,6 +124,20 @@ SETARGV			= setargv.obj
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
+!endif
+
+!if "$(ice_src_dist)" != ""
+!if "$(THIRDPARTY_HOME)" != ""
+CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include" $(CPPFLAGS)
+LDFLAGS         = $(PRELIBPATH)"$(THIRDPARTY_HOME)\lib$(x64suffix)" $(LDFLAGS)
+!if "$(CPP_COMPILER)" == "VC60"
+CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
+!endif
+!endif
+!else
+!if "$(CPP_COMPILER)" == "VC60"
+CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
+!endif
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
@@ -135,6 +152,11 @@ CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
+!if "$(ice_src_dist)" != ""
+LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(libdir)"
+!else
+LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(x64suffix)"
+!endif
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
 !if "$(ice_src_dist)" != ""
