@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Replaced IceUtil.Version with the methods Ice.Util.stringVersion
+  and Ice.Util.intVersion.
+
 - The use of sequences (and structs containing sequences) as valid 
   dictionary keys has been deprecated and will be removed in a future
   release.

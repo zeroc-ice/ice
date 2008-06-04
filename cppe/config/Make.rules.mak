@@ -70,8 +70,8 @@ MT = "$(PDK_HOME)\bin\mt.exe"
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 1.2.0
-SOVERSION		= 12
+VERSION			= 1.3.0
+SOVERSION		= 13
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include

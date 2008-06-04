@@ -207,6 +207,18 @@ public final class Util
         }
     }
 
+    public static String
+    stringVersion()
+    {
+        return "1.3.0"; // "A.B.C", with A=major, B=minor, C=patch
+    }
+
+    public static int
+    intVersion()
+    {
+        return 10300; // AABBCC, with AA=major, BB=minor, CC=patch
+    }
+
     public static void
     throwBadMagicException(byte[] badMagic)
     {
