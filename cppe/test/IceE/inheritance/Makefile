@@ -40,7 +40,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(TESTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ TestC.o $(COBJS) $(TESTCLIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
@@ -49,5 +49,9 @@ $(SERVER): $(OBJS) $(SOBJS)
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(TESTLIBS)
+
+TestC.o Test.o: Test.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT -o TestC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
 include .depend

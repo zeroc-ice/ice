@@ -21,8 +21,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 TestUtil.processCmdLine()
 
-name = os.path.join("IceE", "thread")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 client = os.path.join(testdir, "client")
 clientOptions = ' ' + testdir;

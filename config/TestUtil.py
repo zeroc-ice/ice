@@ -97,8 +97,12 @@ def configurePaths():
             else:
                 os.environ["LD_LIBRARY_PATH"] = libDir + os.pathsep + os.getenv("LD_LIBRARY_PATH", "")
 
-    javaDir = os.path.join(getIceDir("java"), "lib")
-    os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+    if getDefaultMapping() == "javae":
+        javaDir = os.path.join(getIceDir("javae"), "jdk", "lib")
+        os.environ["CLASSPATH"] = os.path.join(javaDir, "IceE.jar") + os.pathsep + os.getenv("CLASSPATH", "")
+    else:
+        javaDir = os.path.join(getIceDir("java"), "lib")
+        os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
     os.environ["CLASSPATH"] = os.path.join(javaDir) + os.pathsep + os.getenv("CLASSPATH", "")
     
     # 
@@ -696,19 +700,19 @@ def getDefaultMapping(currentDir = ""):
         scriptPath = os.path.abspath(currentDir).split(os.sep)
         scriptPath.reverse()
         for p in scriptPath: 
-            if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp"]:
+            if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp", "cppe", "javae"]:
                 return p
 
     scriptPath = os.path.abspath(sys.argv[0]).split(os.sep)
     scriptPath.reverse()
     for p in scriptPath: 
-        if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp"]:
+        if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp", "cppe", "javae"]:
             return p
 
     scriptPath = os.path.abspath(os.getcwd()).split(os.sep)
     scriptPath.reverse()
     for p in scriptPath: 
-        if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp"]:
+        if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp", "cppe", "javae"]:
             return p
 
     #  Default to C++
@@ -781,7 +785,9 @@ def getCommandLine(exe, config, env=None):
     # sequence, which is initialized with command line options common to
     # all test drivers.
     #
-    components = ["--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1"]
+    components = ["--Ice.NullHandleAbort=1"]
+    if getDefaultMapping() != "javae":
+        components += ["--Ice.Warn.Connections=1"]
 
     #
     # Turn on network tracing.
@@ -835,7 +841,7 @@ def getCommandLine(exe, config, env=None):
         print >>output, "mono", "--debug %s.exe" % exe,
     elif config.lang == "rb" and config.type == "client":
         print >>output, "ruby", exe,
-    elif config.lang == "java":
+    elif config.lang == "java" or config.lang == "javae":
         print >>output, "%s -ea" % javaCmd,
         if isSolaris() and config.x64:
             print >>output, "-d64",
@@ -960,11 +966,11 @@ def runTests(start, expanded, num = 0, script = False):
 
 def getDefaultServerFile():
     lang = getDefaultMapping()
-    if lang in ["rb", "php", "cpp", "cs"]:
+    if lang in ["rb", "php", "cpp", "cs", "cppe"]:
         return "server"
     if lang == "py":
         return "Server.py"
-    if lang == "java":
+    if lang in ["java", "javae"]:
         return "Server"
 
 def getDefaultClientFile():
@@ -973,11 +979,11 @@ def getDefaultClientFile():
         return "Client.rb"
     if lang == "php":
         return "Client.php"
-    if lang in ["cpp", "cs"]:
+    if lang in ["cpp", "cs", "cppe"]:
         return "client"
     if lang == "py":
         return "Client.py"
-    if lang == "java":
+    if lang in ["java", "javae"]:
         return "Client"
 
 def getDefaultCollocatedFile():
@@ -986,11 +992,11 @@ def getDefaultCollocatedFile():
         return "Collocated.rb"
     if lang == "php":
         return "Collocated.php"
-    if lang in ["cpp", "cs"]:
+    if lang in ["cpp", "cs", "cppe"]:
         return "collocated"
     if lang == "py":
         return "Collocated.py"
-    if lang == "java":
+    if lang in ["java", "javae"]:
         return "Collocated"
 
 def isDebug():
@@ -1004,7 +1010,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     server = serverName
     client = clientName
     
-    if lang != "java":
+    if lang != "java" and lang != "javae":
         if lang in ["rb", "php"]:
             server = os.path.join(findTopLevel(), "cpp", "test", name, serverName)
         else:
@@ -1019,7 +1025,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     if debug:
         print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
-    if lang != "java":
+    if lang != "java" and lang != "javae":
         getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
@@ -1095,7 +1101,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     lang = getDefaultMapping()
     server =  getDefaultServerFile()
     client = getDefaultClientFile()
-    if lang != "java":
+    if lang != "java" and lang != "javae":
         server = os.path.join(testdir, server)
         client = os.path.join(testdir, client)
 
@@ -1104,7 +1110,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     if debug:
         print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
-    if lang != "java":
+    if lang != "java" and lang != "javae":
         getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
@@ -1137,7 +1143,7 @@ def collocatedTestWithOptions(name, additionalOptions):
     testdir = os.path.join(findTopLevel(), getDefaultMapping(), "test", name)
     lang = getDefaultMapping()
     collocated = getDefaultCollocatedFile()
-    if lang != "java":
+    if lang != "java" and lang != "javae":
         collocated = os.path.join(testdir, collocated) 
 
     print "starting collocated...",

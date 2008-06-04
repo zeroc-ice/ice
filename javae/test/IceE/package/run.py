@@ -22,8 +22,8 @@ import TestUtil
 TestUtil.processCmdLine()
 
 name = os.path.join("IceE", "package")
-testdir = os.path.join(toplevel, "test", name)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
+testdir = os.path.dirname(os.path.abspath(__file__))
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
-TestUtil.clientServerTest()
+TestUtil.clientServerTest(name)
 sys.exit(0)

@@ -2325,6 +2325,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
     if(!allDataMembers.empty())
     {
+        C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
         C << sp << nl << p->scoped().substr(2) << "::" << fixKwd(p->name()) << spar << allParamDecls << epar << " :";
         C.inc();
 
@@ -2360,6 +2361,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         C.dec();
         C << sb;
         C << eb;
+        C << sp << nl << "#endif // ICEE_PURE_CLIENT";
     }
 }
 

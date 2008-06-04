@@ -43,7 +43,7 @@ def runTests(args, tests, num = 0):
     for i in tests:
 
 	i = os.path.normpath(i)
-	dir = os.path.join(toplevel, "test", i)
+	dir = os.path.join(toplevel, "cppe", "test", i)
 
 	print
 	if(num > 0):

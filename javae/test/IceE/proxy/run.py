@@ -22,13 +22,14 @@ import TestUtil
 TestUtil.processCmdLine()
 
 name = os.path.join("IceE", "proxy")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 print "tests with regular server."
 classpath = os.getenv("CLASSPATH", "")
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
-TestUtil.clientServerTest()
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + classpath
+TestUtil.clientServerTest(name)
 
 print "tests with collocated server."
-TestUtil.collocatedTest()
+TestUtil.collocatedTest(name)
+
 sys.exit(0)

@@ -22,9 +22,9 @@ import TestUtil
 TestUtil.processCmdLine()
 
 name = os.path.join("IceE", "slicing")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 print "tests with regular server."
-TestUtil.clientServerTestWithClasspath(os.path.join(testdir, "sclasses"), os.path.join(testdir, "cclasses"))
+TestUtil.clientServerTestWithClasspath(name, os.path.join(testdir, "sclasses"), os.path.join(testdir, "cclasses"))
 
 sys.exit(0)

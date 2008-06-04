@@ -41,6 +41,7 @@ BASELIBS		= -lpthread
 LIBS			= -lIceE $(BASELIBS)
 MINLIBS			= -lIceEC $(BASELIBS)
 TESTLIBS		= -lTestCommon $(LIBS)
+TESTCLIBS		= -lTestCommon $(MINLIBS)
 
 ICEUTIL_OS_LIBS         = -lpthread
 ICE_OS_LIBS             = -ldl

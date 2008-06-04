@@ -22,40 +22,30 @@ import TestUtil
 TestUtil.processCmdLine()
 
 name = os.path.join("IceE", "faultTolerance")
-testdir = os.path.join(toplevel, "test", name)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
-
-server = "java Server"
-client = "java Client"
+testdir = os.path.dirname(os.path.abspath(__file__))
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
 num = 12
 base = 12340
 
-serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i) + " 2>&1")
-    TestUtil.getAdapterReady(serverPipes[i])
+    serverPipe = TestUtil.startServer("Server", " %d" % (base + i) + " 2>&1")
+    TestUtil.getAdapterReady(serverPipe)
     print "ok"
 
 ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports + " 2>&1")
+clientPipe = TestUtil.startClient("Client", ports + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
 
-for i in range(0, num):
-    serverPipes[i].close()
+clientStatus = TestUtil.closePipe(clientPipe)
 
-clientStatus = clientPipe.close()
-serverStatus = None
-for i in range(0, num):
-    serverStatus = serverStatus or serverPipes[i].close()
-
-if clientStatus or serverStatus:
+if clientStatus or TestUtil.serverStatus():
     sys.exit(1)
 
 sys.exit(0)

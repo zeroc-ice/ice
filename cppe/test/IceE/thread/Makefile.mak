@@ -36,7 +36,7 @@ PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
 $(CLIENT): $(OBJS)
-	$(LINK) $(LDFLAGS) $(PDBFLAGS) $(OBJS) /out:$@ $(TESTLIBS)
+	$(LINK) $(LDFLAGS) $(PDBFLAGS) $(OBJS) /out:$@ $(TESTCLIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 

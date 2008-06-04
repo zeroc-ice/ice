@@ -326,6 +326,7 @@ MFC_MINLIBS	= nafxcw.lib $(MINLIBS)
 !endif
 
 TESTLIBS	= testcommon$(LIBSUFFIX).lib $(LIBS)
+TESTCLIBS	= testcommon$(LIBSUFFIX).lib $(MINLIBS)
 
 SLICE2CPPEFLAGS		= -I$(slicedir)
 SLICE2CPP		= slice2cppe.exe

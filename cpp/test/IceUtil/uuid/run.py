@@ -22,6 +22,7 @@ import TestUtil
 TestUtil.processCmdLine()
 
 testdir = os.path.dirname(os.path.abspath(__file__))
+print testdir
 
 client = os.path.join(testdir, "client")
 

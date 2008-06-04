@@ -14,15 +14,16 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-COBJS		= Test.o \
-		  Client.o \
+OBJS		= Test.o
+
+COBJS		= Client.o \
 		  AllTests.o
 
-SOBJS		= Test.o \
-		  TestI.o \
+SOBJS		= TestI.o \
 		  Server.o
 
-SRCS		= $(COBJS:.o=.cpp) \
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
@@ -31,12 +32,16 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(TESTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ TestC.o $(COBJS) $(TESTCLIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(TESTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(TESTLIBS)
+
+TestC.o Test.o: Test.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT -o TestC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
 include .depend

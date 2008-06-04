@@ -11,17 +11,17 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= proxy \
-                  operations \
+SUBDIRS		= adapterDeactivation \
+		  custom \
 		  exceptions \
-		  inheritance \
 		  facets \
 		  faultTolerance \
+		  inheritance \
 		  location \
-		  adapterDeactivation \
-		  slicing \
-		  custom \
+                  operations \
+	 	  proxy \
 		  retry \
+		  slicing \
 		  thread \
 		  uuid
 

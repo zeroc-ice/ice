@@ -15,31 +15,29 @@ COLLOCATED	= collocated
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-COBJS		= Test.o \
-		  Wstring.o \
-		  Client.o \
+OBJS		= Test.o \
+		  Wstring.o
+
+COBJS		= Client.o \
 		  AllTests.o \
 		  MyByteSeq.o \
 		  StringConverterI.o
 
-SOBJS		= Test.o \
-		  TestI.o \
-		  Wstring.o \
+SOBJS		= TestI.o \
 		  WstringI.o \
 		  Server.o \
 		  MyByteSeq.o \
 		  StringConverterI.o
 
-COLOBJS		= Test.o \
-		  TestI.o \
-		  Wstring.o \
+COLOBJS		= TestI.o \
 		  WstringI.o \
 		  Collocated.o \
 		  AllTests.o \
 		  MyByteSeq.o \
 		  StringConverterI.o
 
-SRCS		= $(COBJS:.o=.cpp) \
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
@@ -50,16 +48,24 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	 := -I. -I../../include $(CPPFLAGS)
 SLICE2CPPEFLAGS  := $(SLICE2CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(TESTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ TestC.o WstringC.o $(COBJS) $(TESTCLIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(TESTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(TESTLIBS)
 
-$(COLLOCATED): $(COLOBJS)
+$(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(TESTLIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(TESTLIBS)
+
+TestC.o Test.o: Test.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT -o TestC.o $(CPPFLAGS) $(CXXFLAGS) $<
+
+WstringC.o Wstring.o: Wstring.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT -o WstringC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
 include .depend
