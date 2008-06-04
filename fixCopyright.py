@@ -132,15 +132,15 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
         #
         # Make sure Windows Makefiles are kept in DOS format.
         #
-        if fnmatch.fnmatch(file, "*.mak*") or fnmatch.fnmatch(file, "*Make.rules.bcc") or fnmatch.fnmatch(file, "*Make.rules.msvc")):
-            os.popen("unix2dos file");
+        if fnmatch.fnmatch(file, "*.mak*") or fnmatch.fnmatch(file, "*Make.rules.bcc") or fnmatch.fnmatch(file, "*Make.rules.msvc"):
+            os.popen("unix2dos " + file);
 
     return copyrightFound
 
 #
 # Replace alls copyrights
 #
-def replaceAllCopyrights(path, patchIceE):
+def replaceAllCopyrights(path, patchIceE, recursive):
 
     cppCopyright = copyright("//", patchIceE)
     mcCopyright = copyright("; //", patchIceE)
@@ -157,7 +157,8 @@ def replaceAllCopyrights(path, patchIceE):
     for x in files:
         fullpath = os.path.join(path, x);
         if os.path.isdir(fullpath) and not os.path.islink(fullpath):
-            replaceAllCopyrights(fullpath, patchIceE)
+            if recursive:
+                replaceAllCopyrights(fullpath, patchIceE, True)
         else:
             
             commentMark = ""
@@ -169,6 +170,9 @@ def replaceAllCopyrights(path, patchIceE):
             if x == "config" or x == ".depend" or x == ".dummy" or fnmatch.fnmatch(x, "*.dsp")   or fnmatch.fnmatch(x, "*.sln") or fnmatch.fnmatch(x, "*.vdproj") or fnmatch.fnmatch(x, "*.err") or fnmatch.fnmatch(x, "*.class") or fnmatch.fnmatch(x, "*.ico") or fnmatch.fnmatch(x, "*.gif") or fnmatch.fnmatch(x, "*.jpg") or fnmatch.fnmatch(x, "*.orig"):
                 print "Skipping file " + fullpath + ": no copyright needed"
                 skip = 1  
+            elif fnmatch.fnmatch(x, "Make*") or fnmatch.fnmatch(x, "*.properties"):
+                commentMark = "#"
+                copyrightLines = makefileCopyright
             elif fnmatch.fnmatch(x, "*.h") or fnmatch.fnmatch(x, "*.cpp") or fnmatch.fnmatch(x, "*.cs") or fnmatch.fnmatch(x, "*.ice") or fnmatch.fnmatch(x, "*.java") or fnmatch.fnmatch(x, "*.l") or fnmatch.fnmatch(x, "*.y"):
                 commentMark = "//"
                 copyrightLines = cppCopyright
@@ -176,6 +180,9 @@ def replaceAllCopyrights(path, patchIceE):
                 commentMark = "#"
                 copyrightLines = pythonCopyright
             elif fnmatch.fnmatch(x, "*.def"):
+                commentMark = "#"
+                copyrightLines = pythonCopyright
+            elif fnmatch.fnmatch(x, "*.cnf"):
                 commentMark = "#"
                 copyrightLines = pythonCopyright
             elif fnmatch.fnmatch(x, "*.rb"):
@@ -187,9 +194,6 @@ def replaceAllCopyrights(path, patchIceE):
             elif fnmatch.fnmatch(x, "*.vb"):
                 commentMark = "'"
                 copyrightLines = vbCopyright
-            elif fnmatch.fnmatch(x, "Make*") or fnmatch.fnmatch(x, "*.properties"):
-                commentMark = "#"
-                copyrightLines = makefileCopyright
             elif fnmatch.fnmatch(x, "*.xml"):
                 commentBegin = "<!--"
                 commentEnd = "-->"
@@ -201,6 +205,57 @@ def replaceAllCopyrights(path, patchIceE):
             if not skip:
                 if replaceCopyright(fullpath, commentMark, commentBegin, commentEnd, copyrightLines) == 0:
                     print "***** WARNING: Did not find copyright in " + fullpath                   
+
+#   
+# Find files matching a pattern.
+#   
+def find(path, patt):
+    result = [ ]
+    files = os.listdir(path)
+    for x in files:
+        fullpath = os.path.join(path, x);
+        if os.path.isdir(fullpath) and not os.path.islink(fullpath):
+            result.extend(find(fullpath, patt))
+        elif fnmatch.fnmatch(x, patt):
+            result.append(fullpath)
+    return result
+
+def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
+
+    oldConfigFile = open(filename, "r")
+    newConfigFile = open(filename + ".new", "w")
+
+    #
+    # Compile the regular expressions
+    #
+    regexps = [ ]
+    for (regexp, replace) in matchAndReplaceExps:
+        regexps.append((re.compile(regexp), replace))
+
+    #
+    # Search for the line with the given regular expressions and
+    # replace the matching string
+    #
+    updated = False
+    for line in oldConfigFile.readlines():
+        for (regexp, replace) in regexps:
+            match = regexp.search(line)
+            if match != None:
+                oldLine = line
+                line = oldLine.replace(match.group(1), replace)
+                updated = True
+                break
+        newConfigFile.write(line)
+
+    newConfigFile.close()
+    oldConfigFile.close()
+
+    if updated:
+        print "updated " + filename
+        os.rename(filename + ".new", filename)
+    elif warn:
+        print "warning: " + filename + " didn't contain any copyright"
+        os.unlink(filename + ".new")
 
 #
 # Main
@@ -224,59 +279,47 @@ for x in sys.argv[1:]:
 
 ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 
+#
+# Fix copyright header in files
+#
 if patchIceE:
-    icee_home = os.path.join(ice_dir, "cppe")
-    if icee_home:
-        replaceAllCopyrights(icee_home, True)
-
-    iceje_home = os.path.join(ice_dir, "javae")
-    if iceje_home:
-        replaceAllCopyrights(iceje_home, True)
+    for dir in ["cppe", "javae"]:
+        home = os.path.join(ice_dir, dir)
+        if home:
+            replaceAllCopyrights(home, True, True)
 else:
-    slice_home = os.path.join(ice_dir, "slice")
-    if slice_home:
-        replaceAllCopyrights(slice_home, False)
-            
-    ice_home = os.path.join(ice_dir, "cpp")
-    if ice_home:
-        replaceAllCopyrights(ice_home, False)
+    replaceAllCopyrights(ice_dir, False, False)
+    for dir in ["slice", "cpp", "java", "cs", "vb", "php", "py", "rb", "sl", "demoscript", "distribution", "config", "certs"]:
+        home = os.path.join(ice_dir, dir)
+        if home:
+            replaceAllCopyrights(home, False, True)
 
-    icej_home = os.path.join(ice_dir, "java")
-    if icej_home:
-        replaceAllCopyrights(icej_home, False)
+#
+# Fix various other files that have copyright info in them that
+# are not taken care of above.
+#
+vpatMatch = "20[0-9][0-9]-(20[0-9][0-9]) ZeroC"
+copyright = "2008"
 
-    icecs_home = os.path.join(ice_dir, "cs")
-    if icecs_home:
-        replaceAllCopyrights(icecs_home, False)
+files = find(ice_dir, "*.rc")
+files += find(ice_dir, "*LICENSE")
+files += find(os.path.join(ice_dir, "cpp", "src"), "Gen.cpp")
+files += find(os.path.join(ice_dir, "cpp", "src"), "Parser.cpp")
+files += find(os.path.join(ice_dir, "cpp", "src", "Slice"), "*Util.cpp")
+files += [os.path.join(ice_dir, "cpp", "src", "ca", "iceca")]
+files += [os.path.join(ice_dir, "cpp", "doc", "symboltree.js")]
+files += [os.path.join(ice_dir, "cpp", "demo", "Freeze", "backup", "backup")]
+files += find(os.path.join(ice_dir, "cpp"), "*.bat")
+files += [os.path.join(ice_dir, "cpp", "test", "IceSSL", "certs", "makecerts")]
+files += [os.path.join(ice_dir, "java", "bin", "icegridgui.rpm")]
+files += [os.path.join(ice_dir, "java", "src", "IceGridGUI", "Coordinator.java")]
+files += find(os.path.join(ice_dir, "java", "resources", "IceGridAdmin"), "icegridadmin_content_*.html")
+files += [os.path.join(ice_dir, "config", "makeprops.py")]
+files += find(os.path.join(ice_dir), "AssemblyInfo.cs")
+files += find(os.path.join(ice_dir, "sl"), "*.as*x")
+files += find(os.path.join(ice_dir, "distribution", "src", "rpm"), "*")
+files += find(os.path.join(ice_dir, "php"), "*.php")
 
-    icevb_home = os.path.join(ice_dir, "vb")
-    if icevb_home:
-        replaceAllCopyrights(icevb_home, False)
-
-    icephp_home = os.path.join(ice_dir, "php")
-    if icephp_home:
-        replaceAllCopyrights(icephp_home, False)
-
-    icepy_home = os.path.join(ice_dir, "py")
-    if icepy_home:
-        replaceAllCopyrights(icepy_home, False)
-
-    icerb_home = os.path.join(ice_dir, "rb")
-    if icerb_home:
-        replaceAllCopyrights(icerb_home, False)
-
-    icedemo_home = os.path.join(ice_dir, "demoscript")
-    if icedemo_home:
-        replaceAllCopyrights(icedemo_home, False)
-
-    icedist_home = os.path.join(ice_dir, "distribution")
-    if icedist_home:
-        replaceAllCopyrights(icedist_home, False)
-        
-    config_home = os.path.join(ice_dir, "config")
-    if config_home:
-        replaceAllCopyrights(config_home, False)
-
-    certs_home = os.path.join(ice_dir, "certs")
-    if certs_home:
-        replaceAllCopyrights(certs_home, False)
+for f in files:
+    fileMatchAndReplace(f, [(vpatMatch, copyright)])
+>>>>>>> 5dd7ba1... Updated fixCopyright to fix a lot of files it missed handling.:fixCopyright.py
