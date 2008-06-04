@@ -30,7 +30,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+CPPFLAGS	:= -I. -I../../include -DICEE_PURE_CLIENT $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
