@@ -18,7 +18,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("IcePatch2 for .NET")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2008, ZeroC, Inc.")]
+[assembly: AssemblyCopyright("Copyright (c) 2003-2008 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]         
 [assembly: AssemblyVersion("3.3.0")]
