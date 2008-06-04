@@ -8,7 +8,7 @@ CasinoStore.cpp
 Casino.h
 CasinoStore.h
 db/__catalog
-db/__catalogIndexLIst
+db/__catalogIndexList
 db/bet
 db/bank
 db/player
