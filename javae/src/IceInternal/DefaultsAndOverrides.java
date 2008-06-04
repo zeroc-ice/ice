@@ -13,47 +13,47 @@ public final class DefaultsAndOverrides
 {
     DefaultsAndOverrides(Ice.Properties properties)
     {
-	String value;
-	
-	defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        String value;
+        
+        defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
-	value = properties.getProperty("Ice.Default.Host");
-	if(value.length() != 0)
-	{
-	    defaultHost = value;
-	}
-	else
-	{
-	    defaultHost = Network.getLocalHost(true);
-	}
-	
-	defaultRouter = properties.getProperty("Ice.Default.Router");
-	
-	value = properties.getProperty("Ice.Override.Timeout");
-	if(value.length() > 0)
-	{
-	    overrideTimeout = true;
-	    overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
-	}
-	else
-	{
-	    overrideTimeout = false;
-	    overrideTimeoutValue = -1;
-	}
+        value = properties.getProperty("Ice.Default.Host");
+        if(value.length() != 0)
+        {
+            defaultHost = value;
+        }
+        else
+        {
+            defaultHost = Network.getLocalHost(true);
+        }
+        
+        defaultRouter = properties.getProperty("Ice.Default.Router");
+        
+        value = properties.getProperty("Ice.Override.Timeout");
+        if(value.length() > 0)
+        {
+            overrideTimeout = true;
+            overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+        }
+        else
+        {
+            overrideTimeout = false;
+            overrideTimeoutValue = -1;
+        }
 
-	value = properties.getProperty("Ice.Override.ConnectTimeout");
-	if(value.length() > 0)
-	{
-	    overrideConnectTimeout = true;
-	    overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
-	}
-	else
-	{
-	    overrideConnectTimeout = false;
-	    overrideConnectTimeoutValue = -1;
-	}
+        value = properties.getProperty("Ice.Override.ConnectTimeout");
+        if(value.length() > 0)
+        {
+            overrideConnectTimeout = true;
+            overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+        }
+        else
+        {
+            overrideConnectTimeout = false;
+            overrideConnectTimeoutValue = -1;
+        }
 
-	defaultLocator = properties.getProperty("Ice.Default.Locator");
+        defaultLocator = properties.getProperty("Ice.Default.Locator");
     }
 
     final public String defaultHost;

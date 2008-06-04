@@ -35,17 +35,15 @@ public:
     virtual void
     message(const string& data, const Ice::Current&)
     {
-	_log->message(data);
+        _log->message(data);
     }
 
 private:
 
     const LogIPtr _log;
-
 };
 
-CChatClientDlg::CChatClientDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log,
-			       CWnd* pParent /*=NULL*/) :
+CChatClientDlg::CChatClientDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log, CWnd* pParent /*=NULL*/) :
     CDialog(CChatClientDlg::IDD, pParent),
     _communicator(communicator), 
     _chat(0), 
@@ -53,7 +51,7 @@ CChatClientDlg::CChatClientDlg(const Ice::CommunicatorPtr& communicator, const L
     //_user(""), // For ease of testing these can be filled in.
     //_password(""),
     //_host(""),
-    _port("10005")
+    _port("4063")
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -66,9 +64,9 @@ CChatClientDlg::~CChatClientDlg()
     //
     if(_ping)
     {
-	_ping->destroy();
-	_ping->getThreadControl().join();
-	_ping = 0;
+        _ping->destroy();
+        _ping->getThreadControl().join();
+        _ping = 0;
     }
 }
 
@@ -108,9 +106,9 @@ CChatClientDlg::setDialogState()
 
     if(_chat == 0)
     {
-    	//
-	// Logged out: Disable all except Login.
-	//
+            //
+        // Logged out: Disable all except Login.
+        //
         _edit->EnableWindow(FALSE);
         _display->EnableWindow(FALSE);
         sendWnd->EnableWindow(FALSE);
@@ -120,23 +118,23 @@ CChatClientDlg::setDialogState()
         configWnd->SetWindowText("Login");
 #endif
 
-	//
-	// Set the focus to the login button
-	//
-	loginWnd->SetFocus();
+        //
+        // Set the focus to the login button
+        //
+        loginWnd->SetFocus();
 
-	//
-	// Set the default button.
-	//
-	sendWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
-	SendMessage(DM_SETDEFID, (WPARAM)IDC_CONFIG, 0);
-	configWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
+        //
+        // Set the default button.
+        //
+        sendWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
+        SendMessage(DM_SETDEFID, (WPARAM)IDC_CONFIG, 0);
+        configWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
     }
     else
     {
         //
-	// Logged in: Enable all and change Login to Logout
-	//
+        // Logged in: Enable all and change Login to Logout
+        //
         _edit->EnableWindow(TRUE);
         _display->EnableWindow(TRUE);
         sendWnd->EnableWindow(TRUE);
@@ -147,12 +145,12 @@ CChatClientDlg::setDialogState()
 #endif
         _edit->SetFocus();
 
-	//
-	// Set the default button.
-	//
-	configWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
-	SendMessage(DM_SETDEFID, (WPARAM)IDC_SEND, 0);
-	sendWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
+        //
+        // Set the default button.
+        //
+        configWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
+        SendMessage(DM_SETDEFID, (WPARAM)IDC_SEND, 0);
+        sendWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
     }
 }
 
@@ -195,24 +193,24 @@ CChatClientDlg::OnCancel()
 {
     if(_chat)
     {
-	//
-	// Clear the router.
-	//
-	assert(_router);
-    	try
-	{
-	    _router->destroySession();
-	}
+        //
+        // Clear the router.
+        //
+        assert(_router);
+            try
+        {
+            _router->destroySession();
+        }
         catch(const Ice::ConnectionLostException&)
         {
             //
             // Expected: the router closed the connection.
             //
         }
-	catch(const Ice::Exception& ex)
-	{
-	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
-	}
+        catch(const Ice::Exception& ex)
+        {
+            AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
+        }
     }
 
     _log->setHandle(0);
@@ -283,15 +281,15 @@ CChatClientDlg::OnSend()
     text.TrimRight();
     if(text.IsEmpty())
     {
-	return;
+        return;
     }
 
     try
     {
 #ifdef _WIN32_WCE
-	char buffer[256];
-	wcstombs(buffer, text, 256);
-	_chat->say(buffer);
+        char buffer[256];
+        wcstombs(buffer, text, 256);
+        _chat->say(buffer);
 #else
         _chat->say(string(text));
 #endif
@@ -300,10 +298,10 @@ CChatClientDlg::OnSend()
     {
         AfxMessageBox(CString(e.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
 
-	_ping->destroy();
-	_ping->getThreadControl().join();
+        _ping->destroy();
+        _ping->getThreadControl().join();
 
-	EndDialog(0);
+        EndDialog(0);
     }
 
     //
@@ -319,129 +317,127 @@ CChatClientDlg::OnLogin()
     if(_chat == 0)
     {
         //
-	// Login: Create and display login dialog.
-	//
+        // Login: Create and display login dialog.
+        //
         CChatConfigDlg dlg(_user, _password, _host, _port);
         if(dlg.DoModal() == IDOK)
-	{
-	    _user = dlg.getUser();
-	    _password = dlg.getPassword();
-	    _host = dlg.getHost();
-	    _port = dlg.getPort();
+        {
+            _user = dlg.getUser();
+            _password = dlg.getPassword();
+            _host = dlg.getHost();
+            _port = dlg.getPort();
 
-	    string user;
-	    string password;
-	    string host;
-	    string port;
+            string user;
+            string password;
+            string host;
+            string port;
 #ifdef _WIN32_WCE
-	    char buffer[64];
-	    wcstombs(buffer, _user, 64);
-	    user = buffer;
+            char buffer[64];
+            wcstombs(buffer, _user, 64);
+            user = buffer;
 
-	    wcstombs(buffer, _password, 64);
-	    password = buffer;
+            wcstombs(buffer, _password, 64);
+            password = buffer;
 
-	    wcstombs(buffer, _host, 64);
-	    host = buffer;
+            wcstombs(buffer, _host, 64);
+            host = buffer;
 
-	    wcstombs(buffer, _port, 64);
-	    port = buffer;
+            wcstombs(buffer, _port, 64);
+            port = buffer;
 #else
-	    user = _user;
-	    password = _password;
-	    host = _host;
-	    port = _port;
+            user = _user;
+            password = _password;
+            host = _host;
+            port = _port;
 #endif
 
-	    try
-	    {
-		string routerStr = 
-		    Ice::printfToString("DemoGlacier2/router:tcp -p %s -h %s", port.c_str(), host.c_str());
-		_router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
-		assert(_router);
+            try
+            {
+                string routerStr = 
+                    Ice::printfToString("DemoGlacier2/router:tcp -p %s -h %s", port.c_str(), host.c_str());
+                _router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
+                assert(_router);
 
-		//
-		// Now setup the new router.
-		//
-		_chat = ChatSessionPrx::uncheckedCast(_router->createSession(user, password)->ice_router(_router));
+                //
+                // Now setup the new router.
+                //
+                _chat = ChatSessionPrx::uncheckedCast(_router->createSession(user, password)->ice_router(_router));
 
+                    //
+                    // Create the OA.
+                    //
+                    _adapter = _communicator->createObjectAdapterWithRouter("Chat.Client", _router);
+                    _adapter->activate();
 
-    		//
-    		// Create the OA.
-    		//
-    		_adapter = _communicator->createObjectAdapterWithRouter("Chat.Client", _router);
-    		_adapter->activate();
+                //
+                // Create the callback object. This must have the
+                // category as defined by the Glacier2 session.
+                //
+                Ice::Identity callbackReceiverIdent;
+                callbackReceiverIdent.name = "callbackReceiver";
+                callbackReceiverIdent.category = _router->getCallbackForClient();
+                ChatCallbackPtr cb = new ChatCallbackI(_log);
+                _callback = ChatCallbackPrx::uncheckedCast(_adapter->add(cb, callbackReceiverIdent));
 
-		//
-		// Create the callback object. This must have the
-		// category as defined by the Glacier2 session.
-		//
-		string category = _router->getServerProxy()->ice_getIdentity().category;
-		Ice::Identity callbackReceiverIdent;
-		callbackReceiverIdent.name = "callbackReceiver";
-		callbackReceiverIdent.category = category;
-		_callback = ChatCallbackPrx::uncheckedCast(
-		    _adapter->add(new ChatCallbackI(_log), callbackReceiverIdent));
+                _chat->setCallback(_callback);
 
-		_chat->setCallback(_callback);
-
-		//
-		// Create a ping thread to keep the session alive.
-		//
-		_ping = new SessionPingThread(_chat, (long)_router->getSessionTimeout() / 2);
-		_ping->start();
-	    }
-	    catch(const Glacier2::CannotCreateSessionException& ex)
-	    {
-		AfxMessageBox(CString(ex.reason.c_str()), MB_OK|MB_ICONEXCLAMATION);
-	    }
-	    catch(const Ice::Exception& ex)
-	    {
-		AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
-		_chat = 0;
-	    }
-	}
+                //
+                // Create a ping thread to keep the session alive.
+                //
+                _ping = new SessionPingThread(_chat, (long)_router->getSessionTimeout() / 2);
+                _ping->start();
+            }
+            catch(const Glacier2::CannotCreateSessionException& ex)
+            {
+                AfxMessageBox(CString(ex.reason.c_str()), MB_OK|MB_ICONEXCLAMATION);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
+                _chat = 0;
+            }
+        }
     }
     else
     {
         //
-	// Logout: Destroy session and stop ping thread.
-	//
-	assert(_callback);
-	_adapter->remove(_callback->ice_getIdentity());
-	_callback = 0;
+        // Logout: Destroy session and stop ping thread.
+        //
+        assert(_callback);
+        _adapter->remove(_callback->ice_getIdentity());
+        _callback = 0;
 
-	assert(_chat);
-	_chat = 0;
+        assert(_chat);
+        _chat = 0;
 
-	//
-	// Destroy the ping thread.
-	//
-	_ping->destroy();
-	_ping->getThreadControl().join();
-	_ping = 0;
+        //
+        // Destroy the ping thread.
+        //
+        _ping->destroy();
+        _ping->getThreadControl().join();
+        _ping = 0;
 
-	//
-	// Clear the router.
-	//
-	assert(_router);
-    	try
-	{
-	    _router->destroySession();
-	}
+        //
+        // Clear the router.
+        //
+        assert(_router);
+            try
+        {
+            _router->destroySession();
+        }
         catch(const Ice::ConnectionLostException&)
         {
             //
             // Expected: the router closed the connection.
             //
         }
-	catch(const Ice::Exception& ex)
-	{
-	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
-	}
+        catch(const Ice::Exception& ex)
+        {
+            AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
+        }
 
-	_adapter->destroy();
-	_router = 0;
+        _adapter->destroy();
+        _router = 0;
     }
 
     //

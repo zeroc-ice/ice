@@ -15,7 +15,6 @@ using namespace Demo;
 CallbackSenderI::CallbackSenderI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
     _destroy(false),
-    _num(0),
     _callbackSenderThread(new CallbackSenderThread(this))
 {
 }
@@ -26,15 +25,15 @@ CallbackSenderI::destroy()
     IceUtil::ThreadPtr callbackSenderThread;
 
     {
-	Lock lock(*this);
-	
-	printf("destroying callback sender\n");
-	_destroy = true;
-	
-	notify();
+        Lock lock(*this);
+        
+        printf("destroying callback sender\n");
+        _destroy = true;
+        
+        notify();
 
-	callbackSenderThread = _callbackSenderThread;
-	_callbackSenderThread = 0; // Resolve cyclic dependency.
+        callbackSenderThread = _callbackSenderThread;
+        _callbackSenderThread = 0; // Resolve cyclic dependency.
     }
 
     callbackSenderThread->getThreadControl().join();
@@ -60,32 +59,39 @@ CallbackSenderI::start()
 void
 CallbackSenderI::run()
 {
-    Lock lock(*this);
-
-    while(!_destroy)
+    int num = 0;
+    while(true)
     {
-	timedWait(IceUtil::Time::seconds(2));
+        std::set<Demo::CallbackReceiverPrx> clients;
+        {
+            Lock lock(*this);
+            timedWait(IceUtil::Time::seconds(2));
 
-	if(!_destroy && !_clients.empty())
-	{
-	    ++_num;
-	    
-	    set<CallbackReceiverPrx>::iterator p = _clients.begin();
-	    while(p != _clients.end())
-	    {
-		try
-		{
-		    (*p)->callback(_num);
-		    ++p;
-		}
-		catch(const Ice::Exception& ex)
-		{
-		    fprintf(stderr, "removing client `%s':\n%s\n",
-			    _communicator->identityToString((*p)->ice_getIdentity()).c_str(),
-		    	    ex.toString().c_str());
-		    _clients.erase(p++);
-		}
-	    }
-	}
+            if(_destroy)
+            {
+                break;
+            }
+
+            clients = _clients;
+        }
+
+        if(!clients.empty())
+        {
+            ++num;
+            for(set<CallbackReceiverPrx>::iterator p = clients.begin(); p != clients.end(); ++p)
+            {
+                try
+                {
+                    (*p)->callback(num);
+                }
+                catch(const Ice::Exception& ex)
+                {
+                    fprintf(stderr, "removing client `%s':\n%s\n",
+                            _communicator->identityToString((*p)->ice_getIdentity()).c_str(),
+                                ex.toString().c_str());
+                    _clients.erase(*p);
+                }
+            }
+        }
     }
 }

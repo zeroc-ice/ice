@@ -20,34 +20,34 @@ class MonitorRecMutexTestThread : public Thread
 public:
     
     MonitorRecMutexTestThread(Monitor<RecMutex>& m) :
-	_monitor(m),
-	_tryLock(false)
+        _monitor(m),
+        _tryLock(false)
     {
     }
 
     virtual void run()
     {
-	
-	Monitor<RecMutex>::TryLock tlock(_monitor);
-	test(!tlock.acquired());
-	
-	{
-	    Mutex::Lock lock(_tryLockMutex);
-	    _tryLock = true;
-	}
-	_tryLockCond.signal();
+        
+        Monitor<RecMutex>::TryLock tlock(_monitor);
+        test(!tlock.acquired());
+        
+        {
+            Mutex::Lock lock(_tryLockMutex);
+            _tryLock = true;
+        }
+        _tryLockCond.signal();
 
-	Monitor<RecMutex>::Lock lock(_monitor);
+        Monitor<RecMutex>::Lock lock(_monitor);
     }
 
     void
     waitTryLock()
     {
-	Mutex::Lock lock(_tryLockMutex);
-	while(!_tryLock)
-	{
-	    _tryLockCond.wait(lock);
-	}
+        Mutex::Lock lock(_tryLockMutex);
+        while(!_tryLock)
+        {
+            _tryLockCond.wait(lock);
+        }
     }
 
 private:
@@ -68,16 +68,16 @@ class MonitorRecMutexTestThread2 : public Thread, public Monitor<RecMutex>
 public:
     
     MonitorRecMutexTestThread2(Monitor<RecMutex>& monitor) :
-	finished(false),
-	_monitor(monitor)
+        finished(false),
+        _monitor(monitor)
     {
     }
 
     virtual void run()
     {
-	Monitor<RecMutex>::Lock lock(_monitor);
-	_monitor.wait();
-	finished = true;
+        Monitor<RecMutex>::Lock lock(_monitor);
+        _monitor.wait();
+        finished = true;
     }
 
     bool finished;
@@ -108,22 +108,22 @@ MonitorRecMutexTest::run()
 
 
     {
-	Monitor<RecMutex>::Lock lock(monitor);
+        Monitor<RecMutex>::Lock lock(monitor);
 
-	Monitor<RecMutex>::TryLock lock2(monitor);
-	test(lock2.acquired());
-	
-	// TEST: TryLock
-	
-	Monitor<RecMutex>::TryLock tlock(monitor);
-	test(tlock.acquired());
-	
-	// TEST: Start thread, try to acquire the mutex.
-	t = new MonitorRecMutexTestThread(monitor);
-	control = t->start();
-	
-	// TEST: Wait until the tryLock has been tested.
-	t->waitTryLock();
+        Monitor<RecMutex>::TryLock lock2(monitor);
+        test(lock2.acquired());
+        
+        // TEST: TryLock
+        
+        Monitor<RecMutex>::TryLock tlock(monitor);
+        test(tlock.acquired());
+        
+        // TEST: Start thread, try to acquire the mutex.
+        t = new MonitorRecMutexTestThread(monitor);
+        control = t->start();
+        
+        // TEST: Wait until the tryLock has been tested.
+        t->waitTryLock();
     }
 
     //
@@ -142,8 +142,8 @@ MonitorRecMutexTest::run()
     ThreadControl::sleep(Time::seconds(1));
 
     {
-	Monitor<RecMutex>::Lock lock(monitor);
-	monitor.notify();
+        Monitor<RecMutex>::Lock lock(monitor);
+        monitor.notify();
     }
 
     // Give one thread time to terminate
@@ -152,8 +152,8 @@ MonitorRecMutexTest::run()
     test((t2->finished && !t3->finished) || (t3->finished && !t2->finished));
 
     {
-	Monitor<RecMutex>::Lock lock(monitor);
-	monitor.notify();
+        Monitor<RecMutex>::Lock lock(monitor);
+        monitor.notify();
     }
     control.join();
     control2.join();
@@ -168,8 +168,8 @@ MonitorRecMutexTest::run()
     ThreadControl::sleep(Time::seconds(1));
 
     {
-	Monitor<RecMutex>::Lock lock(monitor);
-	monitor.notifyAll();
+        Monitor<RecMutex>::Lock lock(monitor);
+        monitor.notifyAll();
     }
 
     control.join();
@@ -177,7 +177,7 @@ MonitorRecMutexTest::run()
 
     // TEST: timedWait
     {
-	Monitor<RecMutex>::Lock lock(monitor);
-	test(!monitor.timedWait(Time::milliSeconds(500)));
+        Monitor<RecMutex>::Lock lock(monitor);
+        test(!monitor.timedWait(Time::milliSeconds(500)));
     }
 }

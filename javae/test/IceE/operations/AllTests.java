@@ -23,23 +23,23 @@ public class AllTests
     {
         out.flush();
         String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", 
-		"test:default -p 12010 -t 10000");
+                "test:default -p 12010 -t 10000");
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);
         Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(cl);
 
-	out.print("testing timeout... ");
-	out.flush();
-	try
-	{
-	    Test.MyClassPrx clTimeout = Test.MyClassPrxHelper.uncheckedCast(cl.ice_timeout(500));
-	    clTimeout.opSleep(1000);
-	    test(false);
-	}
-	catch(Ice.TimeoutException ex)
-	{
-	}
-	out.println("ok");
+        out.print("testing timeout... ");
+        out.flush();
+        try
+        {
+            Test.MyClassPrx clTimeout = Test.MyClassPrxHelper.uncheckedCast(cl.ice_timeout(500));
+            clTimeout.opSleep(1000);
+            test(false);
+        }
+        catch(Ice.TimeoutException ex)
+        {
+        }
+        out.println("ok");
 
         out.print("testing twoway operations... ");
         out.flush();
@@ -47,11 +47,11 @@ public class AllTests
         Twoways.twoways(communicator, initData, derived);
         derived.opDerived();
         out.println("ok");
-	out.print("testing batch oneway operations... ");
-	out.flush();
-	BatchOneways.batchOneways(cl);
-	BatchOneways.batchOneways(derived);
-	out.println("ok");
+        out.print("testing batch oneway operations... ");
+        out.flush();
+        BatchOneways.batchOneways(cl);
+        BatchOneways.batchOneways(derived);
+        out.println("ok");
 
         return cl;
     }

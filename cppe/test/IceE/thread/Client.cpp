@@ -27,21 +27,21 @@ public:
 
     virtual int run(int argc, char* argv[])
     {
-	try
-	{
-	    initializeTestSuite();
+        try
+        {
+            initializeTestSuite();
 
-	    for(list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
-	    {
-		(*p)->start();
-	    }
-	}
-	catch(const TestFailed& e)
-	{
-	    tprintf("test %s failed\n", e.name.c_str());
-	    return EXIT_FAILURE;
-	}
-	return EXIT_SUCCESS;
+            for(list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
+            {
+                (*p)->start();
+            }
+        }
+        catch(const TestFailed& e)
+        {
+            tprintf("test %s failed\n", e.name.c_str());
+            return EXIT_FAILURE;
+        }
+        return EXIT_SUCCESS;
     }
 };
 

@@ -17,11 +17,11 @@
 namespace IceInternal
 {
 
-FactoryTableWrapper factoryTableWrapper;	// Single global instance of the wrapper object that
-						// initializes factoryTable.
+FactoryTableWrapper factoryTableWrapper;        // Single global instance of the wrapper object that
+                                                // initializes factoryTable.
 
-ICE_API FactoryTableDef* factoryTable;		// Single global instance of the factory table for
-						// non-local exceptions and non-abstract classes
+ICE_API FactoryTableDef* factoryTable;                // Single global instance of the factory table for
+                                                // non-local exceptions and non-abstract classes
 }
 
 //
@@ -35,11 +35,11 @@ IceInternal::FactoryTableDef::addExceptionFactory(const std::string& t, const Ic
     EFTable::iterator i = _eft.find(t);
     if(i == _eft.end())
     {
-	_eft[t] = EFPair(f, 1);
+        _eft[t] = EFPair(f, 1);
     }
     else
     {
-	i->second.second++;
+        i->second.second++;
     }
 }
 
@@ -54,23 +54,23 @@ IceInternal::FactoryTableDef::getExceptionFactory(const std::string& t) const
 #ifdef __APPLE__
     if(i == _eft.end())
     {
-	lock.release();
+        lock.release();
 
-	//
-	// Try to find the symbol, if found this should trigger the
-	// object static constructors to be called.
-	//
-	std::string symbol = "__F";
-	for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
-	{
-	    symbol += ((*p) == ':') ? '_' : *p;
-	}
-	symbol += "__initializer";
-	dlsym(RTLD_DEFAULT, symbol.c_str());
+        //
+        // Try to find the symbol, if found this should trigger the
+        // object static constructors to be called.
+        //
+        std::string symbol = "__F";
+        for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
+        {
+            symbol += ((*p) == ':') ? '_' : *p;
+        }
+        symbol += "__initializer";
+        dlsym(RTLD_DEFAULT, symbol.c_str());
 
-	lock.acquire();	
+        lock.acquire();        
 
-	i = _eft.find(t);
+        i = _eft.find(t);
     }
 #endif
     return i != _eft.end() ? i->second.first : IceInternal::UserExceptionFactoryPtr();
@@ -89,10 +89,10 @@ IceInternal::FactoryTableDef::removeExceptionFactory(const std::string& t)
     EFTable::iterator i = _eft.find(t);
     if(i != _eft.end())
     {
-	if(--i->second.second == 0)
-	{
-	    _eft.erase(i);
-	}
+        if(--i->second.second == 0)
+        {
+            _eft.erase(i);
+        }
     }
 }
 
@@ -122,7 +122,7 @@ IceInternal::FactoryTableWrapper::initialize()
     IceUtil::StaticMutex::Lock lock(_m);
     if(_initCount == 0)
     {
-	factoryTable = new FactoryTableDef;
+        factoryTable = new FactoryTableDef;
     }
     ++_initCount;
 }
@@ -136,9 +136,9 @@ IceInternal::FactoryTableWrapper::finalize()
     IceUtil::StaticMutex::Lock lock(_m);
     if(--_initCount == 0)
     {
-	delete factoryTable;
+        delete factoryTable;
     }
 }
 
 IceUtil::StaticMutex IceInternal::FactoryTableWrapper::_m = ICE_STATIC_MUTEX_INITIALIZER;
-int IceInternal::FactoryTableWrapper::_initCount = 0;	// Initialization count
+int IceInternal::FactoryTableWrapper::_initCount = 0;        // Initialization count

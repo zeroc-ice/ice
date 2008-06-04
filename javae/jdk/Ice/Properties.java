@@ -44,7 +44,7 @@ public final class Properties
     public int
     getPropertyAsInt(String key)
     {
-	return getPropertyAsIntWithDefault(key, 0);
+        return getPropertyAsIntWithDefault(key, 0);
     }
 
     public synchronized int
@@ -60,20 +60,20 @@ public final class Properties
             return value;
         }
 
-	try
-	{
-	    return Integer.parseInt(result);
-	}
-	catch(NumberFormatException ex)
-	{
-	    return value;
-	}
+        try
+        {
+            return Integer.parseInt(result);
+        }
+        catch(NumberFormatException ex)
+        {
+            return value;
+        }
     }
 
     public synchronized java.util.Hashtable
     getPropertiesForPrefix(String prefix)
     {
-	java.util.Hashtable result = new java.util.Hashtable();
+        java.util.Hashtable result = new java.util.Hashtable();
         java.util.Enumeration p = _properties.keys();
         while(p.hasMoreElements())
         {
@@ -81,10 +81,10 @@ public final class Properties
             String value = (String)_properties.get(key);
             if(prefix.length() == 0 || key.startsWith(prefix))
             {
-		result.put(key, value);
+                result.put(key, value);
             }
         }
-	return result;
+        return result;
     }
 
     public synchronized String[]
@@ -96,27 +96,27 @@ public final class Properties
         while(p.hasMoreElements())
         {
             java.lang.Object key = p.nextElement();
-	    java.lang.Object value = _properties.get(key);
+            java.lang.Object value = _properties.get(key);
             result[i++] = "--" + key + "=" + value;
         }
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(i == result.length);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(i == result.length);
+        }
         return result;
     }
 
     public synchronized String[]
     parseCommandLineOptions(String pfx, String[] options)
     {
-	String prefix = pfx;
-	if(pfx.length() > 0 && pfx.charAt(pfx.length() - 1) != '.')
-	{
-	    pfx += '.';
-	}
-	pfx = "--" + pfx;
+        String prefix = pfx;
+        if(pfx.length() > 0 && pfx.charAt(pfx.length() - 1) != '.')
+        {
+            pfx += '.';
+        }
+        pfx = "--" + pfx;
 
-	java.util.Vector result  = new java.util.Vector();
+        java.util.Vector result  = new java.util.Vector();
         for(int i = 0; i < options.length; i++)
         {
             String opt = options[i];
@@ -153,13 +153,13 @@ public final class Properties
 
     Properties(Properties p)
     {
-	java.util.Enumeration e = p._properties.keys();
-	while(e.hasMoreElements())
-	{
-	    java.lang.Object key = e.nextElement();
-	    java.lang.Object value = p._properties.get(key);
-	    _properties.put(key, value);
-	}
+        java.util.Enumeration e = p._properties.keys();
+        while(e.hasMoreElements())
+        {
+            java.lang.Object key = e.nextElement();
+            java.lang.Object value = p._properties.get(key);
+            _properties.put(key, value);
+        }
     }
 
     Properties()
@@ -168,19 +168,19 @@ public final class Properties
 
     Properties(StringSeqHolder args, Properties defaults)
     {
-	if(defaults != null)
-	{
-	    java.util.Hashtable m = defaults.getPropertiesForPrefix("");
-	    java.util.Enumeration e = m.keys();
-	    while(e.hasMoreElements())
-	    {
-		java.lang.Object key = e.nextElement();
-		java.lang.Object value = m.get(key);
-		_properties.put(key, value);
-	    }
-	}
+        if(defaults != null)
+        {
+            java.util.Hashtable m = defaults.getPropertiesForPrefix("");
+            java.util.Enumeration e = m.keys();
+            while(e.hasMoreElements())
+            {
+                java.lang.Object key = e.nextElement();
+                java.lang.Object value = m.get(key);
+                _properties.put(key, value);
+            }
+        }
 
-	boolean loadConfigFiles = false;
+        boolean loadConfigFiles = false;
 
         for(int i = 0; i < args.value.length; i++)
         {
@@ -192,7 +192,7 @@ public final class Properties
                     line += "=1";
                 }
                 parseLine(line.substring(2));
-		loadConfigFiles = true;
+                loadConfigFiles = true;
                 String[] arr = new String[args.value.length - 1];
                 System.arraycopy(args.value, 0, arr, 0, i);
                 if(i < args.value.length - 1)
@@ -203,38 +203,38 @@ public final class Properties
             }
         }
 
-	if(loadConfigFiles)
-	{
-	    loadConfig();
-	}
+        if(loadConfigFiles)
+        {
+            loadConfig();
+        }
 
-	args.value = parseIceCommandLineOptions(args.value);
+        args.value = parseIceCommandLineOptions(args.value);
     }
 
     public synchronized void
     setProperty(String key, String value)
     {
-	//
-	// Check if the property is legal. (We write to System.err instead of using
-	// a logger because no logger may be established at the time the property
-	// is parsed.)
-	//
-	if(key == null || key.length() == 0)
-	{
-	    return;
-	}
+        //
+        // Check if the property is legal. (We write to System.err instead of using
+        // a logger because no logger may be established at the time the property
+        // is parsed.)
+        //
+        if(key == null || key.length() == 0)
+        {
+            return;
+        }
 
-	//
-	// Set or clear the property.
-	//
-	if(value != null && value.length() > 0)
-	{
-	    _properties.put(key, value);
-	}
-	else
-	{
-	    _properties.remove(key);
-	}
+        //
+        // Set or clear the property.
+        //
+        if(value != null && value.length() > 0)
+        {
+            _properties.put(key, value);
+        }
+        else
+        {
+            _properties.remove(key);
+        }
     }
 
     private void
@@ -300,7 +300,7 @@ public final class Properties
             String[] files = IceUtil.StringUtil.split(value, ",");
             for(int i = 0; i < files.length; i++)
             {
-		load(files[i]);
+                load(files[i]);
             }
         }
 
@@ -314,16 +314,16 @@ public final class Properties
         {
             java.io.FileReader fr = new java.io.FileReader(file);
             java.io.BufferedReader br = new java.io.BufferedReader(fr);
-	    String line;
-	    while((line = br.readLine()) != null)
-	    {
-		parseLine(line);
-	    }
+            String line;
+            while((line = br.readLine()) != null)
+            {
+                parseLine(line);
+            }
         }
         catch(java.io.IOException ex)
         {
             FileException se = new FileException();
-	    se.path = file;
+            se.path = file;
             se.initCause(ex); // Exception chaining
             throw se;
         }
@@ -332,19 +332,19 @@ public final class Properties
     public synchronized void
     load(java.io.InputStream is)
     {
-	try
-	{
-	    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is));
-	    String line;
-	    while((line = reader.readLine()) != null)
-	    {
-		parseLine(line);
-	    }
+        try
+        {
+            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is));
+            String line;
+            while((line = reader.readLine()) != null)
+            {
+                parseLine(line);
+            }
         }
         catch(java.io.IOException ex)
         {
             FileException se = new FileException();
-	    se.path = is.toString();
+            se.path = is.toString();
             se.initCause(ex); // Exception chaining
             throw se;
         }
@@ -353,7 +353,7 @@ public final class Properties
     public java.lang.Object
     ice_clone()
     {
-	return new Properties(this);
+        return new Properties(this);
     }
 
     private java.util.Hashtable _properties = new java.util.Hashtable();

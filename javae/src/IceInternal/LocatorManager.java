@@ -18,14 +18,14 @@ public final class LocatorManager
     synchronized void
     destroy()
     {
-	java.util.Enumeration e = _table.elements();
+        java.util.Enumeration e = _table.elements();
         while(e.hasMoreElements())
         {
             LocatorInfo info = (LocatorInfo)e.nextElement();
             info.destroy();
         }
         _table.clear();
-	_locatorTables.clear();
+        _locatorTables.clear();
     }
 
     //
@@ -40,31 +40,31 @@ public final class LocatorManager
             return null;
         }
 
-	//
-	// The locator can't be located.
-	//
-	Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(loc.ice_locator(null));
+        //
+        // The locator can't be located.
+        //
+        Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(loc.ice_locator(null));
 
-	//
-	// TODO: reap unused locator info objects?
-	//
+        //
+        // TODO: reap unused locator info objects?
+        //
 
         synchronized(this)
         {
             LocatorInfo info = (LocatorInfo)_table.get(locator);
             if(info == null)
             {
-		//
-		// Rely on locator identity for the adapter table. We want to
-		// have only one table per locator (not one per locator
-		// proxy).
-		//
-		LocatorTable table = (LocatorTable)_locatorTables.get(locator.ice_getIdentity());
-		if(table == null)
-		{
-		    table = new LocatorTable();
-		    _locatorTables.put(locator.ice_getIdentity(), table);
-		}
+                //
+                // Rely on locator identity for the adapter table. We want to
+                // have only one table per locator (not one per locator
+                // proxy).
+                //
+                LocatorTable table = (LocatorTable)_locatorTables.get(locator.ice_getIdentity());
+                if(table == null)
+                {
+                    table = new LocatorTable();
+                    _locatorTables.put(locator.ice_getIdentity(), table);
+                }
 
                 info = new LocatorInfo(locator, table);
                 _table.put(locator, info);

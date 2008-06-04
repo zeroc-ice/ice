@@ -25,23 +25,23 @@ public final class DispatchStatus
     public static DispatchStatus
     convert(int val)
     {
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(val < 2);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(val < 2);
+        }
         return __values[val];
     }
 
     public int
     value()
     {
-	return __value;
+        return __value;
     }
 
     private
     DispatchStatus(int val)
     {
-	__value = val;
-	__values[val] = this;
+        __value = val;
+        __values[val] = this;
     }
 }

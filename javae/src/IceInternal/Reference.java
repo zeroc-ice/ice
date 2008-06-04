@@ -51,7 +51,7 @@ public abstract class Reference
     public final java.util.Hashtable
     getContext()
     {
-	return _context;
+        return _context;
     }
 
     public final Ice.Communicator getCommunicator()
@@ -82,98 +82,98 @@ public abstract class Reference
     public final Reference
     changeContext(java.util.Hashtable newContext)
     {
-	if(newContext == null)
-	{
-	    newContext = _emptyContext;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	if(newContext.isEmpty())
-	{
-	    r._context = _emptyContext;
-	}
-	else
-	{
-	    java.util.Hashtable newTable = new java.util.Hashtable(newContext.size());
-	    java.util.Enumeration e = newContext.keys();
-	    while(e.hasMoreElements())
-	    {
-		java.lang.Object key = e.nextElement();
-		newTable.put(key, newContext.get(key));
-	    }
-	    r._context = newTable;
-	}
-	return r;
+        if(newContext == null)
+        {
+            newContext = _emptyContext;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        if(newContext.isEmpty())
+        {
+            r._context = _emptyContext;
+        }
+        else
+        {
+            java.util.Hashtable newTable = new java.util.Hashtable(newContext.size());
+            java.util.Enumeration e = newContext.keys();
+            while(e.hasMoreElements())
+            {
+                java.lang.Object key = e.nextElement();
+                newTable.put(key, newContext.get(key));
+            }
+            r._context = newTable;
+        }
+        return r;
     }
 
     public final Reference
     changeMode(int newMode)
     {
         if(newMode == _mode)
-	{
-	    return this;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	r._mode = newMode;
-	return r;
+        {
+            return this;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        r._mode = newMode;
+        return r;
     }
 
     public final Reference
     changeSecure(boolean newSecure)
     {
         if(newSecure == _secure)
-	{
-	    return this;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	r._secure = newSecure;
-	return r;
+        {
+            return this;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        r._secure = newSecure;
+        return r;
     }
 
     public final Reference
     changeIdentity(Ice.Identity newIdentity)
     {
         if(newIdentity.equals(_identity))
-	{
-	    return this;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	try
-	{
-	    r._identity = (Ice.Identity)newIdentity.ice_clone();
-	}
-	catch(IceUtil.CloneException ex)
-	{
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(false);
-	    }
-	}
-	return r;
+        {
+            return this;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        try
+        {
+            r._identity = (Ice.Identity)newIdentity.ice_clone();
+        }
+        catch(IceUtil.CloneException ex)
+        {
+            if(IceUtil.Debug.ASSERT)
+            {
+                IceUtil.Debug.Assert(false);
+            }
+        }
+        return r;
     }
 
     public final Reference
     changeFacet(String newFacet)
     {
         if(newFacet.equals(_facet))
-	{
-	    return this;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	r._facet = newFacet;
-	return r;
+        {
+            return this;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        r._facet = newFacet;
+        return r;
     }
 
     public Reference
     changeTimeout(int newTimeout)
     {
-	if(_overrideTimeout && _timeout == newTimeout)
-	{
-	    return this;
-	}
+        if(_overrideTimeout && _timeout == newTimeout)
+        {
+            return this;
+        }
         Reference r = getInstance().referenceFactory().copy(this);
-	r._timeout = newTimeout;
-	r._overrideTimeout = true;
-	return r;	
+        r._timeout = newTimeout;
+        r._overrideTimeout = true;
+        return r;        
     }
 
     public abstract Reference changeAdapterId(String newAdapterId);
@@ -183,10 +183,10 @@ public abstract class Reference
     public synchronized int
     hashCode()
     {
-	if(_hashInitialized)
-	{
-	    return _hashValue;
-	}
+        if(_hashInitialized)
+        {
+            return _hashValue;
+        }
         
         int h = _mode;
 
@@ -208,10 +208,10 @@ public abstract class Reference
             h = 5 * h + (int)_facet.charAt(i);
         }
 
-	h = 5 * h + (getSecure() ? 1 : 0);
+        h = 5 * h + (getSecure() ? 1 : 0);
 
-	_hashValue = h;
-	_hashInitialized = true;
+        _hashValue = h;
+        _hashInitialized = true;
 
         return h;
     }
@@ -242,9 +242,9 @@ public abstract class Reference
 
         s.writeByte((byte)_mode);
 
-	s.writeBool(getSecure());
+        s.writeBool(getSecure());
 
-	// Derived class writes the remainder of the reference.
+        // Derived class writes the remainder of the reference.
     }
 
     //
@@ -253,94 +253,94 @@ public abstract class Reference
     public String
     toString()
     {
-	//
-	// WARNING: Certain features, such as proxy validation in Glacier2,
-	// depend on the format of proxy strings. Changes to toString() and
-	// methods called to generate parts of the reference string could break
-	// these features. Please review for all features that depend on the
-	// format of proxyToString() before changing this and related code.
-	//
-	StringBuffer s = new StringBuffer();
+        //
+        // WARNING: Certain features, such as proxy validation in Glacier2,
+        // depend on the format of proxy strings. Changes to toString() and
+        // methods called to generate parts of the reference string could break
+        // these features. Please review for all features that depend on the
+        // format of proxyToString() before changing this and related code.
+        //
+        StringBuffer s = new StringBuffer();
 
-	//
-	// If the encoded identity string contains characters which
-	// the reference parser uses as separators, then we enclose
-	// the identity string in quotes.
-	//
-	String id = _instance.identityToString(_identity);
-	if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
-	{
-	    s.append('"');
-	    s.append(id);
-	    s.append('"');
-	}
-	else
-	{
-	    s.append(id);
-	}
+        //
+        // If the encoded identity string contains characters which
+        // the reference parser uses as separators, then we enclose
+        // the identity string in quotes.
+        //
+        String id = _instance.identityToString(_identity);
+        if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+        {
+            s.append('"');
+            s.append(id);
+            s.append('"');
+        }
+        else
+        {
+            s.append(id);
+        }
 
-	if(_facet.length() > 0)
-	{
-	    //
-	    // If the encoded facet string contains characters which
-	    // the reference parser uses as separators, then we enclose
-	    // the facet string in quotes.
-	    //
-	    s.append(" -f ");
-	    String fs = IceUtil.StringUtil.escapeString(_facet, "");
-	    if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
-	    {
-		s.append('"');
-		s.append(fs);
-		s.append('"');
-	    }
-	    else
-	    {
-		s.append(fs);
-	    }
-	}
+        if(_facet.length() > 0)
+        {
+            //
+            // If the encoded facet string contains characters which
+            // the reference parser uses as separators, then we enclose
+            // the facet string in quotes.
+            //
+            s.append(" -f ");
+            String fs = IceUtil.StringUtil.escapeString(_facet, "");
+            if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+            {
+                s.append('"');
+                s.append(fs);
+                s.append('"');
+            }
+            else
+            {
+                s.append(fs);
+            }
+        }
 
-	switch(_mode)
-	{
-	    case ModeTwoway:
-		{
-		    s.append(" -t");
-		    break;
-		}
+        switch(_mode)
+        {
+            case ModeTwoway:
+                {
+                    s.append(" -t");
+                    break;
+                }
 
-	    case ModeOneway:
-		{
-		    s.append(" -o");
-		    break;
-		}
+            case ModeOneway:
+                {
+                    s.append(" -o");
+                    break;
+                }
 
-	    case ModeBatchOneway:
-		{
-		    s.append(" -O");
-		    break;
-		}
+            case ModeBatchOneway:
+                {
+                    s.append(" -O");
+                    break;
+                }
 
-	    case ModeDatagram:
-		{
-		    s.append(" -d");
-		    break;
-		}
+            case ModeDatagram:
+                {
+                    s.append(" -d");
+                    break;
+                }
 
-	    case ModeBatchDatagram:
-		{
-		    s.append(" -D");
-		    break;
-		}
-	}
+            case ModeBatchDatagram:
+                {
+                    s.append(" -D");
+                    break;
+                }
+        }
 
-	if(getSecure())
-	{
-	    s.append(" -s");
-	}
+        if(getSecure())
+        {
+            s.append(" -s");
+        }
 
-	return s.toString();
+        return s.toString();
 
-	// Derived class writes the remainder of the string.
+        // Derived class writes the remainder of the string.
     }
 
     public abstract Ice.Connection getConnection();
@@ -348,9 +348,9 @@ public abstract class Reference
     public boolean
     equals(java.lang.Object obj)
     {
-	//
-	// Note: if(this == obj) and type test are performed by each non-abstract derived class.
-	//
+        //
+        // Note: if(this == obj) and type test are performed by each non-abstract derived class.
+        //
 
         Reference r = (Reference)obj; // Guaranteed to succeed.
 
@@ -359,34 +359,34 @@ public abstract class Reference
             return false;
         }
 
-	if(_secure != r._secure)
-	{
-	    return false;
-	}
+        if(_secure != r._secure)
+        {
+            return false;
+        }
 
         if(!_identity.equals(r._identity))
         {
             return false;
         }
 
-	if(!IceUtil.Hashtable.equals(_context, r._context))
-	{
-	    return false;
-	}
+        if(!IceUtil.Hashtable.equals(_context, r._context))
+        {
+            return false;
+        }
 
         if(!_facet.equals(r._facet))
         {
             return false;
         }
 
-	if(_overrideTimeout != r._overrideTimeout)
-	{
-	   return false;
-	}
-	if(_overrideTimeout && _timeout != r._timeout)
-	{
-	    return false;
-	}	
+        if(_overrideTimeout != r._overrideTimeout)
+        {
+           return false;
+        }
+        if(_overrideTimeout && _timeout != r._timeout)
+        {
+            return false;
+        }        
 
         return true;
     }
@@ -394,25 +394,25 @@ public abstract class Reference
     protected void
     shallowCopy(Reference dest)
     {
-	dest._instance = _instance;
-	dest._mode = _mode;
-	dest._identity = _identity;
-	dest._context = _context;
-	dest._emptyContext = _emptyContext;
-	dest._facet = _facet;
-	dest._timeout = _timeout;
-	dest._overrideTimeout = _overrideTimeout;
-	dest._hashInitialized = false;
+        dest._instance = _instance;
+        dest._mode = _mode;
+        dest._identity = _identity;
+        dest._context = _context;
+        dest._emptyContext = _emptyContext;
+        dest._facet = _facet;
+        dest._timeout = _timeout;
+        dest._overrideTimeout = _overrideTimeout;
+        dest._hashInitialized = false;
     }
 
     public java.lang.Object
     ice_clone()
     {
-	//
-	// This should not be called. The cloning operation will be handled by descendents.
-	//
-	IceUtil.Debug.Assert(false);
-	return null;
+        //
+        // This should not be called. The cloning operation will be handled by descendents.
+        //
+        IceUtil.Debug.Assert(false);
+        return null;
     }
 
     private Instance _instance;
@@ -439,9 +439,9 @@ public abstract class Reference
     protected
     Reference()
     {
-	//
-	// Default constructor required for cloning operation.
-	//
+        //
+        // Default constructor required for cloning operation.
+        //
     }
     
     protected
@@ -451,40 +451,40 @@ public abstract class Reference
               java.util.Hashtable context,
               String fac,
               int md,
-	      boolean sec)
+              boolean sec)
     {
         //
         // Validate string arguments.
         //
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(ident.name != null);
-	    IceUtil.Debug.Assert(ident.category != null);
-	    IceUtil.Debug.Assert(fac != null);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(ident.name != null);
+            IceUtil.Debug.Assert(ident.category != null);
+            IceUtil.Debug.Assert(fac != null);
+        }
 
         _instance = inst;
         _communicator = com;
         _mode = md;
         _secure = sec;
         _identity = ident;
-	_context = context == null ? _emptyContext : context;
+        _context = context == null ? _emptyContext : context;
         _facet = fac;
-	_overrideTimeout = false;
-	_timeout = -1;
-	_hashInitialized = false;
+        _overrideTimeout = false;
+        _timeout = -1;
+        _hashInitialized = false;
     }
 
     protected void
     applyOverrides(Endpoint[] endpts)
     {
-	for(int i = 0; i < endpts.length; ++i)
-	{
-	    if(_overrideTimeout)
-	    {
-		endpts[i] = endpts[i].timeout(_timeout);		    
-	    }
-	}
+        for(int i = 0; i < endpts.length; ++i)
+        {
+            if(_overrideTimeout)
+            {
+                endpts[i] = endpts[i].timeout(_timeout);                    
+            }
+        }
     }
 
     //
@@ -517,14 +517,14 @@ public abstract class Reference
             {
                 //
                 // Filter out datagram endpoints. 
-		//
-		for(int i = endpoints.size(); i > 0; --i)
-		{
-		    if(((Endpoint)endpoints.elementAt(i - 1)).datagram())
-		    {
-			endpoints.removeElementAt(i - 1);
-		    }
-		}
+                //
+                for(int i = endpoints.size(); i > 0; --i)
+                {
+                    if(((Endpoint)endpoints.elementAt(i - 1)).datagram())
+                    {
+                        endpoints.removeElementAt(i - 1);
+                    }
+                }
                 break;
             }
 
@@ -534,13 +534,13 @@ public abstract class Reference
                 //
                 // Filter out non-datagram endpoints.
                 //
-		for(int i = endpoints.size(); i > 0; --i)
-		{
-		    if(!((Endpoint)endpoints.elementAt(i - 1)).datagram())
-		    {
-			endpoints.removeElementAt(i - 1);
-		    }
-		}
+                for(int i = endpoints.size(); i > 0; --i)
+                {
+                    if(!((Endpoint)endpoints.elementAt(i - 1)).datagram())
+                    {
+                        endpoints.removeElementAt(i - 1);
+                    }
+                }
                 break;
             }
         }
@@ -576,25 +576,25 @@ public abstract class Reference
             // endpoints preferred over secure endpoints.
             //
             java.util.Vector secureEndpoints = new java.util.Vector();
-	    for(int i = endpoints.size(); i > 0; --i)
-	    {
-		if(((Endpoint)endpoints.elementAt(i - 1)).secure())
-		{
-		    secureEndpoints.addElement(endpoints.elementAt(i - 1));
-		    endpoints.removeElementAt(i - 1);
-		}
-	    }
+            for(int i = endpoints.size(); i > 0; --i)
+            {
+                if(((Endpoint)endpoints.elementAt(i - 1)).secure())
+                {
+                    secureEndpoints.addElement(endpoints.elementAt(i - 1));
+                    endpoints.removeElementAt(i - 1);
+                }
+            }
             if(getSecure())
             {
                 endpoints = secureEndpoints;
             }
             else
             {
-		java.util.Enumeration e = secureEndpoints.elements();
-		while(e.hasMoreElements())
-		{
-		    endpoints.addElement(e.nextElement());
-		}
+                java.util.Enumeration e = secureEndpoints.elements();
+                while(e.hasMoreElements())
+                {
+                    endpoints.addElement(e.nextElement());
+                }
             }
         }
         else if(endpoints.size() == 1)
@@ -610,7 +610,7 @@ public abstract class Reference
         // Copy the endpoints into an array.
         //
         Endpoint[] arr = new Endpoint[endpoints.size()];
-	endpoints.copyInto(arr);
+        endpoints.copyInto(arr);
         return arr;
     }
 

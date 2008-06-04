@@ -114,7 +114,7 @@ class TestIntf
 
     ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq 
     opByteSeq(["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq inSeq, 
-    	      out ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq outSeq);
+                  out ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq outSeq);
 
     ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
@@ -123,7 +123,7 @@ class TestIntf
 
     ["cpp:type:std::deque<std::string>"] StringSeq 
     opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq, 
-    		out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
+                    out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
 
     StringList opStringList(StringList inSeq, out StringList outSeq);
 
@@ -135,13 +135,13 @@ class TestIntf
 
     ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq 
     opVariableSeq(["cpp:type:std::deque< ::Test::Variable>"] VariableSeq inSeq, 
-    		  out ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq outSeq);
+                      out ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq outSeq);
 
     VariableList opVariableList(VariableList inSeq, out VariableList outSeq);
 
     ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq 
     opStringStringDictSeq(["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq inSeq,
-    			  out ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq outSeq);
+                              out ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq outSeq);
 
     StringStringDictList opStringStringDictList(StringStringDictList inSeq, out StringStringDictList outSeq);
 
@@ -152,7 +152,7 @@ class TestIntf
 
     ["cpp:type:std::deque< ::Test::CPrx>"] CPrxSeq 
     opCPrxSeq(["cpp:type:std::deque< ::Test::CPrx>"] CPrxSeq inSeq, 
-    	      out ["cpp:type:std::deque< ::Test::CPrx>"] CPrxSeq outSeq);
+                  out ["cpp:type:std::deque< ::Test::CPrx>"] CPrxSeq outSeq);
 
     CPrxList opCPrxList(CPrxList inSeq, out CPrxList outSeq);
 

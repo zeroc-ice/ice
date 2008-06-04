@@ -27,13 +27,13 @@ public:
     run(int argc, char* argv[])
     {
         Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
+        initData.properties = Ice::createProperties();
 
-	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
         loadConfig(initData.properties);
-	initData.logger = getLogger();
+        initData.logger = getLogger();
         setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");

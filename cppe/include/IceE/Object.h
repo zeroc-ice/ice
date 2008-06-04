@@ -65,10 +65,10 @@ protected:
 
     static void __checkMode(OperationMode expected, OperationMode received) // Inline for performance reasons.
     {
-	if(expected != received)
-	{
-	    __invalidMode(expected, received); // Not inlined.
-	}
+        if(expected != received)
+        {
+            __invalidMode(expected, received); // Not inlined.
+        }
     }
     static void __invalidMode(OperationMode, OperationMode);
 };

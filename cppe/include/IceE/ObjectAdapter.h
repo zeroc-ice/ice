@@ -91,11 +91,11 @@ public:
 private:
 
     ObjectAdapter(const IceInternal::InstancePtr&, const CommunicatorPtr&, const IceInternal::ObjectAdapterFactoryPtr&, 
-    		  const std::string&, const std::string&
+                      const std::string&, const std::string&
 #ifdef ICEE_HAS_ROUTER
-		  , const RouterPrx&
+                  , const RouterPrx&
 #endif
-		  );
+                  );
     ~ObjectAdapter();
     friend class IceInternal::ObjectAdapterFactory;
     

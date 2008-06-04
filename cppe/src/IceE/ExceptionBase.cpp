@@ -99,12 +99,12 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     if(nullHandleAbort)
     {
 #ifdef _WIN32_WCE
-	//
-	// WinCE does not appear to have abort()
-	//
-	exit(-1);
+        //
+        // WinCE does not appear to have abort()
+        //
+        exit(-1);
 #else
-	abort();
+        abort();
 #endif
     }
 }

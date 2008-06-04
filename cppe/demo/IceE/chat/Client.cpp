@@ -24,7 +24,7 @@ public:
     virtual void
     message(const string& data, const Ice::Current&)
     {
-	printf("%s\n", data.c_str());
+        printf("%s\n", data.c_str());
     }
 };
 
@@ -46,6 +46,23 @@ trim(const string& s)
     return s;
 }
 
+void
+cleanup(const Glacier2::RouterPrx& router, const SessionPingThreadPtr& ping)
+{
+    try
+    {
+        router->destroySession();
+    }
+    catch(const Ice::ConnectionLostException&)
+    {
+        //
+        // Expected: the router closed the connection.
+        //
+    }
+    ping->destroy();
+    ping->getThreadControl().join();
+}
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
@@ -63,12 +80,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+    if(!router)
     {
-        if(!router)
-        {
-	    fprintf(stderr, "%s: configured router is not a Glacier2 router\n", argv[0]);
-    	    return EXIT_FAILURE;
-        }
+        fprintf(stderr, "%s: configured router is not a Glacier2 router\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
     char buffer[1024];
@@ -76,40 +91,39 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     ChatSessionPrx session;
     while(true)
     {
-	printf("This demo accepts any user-id / password combination.\n");
+        printf("This demo accepts any user-id / password combination.\n");
 
         printf("user id: ");
-	fgets(buffer, 1024, stdin);
-	string id(buffer);
+        fgets(buffer, 1024, stdin);
+        string id(buffer);
         id = trim(id);
 
         printf("password: ");
-	fgets(buffer, 1024, stdin);
-	string pw(buffer);
+        fgets(buffer, 1024, stdin);
+        string pw(buffer);
         pw = trim(pw);
 
         try
         {
-	    session = ChatSessionPrx::uncheckedCast(router->createSession(id, pw));
-	    break;
+            session = ChatSessionPrx::uncheckedCast(router->createSession(id, pw));
+            break;
         }
         catch(const Glacier2::PermissionDeniedException& ex)
         {
-	    fprintf(stderr, "permission denied:\n%s", ex.toString().c_str()); 
+            fprintf(stderr, "permission denied:\n%s", ex.toString().c_str()); 
         }
     }
 
     SessionPingThreadPtr ping = new SessionPingThread(session, (long)router->getSessionTimeout() / 2);
     ping->start();
 
-    string category = router->getServerProxy()->ice_getIdentity().category;
     Ice::Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
-    callbackReceiverIdent.category = category;
+    callbackReceiverIdent.category = router->getCategoryForClient();
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Chat.Client");
-    ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
-        adapter->add(new ChatCallbackI, callbackReceiverIdent));
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("Chat.Client", defaultRouter);
+    ChatCallbackPtr cb = new ChatCallbackI;
+    ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(adapter->add(cb, callbackReceiverIdent));
     adapter->activate();
 
     session->setCallback(callback);
@@ -120,54 +134,42 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         do
         {
-	    printf("==> ");
-	    char* ret = fgets(buffer, 1024, stdin);
-	    if(ret == NULL)
-	    {
-	        break;
-	    }
+            printf("==> ");
+            char* ret = fgets(buffer, 1024, stdin);
+            if(ret == NULL)
+            {
+                break;
+            }
 
-	    string s(buffer);
-	    s = trim(s);
-	    if(!s.empty())
-	    {
-	        if(s[0] == '/')
-	        {
-	    	    if(s == "/quit")
-	    	    {
-	    	        break;
-	    	    }
-	    	    menu();
-	        }
-	        else
-	        {
-	    	    session->say(s);
-	        }
-	    }
-	}
-	while(true);
-	
-	try
-	{
-	    router->destroySession();
-	}
-	catch(const Ice::ConnectionLostException&)
-	{
-	    //
-	    // Expected: the router closed the connection.
-	    //
-	}
+            string s(buffer);
+            s = trim(s);
+            if(!s.empty())
+            {
+                if(s[0] == '/')
+                {
+                        if(s == "/quit")
+                        {
+                            break;
+                        }
+                        menu();
+                }
+                else
+                {
+                        session->say(s);
+                }
+            }
+        }
+        while(true);
+
+        cleanup(router, ping);
     }
     catch(const Ice::Exception& ex)
     {
         fprintf(stderr, "%s\n", ex.toString().c_str());
-	ping->destroy();
-	ping->getThreadControl().join();
+        cleanup(router, ping);
+
         return EXIT_FAILURE;
     }
-
-    ping->destroy();
-    ping->getThreadControl().join();
     return EXIT_SUCCESS;
 }
 

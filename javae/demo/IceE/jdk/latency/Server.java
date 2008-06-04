@@ -30,9 +30,9 @@ public class Server
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.load("config");
+            initData.properties.load("config.server");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }

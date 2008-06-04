@@ -162,8 +162,8 @@ public final class ProxyFactory
             throw ex;
         }
 
-	++cnt;
-	IceUtil.Debug.Assert(cnt > 0);
+        ++cnt;
+        IceUtil.Debug.Assert(cnt > 0);
 
         if(cnt > _retryIntervals.length)
         {
@@ -175,7 +175,7 @@ public final class ProxyFactory
             throw ex;
         }
 
-	int interval = _retryIntervals[cnt - 1];
+        int interval = _retryIntervals[cnt - 1];
 
         if(traceLevels.retry >= 1)
         {
@@ -212,44 +212,44 @@ public final class ProxyFactory
     {
         _instance = instance;
 
-	String str = _instance.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
+        String str = _instance.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
 
         String[] arr = IceUtil.StringUtil.split(str.trim(), " \t\n\r");
 
-	if(arr.length > 0)
-	{
-	    _retryIntervals = new int[arr.length];
+        if(arr.length > 0)
+        {
+            _retryIntervals = new int[arr.length];
 
-	    for(int i = 0; i < arr.length; i++)
-	    {
-		int v;
+            for(int i = 0; i < arr.length; i++)
+            {
+                int v;
 
-		try
-		{
-		    v = Integer.parseInt(arr[i]);
-		}
-		catch(NumberFormatException ex)
-		{
-		    v = 0;
-		}
+                try
+                {
+                    v = Integer.parseInt(arr[i]);
+                }
+                catch(NumberFormatException ex)
+                {
+                    v = 0;
+                }
 
-		//
-		// If -1 is the first value, no retry and wait intervals.
-		// 
-		if(i == 0 && v == -1)
-		{
-		    _retryIntervals = new int[0];
-		    break;
-		}
+                //
+                // If -1 is the first value, no retry and wait intervals.
+                // 
+                if(i == 0 && v == -1)
+                {
+                    _retryIntervals = new int[0];
+                    break;
+                }
 
-		_retryIntervals[i] = v > 0 ? v : 0;
-	    }
-	}
-	else
-	{
-	    _retryIntervals = new int[1];
-	    _retryIntervals[0] = 0;
-	}
+                _retryIntervals[i] = v > 0 ? v : 0;
+            }
+        }
+        else
+        {
+            _retryIntervals = new int[1];
+            _retryIntervals[0] = 0;
+        }
     }
 
     private Instance _instance;

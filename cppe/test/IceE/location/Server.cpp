@@ -29,34 +29,34 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-    	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties(argc, argv);
+            Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("ServerManager.Endpoints", "default -p 12010");
 
         loadConfig(initData.properties);
 
-	//
-	// For blocking client test, set timeout so CloseConnection send will
-	// return quickly. Otherwise server will hang since client is not 
-	// listening for these messages.
-	//
-	if(initData.properties->getPropertyAsInt("Ice.Blocking") > 0)
-	{
-	    initData.properties->setProperty("Ice.Override.Timeout", "100");
-	    initData.properties->setProperty("Ice.Warn.Connections", "0");
-	}
+        //
+        // For blocking client test, set timeout so CloseConnection send will
+        // return quickly. Otherwise server will hang since client is not 
+        // listening for these messages.
+        //
+        if(initData.properties->getPropertyAsInt("Ice.Blocking") > 0)
+        {
+            initData.properties->setProperty("Ice.Override.Timeout", "100");
+            initData.properties->setProperty("Ice.Warn.Connections", "0");
+        }
 
-	//
-	// These properties cannot be overridden. The OAs started by
-	// the ServerManager must be local.
-	//
-	initData.properties->setProperty("TestAdapter.Endpoints", "default");
-	initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
-	initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-	initData.properties->setProperty("TestAdapter2.Endpoints", "default");
-	initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+        //
+        // These properties cannot be overridden. The OAs started by
+        // the ServerManager must be local.
+        //
+        initData.properties->setProperty("TestAdapter.Endpoints", "default");
+        initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
+        initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+        initData.properties->setProperty("TestAdapter2.Endpoints", "default");
+        initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
 
-	initData.logger = getLogger();
+        initData.logger = getLogger();
         setCommunicator(Ice::initialize(argc, argv, initData));
 
         //
@@ -78,7 +78,7 @@ public:
         adapter->add(object, communicator()->stringToIdentity("ServerManager"));
 
         Ice::LocatorRegistryPrx registryPrx = 
-	    Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, communicator()->stringToIdentity("registry")));
+            Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, communicator()->stringToIdentity("registry")));
 
         Ice::LocatorPtr locator = new ServerLocator(registry, registryPrx);
         adapter->add(locator, communicator()->stringToIdentity("locator"));
@@ -86,7 +86,7 @@ public:
         adapter->activate();
 
 #ifndef _WIN32_WCE
-	communicator()->waitForShutdown();
+        communicator()->waitForShutdown();
 #endif
 
         return EXIT_SUCCESS;

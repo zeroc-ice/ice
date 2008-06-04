@@ -25,13 +25,13 @@ class CreateTestThread : public Thread
 public:
     
     CreateTestThread() :
-	threadran(false)
+        threadran(false)
     {
     }
 
     virtual void run()
     {
-	threadran = true;
+        threadran = true;
     }
 
     bool threadran;
@@ -56,22 +56,22 @@ CreateTest::run()
 #endif
     for(int i = 0; i < nthreads ; ++i)
     {
-	CreateTestThreadPtr t = new CreateTestThread();
-	ThreadControl control = t->start();
-	control.join();
-	test(t->threadran);
+        CreateTestThreadPtr t = new CreateTestThread();
+        ThreadControl control = t->start();
+        control.join();
+        test(t->threadran);
 #ifdef _WIN32_WCE
-	if((i % 32) == 0)
-	{
-	    tprintf(".");
-	}
+        if((i % 32) == 0)
+        {
+            tprintf(".");
+        }
 #else
-	if((i % 256) == 0)
-	{
-	    char buf[5];
-	    sprintf(buf, "%04d", i);
-	    tprintf("%s", buf);
-	}
+        if((i % 256) == 0)
+        {
+            char buf[5];
+            sprintf(buf, "%04d", i);
+            tprintf("%s", buf);
+        }
 #endif
     }
 #ifndef _WIN32_WCE

@@ -61,9 +61,9 @@ inline void ice_atomic_set(ice_atomic_t* v, int i)
 inline void ice_atomic_inc(ice_atomic_t *v)
 {
     __asm__ __volatile__(
-	"lock ; incl %0"
-	:"=m" (v->counter)
-	:"m" (v->counter));
+        "lock ; incl %0"
+        :"=m" (v->counter)
+        :"m" (v->counter));
 }
 
 /**
@@ -80,9 +80,9 @@ inline int ice_atomic_dec_and_test(ice_atomic_t *v)
 {
     unsigned char c;
     __asm__ __volatile__(
-	"lock ; decl %0; sete %1"
-	:"=m" (v->counter), "=qm" (c)
-	:"m" (v->counter) : "memory");
+        "lock ; decl %0; sete %1"
+        :"=m" (v->counter), "=qm" (c)
+        :"m" (v->counter) : "memory");
     return c != 0;
 }
 
@@ -97,10 +97,10 @@ inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 {
     int tmp = i;
     __asm__ __volatile__(
-	"lock ; xadd %0,(%2)"
-	:"+r"(tmp), "=m"(v->counter)
-	:"r"(v), "m"(v->counter)
-	: "memory");
+        "lock ; xadd %0,(%2)"
+        :"+r"(tmp), "=m"(v->counter)
+        :"r"(v), "m"(v->counter)
+        : "memory");
     return tmp + i;
 }
 
@@ -147,31 +147,31 @@ public:
 
     void __incRef()
     {
-	assert(_ref >= 0);
-	++_ref;
+        assert(_ref >= 0);
+        ++_ref;
     }
 
     void __decRef()
     {
-	assert(_ref > 0);
-	if(--_ref == 0)
-	{
-	    if(!_noDelete)
-	    {
-		_noDelete = true;
-		delete this;
-	    }
-	}
+        assert(_ref > 0);
+        if(--_ref == 0)
+        {
+            if(!_noDelete)
+            {
+                _noDelete = true;
+                delete this;
+            }
+        }
     }
 
     int __getRef() const
     {
-	return _ref;
+        return _ref;
     }
 
     void __setNoDelete(bool b)
     {
-	_noDelete = b;
+        _noDelete = b;
     }
 
 private:
@@ -199,49 +199,49 @@ public:
     void __incRef()
     {
 #if defined(_WIN32)
-	assert(InterlockedExchangeAdd(&_ref, 0) >= 0);
-	InterlockedIncrement(&_ref);
+        assert(InterlockedExchangeAdd(&_ref, 0) >= 0);
+        InterlockedIncrement(&_ref);
 #elif defined(ICEE_HAS_ATOMIC_FUNCTIONS)
-	assert(ice_atomic_exchange_add(0, &_ref) >= 0);
-	ice_atomic_inc(&_ref);
+        assert(ice_atomic_exchange_add(0, &_ref) >= 0);
+        ice_atomic_inc(&_ref);
 #else
-	_mutex.lock();
-	assert(_ref >= 0);
-	++_ref;
-	_mutex.unlock();
+        _mutex.lock();
+        assert(_ref >= 0);
+        ++_ref;
+        _mutex.unlock();
 #endif
     }
 
     void __decRef()
     {
 #if defined(_WIN32)
-	assert(InterlockedExchangeAdd(&_ref, 0) > 0);
-	if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
-	{
-	    _noDelete = true;
-	    delete this;
-	}
+        assert(InterlockedExchangeAdd(&_ref, 0) > 0);
+        if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
+        {
+            _noDelete = true;
+            delete this;
+        }
 #elif defined(ICEE_HAS_ATOMIC_FUNCTIONS)
-	assert(ice_atomic_exchange_add(0, &_ref) > 0);
-	if(ice_atomic_dec_and_test(&_ref) && !_noDelete)
-	{
-	    _noDelete = true;
-	    delete this;
-	}
+        assert(ice_atomic_exchange_add(0, &_ref) > 0);
+        if(ice_atomic_dec_and_test(&_ref) && !_noDelete)
+        {
+            _noDelete = true;
+            delete this;
+        }
 #else
-	_mutex.lock();
-	bool doDelete = false;
-	assert(_ref > 0);
-	if(--_ref == 0)
-	{
-	    doDelete = !_noDelete;
-	    _noDelete = true;
-	}
-	_mutex.unlock();
-	if(doDelete)
-	{
-	    delete this;
-	}
+        _mutex.lock();
+        bool doDelete = false;
+        assert(_ref > 0);
+        if(--_ref == 0)
+        {
+            doDelete = !_noDelete;
+            _noDelete = true;
+        }
+        _mutex.unlock();
+        if(doDelete)
+        {
+            delete this;
+        }
 #endif
     }
 

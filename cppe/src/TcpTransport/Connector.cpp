@@ -26,8 +26,8 @@ Connector::connect(int timeout)
 {
     if(_traceLevels->network >= 2)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "trying to establish tcp connection to " << toString();
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "trying to establish tcp connection to " << toString();
     }
 
     SOCKET fd = createSocket();
@@ -40,8 +40,8 @@ Connector::connect(int timeout)
 
     if(_traceLevels->network >= 1)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "tcp connection established\n" << fdToString(fd);
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "tcp connection established\n" << fdToString(fd);
     }
 
     return new Transceiver(_instance, fd);

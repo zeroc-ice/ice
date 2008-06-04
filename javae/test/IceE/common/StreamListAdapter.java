@@ -18,84 +18,84 @@ public class StreamListAdapter extends java.io.OutputStream
     public
     StreamListAdapter(javax.microedition.lcdui.List listui)
     {
-	_list = listui;
+        _list = listui;
     }
 
     public void
     close()
     {
-	synchronized(this)
-	{
-	    _closed = true;
-	}
+        synchronized(this)
+        {
+            _closed = true;
+        }
     }
 
     public void
     flush()
-	throws java.io.IOException
+        throws java.io.IOException
     {
-	synchronized(this)
-	{
-	    if(_closed)
-	    {
-		throw new java.io.IOException("Stream closed.");
-	    }
-	    
-	    if(_currentLine.length() != 0)
-	    {
-		writeCurrentLine();
-		_replaceLine = true;
-	    }
-	}
+        synchronized(this)
+        {
+            if(_closed)
+            {
+                throw new java.io.IOException("Stream closed.");
+            }
+            
+            if(_currentLine.length() != 0)
+            {
+                writeCurrentLine();
+                _replaceLine = true;
+            }
+        }
     }
 
     public void
     write(int b)
-	throws java.io.IOException
+        throws java.io.IOException
     {
-	synchronized(this)
-	{
-	    if(_closed)
-	    {
-		throw new java.io.IOException("Stream closed.");
-	    }
-	
-	    //
-	    // If there is no associated list element then don't do anything.
-	    //
-	    if(_list == null)
-	    {
-		return;
-	    }
-	
-	    if((char)b != '\n')
-	    {
-		_currentLine.append((char)b);
-	    }
-	    else
-	    {
-		writeCurrentLine();
-		_currentLine.setLength(0);
-		if(_list.size() > MAX_SCROLLBACK_LINES)
-		{
-		    _list.delete(0);
-		}
-		_replaceLine = false;
-	    }
-	}
+        synchronized(this)
+        {
+            if(_closed)
+            {
+                throw new java.io.IOException("Stream closed.");
+            }
+        
+            //
+            // If there is no associated list element then don't do anything.
+            //
+            if(_list == null)
+            {
+                return;
+            }
+        
+            if((char)b != '\n')
+            {
+                _currentLine.append((char)b);
+            }
+            else
+            {
+                writeCurrentLine();
+                _currentLine.setLength(0);
+                if(_list.size() > MAX_SCROLLBACK_LINES)
+                {
+                    _list.delete(0);
+                }
+                _replaceLine = false;
+            }
+        }
     }
 
     private void
     writeCurrentLine()
     {
-	if(_replaceLine)
-	{
-	    _list.set(_list.size() -1, _currentLine.toString(), null);
-	}
-	else
-	{
-	    _list.append(_currentLine.toString(), null);
-	}
+        if(_replaceLine)
+        {
+            _list.set(_list.size() -1, _currentLine.toString(), null);
+        }
+        else
+        {
+            _list.append(_currentLine.toString(), null);
+        }
     }
 
     private boolean _closed = false;

@@ -15,7 +15,7 @@ public final class TestI extends _TestIntfDisp
     TestI(Ice.ObjectAdapter adapter, int port)
     {
         _adapter = adapter;
-	_pseudoPid = port; // We use the port number instead of the process ID in Java.
+        _pseudoPid = port; // We use the port number instead of the process ID in Java.
     }
 
     public void
@@ -27,13 +27,13 @@ public final class TestI extends _TestIntfDisp
     public void
     abort(Ice.Current current)
     {
-	System.exit(1);
+        System.exit(1);
     }
 
     public void
     idempotentAbort(Ice.Current current)
     {
-	System.exit(1);
+        System.exit(1);
     }
 
     public int

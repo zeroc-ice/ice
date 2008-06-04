@@ -20,20 +20,20 @@ public abstract class ObjectImpl implements Object
     ice_clone()
         throws IceUtil.CloneException
     {
-	try
-	{
-	    ObjectImpl obj = (ObjectImpl)getClass().newInstance();
-	    obj.__copyFrom(this);
-	    return obj;
-	}
-	catch(java.lang.IllegalAccessException ex)
-	{
-	    throw new IceUtil.CloneException(ex.getMessage());
-	}
-	catch(java.lang.InstantiationException ex)
-	{
-	    throw new IceUtil.CloneException(ex.getMessage());
-	}
+        try
+        {
+            ObjectImpl obj = (ObjectImpl)getClass().newInstance();
+            obj.__copyFrom(this);
+            return obj;
+        }
+        catch(java.lang.IllegalAccessException ex)
+        {
+            throw new IceUtil.CloneException(ex.getMessage());
+        }
+        catch(java.lang.InstantiationException ex)
+        {
+            throw new IceUtil.CloneException(ex.getMessage());
+        }
     }
 
     public int
@@ -174,10 +174,10 @@ public abstract class ObjectImpl implements Object
             }
         }
 
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(false);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(false);
+        }
         throw new OperationNotExistException(current.id, current.facet, current.operation);
     }
 
@@ -189,44 +189,44 @@ public abstract class ObjectImpl implements Object
     private static String
     operationModeToString(OperationMode mode)
     {
-	if(mode == Ice.OperationMode.Normal)
-	{
-	    return "::Ice::Normal";
-	}
-	if(mode == Ice.OperationMode.Nonmutating)
-	{
-	    return "::Ice::Nonmutating";
-	}
+        if(mode == Ice.OperationMode.Normal)
+        {
+            return "::Ice::Normal";
+        }
+        if(mode == Ice.OperationMode.Nonmutating)
+        {
+            return "::Ice::Nonmutating";
+        }
 
-	if(mode == Ice.OperationMode.Idempotent)
-	{
-	    return "::Ice::Idempotent";
-	}
+        if(mode == Ice.OperationMode.Idempotent)
+        {
+            return "::Ice::Idempotent";
+        }
 
-	return "???";
+        return "???";
     }
 
     protected static void
     __checkMode(OperationMode expected, OperationMode received)
     {
-	if(expected != received)
-	{
-	    if(expected == Ice.OperationMode.Idempotent 
-	       && received == Ice.OperationMode.Nonmutating)
-	    {
-		//
-		// Fine: typically an old client still using the 
+        if(expected != received)
+        {
+            if(expected == Ice.OperationMode.Idempotent 
+               && received == Ice.OperationMode.Nonmutating)
+            {
+                //
+                // Fine: typically an old client still using the 
                 // deprecated nonmutating keyword
-		//
-	    }
-	    else
-	    {
-		Ice.MarshalException ex = new Ice.MarshalException();
-		ex.reason = "unexpected operation mode. expected = "
-		    + operationModeToString(expected) + " received = "
-		    + operationModeToString(received);
-		throw ex;
-	    }
-	}
+                //
+            }
+            else
+            {
+                Ice.MarshalException ex = new Ice.MarshalException();
+                ex.reason = "unexpected operation mode. expected = "
+                    + operationModeToString(expected) + " received = "
+                    + operationModeToString(received);
+                throw ex;
+            }
+        }
     }
 }

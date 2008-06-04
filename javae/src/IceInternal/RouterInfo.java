@@ -16,35 +16,35 @@ public final class RouterInfo
         _router = router;
         _identities = new java.util.Hashtable();
 
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_router != null);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(_router != null);
+        }
     }
 
     synchronized public void
     destroy()
     {
-	_clientEndpoints = new Endpoint[0];
+        _clientEndpoints = new Endpoint[0];
         _serverEndpoints = new Endpoint[0];
-	_adapter = null;
-	_identities.clear();
+        _adapter = null;
+        _identities.clear();
     }
 
     public boolean
     equals(java.lang.Object obj)
     {
-	if(this == obj)
-	{
-	    return true;
-	}
+        if(this == obj)
+        {
+            return true;
+        }
 
-	if(obj instanceof RouterInfo)
-	{
-	    return _router.equals(((RouterInfo)obj)._router);
-	}
+        if(obj instanceof RouterInfo)
+        {
+            return _router.equals(((RouterInfo)obj)._router);
+        }
 
-	return false;
+        return false;
     }
 
     public Ice.RouterPrx

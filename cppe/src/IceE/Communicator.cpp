@@ -102,9 +102,9 @@ Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const st
 {
     return _instance->objectAdapterFactory()->createObjectAdapter(name, endpoints
 #ifdef ICEE_HAS_ROUTER
-								  , 0
+                                                                  , 0
 # endif
-    								  );
+                                                                      );
 }
 
 #ifdef ICEE_HAS_ROUTER
@@ -178,12 +178,12 @@ Ice::Communicator::Communicator(const InitializationData& initData)
     __setNoDelete(true);
     try
     {
-	const_cast<InstancePtr&>(_instance) = new Instance(this, initData);
+        const_cast<InstancePtr&>(_instance) = new Instance(this, initData);
     }
     catch(...)
     {
-	__setNoDelete(false);
-	throw;
+        __setNoDelete(false);
+        throw;
     }
     __setNoDelete(false);
 }
@@ -192,8 +192,8 @@ Ice::Communicator::~Communicator()
 {
     if(!_instance->destroyed())
     {
-	Warning out(_instance->initializationData().logger);
-	out << "Ice::Communicator::destroy() has not been called";
+        Warning out(_instance->initializationData().logger);
+        out << "Ice::Communicator::destroy() has not been called";
     }
 }
 
@@ -202,11 +202,11 @@ Ice::Communicator::finishSetup(int& argc, char* argv[])
 {
     try
     {
-	_instance->finishSetup(argc, argv);
+        _instance->finishSetup(argc, argv);
     }
     catch(...)
     {
-	_instance->destroy();
-	throw;
+        _instance->destroy();
+        throw;
     }
 }

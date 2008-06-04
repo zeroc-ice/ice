@@ -13,11 +13,11 @@ public class CloneException extends java.lang.Exception
 {
     public CloneException()
     {
-	super();
+        super();
     }
 
     public CloneException(String s)
     {
-	super(s);
+        super(s);
     }
 };

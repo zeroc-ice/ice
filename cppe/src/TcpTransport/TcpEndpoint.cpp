@@ -46,90 +46,90 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 
     while(true)
     {
-	beg = str.find_first_not_of(delim, end);
-	if(beg == string::npos)
-	{
-	    break;
-	}
-	
-	end = str.find_first_of(delim, beg);
-	if(end == string::npos)
-	{
-	    end = str.length();
-	}
+        beg = str.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            break;
+        }
+        
+        end = str.find_first_of(delim, beg);
+        if(end == string::npos)
+        {
+            end = str.length();
+        }
 
-	string option = str.substr(beg, end - beg);
-	if(option.length() != 2 || option[0] != '-')
-	{
-	    EndpointParseException ex(__FILE__, __LINE__);
-	    ex.str = "tcp " + str;
-	    throw ex;
-	}
+        string option = str.substr(beg, end - beg);
+        if(option.length() != 2 || option[0] != '-')
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "tcp " + str;
+            throw ex;
+        }
 
-	string argument;
-	string::size_type argumentBeg = str.find_first_not_of(delim, end);
-	if(argumentBeg != string::npos && str[argumentBeg] != '-')
-	{
-	    beg = argumentBeg;
-	    end = str.find_first_of(delim, beg);
-	    if(end == string::npos)
-	    {
-		end = str.length();
-	    }
-	    argument = str.substr(beg, end - beg);
-	}
+        string argument;
+        string::size_type argumentBeg = str.find_first_not_of(delim, end);
+        if(argumentBeg != string::npos && str[argumentBeg] != '-')
+        {
+            beg = argumentBeg;
+            end = str.find_first_of(delim, beg);
+            if(end == string::npos)
+            {
+                end = str.length();
+            }
+            argument = str.substr(beg, end - beg);
+        }
 
-	switch(option[1])
-	{
-	    case 'h':
-	    {
-		if(argument.empty())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "tcp " + str;
-		    throw ex;
-		}
-		const_cast<string&>(_host) = argument;
-		break;
-	    }
+        switch(option[1])
+        {
+            case 'h':
+            {
+                if(argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "tcp " + str;
+                    throw ex;
+                }
+                const_cast<string&>(_host) = argument;
+                break;
+            }
 
-	    case 'p':
-	    {
-	    	const_cast<Int&>(_port) = atoi(argument.c_str());
-		if(_port <= 0 || _port > 65535)
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "tcp " + str;
-		    throw ex;
-		}
-		break;
-	    }
+            case 'p':
+            {
+                    const_cast<Int&>(_port) = atoi(argument.c_str());
+                if(_port <= 0 || _port > 65535)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "tcp " + str;
+                    throw ex;
+                }
+                break;
+            }
 
-	    case 't':
-	    {
-	        const_cast<Int&>(_timeout) = atoi(argument.c_str());
-		if(_timeout == 0)
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "tcp " + str;
-		    throw ex;
-		}
-		break;
-	    }
+            case 't':
+            {
+                const_cast<Int&>(_timeout) = atoi(argument.c_str());
+                if(_timeout == 0)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "tcp " + str;
+                    throw ex;
+                }
+                break;
+            }
 
-	    case 'z':
-	    {
-	        // Ignore compression flag.
-	        break;
-	    }
+            case 'z':
+            {
+                // Ignore compression flag.
+                break;
+            }
 
-	    default:
-	    {
-		EndpointParseException ex(__FILE__, __LINE__);
-		ex.str = "tcp " + str;
-		throw ex;
-	    }
-	}
+            default:
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "tcp " + str;
+                throw ex;
+            }
+        }
     }
 }
 
@@ -194,11 +194,11 @@ IceInternal::TcpEndpoint::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-	return const_cast<TcpEndpoint*>(this);
+        return const_cast<TcpEndpoint*>(this);
     }
     else
     {
-	return new TcpEndpoint(_instance, _host, _port, timeout, _publish);
+        return new TcpEndpoint(_instance, _host, _port, timeout, _publish);
     }
 }
 
@@ -232,42 +232,42 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
     const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
     if(!p)
     {
-	return false;
+        return false;
     }
 
     if(this == p)
     {
-	return true;
+        return true;
     }
 
     if(_port != p->_port)
     {
-	return false;
+        return false;
     }
 
     if(_timeout != p->_timeout)
     {
-	return false;
+        return false;
     }
 
     if(_host != p->_host)
     {
-	//
-	// We do the most time-consuming part of the comparison last.
-	//
-	struct sockaddr_in laddr;
-	struct sockaddr_in raddr;
-	try
-	{
-	    getAddress(_host, _port, laddr);
-	    getAddress(p->_host, p->_port, raddr);
-	}
-	catch(const DNSException&)
-	{
-	    return false;
-	}
+        //
+        // We do the most time-consuming part of the comparison last.
+        //
+        struct sockaddr_in laddr;
+        struct sockaddr_in raddr;
+        try
+        {
+            getAddress(_host, _port, laddr);
+            getAddress(p->_host, p->_port, raddr);
+        }
+        catch(const DNSException&)
+        {
+            return false;
+        }
 
-	return compareAddress(laddr, raddr);
+        return compareAddress(laddr, raddr);
     }
 
     return true;
@@ -285,63 +285,63 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
     if(!p)
     {
-        return type() < r.type();	
+        return type() < r.type();        
     }
 
     if(this == p)
     {
-	return false;
+        return false;
     }
 
     if(_port < p->_port)
     {
-	return true;
+        return true;
     }
     else if(p->_port < _port)
     {
-	return false;
+        return false;
     }
 
     if(_timeout < p->_timeout)
     {
-	return true;
+        return true;
     }
     else if(p->_timeout < _timeout)
     {
-	return false;
+        return false;
     }
 
     if(_host != p->_host)
     {
-	//
-	// We do the most time-consuming part of the comparison last.
-	//
-	struct sockaddr_in laddr;
-	try
-	{
-	    getAddress(_host, _port, laddr);
-	}
-	catch(const DNSException&)
-	{
-	}
+        //
+        // We do the most time-consuming part of the comparison last.
+        //
+        struct sockaddr_in laddr;
+        try
+        {
+            getAddress(_host, _port, laddr);
+        }
+        catch(const DNSException&)
+        {
+        }
 
-	struct sockaddr_in raddr;
-	try
-	{
-	    getAddress(p->_host, p->_port, raddr);
-	}
-	catch(const DNSException&)
-	{
-	}
+        struct sockaddr_in raddr;
+        try
+        {
+            getAddress(p->_host, p->_port, raddr);
+        }
+        catch(const DNSException&)
+        {
+        }
 
-	if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-	{
-	    return true;
-	}
-	else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-	{
-	    return false;
-	}
+        if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+        {
+            return true;
+        }
+        else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+        {
+            return false;
+        }
     }
 
     return false;
@@ -355,14 +355,14 @@ IceInternal::TcpEndpoint::expand(bool server) const
         const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
         if(_host.empty())
         {
-	    if(server)
-	    {
+            if(server)
+            {
                 const_cast<string&>(_host) = "0.0.0.0";
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 const_cast<string&>(_host) = "127.0.0.1";
-	    }
+            }
         }
     }
     else if(_host == "*")

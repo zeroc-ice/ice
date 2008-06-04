@@ -17,20 +17,40 @@ ThroughputI::ThroughputI(int reduce) :
     _byteSeq(ByteSeqSize / reduce, 0),
     _stringSeq(StringSeqSize / reduce, "hello"),
     _structSeq(StringDoubleSeqSize / reduce),
-    _fixedSeq(FixedSeqSize / reduce)
+    _fixedSeq(FixedSeqSize / reduce),
+    _warmup(false)
 {
     int i;
     for(i = 0; i < StringDoubleSeqSize / reduce; ++i)
     {
-	_structSeq[i].s = "hello";
-	_structSeq[i].d = 3.14;
+        _structSeq[i].s = "hello";
+        _structSeq[i].d = 3.14;
     }
     for(i = 0; i < FixedSeqSize / reduce; ++i)
     {
-	_fixedSeq[i].i = 0;
-	_fixedSeq[i].j = 0;
-	_fixedSeq[i].d = 0;
+        _fixedSeq[i].i = 0;
+        _fixedSeq[i].j = 0;
+        _fixedSeq[i].d = 0;
     }
+}
+
+bool
+ThroughputI::needsWarmup(const Ice::Current&)
+{
+    _warmup = false;
+    return false;
+}
+
+void
+ThroughputI::startWarmup(const Ice::Current&)
+{
+    _warmup = true;
+}
+
+void
+ThroughputI::endWarmup(const Ice::Current&)
+{
+    _warmup = false;
 }
 
 void
@@ -41,7 +61,14 @@ ThroughputI::sendByteSeq(const pair<const Ice::Byte*, const Ice::Byte*>&, const 
 ByteSeq
 ThroughputI::recvByteSeq(const Ice::Current&)
 {
-    return _byteSeq;
+    if(_warmup)
+    {
+        return Demo::ByteSeq();
+    }
+    else
+    {
+        return _byteSeq;
+    }
 }
 
 ByteSeq
@@ -58,7 +85,14 @@ ThroughputI::sendStringSeq(const StringSeq&, const Ice::Current&)
 StringSeq
 ThroughputI::recvStringSeq(const Ice::Current&)
 {
-    return _stringSeq;
+    if(_warmup)
+    {
+        return Demo::StringSeq();
+    }
+    else
+    {
+        return _stringSeq;
+    }
 }
 
 StringSeq
@@ -75,7 +109,14 @@ ThroughputI::sendStructSeq(const StringDoubleSeq&, const Ice::Current&)
 StringDoubleSeq
 ThroughputI::recvStructSeq(const Ice::Current&)
 {
-    return _structSeq;
+    if(_warmup)
+    {
+        return Demo::StringDoubleSeq();
+    }
+    else
+    {
+        return _structSeq;
+    }
 }
 
 StringDoubleSeq
@@ -92,7 +133,14 @@ ThroughputI::sendFixedSeq(const FixedSeq&, const Ice::Current&)
 FixedSeq
 ThroughputI::recvFixedSeq(const Ice::Current&)
 {
-    return _fixedSeq;
+    if(_warmup)
+    {
+        return Demo::FixedSeq();
+    }
+    else
+    {
+        return _fixedSeq;
+    }
 }
 
 FixedSeq

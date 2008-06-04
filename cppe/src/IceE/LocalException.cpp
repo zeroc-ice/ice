@@ -1502,13 +1502,13 @@ Ice::MemoryLimitException::ice_throw() const
 void
 Ice::throwMemoryLimitException(const char* file, int line)
 {
-     throw MemoryLimitException(file, line);
+    throw MemoryLimitException(file, line);
 }
 
 void
 Ice::throwUnmarshalOutOfBoundsException(const char* file, int line)
 {
-     throw MarshalException(file, line, "out of bounds during unmarshaling");
+    throw MarshalException(file, line, "out of bounds during unmarshaling");
 }
 
 void
@@ -1644,8 +1644,8 @@ Ice::UnknownException::toString() const
     out +=  ":\nunknown exception";
     if(!unknown.empty())
     {
-	out += ":\n";
-	out += unknown;
+        out += ":\n";
+        out += unknown;
     }
     return out;
 }
@@ -1657,8 +1657,8 @@ Ice::UnknownLocalException::toString() const
     out += ":\nunknown local exception";
     if(!unknown.empty())
     {
-	out += ":\n";
-	out += unknown;
+        out += ":\n";
+        out += unknown;
     }
     return out;
 }
@@ -1670,8 +1670,8 @@ Ice::UnknownUserException::toString() const
     out += ":\nunknown user exception";
     if(!unknown.empty())
     {
-	out += ":\n";
-	out += unknown;
+        out += ":\n";
+        out += unknown;
     }
     return out;
 }
@@ -1814,7 +1814,7 @@ Ice::SyscallException::toString() const
     if(error != 0)
     {
         out += ":\nsyscall exception: ";
-	out += errorToString(error);
+        out += errorToString(error);
     }
     return out;
 }
@@ -1842,9 +1842,9 @@ Ice::FileException::toString() const
 
     {
 
-	out += "\npath: ";
+        out += "\npath: ";
 
-	out += path;
+        out += path;
 
     }
 
@@ -1877,11 +1877,11 @@ Ice::ConnectionLostException::toString() const
     out += ":\nconnection lost: ";
     if(error == 0)
     {
-	out += "recv() returned zero";
+        out += "recv() returned zero";
     }
     else
     {
-	out += errorToString(error);
+        out += errorToString(error);
     }
     return out;
 }
@@ -1928,11 +1928,11 @@ Ice::ProtocolException::toString() const
     out += ":\nprotocol error: ";
     if(!reason.empty())
     {
-	out += reason;
+        out += reason;
     }
     else
     {
-	out += "unknown protocol exception";
+        out += "unknown protocol exception";
     }
     return out;
 }
@@ -1973,8 +1973,8 @@ Ice::MarshalException::toString() const
     out += ":\nprotocol error: error during marshaling or unmarshaling";
     if(!reason.empty())
     {
-	out += ":\n";
-	out += reason;
+        out += ":\n";
+        out += reason;
     }
     return out;
 }

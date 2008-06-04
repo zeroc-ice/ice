@@ -140,8 +140,8 @@ protected:
 #endif
 
 private:
-    Thread(const Thread&);		// Copying is forbidden
-    void operator=(const Thread&);	// Assignment is forbidden
+    Thread(const Thread&);                // Copying is forbidden
+    void operator=(const Thread&);        // Assignment is forbidden
 };
 
 typedef Handle<Thread> ThreadPtr;

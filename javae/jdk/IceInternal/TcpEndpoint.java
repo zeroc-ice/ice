@@ -46,8 +46,8 @@ final class TcpEndpoint implements Endpoint
             if(option.length() != 2 || option.charAt(0) != '-')
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
-		e.str = "tcp " + str;
-		throw e;
+                e.str = "tcp " + str;
+                throw e;
             }
 
             String argument = null;
@@ -63,8 +63,8 @@ final class TcpEndpoint implements Endpoint
                     if(argument == null)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     _host = argument;
@@ -76,8 +76,8 @@ final class TcpEndpoint implements Endpoint
                     if(argument == null)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     try
@@ -87,15 +87,15 @@ final class TcpEndpoint implements Endpoint
                     catch(NumberFormatException ex)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
-		    if(_port < 0 || _port > 65535)
+                    if(_port < 0 || _port > 65535)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     break;
@@ -106,8 +106,8 @@ final class TcpEndpoint implements Endpoint
                     if(argument == null)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     try
@@ -117,24 +117,24 @@ final class TcpEndpoint implements Endpoint
                     catch(NumberFormatException ex)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     break;
                 }
 
-		case 'z':
-		{
-		    // Ignore compression flag.
-		    break;
-		}
+                case 'z':
+                {
+                    // Ignore compression flag.
+                    break;
+                }
 
                 default:
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
-		    e.str = "tcp " + str;
-		    throw e;
+                    e.str = "tcp " + str;
+                    throw e;
                 }
             }
         }
@@ -155,7 +155,7 @@ final class TcpEndpoint implements Endpoint
         _host = s.readString();
         _port = s.readInt();
         _timeout = s.readInt();
-	boolean compress = s.readBool();
+        boolean compress = s.readBool();
         s.endReadEncaps();
         calcHashValue();
     }
@@ -171,7 +171,7 @@ final class TcpEndpoint implements Endpoint
         s.writeString(_host);
         s.writeInt(_port);
         s.writeInt(_timeout);
-	s.writeBool(false);
+        s.writeBool(false);
         s.endWriteEncaps();
     }
 
@@ -360,51 +360,51 @@ final class TcpEndpoint implements Endpoint
             // We do the most time-consuming part of the comparison last.
             //
             InetSocketAddress laddr = null;
-	    try
-	    {
-		laddr = Network.getAddress(_host, _port);
-	    }
-	    catch(Ice.DNSException ex)
-	    {
-	    }
+            try
+            {
+                laddr = Network.getAddress(_host, _port);
+            }
+            catch(Ice.DNSException ex)
+            {
+            }
 
             InetSocketAddress raddr = null;
-	    try
-	    {
-		raddr = Network.getAddress(p._host, p._port);
-	    }
-	    catch(Ice.DNSException ex)
-	    {
-	    }
+            try
+            {
+                raddr = Network.getAddress(p._host, p._port);
+            }
+            catch(Ice.DNSException ex)
+            {
+            }
 
-	    if(laddr == null && raddr != null)
-	    {
-		return -1;
-	    }
-	    else if(raddr == null && laddr != null)
-	    {
-		return 1;
-	    }
-	    else if(laddr != null && raddr != null)
-	    {
-		byte[] larr = laddr.getAddress().getAddress();
-		byte[] rarr = raddr.getAddress().getAddress();
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(larr.length == rarr.length);
-		}
-		for(int i = 0; i < larr.length; i++)
-		{
-		    if(larr[i] < rarr[i])
-		    {
-			return -1;
-		    }
-		    else if(rarr[i] < larr[i])
-		    {
-			return 1;
-		    }
-		}
-	    }
+            if(laddr == null && raddr != null)
+            {
+                return -1;
+            }
+            else if(raddr == null && laddr != null)
+            {
+                return 1;
+            }
+            else if(laddr != null && raddr != null)
+            {
+                byte[] larr = laddr.getAddress().getAddress();
+                byte[] rarr = raddr.getAddress().getAddress();
+                if(IceUtil.Debug.ASSERT)
+                {
+                    IceUtil.Debug.Assert(larr.length == rarr.length);
+                }
+                for(int i = 0; i < larr.length; i++)
+                {
+                    if(larr[i] < rarr[i])
+                    {
+                        return -1;
+                    }
+                    else if(rarr[i] < larr[i])
+                    {
+                        return 1;
+                    }
+                }
+            }
         }
 
         return 0;
@@ -414,14 +414,14 @@ final class TcpEndpoint implements Endpoint
     calcHashValue()
     {
         try
-	{
-	    java.net.InetAddress addr = java.net.InetAddress.getByName(_host);
-	    _hashCode = addr.getHostAddress().hashCode();
-	}
-	catch(java.net.UnknownHostException ex)
-	{
+        {
+            java.net.InetAddress addr = java.net.InetAddress.getByName(_host);
+            _hashCode = addr.getHostAddress().hashCode();
+        }
+        catch(java.net.UnknownHostException ex)
+        {
             _hashCode = _host.hashCode();
-	}
+        }
         _hashCode = 5 * _hashCode + _port;
         _hashCode = 5 * _hashCode + _timeout;
     }

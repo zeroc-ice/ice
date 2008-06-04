@@ -20,24 +20,24 @@ public class ChatMIDlet extends MIDlet
     public void
     destroy()
     {
-	if(_communicator != null)
-	{
-	    try
-	    {
-		_communicator.destroy();
-	    }
-	    catch(Exception ex)
-	    {
-		// Ignore.
-	    }
-	}
-	notifyDestroyed();
+        if(_communicator != null)
+        {
+            try
+            {
+                _communicator.destroy();
+            }
+            catch(Exception ex)
+            {
+                // Ignore.
+            }
+        }
+        notifyDestroyed();
     }
 
     protected void
     destroyApp(boolean unconditional)
     {
-	destroy();
+        destroy();
     }
 
     protected void
@@ -48,22 +48,22 @@ public class ChatMIDlet extends MIDlet
     protected void
     startApp()
     {
-	try
-	{
-	    final String[] args = new String[0];
-	    _communicator = Ice.Util.initialize(args);
-	}
-	catch(Exception ex)
-	{
-	    Alert alert = new Alert("Ice Error", ex.getMessage(), null, AlertType.ERROR);
-	    alert.setTimeout(Alert.FOREVER);
-	    Display.getDisplay(this).setCurrent(alert);
-	    notifyDestroyed();
-	    return;
-	}
+        try
+        {
+            final String[] args = new String[0];
+            _communicator = Ice.Util.initialize(args);
+        }
+        catch(Exception ex)
+        {
+            Alert alert = new Alert("Ice Error", ex.getMessage(), null, AlertType.ERROR);
+            alert.setTimeout(Alert.FOREVER);
+            Display.getDisplay(this).setCurrent(alert);
+            notifyDestroyed();
+            return;
+        }
 
-	_loginForm = new LoginForm(this, _communicator);
-	Display.getDisplay(this).setCurrent(_loginForm);
+        _loginForm = new LoginForm(this, _communicator);
+        Display.getDisplay(this).setCurrent(_loginForm);
     }
 
     private Form _loginForm;

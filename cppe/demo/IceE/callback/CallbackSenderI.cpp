@@ -19,11 +19,11 @@ CallbackSenderI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::C
     printf("initiating callback\n");
     try
     {
-	proxy->callback(current.ctx);
+        proxy->callback(current.ctx);
     }
     catch(const Ice::Exception& ex)
     {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
+        fprintf(stderr, "%s\n", ex.toString().c_str());
     }
 }
 
@@ -33,10 +33,10 @@ CallbackSenderI::shutdown(const Ice::Current& c)
     printf("shutting down...\n");
     try
     {
-	c.adapter->getCommunicator()->shutdown();
+        c.adapter->getCommunicator()->shutdown();
     }
     catch(const Ice::Exception& ex)
     {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
+        fprintf(stderr, "%s\n", ex.toString().c_str());
     }
 }

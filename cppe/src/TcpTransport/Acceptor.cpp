@@ -32,8 +32,8 @@ IceInternal::Acceptor::close()
 {
     if(_traceLevels->network >= 1)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "stopping to accept tcp connections at " << toString();
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "stopping to accept tcp connections at " << toString();
     }
 
     SOCKET fd = _fd;
@@ -46,18 +46,18 @@ IceInternal::Acceptor::listen()
 {
     try
     {
-	doListen(_fd, _backlog);
+        doListen(_fd, _backlog);
     }
     catch(...)
     {
-	_fd = INVALID_SOCKET;
-	throw;
+        _fd = INVALID_SOCKET;
+        throw;
     }
 
     if(_traceLevels->network >= 1)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "accepting tcp connections at " << toString();
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "accepting tcp connections at " << toString();
     }
 }
 
@@ -72,8 +72,8 @@ IceInternal::Acceptor::accept()
 
     if(_traceLevels->network >= 1)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "accepted tcp connection\n" << fdToString(fd);
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "accepted tcp connection\n" << fdToString(fd);
     }
 
     return new Transceiver(_instance, fd);
@@ -113,8 +113,8 @@ IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host,
 
     try
     {
-	_fd = createSocket();
-	getAddress(host, port, _addr);
+        _fd = createSocket();
+        getAddress(host, port, _addr);
         setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
 #ifndef _WIN32
         //
@@ -131,17 +131,17 @@ IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host,
         //
         setReuseAddress(_fd, true);
 #endif
-	if(_traceLevels->network >= 2)
-	{
-	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "attempting to bind to tcp socket " << toString();
-	}
-	doBind(_fd, _addr);
+        if(_traceLevels->network >= 2)
+        {
+            Trace out(_logger, _traceLevels->networkCat);
+            out << "attempting to bind to tcp socket " << toString();
+        }
+        doBind(_fd, _addr);
     }
     catch(...)
     {
-	_fd = INVALID_SOCKET;
-	throw;
+        _fd = INVALID_SOCKET;
+        throw;
     }
 }
 

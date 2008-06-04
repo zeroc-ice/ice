@@ -15,34 +15,34 @@ final public class Incoming
     Incoming(Instance instance, Ice.Connection connection, BasicStream is, Ice.ObjectAdapter adapter)
     {
         _os = new BasicStream(instance);
-	_is = is;
-	_connection = connection;
+        _is = is;
+        _connection = connection;
 
-	setAdapter(adapter);
+        setAdapter(adapter);
     }
     
     public void
     setAdapter(Ice.ObjectAdapter adapter)
     {
-	_adapter = adapter;
-	if(_adapter != null)
-	{
-	    _servantManager = _adapter.getServantManager();
-	    if(_servantManager == null)
-	    {
-	        _adapter = null;
-	    }
-	}
-	else
-	{
-	    _servantManager = null;
-	}
+        _adapter = adapter;
+        if(_adapter != null)
+        {
+            _servantManager = _adapter.getServantManager();
+            if(_servantManager == null)
+            {
+                _adapter = null;
+            }
+        }
+        else
+        {
+            _servantManager = null;
+        }
     }
 
     public Ice.ObjectAdapter
     getAdapter()
     {
-	return _adapter;
+        return _adapter;
     }
     
     public void
@@ -51,12 +51,12 @@ final public class Incoming
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.con = _connection;
-	_current.adapter = _adapter;
-	_current.requestId = requestId;
+        _current.adapter = _adapter;
+        _current.requestId = requestId;
 
-	//
-	// Read the current.
-	//
+        //
+        // Read the current.
+        //
         _current.id.__read(_is);
 
         //
@@ -65,24 +65,24 @@ final public class Incoming
         String[] facetPath = _is.readStringSeq();
         if(facetPath.length > 0)
         {
-	    if(facetPath.length > 1)
-	    {
-	        throw new Ice.MarshalException();
-	    }
+            if(facetPath.length > 1)
+            {
+                throw new Ice.MarshalException();
+            }
             _current.facet = facetPath[0];
         }
-	else
-	{
+        else
+        {
             _current.facet = "";
-	}
+        }
 
         _current.operation = _is.readString();
         _current.mode = Ice.OperationMode.convert(_is.readByte());
         int sz = _is.readSize();
-	if(sz > 0)
-	{
-	    _current.ctx = new java.util.Hashtable();
-	}
+        if(sz > 0)
+        {
+            _current.ctx = new java.util.Hashtable();
+        }
         while(sz-- > 0)
         {
             String first = _is.readString();
@@ -94,99 +94,99 @@ final public class Incoming
 
         if(response)
         {
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
-	    }
+            if(IceUtil.Debug.ASSERT)
+            {
+                IceUtil.Debug.Assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
+            }
             _os.writeByte(ReplyStatus.replyOK);
             _os.startWriteEncaps();
         }
 
-	byte replyStatus = ReplyStatus.replyOK;
-	Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;
-	
-	//
-	// Don't put the code above into the try block below. Exceptions
-	// in the code above are considered fatal, and must propagate to
-	// the caller of this operation.
-	//
+        byte replyStatus = ReplyStatus.replyOK;
+        Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;
+        
+        //
+        // Don't put the code above into the try block below. Exceptions
+        // in the code above are considered fatal, and must propagate to
+        // the caller of this operation.
+        //
 
         try
         {
-	    Ice.Object servant = null;
-	    if(_servantManager != null)
-	    {
-	        servant = _servantManager.findServant(_current.id, _current.facet);
-	    }
-	    
-	    if(servant == null)
-	    {
-	        if(_servantManager != null && _servantManager.hasServant(_current.id))
-	        {
-		    replyStatus = ReplyStatus.replyFacetNotExist;
-	        }
-	        else
-	        {
-		    replyStatus = ReplyStatus.replyObjectNotExist;
-	        }
-	    }
-	    else
-	    {
-	        dispatchStatus = servant.__dispatch(this, _current);
+            Ice.Object servant = null;
+            if(_servantManager != null)
+            {
+                servant = _servantManager.findServant(_current.id, _current.facet);
+            }
+            
+            if(servant == null)
+            {
+                if(_servantManager != null && _servantManager.hasServant(_current.id))
+                {
+                    replyStatus = ReplyStatus.replyFacetNotExist;
+                }
+                else
+                {
+                    replyStatus = ReplyStatus.replyObjectNotExist;
+                }
+            }
+            else
+            {
+                dispatchStatus = servant.__dispatch(this, _current);
                 if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
                 {
                     replyStatus = ReplyStatus.replyUserException;
                 }
-	    }
-	}
-	catch(Ice.RequestFailedException ex)
-	{
-	    _is.endReadEncaps();
-	    
-	    if(ex.id == null)
-	    {
-		ex.id = _current.id;
-	    }
-	    
-	    if(ex.facet == null)
-	    {
-		ex.facet = _current.facet;
-	    }
-	    
-	    if(ex.operation == null || ex.operation.length() == 0)
-	    {
-		ex.operation = _current.operation;
-	    }
+            }
+        }
+        catch(Ice.RequestFailedException ex)
+        {
+            _is.endReadEncaps();
+            
+            if(ex.id == null)
+            {
+                ex.id = _current.id;
+            }
+            
+            if(ex.facet == null)
+            {
+                ex.facet = _current.facet;
+            }
+            
+            if(ex.operation == null || ex.operation.length() == 0)
+            {
+                ex.operation = _current.operation;
+            }
 
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            {
+                __warning(ex);
+            }
 
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
-		if(ex instanceof Ice.ObjectNotExistException)
-		{
-		    _os.writeByte(ReplyStatus.replyObjectNotExist);
-		}
-		else if(ex instanceof Ice.FacetNotExistException)
-		{
-		    _os.writeByte(ReplyStatus.replyFacetNotExist);
-		}
-		else if(ex instanceof Ice.OperationNotExistException)
-		{
-		    _os.writeByte(ReplyStatus.replyOperationNotExist);
-		}
-		else
-		{
-		    if(IceUtil.Debug.ASSERT)
-		    {
-			IceUtil.Debug.Assert(false);
-		    }
-		}
-		ex.id.__write(_os);
+                if(ex instanceof Ice.ObjectNotExistException)
+                {
+                    _os.writeByte(ReplyStatus.replyObjectNotExist);
+                }
+                else if(ex instanceof Ice.FacetNotExistException)
+                {
+                    _os.writeByte(ReplyStatus.replyFacetNotExist);
+                }
+                else if(ex instanceof Ice.OperationNotExistException)
+                {
+                    _os.writeByte(ReplyStatus.replyOperationNotExist);
+                }
+                else
+                {
+                    if(IceUtil.Debug.ASSERT)
+                    {
+                        IceUtil.Debug.Assert(false);
+                    }
+                }
+                ex.id.__write(_os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -201,178 +201,178 @@ final public class Incoming
                     _os.writeStringSeq(facetPath2);
                 }
 
-		_os.writeString(ex.operation);
+                _os.writeString(ex.operation);
 
-		_connection.sendResponse(_os);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _connection.sendResponse(_os);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
 
-	    return;
+            return;
         }
         catch(Ice.UnknownLocalException ex)
         {
-	    _is.endReadEncaps();
+            _is.endReadEncaps();
 
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
-		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _os.writeString(ex.unknown);
+                _connection.sendResponse(_os);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
 
-	    return;
+            return;
         }
         catch(Ice.UnknownUserException ex)
         {
-	    _is.endReadEncaps();
+            _is.endReadEncaps();
 
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
-		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _os.writeString(ex.unknown);
+                _connection.sendResponse(_os);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
 
-	    return;
+            return;
         }
         catch(Ice.UnknownException ex)
         {
-	    _is.endReadEncaps();
+            _is.endReadEncaps();
 
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownException);
-		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _os.writeString(ex.unknown);
+                _connection.sendResponse(_os);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
 
-	    return;
+            return;
         }
         catch(Ice.LocalException ex)
         {
-	    _is.endReadEncaps();
+            _is.endReadEncaps();
 
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
-		//_os.writeString(ex.toString());
-		java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
-		java.io.PrintStream pw = new java.io.PrintStream(sw);
-		pw.println(ex.toString());
-		pw.flush();
-		_os.writeString(sw.toString());
-		_connection.sendResponse(_os);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                //_os.writeString(ex.toString());
+                java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
+                java.io.PrintStream pw = new java.io.PrintStream(sw);
+                pw.println(ex.toString());
+                pw.flush();
+                _os.writeString(sw.toString());
+                _connection.sendResponse(_os);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
 
-	    return;
+            return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
         catch(Ice.UserException ex)
         {
-	// ...
-	}
-	*/
+        // ...
+        }
+        */
         catch(java.lang.Exception ex)
         {
-	    _is.endReadEncaps();
+            _is.endReadEncaps();
 
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownException);
-		//_os.writeString(ex.toString());
-		java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
-		java.io.PrintStream pw = new java.io.PrintStream(sw);
-		pw.println(ex.toString());
-		pw.flush();
-		_os.writeString(sw.toString());
-		_connection.sendResponse(_os);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                //_os.writeString(ex.toString());
+                java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
+                java.io.PrintStream pw = new java.io.PrintStream(sw);
+                pw.println(ex.toString());
+                pw.flush();
+                _os.writeString(sw.toString());
+                _connection.sendResponse(_os);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
 
-	    return;
+            return;
         }
-	
-	//
-	// Don't put the code below into the try block above. Exceptions
-	// in the code below are considered fatal, and must propagate to
-	// the caller of this operation.
-	//
+        
+        //
+        // Don't put the code below into the try block above. Exceptions
+        // in the code below are considered fatal, and must propagate to
+        // the caller of this operation.
+        //
 
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    
+        if(response)
+        {
+            _os.endWriteEncaps();
+            
             if(replyStatus != ReplyStatus.replyOK && replyStatus != ReplyStatus.replyUserException)
             {
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(replyStatus == ReplyStatus.replyObjectNotExist ||
+                if(IceUtil.Debug.ASSERT)
+                {
+                    IceUtil.Debug.Assert(replyStatus == ReplyStatus.replyObjectNotExist ||
                                          replyStatus == ReplyStatus.replyFacetNotExist);
-		}
-		
-		_os.resize(Protocol.headerSize + 4, false); // Reply status position.
-		_os.writeByte(replyStatus);
-		
-		_current.id.__write(_os);
+                }
+                
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(replyStatus);
+                
+                _current.id.__write(_os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -387,22 +387,22 @@ final public class Incoming
                     _os.writeStringSeq(facetPath2);
                 }
 
-		_os.writeString(_current.operation);
-	    }
-	    else
-	    {
-		int save = _os.pos();
-		_os.pos(Protocol.headerSize + 4); // Reply status position.
-		_os.writeByte(replyStatus);
-		_os.pos(save);
-	    }
+                _os.writeString(_current.operation);
+            }
+            else
+            {
+                int save = _os.pos();
+                _os.pos(Protocol.headerSize + 4); // Reply status position.
+                _os.writeByte(replyStatus);
+                _os.pos(save);
+            }
 
-	    _connection.sendResponse(_os);
-	}
-	else
-	{
-	    _connection.sendNoResponse();
-	}
+            _connection.sendResponse(_os);
+        }
+        else
+        {
+            _connection.sendNoResponse();
+        }
     }
 
     public BasicStream
@@ -420,19 +420,19 @@ final public class Incoming
     final private void
     __warning(java.lang.Exception ex)
     {
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_os != null);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(_os != null);
+        }
 
-	StringBuffer sb = new StringBuffer();
-	sb.append("dispatch exception:");
-	sb.append("\nidentity: " + _os.instance().identityToString(_current.id));
-	sb.append("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
-	sb.append("\noperation: " + _current.operation);
-	sb.append("\n");
-	sb.append(ex.toString());
-	_os.instance().initializationData().logger.warning(sb.toString());
+        StringBuffer sb = new StringBuffer();
+        sb.append("dispatch exception:");
+        sb.append("\nidentity: " + _os.instance().identityToString(_current.id));
+        sb.append("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
+        sb.append("\noperation: " + _current.operation);
+        sb.append("\n");
+        sb.append(ex.toString());
+        _os.instance().initializationData().logger.warning(sb.toString());
     }
 
     //

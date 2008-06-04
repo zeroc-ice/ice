@@ -39,11 +39,11 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
     if(proxy)
     {
-	return proxy->__reference()->toString();
+        return proxy->__reference()->toString();
     }
     else
     {
-	return "";
+        return "";
     }
 }
 
@@ -69,13 +69,13 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
 {
     if(proxy)
     {
-	proxy->__reference()->getIdentity().__write(s);
-	proxy->__reference()->streamWrite(s);
+        proxy->__reference()->getIdentity().__write(s);
+        proxy->__reference()->streamWrite(s);
     }
     else
     {
-	Identity ident;
-	ident.__write(s);
+        Identity ident;
+        ident.__write(s);
     }
 }
 
@@ -105,15 +105,15 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     if(one)
     {
 #ifdef ICEE_HAS_LOCATOR
-	LocatorInfoPtr li = ref->getLocatorInfo();
-	if(li)
-	{
-	   //
-	   // We retry ObjectNotExistException if the reference is indirect.
-	   //
-	   li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
-	}
-	else
+        LocatorInfoPtr li = ref->getLocatorInfo();
+        if(li)
+        {
+            //
+            // We retry ObjectNotExistException if the reference is indirect.
+            //
+            li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
+        }
+        else
 #endif
 #ifdef ICEE_HAS_ROUTER
              if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
@@ -133,14 +133,14 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
             }
             return; // We must always retry, so we don't look at the retry count.
         }
-	else
+        else
 #endif
-	{
-	    //
-	    // For all other cases, we don't retry  ObjectNotExistException
-	    //
-	    ex.ice_throw();
-	}
+        {
+            //
+            // For all other cases, we don't retry  ObjectNotExistException
+            //
+            ex.ice_throw();
+        }
     }
     else 
 #endif
@@ -150,7 +150,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
         // We don't retry other *NotExistException, which are all
         // derived from RequestFailedException.
         //
-	ex.ice_throw();
+        ex.ice_throw();
     }
 
     //
@@ -177,7 +177,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     //
     if(dynamic_cast<const MarshalException*>(&ex))
     {
-	ex.ice_throw();
+        ex.ice_throw();
     }
 
     ++cnt;
@@ -225,41 +225,41 @@ IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
 
     while(true)
     {
-	const string delim = " \t";
+        const string delim = " \t";
     
-	beg = str.find_first_not_of(delim, end);
-	if(beg == string::npos)
-	{
-	    if(_retryIntervals.empty())
-	    {
-		_retryIntervals.push_back(0);
-	    }
-	    break;
-	}
+        beg = str.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            if(_retryIntervals.empty())
+            {
+                _retryIntervals.push_back(0);
+            }
+            break;
+        }
 
-	end = str.find_first_of(delim, beg);
-	if(end == string::npos)
-	{
-	    end = str.length();
-	}
-	
-	if(beg == end)
-	{
-	    break;
-	}
+        end = str.find_first_of(delim, beg);
+        if(end == string::npos)
+        {
+            end = str.length();
+        }
+        
+        if(beg == end)
+        {
+            break;
+        }
 
-	string value = str.substr(beg, end - beg);
-	int v = atoi(value.c_str());
+        string value = str.substr(beg, end - beg);
+        int v = atoi(value.c_str());
 
-	//
-	// If -1 is the first value, no retry and wait intervals.
-	//
-	if(v == -1 && _retryIntervals.empty())
-	{
-	    break;
-	}
+        //
+        // If -1 is the first value, no retry and wait intervals.
+        //
+        if(v == -1 && _retryIntervals.empty())
+        {
+            break;
+        }
 
-	_retryIntervals.push_back(v > 0 ? v : 0);
+        _retryIntervals.push_back(v > 0 ? v : 0);
     }
 }
 

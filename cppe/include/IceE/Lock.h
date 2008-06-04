@@ -44,63 +44,63 @@ class LockT
 public:
     
     LockT(const T& mutex) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_mutex.lock();
-	_acquired = true;
+        _mutex.lock();
+        _acquired = true;
     }
 
     ~LockT()
     {
-	if (_acquired)
-	{
-	    _mutex.unlock();
-	}
+        if (_acquired)
+        {
+            _mutex.unlock();
+        }
     }
     
     void acquire() const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_mutex.lock();
-	_acquired = true;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _mutex.lock();
+        _acquired = true;
     }
 
 
     bool tryAcquire() const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_acquired = _mutex.tryLock();
-	return _acquired;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _acquired = _mutex.tryLock();
+        return _acquired;
     }
 
     void release() const
     {
-	if (!_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_mutex.unlock();
-	_acquired = false;
+        if (!_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _mutex.unlock();
+        _acquired = false;
     }
 
     bool acquired() const
     {
-	return _acquired;
+        return _acquired;
     }
    
 protected:
     
     // TryLockT's contructor
     LockT(const T& mutex, bool) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_acquired = _mutex.tryLock();
+        _acquired = _mutex.tryLock();
     }
 
 private:
@@ -126,7 +126,7 @@ class TryLockT : public LockT<T>
 public:
 
     TryLockT(const T& mutex) :
-	LockT<T>(mutex, true)
+        LockT<T>(mutex, true)
     {}
 };
 

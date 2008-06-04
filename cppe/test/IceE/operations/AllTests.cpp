@@ -18,7 +18,7 @@ Test::MyClassPrx
 allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
 {
     string ref = communicator->getProperties()->getPropertyWithDefault(
-	"Operations.Proxy", "test:default -p 12010 -t 10000");
+        "Operations.Proxy", "test:default -p 12010 -t 10000");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
     Test::MyDerivedClassPrx derived = Test::MyDerivedClassPrx::checkedCast(cl);
@@ -27,8 +27,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData
     Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(cl->ice_timeout(500));
     try
     {
-	clTimeout->opSleep(2000);
-	test(false);
+        clTimeout->opSleep(2000);
+        test(false);
     }
     catch(const Ice::TimeoutException&)
     {

@@ -23,7 +23,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Server");
-    adapter->add(new CallbackSenderI, communicator->stringToIdentity("callback"));
+    CallbackSenderPtr cbs = new CallbackSenderI;
+    adapter->add(cbs, communicator->stringToIdentity("callback"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
@@ -39,7 +40,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
-        initData.properties->load("config");
+        initData.properties->load("config.server");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

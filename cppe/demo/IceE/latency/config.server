@@ -1,0 +1,10 @@
+#
+# The server creates one single object adapter with the name
+# "Latency". The following line sets the endpoints for this adapter.
+#
+Latency.Endpoints=default -p 10000 -h 127.0.0.1
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1

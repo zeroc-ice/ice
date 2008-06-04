@@ -131,130 +131,130 @@ public:
     
     ProxyHandle(T* p = 0)
     {
-	this->_ptr = p;
+        this->_ptr = p;
 
-	if(this->_ptr)
-	{
-	    upCast(this->_ptr)->__incRef();
-	}
+        if(this->_ptr)
+        {
+            upCast(this->_ptr)->__incRef();
+        }
     }
     
     template<typename Y>
     ProxyHandle(const ProxyHandle<Y>& r)
     {
-	this->_ptr = r._ptr;
+        this->_ptr = r._ptr;
 
-	if(this->_ptr)
-	{
-	    upCast(this->_ptr)->__incRef();
-	}
+        if(this->_ptr)
+        {
+            upCast(this->_ptr)->__incRef();
+        }
     }
 
     template<typename Y>
     ProxyHandle(const ::IceUtil::Handle<Y>& r)
     {
-	this->_ptr = r._ptr;
+        this->_ptr = r._ptr;
 
-	if(this->_ptr)
-	{
-	    upCast(this->_ptr)->__incRef();
-	}
+        if(this->_ptr)
+        {
+            upCast(this->_ptr)->__incRef();
+        }
     }
 
     ProxyHandle(const ProxyHandle& r)
     {
-	this->_ptr = r._ptr;
+        this->_ptr = r._ptr;
 
-	if(this->_ptr)
-	{
-	    upCast(this->_ptr)->__incRef();
-	}
+        if(this->_ptr)
+        {
+            upCast(this->_ptr)->__incRef();
+        }
     }
     
     ~ProxyHandle()
     {
-	if(this->_ptr)
-	{
-	    upCast(this->_ptr)->__decRef();
-	}
+        if(this->_ptr)
+        {
+            upCast(this->_ptr)->__decRef();
+        }
     }
     
     ProxyHandle& operator=(T* p)
     {
-	if(this->_ptr != p)
-	{
-	    if(p)
-	    {
-		upCast(p)->__incRef();
-	    }
+        if(this->_ptr != p)
+        {
+            if(p)
+            {
+                upCast(p)->__incRef();
+            }
 
-	    if(this->_ptr)
-	    {
-		upCast(this->_ptr)->__decRef();
-	    }
-	    
-	    this->_ptr = p;
-	}
-	return *this;
+            if(this->_ptr)
+            {
+                upCast(this->_ptr)->__decRef();
+            }
+            
+            this->_ptr = p;
+        }
+        return *this;
     }
         
     template<typename Y>
     ProxyHandle& operator=(const ProxyHandle<Y>& r)
     {
-	if(this->_ptr != r._ptr)
-	{
-	    if(r._ptr)
-	    {
-		upCast(r._ptr)->__incRef();
-	    }
+        if(this->_ptr != r._ptr)
+        {
+            if(r._ptr)
+            {
+                upCast(r._ptr)->__incRef();
+            }
 
-	    if(this->_ptr)
-	    {
-		upCast(this->_ptr)->__decRef();
-	    }
-	    
-	    this->_ptr = r._ptr;
-	}
-	return *this;
+            if(this->_ptr)
+            {
+                upCast(this->_ptr)->__decRef();
+            }
+            
+            this->_ptr = r._ptr;
+        }
+        return *this;
     }
 
     template<typename Y>
     ProxyHandle& operator=(const ::IceUtil::Handle<Y>& r)
     {
-	if(this->_ptr != r._ptr)
-	{
-	    if(r._ptr)
-	    {
-		upCast(r._ptr)->__incRef();
-	    }
+        if(this->_ptr != r._ptr)
+        {
+            if(r._ptr)
+            {
+                upCast(r._ptr)->__incRef();
+            }
 
-	    if(this->_ptr)
-	    {
-		upCast(this->_ptr)->__decRef();
-	    }
-	    
-	    this->_ptr = r._ptr;
-	}
-	return *this;
+            if(this->_ptr)
+            {
+                upCast(this->_ptr)->__decRef();
+            }
+            
+            this->_ptr = r._ptr;
+        }
+        return *this;
     }
 
     ProxyHandle& operator=(const ProxyHandle& r)
     {
-	if(this->_ptr != r._ptr)
-	{
-	    if(r._ptr)
-	    {
-		upCast(r._ptr)->__incRef();
-	    }
+        if(this->_ptr != r._ptr)
+        {
+            if(r._ptr)
+            {
+                upCast(r._ptr)->__incRef();
+            }
 
-	    if(this->_ptr)
-	    {
-		upCast(this->_ptr)->__decRef();
-	    }
-	    
-	    this->_ptr = r._ptr;
-	}
-	return *this;
+            if(this->_ptr)
+            {
+                upCast(this->_ptr)->__decRef();
+            }
+            
+            this->_ptr = r._ptr;
+        }
+        return *this;
     }
 
     ::IceProxy::Ice::Object* __upCast() const
@@ -265,39 +265,39 @@ public:
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r)
     {
-	Y* tag = 0;
-	return ::IceInternal::checkedCastHelper<T>(r, tag);
+        Y* tag = 0;
+        return ::IceInternal::checkedCastHelper<T>(r, tag);
     }
 
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
-	return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f);
+        return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f);
     }
 
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const ::Ice::Context& ctx)
     {
-	return ::IceInternal::checkedCastHelper<T>(r, ctx);
+        return ::IceInternal::checkedCastHelper<T>(r, ctx);
     }
 
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f, const ::Ice::Context& ctx)
     {
-	return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f, ctx);
+        return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f, ctx);
     }
 
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r)
     {
-	Y* tag = 0;
-	return::IceInternal::uncheckedCastHelper<T>(r, tag);
+        Y* tag = 0;
+        return::IceInternal::uncheckedCastHelper<T>(r, tag);
     }
 
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
-	return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
+        return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
     }
 };
 

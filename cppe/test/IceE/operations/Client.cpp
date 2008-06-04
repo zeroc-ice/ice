@@ -26,29 +26,29 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-    	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-	//
-	// We must set MessageSizeMax to an explicit values, because
-	// we run tests to check whether Ice.MemoryLimitException is
-	// raised as expected.
-	//
-	initData.properties->setProperty("Ice.MessageSizeMax", "100");
+            Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        //
+        // We must set MessageSizeMax to an explicit values, because
+        // we run tests to check whether Ice.MemoryLimitException is
+        // raised as expected.
+        //
+        initData.properties->setProperty("Ice.MessageSizeMax", "100");
 
-	loadConfig(initData.properties);
+        loadConfig(initData.properties);
 
-	//
-	// Now parse argc/argv into initData
-	//
-	initData.properties = Ice::createProperties(argc, argv, initData.properties); 
+        //
+        // Now parse argc/argv into initData
+        //
+        initData.properties = Ice::createProperties(argc, argv, initData.properties); 
 
-	initData.logger = getLogger();	
-	setCommunicator(Ice::initialize(argc, argv, initData));
-	
-	//
-	// We don't want connection warnings because of the timeout test.
-	//
-	communicator()->getProperties()->setProperty("Ice.Warn.Connections", "0");
+        initData.logger = getLogger();        
+        setCommunicator(Ice::initialize(argc, argv, initData));
+        
+        //
+        // We don't want connection warnings because of the timeout test.
+        //
+        communicator()->getProperties()->setProperty("Ice.Warn.Connections", "0");
 
         Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
         Test::MyClassPrx myClass = allTests(communicator(), initData);
@@ -57,8 +57,8 @@ public:
         myClass->shutdown();
         try
         {
-	    myClass->opVoid();
-	    test(false);
+            myClass->opVoid();
+            test(false);
         }
         catch(const Ice::LocalException&)
         {

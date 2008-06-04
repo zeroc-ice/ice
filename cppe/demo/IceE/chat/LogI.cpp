@@ -65,7 +65,7 @@ LogI::message(const string& msg)
     string line = msg + "\r\n";
     if(_hwnd)
     {
-	post(line);
+        post(line);
     }
     else
     {
@@ -79,7 +79,7 @@ LogI::setHandle(HWND hwnd)
     _hwnd = hwnd;
     if(_hwnd != 0 && !_buffer.empty())
     {
-	post(_buffer);
+        post(_buffer);
         _buffer.clear();
     }
 }

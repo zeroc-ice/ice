@@ -14,47 +14,47 @@ class SessionPingThread extends Thread
     SessionPingThread(ChatSessionPrx session, long timeout)
     {
         _session = session;
-	_destroy = false;
-	_timeout = timeout*1000;
-    }
-
-    synchronized public void
-    destroy()
-    {
-	_destroy = true;
-	this.notify();
+        _timeout = timeout * 1000;
+        _destroy = false;
     }
 
     synchronized public void
     run()
     {
-	while(!_destroy)
-	{
-	    try
-	    {
-		this.wait(_timeout);
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
+        while(!_destroy)
+        {
+            try
+            {
+                this.wait(_timeout);
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
 
-	    if(_destroy)
-	    {
-	        break;
-	    }
+            if(_destroy)
+            {
+                break;
+            }
 
-	    try
-	    {
-	        _session.ice_ping();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-	        break;
-	    }
-	}
+            try
+            {
+                _session.ice_ping();
+            }
+            catch(Ice.LocalException ex)
+            {
+                break;
+            }
+        }
+    }
+
+    synchronized public void
+    destroy()
+    {
+        _destroy = true;
+        this.notify();
     }
 
     private ChatSessionPrx _session;
-    private boolean _destroy;
     private long _timeout;
+    private boolean _destroy;
 }

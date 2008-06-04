@@ -20,59 +20,47 @@ public:
     virtual void
     sayHello(const Ice::Current&) const
     {
-	printf("Hello World!\n");
+        printf("Hello World!\n");
     }
 };
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
-{
-    if(argc > 1)
-    {
-        fprintf(stderr, "%s: too many arguments\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
-    Ice::ObjectPtr object = new HelloI;
-    adapter->add(object, communicator->stringToIdentity("hello"));
-    adapter->activate();
-    communicator->waitForShutdown();
-
-    return EXIT_SUCCESS;
-}
-
-int
 main(int argc, char* argv[])
 {
-    int status;
+    int status = EXIT_SUCCESS;
     Ice::CommunicatorPtr communicator;
 
     try
     {
-        Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initialize(argc, argv);
+        if(argc > 1)
+        {
+            fprintf(stderr, "%s: too many arguments\n", argv[0]);
+            return EXIT_FAILURE;
+        }
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
+        Demo::HelloPtr object = new HelloI;
+        adapter->add(object, communicator->stringToIdentity("hello"));
+        adapter->activate();
+        communicator->waitForShutdown();
     }
     catch(const Ice::Exception& ex)
     {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
-	status = EXIT_FAILURE;
+        fprintf(stderr, "%s\n", ex.toString().c_str());
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

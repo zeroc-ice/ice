@@ -12,7 +12,7 @@ public class Collocated
     public static int
     run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
-	communicator.getProperties().setProperty("Test.Proxy", "test:default -p 12010 -t 10000");
+        communicator.getProperties().setProperty("Test.Proxy", "test:default -p 12010 -t 10000");
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));

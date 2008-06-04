@@ -20,35 +20,35 @@ Ice::Current::operator!=(const Current& __rhs) const
 {
     if(this == &__rhs)
     {
-	return false;
+        return false;
     }
     if(adapter != __rhs.adapter)
     {
-	return true;
+        return true;
     }
     if(con != __rhs.con)
     {
-	return true;
+        return true;
     }
     if(id != __rhs.id)
     {
-	return true;
+        return true;
     }
     if(facet != __rhs.facet)
     {
-	return true;
+        return true;
     }
     if(operation != __rhs.operation)
     {
-	return true;
+        return true;
     }
     if(mode != __rhs.mode)
     {
-	return true;
+        return true;
     }
     if(ctx != __rhs.ctx)
     {
-	return true;
+        return true;
     }
     return false;
 }
@@ -58,63 +58,63 @@ Ice::Current::operator<(const Current& __rhs) const
 {
     if(this == &__rhs)
     {
-	return false;
+        return false;
     }
     if(adapter < __rhs.adapter)
     {
-	return true;
+        return true;
     }
     else if(__rhs.adapter < adapter)
     {
-	return false;
+        return false;
     }
     if(con < __rhs.con)
     {
-	return true;
+        return true;
     }
     else if(__rhs.con < con)
     {
-	return false;
+        return false;
     }
     if(id < __rhs.id)
     {
-	return true;
+        return true;
     }
     else if(__rhs.id < id)
     {
-	return false;
+        return false;
     }
     if(facet < __rhs.facet)
     {
-	return true;
+        return true;
     }
     else if(__rhs.facet < facet)
     {
-	return false;
+        return false;
     }
     if(operation < __rhs.operation)
     {
-	return true;
+        return true;
     }
     else if(__rhs.operation < operation)
     {
-	return false;
+        return false;
     }
     if(mode < __rhs.mode)
     {
-	return true;
+        return true;
     }
     else if(__rhs.mode < mode)
     {
-	return false;
+        return false;
     }
     if(ctx < __rhs.ctx)
     {
-	return true;
+        return true;
     }
     else if(__rhs.ctx < ctx)
     {
-	return false;
+        return false;
     }
     return false;
 }

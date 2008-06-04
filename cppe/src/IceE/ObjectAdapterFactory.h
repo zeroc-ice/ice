@@ -36,9 +36,9 @@ public:
 
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&
 #ifdef ICEE_HAS_ROUTER
-						, const ::Ice::RouterPrx&
+                                                , const ::Ice::RouterPrx&
 #endif
-    					        );
+                                                    );
     void removeObjectAdapter(const std::string&);
     void flushBatchRequests() const;
 

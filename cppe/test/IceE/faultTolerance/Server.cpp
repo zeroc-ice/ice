@@ -35,34 +35,34 @@ public:
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
         loadConfig(initData.properties);
-	initData.logger = getLogger();
+        initData.logger = getLogger();
         setCommunicator(Ice::initialize(argc, argv, initData));
 
         int port = 0;
         for(int i = 1; i < argc; ++i)
         {
-	    if(argv[i][0] == '-')
-	    {
-	        tprintf("%s: unknown option `%s'\n", argv[0], argv[i]);
-	        usage(argv[0]);
-	        return EXIT_FAILURE;
-	    }
+            if(argv[i][0] == '-')
+            {
+                tprintf("%s: unknown option `%s'\n", argv[0], argv[i]);
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
 
-	    if(port > 0)
-	    {
-	        tprintf("%s: only one port can be specified\n", argv[0]);
-	        usage(argv[0]);
-	        return EXIT_FAILURE;
-	    }
+            if(port > 0)
+            {
+                tprintf("%s: only one port can be specified\n", argv[0]);
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
 
-	    port = atoi(argv[i]);
+            port = atoi(argv[i]);
         }
 
         if(port <= 0)
         {
-	    tprintf("%s: no port specified\n", argv[0]);
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
+            tprintf("%s: no port specified\n", argv[0]);
+            usage(argv[0]);
+            return EXIT_FAILURE;
         }
 
         char buf[32];

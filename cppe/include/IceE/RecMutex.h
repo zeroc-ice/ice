@@ -77,13 +77,13 @@ private:
 #ifdef _WIN32
     struct LockState
     {
-	int count;
+        int count;
     };
 #else
     struct LockState
     {
-	pthread_mutex_t* mutex;
-	int count;
+        pthread_mutex_t* mutex;
+        int count;
     };
 #endif
 

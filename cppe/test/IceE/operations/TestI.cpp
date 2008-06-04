@@ -38,9 +38,9 @@ MyDerivedClassI::opSleep(int duration, const Ice::Current&)
 
 Ice::Byte
 MyDerivedClassI::opByte(Ice::Byte p1,
-			Ice::Byte p2,
-			Ice::Byte& p3,
-			const Ice::Current&)
+                        Ice::Byte p2,
+                        Ice::Byte& p3,
+                        const Ice::Current&)
 {
     p3 = p1 ^ p2;
     return p1;
@@ -48,9 +48,9 @@ MyDerivedClassI::opByte(Ice::Byte p1,
 
 bool
 MyDerivedClassI::opBool(bool p1,
-			bool p2,
-			bool& p3,
-			const Ice::Current&)
+                        bool p2,
+                        bool& p3,
+                        const Ice::Current&)
 {
     p3 = p1;
     return p2;
@@ -58,12 +58,12 @@ MyDerivedClassI::opBool(bool p1,
 
 Ice::Long
 MyDerivedClassI::opShortIntLong(Ice::Short p1,
-				Ice::Int p2,
-				Ice::Long p3,
-				Ice::Short& p4,
-				Ice::Int& p5,
-				Ice::Long& p6,
-				const Ice::Current&)
+                                Ice::Int p2,
+                                Ice::Long p3,
+                                Ice::Short& p4,
+                                Ice::Int& p5,
+                                Ice::Long& p6,
+                                const Ice::Current&)
 {
     p4 = p1;
     p5 = p2;
@@ -73,10 +73,10 @@ MyDerivedClassI::opShortIntLong(Ice::Short p1,
 
 Ice::Double
 MyDerivedClassI::opFloatDouble(Ice::Float p1,
-			       Ice::Double p2,
-			       Ice::Float& p3,
-			       Ice::Double& p4,
-			       const Ice::Current&)
+                               Ice::Double p2,
+                               Ice::Float& p3,
+                               Ice::Double& p4,
+                               const Ice::Current&)
 {
     p3 = p1;
     p4 = p2;
@@ -85,9 +85,9 @@ MyDerivedClassI::opFloatDouble(Ice::Float p1,
 
 std::string
 MyDerivedClassI::opString(const std::string& p1,
-			  const std::string& p2,
-			  std::string& p3,
-			  const Ice::Current&)
+                          const std::string& p2,
+                          std::string& p3,
+                          const Ice::Current&)
 {
     p3 = p2 + " " + p1;
     return p1 + " " + p2;
@@ -95,8 +95,8 @@ MyDerivedClassI::opString(const std::string& p1,
 
 Test::MyEnum
 MyDerivedClassI::opMyEnum(Test::MyEnum p1,
-			  Test::MyEnum& p2,
-			  const Ice::Current&)
+                          Test::MyEnum& p2,
+                          const Ice::Current&)
 {
     p2 = p1;
     return Test::enum3;
@@ -104,21 +104,21 @@ MyDerivedClassI::opMyEnum(Test::MyEnum p1,
 
 Test::MyClassPrx
 MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
-			   Test::MyClassPrx& p2,
-			   Test::MyClassPrx& p3,
-			   const Ice::Current& current)
+                           Test::MyClassPrx& p2,
+                           Test::MyClassPrx& p3,
+                           const Ice::Current& current)
 {
     p2 = p1;
     p3 = Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(
-    			current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+                            current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
     return Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(current.id));
 }
 
 Test::Structure
 MyDerivedClassI::opStruct(const Test::Structure& p1,
-			  const ::Test::Structure& p2,
-			  ::Test::Structure& p3,
-			  const Ice::Current&)
+                          const ::Test::Structure& p2,
+                          ::Test::Structure& p3,
+                          const Ice::Current&)
 {
     p3 = p1;
     p3.s.s = "a new string";
@@ -127,9 +127,9 @@ MyDerivedClassI::opStruct(const Test::Structure& p1,
 
 Test::ByteS
 MyDerivedClassI::opByteS(const Test::ByteS& p1,
-			 const Test::ByteS& p2,
-			 Test::ByteS& p3,
-			 const Ice::Current&)
+                         const Test::ByteS& p2,
+                         Test::ByteS& p3,
+                         const Ice::Current&)
 {
     p3.resize(p1.size());
     std::reverse_copy(p1.begin(), p1.end(), p3.begin());
@@ -140,9 +140,9 @@ MyDerivedClassI::opByteS(const Test::ByteS& p1,
 
 Test::BoolS
 MyDerivedClassI::opBoolS(const Test::BoolS& p1,
-			 const Test::BoolS& p2,
-			 Test::BoolS& p3,
-			 const Ice::Current&)
+                         const Test::BoolS& p2,
+                         Test::BoolS& p3,
+                         const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -154,12 +154,12 @@ MyDerivedClassI::opBoolS(const Test::BoolS& p1,
 
 Test::LongS
 MyDerivedClassI::opShortIntLongS(const Test::ShortS& p1,
-				 const Test::IntS& p2,
-				 const Test::LongS& p3,
-				 Test::ShortS& p4,
-				 Test::IntS& p5,
-				 Test::LongS& p6,
-				 const Ice::Current&)
+                                 const Test::IntS& p2,
+                                 const Test::LongS& p3,
+                                 Test::ShortS& p4,
+                                 Test::IntS& p5,
+                                 Test::LongS& p6,
+                                 const Ice::Current&)
 {
     p4 = p1;
     p5.resize(p2.size());
@@ -171,10 +171,10 @@ MyDerivedClassI::opShortIntLongS(const Test::ShortS& p1,
 
 Test::DoubleS
 MyDerivedClassI::opFloatDoubleS(const Test::FloatS& p1,
-				const Test::DoubleS& p2,
-				Test::FloatS& p3,
-				Test::DoubleS& p4,
-				const Ice::Current&)
+                                const Test::DoubleS& p2,
+                                Test::FloatS& p3,
+                                Test::DoubleS& p4,
+                                const Ice::Current&)
 {
     p3 = p1;
     p4.resize(p2.size());
@@ -186,9 +186,9 @@ MyDerivedClassI::opFloatDoubleS(const Test::FloatS& p1,
 
 Test::StringS
 MyDerivedClassI::opStringS(const Test::StringS& p1,
-			   const Test::StringS& p2,
-			   Test::StringS& p3,
-			   const Ice::Current&)
+                           const Test::StringS& p2,
+                           Test::StringS& p3,
+                           const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -200,9 +200,9 @@ MyDerivedClassI::opStringS(const Test::StringS& p1,
 
 Test::ByteSS
 MyDerivedClassI::opByteSS(const Test::ByteSS& p1,
-			  const Test::ByteSS& p2,
-			  Test::ByteSS& p3,
-			  const Ice::Current&)
+                          const Test::ByteSS& p2,
+                          Test::ByteSS& p3,
+                          const Ice::Current&)
 {
     p3.resize(p1.size());
     std::reverse_copy(p1.begin(), p1.end(), p3.begin());
@@ -213,9 +213,9 @@ MyDerivedClassI::opByteSS(const Test::ByteSS& p1,
 
 Test::BoolSS
 MyDerivedClassI::opBoolSS(const Test::BoolSS& p1,
-			  const Test::BoolSS& p2,
-			  Test::BoolSS& p3,
-			  const Ice::Current&)
+                          const Test::BoolSS& p2,
+                          Test::BoolSS& p3,
+                          const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -227,12 +227,12 @@ MyDerivedClassI::opBoolSS(const Test::BoolSS& p1,
 
 Test::LongSS
 MyDerivedClassI::opShortIntLongSS(const Test::ShortSS& p1,
-				  const Test::IntSS& p2,
-				  const Test::LongSS& p3,
-				  Test::ShortSS& p4,
-				  Test::IntSS& p5,
-				  Test::LongSS& p6,
-				  const Ice::Current&)
+                                  const Test::IntSS& p2,
+                                  const Test::LongSS& p3,
+                                  Test::ShortSS& p4,
+                                  Test::IntSS& p5,
+                                  Test::LongSS& p6,
+                                  const Ice::Current&)
 {
     p4 = p1;
     p5.resize(p2.size());
@@ -244,10 +244,10 @@ MyDerivedClassI::opShortIntLongSS(const Test::ShortSS& p1,
 
 Test::DoubleSS
 MyDerivedClassI::opFloatDoubleSS(const Test::FloatSS& p1,
-				 const Test::DoubleSS& p2,
-				 Test::FloatSS& p3,
-				 Test::DoubleSS& p4,
-				 const Ice::Current&)
+                                 const Test::DoubleSS& p2,
+                                 Test::FloatSS& p3,
+                                 Test::DoubleSS& p4,
+                                 const Ice::Current&)
 {
     p3 = p1;
     p4.resize(p2.size());
@@ -259,9 +259,9 @@ MyDerivedClassI::opFloatDoubleSS(const Test::FloatSS& p1,
 
 Test::StringSS
 MyDerivedClassI::opStringSS(const Test::StringSS& p1,
-			    const Test::StringSS& p2,
-			    Test::StringSS& p3,
-			    const Ice::Current&)
+                            const Test::StringSS& p2,
+                            Test::StringSS& p3,
+                            const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -273,9 +273,9 @@ MyDerivedClassI::opStringSS(const Test::StringSS& p1,
 
 Test::StringSSS
 MyDerivedClassI::opStringSSS(const Test::StringSSS& p1,
-			     const Test::StringSSS& p2,
-			     Test::StringSSS& p3,
-			     const ::Ice::Current&)
+                             const Test::StringSSS& p2,
+                             Test::StringSSS& p3,
+                             const ::Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -287,9 +287,9 @@ MyDerivedClassI::opStringSSS(const Test::StringSSS& p1,
 
 Test::ByteBoolD
 MyDerivedClassI::opByteBoolD(const Test::ByteBoolD& p1,
-			     const Test::ByteBoolD& p2,
-			     Test::ByteBoolD& p3,
-			     const Ice::Current&)
+                             const Test::ByteBoolD& p2,
+                             Test::ByteBoolD& p3,
+                             const Ice::Current&)
 {
     p3 = p1;
     Test::ByteBoolD r = p1;
@@ -299,9 +299,9 @@ MyDerivedClassI::opByteBoolD(const Test::ByteBoolD& p1,
 
 Test::ShortIntD
 MyDerivedClassI::opShortIntD(const Test::ShortIntD& p1,
-			     const Test::ShortIntD& p2,
-			     Test::ShortIntD& p3,
-			     const Ice::Current&)
+                             const Test::ShortIntD& p2,
+                             Test::ShortIntD& p3,
+                             const Ice::Current&)
 {
     p3 = p1;
     Test::ShortIntD r = p1;
@@ -311,9 +311,9 @@ MyDerivedClassI::opShortIntD(const Test::ShortIntD& p1,
 
 Test::LongFloatD
 MyDerivedClassI::opLongFloatD(const Test::LongFloatD& p1,
-			      const Test::LongFloatD& p2,
-			      Test::LongFloatD& p3,
-			      const Ice::Current&)
+                              const Test::LongFloatD& p2,
+                              Test::LongFloatD& p3,
+                              const Ice::Current&)
 {
     p3 = p1;
     Test::LongFloatD r = p1;
@@ -323,9 +323,9 @@ MyDerivedClassI::opLongFloatD(const Test::LongFloatD& p1,
 
 Test::StringStringD
 MyDerivedClassI::opStringStringD(const Test::StringStringD& p1,
-				 const Test::StringStringD& p2,
-				 Test::StringStringD& p3,
-				 const Ice::Current&)
+                                 const Test::StringStringD& p2,
+                                 Test::StringStringD& p3,
+                                 const Ice::Current&)
 {
     p3 = p1;
     Test::StringStringD r = p1;
@@ -335,9 +335,9 @@ MyDerivedClassI::opStringStringD(const Test::StringStringD& p1,
 
 Test::StringMyEnumD
 MyDerivedClassI::opStringMyEnumD(const Test::StringMyEnumD& p1,
-				 const Test::StringMyEnumD& p2,
-				 Test::StringMyEnumD& p3,
-				 const Ice::Current&)
+                                 const Test::StringMyEnumD& p2,
+                                 Test::StringMyEnumD& p3,
+                                 const Ice::Current&)
 {
     p3 = p1;
     Test::StringMyEnumD r = p1;

@@ -14,10 +14,10 @@ public final class LoggerI implements Logger
     public 
     LoggerI(String prefix)
     {
-	if(prefix.length() > 0)
-	{
-	    _prefix = prefix + ": ";
-	}
+        if(prefix.length() > 0)
+        {
+            _prefix = prefix + ": ";
+        }
 
         _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
         _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
@@ -36,9 +36,9 @@ public final class LoggerI implements Logger
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
-	s.append(_prefix);
-	s.append(category);
-	s.append(": ");
+        s.append(_prefix);
+        s.append(category);
+        s.append(": ");
         s.append(message);
         s.append(" ]");
         int idx = 0;
@@ -53,27 +53,27 @@ public final class LoggerI implements Logger
     public void
     warning(String message)
     {
-	StringBuffer s = new StringBuffer();
+        StringBuffer s = new StringBuffer();
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
-	s.append(_prefix);
-	s.append("warning: ");
-	s.append(message);
-	System.err.println(s.toString());
+        s.append(_prefix);
+        s.append("warning: ");
+        s.append(message);
+        System.err.println(s.toString());
     }
 
     public void
     error(String message)
     {
-	StringBuffer s = new StringBuffer();
+        StringBuffer s = new StringBuffer();
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
-	s.append(_prefix);
-	s.append("error: ");
-	s.append(message);
-	System.err.print(s.toString() + "\n");
+        s.append(_prefix);
+        s.append("error: ");
+        s.append(message);
+        System.err.print(s.toString() + "\n");
     }
 
     String _prefix = "";

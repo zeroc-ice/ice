@@ -59,14 +59,12 @@ CHelloClientDlg::OnInitDialog()
     //
     _mode->SetCurSel(_currentMode);
 
-
     //
     // Disable flush button if built without batch support.
     //
 #ifndef ICEE_HAS_BATCH
     (CButton*)GetDlgItem(IDC_FLUSH)->EnableWindow(FALSE);
 #endif
-
 
     //
     // Create the proxy.
@@ -214,7 +212,7 @@ CHelloClientDlg::updateProxy()
 #else
         AfxMessageBox(CString("Batch mode is currently not enabled."),
                       MB_OK|MB_ICONEXCLAMATION);
-	return;
+        return;
 #endif
     default:
         assert(false);

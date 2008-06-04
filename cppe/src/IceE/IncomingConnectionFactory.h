@@ -55,9 +55,9 @@ private:
 
     enum State
     {
-	StateActive,
-	StateHolding,
-	StateClosed
+        StateActive,
+        StateHolding,
+        StateClosed
     };
 
     void setState(State);
@@ -67,13 +67,13 @@ private:
     class ThreadPerIncomingConnectionFactory : public IceUtil::Thread
     {
     public:
-	
-	ThreadPerIncomingConnectionFactory(const IncomingConnectionFactoryPtr&);
-	virtual void run();
+        
+        ThreadPerIncomingConnectionFactory(const IncomingConnectionFactoryPtr&);
+        virtual void run();
 
     private:
-	
-	IncomingConnectionFactoryPtr _factory;
+        
+        IncomingConnectionFactoryPtr _factory;
     };
     friend class ThreadPerIncomingConnectionFactory;
     IceUtil::ThreadPtr _threadPerIncomingConnectionFactory;

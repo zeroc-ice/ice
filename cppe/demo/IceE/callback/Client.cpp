@@ -19,7 +19,7 @@ public:
 
     virtual void callback(const Ice::Current&)
     {
-	printf("received callback\n");
+        printf("received callback\n");
     }
 };
 
@@ -47,30 +47,31 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "Callback.Client.CallbackServer";
+    const char* proxyProperty = "CallbackSender.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     CallbackSenderPrx twoway = CallbackSenderPrx::checkedCast(base->ice_twoway()->ice_timeout(-1));
     if(!twoway)
     {
-	fprintf(stderr, "%s: invalid proxy\n", argv[0]);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: invalid proxy\n", argv[0]);
+        return EXIT_FAILURE;
     }
     CallbackSenderPrx oneway = CallbackSenderPrx::uncheckedCast(twoway->ice_oneway());
     CallbackSenderPrx batchOneway = CallbackSenderPrx::uncheckedCast(twoway->ice_batchOneway());
     
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
-    adapter->add(new CallbackReceiverI, communicator->stringToIdentity("callbackReceiver"));
+    CallbackReceiverPtr cr = new CallbackReceiverI;
+    adapter->add(cr, communicator->stringToIdentity("callbackReceiver"));
     adapter->activate();
 
     CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
-	adapter->createProxy(communicator->stringToIdentity("callbackReceiver")));
+        adapter->createProxy(communicator->stringToIdentity("callbackReceiver")));
     CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
 
     menu();
@@ -78,52 +79,52 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     char c = EOF;
     do
     {
-	try
-	{
-	    printf("==> ");
-	    do
-	    {
-	       c = getchar();
-	    }
-	    while(c != EOF && c == '\n');
-	    if(c == 't')
-	    {
-		twoway->initiateCallback(twowayR);
-	    }
-	    else if(c == 'o')
-	    {
-		oneway->initiateCallback(onewayR);
-	    }
-	    else if(c == 'O')
-	    {
-		batchOneway->initiateCallback(onewayR);
-	    }
-	    else if(c == 'f')
-	    {
-		communicator->flushBatchRequests();
-	    }
-	    else if(c == 's')
-	    {
-		twoway->shutdown();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		printf("unknown command `%c'\n", c);
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	}
+        try
+        {
+            printf("==> ");
+            do
+            {
+               c = getchar();
+            }
+            while(c != EOF && c == '\n');
+            if(c == 't')
+            {
+                twoway->initiateCallback(twowayR);
+            }
+            else if(c == 'o')
+            {
+                oneway->initiateCallback(onewayR);
+            }
+            else if(c == 'O')
+            {
+                batchOneway->initiateCallback(onewayR);
+            }
+            else if(c == 'f')
+            {
+                communicator->flushBatchRequests();
+            }
+            else if(c == 's')
+            {
+                twoway->shutdown();
+            }
+            else if(c == 'x')
+            {
+                // Nothing to do
+            }
+            else if(c == '?')
+            {
+                menu();
+            }
+            else
+            {
+                printf("unknown command `%c'\n", c);
+                menu();
+            }
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+        }
     }
     while(c != EOF && c != 'x');
 
@@ -140,7 +141,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
-        initData.properties->load("config");
+        initData.properties->load("config.client");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

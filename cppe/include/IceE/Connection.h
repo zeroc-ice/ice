@@ -52,9 +52,9 @@ public:
     enum DestructionReason
     {
 #ifndef ICEE_PURE_CLIENT
-	ObjectAdapterDeactivated,
+        ObjectAdapterDeactivated,
 #endif
-	CommunicatorDestroyed
+        CommunicatorDestroyed
     };
 
     void activate();
@@ -104,10 +104,10 @@ private:
 
 #ifndef ICEE_PURE_CLIENT
     Connection(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
-	       const IceInternal::EndpointPtr&, const ObjectAdapterPtr&);
+               const IceInternal::EndpointPtr&, const ObjectAdapterPtr&);
 #else
     Connection(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
-	       const IceInternal::EndpointPtr&);
+               const IceInternal::EndpointPtr&);
 #endif
     ~Connection();
 
@@ -118,13 +118,13 @@ private:
 
     enum State
     {
-	StateNotValidated,
-	StateActive,
+        StateNotValidated,
+        StateActive,
 #ifndef ICEE_PURE_CLIENT
-	StateHolding,
+        StateHolding,
 #endif
-	StateClosing,
-	StateClosed
+        StateClosing,
+        StateClosed
     };
 
     void validate();
@@ -151,13 +151,13 @@ private:
     class ThreadPerConnection : public IceUtil::Thread
     {
     public:
-	
-	ThreadPerConnection(const ConnectionPtr&);
-	virtual void run();
+        
+        ThreadPerConnection(const ConnectionPtr&);
+        virtual void run();
 
     private:
-	
-	ConnectionPtr _connection;
+        
+        ConnectionPtr _connection;
     };
     friend class ThreadPerConnection;
     // Defined as mutable because "isFinished() const" sets this to 0.

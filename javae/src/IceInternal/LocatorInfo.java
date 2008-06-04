@@ -13,76 +13,76 @@ public final class LocatorInfo
 {
     LocatorInfo(Ice.LocatorPrx locator, LocatorTable table)
     {
-	_locator = locator;
-	_table = table;
+        _locator = locator;
+        _table = table;
     }
 
     synchronized public void
     destroy()
     {
-	_locatorRegistry = null;
-	_table.clear();
+        _locatorRegistry = null;
+        _table.clear();
     }
 
     public boolean
     equals(java.lang.Object obj)
     {
-	if(this == obj)
-	{
-	    return true;
-	}
+        if(this == obj)
+        {
+            return true;
+        }
 
-	if(obj instanceof LocatorInfo)
-	{
-	    return _locator.equals(((LocatorInfo)obj)._locator);
-	}
+        if(obj instanceof LocatorInfo)
+        {
+            return _locator.equals(((LocatorInfo)obj)._locator);
+        }
 
-	return false;
+        return false;
     }
 
     public Ice.LocatorPrx
     getLocator()
     {
-	//
-	// No synchronization necessary, _locator is immutable.
-	//
-	return _locator;
+        //
+        // No synchronization necessary, _locator is immutable.
+        //
+        return _locator;
     }
 
     public synchronized Ice.LocatorRegistryPrx
     getLocatorRegistry()
     {
-	if(_locatorRegistry == null) // Lazy initialization
-	{
-	    _locatorRegistry = _locator.getRegistry();
+        if(_locatorRegistry == null) // Lazy initialization
+        {
+            _locatorRegistry = _locator.getRegistry();
 
-	    //
-	    // The locator registry can't be located.
-	    //
-	    _locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(_locatorRegistry.ice_locator(null));
-	}
-	
-	return _locatorRegistry;
+            //
+            // The locator registry can't be located.
+            //
+            _locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(_locatorRegistry.ice_locator(null));
+        }
+        
+        return _locatorRegistry;
     }
 
     public Endpoint[]
     getEndpoints(IndirectReference ref, Ice.BooleanHolder cached)
     {
-	Endpoint[] endpoints = null;
-	Ice.ObjectPrx object = null;
-	cached.value = true;
-	String adapterId = ref.getAdapterId();
-	Ice.Identity identity = ref.getIdentity();
-	
-	try
-	{
-	    if(adapterId.length() > 0)
-	    {
-		endpoints = _table.getAdapterEndpoints(adapterId);
-		if(endpoints == null)
-		{
-		    cached.value = false;
-		    
+        Endpoint[] endpoints = null;
+        Ice.ObjectPrx object = null;
+        cached.value = true;
+        String adapterId = ref.getAdapterId();
+        Ice.Identity identity = ref.getIdentity();
+        
+        try
+        {
+            if(adapterId.length() > 0)
+            {
+                endpoints = _table.getAdapterEndpoints(adapterId);
+                if(endpoints == null)
+                {
+                    cached.value = false;
+                    
                     if(ref.getInstance().traceLevels().location >= 1)
                     {
                         StringBuffer s = new StringBuffer();
@@ -92,28 +92,28 @@ public final class LocatorInfo
                             ref.getInstance().traceLevels().locationCat, s.toString());
                     }
 
-		    //
-		    // Search the adapter in the location service if we didn't
-		    // find it in the cache.
-		    //
-		    object = _locator.findAdapterById(adapterId);
-		    if(object != null)
-		    {
-			endpoints = ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints();
-			
-			if(endpoints.length > 0)
-			{
-			    _table.addAdapterEndpoints(adapterId, endpoints);
-			}
-		    }
-		}
-	    }
-	    else
-	    {
-		boolean objectCached = true;
-		object = _table.getProxy(identity);
-		if(object == null)
-		{
+                    //
+                    // Search the adapter in the location service if we didn't
+                    // find it in the cache.
+                    //
+                    object = _locator.findAdapterById(adapterId);
+                    if(object != null)
+                    {
+                        endpoints = ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints();
+                        
+                        if(endpoints.length > 0)
+                        {
+                            _table.addAdapterEndpoints(adapterId, endpoints);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                boolean objectCached = true;
+                object = _table.getProxy(identity);
+                if(object == null)
+                {
                     if(ref.getInstance().traceLevels().location >= 1)
                     {
                         StringBuffer s = new StringBuffer();
@@ -123,42 +123,42 @@ public final class LocatorInfo
                             ref.getInstance().traceLevels().locationCat, s.toString());
                     }
 
-		    objectCached = false;
-		    object = _locator.findObjectById(identity);
-		}
-		
-		boolean endpointsCached = true;
-		if(object != null)
-		{
-		    Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
-		    if(r instanceof DirectReference)
-		    {
-			endpointsCached = false;
-			DirectReference odr = (DirectReference)r;
-			endpoints = odr.getEndpoints();
-		    }
-		    else
-		    {
-		        IndirectReference oir = (IndirectReference)r;
-			if(oir.getAdapterId().length() > 0)
-			{
-			    Ice.BooleanHolder c = new Ice.BooleanHolder();
-			    endpoints = getEndpoints(oir, c);
-			    endpointsCached = c.value;
-			}
-		    }
-		}
-		
-		if(!objectCached && endpoints != null && endpoints.length > 0)
-		{
-		    _table.addProxy(identity, object);
-		}
+                    objectCached = false;
+                    object = _locator.findObjectById(identity);
+                }
+                
+                boolean endpointsCached = true;
+                if(object != null)
+                {
+                    Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
+                    if(r instanceof DirectReference)
+                    {
+                        endpointsCached = false;
+                        DirectReference odr = (DirectReference)r;
+                        endpoints = odr.getEndpoints();
+                    }
+                    else
+                    {
+                        IndirectReference oir = (IndirectReference)r;
+                        if(oir.getAdapterId().length() > 0)
+                        {
+                            Ice.BooleanHolder c = new Ice.BooleanHolder();
+                            endpoints = getEndpoints(oir, c);
+                            endpointsCached = c.value;
+                        }
+                    }
+                }
+                
+                if(!objectCached && endpoints != null && endpoints.length > 0)
+                {
+                    _table.addProxy(identity, object);
+                }
 
-		cached.value = objectCached || endpointsCached;
-	    }
-	}
-	catch(Ice.AdapterNotFoundException ex)
-	{
+                cached.value = objectCached || endpointsCached;
+            }
+        }
+        catch(Ice.AdapterNotFoundException ex)
+        {
             if(ref.getInstance().traceLevels().location >= 1)
             {
                 StringBuffer s = new StringBuffer();
@@ -168,13 +168,13 @@ public final class LocatorInfo
                     ref.getInstance().traceLevels().locationCat, s.toString());
             }
 
-	    Ice.NotRegisteredException e = new Ice.NotRegisteredException();
-	    e.kindOfObject = "object adapter";
-	    e.id = adapterId;
-	    throw e;
-	}
-	catch(Ice.ObjectNotFoundException ex)
-	{
+            Ice.NotRegisteredException e = new Ice.NotRegisteredException();
+            e.kindOfObject = "object adapter";
+            e.id = adapterId;
+            throw e;
+        }
+        catch(Ice.ObjectNotFoundException ex)
+        {
             if(ref.getInstance().traceLevels().location >= 1)
             {
                 StringBuffer s = new StringBuffer();
@@ -184,35 +184,35 @@ public final class LocatorInfo
                     ref.getInstance().traceLevels().locationCat, s.toString());
             }
 
-	    Ice.NotRegisteredException e = new Ice.NotRegisteredException();
-	    e.kindOfObject = "object";
-	    e.id = ref.getInstance().identityToString(identity);
-	    throw e;
-	}
-	catch(Ice.NotRegisteredException ex)
-	{
-	    throw ex;
-	}
-	catch(Ice.LocalException ex)
-	{
-	    if(ref.getInstance().traceLevels().location >= 1)
-	    {
-		StringBuffer s = new StringBuffer();
-		s.append("couldn't contact the locator to retrieve adapter endpoints\n");
-		if(adapterId.length() > 0)
-		{
-		    s.append("adapter = " + adapterId + "\n");
-		}
-		else
-		{
-		    s.append("object = " + ref.getInstance().identityToString(identity) + "\n");
-		}
-		s.append("reason = " + ex);
-		ref.getInstance().initializationData().logger.trace(
-		    ref.getInstance().traceLevels().locationCat, s.toString());
-	    }
-	    throw ex;
-	}
+            Ice.NotRegisteredException e = new Ice.NotRegisteredException();
+            e.kindOfObject = "object";
+            e.id = ref.getInstance().identityToString(identity);
+            throw e;
+        }
+        catch(Ice.NotRegisteredException ex)
+        {
+            throw ex;
+        }
+        catch(Ice.LocalException ex)
+        {
+            if(ref.getInstance().traceLevels().location >= 1)
+            {
+                StringBuffer s = new StringBuffer();
+                s.append("couldn't contact the locator to retrieve adapter endpoints\n");
+                if(adapterId.length() > 0)
+                {
+                    s.append("adapter = " + adapterId + "\n");
+                }
+                else
+                {
+                    s.append("object = " + ref.getInstance().identityToString(identity) + "\n");
+                }
+                s.append("reason = " + ex);
+                ref.getInstance().initializationData().logger.trace(
+                    ref.getInstance().traceLevels().locationCat, s.toString());
+            }
+            throw ex;
+        }
 
         if(ref.getInstance().traceLevels().location >= 1)
         {
@@ -244,98 +244,98 @@ public final class LocatorInfo
             }
         }
 
-	return endpoints == null ? new Endpoint[0] : endpoints;
+        return endpoints == null ? new Endpoint[0] : endpoints;
     }
 
     public void
     clearObjectCache(IndirectReference ref)
     {
-	if(ref.getAdapterId().length() == 0)
-	{
-	    Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
-	    if(object != null)
-	    {
-		if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
-		{
-		    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
-		    if(oir.getAdapterId().length() > 0)
-		    {
-			clearCache(oir);
-		    }
-		}
-		else
-		{
-		    if(ref.getInstance().traceLevels().location >= 2)
-		    {
-			trace("removed endpoints from locator table",
-			      ref, ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints());
-		    }
-		}
-	    }
-	}
+        if(ref.getAdapterId().length() == 0)
+        {
+            Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
+            if(object != null)
+            {
+                if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
+                {
+                    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
+                    if(oir.getAdapterId().length() > 0)
+                    {
+                        clearCache(oir);
+                    }
+                }
+                else
+                {
+                    if(ref.getInstance().traceLevels().location >= 2)
+                    {
+                        trace("removed endpoints from locator table",
+                              ref, ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints());
+                    }
+                }
+            }
+        }
     }
     
     public void
     clearCache(IndirectReference ref)
     {
-	if(ref.getAdapterId().length() > 0)
-	{
-	    Endpoint[] endpoints = _table.removeAdapterEndpoints(ref.getAdapterId());
+        if(ref.getAdapterId().length() > 0)
+        {
+            Endpoint[] endpoints = _table.removeAdapterEndpoints(ref.getAdapterId());
 
-	    if(endpoints != null && ref.getInstance().traceLevels().location >= 2)
-	    {
-		trace("removed endpoints from locator table\n", ref, endpoints);
-	    }
-	}
-	else
-	{
-	    Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
-	    if(object != null)
-	    {
-		if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
-		{
-		    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
-		    if(oir.getAdapterId().length() > 0)
-		    {
-			clearCache(oir);
-		    }
-		}
-		else
-		{
-		    if(ref.getInstance().traceLevels().location >= 2)
-		    {
-			trace("removed endpoints from locator table",
-			      ref, ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints());
-		    }
-		}
-	    }
-	}
+            if(endpoints != null && ref.getInstance().traceLevels().location >= 2)
+            {
+                trace("removed endpoints from locator table\n", ref, endpoints);
+            }
+        }
+        else
+        {
+            Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
+            if(object != null)
+            {
+                if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
+                {
+                    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
+                    if(oir.getAdapterId().length() > 0)
+                    {
+                        clearCache(oir);
+                    }
+                }
+                else
+                {
+                    if(ref.getInstance().traceLevels().location >= 2)
+                    {
+                        trace("removed endpoints from locator table",
+                              ref, ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints());
+                    }
+                }
+            }
+        }
     }
 
     private void
     trace(String msg, IndirectReference ref, Endpoint[] endpoints)
     {
-	StringBuffer s = new StringBuffer();
-	s.append(msg + "\n");
-	if(ref.getAdapterId().length() > 0)
-	{
-	    s.append("adapter = " + ref.getAdapterId() + "\n");
-	}
-	else
-	{
-	    s.append("object = " + ref.getInstance().identityToString(ref.getIdentity()) + "\n");
-	}
+        StringBuffer s = new StringBuffer();
+        s.append(msg + "\n");
+        if(ref.getAdapterId().length() > 0)
+        {
+            s.append("adapter = " + ref.getAdapterId() + "\n");
+        }
+        else
+        {
+            s.append("object = " + ref.getInstance().identityToString(ref.getIdentity()) + "\n");
+        }
 
-	s.append("endpoints = ");
-	final int sz = endpoints.length;
-	for(int i = 0; i < sz; i++)
-	{
-	    s.append(endpoints[i].toString());
-	    if(i + 1 < sz)
-		s.append(":");
-	}
+        s.append("endpoints = ");
+        final int sz = endpoints.length;
+        for(int i = 0; i < sz; i++)
+        {
+            s.append(endpoints[i].toString());
+            if(i + 1 < sz)
+                s.append(":");
+        }
 
-	ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.toString());
+        ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
     private /*final*/ Ice.LocatorPrx _locator;

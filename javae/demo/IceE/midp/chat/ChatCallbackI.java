@@ -12,13 +12,13 @@ public class ChatCallbackI extends Demo._ChatCallbackDisp
     public
     ChatCallbackI(Console console)
     {
-	_console = console;
+        _console = console;
     }
 
     public void
     message(String data, Ice.Current current)
     {
-	_console.addText(data + "\n");
+        _console.addText(data + "\n");
     }
 
     private Console _console;

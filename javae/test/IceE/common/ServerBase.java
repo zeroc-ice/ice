@@ -44,21 +44,21 @@ abstract public class ServerBase extends TestApplication
     public void
     runTest(Ice.Communicator communicator, java.io.PrintStream ps)
     {
-	try
-	{
-	    if(communicator != null)
-	    {
+        try
+        {
+            if(communicator != null)
+            {
                 Ice.InitializationData data = new Ice.InitializationData();
                 data.properties = _properties;
-		Server.run(new String[0], communicator, data, ps);
-	    }
+                Server.run(new String[0], communicator, data, ps);
+            }
             ps.println("Done");
-	}
-	catch(Exception ex)
-	{
-	    ps.println(ex.toString());
-	    ex.printStackTrace();
-	}
+        }
+        catch(Exception ex)
+        {
+            ps.println(ex.toString());
+            ex.printStackTrace();
+        }
     }
 
     protected StringItem _host;

@@ -24,23 +24,23 @@ IceInternal::ObjectAdapterFactory::shutdown()
     map<string, ObjectAdapterPtr> adapters;
 
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	
-	//
-	// Ignore shutdown requests if the object adapter factory has
-	// already been shut down.
-	//
-	if(!_instance)
-	{
-	    return;
-	}
-	
-	adapters = _adapters;
-	
-	_instance = 0;
-	_communicator = 0;
-	
-	notifyAll();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        
+        //
+        // Ignore shutdown requests if the object adapter factory has
+        // already been shut down.
+        //
+        if(!_instance)
+        {
+            return;
+        }
+        
+        adapters = _adapters;
+        
+        _instance = 0;
+        _communicator = 0;
+        
+        notifyAll();
     }
     
     //
@@ -48,10 +48,10 @@ IceInternal::ObjectAdapterFactory::shutdown()
     // deadlocks.
     //
     //for_each(adapters.begin(), adapters.end(),
-	     //Ice::secondVoidMemFun<const string, ObjectAdapter>(&ObjectAdapter::deactivate));
+             //Ice::secondVoidMemFun<const string, ObjectAdapter>(&ObjectAdapter::deactivate));
     for(map<string, ObjectAdapterPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
-	p->second->deactivate();
+        p->second->deactivate();
     }
 
 }
@@ -60,25 +60,25 @@ void
 IceInternal::ObjectAdapterFactory::waitForShutdown()
 {
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	
-	//
-	// First we wait for the shutdown of the factory itself.
-	//
-	while(_instance)
-	{
-	    wait();
-	}
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        
+        //
+        // First we wait for the shutdown of the factory itself.
+        //
+        while(_instance)
+        {
+            wait();
+        }
 
-	//
-	// If some other thread is currently shutting down, we wait
-	// until this thread is finished.
-	//
-	while(_waitForShutdown)
-	{
-	    wait();
-	}
-	_waitForShutdown = true;
+        //
+        // If some other thread is currently shutting down, we wait
+        // until this thread is finished.
+        //
+        while(_waitForShutdown)
+        {
+            wait();
+        }
+        _waitForShutdown = true;
     }
     
     //
@@ -86,17 +86,17 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     //
     for(map<string, ObjectAdapterPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
-	p->second->waitForDeactivate();
+        p->second->waitForDeactivate();
     }
     
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-	//
-	// Signal that waiting is complete.
-	//
-	_waitForShutdown = false;
-	notifyAll();
+        //
+        // Signal that waiting is complete.
+        //
+        _waitForShutdown = false;
+        notifyAll();
     }
 }
 
@@ -130,35 +130,35 @@ IceInternal::ObjectAdapterFactory::destroy()
     //
     for(map<string, ObjectAdapterPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
-	p->second->destroy();
+        p->second->destroy();
     }
 }
 
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpoints
 #ifdef ICEE_HAS_ROUTER
-						       , const RouterPrx& router
+                                                       , const RouterPrx& router
 #endif
-						      )
+                                                      )
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+        throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
     map<string, ObjectAdapterPtr>::iterator p = _adapters.find(name);
     if(p != _adapters.end())
     {
-	throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
     }
 
     ObjectAdapterPtr adapter = new ObjectAdapter(_instance, _communicator, this, name, endpoints
 #ifdef ICEE_HAS_ROUTER
-						 , router
+                                                 , router
 #endif
-    						);
+                                                    );
     _adapters.insert(make_pair(name, adapter));
     return adapter;
 }
@@ -182,7 +182,7 @@ struct FlushAdapter
 {
     void operator() (ObjectAdapterPtr p)
     {
-	p->flushBatchRequests();
+        p->flushBatchRequests();
     }
 };
 
@@ -193,18 +193,18 @@ IceInternal::ObjectAdapterFactory::flushBatchRequests() const
 {
     list<ObjectAdapterPtr> a;
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-	for(map<string, ObjectAdapterPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-	{
-	    a.push_back(p->second);
-	}
+        for(map<string, ObjectAdapterPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+        {
+            a.push_back(p->second);
+        }
     }
     for_each(a.begin(), a.end(), FlushAdapter());
 }
 
 IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
-							const CommunicatorPtr& communicator) :
+                                                        const CommunicatorPtr& communicator) :
     _instance(instance),
     _communicator(communicator),
     _waitForShutdown(false)

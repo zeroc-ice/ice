@@ -14,18 +14,18 @@ class Acceptor
     public void
     close()
     {
-	if(_traceLevels.network >=1)
-	{
-	    String s = "stopping to accept tcp connections at " + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
-	}
-	
-	javax.microedition.io.ServerSocketConnection connection;
-	synchronized(this)
+        if(_traceLevels.network >=1)
         {
-	    connection = _connection;
+            String s = "stopping to accept tcp connections at " + toString();
+            _logger.trace(_traceLevels.networkCat, s);
+        }
+        
+        javax.microedition.io.ServerSocketConnection connection;
+        synchronized(this)
+        {
+            connection = _connection;
             _connection = null;
-	}
+        }
         if(connection != null)
         {
             try
@@ -54,75 +54,75 @@ class Acceptor
     public Transceiver
     accept(int timeout)
     {
-	javax.microedition.io.SocketConnection incoming = null;
-	try
-	{
-	    if(timeout == -1)
-	    {
-		timeout = 0; // Infinite
-	    }
-	    else if(timeout == 0)
-	    {
-		timeout = 1;
-	    }
-	    incoming = (javax.microedition.io.SocketConnection)_connection.acceptAndOpen();
-	}
-	catch(java.io.InterruptedIOException ex)
-	{
-	    Ice.TimeoutException e = new Ice.TimeoutException();
-	    e.initCause(ex);
-	    throw e;
-	}
-	catch(java.io.IOException ex)
-	{
-	    Ice.SocketException e = new Ice.SocketException();
-	    e.initCause(ex);
-	    throw e;
-	}
+        javax.microedition.io.SocketConnection incoming = null;
+        try
+        {
+            if(timeout == -1)
+            {
+                timeout = 0; // Infinite
+            }
+            else if(timeout == 0)
+            {
+                timeout = 1;
+            }
+            incoming = (javax.microedition.io.SocketConnection)_connection.acceptAndOpen();
+        }
+        catch(java.io.InterruptedIOException ex)
+        {
+            Ice.TimeoutException e = new Ice.TimeoutException();
+            e.initCause(ex);
+            throw e;
+        }
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
+            throw e;
+        }
 
-	if(_traceLevels.network >= 1)
-	{
-	    String s = "accepted tcp connection " + Network.toString(incoming);
-	    _logger.trace(_traceLevels.networkCat, s);
-	}
+        if(_traceLevels.network >= 1)
+        {
+            String s = "accepted tcp connection " + Network.toString(incoming);
+            _logger.trace(_traceLevels.networkCat, s);
+        }
 
-	return new Transceiver(_instance, incoming);
+        return new Transceiver(_instance, incoming);
     }
 
     public void
     connectToSelf()
     {
-	String ip = System.getProperty("microedition.hostname");
-	if(ip == null || ip.length() == 0 || ip.equals("0.0.0.0"))
-	{
-	    try
-	    {
-		ip = _connection.getLocalAddress();
-	    }
-	    catch(java.io.IOException ex)
-	    {
-		ip = "127.0.0.1"; 
-	    }
-	}
+        String ip = System.getProperty("microedition.hostname");
+        if(ip == null || ip.length() == 0 || ip.equals("0.0.0.0"))
+        {
+            try
+            {
+                ip = _connection.getLocalAddress();
+            }
+            catch(java.io.IOException ex)
+            {
+                ip = "127.0.0.1"; 
+            }
+        }
 
-	try
-	{
-	    javax.microedition.io.Connection localConn =
-		javax.microedition.io.Connector.open("socket://" + ip + ':' + _connection.getLocalPort());
-	    localConn.close();
-	}
-	catch(java.io.IOException ex)
-	{
-	    Ice.SocketException e = new Ice.SocketException();
-	    e.initCause(ex);
-	    throw e;
-	}
+        try
+        {
+            javax.microedition.io.Connection localConn =
+                javax.microedition.io.Connector.open("socket://" + ip + ':' + _connection.getLocalPort());
+            localConn.close();
+        }
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
+            throw e;
+        }
     }
 
     public String
     toString()
     {
-	return _addr.getAddress() + ":" + _addr.getPort();
+        return _addr.getAddress() + ":" + _addr.getPort();
     }
 
     int
@@ -146,54 +146,54 @@ class Acceptor
             _backlog = 5;
         }
 
-	String connectString = "socket://";
-	if(port > 0)
-	{
-	    connectString = connectString + ":" + port;
-	}
+        String connectString = "socket://";
+        if(port > 0)
+        {
+            connectString = connectString + ":" + port;
+        }
 
         try
         {
-	    if(_traceLevels.network >= 2)
-	    {
-		String s = "attempting to bind to tcp socket on port " + port;
-		_logger.trace(_traceLevels.networkCat, s);
-	    }
-	    _connection =
-		(javax.microedition.io.ServerSocketConnection)javax.microedition.io.Connector.open(connectString);
+            if(_traceLevels.network >= 2)
+            {
+                String s = "attempting to bind to tcp socket on port " + port;
+                _logger.trace(_traceLevels.networkCat, s);
+            }
+            _connection =
+                (javax.microedition.io.ServerSocketConnection)javax.microedition.io.Connector.open(connectString);
 
-	    _addr = new InetSocketAddress(_connection.getLocalAddress(), _connection.getLocalPort());
+            _addr = new InetSocketAddress(_connection.getLocalAddress(), _connection.getLocalPort());
         }
         catch(java.io.IOException ex)
         {
-	    if(_connection != null)
-	    {
-		try
-		{
-		    _connection.close();
-		}
-		catch(java.io.IOException e)
-		{
-		}
-		_connection = null;
-	    }
-	    Ice.SocketException e = new Ice.SocketException();
-	    e.initCause(ex);
-	    throw e;
+            if(_connection != null)
+            {
+                try
+                {
+                    _connection.close();
+                }
+                catch(java.io.IOException e)
+                {
+                }
+                _connection = null;
+            }
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
+            throw e;
         }
         catch(RuntimeException ex)
         {
-	    if(_connection != null)
-	    {
-		try
-		{
-		    _connection.close();
-		}
-		catch(java.io.IOException e)
-		{
-		}
-		_connection = null;
-	    }
+            if(_connection != null)
+            {
+                try
+                {
+                    _connection.close();
+                }
+                catch(java.io.IOException e)
+                {
+                }
+                _connection = null;
+            }
             throw ex;
         }
     }

@@ -402,80 +402,80 @@ class Twoways
             test(rso[2].length == 0);
         }
 
-	{
-	    final String[][][] sssi1 =
-	    {
-		{
-		    {
-			"abc", "de"
-		    },
-		    {
-			"xyz"
-		    }
-		},
-		{
-		    {
-			"hello"
-		    }
-		}
-	    };
+        {
+            final String[][][] sssi1 =
+            {
+                {
+                    {
+                        "abc", "de"
+                    },
+                    {
+                        "xyz"
+                    }
+                },
+                {
+                    {
+                        "hello"
+                    }
+                }
+            };
 
-	    final String[][][] sssi2 =
-	    {
-		{
-		    {
-			"", ""
-		    },
-		    {
-			"abcd"
-		    }
-		},
-		{
-		    {
-			""
-		    }
-		},
-		{
-		}
-	    };
+            final String[][][] sssi2 =
+            {
+                {
+                    {
+                        "", ""
+                    },
+                    {
+                        "abcd"
+                    }
+                },
+                {
+                    {
+                        ""
+                    }
+                },
+                {
+                }
+            };
 
-	    Test.StringSSSHolder ssso = new Test.StringSSSHolder();
-	    String rsso[][][];
+            Test.StringSSSHolder ssso = new Test.StringSSSHolder();
+            String rsso[][][];
 
-	    rsso = p.opStringSSS(sssi1, sssi2, ssso);
-	    test(ssso.value.length == 5);
-	    test(ssso.value[0].length == 2);
-	    test(ssso.value[0][0].length == 2);
-	    test(ssso.value[0][1].length == 1);
-	    test(ssso.value[1].length == 1);
-	    test(ssso.value[1][0].length == 1);
-	    test(ssso.value[2].length == 2);
-	    test(ssso.value[2][0].length == 2);
-	    test(ssso.value[2][1].length == 1);
-	    test(ssso.value[3].length == 1);
-	    test(ssso.value[3][0].length == 1);
-	    test(ssso.value[4].length == 0);
-	    test(ssso.value[0][0][0].equals("abc"));
-	    test(ssso.value[0][0][1].equals("de"));
-	    test(ssso.value[0][1][0].equals("xyz"));
-	    test(ssso.value[1][0][0].equals("hello"));
-	    test(ssso.value[2][0][0].equals(""));
-	    test(ssso.value[2][0][1].equals(""));
-	    test(ssso.value[2][1][0].equals("abcd"));
-	    test(ssso.value[3][0][0].equals(""));
+            rsso = p.opStringSSS(sssi1, sssi2, ssso);
+            test(ssso.value.length == 5);
+            test(ssso.value[0].length == 2);
+            test(ssso.value[0][0].length == 2);
+            test(ssso.value[0][1].length == 1);
+            test(ssso.value[1].length == 1);
+            test(ssso.value[1][0].length == 1);
+            test(ssso.value[2].length == 2);
+            test(ssso.value[2][0].length == 2);
+            test(ssso.value[2][1].length == 1);
+            test(ssso.value[3].length == 1);
+            test(ssso.value[3][0].length == 1);
+            test(ssso.value[4].length == 0);
+            test(ssso.value[0][0][0].equals("abc"));
+            test(ssso.value[0][0][1].equals("de"));
+            test(ssso.value[0][1][0].equals("xyz"));
+            test(ssso.value[1][0][0].equals("hello"));
+            test(ssso.value[2][0][0].equals(""));
+            test(ssso.value[2][0][1].equals(""));
+            test(ssso.value[2][1][0].equals("abcd"));
+            test(ssso.value[3][0][0].equals(""));
 
-	    test(rsso.length == 3);
-	    test(rsso[0].length == 0);
-	    test(rsso[1].length == 1);
-	    test(rsso[1][0].length == 1);
-	    test(rsso[2].length == 2);
-	    test(rsso[2][0].length == 2);
-	    test(rsso[2][1].length == 1);
-	    test(rsso[1][0][0].equals(""));
-	    test(rsso[2][0][0].equals(""));
-	    test(rsso[2][0][1].equals(""));
-	    test(rsso[2][1][0].equals("abcd"));
-	}
+            test(rsso.length == 3);
+            test(rsso[0].length == 0);
+            test(rsso[1].length == 1);
+            test(rsso[1][0].length == 1);
+            test(rsso[2].length == 2);
+            test(rsso[2][0].length == 2);
+            test(rsso[2][1].length == 1);
+            test(rsso[1][0][0].equals(""));
+            test(rsso[2][0][0].equals(""));
+            test(rsso[2][0][1].equals(""));
+            test(rsso[2][1][0].equals("abcd"));
+        }
 
         {
             java.util.Hashtable di1 = new java.util.Hashtable();
@@ -578,73 +578,73 @@ class Twoways
         }
 
         {
-	    int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+            int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
-	    for(int l = 0; l < lengths.length; ++l)
-	    {
-	        int[] s = new int[lengths[l]];
-		for(int i = 0; i < lengths[l]; ++i)
-		{
-		    s[i] = i;
-		}
-		int[] r = p.opIntS(s);
-		test(r.length == lengths[l]);
-		for(int j = 0; j < r.length; ++j)
-		{
-		    test(r[j] == -j);
-		}
-	    }
+            for(int l = 0; l < lengths.length; ++l)
+            {
+                int[] s = new int[lengths[l]];
+                for(int i = 0; i < lengths[l]; ++i)
+                {
+                    s[i] = i;
+                }
+                int[] r = p.opIntS(s);
+                test(r.length == lengths[l]);
+                for(int j = 0; j < r.length; ++j)
+                {
+                    test(r[j] == -j);
+                }
+            }
         }
 
-	{
-	    java.util.Hashtable ctx = new java.util.Hashtable();
-	    ctx.put("one", "ONE");
-	    ctx.put("two", "TWO");
-	    ctx.put("three", "THREE");
-	    {
-		test(p.ice_getContext().isEmpty());
-		java.util.Hashtable r = p.opContext();
-		test(!IceUtil.Hashtable.equals(r, ctx));
-	    }
-	    {
-		java.util.Hashtable r = p.opContext(ctx);
-		test(p.ice_getContext().isEmpty());
-		test(IceUtil.Hashtable.equals(r, ctx));
-	    }
-	    {
-		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-		test(IceUtil.Hashtable.equals(p2.ice_getContext(), ctx));
-		java.util.Hashtable r = p2.opContext();
-		test(IceUtil.Hashtable.equals(r, ctx));
-		r = p2.opContext(ctx);
-		test(IceUtil.Hashtable.equals(r, ctx));
-	    }
-	    {
-		//
-		// Test proxy contexts
-		String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", 
-		    "test:default -p 12010 -t 10000");
-		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(communicator.stringToProxy(ref));
+        {
+            java.util.Hashtable ctx = new java.util.Hashtable();
+            ctx.put("one", "ONE");
+            ctx.put("two", "TWO");
+            ctx.put("three", "THREE");
+            {
+                test(p.ice_getContext().isEmpty());
+                java.util.Hashtable r = p.opContext();
+                test(!IceUtil.Hashtable.equals(r, ctx));
+            }
+            {
+                java.util.Hashtable r = p.opContext(ctx);
+                test(p.ice_getContext().isEmpty());
+                test(IceUtil.Hashtable.equals(r, ctx));
+            }
+            {
+                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                test(IceUtil.Hashtable.equals(p2.ice_getContext(), ctx));
+                java.util.Hashtable r = p2.opContext();
+                test(IceUtil.Hashtable.equals(r, ctx));
+                r = p2.opContext(ctx);
+                test(IceUtil.Hashtable.equals(r, ctx));
+            }
+            {
+                //
+                // Test proxy contexts
+                String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", 
+                    "test:default -p 12010 -t 10000");
+                Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(communicator.stringToProxy(ref));
 
-		java.util.Hashtable dflt = new java.util.Hashtable();
-		dflt.put("a", "b");
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
-		test(c2.opContext().get("a").equals("b"));
+                java.util.Hashtable dflt = new java.util.Hashtable();
+                dflt.put("a", "b");
+                Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
+                test(c2.opContext().get("a").equals("b"));
 
-		dflt.clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
-		test(c3.opContext().get("a") == null);
-	    }
-	}
-	
-	{
-	    double d = 1278312346.0 / 13.0;
-	    double[] ds = new double[5];
-	    for(int i = 0; i < 5; i++)
-	    {
-		ds[i] = d;
-	    }
-	    p.opDoubleMarshaling(d, ds);
-	}
+                dflt.clear();
+                Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
+                test(c3.opContext().get("a") == null);
+            }
+        }
+        
+        {
+            double d = 1278312346.0 / 13.0;
+            double[] ds = new double[5];
+            for(int i = 0; i < 5; i++)
+            {
+                ds[i] = d;
+            }
+            p.opDoubleMarshaling(d, ds);
+        }
     }
 }

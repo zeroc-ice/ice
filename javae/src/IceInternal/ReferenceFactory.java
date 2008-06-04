@@ -16,7 +16,7 @@ public final class ReferenceFactory
            java.util.Hashtable context,
            String facet,
            int mode,
-	   boolean secure,
+           boolean secure,
            Endpoint[] endpoints,
            RouterInfo routerInfo)
     {
@@ -42,10 +42,10 @@ public final class ReferenceFactory
            java.util.Hashtable context,
            String facet,
            int mode,
-	   boolean secure,
+           boolean secure,
            String adapterId,
            RouterInfo routerInfo,
-	   LocatorInfo locatorInfo)
+           LocatorInfo locatorInfo)
     {
         if(_instance == null)
         {
@@ -61,7 +61,7 @@ public final class ReferenceFactory
         // Create new reference
         //
         return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, adapterId,
-				     routerInfo, locatorInfo);
+                                     routerInfo, locatorInfo);
     }
 
     public synchronized Reference
@@ -69,7 +69,7 @@ public final class ReferenceFactory
            java.util.Hashtable context,
            String facet,
            int mode,
-	   Ice.Connection[] fixedConnections)
+           Ice.Connection[] fixedConnections)
     {
         if(_instance == null)
         {
@@ -91,16 +91,16 @@ public final class ReferenceFactory
     copy(Reference r)
     {
         if(_instance == null)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
-	Ice.Identity ident = r.getIdentity();
-	if(ident.name.length() == 0 && ident.category.length() == 0)
-	{
-	    return null;
-	}
-	return (Reference)r.ice_clone();
+        Ice.Identity ident = r.getIdentity();
+        if(ident.name.length() == 0 && ident.category.length() == 0)
+        {
+            return null;
+        }
+        return (Reference)r.ice_clone();
     }
 
     public Reference
@@ -120,8 +120,8 @@ public final class ReferenceFactory
         if(beg == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
-	    e.str = s;
-	    throw e;
+            e.str = s;
+            throw e;
         }
 
         //
@@ -133,8 +133,8 @@ public final class ReferenceFactory
         if(end == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
-	    e.str = s;
-	    throw e;
+            e.str = s;
+            throw e;
         }
         else if(end == 0)
         {
@@ -155,8 +155,8 @@ public final class ReferenceFactory
         if(beg == end)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
-	    e.str = s;
-	    throw e;
+            e.str = s;
+            throw e;
         }
 
         //
@@ -164,7 +164,7 @@ public final class ReferenceFactory
         //
         Ice.Identity ident = _instance.stringToIdentity(idstr);
 
-	IceUtil.Debug.Assert(ident.name != null);
+        IceUtil.Debug.Assert(ident.name != null);
         if(ident.name.length() == 0)
         {
             //
@@ -197,8 +197,8 @@ public final class ReferenceFactory
 
         String facet = "";
         int mode = Reference.ModeTwoway;
-	boolean secure = false;
-	String adapter = "";
+        boolean secure = false;
+        String adapter = "";
 
         while(true)
         {
@@ -228,8 +228,8 @@ public final class ReferenceFactory
             if(option.length() != 2 || option.charAt(0) != '-')
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
-		e.str = s;
-		throw e;
+                e.str = s;
+                throw e;
             }
 
             //
@@ -249,8 +249,8 @@ public final class ReferenceFactory
                     if(end == -1)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
                     else if(end == 0)
                     {
@@ -281,16 +281,16 @@ public final class ReferenceFactory
                     if(argument == null)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
 
                     Ice.StringHolder facetH = new Ice.StringHolder();
                     if(!IceUtil.StringUtil.unescapeString(argument, 0, argument.length(), facetH))
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
 
                     facet = facetH.value;
@@ -302,8 +302,8 @@ public final class ReferenceFactory
                     if(argument != null)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
                     mode = Reference.ModeTwoway;
                     break;
@@ -314,8 +314,8 @@ public final class ReferenceFactory
                     if(argument != null)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
                     mode = Reference.ModeOneway;
                     break;
@@ -326,8 +326,8 @@ public final class ReferenceFactory
                     if(argument != null)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
                     mode = Reference.ModeBatchOneway;
                     break;
@@ -338,8 +338,8 @@ public final class ReferenceFactory
                     if(argument != null)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
                     mode = Reference.ModeDatagram;
                     break;
@@ -350,8 +350,8 @@ public final class ReferenceFactory
                     if(argument != null)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
                     mode = Reference.ModeBatchDatagram;
                     break;
@@ -362,8 +362,8 @@ public final class ReferenceFactory
                     if(argument != null)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
+                        e.str = s;
+                        throw e;
                     }
                     secure = true;
                     break;
@@ -372,103 +372,103 @@ public final class ReferenceFactory
                 default:
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
-		    e.str = s;
-		    throw e;
+                    e.str = s;
+                    throw e;
                 }
             }
         }
 
-	RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-	LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
+        RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
+        LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
 
-	if(beg == -1)
-	{
-	    return create(ident, null, facet, mode, secure, "", routerInfo, locatorInfo);
-	}
+        if(beg == -1)
+        {
+            return create(ident, null, facet, mode, secure, "", routerInfo, locatorInfo);
+        }
 
         java.util.Vector endpoints = new java.util.Vector();
 
-	if(s.charAt(beg) == ':')
-	{
-	    java.util.Vector unknownEndpoints = new java.util.Vector();
-	    end = beg;
+        if(s.charAt(beg) == ':')
+        {
+            java.util.Vector unknownEndpoints = new java.util.Vector();
+            end = beg;
 
-	    while(end < s.length() && s.charAt(end) == ':')
-	    {
-		beg = end + 1;
-		
-		end = s.indexOf(':', beg);
-		if(end == -1)
-		{
-		    end = s.length();
-		}
-		
-		String es = s.substring(beg, end);
-		Endpoint endp = _instance.endpointFactory().create(es);
-		if(endp != null)
-		{
-		    endpoints.addElement(endp);
-		}
-		else
-		{
-		    unknownEndpoints.addElement(es);
-		}
-	    }
-	    if(endpoints.size() == 0)
-	    {
-	        Ice.EndpointParseException e = new Ice.EndpointParseException();
-		e.str = (String)unknownEndpoints.elementAt(0);
-		throw e;
-	    }
-	    else if(unknownEndpoints.size() != 0 &&
-	    	    _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
-	    {
-	        String msg = "Proxy contains unknown endpoints:";
-		java.util.Enumeration e = unknownEndpoints.elements();
-		while(e.hasMoreElements())
-		{
-		    msg += " `" + (String)e.nextElement() + "'";
-		}
-		_instance.initializationData().logger.warning(msg);
-	    }
+            while(end < s.length() && s.charAt(end) == ':')
+            {
+                beg = end + 1;
+                
+                end = s.indexOf(':', beg);
+                if(end == -1)
+                {
+                    end = s.length();
+                }
+                
+                String es = s.substring(beg, end);
+                Endpoint endp = _instance.endpointFactory().create(es);
+                if(endp != null)
+                {
+                    endpoints.addElement(endp);
+                }
+                else
+                {
+                    unknownEndpoints.addElement(es);
+                }
+            }
+            if(endpoints.size() == 0)
+            {
+                Ice.EndpointParseException e = new Ice.EndpointParseException();
+                e.str = (String)unknownEndpoints.elementAt(0);
+                throw e;
+            }
+            else if(unknownEndpoints.size() != 0 &&
+                        _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+            {
+                String msg = "Proxy contains unknown endpoints:";
+                java.util.Enumeration e = unknownEndpoints.elements();
+                while(e.hasMoreElements())
+                {
+                    msg += " `" + (String)e.nextElement() + "'";
+                }
+                _instance.initializationData().logger.warning(msg);
+            }
 
-	    Endpoint[] endp = new Endpoint[endpoints.size()];
-	    endpoints.copyInto(endp);
-	    return create(ident, null, facet, mode, secure, endp, routerInfo);
-	}
-	else if(s.charAt(beg) == '@')
-	{
-	    beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
-	    if(beg == -1)
-	    {
-		Ice.ProxyParseException e = new Ice.ProxyParseException();
-		e.str = s;
-		throw e;
-	    }
+            Endpoint[] endp = new Endpoint[endpoints.size()];
+            endpoints.copyInto(endp);
+            return create(ident, null, facet, mode, secure, endp, routerInfo);
+        }
+        else if(s.charAt(beg) == '@')
+        {
+            beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
+            if(beg == -1)
+            {
+                Ice.ProxyParseException e = new Ice.ProxyParseException();
+                e.str = s;
+                throw e;
+            }
 
             String adapterstr = null;
-	    end = IceUtil.StringUtil.checkQuote(s, beg);
-	    if(end == -1)
-	    {
-		Ice.ProxyParseException e = new Ice.ProxyParseException();
-		e.str = s;
-		throw e;
-	    }
-	    else if(end == 0)
-	    {
-		end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
-		if(end == -1)
-		{
-		    end = s.length();
-		}
+            end = IceUtil.StringUtil.checkQuote(s, beg);
+            if(end == -1)
+            {
+                Ice.ProxyParseException e = new Ice.ProxyParseException();
+                e.str = s;
+                throw e;
+            }
+            else if(end == 0)
+            {
+                end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
+                if(end == -1)
+                {
+                    end = s.length();
+                }
                 adapterstr = s.substring(beg, end);
-	    }
-	    else
-	    {
-		beg++; // Skip leading quote
+            }
+            else
+            {
+                beg++; // Skip leading quote
                 adapterstr = s.substring(beg, end);
                 end++; // Skip trailing quote
-	    }
+            }
 
             if(end != s.length() && IceUtil.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
@@ -477,21 +477,21 @@ public final class ReferenceFactory
                 throw e;
             }
 
-	    Ice.StringHolder token = new Ice.StringHolder();
+            Ice.StringHolder token = new Ice.StringHolder();
             if(!IceUtil.StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), token) ||
                token.value.length() == 0)
-	    {
-		Ice.ProxyParseException e = new Ice.ProxyParseException();
-		e.str = s;
-		throw e;
-	    }
-	    adapter = token.value;
-	    return create(ident, null, facet, mode, secure, adapter, routerInfo, locatorInfo);
-	}
+            {
+                Ice.ProxyParseException e = new Ice.ProxyParseException();
+                e.str = s;
+                throw e;
+            }
+            adapter = token.value;
+            return create(ident, null, facet, mode, secure, adapter, routerInfo, locatorInfo);
+        }
 
-	Ice.ProxyParseException ex = new Ice.ProxyParseException();
-	ex.str = s;
-	throw ex;
+        Ice.ProxyParseException ex = new Ice.ProxyParseException();
+        ex.str = s;
+        throw ex;
     }
 
     public Reference
@@ -555,16 +555,16 @@ public final class ReferenceFactory
         String facet;
         if(facetPath.length > 0)
         {
-	    if(facetPath.length > 1)
-	    {
-	        Ice.Util.throwProxyUnmarshalException();
-	    }
+            if(facetPath.length > 1)
+            {
+                Ice.Util.throwProxyUnmarshalException();
+            }
             facet = facetPath[0];
         }
-	else
+        else
         {
-	    facet = "";
-	}
+            facet = "";
+        }
 
         int mode = (int)s.readByte();
         if(mode < 0 || mode > Reference.ModeLast)
@@ -572,30 +572,30 @@ public final class ReferenceFactory
             Ice.Util.throwProxyUnmarshalException();
         }
 
-	boolean secure = s.readBool();
+        boolean secure = s.readBool();
        
         Endpoint[] endpoints;
-	String adapterId = "";
+        String adapterId = "";
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
 
         int sz = s.readSize();
-	if(sz > 0)
-	{
-	    endpoints = new Endpoint[sz];
-	    for(int i = 0; i < sz; i++)
-	    {
-		endpoints[i] = _instance.endpointFactory().read(s);
-	    }
-	    return create(ident, null, facet, mode, secure, endpoints, routerInfo);
-	}
-	else
-	{
-	    endpoints = new Endpoint[0];
-	    adapterId = s.readString();
-	    return create(ident, null, facet, mode, secure, adapterId, routerInfo, locatorInfo);
-	}
+        if(sz > 0)
+        {
+            endpoints = new Endpoint[sz];
+            for(int i = 0; i < sz; i++)
+            {
+                endpoints[i] = _instance.endpointFactory().read(s);
+            }
+            return create(ident, null, facet, mode, secure, endpoints, routerInfo);
+        }
+        else
+        {
+            endpoints = new Endpoint[0];
+            adapterId = s.readString();
+            return create(ident, null, facet, mode, secure, adapterId, routerInfo, locatorInfo);
+        }
     }
 
     public synchronized void
@@ -628,7 +628,7 @@ public final class ReferenceFactory
     ReferenceFactory(Instance instance, Ice.Communicator communicator)
     {
         _instance = instance;
-	_communicator = communicator;
+        _communicator = communicator;
     }
 
     synchronized void
@@ -640,7 +640,7 @@ public final class ReferenceFactory
         }
 
         _instance = null;
-	_communicator = null;
+        _communicator = null;
         _defaultRouter = null;
         _defaultLocator = null;
     }

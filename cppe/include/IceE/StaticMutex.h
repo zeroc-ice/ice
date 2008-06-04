@@ -88,7 +88,7 @@ private:
 #else
     struct LockState
     {
-	pthread_mutex_t* mutex;
+        pthread_mutex_t* mutex;
     };
 #endif
 
@@ -141,7 +141,7 @@ StaticMutex::lock() const
 {
     if(!initialized())
     {
-	initialize();
+        initialize();
     }
     EnterCriticalSection(_mutex);
 #ifndef _WIN32_WCE
@@ -154,16 +154,16 @@ StaticMutex::tryLock() const
 {
     if(!initialized())
     {
-	initialize();
+        initialize();
     }
     if(!TryEnterCriticalSection(_mutex))
     {
-	return false;
+        return false;
     }
 #ifndef _WIN32_WCE
     if(_mutex->RecursionCount > 1)
     {
-	LeaveCriticalSection(_mutex);
+        LeaveCriticalSection(_mutex);
         throw ThreadLockedException(__FILE__, __LINE__);
     }
 #endif
@@ -195,7 +195,7 @@ StaticMutex::lock(LockState&) const
 {
     if(!initialized())
     {
-	initialize();
+        initialize();
     }
     EnterCriticalSection(_mutex);
 }
@@ -243,7 +243,7 @@ StaticMutex::unlock() const
     int rc = pthread_mutex_unlock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 

@@ -16,11 +16,11 @@ public interface instead of the loopback interface.
 
 For most configurations the property can be changed from:
 
-Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
+Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
 
 to:
 
-Glacier2.Client.Endpoints=tcp -p 10005
+Glacier2.Client.Endpoints=tcp -p 4063
 
 Next, start the Glacier2 router:
 

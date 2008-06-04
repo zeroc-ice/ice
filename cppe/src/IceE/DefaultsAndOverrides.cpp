@@ -34,15 +34,15 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     value = properties->getProperty("Ice.Override.Timeout");
     if(!value.empty())
     {
-	const_cast<bool&>(overrideTimeout) = true;
-	const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
+        const_cast<bool&>(overrideTimeout) = true;
+        const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
     }
 
     value = properties->getProperty("Ice.Override.ConnectTimeout");
     if(!value.empty())
     {
-	const_cast<bool&>(overrideConnectTimeout) = true;
-	const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
+        const_cast<bool&>(overrideConnectTimeout) = true;
+        const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
     }
 
 #ifdef ICEE_HAS_LOCATOR

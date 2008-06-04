@@ -1,7 +1,0 @@
-Latency.Ping=ping:default -p 10000 -h 127.0.0.1
-Latency.Endpoints=default -p 10000 -h 127.0.0.1
-
-#
-# Use faster blocking client side model by default.
-#
-Ice.Blocking=1

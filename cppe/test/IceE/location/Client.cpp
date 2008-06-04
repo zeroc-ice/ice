@@ -29,25 +29,25 @@ public:
     run(int argc, char* argv[])
     {
         Ice::InitializationData initData;
-	initData.properties = Ice::createProperties(argc, argv);
+        initData.properties = Ice::createProperties(argc, argv);
         loadConfig(initData.properties);
 
-	//
-	// For blocking client change retry interval from default.
-	//
-	if(initData.properties->getPropertyAsInt("Ice.Blocking") > 0)
-	{
-	    initData.properties->setProperty("Ice.RetryIntervals", "0 0");
-	    initData.properties->setProperty("Ice.Warn.Connections", "0");
-	}
+        //
+        // For blocking client change retry interval from default.
+        //
+        if(initData.properties->getPropertyAsInt("Ice.Blocking") > 0)
+        {
+            initData.properties->setProperty("Ice.RetryIntervals", "0 0");
+            initData.properties->setProperty("Ice.Warn.Connections", "0");
+        }
 
-	initData.properties->setProperty("Ice.Default.Locator",
-			initData.properties->getPropertyWithDefault("Location.Locator", "locator:default -p 12010"));
-	initData.logger = getLogger();
+        initData.properties->setProperty("Ice.Default.Locator",
+                        initData.properties->getPropertyWithDefault("Location.Locator", "locator:default -p 12010"));
+        initData.logger = getLogger();
         setCommunicator(Ice::initialize(argc, argv, initData));
 
         void allTests(const Ice::CommunicatorPtr&);
-	allTests(communicator());
+        allTests(communicator());
 
         return EXIT_SUCCESS;
     }

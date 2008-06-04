@@ -25,23 +25,23 @@ public class Client
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    
-	    initData.properties = Ice.Util.createProperties(argsH);
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            
+            initData.properties = Ice.Util.createProperties(argsH);
 
-	    //
-	    // For this test, we want to disable retries.
-	    //
-	    initData.properties.setProperty("Ice.RetryIntervals", "-1");
+            //
+            // For this test, we want to disable retries.
+            //
+            initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
-	    //
-	    // We don't want connection warnings because of the timeout test.
-	    //
-	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+            //
+            // We don't want connection warnings because of the timeout test.
+            //
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-	    communicator = Ice.Util.initialize(argsH, initData);
-	    
+            communicator = Ice.Util.initialize(argsH, initData);
+            
             status = run(argsH.value, communicator, initData, System.out);
         }
         catch(Exception ex)
@@ -63,7 +63,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

@@ -36,16 +36,16 @@ public:
         initData.properties->setProperty("Ice.ThreadPool.Client.Size", "2");
         initData.properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
-	loadConfig(initData.properties);
+        loadConfig(initData.properties);
 
-	//
-	// Now parse argc/argv into initData
-	//
-	initData.properties = Ice::createProperties(argc, argv, initData.properties); 
+        //
+        // Now parse argc/argv into initData
+        //
+        initData.properties = Ice::createProperties(argc, argv, initData.properties); 
 
-	initData.logger = getLogger();	
-	setCommunicator(Ice::initialize(argc, argv, initData));
-	
+        initData.logger = getLogger();        
+        setCommunicator(Ice::initialize(argc, argv, initData));
+        
         //
         // We don't want connection warnings because of the timeout test.
         //

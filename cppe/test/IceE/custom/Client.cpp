@@ -28,15 +28,15 @@ public:
     run(int argc, char* argv[])
     {
         Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
+        initData.properties = Ice::createProperties();
 #ifdef ICEE_HAS_WSTRING
         initData.stringConverter = new Test::StringConverterI();
         initData.wstringConverter = new Test::WstringConverterI();
 #endif
 
-	loadConfig(initData.properties);
-	initData.logger = getLogger();
-	setCommunicator(Ice::initialize(argc, argv, initData));
+        loadConfig(initData.properties);
+        initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
         Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&);
         Test::TestIntfPrx test = allTests(communicator());

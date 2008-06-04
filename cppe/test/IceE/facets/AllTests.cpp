@@ -28,8 +28,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
     try
     {
-	adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
-	test(false);
+        adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
+        test(false);
     }
     catch(Ice::AlreadyRegisteredException&)
     {
@@ -37,8 +37,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
     try
     {
-	adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
-	test(false);
+        adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
+        test(false);
     }
     catch(Ice::NotRegisteredException&)
     {
@@ -60,8 +60,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(fm["f2"] == obj2);
     try
     {
-	adapter->removeAllFacets(communicator->stringToIdentity("id1"));
-	test(false);
+        adapter->removeAllFacets(communicator->stringToIdentity("id1"));
+        test(false);
     }
     catch(Ice::NotRegisteredException&)
     {

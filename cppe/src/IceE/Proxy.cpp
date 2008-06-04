@@ -36,8 +36,8 @@ Ice::__write(::IceInternal::BasicStream* __os, const ::Ice::Context& v, ::Ice::_
     ::Ice::Context::const_iterator p;
     for(p = v.begin(); p != v.end(); ++p)
     {
-	__os->write(p->first);
-	__os->write(p->second);
+        __os->write(p->first);
+        __os->write(p->second);
     }
 }
 
@@ -48,10 +48,10 @@ Ice::__read(::IceInternal::BasicStream* __is, ::Ice::Context& v, ::Ice::__U__Con
     __is->readSize(sz);
     while(sz--)
     {
-	::std::pair<const  ::std::string, ::std::string> pair;
-	__is->read(const_cast< ::std::string&>(pair.first));
-	::Ice::Context::iterator __i = v.insert(v.end(), pair);
-	__is->read(__i->second);
+        ::std::pair<const  ::std::string, ::std::string> pair;
+        __is->read(const_cast< ::std::string&>(pair.first));
+        ::Ice::Context::iterator __i = v.insert(v.end(), pair);
+        __is->read(__i->second);
     }
 }
 
@@ -68,23 +68,23 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 
     if(b)
     {
-	ObjectPrx bb = b->ice_facet(f);
-	try
-	{
-	    if(bb->ice_isA(typeId))
-	    {
-		return bb;
-	    }
+        ObjectPrx bb = b->ice_facet(f);
+        try
+        {
+            if(bb->ice_isA(typeId))
+            {
+                return bb;
+            }
 #ifndef NDEBUG
-	    else
-	    {
-		assert(typeId != "::Ice::Object");
-	    }
+            else
+            {
+                assert(typeId != "::Ice::Object");
+            }
 #endif
-	}
-	catch(const FacetNotExistException&)
-	{
-	}
+        }
+        catch(const FacetNotExistException&)
+        {
+        }
     }
     return 0;
 }
@@ -102,23 +102,23 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 
     if(b)
     {
-	ObjectPrx bb = b->ice_facet(f);
-	try
-	{
-	    if(bb->ice_isA(typeId, ctx))
-	    {
-		return bb;
-	    }
+        ObjectPrx bb = b->ice_facet(f);
+        try
+        {
+            if(bb->ice_isA(typeId, ctx))
+            {
+                return bb;
+            }
 #ifndef NDEBUG
-	    else
-	    {
-		assert(typeId != "::Ice::Object");
-	    }
+            else
+            {
+                assert(typeId != "::Ice::Object");
+            }
 #endif
-	}
-	catch(const FacetNotExistException&)
-	{
-	}
+        }
+        catch(const FacetNotExistException&)
+        {
+        }
     }
     return 0;
 }
@@ -160,11 +160,11 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context* __context)
     while(true)
     {
         ConnectionPtr __connection;
-	try
-	{
-	    __checkTwowayOnly("ice_isA");
-	    static const string __operation("ice_isA");
-	    __connection = ice_getConnection();
+        try
+        {
+            __checkTwowayOnly("ice_isA");
+            static const string __operation("ice_isA");
+            __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             BasicStream* __stream = __og.stream();
             try
@@ -181,14 +181,14 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context* __context)
             {
                 if(!__ok)
                 {
-		    try
-		    {
+                    try
+                    {
                         __stream->throwException();
-		    }
-		    catch(const ::Ice::UserException& __ex)
-		    {
-		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-		    }
+                    }
+                    catch(const ::Ice::UserException& __ex)
+                    {
+                        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                    }
                 }
                 __stream->read(__ret);
             }
@@ -203,20 +203,20 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context* __context)
             }
 #endif
             return __ret;
-	}
-	catch(const LocalExceptionWrapper& __ex)
-	{
-	    __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__connection, __ex, __cnt);
-	}
+        }
+        catch(const LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
+        }
+        catch(const LocalException& __ex)
+        {
+            __handleException(__connection, __ex, __cnt);
+        }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
-	catch(...)
-	{
-	    throw;
-	}
+        catch(...)
+        {
+            throw;
+        }
 #endif
     }
 }
@@ -228,10 +228,10 @@ IceProxy::Ice::Object::ice_ping(const Context* __context)
     while(true)
     {
         ConnectionPtr __connection;
-	try
-	{
+        try
+        {
             static const string __operation("ice_ping");
-	    __connection = ice_getConnection();
+            __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             bool __ok = __og.invoke();
             try
@@ -239,14 +239,14 @@ IceProxy::Ice::Object::ice_ping(const Context* __context)
                 BasicStream* __is = __og.stream();
                 if(!__ok)
                 {
-		    try
-		    {
+                    try
+                    {
                         __is->throwException();
-		    }
-		    catch(const ::Ice::UserException& __ex)
-		    {
-		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-		    }
+                    }
+                    catch(const ::Ice::UserException& __ex)
+                    {
+                        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                    }
                 }
             }
             catch(const ::Ice::LocalException& __ex)
@@ -259,21 +259,21 @@ IceProxy::Ice::Object::ice_ping(const Context* __context)
                 throw;
             }
 #endif
-	    return;
-	}
-	catch(const LocalExceptionWrapper& __ex)
-	{
-	    __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__connection, __ex, __cnt);
-	}
+            return;
+        }
+        catch(const LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
+        }
+        catch(const LocalException& __ex)
+        {
+            __handleException(__connection, __ex, __cnt);
+        }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
-	catch(...)
-	{
-	    throw;
-	}
+        catch(...)
+        {
+            throw;
+        }
 #endif
     }
 }
@@ -285,11 +285,11 @@ IceProxy::Ice::Object::ice_ids(const Context* __context)
     while(true)
     {
         ConnectionPtr __connection;
-	try
-	{
-	    __checkTwowayOnly("ice_ids");
+        try
+        {
+            __checkTwowayOnly("ice_ids");
             static const string __operation("ice_ids");
-	    __connection = ice_getConnection();
+            __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             vector<string> __ret;
             bool __ok = __og.invoke();
@@ -298,14 +298,14 @@ IceProxy::Ice::Object::ice_ids(const Context* __context)
                 BasicStream* __is = __og.stream();
                 if(!__ok)
                 {
-		    try
-		    {
+                    try
+                    {
                         __is->throwException();
-		    }
-		    catch(const ::Ice::UserException& __ex)
-		    {
-		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-		    }
+                    }
+                    catch(const ::Ice::UserException& __ex)
+                    {
+                        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                    }
                 }
                 __is->read(__ret, false);
             }
@@ -320,20 +320,20 @@ IceProxy::Ice::Object::ice_ids(const Context* __context)
             }
 #endif
             return __ret;
-	}
-	catch(const LocalExceptionWrapper& __ex)
-	{
-	    __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__connection, __ex, __cnt);
-	}
+        }
+        catch(const LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
+        }
+        catch(const LocalException& __ex)
+        {
+            __handleException(__connection, __ex, __cnt);
+        }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
-	catch(...)
-	{
-	    throw;
-	}
+        catch(...)
+        {
+            throw;
+        }
 #endif
     }
 }
@@ -345,11 +345,11 @@ IceProxy::Ice::Object::ice_id(const Context* __context)
     while(true)
     {
         ConnectionPtr __connection;
-	try
-	{
-	    __checkTwowayOnly("ice_id");
+        try
+        {
+            __checkTwowayOnly("ice_id");
             static const string __operation("ice_id");
-	    __connection = ice_getConnection();
+            __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             string __ret;
             bool __ok = __og.invoke();
@@ -358,14 +358,14 @@ IceProxy::Ice::Object::ice_id(const Context* __context)
                 BasicStream* __is = __og.stream();
                 if(!__ok)
                 {
-		    try
-		    {
+                    try
+                    {
                         __is->throwException();
-		    }
-		    catch(const ::Ice::UserException& __ex)
-		    {
-		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-		    }
+                    }
+                    catch(const ::Ice::UserException& __ex)
+                    {
+                        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                    }
                 }
                 __is->read(__ret, false);
             }
@@ -380,20 +380,20 @@ IceProxy::Ice::Object::ice_id(const Context* __context)
             }
 #endif
             return __ret;
-	}
-	catch(const LocalExceptionWrapper& __ex)
-	{
-	    __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__connection, __ex, __cnt);
-	}
+        }
+        catch(const LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);
+        }
+        catch(const LocalException& __ex)
+        {
+            __handleException(__connection, __ex, __cnt);
+        }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
-	catch(...)
-	{
-	    throw;
-	}
+        catch(...)
+        {
+            throw;
+        }
 #endif
     }
 }
@@ -427,13 +427,13 @@ IceProxy::Ice::Object::ice_identity(const Identity& newIdentity) const
     }
     if(newIdentity == _reference->getIdentity())
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeIdentity(newIdentity));
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(_reference->changeIdentity(newIdentity));
+        return proxy;
     }
 }
 
@@ -448,13 +448,13 @@ IceProxy::Ice::Object::ice_facet(const string& newFacet) const
 {
     if(newFacet == _reference->getFacet())
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeFacet(newFacet));
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(_reference->changeFacet(newFacet));
+        return proxy;
     }
 }
 
@@ -473,13 +473,13 @@ IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
     ReferencePtr ref = _reference->changeRouter(router);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(ref);
+        return proxy;
     }
 }
 
@@ -499,13 +499,13 @@ IceProxy::Ice::Object::ice_adapterId(const string& adapterId) const
     ReferencePtr ref = _reference->changeAdapterId(adapterId);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(ref);
+        return proxy;
     }
 }
 
@@ -522,13 +522,13 @@ IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
     ReferencePtr ref = _reference->changeLocator(locator);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(ref);
+        return proxy;
     }
 }
 
@@ -561,13 +561,13 @@ IceProxy::Ice::Object::ice_timeout(int t) const
     ReferencePtr ref = _reference->changeTimeout(t);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(ref);
+        return proxy;
     }
 }
 
@@ -610,10 +610,10 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
     ConnectionPtr con;
 
     {
-	::IceUtil::Mutex::Lock sync(*from.get());
+        ::IceUtil::Mutex::Lock sync(*from.get());
 
-	ref = from->_reference;
-	con = from->_connection;
+        ref = from->_reference;
+        con = from->_connection;
     }
 
     //
@@ -645,13 +645,13 @@ IceProxy::Ice::Object::__handleException(const ConnectionPtr& connection, const 
     ProxyFactoryPtr proxyFactory = _reference->getInstance()->proxyFactory();
     if(proxyFactory)
     {
-	proxyFactory->checkRetryAfterException(ex, _reference, cnt);
+        proxyFactory->checkRetryAfterException(ex, _reference, cnt);
     }
     else
     {
-	//
-	// The communicator is already destroyed, so we cannot retry.
-	//
+        //
+        // The communicator is already destroyed, so we cannot retry.
+        //
         ex.ice_throw();
     }
 }
@@ -703,8 +703,8 @@ IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
     if(!ice_isTwoway())
     {
         TwowayOnlyException ex(__FILE__, __LINE__);
-	ex.operation = name;
-	throw ex;
+        ex.operation = name;
+        throw ex;
     }
 }
 
@@ -719,13 +719,13 @@ IceProxy::Ice::Object::changeMode(ReferenceMode newMode) const
 {
     if(_reference->getMode() == newMode)
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeMode(newMode));
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(_reference->changeMode(newMode));
+        return proxy;
     }
 }
 
@@ -734,19 +734,19 @@ Ice::proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {
-	return false;
+        return false;
     }
     else if(!lhs && rhs)
     {
-	return true;
+        return true;
     }
     else if(lhs && !rhs)
     {
-	return false;
+        return false;
     }
     else
     {
-	return lhs->ice_getIdentity() < rhs->ice_getIdentity();
+        return lhs->ice_getIdentity() < rhs->ice_getIdentity();
     }
 }
 
@@ -755,19 +755,19 @@ Ice::proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {
-	return true;
+        return true;
     }
     else if(!lhs && rhs)
     {
-	return false;
+        return false;
     }
     else if(lhs && !rhs)
     {
-	return false;
+        return false;
     }
     else
     {
-	return lhs->ice_getIdentity() == rhs->ice_getIdentity();
+        return lhs->ice_getIdentity() == rhs->ice_getIdentity();
     }
 }
 
@@ -776,43 +776,43 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {
-	return false;
+        return false;
     }
     else if(!lhs && rhs)
     {
-	return true;
+        return true;
     }
     else if(lhs && !rhs)
     {
-	return false;
+        return false;
     }
     else
     {
-	Identity lhsIdentity = lhs->ice_getIdentity();
-	Identity rhsIdentity = rhs->ice_getIdentity();
-	
-	if(lhsIdentity < rhsIdentity)
-	{
-	    return true;
-	}
-	else if(rhsIdentity < lhsIdentity)
-	{
-	    return false;
-	}
-	
-	string lhsFacet = lhs->ice_getFacet();
-	string rhsFacet = rhs->ice_getFacet();
-	
-	if(lhsFacet < rhsFacet)
-	{
-	    return true;
-	}
-	else if(rhsFacet < lhsFacet)
-	{
-	    return false;
-	}
-	
-	return false;
+        Identity lhsIdentity = lhs->ice_getIdentity();
+        Identity rhsIdentity = rhs->ice_getIdentity();
+        
+        if(lhsIdentity < rhsIdentity)
+        {
+            return true;
+        }
+        else if(rhsIdentity < lhsIdentity)
+        {
+            return false;
+        }
+        
+        string lhsFacet = lhs->ice_getFacet();
+        string rhsFacet = rhs->ice_getFacet();
+        
+        if(lhsFacet < rhsFacet)
+        {
+            return true;
+        }
+        else if(rhsFacet < lhsFacet)
+        {
+            return false;
+        }
+        
+        return false;
     }
 }
 
@@ -821,32 +821,32 @@ Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {
-	return true;
+        return true;
     }
     else if(!lhs && rhs)
     {
-	return false;
+        return false;
     }
     else if(lhs && !rhs)
     {
-	return false;
+        return false;
     }
     else
     {
-	Identity lhsIdentity = lhs->ice_getIdentity();
-	Identity rhsIdentity = rhs->ice_getIdentity();
-	
-	if(lhsIdentity == rhsIdentity)
-	{
-	    string lhsFacet = lhs->ice_getFacet();
-	    string rhsFacet = rhs->ice_getFacet();
-	    
-	    if(lhsFacet == rhsFacet)
-	    {
-		return true;
-	    }
-	}
-	
-	return false;
+        Identity lhsIdentity = lhs->ice_getIdentity();
+        Identity rhsIdentity = rhs->ice_getIdentity();
+        
+        if(lhsIdentity == rhsIdentity)
+        {
+            string lhsFacet = lhs->ice_getFacet();
+            string rhsFacet = rhs->ice_getFacet();
+            
+            if(lhsFacet == rhsFacet)
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

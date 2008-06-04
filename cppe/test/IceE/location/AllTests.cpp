@@ -27,9 +27,9 @@ void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     ServerManagerPrx manager = ServerManagerPrx::checkedCast(
-	communicator->stringToProxy(
-	    communicator->getProperties()->getPropertyWithDefault(
-		"Location.Proxy", "ServerManager:default -p 12010 -t 10000")));
+        communicator->stringToProxy(
+            communicator->getProperties()->getPropertyWithDefault(
+                "Location.Proxy", "ServerManager:default -p 12010 -t 10000")));
     Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(communicator->getDefaultLocator());
     test(manager);
 
@@ -102,12 +102,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     manager->startServer();
     try
     {
-	obj2 = TestIntfPrx::checkedCast(base2);
-	obj2->ice_ping();
+        obj2 = TestIntfPrx::checkedCast(base2);
+        obj2->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
-	test(false);
+        test(false);
     }
     tprintf("ok\n");
 
@@ -116,12 +116,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     manager->startServer();
     try
     {
-	obj6 = TestIntfPrx::checkedCast(base6);
-	obj6->ice_ping();
+        obj6 = TestIntfPrx::checkedCast(base6);
+        obj6->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
-	test(false);
+        test(false);
     }
     tprintf("ok\n");
     
@@ -130,115 +130,115 @@ allTests(const Ice::CommunicatorPtr& communicator)
     manager->startServer();
     try
     {
-	obj3 = TestIntfPrx::checkedCast(base3);
-	obj3->ice_ping();
+        obj3 = TestIntfPrx::checkedCast(base3);
+        obj3->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
-	test(false);
+        test(false);
     }
     try
     {
-	obj2 = TestIntfPrx::checkedCast(base2);
-	obj2->ice_ping();
+        obj2 = TestIntfPrx::checkedCast(base2);
+        obj2->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
-	test(false);
+        test(false);
     }
     obj->shutdown();
     manager->startServer();
     try
     {
-	obj2 = TestIntfPrx::checkedCast(base2);
-	obj2->ice_ping();
+        obj2 = TestIntfPrx::checkedCast(base2);
+        obj2->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
-	test(false);
+        test(false);
     }
     try
     {
-	obj3 = TestIntfPrx::checkedCast(base3);
-	obj3->ice_ping();
+        obj3 = TestIntfPrx::checkedCast(base3);
+        obj3->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
-	test(false);
-    }
-    obj->shutdown();
-    manager->startServer();
-
-    try
-    {
-	obj2 = TestIntfPrx::checkedCast(base2);
-	obj2->ice_ping();
-    }
-    catch(const Ice::LocalException&)
-    {
-	test(false);
-    }
-    obj->shutdown();
-    manager->startServer();
-    try
-    {
-	obj3 = TestIntfPrx::checkedCast(base3);
-	obj3->ice_ping();
-    }
-    catch(const Ice::LocalException&)
-    {
-	test(false);
-    }
-    obj->shutdown();
-    manager->startServer();
-    try
-    {
-	obj2 = TestIntfPrx::checkedCast(base2);
-	obj2->ice_ping();
-    }
-    catch(const Ice::LocalException&)
-    {
-	test(false);
+        test(false);
     }
     obj->shutdown();
     manager->startServer();
 
     try
     {
-	obj5 = TestIntfPrx::checkedCast(base5);
-	obj5->ice_ping();
+        obj2 = TestIntfPrx::checkedCast(base2);
+        obj2->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
-	test(false);
+        test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+    try
+    {
+        obj3 = TestIntfPrx::checkedCast(base3);
+        obj3->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+    try
+    {
+        obj2 = TestIntfPrx::checkedCast(base2);
+        obj2->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+
+    try
+    {
+        obj5 = TestIntfPrx::checkedCast(base5);
+        obj5->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
     }
     tprintf("ok\n");
 
     tprintf("testing reference with unknown identity...");
     try
     {
-	base = communicator->stringToProxy("unknown/unknown");
-	base->ice_ping();
-	test(false);
+        base = communicator->stringToProxy("unknown/unknown");
+        base->ice_ping();
+        test(false);
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-	test(ex.kindOfObject == "object");
-	test(ex.id == "unknown/unknown");
+        test(ex.kindOfObject == "object");
+        test(ex.id == "unknown/unknown");
     }
     tprintf("ok\n");
 
     tprintf("testing reference with unknown adapter...");
     try
     {
-	base = communicator->stringToProxy("test @ TestAdapterUnknown");
-	base->ice_ping();
-	test(false);
+        base = communicator->stringToProxy("test @ TestAdapterUnknown");
+        base->ice_ping();
+        test(false);
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-	test(ex.kindOfObject == "object adapter");
-	test(ex.id == "TestAdapterUnknown");
+        test(ex.kindOfObject == "object adapter");
+        test(ex.id == "TestAdapterUnknown");
     }
     tprintf("ok\n");
 
@@ -274,24 +274,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("testing whether server is gone...");
     try
     {
-	obj2->ice_ping();
-	test(false);
+        obj2->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
     }
     try
     {
-	obj3->ice_ping();
-	test(false);
+        obj3->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
     }
     try
     {
-	obj5->ice_ping();
-	test(false);
+        obj5->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {

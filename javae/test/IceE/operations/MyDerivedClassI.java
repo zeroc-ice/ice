@@ -37,23 +37,23 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public void
     opSleep(int duration, Ice.Current current)
     {
-	while(true)
-	{
-	    try
-	    {
-		Thread.currentThread().sleep(duration);
-		break;
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
-	}
+        while(true)
+        {
+            try
+            {
+                Thread.currentThread().sleep(duration);
+                break;
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
+        }
     }
 
     public boolean
     opBool(boolean p1, boolean p2,
-	   Ice.BooleanHolder p3,
-	   Ice.Current current)
+           Ice.BooleanHolder p3,
+           Ice.Current current)
     {
         p3.value = p1;
         return p2;
@@ -61,7 +61,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public boolean[]
     opBoolS(boolean[] p1, boolean[] p2,
-	    Test.BoolSHolder p3,
+            Test.BoolSHolder p3,
             Ice.Current current)
     {
         p3.value = new boolean[p1.length + p2.length];
@@ -78,7 +78,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public boolean[][]
     opBoolSS(boolean[][] p1, boolean[][] p2,
-	     Test.BoolSSHolder p3,
+             Test.BoolSSHolder p3,
              Ice.Current current)
     {
         p3.value = new boolean[p1.length + p2.length][];
@@ -95,8 +95,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public byte
     opByte(byte p1, byte p2,
-	   Ice.ByteHolder p3,
-	   Ice.Current current)
+           Ice.ByteHolder p3,
+           Ice.Current current)
     {
         p3.value = (byte)(p1 ^ p2);
         return p1;
@@ -105,30 +105,30 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     protected void
     copyHashtable(java.util.Hashtable from, java.util.Hashtable to)
     {
-	java.util.Enumeration e = from.keys();
-	while(e.hasMoreElements())
-	{
-	    java.lang.Object key = e.nextElement();
-	    to.put(key, from.get(key));
-	}
+        java.util.Enumeration e = from.keys();
+        while(e.hasMoreElements())
+        {
+            java.lang.Object key = e.nextElement();
+            to.put(key, from.get(key));
+        }
     }
 
     public java.util.Hashtable
     opByteBoolD(java.util.Hashtable p1, java.util.Hashtable p2,
-		Test.ByteBoolDHolder p3,
+                Test.ByteBoolDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
         java.util.Hashtable r = new java.util.Hashtable();
-	copyHashtable(p1, r);
-	copyHashtable(p2, r);
+        copyHashtable(p1, r);
+        copyHashtable(p2, r);
         return r;
     }
 
     public byte[]
     opByteS(byte[] p1, byte[] p2,
-	    Test.ByteSHolder p3,
-	    Ice.Current current)
+            Test.ByteSHolder p3,
+            Ice.Current current)
     {
         p3.value = new byte[p1.length];
         for(int i = 0; i < p1.length; i++)
@@ -144,7 +144,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public byte[][]
     opByteSS(byte[][] p1, byte[][] p2,
-	     Test.ByteSSHolder p3,
+             Test.ByteSSHolder p3,
              Ice.Current current)
     {
         p3.value = new byte[p1.length][];
@@ -161,8 +161,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public double
     opFloatDouble(float p1, double p2,
-		  Ice.FloatHolder p3, Ice.DoubleHolder p4,
-		  Ice.Current current)
+                  Ice.FloatHolder p3, Ice.DoubleHolder p4,
+                  Ice.Current current)
     {
         p3.value = p1;
         p4.value = p2;
@@ -171,8 +171,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public double[]
     opFloatDoubleS(float[] p1, double[] p2,
-		   Test.FloatSHolder p3, Test.DoubleSHolder p4,
-		   Ice.Current current)
+                   Test.FloatSHolder p3, Test.DoubleSHolder p4,
+                   Ice.Current current)
     {
         p3.value = p1;
         p4.value = new double[p2.length];
@@ -191,8 +191,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public double[][]
     opFloatDoubleSS(float[][] p1, double[][] p2,
-		    Test.FloatSSHolder p3, Test.DoubleSSHolder p4,
-		    Ice.Current current)
+                    Test.FloatSSHolder p3, Test.DoubleSSHolder p4,
+                    Ice.Current current)
     {
         p3.value = p1;
         p4.value = new double[p2.length][];
@@ -208,31 +208,31 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public java.util.Hashtable
     opLongFloatD(java.util.Hashtable p1, java.util.Hashtable p2,
-		 Test.LongFloatDHolder p3,
+                 Test.LongFloatDHolder p3,
                  Ice.Current current)
     {
         p3.value = p1;
         java.util.Hashtable r = new java.util.Hashtable();
-	copyHashtable(p1, r);
-	copyHashtable(p2, r);
+        copyHashtable(p1, r);
+        copyHashtable(p2, r);
         return r;
     }
 
     public Test.MyClassPrx
     opMyClass(Test.MyClassPrx p1,
-	      Test.MyClassPrxHolder p2, Test.MyClassPrxHolder p3,
-	      Ice.Current current)
+              Test.MyClassPrxHolder p2, Test.MyClassPrxHolder p3,
+              Ice.Current current)
     {
         p2.value = p1;
         p3.value = Test.MyClassPrxHelper.uncheckedCast(
-	    current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+            current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
         return Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
     public Test.MyEnum
     opMyEnum(Test.MyEnum p1,
-	     Test.MyEnumHolder p2,
-	     Ice.Current current)
+             Test.MyEnumHolder p2,
+             Ice.Current current)
     {
         p2.value = p1;
         return Test.MyEnum.enum3;
@@ -240,20 +240,20 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public java.util.Hashtable
     opShortIntD(java.util.Hashtable p1, java.util.Hashtable p2,
-		Test.ShortIntDHolder p3,
+                Test.ShortIntDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
         java.util.Hashtable r = new java.util.Hashtable();
-	copyHashtable(p1, r);
-	copyHashtable(p2, r);
+        copyHashtable(p1, r);
+        copyHashtable(p2, r);
         return r;
     }
 
     public long
     opShortIntLong(short p1, int p2, long p3,
-		   Ice.ShortHolder p4, Ice.IntHolder p5, Ice.LongHolder p6,
-		   Ice.Current current)
+                   Ice.ShortHolder p4, Ice.IntHolder p5, Ice.LongHolder p6,
+                   Ice.Current current)
     {
         p4.value = p1;
         p5.value = p2;
@@ -263,7 +263,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public long[]
     opShortIntLongS(short[] p1, int[] p2, long[] p3,
-		    Test.ShortSHolder p4, Test.IntSHolder p5, Test.LongSHolder p6,
+                    Test.ShortSHolder p4, Test.IntSHolder p5, Test.LongSHolder p6,
                     Ice.Current current)
     {
         p4.value = p1;
@@ -281,7 +281,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public long[][]
     opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3,
                      Test.ShortSSHolder p4, Test.IntSSHolder p5, Test.LongSSHolder p6,
-		     Ice.Current current)
+                     Ice.Current current)
     {
         p4.value = p1;
         p5.value = new int[p2.length][];
@@ -297,8 +297,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public String
     opString(String p1, String p2,
-	     Ice.StringHolder p3,
-	     Ice.Current current)
+             Ice.StringHolder p3,
+             Ice.Current current)
     {
         p3.value = p2 + " " + p1;
         return p1 + " " + p2;
@@ -307,23 +307,23 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public java.util.Hashtable
     opStringMyEnumD(java.util.Hashtable p1, java.util.Hashtable p2,
                     Test.StringMyEnumDHolder p3,
-		    Ice.Current current)
+                    Ice.Current current)
     {
         p3.value = p1;
         java.util.Hashtable r = new java.util.Hashtable();
-	copyHashtable(p1, r);
-	copyHashtable(p2, r);
+        copyHashtable(p1, r);
+        copyHashtable(p2, r);
         return r;
     }
 
     public int[]
     opIntS(int[] s, Ice.Current current)
     {
-	int[] r = new int[s.length];
-	for(int i = 0; i < r.length; ++i)
-	{
-	    r[i] = -s[i];
-	}
+        int[] r = new int[s.length];
+        for(int i = 0; i < r.length; ++i)
+        {
+            r[i] = -s[i];
+        }
         return r;
     }
 
@@ -335,23 +335,23 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public java.util.Hashtable
     opContext(Ice.Current current)
     {
-	return current.ctx;
+        return current.ctx;
     }
 
     public void
     opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
     {
-	double d = 1278312346.0 / 13.0;
-	test(p1 == d);
-	for(int i = 0; i < p2.length; ++i)
-	{
-	    test(p2[i] == d);
-	}
+        double d = 1278312346.0 / 13.0;
+        test(p1 == d);
+        for(int i = 0; i < p2.length; ++i)
+        {
+            test(p2[i] == d);
+        }
     }
 
     public String[]
     opStringS(String[] p1, String[] p2,
-	      Test.StringSHolder p3,
+              Test.StringSHolder p3,
               Ice.Current current)
     {
         p3.value = new String[p1.length + p2.length];
@@ -368,7 +368,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public String[][]
     opStringSS(String[][] p1, String[][] p2,
-	       Test.StringSSHolder p3,
+               Test.StringSSHolder p3,
                Ice.Current current)
     {
         p3.value = new String[p1.length + p2.length][];
@@ -385,7 +385,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public String[][][]
     opStringSSS(String[][][] p1, String[][][] p2,
-	       Test.StringSSSHolder p3,
+               Test.StringSSSHolder p3,
                Ice.Current current)
     {
         p3.value = new String[p1.length + p2.length][][];
@@ -403,18 +403,18 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public java.util.Hashtable
     opStringStringD(java.util.Hashtable p1, java.util.Hashtable p2,
                     Test.StringStringDHolder p3,
-		    Ice.Current current)
+                    Ice.Current current)
     {
         p3.value = p1;
         java.util.Hashtable r = new java.util.Hashtable();
-	copyHashtable(p1, r);
-	copyHashtable(p2, r);
+        copyHashtable(p1, r);
+        copyHashtable(p2, r);
         return r;
     }
 
     public Test.Structure
     opStruct(Test.Structure p1, Test.Structure p2,
-	     Test.StructureHolder p3,
+             Test.StructureHolder p3,
              Ice.Current current)
     {
         p3.value = p1;

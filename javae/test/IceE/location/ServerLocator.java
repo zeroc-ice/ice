@@ -12,28 +12,28 @@ public class ServerLocator extends Ice._LocatorDisp
     public
     ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)
     {
-	_registry = registry;
-	_registryPrx = registryPrx;
+        _registry = registry;
+        _registryPrx = registryPrx;
     }
 
     public Ice.ObjectPrx
     findAdapterById(String adapter, Ice.Current current)
-	throws Ice.AdapterNotFoundException
+        throws Ice.AdapterNotFoundException
     {
-	return _registry.getAdapter(adapter);
+        return _registry.getAdapter(adapter);
     }
 
     public Ice.ObjectPrx
     findObjectById(Ice.Identity id, Ice.Current current)
-	throws Ice.ObjectNotFoundException
+        throws Ice.ObjectNotFoundException
     {
-	return _registry.getObject(id);
+        return _registry.getObject(id);
     }
     
     public Ice.LocatorRegistryPrx
     getRegistry(Ice.Current current)
     {
-	return _registryPrx;
+        return _registryPrx;
     }
     
     private ServerLocatorRegistry _registry;

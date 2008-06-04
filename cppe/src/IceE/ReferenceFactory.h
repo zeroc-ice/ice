@@ -34,19 +34,19 @@ public:
     ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, ReferenceMode, bool,
                         const ::std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
-			, const RouterInfoPtr&
+                        , const RouterInfoPtr&
 #endif
-			);
+                        );
     //
     // Create an indirect reference.
     //
 #ifdef ICEE_HAS_LOCATOR
     ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, ReferenceMode, bool,
-			const ::std::string&
+                        const ::std::string&
 #ifdef ICEE_HAS_ROUTER
-			, const RouterInfoPtr&
+                        , const RouterInfoPtr&
 #endif
-			, const LocatorInfoPtr&);
+                        , const LocatorInfoPtr&);
 #endif
     //
     // Create a fixed reference.

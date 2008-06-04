@@ -87,11 +87,11 @@ public:
     template <typename Lock> inline void
     wait(const Lock& lock) const
     {
-	if(!lock.acquired())
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	waitImpl(lock._mutex);
+        if(!lock.acquired())
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        waitImpl(lock._mutex);
     }
 
     //
@@ -104,11 +104,11 @@ public:
     template <typename Lock> inline bool
     timedWait(const Lock& lock, const Time& timeout) const
     {
-	if(!lock.acquired())
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	return timedWaitImpl(lock._mutex, timeout);
+        if(!lock.acquired())
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        return timedWaitImpl(lock._mutex, timeout);
     }
 
 private:
@@ -204,7 +204,7 @@ Cond::waitImpl(const M& mutex) const
     
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -225,15 +225,15 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     
     if(rc != 0)
     {
-	//
-	// pthread_cond_timedwait returns ETIMEOUT in the event of a
-	// timeout.
-	//
-	if(rc != ETIMEDOUT)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
-	return false;
+        //
+        // pthread_cond_timedwait returns ETIMEOUT in the event of a
+        // timeout.
+        //
+        if(rc != ETIMEDOUT)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
+        return false;
     }
     return true;
 }

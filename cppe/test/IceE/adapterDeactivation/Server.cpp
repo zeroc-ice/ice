@@ -32,7 +32,7 @@ public:
         initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 
         loadConfig(initData.properties);
-	initData.logger = getLogger();
+        initData.logger = getLogger();
         setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");

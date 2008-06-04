@@ -34,7 +34,6 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     bool _destroy;
-    Ice::Int _num;
     std::set<Demo::CallbackReceiverPrx> _clients;
 
     //
@@ -47,19 +46,19 @@ private:
     {
     public:
 
-	CallbackSenderThread(const CallbackSenderIPtr& callbackSender) :
-	    _callbackSender(callbackSender)
-	{
-	}
+        CallbackSenderThread(const CallbackSenderIPtr& callbackSender) :
+            _callbackSender(callbackSender)
+        {
+        }
 
-	virtual void run()
-	{
-	    _callbackSender->run();
-	}
+        virtual void run()
+        {
+            _callbackSender->run();
+        }
 
     private:
 
-	CallbackSenderIPtr _callbackSender;
+        CallbackSenderIPtr _callbackSender;
     };
 
     IceUtil::ThreadPtr _callbackSenderThread;

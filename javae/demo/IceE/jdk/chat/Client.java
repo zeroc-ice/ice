@@ -21,81 +21,80 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.RouterPrx defaultRouter = communicator.getDefaultRouter();
-	if(defaultRouter == null)
-	{
-	    System.err.println("no default router set");
-	    return 1;
-	}
+        if(defaultRouter == null)
+        {
+            System.err.println("no default router set");
+            return 1;
+        }
 
-	Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.checkedCast(defaultRouter);
-	if(router == null)
-	{
-	    System.err.println("configured router is not a Glacier2 router");
-	    return 1;
-	}
+        _router = Glacier2.RouterPrxHelper.checkedCast(defaultRouter);
+        if(_router == null)
+        {
+            System.err.println("configured router is not a Glacier2 router");
+            return 1;
+        }
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
 
-	ChatSessionPrx session = null;
-	while(true)
-	{
-	    System.out.println("This demo accepts any user-id / password combination.");
+        ChatSessionPrx session = null;
+        while(true)
+        {
+            System.out.println("This demo accepts any user-id / password combination.");
 
-	    String id = null;
-	    String pw = null;
+            String id = null;
+            String pw = null;
 
-	    try
-	    {
-	        System.out.print("user id: ");
+            try
+            {
+                System.out.print("user id: ");
                 System.out.flush();
-	        id = in.readLine();
-	        id = id.trim();
+                id = in.readLine();
+                id = id.trim();
 
-	        System.out.print("password: ");
+                System.out.print("password: ");
                 System.out.flush();
-	        pw = in.readLine();
-	        pw = pw.trim();
-	    }
-	    catch(java.io.IOException ex)
-	    {
-	        ex.printStackTrace();
-	        return 1;
-	    }
+                pw = in.readLine();
+                pw = pw.trim();
+            }
+            catch(java.io.IOException ex)
+            {
+                ex.printStackTrace();
+                return 1;
+            }
 
-	    try
-	    {
-	        session = ChatSessionPrxHelper.uncheckedCast(router.createSession(id, pw));
-		break;
-	    }
-	    catch(Glacier2.CannotCreateSessionException ex)
-	    {
-	        ex.printStackTrace();
-	    }
-	    catch(Glacier2.PermissionDeniedException ex)
-	    {
-	        ex.printStackTrace();
-	    }
-	}
+            try
+            {
+                session = ChatSessionPrxHelper.uncheckedCast(_router.createSession(id, pw));
+                break;
+            }
+            catch(Glacier2.CannotCreateSessionException ex)
+            {
+                ex.printStackTrace();
+            }
+            catch(Glacier2.PermissionDeniedException ex)
+            {
+                System.out.println("permission denied:\n" + ex.reason);
+            }
+        }
 
-	SessionPingThread ping = new SessionPingThread(session, router.getSessionTimeout() / 2);
-	ping.start();
+        _ping = new SessionPingThread(session, _router.getSessionTimeout() / 2);
+        _ping.start();
 
-	String category = router.getServerProxy().ice_getIdentity().category;
-	Ice.Identity callbackReceiverIdent = new Ice.Identity();
-	callbackReceiverIdent.name = "callbackReceiver";
-	callbackReceiverIdent.category = category;
+        Ice.Identity callbackReceiverIdent = new Ice.Identity();
+        callbackReceiverIdent.name = "callbackReceiver";
+        callbackReceiverIdent.category = _router.getCategoryForClient();
 
-	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Chat.Client");
-	ChatCallbackPrx callback = ChatCallbackPrxHelper.uncheckedCast(
-	    adapter.add(new ChatCallbackI(), callbackReceiverIdent));
-	adapter.activate();
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithRouter("Chat.Client", defaultRouter);
+        ChatCallbackI cb = new ChatCallbackI();
+        ChatCallbackPrx callback = ChatCallbackPrxHelper.uncheckedCast(adapter.add(cb, callbackReceiverIdent));
+        adapter.activate();
 
-	session.setCallback(callback);
+        session.setCallback(callback);
 
         menu();
 
-	try
-	{
+        try
+        {
             String line = null;
             do
             {
@@ -106,18 +105,15 @@ public class Client
                 {
                     break;
                 }
-		line = line.trim();
+                line = line.trim();
 
                 if(line.startsWith("/"))
-		{
-		    if(line.equals("/quit"))
+                {
+                    if(line.equals("/quit"))
                     {
-		        break;
-		    }
-		    else
-		    {
-		        menu();
-		    }
+                        break;
+                    }
+                    menu();
                 }
                 else
                 {
@@ -126,31 +122,44 @@ public class Client
             }
             while(true);
 
-	    try
-	    {
-		router.destroySession();
-	    }
-	    catch(Ice.ConnectionLostException ex)
-	    {
-		//
-		// Expected: the router closed the connection.
-		//
-	    }
-	}
-	catch(Exception ex)
-	{
-	    ex.printStackTrace();
-	}
+            cleanup();
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+            cleanup();
+            return 1;
+        }
 
-	ping.destroy();
-	try
-	{
-	    ping.join();
-	}
-	catch(java.lang.InterruptedException ex)
-	{
-	}
         return 0;
+    }
+
+    private static void
+    cleanup()
+    {
+        try
+        {
+            _router.destroySession();
+        }
+        catch(Glacier2.SessionNotExistException ex)
+        {
+            ex.printStackTrace();
+        }
+        catch(Ice.ConnectionLostException ex)
+        {
+            //
+            // Expected: the router closed the connection.
+            //
+        }
+
+        _ping.destroy();
+        try
+        {
+            _ping.join();
+        }
+        catch(java.lang.InterruptedException ex)
+        {
+        }
     }
 
     public static void
@@ -161,7 +170,7 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.load("config");
             communicator = Ice.Util.initialize(args, initData);
@@ -188,4 +197,7 @@ public class Client
 
         System.exit(status);
     }
+
+    private static Glacier2.RouterPrx _router;
+    private static SessionPingThread _ping;
 }

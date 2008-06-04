@@ -32,8 +32,8 @@ public:
 
     virtual void run()
     {
-	IceUtil::Mutex::Lock sync(threadCountMutex);
-	--threadCount;
+        IceUtil::Mutex::Lock sync(threadCountMutex);
+        --threadCount;
     }
 };
 
@@ -55,8 +55,8 @@ StartTest::run()
     control.join();
     try
     {
-	t->start();
-	test(false);
+        t->start();
+        test(false);
     }
     catch(const ThreadStartedException&)
     {
@@ -69,39 +69,39 @@ StartTest::run()
 #ifdef _WIN32_WCE
     for(int i = 0; i < 50; i++)
     {
-	for(int j = 0; j < 5; j++)
-	{
-	    {
-		IceUtil::Mutex::Lock sync(threadCountMutex);
-		++threadCount;
-	    }
-	    Thread* t = new StartTestThread;
-	    t->start().detach();
-	}
+        for(int j = 0; j < 5; j++)
+        {
+            {
+                IceUtil::Mutex::Lock sync(threadCountMutex);
+                ++threadCount;
+            }
+            Thread* t = new StartTestThread;
+            t->start().detach();
+        }
 
-	// Wait for the threads to all terminate. I don't want to use
-	// a monitor here, since monitor hasn't been tested yet.
-	while(true)
-	{
-	    {
-		IceUtil::Mutex::Lock sync(threadCountMutex);
-		if(threadCount == 0)
-		{
-		    break;
-		}
-	    }
-	    ThreadControl::sleep(Time::milliSeconds(5));
-	}
+        // Wait for the threads to all terminate. I don't want to use
+        // a monitor here, since monitor hasn't been tested yet.
+        while(true)
+        {
+            {
+                IceUtil::Mutex::Lock sync(threadCountMutex);
+                if(threadCount == 0)
+                {
+                    break;
+                }
+            }
+            ThreadControl::sleep(Time::milliSeconds(5));
+        }
     }
 #else
     for(int i = 0; i < 50; i++)
     {
-	for(int j = 0; j < 50; j++)
-	{
-	    Thread* t = new StartTestThread;
-	    t->start().detach();
-	}
-	ThreadControl::sleep(Time::milliSeconds(5));
+        for(int j = 0; j < 50; j++)
+        {
+            Thread* t = new StartTestThread;
+            t->start().detach();
+        }
+        ThreadControl::sleep(Time::milliSeconds(5));
     }
 #endif
 }

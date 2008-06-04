@@ -15,7 +15,7 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.Properties properties = communicator.getProperties();
-        final String refProperty = "Latency.Ping";
+        final String refProperty = "Ping.Proxy";
         String ref = properties.getProperty(refProperty);
         if(ref.length() == 0)
         {
@@ -60,9 +60,9 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.load("config");
+            initData.properties.load("config.client");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }

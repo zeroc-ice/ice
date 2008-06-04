@@ -27,11 +27,11 @@ Ice::Properties::getProperty(const string& key)
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-	return p->second;
+        return p->second;
     }
     else
     {
-	return string();
+        return string();
     }
 }
 
@@ -43,11 +43,11 @@ Ice::Properties::getPropertyWithDefault(const string& key, const string& value)
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-	return p->second;
+        return p->second;
     }
     else
     {
-	return value;
+        return value;
     }
 }
 
@@ -65,7 +65,7 @@ Ice::Properties::getPropertyAsIntWithDefault(const string& key, Int value)
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-    	value = atoi(p->second.c_str());
+            value = atoi(p->second.c_str());
     }
 
     return value;
@@ -94,7 +94,7 @@ Ice::Properties::setProperty(const string& key, const string& value)
 {
     if(key.empty())
     {
-	return;
+        return;
     }
 
     IceUtil::Mutex::Lock sync(*this);
@@ -104,11 +104,11 @@ Ice::Properties::setProperty(const string& key, const string& value)
     //
     if(!value.empty())
     {
-	_properties[key] = value;
+        _properties[key] = value;
     }
     else
     {
-	_properties.erase(key);
+        _properties.erase(key);
     }
 }
 
@@ -122,7 +122,7 @@ Ice::Properties::getCommandLineOptions()
     map<string, string>::const_iterator p;
     for(p = _properties.begin(); p != _properties.end(); ++p)
     {
-	result.push_back("--" + p->first + "=" + p->second);
+        result.push_back("--" + p->first + "=" + p->second);
     }
     return result;
 }
@@ -133,7 +133,7 @@ Ice::Properties::parseCommandLineOptions(const string& prefix, const StringSeq& 
     string pfx = prefix;
     if(!pfx.empty() && pfx[pfx.size() - 1] != '.')
     {
-	pfx += '.';
+        pfx += '.';
     }
     pfx = "--" + pfx;
     
@@ -176,7 +176,7 @@ Ice::Properties::load(const std::string& file)
     if(!in)
     {
         FileException ex(__FILE__, __LINE__);
-	ex.path = file;
+        ex.path = file;
         ex.error = getSystemErrno();
         throw ex;
     }
@@ -184,7 +184,7 @@ Ice::Properties::load(const std::string& file)
     char line[1024];
     while(fgets(line, 1024, in) != NULL)
     {
-	parseLine(line
+        parseLine(line
 #ifdef ICEE_HAS_WSTRING
                   , _converter
 #endif
@@ -226,7 +226,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults
 {
     if(defaults != 0)
     {
-	_properties = defaults->getPropertiesForPrefix("");
+        _properties = defaults->getPropertiesForPrefix("");
     }
 
     StringSeq::iterator q = args.begin();
@@ -239,7 +239,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults
         //
         string name = *q;
         replace(name.begin(), name.end(), '\\', '/');
-	setProperty("Ice.ProgramName", name);
+        setProperty("Ice.ProgramName", name);
     }
     StringSeq tmp;
 
@@ -258,27 +258,27 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults
                       , 0
 #endif
                       );
-	    loadConfigFiles = true;
+            loadConfigFiles = true;
         }
         else
         {
-	    tmp.push_back(s);
+            tmp.push_back(s);
         }
-	++q;
+        ++q;
     }
     args = tmp;
 
     if(!loadConfigFiles)
     {
-	//
-	// If Ice.Config is not set, load from ICE_CONFIG (if set)
-	//
-	loadConfigFiles = (_properties.find("Ice.Config") == _properties.end());
+        //
+        // If Ice.Config is not set, load from ICE_CONFIG (if set)
+        //
+        loadConfigFiles = (_properties.find("Ice.Config") == _properties.end());
     }
 
     if(loadConfigFiles)
     {
-	loadConfig();
+        loadConfig();
     }
 
     args = parseIceCommandLineOptions(args);
@@ -335,7 +335,11 @@ Ice::Properties::parseLine(const string& line
     }
 
     string key = IceUtil::trim(s.substr(0, split));
-    string value = IceUtil::trim(s.substr(split + 1, s.length() - split - 1));
+    string value;
+    if(split < s.length() - 2)
+    {
+        value = IceUtil::trim(s.substr(split + 1, s.length() - split - 1));
+    }
 
 #ifdef ICEE_HAS_WSTRING
     if(converter)

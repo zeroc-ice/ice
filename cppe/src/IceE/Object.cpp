@@ -126,31 +126,31 @@ DispatchStatus
 Ice::Object::__dispatch(Incoming& in, const Current& current)
 {
     pair<string*, string*> r =
-	equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
+        equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
 
     if(r.first == r.second)
     {
-	throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
-    }					     
+        throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+    }                                             
 
     switch(r.first - __all)
     {
         case 0:
         {
-	    return ___ice_id(in, current);
+            return ___ice_id(in, current);
         }
         case 1:
         {
-	    return ___ice_ids(in, current);
+            return ___ice_ids(in, current);
         }
         case 2:
-	{
-	    return ___ice_isA(in, current);
-	}
-	case 3:
-	{
-	    return ___ice_ping(in, current);
-	}
+        {
+            return ___ice_isA(in, current);
+        }
+        case 3:
+        {
+            return ___ice_ping(in, current);
+        }
     }
 
     assert(false);
@@ -163,13 +163,13 @@ operationModeToString(OperationMode mode)
     switch(mode)
     {
     case Normal:
-	return "::Ice::Normal";
+        return "::Ice::Normal";
 
     case Nonmutating:
-	return "::Ice::Nonmutating";
+        return "::Ice::Nonmutating";
 
     case Idempotent:
-	return "::Ice::Idempotent";
+        return "::Ice::Idempotent";
     }
 
     return "???";
@@ -182,22 +182,22 @@ Ice::Object::__invalidMode(OperationMode expected, OperationMode received)
 
     if(expected == Idempotent && received == Nonmutating)
     {
-	// 
-	// Fine: typically an old client still using the deprecated nonmutating keyword
-	//
-	
-	//
-	// Note that expected == Nonmutating and received == Idempotent is not ok:
-	// the server may still use the deprecated nonmutating keyword to detect updates
-	// and the client should not break this (deprecated) feature.
-	//
+        // 
+        // Fine: typically an old client still using the deprecated nonmutating keyword
+        //
+        
+        //
+        // Note that expected == Nonmutating and received == Idempotent is not ok:
+        // the server may still use the deprecated nonmutating keyword to detect updates
+        // and the client should not break this (deprecated) feature.
+        //
     }
     else
     {
-	Ice::MarshalException ex(__FILE__, __LINE__);
-	ex.reason = Ice::printfToString("unexpected operation mode. expected = %s received = %s", 
-					operationModeToString(expected), operationModeToString(received));
-	throw ex;
+        Ice::MarshalException ex(__FILE__, __LINE__);
+        ex.reason = Ice::printfToString("unexpected operation mode. expected = %s received = %s", 
+                                        operationModeToString(expected), operationModeToString(received));
+        throw ex;
     }
 }
 
@@ -212,10 +212,10 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
     in.os()->writeBlob(outParams);
     if(ok)
     {
-	return DispatchOK;
+        return DispatchOK;
     }
     else
     {
-	return DispatchUserException;
+        return DispatchUserException;
     }
 }

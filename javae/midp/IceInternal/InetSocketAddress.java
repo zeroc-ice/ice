@@ -13,53 +13,53 @@ class InetSocketAddress
 {
     InetSocketAddress(String address, int port)
     {
-	_addr = address;
-	_port = port;
+        _addr = address;
+        _port = port;
     }
 
     String
     getAddress()
     {
-	return _addr;
+        return _addr;
     }
 
     String
     getHostName()
     {
-	String result = System.getProperty("microedition.hostname");
-	if(result == null || result.length() == 0)
-	{
-	    return "localhost";
-	}
-	else
-	{
-	    return result;
-	}
+        String result = System.getProperty("microedition.hostname");
+        if(result == null || result.length() == 0)
+        {
+            return "localhost";
+        }
+        else
+        {
+            return result;
+        }
     }
 
     int
     getPort()
     {
-	return _port;
+        return _port;
     }
 
     public int
     hashCode()
     {
-	return 5 * _addr.hashCode() + _port;
+        return 5 * _addr.hashCode() + _port;
     }
 
     public String
     toString()
     {
-	return _addr + ":" + _port;
+        return _addr + ":" + _port;
     }
 
     public boolean
     equals(Object rhs)
     {
-	InetSocketAddress addr = (InetSocketAddress)rhs;
-	return _addr.equals(addr._addr) && _port == addr._port;
+        InetSocketAddress addr = (InetSocketAddress)rhs;
+        return _addr.equals(addr._addr) && _port == addr._port;
     }
     
     private String _addr;

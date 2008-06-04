@@ -42,11 +42,11 @@ inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
 {
     if(hb < 10)
     {
-	*hexBuffer++ = '0' + hb;
+        *hexBuffer++ = '0' + hb;
     }
     else
     {
-	*hexBuffer++ = 'A' + (hb - 10);
+        *hexBuffer++ = 'A' + (hb - 10);
     } 
 }
 
@@ -54,8 +54,8 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 {
     for(size_t i = 0; i < len; i++)
     {
-	halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
-	halfByteToHex((bytes[i] & 0x0F), hexBuffer);
+        halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
+        halfByteToHex((bytes[i] & 0x0F), hexBuffer);
     }
 }
 
@@ -84,12 +84,12 @@ public:
     
     ~UUIDCleanup()
     {
-         IceUtil::StaticMutex::Lock lock(staticMutex);
-	 if(cryptProv != 0)
-	 {
-	     CryptReleaseContext(cryptProv, 0);
-	     cryptProv = 0;
-	 }
+        IceUtil::StaticMutex::Lock lock(staticMutex);
+        if(cryptProv != 0)
+        {
+            CryptReleaseContext(cryptProv, 0);
+            cryptProv = 0;
+        }
     }
 };
 
@@ -125,12 +125,12 @@ public:
     
     ~UUIDCleanup()
     {
-         IceUtil::StaticMutex::Lock lock(staticMutex);
-	 if(fd != -1)
-	 {
-	     close(fd);
-	     fd = -1;
-	 }
+        IceUtil::StaticMutex::Lock lock(staticMutex);
+        if(fd != -1)
+        {
+            close(fd);
+            fd = -1;
+        }
     }
 };
 static UUIDCleanup uuidCleanup;
@@ -179,12 +179,12 @@ IceUtil::generateUUID()
 
     struct UUID
     {
-	unsigned char timeLow[4];
-	unsigned char timeMid[2];
-	unsigned char timeHighAndVersion[2];
-	unsigned char clockSeqHiAndReserved;
-	unsigned char clockSeqLow;
-	unsigned char node[6];
+        unsigned char timeLow[4];
+        unsigned char timeMid[2];
+        unsigned char timeHighAndVersion[2];
+        unsigned char clockSeqHiAndReserved;
+        unsigned char clockSeqLow;
+        unsigned char node[6];
     };
     UUID uuid;
 
@@ -199,74 +199,74 @@ IceUtil::generateUUID()
     HCRYPTPROV localProv;
 
     {
-	IceUtil::StaticMutex::Lock lock(staticMutex);
-	if(cryptProv == 0)
-	{
-	    if(!CryptAcquireContext(&cryptProv, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-	    {
-		throw UUIDGenerationException(__FILE__, __LINE__);
-	    }
-	}
-	localProv = cryptProv;
+        IceUtil::StaticMutex::Lock lock(staticMutex);
+        if(cryptProv == 0)
+        {
+            if(!CryptAcquireContext(&cryptProv, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+            {
+                throw UUIDGenerationException(__FILE__, __LINE__);
+            }
+        }
+        localProv = cryptProv;
     }
 
     memset(buffer, 0, 16);
     if(!CryptGenRandom(localProv, 16, (unsigned char*)buffer))
     {
-	throw UUIDGenerationException(__FILE__, __LINE__);
+        throw UUIDGenerationException(__FILE__, __LINE__);
     }
 
 #else
     {
-	//
-	// Serialize access to /dev/urandom; see comment above.
-	//
-	IceUtil::StaticMutex::Lock lock(staticMutex);
-	if(fd == -1)
-	{
-	    fd = open("/dev/urandom", O_RDONLY);
-	    if (fd == -1)
-	    {
-		assert(0);
-		throw UUIDGenerationException(__FILE__, __LINE__);
-	    }
-	    
-	    //
-	    // Initialize myPid as well
-	    // 
-	    pid_t pid = getpid();
-	    myPid[0] = (pid >> 8) & 0x7F;
-	    myPid[1] = pid & 0xFF;
-	}
-	
+        //
+        // Serialize access to /dev/urandom; see comment above.
+        //
+        IceUtil::StaticMutex::Lock lock(staticMutex);
+        if(fd == -1)
+        {
+            fd = open("/dev/urandom", O_RDONLY);
+            if (fd == -1)
+            {
+                assert(0);
+                throw UUIDGenerationException(__FILE__, __LINE__);
+            }
+            
+            //
+            // Initialize myPid as well
+            // 
+            pid_t pid = getpid();
+            myPid[0] = (pid >> 8) & 0x7F;
+            myPid[1] = pid & 0xFF;
+        }
+        
 
-	//
-	// Limit the number of attempts to 20 reads to avoid
-	// a potential "for ever" loop
-	//
-	while(reads <= 20 && index != sizeof(UUID))
-	{
-	    ssize_t bytesRead = read(fd, buffer + index, sizeof(UUID) - index);
-	    
-	    if(bytesRead == -1 && errno != EINTR)
-	    {
-		int err = errno;
-		fprintf(stderr, "Reading /dev/urandom returned %s\n", strerror(err));
-		assert(0);
-		throw UUIDGenerationException(__FILE__, __LINE__);
-	    }
-	    else
-	    {
-		index += bytesRead;
-		reads++;
-	    }
-	}
+        //
+        // Limit the number of attempts to 20 reads to avoid
+        // a potential "for ever" loop
+        //
+        while(reads <= 20 && index != sizeof(UUID))
+        {
+            ssize_t bytesRead = read(fd, buffer + index, sizeof(UUID) - index);
+            
+            if(bytesRead == -1 && errno != EINTR)
+            {
+                int err = errno;
+                fprintf(stderr, "Reading /dev/urandom returned %s\n", strerror(err));
+                assert(0);
+                throw UUIDGenerationException(__FILE__, __LINE__);
+            }
+            else
+            {
+                index += bytesRead;
+                reads++;
+            }
+        }
     }
-	
+        
     if (index != sizeof(UUID))
     {
-	assert(0);
-	throw UUIDGenerationException(__FILE__, __LINE__);
+        assert(0);
+        throw UUIDGenerationException(__FILE__, __LINE__);
     }
    
     //

@@ -29,7 +29,7 @@ public:
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
         loadConfig(initData.properties);
-	initData.logger = getLogger();
+        initData.logger = getLogger();
         setCommunicator(Ice::initialize(argc, argv, initData));
 
         TestIntfPrx allTests(const Ice::CommunicatorPtr&);

@@ -16,8 +16,8 @@ module MetadataTest
         IntList intListMember;
         ["java:type:NonexistentList"] IntSeq modifiedIntSeqMember;
 
-	StringDict stringDictMember;
-	StringMap stringMapMember;
+        StringDict stringDictMember;
+        StringMap stringMapMember;
 
         IntList opIntList(IntList inArg, out IntList outArg);
 

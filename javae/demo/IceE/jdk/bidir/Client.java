@@ -15,7 +15,7 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.Properties properties = communicator.getProperties();
-        final String proxyProperty = "Callback.Client.CallbackServer";
+        final String proxyProperty = "CallbackSender.Proxy";
         String proxy = properties.getProperty(proxyProperty);
         if(proxy.length() == 0)
         {
@@ -31,15 +31,15 @@ public class Client
             return 1;
         }
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Callback.Client");
-	Ice.Identity ident = new Ice.Identity();
-	ident.name = Ice.Util.generateUUID();
-	ident.category = "";
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
+        Ice.Identity ident = new Ice.Identity();
+        ident.name = Ice.Util.generateUUID();
+        ident.category = "";
         adapter.add(new CallbackReceiverI(), ident);
         adapter.activate();
-	server.ice_getConnection().setAdapter(adapter);
-	server.addClient(ident);
-	communicator.waitForShutdown();
+        server.ice_getConnection().setAdapter(adapter);
+        server.addClient(ident);
+        communicator.waitForShutdown();
 
         return 0;
     }
@@ -52,9 +52,9 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.load("config");
+            initData.properties.load("config.client");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }

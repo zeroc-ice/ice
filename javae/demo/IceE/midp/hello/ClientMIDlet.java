@@ -15,136 +15,136 @@ public class ClientMIDlet
 {
     class HelloRequest implements Runnable
     {
-	public void
-	run()
-	{
-	    handleHelloCmd();
-	}
+        public void
+        run()
+        {
+            handleHelloCmd();
+        }
     }
 
     class Shutdown implements Runnable
     {
-	public void
-	run()
-	{
-	    handleExitCmd();
-	}
+        public void
+        run()
+        {
+            handleExitCmd();
+        }
     }
 
     protected void
     startApp()
     {
-	java.io.InputStream is = getClass().getResourceAsStream("config");
-	Ice.InitializationData initData = new Ice.InitializationData();
-	initData.properties = Ice.Util.createProperties();
-	initData.properties.load(is);
-	_communicator = Ice.Util.initialize(new String[0], initData);
+        java.io.InputStream is = getClass().getResourceAsStream("config");
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.load(is);
+        _communicator = Ice.Util.initialize(new String[0], initData);
 
-	if(_display == null)
-	{
-	    _display = javax.microedition.lcdui.Display.getDisplay(this);
-	    _form = new javax.microedition.lcdui.Form("Ice - Hello World Client");
-	    _form.append("Select the `Hello' command to send a request to the hello server.\n");
-	    _form.append(_msg);
-	    _form.addCommand(CMD_EXIT);
-	    _form.addCommand(CMD_HELLO);
-	    _form.setCommandListener(this);
-	}
-	_display.setCurrent(_form);
+        if(_display == null)
+        {
+            _display = javax.microedition.lcdui.Display.getDisplay(this);
+            _form = new javax.microedition.lcdui.Form("Ice - Hello World Client");
+            _form.append("Select the `Hello' command to send a request to the hello server.\n");
+            _form.append(_msg);
+            _form.addCommand(CMD_EXIT);
+            _form.addCommand(CMD_HELLO);
+            _form.setCommandListener(this);
+        }
+        _display.setCurrent(_form);
     }
 
     protected void
     pauseApp()
     {
-	if(_communicator != null)
-	{
-	    try
-	    {
-		_communicator.destroy();
-		_communicator = null;
-	    }
-	    catch(Exception ex)
-	    {
-	    }
-	}
+        if(_communicator != null)
+        {
+            try
+            {
+                _communicator.destroy();
+                _communicator = null;
+            }
+            catch(Exception ex)
+            {
+            }
+        }
     }
 
     protected void
     destroyApp(boolean unconditional)
     {
-	if(_communicator != null)
-	{
-	    try
-	    {
-		_communicator.destroy();
-		_communicator = null;
-	    }
-	    catch(Exception ex)
-	    {
-	    }
-	}
+        if(_communicator != null)
+        {
+            try
+            {
+                _communicator.destroy();
+                _communicator = null;
+            }
+            catch(Exception ex)
+            {
+            }
+        }
     }
 
     public void
     commandAction(javax.microedition.lcdui.Command cmd, javax.microedition.lcdui.Displayable source)
     {
-	if(source == _form)
-	{
-	    if(cmd == CMD_EXIT)
-	    {
-		new Thread(new Shutdown()).start();
-	    }
-	    else if(cmd == CMD_HELLO)
-	    {
-		new Thread(_helloRequest).start();
-	    }
-	}
+        if(source == _form)
+        {
+            if(cmd == CMD_EXIT)
+            {
+                new Thread(new Shutdown()).start();
+            }
+            else if(cmd == CMD_HELLO)
+            {
+                new Thread(_helloRequest).start();
+            }
+        }
     }
 
     public void
     handleHelloCmd()
     {
-	if(_helloPrx == null)
-	{
-	    Ice.Properties properties = _communicator.getProperties();
-	    String proxy = properties.getProperty("Hello.Proxy");
-	    if(proxy == null || proxy.length() == 0)
-	    {
-		_msg.setText("(unable to retrieve reference, please check the config file in the demo directory)");
-	    }
-	    try
-	    {
-		Ice.ObjectPrx base = _communicator.stringToProxy(proxy);
-		_helloPrx = HelloPrxHelper.checkedCast(base);
-	    }
-	    catch(Exception ex)
-	    {
-		_msg.setText("'sayHello()' failed");
-		return;
-	    }
-	}
-	try
-	{
-	    _helloPrx.sayHello(0);
-	    _msg.setText("'sayHello()' succeeded");
-	}
-	catch(Exception ex)
-	{
-	    _msg.setText("'sayHello()' failed");
-	}
+        if(_helloPrx == null)
+        {
+            Ice.Properties properties = _communicator.getProperties();
+            String proxy = properties.getProperty("Hello.Proxy");
+            if(proxy == null || proxy.length() == 0)
+            {
+                _msg.setText("(unable to retrieve reference, please check the config file in the demo directory)");
+            }
+            try
+            {
+                Ice.ObjectPrx base = _communicator.stringToProxy(proxy);
+                _helloPrx = HelloPrxHelper.checkedCast(base);
+            }
+            catch(Exception ex)
+            {
+                _msg.setText("'sayHello()' failed");
+                return;
+            }
+        }
+        try
+        {
+            _helloPrx.sayHello(0);
+            _msg.setText("'sayHello()' succeeded");
+        }
+        catch(Exception ex)
+        {
+            _msg.setText("'sayHello()' failed");
+        }
     }
 
     public void
     handleExitCmd()
     {
-	destroyApp(true);
-	notifyDestroyed();
+        destroyApp(true);
+        notifyDestroyed();
     }
 
     public javax.microedition.lcdui.Form
     getForm()
     {
-	return _form;
+        return _form;
     }
 
     private HelloRequest _helloRequest = new HelloRequest();

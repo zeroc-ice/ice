@@ -64,10 +64,10 @@ public final class EndpointFactory
         Endpoint v;
         short type = s.readShort();
 
-	if(type == TcpEndpoint.TYPE)
-	{
+        if(type == TcpEndpoint.TYPE)
+        {
             return new TcpEndpoint(s);
-	}
+        }
 
         return new UnknownEndpoint(type, s);
     }

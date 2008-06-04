@@ -29,7 +29,7 @@ Ice::Print::flush()
 {
     if(!_str.empty())
     {
-	_logger->print(_str);
+        _logger->print(_str);
     }
     _str = "";;
 }
@@ -55,7 +55,7 @@ Ice::Warning::flush()
 {
     if(!_str.empty())
     {
-	_logger->warning(_str);
+        _logger->warning(_str);
     }
     _str = "";
 }
@@ -81,7 +81,7 @@ Ice::Error::flush()
 {
     if(!_str.empty())
     {
-	_logger->error(_str);
+        _logger->error(_str);
     }
     _str = "";
 }
@@ -108,7 +108,7 @@ Ice::Trace::flush()
 {
     if(!_str.empty())
     {
-	_logger->trace(_category, _str);
+        _logger->trace(_category, _str);
     }
     _str = "";
 }

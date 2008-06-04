@@ -57,17 +57,18 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     ThroughputPrx throughput = ThroughputPrx::checkedCast(base);
     if(!throughput)
     {
-	fprintf(stderr, "%s: invalid proxy\n", argv[0]);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: invalid proxy\n", argv[0]);
+        return EXIT_FAILURE;
     }
+
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
     ByteSeq byteSeq(ByteSeqSize / reduce, 0);
@@ -81,7 +82,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < StringDoubleSeqSize / reduce; ++i)
     {
         structSeq[i].s = "hello";
-	structSeq[i].d = 3.14;
+        structSeq[i].d = 3.14;
     }
 
     FixedSeq fixedSeq(FixedSeqSize / reduce);
@@ -92,9 +93,61 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         fixedSeq[i].d = 0;
     }
 
-    menu();
+    //
+    // To allow cross-language tests we may need to "warm up" the
+    // server. The warm up is to ensure that any JIT compiler will
+    // have converted any hotspots to native code. This ensures an
+    // accurate throughput measurement.
+    //
+    if(throughput->needsWarmup())
+    {
+        throughput->startWarmup();
 
-    throughput->ice_ping(); // Initial ping to setup the connection.
+        ByteSeq emptyBytesBuf(1);
+        emptyBytesBuf.resize(1);
+        pair<const Ice::Byte*, const Ice::Byte*> emptyBytes;
+        emptyBytes.first = &emptyBytesBuf[0];
+        emptyBytes.second = emptyBytes.first + emptyBytesBuf.size();
+
+        StringSeq emptyStrings(1);
+        emptyStrings.resize(1);
+
+        StringDoubleSeq emptyStructs(1);
+        emptyStructs.resize(1);
+
+        FixedSeq emptyFixed(1);
+        emptyFixed.resize(1);
+
+        printf("warming up the server...");
+        fflush(stdout);
+        for(int i = 0; i < 10000; i++)
+        {
+            throughput->sendByteSeq(emptyBytes);
+            throughput->sendStringSeq(emptyStrings);
+            throughput->sendStructSeq(emptyStructs);
+            throughput->sendFixedSeq(emptyFixed);
+
+            throughput->recvByteSeq();
+            throughput->recvStringSeq();
+            throughput->recvStructSeq();
+            throughput->recvFixedSeq();
+
+            throughput->echoByteSeq(emptyBytesBuf);
+            throughput->echoStringSeq(emptyStrings);
+            throughput->echoStructSeq(emptyStructs);
+            throughput->echoFixedSeq(emptyFixed);
+        }
+
+        throughput->endWarmup();
+
+        printf(" ok\n");
+    }
+    else
+    {
+        throughput->ice_ping(); // Initial ping to setup the connection.
+    }
+
+    menu();
 
     //
     // By default use byte sequence.
@@ -105,300 +158,300 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     char c = EOF;
     do
     {
-	try
-	{
-	    printf("==> ");
-	    do
-	    {
-	        c = getchar();
-	    }
-	    while(c != EOF && c == '\n');
+        try
+        {
+            printf("==> ");
+            do
+            {
+                c = getchar();
+            }
+            while(c != EOF && c == '\n');
 
-	    IceUtil::Time tm = IceUtil::Time::now();
-	    const int repetitions = 1000;
+            IceUtil::Time tm = IceUtil::Time::now();
+            const int repetitions = 1000;
 
-	    if(c == '1' || c == '2' || c == '3' || c == '4')
-	    {
-		currentType = c;
-	        switch(c)
-		{
-		    case '1':
-		    {
-		        printf("using byte sequences\n");
-			seqSize = ByteSeqSize / reduce;
-			break;
-		    }
+            if(c == '1' || c == '2' || c == '3' || c == '4')
+            {
+                currentType = c;
+                switch(c)
+                {
+                    case '1':
+                    {
+                        printf("using byte sequences\n");
+                        seqSize = ByteSeqSize / reduce;
+                        break;
+                    }
 
-		    case '2':
-		    {
-		        printf("using string sequences\n");
-			seqSize = StringSeqSize / reduce;
-			break;
-		    }
+                    case '2':
+                    {
+                        printf("using string sequences\n");
+                        seqSize = StringSeqSize / reduce;
+                        break;
+                    }
 
-		    case '3':
-		    {
-		        printf("using variable-length struct sequences\n");
-			seqSize = StringDoubleSeqSize / reduce;
-			break;
-		    }
+                    case '3':
+                    {
+                        printf("using variable-length struct sequences\n");
+                        seqSize = StringDoubleSeqSize / reduce;
+                        break;
+                    }
 
-		    case '4':
-		    {
-		        printf("using fixed-length struct sequences\n");
-			seqSize = FixedSeqSize / reduce;
-			break;
-		    }
-		}
-	    }
-	    else if(c == 't' || c == 'o' || c == 'r' || c == 'e')
-	    {
-		switch(c)
-		{
-		    case 't':
-		    case 'o':
-		    {
-			printf("sending");
-			break;
-		    }
+                    case '4':
+                    {
+                        printf("using fixed-length struct sequences\n");
+                        seqSize = FixedSeqSize / reduce;
+                        break;
+                    }
+                }
+            }
+            else if(c == 't' || c == 'o' || c == 'r' || c == 'e')
+            {
+                switch(c)
+                {
+                    case 't':
+                    case 'o':
+                    {
+                        printf("sending");
+                        break;
+                    }
 
-		    case 'r':
-		    {
-			printf("receiving");
-			break;
-		    }
+                    case 'r':
+                    {
+                        printf("receiving");
+                        break;
+                    }
 
-		    case 'e':
-		    {
-			printf("sending and receiving");
-			break;
-		    }
-		}
+                    case 'e':
+                    {
+                        printf("sending and receiving");
+                        break;
+                    }
+                }
 
-		printf(" %d", repetitions);
-	        switch(currentType)
-		{
-		    case '1':
-		    {
-		        printf(" byte");
-			break;
-		    }
+                printf(" %d", repetitions);
+                switch(currentType)
+                {
+                    case '1':
+                    {
+                        printf(" byte");
+                        break;
+                    }
 
-		    case '2':
-		    {
-		        printf(" string");
-			break;
-		    }
+                    case '2':
+                    {
+                        printf(" string");
+                        break;
+                    }
 
-		    case '3':
-		    {
-		        printf(" variable-length struct");
-			break;
-		    }
+                    case '3':
+                    {
+                        printf(" variable-length struct");
+                        break;
+                    }
 
-		    case '4':
-		    {
-		        printf(" fixed-length struct");
-			break;
-		    }
-		}
-		printf(" sequences of size %d", seqSize);
+                    case '4':
+                    {
+                        printf(" fixed-length struct");
+                        break;
+                    }
+                }
+                printf(" sequences of size %d", seqSize);
 
 
-		if(c == 'o')
-		{
-		    printf(" as oneway");
-		}
-		
-		printf("...\n");
-		
-		for(int i = 0; i < repetitions; ++i)
-		{
-		    switch(currentType)
-		    {
-		        case '1':
-			{
-		            switch(c)
-		            {
-			        case 't':
-			        {
-			            throughput->sendByteSeq(byteArr);
-			            break;
-			        }
-			
-			        case 'o':
-			        {
-			            throughputOneway->sendByteSeq(byteArr);
-			            break;
-			        }
-			
-			        case 'r':
-			        {
-			            throughput->recvByteSeq();
-			            break;
-			        }
-			
-			        case 'e':
-			        {
-			            throughput->echoByteSeq(byteSeq);
-			            break;
-			        }
-			    }
-			    break;
-			}
+                if(c == 'o')
+                {
+                    printf(" as oneway");
+                }
+                
+                printf("...\n");
+                
+                for(int i = 0; i < repetitions; ++i)
+                {
+                    switch(currentType)
+                    {
+                        case '1':
+                        {
+                            switch(c)
+                            {
+                                case 't':
+                                {
+                                    throughput->sendByteSeq(byteArr);
+                                    break;
+                                }
+                        
+                                case 'o':
+                                {
+                                    throughputOneway->sendByteSeq(byteArr);
+                                    break;
+                                }
+                        
+                                case 'r':
+                                {
+                                    throughput->recvByteSeq();
+                                    break;
+                                }
+                        
+                                case 'e':
+                                {
+                                    throughput->echoByteSeq(byteSeq);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
 
-		        case '2':
-			{
-		            switch(c)
-		            {
-			        case 't':
-			        {
-			            throughput->sendStringSeq(stringSeq);
-			            break;
-			        }
-			
-			        case 'o':
-			        {
-			            throughputOneway->sendStringSeq(stringSeq);
-			            break;
-			        }
-			
-			        case 'r':
-			        {
-			            throughput->recvStringSeq();
-			            break;
-			        }
-			
-			        case 'e':
-			        {
-			            throughput->echoStringSeq(stringSeq);
-			            break;
-			        }
-			    }
-			    break;
-			}
+                        case '2':
+                        {
+                            switch(c)
+                            {
+                                case 't':
+                                {
+                                    throughput->sendStringSeq(stringSeq);
+                                    break;
+                                }
+                        
+                                case 'o':
+                                {
+                                    throughputOneway->sendStringSeq(stringSeq);
+                                    break;
+                                }
+                        
+                                case 'r':
+                                {
+                                    throughput->recvStringSeq();
+                                    break;
+                                }
+                        
+                                case 'e':
+                                {
+                                    throughput->echoStringSeq(stringSeq);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
 
-		        case '3':
-			{
-		            switch(c)
-		            {
-			        case 't':
-			        {
-			            throughput->sendStructSeq(structSeq);
-			            break;
-			        }
-			
-			        case 'o':
-			        {
-			            throughputOneway->sendStructSeq(structSeq);
-			            break;
-			        }
-			
-			        case 'r':
-			        {
-			            throughput->recvStructSeq();
-			            break;
-			        }
-			
-			        case 'e':
-			        {
-			            throughput->echoStructSeq(structSeq);
-			            break;
-			        }
-			    }
-			    break;
-			}
+                        case '3':
+                        {
+                            switch(c)
+                            {
+                                case 't':
+                                {
+                                    throughput->sendStructSeq(structSeq);
+                                    break;
+                                }
+                        
+                                case 'o':
+                                {
+                                    throughputOneway->sendStructSeq(structSeq);
+                                    break;
+                                }
+                        
+                                case 'r':
+                                {
+                                    throughput->recvStructSeq();
+                                    break;
+                                }
+                        
+                                case 'e':
+                                {
+                                    throughput->echoStructSeq(structSeq);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
 
-		        case '4':
-			{
-		            switch(c)
-		            {
-			        case 't':
-			        {
-			            throughput->sendFixedSeq(fixedSeq);
-			            break;
-			        }
-			
-			        case 'o':
-			        {
-			            throughputOneway->sendFixedSeq(fixedSeq);
-			            break;
-			        }
-			
-			        case 'r':
-			        {
-			            throughput->recvFixedSeq();
-			            break;
-			        }
-			
-			        case 'e':
-			        {
-			            throughput->echoFixedSeq(fixedSeq);
-			            break;
-			        }
-			    }
-			    break;
-			}
-		    }
-		}
+                        case '4':
+                        {
+                            switch(c)
+                            {
+                                case 't':
+                                {
+                                    throughput->sendFixedSeq(fixedSeq);
+                                    break;
+                                }
+                        
+                                case 'o':
+                                {
+                                    throughputOneway->sendFixedSeq(fixedSeq);
+                                    break;
+                                }
+                        
+                                case 'r':
+                                {
+                                    throughput->recvFixedSeq();
+                                    break;
+                                }
+                        
+                                case 'e':
+                                {
+                                    throughput->echoFixedSeq(fixedSeq);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
 
-		tm = IceUtil::Time::now() - tm;
-		printf("time for %d sequences: %lfms\n", repetitions, tm.toMilliSecondsDouble());
-		printf("time per sequence: %lfms\n", tm.toMilliSecondsDouble() / repetitions);
-		int wireSize = 0;
-		switch(currentType)
-		{
-		    case '1':
-		    {
-		    	wireSize = 1;
-		    	break;
-		    }
-		    case '2':
-		    {
-		        wireSize = static_cast<int>(stringSeq[0].size());
-		    	break;
-		    }
-		    case '3':
-		    {
-		    	wireSize = static_cast<int>(structSeq[0].s.size());
-			wireSize += 8; // Size of double on the wire.
-		    	break;
-		    }
-		    case '4':
-		    {
-			wireSize = 16; // Size of two ints and a double on the wire.
-		    	break;
-		    }
-		}
-		double mbit = repetitions * seqSize * wireSize * 8.0 / tm.toMicroSeconds();
-		if(c == 'e')
-		{
-		    mbit *= 2;
-		}
-		printf("throughput: %.2lfMbps\n", mbit);
-	    }
-	    else if(c == 's')
-	    {
-		throughput->shutdown();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		printf("unknown command `%c'\n", c);
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	}
+                tm = IceUtil::Time::now() - tm;
+                printf("time for %d sequences: %lfms\n", repetitions, tm.toMilliSecondsDouble());
+                printf("time per sequence: %lfms\n", tm.toMilliSecondsDouble() / repetitions);
+                int wireSize = 0;
+                switch(currentType)
+                {
+                    case '1':
+                    {
+                            wireSize = 1;
+                            break;
+                    }
+                    case '2':
+                    {
+                        wireSize = static_cast<int>(stringSeq[0].size());
+                            break;
+                    }
+                    case '3':
+                    {
+                            wireSize = static_cast<int>(structSeq[0].s.size());
+                        wireSize += 8; // Size of double on the wire.
+                            break;
+                    }
+                    case '4':
+                    {
+                        wireSize = 16; // Size of two ints and a double on the wire.
+                            break;
+                    }
+                }
+                double mbit = repetitions * seqSize * wireSize * 8.0 / tm.toMicroSeconds();
+                if(c == 'e')
+                {
+                    mbit *= 2;
+                }
+                printf("throughput: %.2lfMbps\n", mbit);
+            }
+            else if(c == 's')
+            {
+                throughput->shutdown();
+            }
+            else if(c == 'x')
+            {
+                // Nothing to do
+            }
+            else if(c == '?')
+            {
+                menu();
+            }
+            else
+            {
+                printf("unknown command `%c'\n", c);
+                menu();
+            }
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+        }
     }
     while(c != EOF && c != 'x');
 
@@ -414,28 +467,28 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+        initData.properties = Ice::createProperties();
+        initData.properties->load("config.client");
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
-	status = EXIT_FAILURE;
+        fprintf(stderr, "%s\n", ex.toString().c_str());
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

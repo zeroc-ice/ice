@@ -23,14 +23,14 @@ ServerLocatorRegistry::ServerLocatorRegistry()
 
 void 
 ServerLocatorRegistry::setAdapterDirectProxy(const ::std::string& adapter, const ::Ice::ObjectPrx& object, 
-					     const ::Ice::Current&)
+                                             const ::Ice::Current&)
 {
     _adapters[adapter] = object;
 }
 
 void 
 ServerLocatorRegistry::setReplicatedAdapterDirectProxy(const std::string& adapter, const std::string& replicaId, 
-						       const ::Ice::ObjectPrx& object, const ::Ice::Current&)
+                                                       const ::Ice::ObjectPrx& object, const ::Ice::Current&)
 {
     _adapters[adapter] = object;
     _adapters[replicaId] = object;
@@ -42,7 +42,7 @@ ServerLocatorRegistry::getAdapter(const ::std::string& adapter) const
     ::std::map< string, ::Ice::ObjectPrx>::const_iterator p = _adapters.find(adapter);
     if(_adapters.find(adapter) == _adapters.end())
     {
-	throw Ice::AdapterNotFoundException();
+        throw Ice::AdapterNotFoundException();
     }
     return p->second;
 }
@@ -53,7 +53,7 @@ ServerLocatorRegistry::getObject(const ::Ice::Identity& id) const
     ::std::map< ::Ice::Identity, ::Ice::ObjectPrx>::const_iterator p = _objects.find(id);
     if(p == _objects.end())
     {
-	throw Ice::ObjectNotFoundException();
+        throw Ice::ObjectNotFoundException();
     }
 
     return p->second;

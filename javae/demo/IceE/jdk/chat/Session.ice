@@ -224,7 +224,7 @@ interface SessionManager
      *
      **/
     Session* create(string userId, SessionControl* control)
-	throws CannotCreateSessionException;
+        throws CannotCreateSessionException;
 };
 
 };

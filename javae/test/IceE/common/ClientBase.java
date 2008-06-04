@@ -45,21 +45,21 @@ abstract public class ClientBase
     public void
     runTest(Ice.Communicator communicator, java.io.PrintStream ps)
     {
-	try
-	{
-	    if(communicator != null)
-	    {
+        try
+        {
+            if(communicator != null)
+            {
                 Ice.InitializationData data = new Ice.InitializationData();
                 data.properties = _properties;
-		Client.run(new String[0], communicator, data, ps);
-	    }
+                Client.run(new String[0], communicator, data, ps);
+            }
             ps.println("Done!");
-	}
-	catch(Exception ex)
-	{
-	    ps.println(ex.toString());
-	    ex.printStackTrace();
-	}
+        }
+        catch(Exception ex)
+        {
+            ps.println(ex.toString());
+            ex.printStackTrace();
+        }
     }
 
     protected TextField _addr;

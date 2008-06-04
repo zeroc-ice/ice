@@ -48,31 +48,31 @@ public class Client
 
         if(ports.isEmpty())
         {
-	    //
-	    // MIDlets won't have command line options, but they can
-	    // configure a port range by specificying a start port and a
-	    // number of ports to configure.
-	    //
-	    String startPort = communicator.getProperties().getProperty("Test.FirstPort");
-	    String nPorts = communicator.getProperties().getProperty("Test.ServerCount");
+            //
+            // MIDlets won't have command line options, but they can
+            // configure a port range by specificying a start port and a
+            // number of ports to configure.
+            //
+            String startPort = communicator.getProperties().getProperty("Test.FirstPort");
+            String nPorts = communicator.getProperties().getProperty("Test.ServerCount");
 
-	    int firstPort = 0;
-	    int n = 0;
-	    try
-	    {
-		firstPort = Integer.parseInt(startPort);
-		n = Integer.parseInt(nPorts);
-	    }
+            int firstPort = 0;
+            int n = 0;
+            try
+            {
+                firstPort = Integer.parseInt(startPort);
+                n = Integer.parseInt(nPorts);
+            }
             catch(NumberFormatException ex)
             {
                 ex.printStackTrace();
                 return 1;
             }
 
-	    for(int i = 0; i < n; ++i)
-	    {
-		ports.addElement(new Integer(firstPort++));
-	    }
+            for(int i = 0; i < n; ++i)
+            {
+                ports.addElement(new Integer(firstPort++));
+            }
         }
 
         if(ports.isEmpty())
@@ -80,7 +80,7 @@ public class Client
             out.println("Client: no ports specified");
             usage(out);
             return 1;
-	}
+        }
 
         int[] arr = new int[ports.size()];
         for(int i = 0; i < arr.length; i++)
@@ -88,15 +88,15 @@ public class Client
             arr[i] = ((Integer)ports.elementAt(i)).intValue();
         }
 
-	try
-	{
-	    AllTests.allTests(communicator, arr, out);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    ex.printStackTrace();
-	    AllTests.test(false);
-	}
+        try
+        {
+            AllTests.allTests(communicator, arr, out);
+        }
+        catch(Ice.LocalException ex)
+        {
+            ex.printStackTrace();
+            AllTests.test(false);
+        }
 
         return 0;
     }
@@ -109,14 +109,14 @@ public class Client
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(argsH);
-	
-	    //
-	    // This test aborts servers, so we don't want warnings.
-	    //
-	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argsH);
+        
+            //
+            // This test aborts servers, so we don't want warnings.
+            //
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
 
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator, initData, System.out);
@@ -140,7 +140,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

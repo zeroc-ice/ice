@@ -16,16 +16,16 @@ public final class TraceLevels
         networkCat = "Network";
         protocolCat = "Protocol";
         retryCat = "Retry";
-	locationCat = "Locator";
-	slicingCat = "Slicing";
+        locationCat = "Locator";
+        slicingCat = "Slicing";
 
         final String keyBase = "Ice.Trace.";
 
         network = properties.getPropertyAsInt(keyBase + networkCat);
-	protocol = properties.getPropertyAsInt(keyBase + protocolCat);
+        protocol = properties.getPropertyAsInt(keyBase + protocolCat);
         retry = properties.getPropertyAsInt(keyBase + retryCat);
-	location = properties.getPropertyAsInt(keyBase + locationCat);
-	slicing = properties.getPropertyAsInt(keyBase + slicingCat);
+        location = properties.getPropertyAsInt(keyBase + locationCat);
+        slicing = properties.getPropertyAsInt(keyBase + slicingCat);
     }
 
     final public int network;

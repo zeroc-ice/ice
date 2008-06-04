@@ -23,20 +23,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "Latency.Proxy";
+    const char* proxyProperty = "Ping.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     PingPrx ping = PingPrx::checkedCast(base);
     if(!ping)
     {
-	fprintf(stderr, "%s: invalid proxy\n", argv[0]);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: invalid proxy\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
     // Initial ping to setup the connection.
@@ -48,7 +48,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     printf("pinging server %d times (this may take a while)\n", repetitions);
     for(int i = 0; i < repetitions; ++i)
     {
-	ping->ice_ping();
+        ping->ice_ping();
     }
 
     tm = IceUtil::Time::now() - tm;
@@ -68,28 +68,28 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+        initData.properties = Ice::createProperties();
+        initData.properties->load("config.client");
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
-	status = EXIT_FAILURE;
+        fprintf(stderr, "%s\n", ex.toString().c_str());
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

@@ -29,12 +29,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sender->start();
     try
     {
-	communicator->waitForShutdown();
+        communicator->waitForShutdown();
     }
     catch(...)
     {
-	sender->destroy();
-	throw;
+        sender->destroy();
+        throw;
     }
     sender->destroy();
 
@@ -51,7 +51,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
-        initData.properties->load("config");
+        initData.properties->load("config.server");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

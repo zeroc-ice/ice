@@ -12,7 +12,7 @@ public class Client
     public static int
     run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
-	AllTests.allTests(communicator, out);
+        AllTests.allTests(communicator, out);
         return 0;
     }
 
@@ -24,16 +24,16 @@ public class Client
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(argsH);
-	    initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
+            initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
 
-	    if(initData.properties.getPropertyAsInt("Ice.Blocking") > 0)
-	    {
-		initData.properties.setProperty("Ice.RetryIntervals", "0 0");
-		initData.properties.setProperty("Ice.Warn.Connections", "0");
-	    }
+            if(initData.properties.getPropertyAsInt("Ice.Blocking") > 0)
+            {
+                initData.properties.setProperty("Ice.RetryIntervals", "0 0");
+                initData.properties.setProperty("Ice.Warn.Connections", "0");
+            }
 
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator, initData, System.out);
@@ -57,7 +57,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

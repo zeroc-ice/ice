@@ -17,97 +17,97 @@ public final class ObjectAdapterFactory
         Ice.ObjectAdapter[] adapters = null;
 
         synchronized(this)
-	{
-	    //
-	    // Ignore shutdown requests if the object adapter factory has
-	    // already been shut down.
-	    //
-	    if(_instance == null)
-	    {
-	        return;
-	    }
+        {
+            //
+            // Ignore shutdown requests if the object adapter factory has
+            // already been shut down.
+            //
+            if(_instance == null)
+            {
+                return;
+            }
 
-	    adapters = new Ice.ObjectAdapter[_adapters.size()];
-	    int i = 0;
-	    java.util.Enumeration e = _adapters.elements();
-	    while(e.hasMoreElements())
-	    {
-	        adapters[i++] = (Ice.ObjectAdapter)e.nextElement();
-	    }
+            adapters = new Ice.ObjectAdapter[_adapters.size()];
+            int i = 0;
+            java.util.Enumeration e = _adapters.elements();
+            while(e.hasMoreElements())
+            {
+                adapters[i++] = (Ice.ObjectAdapter)e.nextElement();
+            }
 
-	    _instance = null;
-	    _communicator = null;
-	
-	    notifyAll();
-	}
+            _instance = null;
+            _communicator = null;
+        
+            notifyAll();
+        }
 
-	//
-	// Deactivate outside the thread synchronization, to avoid
-	// deadlocks.
-	//
-	for(int i = 0; i < adapters.length; ++i)
-	{
-	    adapters[i].deactivate();
-	}
+        //
+        // Deactivate outside the thread synchronization, to avoid
+        // deadlocks.
+        //
+        for(int i = 0; i < adapters.length; ++i)
+        {
+            adapters[i].deactivate();
+        }
     }
 
     public void
     waitForShutdown()
     {
-	synchronized(this)
-	{
-	    //
-	    // First we wait for the shutdown of the factory itself.
-	    //
-	    while(_instance != null)
-	    {
-		try
-		{
-		    wait();
-		}
-		catch(InterruptedException ex)
-		{
-		}
-	    }
-	    
-	    //
-	    // If some other thread is currently shutting down, we wait
-	    // until this thread is finished.
-	    //
-	    while(_waitForShutdown)
-	    {
-		try
-		{
-		    wait();
-		}
-		catch(InterruptedException ex)
-		{
-		}
-	    }
-	    _waitForShutdown = true;
-	}
-	
-	//
-	// Now we wait for deactivation of each object adapter.
-	//
-	if(_adapters != null)
-	{
-	    java.util.Enumeration i = _adapters.elements();
-	    while(i.hasMoreElements())
-	    {
-		Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.nextElement();
-		adapter.waitForDeactivate();
-	    }
-	}
+        synchronized(this)
+        {
+            //
+            // First we wait for the shutdown of the factory itself.
+            //
+            while(_instance != null)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+            
+            //
+            // If some other thread is currently shutting down, we wait
+            // until this thread is finished.
+            //
+            while(_waitForShutdown)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+            _waitForShutdown = true;
+        }
+        
+        //
+        // Now we wait for deactivation of each object adapter.
+        //
+        if(_adapters != null)
+        {
+            java.util.Enumeration i = _adapters.elements();
+            while(i.hasMoreElements())
+            {
+                Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.nextElement();
+                adapter.waitForDeactivate();
+            }
+        }
 
-	synchronized(this)
-	{
-	    //
-	    // Signal that waiting is complete.
-	    //
-	    _waitForShutdown = false;
-	    notifyAll();
-	}
+        synchronized(this)
+        {
+            //
+            // Signal that waiting is complete.
+            //
+            _waitForShutdown = false;
+            notifyAll();
+        }
     }
 
     public synchronized boolean
@@ -156,15 +156,15 @@ public final class ObjectAdapterFactory
     public synchronized Ice.ObjectAdapter
     createObjectAdapter(String name, String endpoints, Ice.RouterPrx router)
     {
-	if(_instance == null)
-	{
-	    throw new Ice.ObjectAdapterDeactivatedException();
-	}
+        if(_instance == null)
+        {
+            throw new Ice.ObjectAdapterDeactivatedException();
+        }
 
         Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters.get(name);
         if(adapter != null)
         {
-	    throw new Ice.AlreadyRegisteredException("object adapter", name);
+            throw new Ice.AlreadyRegisteredException("object adapter", name);
         }
 
         adapter = new Ice.ObjectAdapter(_instance, _communicator, this, name, endpoints, router);
@@ -176,30 +176,30 @@ public final class ObjectAdapterFactory
     removeObjectAdapter(String name)
     {
         if(_waitForShutdown || _adapters == null)
-	{
-	    return;
-	}
+        {
+            return;
+        }
 
-	_adapters.remove(name);
+        _adapters.remove(name);
     }
 
     public void
     flushBatchRequests()
     {
-	java.util.Vector a = new java.util.Vector();
+        java.util.Vector a = new java.util.Vector();
         synchronized(this)
-	{
-	    java.util.Enumeration i = _adapters.elements();
-	    while(i.hasMoreElements())
-	    {
-	        a.addElement(i.nextElement());
-	    }
-	}
-	java.util.Enumeration p = a.elements();
-	while(p.hasMoreElements())
-	{
-	    ((Ice.ObjectAdapter)p.nextElement()).flushBatchRequests();
-	}
+        {
+            java.util.Enumeration i = _adapters.elements();
+            while(i.hasMoreElements())
+            {
+                a.addElement(i.nextElement());
+            }
+        }
+        java.util.Enumeration p = a.elements();
+        while(p.hasMoreElements())
+        {
+            ((Ice.ObjectAdapter)p.nextElement()).flushBatchRequests();
+        }
     }
 
     //
@@ -208,18 +208,18 @@ public final class ObjectAdapterFactory
     ObjectAdapterFactory(Instance instance, Ice.Communicator communicator)
     {
         _instance = instance;
-	_communicator = communicator;
-	_waitForShutdown = false;
+        _communicator = communicator;
+        _waitForShutdown = false;
     }
 
     protected synchronized void
     finalize()
         throws Throwable
     {
-	IceUtil.Debug.FinalizerAssert(_instance == null);
-	IceUtil.Debug.FinalizerAssert(_communicator == null);
-	IceUtil.Debug.FinalizerAssert(_adapters == null);
-	IceUtil.Debug.FinalizerAssert(!_waitForShutdown);
+        IceUtil.Debug.FinalizerAssert(_instance == null);
+        IceUtil.Debug.FinalizerAssert(_communicator == null);
+        IceUtil.Debug.FinalizerAssert(_adapters == null);
+        IceUtil.Debug.FinalizerAssert(!_waitForShutdown);
 
         // Cannot call finalize on superclass. java.lang.Object.finalize() not available in CLDC.
     }

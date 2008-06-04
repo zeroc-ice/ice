@@ -52,31 +52,31 @@ public final class Network
         }
         catch(java.net.UnknownHostException ex)
         {
-	    Ice.DNSException e = new Ice.DNSException();
-	    e.host = host;
-	    throw e;
+            Ice.DNSException e = new Ice.DNSException();
+            e.host = host;
+            throw e;
         }
     }
 
     public static String
     getLocalHost(boolean numeric)
     {
-	byte[] addr = getLocalAddress();
-	StringBuffer buf = new StringBuffer();
-	for(int i = 0; i < addr.length; ++i)
-	{
-	    if(i != 0)
-	    {
-		buf.append('.');
-	    }
-	    int b = addr[i];
-	    if(b < 0)
-	    {
-		b += 256;
-	    }
-	    buf.append(Integer.toString(b));
-	}
-	return buf.toString();
+        byte[] addr = getLocalAddress();
+        StringBuffer buf = new StringBuffer();
+        for(int i = 0; i < addr.length; ++i)
+        {
+            if(i != 0)
+            {
+                buf.append('.');
+            }
+            int b = addr[i];
+            if(b < 0)
+            {
+                b += 256;
+            }
+            buf.append(Integer.toString(b));
+        }
+        return buf.toString();
     }
 
     public static byte[]
@@ -101,25 +101,25 @@ public final class Network
             //
         }
 
-	if(addr == null)
-	{
-	    try
-	    {
-		addr = java.net.InetAddress.getByName("127.0.0.1");
-	    }
-	    catch(java.net.UnknownHostException ex)
-	    {
-		Ice.DNSException e = new Ice.DNSException();
-		e.host = "127.0.0.1";
-		throw e;
-	    }
-	}
+        if(addr == null)
+        {
+            try
+            {
+                addr = java.net.InetAddress.getByName("127.0.0.1");
+            }
+            catch(java.net.UnknownHostException ex)
+            {
+                Ice.DNSException e = new Ice.DNSException();
+                e.host = "127.0.0.1";
+                throw e;
+            }
+        }
 
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(addr != null);
-	}
-	return addr.getAddress();
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(addr != null);
+        }
+        return addr.getAddress();
     }
 
     public static void
@@ -234,40 +234,40 @@ public final class Network
     public static String
     fdToString(java.net.Socket fd)
     {
-	if(fd == null)
-	{
-	    return "<closed>";
-	}
+        if(fd == null)
+        {
+            return "<closed>";
+        }
 
-	java.net.InetAddress localAddr = fd.getLocalAddress();
-	int localPort = fd.getLocalPort();
-	java.net.InetAddress remoteAddr = fd.getInetAddress();
-	int remotePort = fd.getPort();
+        java.net.InetAddress localAddr = fd.getLocalAddress();
+        int localPort = fd.getLocalPort();
+        java.net.InetAddress remoteAddr = fd.getInetAddress();
+        int remotePort = fd.getPort();
 
-	return addressesToString(localAddr, localPort, remoteAddr, remotePort);
+        return addressesToString(localAddr, localPort, remoteAddr, remotePort);
     }
 
     public static String
     addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort)
     {
-	StringBuffer s = new StringBuffer();
-	s.append("local address = ");
-	s.append(localAddr.getHostAddress());
-	s.append(':');
-	s.append(localPort);
-	if(remoteAddr == null)
-	{
-	    s.append("\nremote address = <not connected>");
-	}
-	else
-	{
-	    s.append("\nremote address = ");
-	    s.append(remoteAddr.getHostAddress());
-	    s.append(':');
-	    s.append(remotePort);
-	}
+        StringBuffer s = new StringBuffer();
+        s.append("local address = ");
+        s.append(localAddr.getHostAddress());
+        s.append(':');
+        s.append(localPort);
+        if(remoteAddr == null)
+        {
+            s.append("\nremote address = <not connected>");
+        }
+        else
+        {
+            s.append("\nremote address = ");
+            s.append(remoteAddr.getHostAddress());
+            s.append(':');
+            s.append(remotePort);
+        }
 
-	return s.toString();
+        return s.toString();
     }
 
     public static String

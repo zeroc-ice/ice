@@ -29,27 +29,27 @@ public:
     run(int argc, char* argv[])
     {
         Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
+        initData.properties = Ice::createProperties();
 #ifdef ICEE_HAS_WSTRING
         initData.stringConverter = new Test::StringConverterI();
         initData.wstringConverter = new Test::WstringConverterI();
 #endif
 
-	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-	//initData.properties->setProperty("Ice.Trace.Network", "5");
-	//initData.properties->setProperty("Ice.Trace.Protocol", "5");
+        initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        //initData.properties->setProperty("Ice.Trace.Network", "5");
+        //initData.properties->setProperty("Ice.Trace.Protocol", "5");
 
-	loadConfig(initData.properties);
-	initData.logger = getLogger();
-	setCommunicator(Ice::initialize(argc, argv, initData));
-	
+        loadConfig(initData.properties);
+        initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
+        
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         adapter->add(new TestIntfI(communicator()), communicator()->stringToIdentity("test"));
 #ifdef ICEE_HAS_WSTRING
-	adapter->add(new Test1::WstringClassI, communicator()->stringToIdentity("wstring1"));
-	adapter->add(new Test2::WstringClassI, communicator()->stringToIdentity("wstring2"));
+        adapter->add(new Test1::WstringClassI, communicator()->stringToIdentity("wstring1"));
+        adapter->add(new Test2::WstringClassI, communicator()->stringToIdentity("wstring2"));
 #endif
-	adapter->activate();
+        adapter->activate();
 
 #ifndef _WIN32_WCE
         communicator()->waitForShutdown();

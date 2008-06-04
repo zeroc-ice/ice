@@ -17,37 +17,37 @@ public abstract class LocalException extends RuntimeException
     public Throwable
     getCause()
     {
-	return _cause;
+        return _cause;
     }
 
     public Throwable
     initCause(Throwable cause)
     {
-	if(_cause != null)
-	{
-	    throw new IllegalStateException();
-	}
+        if(_cause != null)
+        {
+            throw new IllegalStateException();
+        }
 
-	_cause = cause;
+        _cause = cause;
 
-	return this;
+        return this;
     }
 
     public void
     printStackTrace()
     {
-	super.printStackTrace();
-	if(_cause != null)
-	{
-	    System.err.println("\nCaused by:");
-	    _cause.printStackTrace();
-	}
+        super.printStackTrace();
+        if(_cause != null)
+        {
+            System.err.println("\nCaused by:");
+            _cause.printStackTrace();
+        }
     }
  
     public String
     toString()
     {
-	return ice_name();
+        return ice_name();
     }
 
     private Throwable _cause;

@@ -52,15 +52,15 @@ ThrowerI::throwAorDasAorD(Ice::Int a, const Ice::Current&)
 {
     if(a > 0)
     {
-	A ex;
-	ex.aMem = a;
-	throw ex;
+        A ex;
+        ex.aMem = a;
+        throw ex;
     }
     else
     {
-	D ex;
-	ex.dMem = a;
-	throw ex;
+        D ex;
+        ex.dMem = a;
+        throw ex;
     }
 }
 

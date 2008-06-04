@@ -38,24 +38,19 @@ public class Client
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(argsH);
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argsH);
 
-	    //
-	    // We must set MessageSizeMax to an explicit value,
-	    // because we run tests to check whether
-	    // Ice.MemoryLimitException is raised as expected.
-	    //
-	    initData.properties.setProperty("Ice.MessageSizeMax", "100");
-
-	    //
-	    // We don't want connection warnings because of the timeout test.
-	    //
-	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+            //
+            // We must set MessageSizeMax to an explicit value,
+            // because we run tests to check whether
+            // Ice.MemoryLimitException is raised as expected.
+            //
+            initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
             communicator = Ice.Util.initialize(argsH, initData);
-	    
+            
             status = run(argsH.value, communicator, initData, System.out);
         }
         catch(Exception ex)
@@ -77,7 +72,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

@@ -50,34 +50,34 @@ BOOL CHelloServerApp::InitInstance()
     try
     {
         int argc = 0;
-	Ice::InitializationData initData;
+        Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
 
-	//
-	// Set a default value for Hello.Endpoints so that the demo
-	// will run without a configuration file.
-	//
-	initData.properties->setProperty("Hello.Endpoints", "tcp -p 10000");
+        //
+        // Set a default value for Hello.Endpoints so that the demo
+        // will run without a configuration file.
+        //
+        initData.properties->setProperty("Hello.Endpoints", "tcp -p 10000");
 
-	//
-	// Now, load the configuration file if present. Under WinCE we
-	// use "config.txt" since it can be edited with pocket word.
-	//
+        //
+        // Now, load the configuration file if present. Under WinCE we
+        // use "config.txt" since it can be edited with pocket word.
+        //
 #ifdef _WIN32_WCE
-	string config = "config.txt";
+        string config = "config.txt";
 #else
-	string config = "config";
+        string config = "config";
 #endif
-	try
-	{
-	    initData.properties->load(config);
-	}
-	catch(const Ice::FileException&)
-	{
-	}
+        try
+        {
+            initData.properties->load(config);
+        }
+        catch(const Ice::FileException&)
+        {
+        }
 
         log = new LogI;
-	initData.logger = log;
+        initData.logger = log;
 
         communicator = Ice::initialize(argc, 0, initData);
         adapter = communicator->createObjectAdapter("Hello");

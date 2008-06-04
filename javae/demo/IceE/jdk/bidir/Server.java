@@ -19,24 +19,24 @@ public class Server
         adapter.add(sender, communicator.stringToIdentity("sender"));
         adapter.activate();
 
-	Thread t = new Thread(sender);
-	t.start();
+        Thread t = new Thread(sender);
+        t.start();
 
-	try
-	{
-	    communicator.waitForShutdown();
-	}
-	finally
-	{
-	    sender.destroy();
-	    try
-	    {
-		t.join();
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
-	}
+        try
+        {
+            communicator.waitForShutdown();
+        }
+        finally
+        {
+            sender.destroy();
+            try
+            {
+                t.join();
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
+        }
 
         return 0;
     }
@@ -49,9 +49,9 @@ public class Server
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.load("config");
+            initData.properties.load("config.server");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }

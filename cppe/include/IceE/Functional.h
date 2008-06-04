@@ -32,7 +32,7 @@ public:
     explicit MemFun(MemberFN p) : _mfn(p) { }
     R operator()(H handle) const
     {
-	return (handle.get() ->* _mfn)();
+        return (handle.get() ->* _mfn)();
     }
 };
 
@@ -47,7 +47,7 @@ public:
     explicit MemFun1(MemberFN p) : _mfn(p) { }
     R operator()(H handle, A arg) const
     {
-	return (handle.get() ->* _mfn)(arg);
+        return (handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -62,7 +62,7 @@ public:
     explicit VoidMemFun(MemberFN p) : _mfn(p) { }
     void operator()(H handle) const
     {
-	(handle.get() ->* _mfn)();
+        (handle.get() ->* _mfn)();
     }
 };
 
@@ -77,7 +77,7 @@ public:
     explicit VoidMemFun1(MemberFN p) : _mfn(p) { }
     void operator()(H handle, A arg) const
     {
-	(handle.get() ->* _mfn)(arg);
+        (handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -92,7 +92,7 @@ public:
     explicit SecondMemFun(MemberFN p) : _mfn(p) { }
     R operator()(std::pair<K, H> pair) const
     {
-	return (pair.second.get() ->* _mfn)();
+        return (pair.second.get() ->* _mfn)();
     }
 };
 
@@ -107,7 +107,7 @@ public:
     explicit SecondMemFun1(MemberFN p) : _mfn(p) { }
     R operator()(std::pair<K, H> pair, A arg) const
     {
-	return (pair.second.get() ->* _mfn)(arg);
+        return (pair.second.get() ->* _mfn)(arg);
     }
 };
 
@@ -122,7 +122,7 @@ public:
     explicit SecondVoidMemFun(MemberFN p) : _mfn(p) { }
     void operator()(std::pair<K, H> pair) const
     {
-	(pair.second.get() ->* _mfn)();
+        (pair.second.get() ->* _mfn)();
     }
 };
 
@@ -137,7 +137,7 @@ public:
     explicit SecondVoidMemFun1(MemberFN p) : _mfn(p) { }
     void operator()(std::pair<K, H> pair, A arg) const
     {
-	(pair.second.get() ->* _mfn)(arg);
+        (pair.second.get() ->* _mfn)(arg);
     }
 };
 
@@ -152,7 +152,7 @@ public:
     explicit ConstMemFun(MemberFN p) : _mfn(p) { }
     R operator()(H handle) const
     {
-	return (handle.get() ->* _mfn)();
+        return (handle.get() ->* _mfn)();
     }
 };
 
@@ -167,7 +167,7 @@ public:
     explicit ConstMemFun1(MemberFN p) : _mfn(p) { }
     R operator()(H handle, A arg) const
     {
-	return (handle.get() ->* _mfn)(arg);
+        return (handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -182,7 +182,7 @@ public:
     explicit ConstVoidMemFun(MemberFN p) : _mfn(p) { }
     void operator()(H handle) const
     {
-	(handle.get() ->* _mfn)();
+        (handle.get() ->* _mfn)();
     }
 };
 
@@ -197,7 +197,7 @@ public:
     explicit ConstVoidMemFun1(MemberFN p) : _mfn(p) { }
     void operator()(H handle, A arg) const
     {
-	(handle.get() ->* _mfn)(arg);
+        (handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -212,7 +212,7 @@ public:
     explicit SecondConstMemFun(MemberFN p) : _mfn(p) { }
     R operator()(std::pair<K, H> pair) const
     {
-	return (pair.second.get() ->* _mfn)();
+        return (pair.second.get() ->* _mfn)();
     }
 };
 
@@ -227,7 +227,7 @@ public:
     explicit SecondConstMemFun1(MemberFN p) : _mfn(p) { }
     R operator()(std::pair<K, H> pair, A arg) const
     {
-	return (pair.second.get() ->* _mfn)(arg);
+        return (pair.second.get() ->* _mfn)(arg);
     }
 };
 
@@ -242,7 +242,7 @@ public:
     explicit SecondConstVoidMemFun(MemberFN p) : _mfn(p) { }
     void operator()(std::pair<K, H> pair) const
     {
-	(pair.second.get() ->* _mfn)();
+        (pair.second.get() ->* _mfn)();
     }
 };
 
@@ -257,7 +257,7 @@ public:
     explicit SecondConstVoidMemFun1(MemberFN p) : _mfn(p) { }
     void operator()(std::pair<K, H> pair, A arg) const
     {
-	(pair.second.get() ->* _mfn)(arg);
+        (pair.second.get() ->* _mfn)(arg);
     }
 };
 

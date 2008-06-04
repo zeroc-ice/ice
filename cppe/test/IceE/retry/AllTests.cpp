@@ -42,12 +42,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("calling operation to kill connection with second proxy... ");
     try
     {
-	retry2->op(true);
-	test(false);
+        retry2->op(true);
+        test(false);
     }
     catch(Ice::ConnectionLostException)
     {
-	tprintf("ok\n");
+        tprintf("ok\n");
     }
 
     tprintf("calling regular operation with first proxy again... ");

@@ -18,10 +18,10 @@ public final class InitializationData
     public java.lang.Object
     ice_clone()
     {
-	InitializationData clone = new InitializationData();
-	clone.properties = properties;
-	clone.logger = logger;
-	return clone;
+        InitializationData clone = new InitializationData();
+        clone.properties = properties;
+        clone.logger = logger;
+        return clone;
     }
     
 

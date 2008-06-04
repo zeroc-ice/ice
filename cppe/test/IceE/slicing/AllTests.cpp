@@ -19,7 +19,7 @@ class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     CallbackBase() :
-	_called(false)
+        _called(false)
     {
     }
 
@@ -29,26 +29,26 @@ public:
 
     bool check()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	while(!_called)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(5)))
-	    {
-		return false;
-	    }
-	}
-	_called = false;
-	return true;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        while(!_called)
+        {
+            if(!timedWait(IceUtil::Time::seconds(5)))
+            {
+                return false;
+            }
+        }
+        _called = false;
+        return true;
     }
 
 protected:
 
     void called()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	assert(!_called);
-	_called = true;
-	notify();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        assert(!_called);
+        _called = true;
+        notify();
     }
 
 private:
@@ -65,260 +65,260 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("base... "); fflush(stdout);
     {
-	try
-	{
-	    test->baseAsBase();
-	    test(false);
-	}
-	catch(const Base& b)
-	{
-	    test(b.b == "Base.b");
-	    test(b.ice_name() =="Test::Base");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->baseAsBase();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "Base.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("slicing of unknown derived... "); fflush(stdout);
     {
-	try
-	{
-	    test->unknownDerivedAsBase();
-	    test(false);
-	}
-	catch(const Base& b)
-	{
-	    test(b.b == "UnknownDerived.b");
-	    test(b.ice_name() =="Test::Base");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->unknownDerivedAsBase();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "UnknownDerived.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("non-slicing of known derived as base... "); fflush(stdout);
     {
-	try
-	{
-	    test->knownDerivedAsBase();
-	    test(false);
-	}
-	catch(const KnownDerived& k)
-	{
-	    test(k.b == "KnownDerived.b");
-	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() =="Test::KnownDerived");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->knownDerivedAsBase();
+            test(false);
+        }
+        catch(const KnownDerived& k)
+        {
+            test(k.b == "KnownDerived.b");
+            test(k.kd == "KnownDerived.kd");
+            test(k.ice_name() =="Test::KnownDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("non-slicing of known derived as derived... "); fflush(stdout);
     {
-	try
-	{
-	    test->knownDerivedAsKnownDerived();
-	    test(false);
-	}
-	catch(const KnownDerived& k)
-	{
-	    test(k.b == "KnownDerived.b");
-	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() =="Test::KnownDerived");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->knownDerivedAsKnownDerived();
+            test(false);
+        }
+        catch(const KnownDerived& k)
+        {
+            test(k.b == "KnownDerived.b");
+            test(k.kd == "KnownDerived.kd");
+            test(k.ice_name() =="Test::KnownDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("slicing of unknown intermediate as base... "); fflush(stdout);
     {
-	try
-	{
-	    test->unknownIntermediateAsBase();
-	    test(false);
-	}
-	catch(const Base& b)
-	{
-	    test(b.b == "UnknownIntermediate.b");
-	    test(b.ice_name() =="Test::Base");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->unknownIntermediateAsBase();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "UnknownIntermediate.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("slicing of known intermediate as base... "); fflush(stdout);
     {
-	try
-	{
-	    test->knownIntermediateAsBase();
-	    test(false);
-	}
-	catch(const KnownIntermediate& ki)
-	{
-	    test(ki.b == "KnownIntermediate.b");
-	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->knownIntermediateAsBase();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "KnownIntermediate.b");
+            test(ki.ki == "KnownIntermediate.ki");
+            test(ki.ice_name() =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("slicing of known most derived as base... "); fflush(stdout);
     {
-	try
-	{
-	    test->knownMostDerivedAsBase();
-	    test(false);
-	}
-	catch(const KnownMostDerived& kmd)
-	{
-	    test(kmd.b == "KnownMostDerived.b");
-	    test(kmd.ki == "KnownMostDerived.ki");
-	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->knownMostDerivedAsBase();
+            test(false);
+        }
+        catch(const KnownMostDerived& kmd)
+        {
+            test(kmd.b == "KnownMostDerived.b");
+            test(kmd.ki == "KnownMostDerived.ki");
+            test(kmd.kmd == "KnownMostDerived.kmd");
+            test(kmd.ice_name() =="Test::KnownMostDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("non-slicing of known intermediate as intermediate... "); fflush(stdout);
     {
-	try
-	{
-	    test->knownIntermediateAsKnownIntermediate();
-	    test(false);
-	}
-	catch(const KnownIntermediate& ki)
-	{
-	    test(ki.b == "KnownIntermediate.b");
-	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->knownIntermediateAsKnownIntermediate();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "KnownIntermediate.b");
+            test(ki.ki == "KnownIntermediate.ki");
+            test(ki.ice_name() =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("non-slicing of known most derived exception as intermediate... "); fflush(stdout);
     {
-	try
-	{
-	    test->knownMostDerivedAsKnownIntermediate();
-	    test(false);
-	}
-	catch(const KnownMostDerived& kmd)
-	{
-	    test(kmd.b == "KnownMostDerived.b");
-	    test(kmd.ki == "KnownMostDerived.ki");
-	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->knownMostDerivedAsKnownIntermediate();
+            test(false);
+        }
+        catch(const KnownMostDerived& kmd)
+        {
+            test(kmd.b == "KnownMostDerived.b");
+            test(kmd.ki == "KnownMostDerived.ki");
+            test(kmd.kmd == "KnownMostDerived.kmd");
+            test(kmd.ice_name() =="Test::KnownMostDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("non-slicing of known most derived as most derived... "); fflush(stdout);
     {
-	try
-	{
-	    test->knownMostDerivedAsKnownMostDerived();
-	    test(false);
-	}
-	catch(const KnownMostDerived& kmd)
-	{
-	    test(kmd.b == "KnownMostDerived.b");
-	    test(kmd.ki == "KnownMostDerived.ki");
-	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->knownMostDerivedAsKnownMostDerived();
+            test(false);
+        }
+        catch(const KnownMostDerived& kmd)
+        {
+            test(kmd.b == "KnownMostDerived.b");
+            test(kmd.ki == "KnownMostDerived.ki");
+            test(kmd.kmd == "KnownMostDerived.kmd");
+            test(kmd.ice_name() =="Test::KnownMostDerived");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("slicing of unknown most derived, known intermediate as base... "); fflush(stdout);
     {
-	try
-	{
-	    test->unknownMostDerived1AsBase();
-	    test(false);
-	}
-	catch(const KnownIntermediate& ki)
-	{
-	    test(ki.b == "UnknownMostDerived1.b");
-	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->unknownMostDerived1AsBase();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "UnknownMostDerived1.b");
+            test(ki.ki == "UnknownMostDerived1.ki");
+            test(ki.ice_name() =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("slicing of unknown most derived, known intermediate as intermediate... "); fflush(stdout);
     {
-	try
-	{
-	    test->unknownMostDerived1AsKnownIntermediate();
-	    test(false);
-	}
-	catch(const KnownIntermediate& ki)
-	{
-	    test(ki.b == "UnknownMostDerived1.b");
-	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->unknownMostDerived1AsKnownIntermediate();
+            test(false);
+        }
+        catch(const KnownIntermediate& ki)
+        {
+            test(ki.b == "UnknownMostDerived1.b");
+            test(ki.ki == "UnknownMostDerived1.ki");
+            test(ki.ice_name() =="Test::KnownIntermediate");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 
     tprintf("slicing of unknown most derived, unknown intermediate as base... "); fflush(stdout);
     {
-	try
-	{
-	    test->unknownMostDerived2AsBase();
-	    test(false);
-	}
-	catch(const Base& b)
-	{
-	    test(b.b == "UnknownMostDerived2.b");
-	    test(b.ice_name() =="Test::Base");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
+        try
+        {
+            test->unknownMostDerived2AsBase();
+            test(false);
+        }
+        catch(const Base& b)
+        {
+            test(b.b == "UnknownMostDerived2.b");
+            test(b.ice_name() =="Test::Base");
+        }
+        catch(...)
+        {
+            test(false);
+        }
     }
     tprintf("ok\n");
 

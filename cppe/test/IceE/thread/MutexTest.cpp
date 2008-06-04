@@ -22,33 +22,33 @@ class MutexTestThread : public Thread
 public:
     
     MutexTestThread(Mutex& m) :
-	_mutex(m),
-	_tryLock(false)
+        _mutex(m),
+        _tryLock(false)
     {
     }
 
     virtual void run()
-    {	
-	Mutex::TryLock tlock(_mutex);
-	test(!tlock.acquired());
+    {        
+        Mutex::TryLock tlock(_mutex);
+        test(!tlock.acquired());
 
-	{
-	    Mutex::Lock lock(_tryLockMutex);
-	    _tryLock = true;
-	}
-	_tryLockCond.signal();
+        {
+            Mutex::Lock lock(_tryLockMutex);
+            _tryLock = true;
+        }
+        _tryLockCond.signal();
 
-	Mutex::Lock lock(_mutex);
+        Mutex::Lock lock(_mutex);
     }
 
     void
     waitTryLock()
     {
-	Mutex::Lock lock(_tryLockMutex);
-	while(!_tryLock)
-	{
-	    _tryLockCond.wait(lock);
-	}
+        Mutex::Lock lock(_tryLockMutex);
+        while(!_tryLock)
+        {
+            _tryLockCond.wait(lock);
+        }
     }
 
 private:
@@ -77,79 +77,79 @@ MutexTest::run()
     ThreadControl control;
 
     {
-	Mutex::Lock lock(mutex);
+        Mutex::Lock lock(mutex);
 
-	// LockT testing: 
-	//
+        // LockT testing: 
+        //
 
-	test(lock.acquired());
+        test(lock.acquired());
 
-	try
-	{
-	    lock.acquire();
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
+        try
+        {
+            lock.acquire();
+            test(false);
+        }
+        catch(const ThreadLockedException&)
+        {
+            // Expected
+        }
 
-	try
-	{
-	    lock.tryAcquire();
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
+        try
+        {
+            lock.tryAcquire();
+            test(false);
+        }
+        catch(const ThreadLockedException&)
+        {
+            // Expected
+        }
 
-	test(lock.acquired());
-	lock.release();
-	test(!lock.acquired());
+        test(lock.acquired());
+        lock.release();
+        test(!lock.acquired());
 
-	try
-	{
-	    lock.release();
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
-	
-	Mutex::TryLock lock2(mutex);
-	try
-	{
-	    test(lock.tryAcquire() == false);
-	}
-	catch(const IceUtil::ThreadLockedException&)
-	{
-	}
-	lock2.release();
-	test(lock.tryAcquire() == true);
-	test(lock.acquired());	
+        try
+        {
+            lock.release();
+            test(false);
+        }
+        catch(const ThreadLockedException&)
+        {
+            // Expected
+        }
+        
+        Mutex::TryLock lock2(mutex);
+        try
+        {
+            test(lock.tryAcquire() == false);
+        }
+        catch(const IceUtil::ThreadLockedException&)
+        {
+        }
+        lock2.release();
+        test(lock.tryAcquire() == true);
+        test(lock.acquired());        
 
-	// Deadlock testing
-	//
+        // Deadlock testing
+        //
 
 #if !defined(NDEBUG) && !defined(_WIN32)
-	try
-	{
-	    Mutex::Lock lock3(mutex);
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{    
-	}
+        try
+        {
+            Mutex::Lock lock3(mutex);
+            test(false);
+        }
+        catch(const ThreadLockedException&)
+        {    
+        }
 #endif
 
-	// TEST: Start thread, try to acquire the mutex.
-	t = new MutexTestThread(mutex);
-	control = t->start();
-	
-	// TEST: Wait until the tryLock has been tested.
-	t->waitTryLock();
+        // TEST: Start thread, try to acquire the mutex.
+        t = new MutexTestThread(mutex);
+        control = t->start();
+        
+        // TEST: Wait until the tryLock has been tested.
+        t->waitTryLock();
     }
 
     //

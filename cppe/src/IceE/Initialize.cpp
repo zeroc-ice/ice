@@ -56,7 +56,7 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
     //
     if(argv)
     {
-	argv[argc] = 0;
+        argv[argc] = 0;
     }
 }
 
@@ -113,7 +113,7 @@ inline void checkIceVersion(Int version)
     //
     if(ICEE_INT_VERSION / 100 != version / 100)
     {
-	throw VersionMismatchException(__FILE__, __LINE__);
+        throw VersionMismatchException(__FILE__, __LINE__);
     }
     //
     // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
@@ -121,7 +121,7 @@ inline void checkIceVersion(Int version)
     //
     if(version % 100 > ICEE_INT_VERSION % 100)
     {
-	throw VersionMismatchException(__FILE__, __LINE__);
+        throw VersionMismatchException(__FILE__, __LINE__);
     }
 #endif
 }
@@ -149,42 +149,42 @@ Ice::initialize(StringSeq& args, const InitializationData& initializationData, I
     CommunicatorPtr communicator;
     try
     {
-	//
-	// Make a dummy argc/argv.
-	// (We can't use argsToStringSeq() because that requires an already initialized argv.)
-	//
-	int argc = args.size();
-	origArgc = argc;
-	argv = new char*[args.size() + 1];
-	int i;
-	for(i = 0; i != argc; ++i)
-	{
-	    argv[i] = new char[args[i].size() + 1];
+        //
+        // Make a dummy argc/argv.
+        // (We can't use argsToStringSeq() because that requires an already initialized argv.)
+        //
+        int argc = args.size();
+        origArgc = argc;
+        argv = new char*[args.size() + 1];
+        int i;
+        for(i = 0; i != argc; ++i)
+        {
+            argv[i] = new char[args[i].size() + 1];
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
-	    strcpy_s(argv[i], args[i].size() + 1, args[i].c_str());
+            strcpy_s(argv[i], args[i].size() + 1, args[i].c_str());
 #else
-	    strcpy(argv[i], args[i].c_str());
+            strcpy(argv[i], args[i].c_str());
 #endif
-	}
-	argv[argc] = 0;
+        }
+        argv[argc] = 0;
 
-	communicator = initialize(argc, argv, initializationData, version);
+        communicator = initialize(argc, argv, initializationData, version);
 
-	args = argsToStringSeq(argc, argv);
-	
-	for(i = 0; i < origArgc; ++i)
-	{
-	    delete[] argv[i];
-	}
-	delete[] argv;
+        args = argsToStringSeq(argc, argv);
+        
+        for(i = 0; i < origArgc; ++i)
+        {
+            delete[] argv[i];
+        }
+        delete[] argv;
     }
     catch(...)
     {
-	for(int i = 0; i < origArgc; ++i)
-	{
-	    delete[] argv[i];
-	}
-	delete[] argv;
+        for(int i = 0; i < origArgc; ++i)
+        {
+            delete[] argv[i];
+        }
+        delete[] argv;
         throw;
     }
     return communicator;

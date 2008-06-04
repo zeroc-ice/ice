@@ -50,7 +50,7 @@ public class Client
         HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
         int timeout = -1;
-	int delay = 0;
+        int delay = 0;
 
         menu();
 
@@ -82,7 +82,7 @@ public class Client
                 }
                 else if(line.equals("f"))
                 {
-		    communicator.flushBatchRequests();
+                    communicator.flushBatchRequests();
                 }
                 else if(line.equals("T"))
                 {
@@ -168,9 +168,9 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.load("config");
+            initData.properties.load("config.client");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }

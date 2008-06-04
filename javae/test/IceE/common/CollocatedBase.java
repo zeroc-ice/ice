@@ -33,19 +33,19 @@ abstract public class CollocatedBase extends TestApplication
     public void
     runTest(Ice.Communicator communicator, java.io.PrintStream ps)
     {
-	try
-	{
-	    if(communicator != null)
-	    {
-		Collocated.run(new String[0], communicator, null, ps); 
-	    }
+        try
+        {
+            if(communicator != null)
+            {
+                Collocated.run(new String[0], communicator, null, ps); 
+            }
             ps.println("Done");
-	}
-	catch(Exception ex)
-	{
-	    ps.println(ex.toString());
-	    ex.printStackTrace();
-	}
+        }
+        catch(Exception ex)
+        {
+            ps.println(ex.toString());
+            ex.printStackTrace();
+        }
     }
 
     StringItem _host;

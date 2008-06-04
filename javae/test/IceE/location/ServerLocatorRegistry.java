@@ -39,32 +39,32 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
 
     public Ice.ObjectPrx
     getAdapter(String adapter)
-	throws Ice.AdapterNotFoundException
+        throws Ice.AdapterNotFoundException
     {
-	Ice.ObjectPrx obj = (Ice.ObjectPrx)_adapters.get(adapter);
-	if(obj == null)
-	{
-	    throw new Ice.AdapterNotFoundException();
-	}
-	return obj;
+        Ice.ObjectPrx obj = (Ice.ObjectPrx)_adapters.get(adapter);
+        if(obj == null)
+        {
+            throw new Ice.AdapterNotFoundException();
+        }
+        return obj;
     }
 
     public Ice.ObjectPrx
     getObject(Ice.Identity id)
-	throws Ice.ObjectNotFoundException
+        throws Ice.ObjectNotFoundException
     {
-	Ice.ObjectPrx obj = (Ice.ObjectPrx)_objects.get(id);
-	if(obj == null)
-	{
-	    throw new Ice.ObjectNotFoundException();   
-	}
-	return obj;
+        Ice.ObjectPrx obj = (Ice.ObjectPrx)_objects.get(id);
+        if(obj == null)
+        {
+            throw new Ice.ObjectNotFoundException();   
+        }
+        return obj;
     }
 
     public void
     addObject(Ice.ObjectPrx object)
     {
-	_objects.put(object.ice_getIdentity(), object);
+        _objects.put(object.ice_getIdentity(), object);
     }
     
     private java.util.Hashtable _adapters = new java.util.Hashtable();

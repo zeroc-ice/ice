@@ -38,12 +38,12 @@ TestBase::start()
     tprintf("running %s test... ", _name.c_str());
     try
     {
-	run();
+        run();
     }
     catch(const IceUtil::Exception& e)
     {
         tprintf("%s failed\n", e.toString().c_str());
-	throw TestFailed(_name);
+        throw TestFailed(_name);
     }
     tprintf("ok\n");
 }

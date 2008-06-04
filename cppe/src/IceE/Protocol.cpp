@@ -12,7 +12,7 @@
 namespace IceInternal
 {
 
-const Ice::Byte magic[] = { 0x49, 0x63, 0x65, 0x50 };	// 'I', 'c', 'e', 'P'
+const Ice::Byte magic[] = { 0x49, 0x63, 0x65, 0x50 };        // 'I', 'c', 'e', 'P'
 
 const Ice::Byte requestHdr[] = 
 {

@@ -32,6 +32,6 @@ public final class DummyLogger implements Ice.Logger
     public java.lang.Object
     ice_clone()
     {
-	return new DummyLogger();
+        return new DummyLogger();
     }
 }

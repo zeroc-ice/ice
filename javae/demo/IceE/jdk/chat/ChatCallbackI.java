@@ -17,6 +17,6 @@ public class ChatCallbackI extends Demo._ChatCallbackDisp
     public void
     message(String data, Ice.Current current)
     {
-	System.out.println(data);
+        System.out.println(data);
     }
 }

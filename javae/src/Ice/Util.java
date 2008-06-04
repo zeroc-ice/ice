@@ -32,14 +32,14 @@ public final class Util
     public static Properties
     createProperties(String[] args)
     {
-	StringSeqHolder argsH = new StringSeqHolder(args);
+        StringSeqHolder argsH = new StringSeqHolder(args);
         return createProperties(argsH);
     }
 
     public static Properties
     createProperties(String[] args, Properties defaults)
     {
-	StringSeqHolder argsH = new StringSeqHolder(args);
+        StringSeqHolder argsH = new StringSeqHolder(args);
         return createProperties(argsH, defaults);
     }
 
@@ -47,28 +47,28 @@ public final class Util
     initialize(StringSeqHolder args)
     {
         InitializationData initData = new InitializationData();
-	return initialize(args, initData);
+        return initialize(args, initData);
     }
 
     public static Communicator
     initialize(String[] args)
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
-	return initialize(argsH);
+        return initialize(argsH);
     }
 
     public static Communicator
     initialize(StringSeqHolder args, InitializationData initData)
     {
-	if(initData == null)
-	{
-	    initData = new InitializationData();
-	}
-	else
-	{
-	    initData = (InitializationData)initData.ice_clone();
-	}
-	initData.properties = createProperties(args, initData.properties);
+        if(initData == null)
+        {
+            initData = new InitializationData();
+        }
+        else
+        {
+            initData = (InitializationData)initData.ice_clone();
+        }
+        initData.properties = createProperties(args, initData.properties);
 
         Communicator result = new Communicator(initData);
         result.finishSetup(args);
@@ -79,22 +79,22 @@ public final class Util
     initialize(String[] args, InitializationData initData)
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
-	return initialize(argsH, initData);
+        return initialize(argsH, initData);
     }
 
     public static Communicator
     initialize(InitializationData initData)
     {
-	if(initData == null)
-	{
-	    initData = new InitializationData();
-	}
-	else
-	{
-	    initData = (InitializationData)initData.ice_clone();
-	}
+        if(initData == null)
+        {
+            initData = new InitializationData();
+        }
+        else
+        {
+            initData = (InitializationData)initData.ice_clone();
+        }
 
-	Communicator result = new Communicator(initData);
+        Communicator result = new Communicator(initData);
         result.finishSetup(new StringSeqHolder(new String[0]));
         return result;
     }
@@ -114,7 +114,7 @@ public final class Util
     public static synchronized String
     generateUUID()
     {
-	if(_localAddress == null)
+        if(_localAddress == null)
         {
             byte[] ip = IceInternal.Network.getLocalAddress();
             _localAddress = "";
@@ -128,69 +128,69 @@ public final class Util
                 _localAddress += Integer.toHexString(n);
             }
         }
-	
+        
         return _localAddress + ":" + IceUtil.UUID.create();
     }
 
     public static int
     proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-	if(lhs == null && rhs == null)
-	{
-	    return 0;
-	}
-	else if(lhs == null && rhs != null)
-	{
-	    return -1;
-	}
-	else if(lhs != null && rhs == null)
-	{
-	    return 1;
-	}
-	else
-	{
-	    Identity lhsIdentity = lhs.ice_getIdentity();
-	    Identity rhsIdentity = rhs.ice_getIdentity();
-	    int n;
-	    if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
-	    {
-		return n;
-	    }
-	    return lhsIdentity.category.compareTo(rhsIdentity.category);
-	}
+        if(lhs == null && rhs == null)
+        {
+            return 0;
+        }
+        else if(lhs == null && rhs != null)
+        {
+            return -1;
+        }
+        else if(lhs != null && rhs == null)
+        {
+            return 1;
+        }
+        else
+        {
+            Identity lhsIdentity = lhs.ice_getIdentity();
+            Identity rhsIdentity = rhs.ice_getIdentity();
+            int n;
+            if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+            {
+                return n;
+            }
+            return lhsIdentity.category.compareTo(rhsIdentity.category);
+        }
     }
 
     public static int
     proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-	if(lhs == null && rhs == null)
-	{
-	    return 0;
-	}
-	else if(lhs == null && rhs != null)
-	{
-	    return -1;
-	}
-	else if(lhs != null && rhs == null)
-	{
-	    return 1;
-	}
-	else
-	{
-	    Identity lhsIdentity = lhs.ice_getIdentity();
-	    Identity rhsIdentity = rhs.ice_getIdentity();
-	    int n;
-	    if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
-	    {
-		return n;
-	    }
-	    if((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
-	    {
-		return n;
-	    }
-	    
-	    String lhsFacet = lhs.ice_getFacet();
-	    String rhsFacet = rhs.ice_getFacet();
+        if(lhs == null && rhs == null)
+        {
+            return 0;
+        }
+        else if(lhs == null && rhs != null)
+        {
+            return -1;
+        }
+        else if(lhs != null && rhs == null)
+        {
+            return 1;
+        }
+        else
+        {
+            Identity lhsIdentity = lhs.ice_getIdentity();
+            Identity rhsIdentity = rhs.ice_getIdentity();
+            int n;
+            if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+            {
+                return n;
+            }
+            if((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
+            {
+                return n;
+            }
+            
+            String lhsFacet = lhs.ice_getFacet();
+            String rhsFacet = rhs.ice_getFacet();
             if(lhsFacet == null && rhsFacet == null)
             {
                 return 0;
@@ -204,7 +204,7 @@ public final class Util
                 return 1;
             }
             return lhsFacet.compareTo(rhsFacet);
-	}
+        }
     }
 
     public static void

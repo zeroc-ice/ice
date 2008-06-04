@@ -12,17 +12,17 @@ public class Collocated
     public static int
     run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
-	communicator.getProperties().setProperty("Test.Proxy", "d:default -p 12010 -t 10000");
+        communicator.getProperties().setProperty("Test.Proxy", "d:default -p 12010 -t 10000");
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object d = new DI();
         adapter.add(d, communicator.stringToIdentity("d"));
         adapter.addFacet(d, communicator.stringToIdentity("d"), "facetABCD");
-	Ice.Object f = new FI();
+        Ice.Object f = new FI();
         adapter.addFacet(f, communicator.stringToIdentity("d"), "facetEF");
-	Ice.Object h = new HI(communicator);
+        Ice.Object h = new HI(communicator);
         adapter.addFacet(h, communicator.stringToIdentity("d"), "facetGH");
-	adapter.activate();
+        adapter.activate();
  
         AllTests.allTests(communicator, out);
 

@@ -71,15 +71,15 @@ public class Server
 
         try
         {
-	    //
-	    // In this test, we need a longer server idle time,
-	    // otherwise our test servers may time out before they are
-	    // used in the test.
-	    //
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(argsH);
-	    initData.properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
+            //
+            // In this test, we need a longer server idle time,
+            // otherwise our test servers may time out before they are
+            // used in the test.
+            //
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argsH);
+            initData.properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
 
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator);
@@ -103,7 +103,7 @@ public class Server
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

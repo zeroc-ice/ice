@@ -31,7 +31,7 @@ public:
         initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
 
         loadConfig(initData.properties);
-	initData.logger = getLogger();
+        initData.logger = getLogger();
         setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
@@ -40,7 +40,7 @@ public:
         adapter->activate();
 
 #ifndef _WIN32_WCE
-	communicator()->waitForShutdown();
+        communicator()->waitForShutdown();
 #endif
 
         return EXIT_SUCCESS;

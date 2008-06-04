@@ -44,16 +44,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     HelloPrx twoway = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1));
     if(!twoway)
     {
-	fprintf(stderr, "%s: invalid proxy\n", argv[0]);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: invalid proxy\n", argv[0]);
+        return EXIT_FAILURE;
     }
     HelloPrx oneway = HelloPrx::uncheckedCast(twoway->ice_oneway());
 #ifdef ICEE_HAS_BATCH
@@ -68,99 +68,99 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     char c = EOF;
     do
     {
-	try
-	{
-	    printf("==> ");
-	    do
-	    {
-	        c = getchar();
-	    }
-	    while(c != EOF && c == '\n');
-	    if(c == 't')
-	    {
-		twoway->sayHello(delay);
-	    }
-	    else if(c == 'o')
-	    {
-		oneway->sayHello(delay);
-	    }
+        try
+        {
+            printf("==> ");
+            do
+            {
+                c = getchar();
+            }
+            while(c != EOF && c == '\n');
+            if(c == 't')
+            {
+                twoway->sayHello(delay);
+            }
+            else if(c == 'o')
+            {
+                oneway->sayHello(delay);
+            }
 #ifdef ICEE_HAS_BATCH
-	    else if(c == 'O')
-	    {
-		batchOneway->sayHello(delay);
-	    }
-	    else if(c == 'f')
-	    {
-		communicator->flushBatchRequests();
-	    }
+            else if(c == 'O')
+            {
+                batchOneway->sayHello(delay);
+            }
+            else if(c == 'f')
+            {
+                communicator->flushBatchRequests();
+            }
 #endif
-	    else if(c == 'T')
-	    {
-		if(timeout == -1)
-		{
-		    timeout = 2000;
-		}
-		else
-		{
-		    timeout = -1;
-		}
-		
-		twoway = HelloPrx::uncheckedCast(twoway->ice_timeout(timeout));
-		oneway = HelloPrx::uncheckedCast(oneway->ice_timeout(timeout));
+            else if(c == 'T')
+            {
+                if(timeout == -1)
+                {
+                    timeout = 2000;
+                }
+                else
+                {
+                    timeout = -1;
+                }
+                
+                twoway = HelloPrx::uncheckedCast(twoway->ice_timeout(timeout));
+                oneway = HelloPrx::uncheckedCast(oneway->ice_timeout(timeout));
 #ifdef ICEE_HAS_BATCH
-		batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_timeout(timeout));
-#endif		
-		if(timeout == -1)
-		{
-		    printf("timeout is now switched off\n");
-		}
-		else
-		{
-		    printf("timeout is now set to 2000ms\n");
-		}
-	    }
-	    else if(c == 'P')
-	    {
-		if(delay == 0)
-		{
-		    delay = 2500;
-		}
-		else
-		{
-		    delay = 0;
-		}
-		
-		if(delay == 0)
-		{
-		    printf("server delay is now deactivated\n");
-		}
-		else
-		{
-		    printf("server delay is now set to 2500ms\n");
-		}
-	    }
-	    else if(c == 's')
-	    {
-		twoway->shutdown();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		printf("unknown command `%c'\n", c);
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	}
+                batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_timeout(timeout));
+#endif                
+                if(timeout == -1)
+                {
+                    printf("timeout is now switched off\n");
+                }
+                else
+                {
+                    printf("timeout is now set to 2000ms\n");
+                }
+            }
+            else if(c == 'P')
+            {
+                if(delay == 0)
+                {
+                    delay = 2500;
+                }
+                else
+                {
+                    delay = 0;
+                }
+                
+                if(delay == 0)
+                {
+                    printf("server delay is now deactivated\n");
+                }
+                else
+                {
+                    printf("server delay is now set to 2500ms\n");
+                }
+            }
+            else if(c == 's')
+            {
+                twoway->shutdown();
+            }
+            else if(c == 'x')
+            {
+                // Nothing to do
+            }
+            else if(c == '?')
+            {
+                menu();
+            }
+            else
+            {
+                printf("unknown command `%c'\n", c);
+                menu();
+            }
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+        }
     }
     while(c != EOF && c != 'x');
 
@@ -175,29 +175,29 @@ main(int argc, char* argv[])
 
     try
     {
-    	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+            Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->load("config.client");
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
-	status = EXIT_FAILURE;
+        fprintf(stderr, "%s\n", ex.toString().c_str());
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

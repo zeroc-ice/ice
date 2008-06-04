@@ -20,7 +20,7 @@ class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     CallbackBase() :
-	_called(false)
+        _called(false)
     {
     }
 
@@ -30,26 +30,26 @@ public:
 
     bool check()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	while(!_called)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(30)))
-	    {
-		return false;
-	    }
-	}
-	_called = false;
-	return true;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        while(!_called)
+        {
+            if(!timedWait(IceUtil::Time::seconds(30)))
+            {
+                return false;
+            }
+        }
+        _called = false;
+        return true;
     }
 
 protected:
 
     void called()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	assert(!_called);
-	_called = true;
-	notify();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        assert(!_called);
+        _called = true;
+        notify();
     }
 
 private:
@@ -67,7 +67,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
         sprintf(buf, ":default -t 60000 -p %d", *p);
-	ref += buf;
+        ref += buf;
     }
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
@@ -82,73 +82,73 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     int oldPid = 0;
     for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, ++j)
     {
-	if(j > 3)
-	{
-	    j = 0;
-	}
+        if(j > 3)
+        {
+            j = 0;
+        }
 
-	tprintf("testing server #%d...", i);
-	int pid = obj->pid();
-	test(pid != oldPid);
-	tprintf("ok\n");
-	oldPid = pid;
+        tprintf("testing server #%d...", i);
+        int pid = obj->pid();
+        test(pid != oldPid);
+        tprintf("ok\n");
+        oldPid = pid;
 
-	if(j == 0)
-	{
-	    tprintf("shutting down server #%d...", i);
-	    obj->shutdown();
-	    tprintf("ok\n");
-	}
-	else if(j == 1 || i + 1 > ports.size())
-	{
-	    tprintf("aborting server #%d...", i);
-	    try
-	    {
-	        obj->abort();
-	        test(false);
-	    }
-	    catch(const Ice::ConnectionLostException&)
-	    {
-	        tprintf("ok\n");
-	    }
-	    catch(const Ice::ConnectFailedException&)
-	    {
-	        tprintf("ok\n");
-	    }
-	}
-	else if(j == 2 || j == 3)
-	{
-	    tprintf("aborting server #%d and #%d with idempotent call...", i, i + 1);
-	    try
-	    {
-	        obj->idempotentAbort();
-	        test(false);
-	    }
-	    catch(const Ice::ConnectionLostException&)
-	    {
-	        tprintf("ok\n");
-	    }
-	    catch(const Ice::ConnectFailedException&)
-	    {
-	        tprintf("ok\n");
-	    }
+        if(j == 0)
+        {
+            tprintf("shutting down server #%d...", i);
+            obj->shutdown();
+            tprintf("ok\n");
+        }
+        else if(j == 1 || i + 1 > ports.size())
+        {
+            tprintf("aborting server #%d...", i);
+            try
+            {
+                obj->abort();
+                test(false);
+            }
+            catch(const Ice::ConnectionLostException&)
+            {
+                tprintf("ok\n");
+            }
+            catch(const Ice::ConnectFailedException&)
+            {
+                tprintf("ok\n");
+            }
+        }
+        else if(j == 2 || j == 3)
+        {
+            tprintf("aborting server #%d and #%d with idempotent call...", i, i + 1);
+            try
+            {
+                obj->idempotentAbort();
+                test(false);
+            }
+            catch(const Ice::ConnectionLostException&)
+            {
+                tprintf("ok\n");
+            }
+            catch(const Ice::ConnectFailedException&)
+            {
+                tprintf("ok\n");
+            }
 
-	    ++i;
-	}
-	else
-	{
-	    assert(false);
-	}
+            ++i;
+        }
+        else
+        {
+            assert(false);
+        }
     }
 
     tprintf("testing whether all servers are gone...");
     try
     {
-	obj->ice_ping();
-	test(false);
+        obj->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
-	tprintf("ok\n");
+        tprintf("ok\n");
     }
 }

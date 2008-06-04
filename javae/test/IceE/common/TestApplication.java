@@ -16,16 +16,16 @@ abstract public class TestApplication
     protected String
     getHost()
     {
-	try
-	{
-	    _hostnameConnection = 
-		(javax.microedition.io.ServerSocketConnection)javax.microedition.io.Connector.open("socket://");
-	    return _hostnameConnection.getLocalAddress();
-	}
-	catch(Exception ex)
-	{
+        try
+        {
+            _hostnameConnection = 
+                (javax.microedition.io.ServerSocketConnection)javax.microedition.io.Connector.open("socket://");
+            return _hostnameConnection.getLocalAddress();
+        }
+        catch(Exception ex)
+        {
             return null;
-	}
+        }
     }
 
     class SetupThread implements Runnable
@@ -58,9 +58,9 @@ abstract public class TestApplication
 
     protected void
     startApp()
-	throws javax.microedition.midlet.MIDletStateChangeException
+        throws javax.microedition.midlet.MIDletStateChangeException
     {
-	try
+        try
         {
             //
             // Read properties from embedded config file. 
@@ -85,24 +85,24 @@ abstract public class TestApplication
             Thread t = new Thread(new SetupThread(this));
             t.start();
         }
-	catch(Exception ex)
-	{
-	    javax.microedition.lcdui.Alert a = 
-		new javax.microedition.lcdui.Alert("startApp alert", ex.getMessage(),
-			null, javax.microedition.lcdui.AlertType.ERROR);
-	    a.setTimeout(javax.microedition.lcdui.Alert.FOREVER);
-	    javax.microedition.lcdui.Display.getDisplay(this).setCurrent(a);
-	    throw new javax.microedition.midlet.MIDletStateChangeException(ex.getMessage());
-	}
+        catch(Exception ex)
+        {
+            javax.microedition.lcdui.Alert a = 
+                new javax.microedition.lcdui.Alert("startApp alert", ex.getMessage(),
+                        null, javax.microedition.lcdui.AlertType.ERROR);
+            a.setTimeout(javax.microedition.lcdui.Alert.FOREVER);
+            javax.microedition.lcdui.Display.getDisplay(this).setCurrent(a);
+            throw new javax.microedition.midlet.MIDletStateChangeException(ex.getMessage());
+        }
     }
 
     protected void
     pauseApp()
     {
-	//
-	// The test wrapper will not pause properly because it does not have direct access to the wrapped test
-	// driver's communicators.
-	//
+        //
+        // The test wrapper will not pause properly because it does not have direct access to the wrapped test
+        // driver's communicators.
+        //
     }
 
     protected void

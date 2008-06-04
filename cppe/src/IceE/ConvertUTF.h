@@ -62,12 +62,12 @@
     the respective buffers.
 
     Input parameters:
-	sourceStart - pointer to a pointer to the source buffer.
-		The contents of this are modified on return so that
-		it points at the next thing to be converted.
-	targetStart - similarly, pointer to pointer to the target buffer.
-	sourceEnd, targetEnd - respectively pointers to the ends of the
-		two buffers, for overflow checking only.
+        sourceStart - pointer to a pointer to the source buffer.
+                The contents of this are modified on return so that
+                it points at the next thing to be converted.
+        targetStart - similarly, pointer to pointer to the target buffer.
+        sourceEnd, targetEnd - respectively pointers to the ends of the
+                two buffers, for overflow checking only.
 
     These conversion functions take a ConversionFlags argument. When this
     flag is set to strict, both irregular sequences and isolated surrogates
@@ -84,15 +84,15 @@
     they constitute an error.
 
     Output parameters:
-	The value "sourceIllegal" is returned from some routines if the input
-	sequence is malformed.  When "sourceIllegal" is returned, the source
-	value will point to the illegal value that caused the problem. E.g.,
-	in UTF-8 when a sequence is malformed, it points to the start of the
-	malformed sequence.  
+        The value "sourceIllegal" is returned from some routines if the input
+        sequence is malformed.  When "sourceIllegal" is returned, the source
+        value will point to the illegal value that caused the problem. E.g.,
+        in UTF-8 when a sequence is malformed, it points to the start of the
+        malformed sequence.  
 
     Author: Mark E. Davis, 1994.
     Rev History: Rick McGowan, fixes & updates May 2001.
-		 Fixes & updates, Sept 2001.
+                 Fixes & updates, Sept 2001.
 
 ------------------------------------------------------------------------ */
 
@@ -107,10 +107,10 @@
 namespace IceUtil
 {
 
-typedef unsigned int	UTF32;	/* at least 32 bits */
-typedef unsigned short	UTF16;	/* at least 16 bits */
-typedef unsigned char	UTF8;	/* typically 8 bits */
-typedef bool	        Boolean; /* 0 or 1 */
+typedef unsigned int        UTF32;        /* at least 32 bits */
+typedef unsigned short        UTF16;        /* at least 16 bits */
+typedef unsigned char        UTF8;        /* typically 8 bits */
+typedef bool                Boolean; /* 0 or 1 */
 
 /* Some fundamental constants */
 #define UNI_REPLACEMENT_CHAR (UTF32)0x0000FFFD
@@ -127,7 +127,7 @@ ConversionResult ConvertUTF8toUTF16(
 ConversionResult ConvertUTF16toUTF8 (
     const UTF16** sourceStart, const UTF16* sourceEnd, 
     UTF8** targetStart, UTF8* targetEnd, ConversionFlags flags);
-		
+                
 ConversionResult ConvertUTF8toUTF32(
     const UTF8** sourceStart, const UTF8* sourceEnd, 
     UTF32** targetStart, UTF32* targetEnd, ConversionFlags flags);

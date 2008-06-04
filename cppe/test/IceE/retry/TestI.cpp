@@ -16,7 +16,7 @@ RetryI::op(bool kill, const Ice::Current& current)
 {
     if(kill)
     {
-	current.con->close(true);
+        current.con->close(true);
     }
 }
 

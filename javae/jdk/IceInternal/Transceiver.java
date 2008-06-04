@@ -20,52 +20,52 @@ final public class Transceiver
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-	synchronized(this)
-	{
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(_fd != null);
-	    }
-	    try
-	    {
-		_fd.close();
-	    }
-	    catch(java.io.IOException ex)
-	    {
-		Ice.SocketException se = new Ice.SocketException();
-		se.initCause(ex);
-		throw se;
-	    }
-	    finally
-	    {
-	        _fd = null;
-	    }
-	}
+        synchronized(this)
+        {
+            if(IceUtil.Debug.ASSERT)
+            {
+                IceUtil.Debug.Assert(_fd != null);
+            }
+            try
+            {
+                _fd.close();
+            }
+            catch(java.io.IOException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+            finally
+            {
+                _fd = null;
+            }
+        }
     }
 
     public void
     shutdownWrite()
     {
-	//
-	// Not implemented.
-	//
+        //
+        // Not implemented.
+        //
     }
 
     public void
     shutdownReadWrite()
     {
-	if(_traceLevels.network >= 2)
-	{
-	    String s = "shutting down tcp connection for reading and writing\n" + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
-	}
+        if(_traceLevels.network >= 2)
+        {
+            String s = "shutting down tcp connection for reading and writing\n" + toString();
+            _logger.trace(_traceLevels.networkCat, s);
+        }
 
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_fd != null);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(_fd != null);
+        }
 
-	_shutdown = true;
+        _shutdown = true;
     }
 
     public void
@@ -73,26 +73,26 @@ final public class Transceiver
     {
         ByteBuffer buf = stream.prepareWrite();
 
-	byte[] data = buf.array();
+        byte[] data = buf.array();
 
-	try
-	{
-	    if(timeout == -1)
-	    {
-		timeout = 0; // Infinite
-	    }
-	    else if(timeout == 0)
-	    {
-		timeout = 1;
-	    }
-	    _fd.setSoTimeout(timeout);
-	}
-	catch(java.net.SocketException ex)
-	{
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-	}
+        try
+        {
+            if(timeout == -1)
+            {
+                timeout = 0; // Infinite
+            }
+            else if(timeout == 0)
+            {
+                timeout = 1;
+            }
+            _fd.setSoTimeout(timeout);
+        }
+        catch(java.net.SocketException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
 
         int remaining = buf.remaining();
         int packetSize = remaining;
@@ -102,34 +102,34 @@ final public class Transceiver
         }
 
         int pos = buf.position();
-	while(buf.hasRemaining() && !_shutdown)
-	{
-	    try
-	    {
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(_fd != null);
-		}
+        while(buf.hasRemaining() && !_shutdown)
+        {
+            try
+            {
+                if(IceUtil.Debug.ASSERT)
+                {
+                    IceUtil.Debug.Assert(_fd != null);
+                }
 
-		_out.write(data, pos, packetSize);
+                _out.write(data, pos, packetSize);
                 pos += packetSize;
 
-		if(_traceLevels.network >= 3)
-		{
-		    String s = "sent " + packetSize + " of " + buf.limit() + " bytes via tcp\n" + toString();
-		    _logger.trace(_traceLevels.networkCat, s);
-		}
-	    }
-	    catch(java.io.InterruptedIOException ex)
-	    {
+                if(_traceLevels.network >= 3)
+                {
+                    String s = "sent " + packetSize + " of " + buf.limit() + " bytes via tcp\n" + toString();
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+            }
+            catch(java.io.InterruptedIOException ex)
+            {
                 pos += ex.bytesTransferred;
-	    }
-	    catch(java.io.IOException ex)
-	    {
-		Ice.SocketException se = new Ice.SocketException();
-		se.initCause(ex);
-		throw se;
-	    }
+            }
+            catch(java.io.IOException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
 
             buf.position(pos);
             if(buf.remaining() < packetSize)
@@ -138,86 +138,86 @@ final public class Transceiver
             }
         }
 
-	if(_shutdown && buf.hasRemaining())
-	{
-	    throw new Ice.ConnectionLostException();
-	}
+        if(_shutdown && buf.hasRemaining())
+        {
+            throw new Ice.ConnectionLostException();
+        }
     }
 
     public void
     read(BasicStream stream, int timeout)
     {
-	ByteBuffer buf = stream.prepareRead();
+        ByteBuffer buf = stream.prepareRead();
 
-	int remaining = 0;
-	if(_traceLevels.network >= 3)
-	{
-	    remaining = buf.remaining();
-	}
+        int remaining = 0;
+        if(_traceLevels.network >= 3)
+        {
+            remaining = buf.remaining();
+        }
 
-	byte[] data = buf.array();
+        byte[] data = buf.array();
 
-	int interval = 500;
-	if(timeout >= 0 && timeout < interval)
-	{
-	    interval = timeout;
-	}
+        int interval = 500;
+        if(timeout >= 0 && timeout < interval)
+        {
+            interval = timeout;
+        }
 
-	while(buf.hasRemaining() && !_shutdown)
-	{
-	    int pos = buf.position();
-	    try
-	    {
-		_fd.setSoTimeout(interval);
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(_fd != null);
-		}
-		int ret = _in.read(data, pos, buf.remaining());
-		
-		if(ret == -1)
-		{
-		    throw new Ice.ConnectionLostException();
-		}
+        while(buf.hasRemaining() && !_shutdown)
+        {
+            int pos = buf.position();
+            try
+            {
+                _fd.setSoTimeout(interval);
+                if(IceUtil.Debug.ASSERT)
+                {
+                    IceUtil.Debug.Assert(_fd != null);
+                }
+                int ret = _in.read(data, pos, buf.remaining());
+                
+                if(ret == -1)
+                {
+                    throw new Ice.ConnectionLostException();
+                }
 
-		if(ret > 0)
-		{
-		    if(_traceLevels.network >= 3)
-		    {
-			String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
-			_logger.trace(_traceLevels.networkCat, s);
-		    }
+                if(ret > 0)
+                {
+                    if(_traceLevels.network >= 3)
+                    {
+                        String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
 
-		    buf.position(pos + ret);
-		}
-	    }
-	    catch(java.io.InterruptedIOException ex)
-	    {
-		if(ex.bytesTransferred > 0)
-		{
-		    buf.position(pos + ex.bytesTransferred);
-		}
-		if(timeout >= 0)
-		{
-		    if(interval >= timeout)
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    timeout -= interval;
-		}
-	    }
-	    catch(java.io.IOException ex)
-	    {
+                    buf.position(pos + ret);
+                }
+            }
+            catch(java.io.InterruptedIOException ex)
+            {
+                if(ex.bytesTransferred > 0)
+                {
+                    buf.position(pos + ex.bytesTransferred);
+                }
+                if(timeout >= 0)
+                {
+                    if(interval >= timeout)
+                    {
+                        throw new Ice.TimeoutException();
+                    }
+                    timeout -= interval;
+                }
+            }
+            catch(java.io.IOException ex)
+            {
                 Ice.ConnectionLostException se = new Ice.ConnectionLostException();
                 se.initCause(ex);
                 throw se;
-	    }
-	}
+            }
+        }
 
-	if(_shutdown)
-	{
-	    throw new Ice.ConnectionLostException();
-	}
+        if(_shutdown)
+        {
+            throw new Ice.ConnectionLostException();
+        }
     }
 
     public String
@@ -265,26 +265,26 @@ final public class Transceiver
             }
         }
         
-	try
-	{
-	    _in = _fd.getInputStream();
-	    _out = _fd.getOutputStream();
-	}
-	catch(java.io.IOException ex)
-	{
-	    try
-	    {
-		_fd.close();
-	    }
-	    catch(java.io.IOException e)
-	    {
-	    }
-	    _fd = null;
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-	}
-	_shutdown = false;
+        try
+        {
+            _in = _fd.getInputStream();
+            _out = _fd.getOutputStream();
+        }
+        catch(java.io.IOException ex)
+        {
+            try
+            {
+                _fd.close();
+            }
+            catch(java.io.IOException e)
+            {
+            }
+            _fd = null;
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+        _shutdown = false;
     }
 
     protected synchronized void

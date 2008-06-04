@@ -28,7 +28,7 @@ final public class Protocol
     //
     // The magic number at the front of each message
     //
-    public final static byte magic[] = { 0x49, 0x63, 0x65, 0x50 };	// 'I', 'c', 'e', 'P'
+    public final static byte magic[] = { 0x49, 0x63, 0x65, 0x50 };        // 'I', 'c', 'e', 'P'
 
     //
     // The current Ice protocol and encoding version
@@ -49,10 +49,10 @@ final public class Protocol
 
     public final static byte[] requestHdr =
     {
-	IceInternal.Protocol.magic[0],
-	IceInternal.Protocol.magic[1],
-	IceInternal.Protocol.magic[2],
-	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.magic[0],
+        IceInternal.Protocol.magic[1],
+        IceInternal.Protocol.magic[2],
+        IceInternal.Protocol.magic[3],
         IceInternal.Protocol.protocolMajor,
         IceInternal.Protocol.protocolMinor,
         IceInternal.Protocol.encodingMajor,
@@ -65,10 +65,10 @@ final public class Protocol
 
     public final static byte[] requestBatchHdr =
     {
-	IceInternal.Protocol.magic[0],
-	IceInternal.Protocol.magic[1],
-	IceInternal.Protocol.magic[2],
-	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.magic[0],
+        IceInternal.Protocol.magic[1],
+        IceInternal.Protocol.magic[2],
+        IceInternal.Protocol.magic[3],
         IceInternal.Protocol.protocolMajor,
         IceInternal.Protocol.protocolMinor,
         IceInternal.Protocol.encodingMajor,
@@ -81,10 +81,10 @@ final public class Protocol
 
     public final static byte[] replyHdr =
     {
-	IceInternal.Protocol.magic[0],
-	IceInternal.Protocol.magic[1],
-	IceInternal.Protocol.magic[2],
-	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.magic[0],
+        IceInternal.Protocol.magic[1],
+        IceInternal.Protocol.magic[2],
+        IceInternal.Protocol.magic[3],
         IceInternal.Protocol.protocolMajor,
         IceInternal.Protocol.protocolMinor,
         IceInternal.Protocol.encodingMajor,

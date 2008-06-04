@@ -14,25 +14,25 @@ public final class Communicator
     public void
     destroy()
     {
-	_instance.destroy();
+        _instance.destroy();
     }
 
     public void
     shutdown()
     {
-	_instance.objectAdapterFactory().shutdown();
+        _instance.objectAdapterFactory().shutdown();
     }
 
     public void
     waitForShutdown()
     {
-	_instance.objectAdapterFactory().waitForShutdown();
+        _instance.objectAdapterFactory().waitForShutdown();
     }
 
     public boolean
     isShutdown()
     {
-	return _instance.objectAdapterFactory().isShutdown();
+        return _instance.objectAdapterFactory().isShutdown();
     }
 
     public Ice.ObjectPrx
@@ -68,19 +68,19 @@ public final class Communicator
     public ObjectAdapter
     createObjectAdapter(String name)
     {
-	return createObjectAdapterWithEndpoints(name, getProperties().getProperty(name + ".Endpoints"));
+        return createObjectAdapterWithEndpoints(name, getProperties().getProperty(name + ".Endpoints"));
     }
 
     public ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
-	return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints, null);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints, null);
     }
 
     public ObjectAdapter
     createObjectAdapterWithRouter(String name, RouterPrx router)
     {
-	return _instance.objectAdapterFactory().createObjectAdapter(name, "", router);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, "", router);
     }
 
     public Properties
@@ -137,15 +137,15 @@ public final class Communicator
     void
     finishSetup(StringSeqHolder args)
     {
-	try
-	{
-	    _instance.finishSetup(args);
-	}
-	catch(RuntimeException ex)
-	{
-	    _instance.destroy();
-	    throw ex;
-	}
+        try
+        {
+            _instance.finishSetup(args);
+        }
+        catch(RuntimeException ex)
+        {
+            _instance.destroy();
+            throw ex;
+        }
     }
 
     //

@@ -29,10 +29,10 @@ public final class Debug
     public static void
     Assert(boolean b)
     {
-	if(!b)
-	{
-	    throw new AssertionError();
-	}
+        if(!b)
+        {
+            throw new AssertionError();
+        }
     }
 
     //
@@ -42,14 +42,14 @@ public final class Debug
     public static void
     FinalizerAssert(boolean b)
     {
-	if(!b)
-	{
-	    //
-	    // Create a Throwable to obtain the stack trace.
-	    //
-	    Throwable t = new Throwable();
-	    System.err.println("Assertion failure:");
-	    t.printStackTrace();
-	}
+        if(!b)
+        {
+            //
+            // Create a Throwable to obtain the stack trace.
+            //
+            Throwable t = new Throwable();
+            System.err.println("Assertion failure:");
+            t.printStackTrace();
+        }
     }
 }

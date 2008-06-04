@@ -50,8 +50,8 @@ final class TcpEndpoint implements Endpoint
             if(option.length() != 2 || option.charAt(0) != '-')
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
-		e.str = "tcp " + str;
-		throw e;
+                e.str = "tcp " + str;
+                throw e;
             }
 
             String argument = null;
@@ -67,8 +67,8 @@ final class TcpEndpoint implements Endpoint
                     if(argument == null)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     _host = argument;
@@ -80,8 +80,8 @@ final class TcpEndpoint implements Endpoint
                     if(argument == null)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     try
@@ -91,15 +91,15 @@ final class TcpEndpoint implements Endpoint
                     catch(NumberFormatException ex)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
-		    if(_port < 0 || _port > 65535)
+                    if(_port < 0 || _port > 65535)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     break;
@@ -110,8 +110,8 @@ final class TcpEndpoint implements Endpoint
                     if(argument == null)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     try
@@ -121,24 +121,24 @@ final class TcpEndpoint implements Endpoint
                     catch(NumberFormatException ex)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+                        e.str = "tcp " + str;
+                        throw e;
                     }
 
                     break;
                 }
 
-		case 'z':
-		{
-		    // Ignore compression flag.
-		    break;
-		}
+                case 'z':
+                {
+                    // Ignore compression flag.
+                    break;
+                }
 
                 default:
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
-		    e.str = "tcp " + str;
-		    throw e;
+                    e.str = "tcp " + str;
+                    throw e;
                 }
             }
         }
@@ -159,7 +159,7 @@ final class TcpEndpoint implements Endpoint
         _host = s.readString();
         _port = s.readInt();
         _timeout = s.readInt();
-	boolean compress = s.readBool();
+        boolean compress = s.readBool();
         s.endReadEncaps();
         calcHashValue();
     }
@@ -175,7 +175,7 @@ final class TcpEndpoint implements Endpoint
         s.writeString(_host);
         s.writeInt(_port);
         s.writeInt(_timeout);
-	s.writeBool(false);
+        s.writeBool(false);
         s.endWriteEncaps();
     }
 
@@ -359,47 +359,47 @@ final class TcpEndpoint implements Endpoint
             return 1;
         }
 
-	byte[] myIP = IPAddr();
-	if(myIP != null)
-	{
-	    byte[] otherIP = p.IPAddr();
-	    if(otherIP != null)
-	    {
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(myIP.length == otherIP.length);
-		}
-		for(int i = 0; i < otherIP.length; i++)
-		{
-		    if(myIP[i] < otherIP[i])
-		    {
-			return -1;
-		    }
-		    else if(otherIP[i] < myIP[i])
-		    {
-			return 1;
-		    }
-		}
-	    }
-	}
+        byte[] myIP = IPAddr();
+        if(myIP != null)
+        {
+            byte[] otherIP = p.IPAddr();
+            if(otherIP != null)
+            {
+                if(IceUtil.Debug.ASSERT)
+                {
+                    IceUtil.Debug.Assert(myIP.length == otherIP.length);
+                }
+                for(int i = 0; i < otherIP.length; i++)
+                {
+                    if(myIP[i] < otherIP[i])
+                    {
+                        return -1;
+                    }
+                    else if(otherIP[i] < myIP[i])
+                    {
+                        return 1;
+                    }
+                }
+            }
+        }
 
-	//
-	// At this point the best we can do is a lexical compare.
-	//
+        //
+        // At this point the best we can do is a lexical compare.
+        //
         return _host.compareTo(p._host);
     }
 
     private byte[]
     IPAddr()
     {
-	if(_ip == null && !_parsed)
-	{
-	    _parsed = true;
-	    _ip = Network.addrStringToIP(_host);
-	}
-	return _ip;
+        if(_ip == null && !_parsed)
+        {
+            _parsed = true;
+            _ip = Network.addrStringToIP(_host);
+        }
+        return _ip;
     }
-	
+        
     private void
     calcHashValue()
     {

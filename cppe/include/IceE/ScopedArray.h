@@ -28,25 +28,25 @@ public:
     ~ScopedArray()
     {
         if(_ptr != 0)
-	{
-	    delete[] _ptr;
-	}
+        {
+            delete[] _ptr;
+        }
     }
 
     void reset(T* ptr = 0)
     {
-	assert(ptr == 0 || ptr != _ptr);
+        assert(ptr == 0 || ptr != _ptr);
         if(_ptr != 0)
-	{
-	    delete[] _ptr;
-	}
-	_ptr = ptr;
+        {
+            delete[] _ptr;
+        }
+        _ptr = ptr;
     }
 
     T& operator[](size_t i) const
     {
-	assert(_ptr != 0);
-	assert(i >= 0);
+        assert(_ptr != 0);
+        assert(i >= 0);
         return _ptr[i];
     }
 
@@ -58,8 +58,8 @@ public:
     void swap(ScopedArray& a)
     {
         T* tmp = a._ptr;
-	a._ptr = _ptr;
-	_ptr = tmp;
+        a._ptr = _ptr;
+        _ptr = tmp;
     }
 
 private:

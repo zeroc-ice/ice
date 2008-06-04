@@ -37,7 +37,7 @@ allTests(const CommunicatorPtr& communicator)
         try
         {
             communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
-	    test(false);
+            test(false);
         }
         catch(const AlreadyRegisteredException&)
         {
@@ -59,12 +59,12 @@ allTests(const CommunicatorPtr& communicator)
     printf("testing whether server is gone...");
     try
     {
-	obj->ice_ping();
-	test(false);
+        obj->ice_ping();
+        test(false);
     }
     catch(const LocalException&)
     {
-	printf("ok\n");
+        printf("ok\n");
     }
 
     return obj;

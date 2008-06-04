@@ -17,7 +17,7 @@ public abstract class UserException extends Exception
     public String
     toString()
     {
-	return ice_name();
+        return ice_name();
     }
 
     public abstract void

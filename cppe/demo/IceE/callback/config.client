@@ -1,18 +1,18 @@
 #
 # The client reads this property to create the reference to the
-# "hello" object in the server.
+# "CallbackSender" object in the server.
 #
-Hello.Proxy=hello:tcp -p 10000
+CallbackSender.Proxy=callback:tcp -p 10000
 
 #
-# The server creates one single object adapter with the name
-# "helloadapater". The following line sets the endpoints for this
-# adapter
+# The client creates one single object adapter with the name
+# "Callback.Client". The following line sets the endpoints for this
+# adapter.
 #
-Hello.Endpoints=tcp -p 10000
+Callback.Client.Endpoints=tcp
 
 #
-# Warn about connection exceptions
+# Warn about connection exceptions.
 #
 Ice.Warn.Connections=1
 
@@ -24,7 +24,7 @@ Ice.Warn.Connections=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=0
+#Ice.Trace.Network=1
 
 #
 # Protocol Tracing
@@ -32,4 +32,4 @@ Ice.Trace.Network=0
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-Ice.Trace.Protocol=0
+#Ice.Trace.Protocol=1

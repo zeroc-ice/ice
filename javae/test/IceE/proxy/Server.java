@@ -12,15 +12,15 @@ public class Server
     public static int
     run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream ps)
     {
-	//
-	// When running as a MIDlet the properties for the server may be
-	// overridden by configuration. If it isn't then we assume
-	// defaults.
-	//
-	if(communicator.getProperties().getProperty("TestAdapter.Endpoints").length() == 0)
-	{
-	    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
-	}
+        //
+        // When running as a MIDlet the properties for the server may be
+        // overridden by configuration. If it isn't then we assume
+        // defaults.
+        //
+        if(communicator.getProperties().getProperty("TestAdapter.Endpoints").length() == 0)
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        }
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
         adapter.activate();

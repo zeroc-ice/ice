@@ -39,19 +39,19 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         //
-	// Check if we need to run with small sequences.
-	//
-	int reduce = 1;
-	for(int i = 0; i < args.length; ++i)
-	{
-	    if(args[i].equals("--small"))
-	    {
-	        reduce = 100;
-	    }
-	}
+        // Check if we need to run with small sequences.
+        //
+        int reduce = 1;
+        for(int i = 0; i < args.length; ++i)
+        {
+            if(args[i].equals("--small"))
+            {
+                reduce = 100;
+            }
+        }
 
         Ice.Properties properties = communicator.getProperties();
-        final String refProperty = "Throughput.Throughput";
+        final String refProperty = "Throughput.Proxy";
         String ref = properties.getProperty(refProperty);
         if(ref.length() == 0)
         {
@@ -66,43 +66,83 @@ public class Client
             System.err.println("invalid proxy");
             return 1;
         }
-	ThroughputPrx throughputOneway = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway());
+        ThroughputPrx throughputOneway = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway());
 
         byte[] byteSeq = new byte[ByteSeqSize.value / reduce];
 
-	String[] stringSeq = new String[StringSeqSize.value / reduce];
-	for(int i = 0; i < StringSeqSize.value / reduce; ++i)
-	{
-	    stringSeq[i] = "hello";
-	}
+        String[] stringSeq = new String[StringSeqSize.value / reduce];
+        for(int i = 0; i < StringSeqSize.value / reduce; ++i)
+        {
+            stringSeq[i] = "hello";
+        }
 
-	StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value / reduce];
-	for(int i = 0; i < StringDoubleSeqSize.value / reduce; ++i)
-	{
-	    structSeq[i] = new StringDouble();
-	    structSeq[i].s = "hello";
-	    structSeq[i].d = 3.14;
-	}
+        StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value / reduce];
+        for(int i = 0; i < StringDoubleSeqSize.value / reduce; ++i)
+        {
+            structSeq[i] = new StringDouble();
+            structSeq[i].s = "hello";
+            structSeq[i].d = 3.14;
+        }
 
-	Fixed[] fixedSeq = new Fixed[FixedSeqSize.value / reduce];
-	for(int i = 0; i < FixedSeqSize.value / reduce; ++i)
-	{
-	    fixedSeq[i] = new Fixed();
-	    fixedSeq[i].i = 0;
-	    fixedSeq[i].j = 0;
-	    fixedSeq[i].d = 0;
-	}
+        Fixed[] fixedSeq = new Fixed[FixedSeqSize.value / reduce];
+        for(int i = 0; i < FixedSeqSize.value / reduce; ++i)
+        {
+            fixedSeq[i] = new Fixed();
+            fixedSeq[i].i = 0;
+            fixedSeq[i].j = 0;
+            fixedSeq[i].d = 0;
+        }
 
-	menu();
+        //
+        // A method needs to be invoked thousands of times before the
+        // JIT compiler will convert it to native code. To ensure an
+        // accurate throughput measurement, we need to "warm up" the
+        // JIT compiler.
+        //
+        {
+            byte[] emptyBytes= new byte[1];
+            String[] emptyStrings = new String[1];
+            StringDouble[] emptyStructs = new StringDouble[1];
+            emptyStructs[0] = new StringDouble();
+            Fixed[] emptyFixed = new Fixed[1];
+            emptyFixed[0] = new Fixed();
+
+            throughput.startWarmup();
+
+            System.out.print("warming up the client/server...");
+            System.out.flush();
+            for(int i = 0; i < 10000; i++)
+            {
+                throughput.sendByteSeq(emptyBytes);
+                throughput.sendStringSeq(emptyStrings);
+                throughput.sendStructSeq(emptyStructs);
+                throughput.sendFixedSeq(emptyFixed);
+
+                throughput.recvByteSeq();
+                throughput.recvStringSeq();
+                throughput.recvStructSeq();
+                throughput.recvFixedSeq();
+
+                throughput.echoByteSeq(emptyBytes);
+                throughput.echoStringSeq(emptyStrings);
+                throughput.echoStructSeq(emptyStructs);
+                throughput.echoFixedSeq(emptyFixed);
+            }
+            throughput.endWarmup();
+
+            System.out.println(" ok");
+        }
+
+        menu();
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
 
-	char currentType = '1';
-	int seqSize = ByteSeqSize.value / reduce;
+        char currentType = '1';
+        int seqSize = ByteSeqSize.value / reduce;
 
-	// Initial ping to setup the connection.
-	throughput.ice_ping();
-	
+        // Initial ping to setup the connection.
+        throughput.ice_ping();
+
         String line = null;
         do
         {
@@ -116,280 +156,280 @@ public class Client
                     break;
                 }
 
-		long tmsec = System.currentTimeMillis();
-		final int repetitions = 100;
+                long tmsec = System.currentTimeMillis();
+                final int repetitions = 100;
 
-		if(line.equals("1") || line.equals("2") || line.equals("3") || line.equals("4"))
-		{
-		    currentType = line.charAt(0);
+                if(line.equals("1") || line.equals("2") || line.equals("3") || line.equals("4"))
+                {
+                    currentType = line.charAt(0);
 
-		    switch(currentType)
-		    {
-		        case '1':
-			{
-			    System.out.println("using byte sequences");
-			    seqSize = ByteSeqSize.value;
-			    break;
-			}
+                    switch(currentType)
+                    {
+                        case '1':
+                        {
+                            System.out.println("using byte sequences");
+                            seqSize = ByteSeqSize.value;
+                            break;
+                        }
 
-			case '2':
-			{
-			    System.out.println("using string sequences");
-			    seqSize = StringSeqSize.value;
-			    break;
-			}
+                        case '2':
+                        {
+                            System.out.println("using string sequences");
+                            seqSize = StringSeqSize.value;
+                            break;
+                        }
 
-			case '3':
-			{
-			    System.out.println("using variable-length struct sequences");
-			    seqSize = StringDoubleSeqSize.value;
-			    break;
-			}
+                        case '3':
+                        {
+                            System.out.println("using variable-length struct sequences");
+                            seqSize = StringDoubleSeqSize.value;
+                            break;
+                        }
 
-			case '4':
-			{
-			    System.out.println("using fixed-length struct sequences");
-			    seqSize = FixedSeqSize.value;
-			    break;
-			}
-		    }
-		}
+                        case '4':
+                        {
+                            System.out.println("using fixed-length struct sequences");
+                            seqSize = FixedSeqSize.value;
+                            break;
+                        }
+                    }
+                }
                 else if(line.equals("t") || line.equals("o") || line.equals("r") || line.equals("e"))
                 {
-		    char c = line.charAt(0);
+                    char c = line.charAt(0);
 
-		    switch(c)
-		    {
-			case 't':
-			case 'o':
-			{
-			    System.out.print("sending");
-			    break;
-			}
-			
-			case 'r':
-			{
-			    System.out.print("receiving");
-			    break;
-			}
-			
-			case 'e':
-			{
-			    System.out.print("sending and receiving");
-			    break;
-			}
-		    }
-		    
-		    System.out.print(" " + repetitions);
-		    switch(currentType)
-		    {
-		        case '1':
-			{
-			    System.out.print(" byte");
-			    break;
-			}
+                    switch(c)
+                    {
+                        case 't':
+                        case 'o':
+                        {
+                            System.out.print("sending");
+                            break;
+                        }
 
-		        case '2':
-			{
-			    System.out.print(" string");
-			    break;
-			}
+                        case 'r':
+                        {
+                            System.out.print("receiving");
+                            break;
+                        }
 
-		        case '3':
-			{
-			    System.out.print(" variable-length struct");
-			    break;
-			}
+                        case 'e':
+                        {
+                            System.out.print("sending and receiving");
+                            break;
+                        }
+                    }
 
-		        case '4':
-			{
-			    System.out.print(" fixed-length struct");
-			    break;
-			}
-		    }
-		    
-		    System.out.print(" sequences of size " + seqSize);
-		    
-		    if(c == 'o')
-		    {
-			System.out.print(" as oneway");
-		    }
-		    
-		    System.out.println("...");
-		    
-		    for(int i = 0; i < repetitions; ++i)
-		    {
-		        switch(currentType)
-			{
-			    case '1':
-			    {
-			        switch(c)
-			        {
-			            case 't':
-			            {
-				        throughput.sendByteSeq(byteSeq);
-				        break;
-			            }
-			    
-			            case 'o':
-			            {
-				        throughputOneway.sendByteSeq(byteSeq);
-				        break;
-			            }
-			    
-			            case 'r':
-			            {
-				        throughput.recvByteSeq();
-				        break;
-			            }
-			    
-			            case 'e':
-			            {
-				        throughput.echoByteSeq(byteSeq);
-				        break;
-			            }
-			        }
-				break;
-			    }
+                    System.out.print(" " + repetitions);
+                    switch(currentType)
+                    {
+                        case '1':
+                        {
+                            System.out.print(" byte");
+                            break;
+                        }
 
-			    case '2':
-			    {
-			        switch(c)
-			        {
-			            case 't':
-			            {
-				        throughput.sendStringSeq(stringSeq);
-				        break;
-			            }
-			    
-			            case 'o':
-			            {
-				        throughputOneway.sendStringSeq(stringSeq);
-				        break;
-			            }
-			    
-			            case 'r':
-			            {
-				        throughput.recvStringSeq();
-				        break;
-			            }
-			    
-			            case 'e':
-			            {
-				        throughput.echoStringSeq(stringSeq);
-				        break;
-			            }
-			        }
-				break;
-			    }
+                        case '2':
+                        {
+                            System.out.print(" string");
+                            break;
+                        }
 
-			    case '3':
-			    {
-			        switch(c)
-			        {
-			            case 't':
-			            {
-				        throughput.sendStructSeq(structSeq);
-				        break;
-			            }
-			    
-			            case 'o':
-			            {
-				        throughputOneway.sendStructSeq(structSeq);
-				        break;
-			            }
-			    
-			            case 'r':
-			            {
-				        throughput.recvStructSeq();
-				        break;
-			            }
-			    
-			            case 'e':
-			            {
-				        throughput.echoStructSeq(structSeq);
-				        break;
-			            }
-			        }
-				break;
-			    }
+                        case '3':
+                        {
+                            System.out.print(" variable-length struct");
+                            break;
+                        }
 
-			    case '4':
-			    {
-			        switch(c)
-			        {
-			            case 't':
-			            {
-				        throughput.sendFixedSeq(fixedSeq);
-				        break;
-			            }
-			    
-			            case 'o':
-			            {
-				        throughputOneway.sendFixedSeq(fixedSeq);
-				        break;
-			            }
-			    
-			            case 'r':
-			            {
-				        throughput.recvFixedSeq();
-				        break;
-			            }
-			    
-			            case 'e':
-			            {
-				        throughput.echoFixedSeq(fixedSeq);
-				        break;
-			            }
-			        }
-				break;
-			    }
-			}
-		    }
+                        case '4':
+                        {
+                            System.out.print(" fixed-length struct");
+                            break;
+                        }
+                    }
 
-		    double dmsec = System.currentTimeMillis() - tmsec;
-		    System.out.println("time for " + repetitions + " sequences: " + dmsec  + "ms");
-		    System.out.println("time per sequence: " + dmsec / repetitions + "ms");
-		    int wireSize = 0;
-		    switch(currentType)
-		    {
-		        case '1':
-			{
-			    wireSize = 1;
-			    break;
-			}
+                    System.out.print(" sequences of size " + seqSize);
 
-			case '2':
-			{
-			    wireSize = stringSeq[0].length();
-			    break;
-			}
+                    if(c == 'o')
+                    {
+                        System.out.print(" as oneway");
+                    }
 
-			case '3':
-			{
-			    wireSize = structSeq[0].s.length();
-			    wireSize += 8; // Size of double on the wire.
-			    break;
-			}
+                    System.out.println("...");
 
-			case '4':
-			{
-			    wireSize = 16; // Size of two ints and a double on the wire.
-			    break;
-			}
-		    }
-		    double mbit = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0;
-		    if(c == 'e')
-		    {
-			mbit *= 2;
-		    }
-		    System.out.println("throughput: " + new java.text.DecimalFormat("#.##").format(mbit) + "Mbps");
-		}
-		else if(line.equals("s"))
-		{
-		    throughput.shutdown();
-		}
-		else if(line.equals("x"))
+                    for(int i = 0; i < repetitions; ++i)
+                    {
+                        switch(currentType)
+                        {
+                            case '1':
+                            {
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendByteSeq(byteSeq);
+                                        break;
+                                    }
+
+                                    case 'o':
+                                    {
+                                        throughputOneway.sendByteSeq(byteSeq);
+                                        break;
+                                    }
+
+                                    case 'r':
+                                    {
+                                        throughput.recvByteSeq();
+                                        break;
+                                    }
+
+                                    case 'e':
+                                    {
+                                        throughput.echoByteSeq(byteSeq);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+
+                            case '2':
+                            {
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendStringSeq(stringSeq);
+                                        break;
+                                    }
+
+                                    case 'o':
+                                    {
+                                        throughputOneway.sendStringSeq(stringSeq);
+                                        break;
+                                    }
+
+                                    case 'r':
+                                    {
+                                        throughput.recvStringSeq();
+                                        break;
+                                    }
+
+                                    case 'e':
+                                    {
+                                        throughput.echoStringSeq(stringSeq);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+
+                            case '3':
+                            {
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendStructSeq(structSeq);
+                                        break;
+                                    }
+
+                                    case 'o':
+                                    {
+                                        throughputOneway.sendStructSeq(structSeq);
+                                        break;
+                                    }
+
+                                    case 'r':
+                                    {
+                                        throughput.recvStructSeq();
+                                        break;
+                                    }
+
+                                    case 'e':
+                                    {
+                                        throughput.echoStructSeq(structSeq);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+
+                            case '4':
+                            {
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendFixedSeq(fixedSeq);
+                                        break;
+                                    }
+
+                                    case 'o':
+                                    {
+                                        throughputOneway.sendFixedSeq(fixedSeq);
+                                        break;
+                                    }
+
+                                    case 'r':
+                                    {
+                                        throughput.recvFixedSeq();
+                                        break;
+                                    }
+
+                                    case 'e':
+                                    {
+                                        throughput.echoFixedSeq(fixedSeq);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    double dmsec = System.currentTimeMillis() - tmsec;
+                    System.out.println("time for " + repetitions + " sequences: " + dmsec  + "ms");
+                    System.out.println("time per sequence: " + dmsec / repetitions + "ms");
+                    int wireSize = 0;
+                    switch(currentType)
+                    {
+                        case '1':
+                        {
+                            wireSize = 1;
+                            break;
+                        }
+
+                        case '2':
+                        {
+                            wireSize = stringSeq[0].length();
+                            break;
+                        }
+
+                        case '3':
+                        {
+                            wireSize = structSeq[0].s.length();
+                            wireSize += 8; // Size of double on the wire.
+                            break;
+                        }
+
+                        case '4':
+                        {
+                            wireSize = 16; // Size of two ints and a double on the wire.
+                            break;
+                        }
+                    }
+                    double mbit = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0;
+                    if(c == 'e')
+                    {
+                        mbit *= 2;
+                    }
+                    System.out.println("throughput: " + new java.text.DecimalFormat("#.##").format(mbit) + "Mbps");
+                }
+                else if(line.equals("s"))
+                {
+                    throughput.shutdown();
+                }
+                else if(line.equals("x"))
                 {
                     // Nothing to do
                 }
@@ -425,9 +465,9 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.load("config");
+            initData.properties.load("config.client");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }

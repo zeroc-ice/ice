@@ -19,8 +19,8 @@ public final class TraceUtil
             int p = str.pos();
             str.pos(0);
 
-	    java.io.OutputStream os = new java.io.ByteArrayOutputStream();
-	    java.io.PrintStream ps = new java.io.PrintStream(os);
+            java.io.OutputStream os = new java.io.ByteArrayOutputStream();
+            java.io.PrintStream ps = new java.io.PrintStream(os);
             ps.print(heading);
             printHeader(ps, str);
 
@@ -37,8 +37,8 @@ public final class TraceUtil
             int p = str.pos();
             str.pos(0);
 
-	    java.io.OutputStream os = new java.io.ByteArrayOutputStream();
-	    java.io.PrintStream ps = new java.io.PrintStream(os);
+            java.io.OutputStream os = new java.io.ByteArrayOutputStream();
+            java.io.PrintStream ps = new java.io.PrintStream(os);
             ps.print(heading);
             printHeader(ps, str);
 
@@ -63,15 +63,15 @@ public final class TraceUtil
             int p = str.pos();
             str.pos(0);
 
-	    java.io.OutputStream os = new java.io.ByteArrayOutputStream();
-	    java.io.PrintStream ps = new java.io.PrintStream(os);
+            java.io.OutputStream os = new java.io.ByteArrayOutputStream();
+            java.io.PrintStream ps = new java.io.PrintStream(os);
             ps.print(heading);
             printHeader(ps, str);
 
             int batchRequestNum = str.readInt();
- 	    ps.print("\nnumber of requests = " + batchRequestNum);
-		
-	    for(int i = 0; i < batchRequestNum; ++i)
+             ps.print("\nnumber of requests = " + batchRequestNum);
+                
+            for(int i = 0; i < batchRequestNum; ++i)
             {
                 ps.print("\nrequest #" + i + ':');
                 printRequestHeader(ps, str);
@@ -91,8 +91,8 @@ public final class TraceUtil
             int p = str.pos();
             str.pos(0);
 
-	    java.io.OutputStream os = new java.io.ByteArrayOutputStream();
-	    java.io.PrintStream ps = new java.io.PrintStream(os);
+            java.io.OutputStream os = new java.io.ByteArrayOutputStream();
+            java.io.PrintStream ps = new java.io.PrintStream(os);
             ps.print(heading);
             printHeader(ps, str);
 
@@ -120,78 +120,78 @@ public final class TraceUtil
                 case ReplyStatus.replyFacetNotExist:
                 case ReplyStatus.replyOperationNotExist:
                 {
-		    switch(replyStatus)
-		    {
-			case ReplyStatus.replyObjectNotExist:
-			{
-			    ps.print("(object not exist)");
-			    break;
-			}
-			
-			case ReplyStatus.replyFacetNotExist:
-			{
-			    ps.print("(facet not exist)");
-			    break;
-			}
-			
-			case ReplyStatus.replyOperationNotExist:
-			{
-			    ps.print("(operation not exist)");
-			    break;
-			}
-			
-			default:
-			{
-			    if(IceUtil.Debug.ASSERT)
-			    {
-				IceUtil.Debug.Assert(false);
-			    }
-			    break;
-			}
-		    }
-		    
-		    printIdentityFacetOperation(ps, str);
-		    break;
+                    switch(replyStatus)
+                    {
+                        case ReplyStatus.replyObjectNotExist:
+                        {
+                            ps.print("(object not exist)");
+                            break;
+                        }
+                        
+                        case ReplyStatus.replyFacetNotExist:
+                        {
+                            ps.print("(facet not exist)");
+                            break;
+                        }
+                        
+                        case ReplyStatus.replyOperationNotExist:
+                        {
+                            ps.print("(operation not exist)");
+                            break;
+                        }
+                        
+                        default:
+                        {
+                            if(IceUtil.Debug.ASSERT)
+                            {
+                                IceUtil.Debug.Assert(false);
+                            }
+                            break;
+                        }
+                    }
+                    
+                    printIdentityFacetOperation(ps, str);
+                    break;
                 }
 
-		case ReplyStatus.replyUnknownException:
-		case ReplyStatus.replyUnknownLocalException:
-		case ReplyStatus.replyUnknownUserException:
-		{
-		    switch(replyStatus)
-		    {
-			case ReplyStatus.replyUnknownException:
-			{
-			    ps.print("(unknown exception)");
-			    break;
-			}
+                case ReplyStatus.replyUnknownException:
+                case ReplyStatus.replyUnknownLocalException:
+                case ReplyStatus.replyUnknownUserException:
+                {
+                    switch(replyStatus)
+                    {
+                        case ReplyStatus.replyUnknownException:
+                        {
+                            ps.print("(unknown exception)");
+                            break;
+                        }
 
-			case ReplyStatus.replyUnknownLocalException:
-			{
-			    ps.print("(unknown local exception)");
-			    break;
-			}
-			
-			case ReplyStatus.replyUnknownUserException:
-			{
-			    ps.print("(unknown user exception)");
-			    break;
-			}
-			
-			default:
-			{
-			    if(IceUtil.Debug.ASSERT)
-			    {
-				IceUtil.Debug.Assert(false);
-			    }
-			    break;
-			}
-		    }
+                        case ReplyStatus.replyUnknownLocalException:
+                        {
+                            ps.print("(unknown local exception)");
+                            break;
+                        }
+                        
+                        case ReplyStatus.replyUnknownUserException:
+                        {
+                            ps.print("(unknown user exception)");
+                            break;
+                        }
+                        
+                        default:
+                        {
+                            if(IceUtil.Debug.ASSERT)
+                            {
+                                IceUtil.Debug.Assert(false);
+                            }
+                            break;
+                        }
+                    }
 
-		    String unknown = str.readString();
-		    ps.print("\nunknown = " + unknown);
-		    break;
-		}
+                    String unknown = str.readString();
+                    ps.print("\nunknown = " + unknown);
+                    break;
+                }
 
                 default:
                 {
@@ -277,157 +277,157 @@ public final class TraceUtil
     private static void
     printIdentityFacetOperation(java.io.PrintStream out, BasicStream stream)
     {
-	Ice.Identity identity = new Ice.Identity();
-	identity.__read(stream);
-	out.print("\nidentity = " + stream.instance().identityToString(identity));
+        Ice.Identity identity = new Ice.Identity();
+        identity.__read(stream);
+        out.print("\nidentity = " + stream.instance().identityToString(identity));
 
-	String[] facet = stream.readStringSeq();
-	out.print("\nfacet = ");
-	if(facet.length > 0)
-	{
-	    out.print(IceUtil.StringUtil.escapeString(facet[0], ""));
-	}
+        String[] facet = stream.readStringSeq();
+        out.print("\nfacet = ");
+        if(facet.length > 0)
+        {
+            out.print(IceUtil.StringUtil.escapeString(facet[0], ""));
+        }
 
-	String operation = stream.readString();
-	out.print("\noperation = " + operation);
+        String operation = stream.readString();
+        out.print("\noperation = " + operation);
     }
 
     private static void
     printRequestHeader(java.io.PrintStream out, BasicStream stream)
     {
-	printIdentityFacetOperation(out, stream);
+        printIdentityFacetOperation(out, stream);
 
-	byte mode = stream.readByte();
-	out.print("\nmode = " + (int)mode + ' ');
-	switch(mode)
-	{
-	case Ice.OperationMode._Normal:
-	{
-	    out.print("(normal)");
-	    break;
-	}
-		
-	case Ice.OperationMode._Nonmutating:
-	{
-	    out.print("(nonmutating)");
-	    break;
-	}
-		
-	case Ice.OperationMode._Idempotent:
-	{
-	    out.print("(idempotent)");
-	    break;
-	}
-		
-	default:
-	{
-	    out.print("(unknown)");
-	    break;
-	}
-	}
+        byte mode = stream.readByte();
+        out.print("\nmode = " + (int)mode + ' ');
+        switch(mode)
+        {
+        case Ice.OperationMode._Normal:
+        {
+            out.print("(normal)");
+            break;
+        }
+                
+        case Ice.OperationMode._Nonmutating:
+        {
+            out.print("(nonmutating)");
+            break;
+        }
+                
+        case Ice.OperationMode._Idempotent:
+        {
+            out.print("(idempotent)");
+            break;
+        }
+                
+        default:
+        {
+            out.print("(unknown)");
+            break;
+        }
+        }
 
-	int sz = stream.readSize();
-	out.print("\ncontext = ");
-	while(sz-- > 0)
-	{
-	    String key = stream.readString();
-	    String value = stream.readString();
-	    out.print(key + '/'+ value);
-	    if(sz > 0)
-	    {
-		out.print(", ");
-	    }
-	}
+        int sz = stream.readSize();
+        out.print("\ncontext = ");
+        while(sz-- > 0)
+        {
+            String key = stream.readString();
+            String value = stream.readString();
+            out.print(key + '/'+ value);
+            if(sz > 0)
+            {
+                out.print(", ");
+            }
+        }
     }
 
     private static void
     printHeader(java.io.PrintStream out, BasicStream stream)
     {
-	byte magic;
-	magic = stream.readByte();	// Don't bother printing the magic number
-	magic = stream.readByte();
-	magic = stream.readByte();
-	magic = stream.readByte();
+        byte magic;
+        magic = stream.readByte();        // Don't bother printing the magic number
+        magic = stream.readByte();
+        magic = stream.readByte();
+        magic = stream.readByte();
 
-	byte pMajor = stream.readByte();
-	byte pMinor = stream.readByte();
+        byte pMajor = stream.readByte();
+        byte pMinor = stream.readByte();
 //            out.print("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
 
-	byte eMajor = stream.readByte();
-	byte eMinor = stream.readByte();
+        byte eMajor = stream.readByte();
+        byte eMinor = stream.readByte();
 //            out.print("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 
-	byte type = stream.readByte();
-	out.print("\nmessage type = " + (int)type + ' ');
-	switch(type)
-	{
-	case Protocol.requestMsg:
-	{
-	    out.print("(request)");
-	    break;
-	}
+        byte type = stream.readByte();
+        out.print("\nmessage type = " + (int)type + ' ');
+        switch(type)
+        {
+        case Protocol.requestMsg:
+        {
+            out.print("(request)");
+            break;
+        }
 
-	case Protocol.requestBatchMsg:
-	{
-	    out.print("(batch request)");
-	    break;
-	}
+        case Protocol.requestBatchMsg:
+        {
+            out.print("(batch request)");
+            break;
+        }
 
-	case Protocol.replyMsg:
-	{
-	    out.print("(reply)");
-	    break;
-	}
+        case Protocol.replyMsg:
+        {
+            out.print("(reply)");
+            break;
+        }
 
-	case Protocol.closeConnectionMsg:
-	{
-	    out.print("(close connection)");
-	    break;
-	}
+        case Protocol.closeConnectionMsg:
+        {
+            out.print("(close connection)");
+            break;
+        }
 
-	case Protocol.validateConnectionMsg:
-	{
-	    out.print("(validate connection)");
-	    break;
-	}
+        case Protocol.validateConnectionMsg:
+        {
+            out.print("(validate connection)");
+            break;
+        }
 
-	default:
-	{
-	    out.print("(unknown)");
-	    break;
-	}
-	}
+        default:
+        {
+            out.print("(unknown)");
+            break;
+        }
+        }
 
-	byte compress = stream.readByte();
-	out.print("\ncompression status = " + (int)compress + ' ');
-	switch(compress)
-	{
-	case (byte)0:
-	{
-	    out.print("(not compressed; do not compress response, if any)");
-	    break;
-	}
+        byte compress = stream.readByte();
+        out.print("\ncompression status = " + (int)compress + ' ');
+        switch(compress)
+        {
+        case (byte)0:
+        {
+            out.print("(not compressed; do not compress response, if any)");
+            break;
+        }
 
-	case (byte)1:
-	{
-	    out.print("(not compressed; compress response, if any)");
-	    break;
-	}
+        case (byte)1:
+        {
+            out.print("(not compressed; compress response, if any)");
+            break;
+        }
 
-	case (byte)2:
-	{
-	    out.print("(compressed; compress response, if any)");
-	    break;
-	}
+        case (byte)2:
+        {
+            out.print("(compressed; compress response, if any)");
+            break;
+        }
 
-	default:
-	{
-	    out.print("(unknown)");
-	    break;
-	}
-	}
+        default:
+        {
+            out.print("(unknown)");
+            break;
+        }
+        }
 
-	int size = stream.readInt();
-	out.print("\nmessage size = " + size);
+        int size = stream.readInt();
+        out.print("\nmessage size = " + size);
     }
 }

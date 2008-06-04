@@ -21,24 +21,24 @@ class CondVar : public IceUtil::Monitor<IceUtil::RecMutex>
 public:
 
     CondVar() :
-	_done(false)
+        _done(false)
     {
     }
 
     void waitForSignal()
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock lock(*this);
-	while(!_done)
-	{
-	    wait();
-	}
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock lock(*this);
+        while(!_done)
+        {
+            wait();
+        }
     }
 
     void signal()
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock lock(*this);
-	_done = true;
-	notify();
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock lock(*this);
+        _done = true;
+        notify();
     }
 
 private:
@@ -51,20 +51,20 @@ class AliveTestThread : public Thread
 public:
 
     AliveTestThread(CondVar& childCreated, CondVar& parentReady) :
-	_childCreated(childCreated), _parentReady(parentReady)
+        _childCreated(childCreated), _parentReady(parentReady)
     {
     }
 
     virtual void run()
     {
-	try
-	{
-	   _childCreated.signal();
-	   _parentReady.waitForSignal();
-	}
-	catch(IceUtil::ThreadLockedException &)
-	{
-	}
+        try
+        {
+            _childCreated.signal();
+            _parentReady.waitForSignal();
+        }
+        catch(IceUtil::ThreadLockedException &)
+        {
+        }
     }
 
 private:

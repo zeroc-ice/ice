@@ -61,11 +61,11 @@ public:
 
     enum State
     {
-	StateUnsent,
-	StateInProgress,
-	StateOK,
-	StateUserException,
-	StateLocalException
+        StateUnsent,
+        StateInProgress,
+        StateOK,
+        StateUserException,
+        StateLocalException
     };
 
     Outgoing(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context*);

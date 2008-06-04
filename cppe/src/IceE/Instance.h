@@ -78,9 +78,9 @@ private:
 
     enum State
     {
-	StateActive,
-	StateDestroyInProgress,
-	StateDestroyed
+        StateActive,
+        StateDestroyInProgress,
+        StateDestroyed
     };
     State _state;
     Ice::InitializationData _initData; // Immutable, not reset by destroy().

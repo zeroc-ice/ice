@@ -31,9 +31,9 @@ public:
         initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         initData.properties->setProperty("Ice.Warn.Connections", "0");
 
-	loadConfig(initData.properties);
-	initData.logger = getLogger();
-	setCommunicator(Ice::initialize(argc, argv, initData));
+        loadConfig(initData.properties);
+        initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         adapter->add(new MyDerivedClassI, communicator()->stringToIdentity("test"));

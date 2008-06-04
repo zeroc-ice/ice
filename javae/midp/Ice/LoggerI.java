@@ -20,10 +20,10 @@ public final class LoggerI implements Logger
     public 
     LoggerI(String prefix)
     {
-	if(prefix.length() > 0)
-	{
-	    _prefix = prefix + ": ";
-	}
+        if(prefix.length() > 0)
+        {
+            _prefix = prefix + ": ";
+        }
 
         _date = java.util.Calendar.getInstance();
     }
@@ -31,11 +31,11 @@ public final class LoggerI implements Logger
     public void
     print(String message)
     {
-	synchronized(_globalMutex)
-	{
-	    _out.println(message);
-	    _out.flush();
-	}
+        synchronized(_globalMutex)
+        {
+            _out.println(message);
+            _out.flush();
+        }
     }
 
     public void
@@ -44,9 +44,9 @@ public final class LoggerI implements Logger
         StringBuffer s = new StringBuffer("[ ");
         s = timeStamp(s);
         s.append(" ");
-	s.append(_prefix);
-	s.append(category);
-	s.append(": ");
+        s.append(_prefix);
+        s.append(category);
+        s.append(": ");
         s.append(message);
         s.append(" ]");
         int start = 0;
@@ -61,11 +61,11 @@ public final class LoggerI implements Logger
         }
         s.append(temp.substring(start));
 
-	synchronized(_globalMutex)
+        synchronized(_globalMutex)
         {
             _out.println(s.toString());
-	    _out.flush();
-	}
+            _out.flush();
+        }
     }
 
     //
@@ -109,35 +109,35 @@ public final class LoggerI implements Logger
     public void
     warning(String message)
     {
-	StringBuffer s = new StringBuffer();
+        StringBuffer s = new StringBuffer();
         s = timeStamp(s);
         s.append(" ");
-	s.append(_prefix);
-	s.append("warning: ");
-	s.append(message);
+        s.append(_prefix);
+        s.append("warning: ");
+        s.append(message);
 
-	synchronized(_globalMutex)
-	{
-	    _out.println(s.toString());
-	    _out.flush();
-	}
+        synchronized(_globalMutex)
+        {
+            _out.println(s.toString());
+            _out.flush();
+        }
     }
 
     public void
     error(String message)
     {
-	StringBuffer s = new StringBuffer();
+        StringBuffer s = new StringBuffer();
         s = timeStamp(s);
         s.append(" ");
-	s.append(_prefix);
-	s.append("error: ");
-	s.append(message);
+        s.append(_prefix);
+        s.append("error: ");
+        s.append(message);
 
-	synchronized(_globalMutex)
-	{
-	    _out.println(s.toString());
-	    _out.flush();
-	}
+        synchronized(_globalMutex)
+        {
+            _out.println(s.toString());
+            _out.flush();
+        }
     }
 
     String _prefix = "";

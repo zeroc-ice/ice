@@ -89,11 +89,11 @@ IceUtil::Monitor<T>::lock() const
     _mutex.lock();
     if(_mutex.willUnlock())
     {
-	//
-	// On the first mutex acquisition reset the number pending
-	// notifications.
-	//
-	_nnotify = 0;
+        //
+        // On the first mutex acquisition reset the number pending
+        // notifications.
+        //
+        _nnotify = 0;
     }
 }
 
@@ -102,13 +102,13 @@ IceUtil::Monitor<T>::unlock() const
 {
     if(_mutex.willUnlock())
     {
-	//
-	// Perform any pending notifications.
-	//
-	if(_nnotify != 0)
-	{
-	    notifyImpl(_nnotify);
-	}
+        //
+        // Perform any pending notifications.
+        //
+        if(_nnotify != 0)
+        {
+            notifyImpl(_nnotify);
+        }
     }
     _mutex.unlock();
 
@@ -116,12 +116,12 @@ IceUtil::Monitor<T>::unlock() const
     int nnotify = _nnotify;
     if(_mutex.unlock())
     {
-	//
-	// Perform any pending notifications.
-	//
-	if(nnotify != 0)
+        //
+        // Perform any pending notifications.
+        //
+        if(nnotify != 0)
         {
-	    notifyImpl(nnotify);
+            notifyImpl(nnotify);
         }
     }
 */
@@ -133,11 +133,11 @@ IceUtil::Monitor<T>::tryLock() const
     bool result = _mutex.tryLock();
     if(result && _mutex.willUnlock())
     {
-	//
-	// On the first mutex acquisition reset the number pending
-	// notifications.
-	//
-	_nnotify = 0;
+        //
+        // On the first mutex acquisition reset the number pending
+        // notifications.
+        //
+        _nnotify = 0;
     }
     return result;
 }
@@ -150,7 +150,7 @@ IceUtil::Monitor<T>::wait() const
     //
     if(_nnotify != 0)
     {
-	notifyImpl(_nnotify);
+        notifyImpl(_nnotify);
     }
 
     //
@@ -158,15 +158,15 @@ IceUtil::Monitor<T>::wait() const
     //
     try
     {
-	_cond.waitImpl(_mutex);
-	//
-	// Reset the nnotify count once wait() returns.
-	//
+        _cond.waitImpl(_mutex);
+        //
+        // Reset the nnotify count once wait() returns.
+        //
     }
     catch(...)
     {
-	_nnotify = 0;
-	throw;
+        _nnotify = 0;
+        throw;
     }
 
     _nnotify = 0;
@@ -180,7 +180,7 @@ IceUtil::Monitor<T>::timedWait(const Time& timeout) const
     //
     if(_nnotify != 0)
     {
-	notifyImpl(_nnotify);
+        notifyImpl(_nnotify);
     }
 
     bool rc;
@@ -189,16 +189,16 @@ IceUtil::Monitor<T>::timedWait(const Time& timeout) const
     //
     try
     {
-	rc = _cond.timedWaitImpl(_mutex, timeout);
+        rc = _cond.timedWaitImpl(_mutex, timeout);
 
-	//
-	// Reset the nnotify count once wait() returns.
-	//
+        //
+        // Reset the nnotify count once wait() returns.
+        //
     }
     catch(...)
     {
-	_nnotify = 0;
-	throw;
+        _nnotify = 0;
+        throw;
     }
 
     _nnotify = 0;
@@ -214,7 +214,7 @@ IceUtil::Monitor<T>::notify()
     //
     if(_nnotify != -1)
     {
-	++_nnotify;
+        ++_nnotify;
     }
 }
 
@@ -236,19 +236,19 @@ IceUtil::Monitor<T>::notifyImpl(int nnotify) const
     //
     if(nnotify == -1)
     {
-	_cond.broadcast();
-	return;
+        _cond.broadcast();
+        return;
     }
     else
     {
-	//
-	// Otherwise notify n times.
-	//
-	while(nnotify > 0)
-	{
-	    _cond.signal();
-	    --nnotify;
-	}
+        //
+        // Otherwise notify n times.
+        //
+        while(nnotify > 0)
+        {
+            _cond.signal();
+            --nnotify;
+        }
     }
 }
 

@@ -1,0 +1,11 @@
+#
+# The server creates one single object adapter with the name
+# "Throughput". The following line sets the endpoints for this
+# adapter.
+#
+Throughput.Endpoints=default -p 10000 -h 127.0.0.1
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1

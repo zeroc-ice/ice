@@ -31,45 +31,45 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-    	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
+            Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
         loadConfig(initData.properties);
     
-	//
-	// This test aborts servers, so we don't want warnings.
-	//
-	setCommunicator(Ice::initialize(argc, argv, initData));
-	communicator()->getProperties()->setProperty("Ice.Warn.Connections", "0");
+        //
+        // This test aborts servers, so we don't want warnings.
+        //
+        setCommunicator(Ice::initialize(argc, argv, initData));
+        communicator()->getProperties()->setProperty("Ice.Warn.Connections", "0");
 
         vector<int> ports;
         for(int i = 1; i < argc; ++i)
         {
-	    if(argv[i][0] == '-')
-	    {
-	        tprintf("%s: unknown option `%s'\n", argv[0], argv[i]);
-	        usage(argv[0]);
-	        return EXIT_FAILURE;
-	    }
+            if(argv[i][0] == '-')
+            {
+                tprintf("%s: unknown option `%s'\n", argv[0], argv[i]);
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
 
-	    ports.push_back(atoi(argv[i]));
+            ports.push_back(atoi(argv[i]));
         }
 
         if(ports.empty())
         {
-	    tprintf("%s: no ports specified\n", argv[0]);
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
+            tprintf("%s: no ports specified\n", argv[0]);
+            usage(argv[0]);
+            return EXIT_FAILURE;
         }
 
         try
         {
-	    void allTests(const Ice::CommunicatorPtr&, const vector<int>&);
-	    allTests(communicator(), ports);
+            void allTests(const Ice::CommunicatorPtr&, const vector<int>&);
+            allTests(communicator(), ports);
         }
         catch(const Ice::Exception& ex)
         {
-	    tprintf("%s\n", ex.toString().c_str());
-	    test(false);
+            tprintf("%s\n", ex.toString().c_str());
+            test(false);
         }
 
         return EXIT_SUCCESS;

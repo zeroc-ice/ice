@@ -26,73 +26,73 @@ public class Javac11 extends org.apache.tools.ant.taskdefs.compilers.DefaultComp
     protected boolean
     assumeJava11()
     {
-	return true;
+        return true;
     }
 
     protected Path
     getCompileClasspath()
     {
-	Path classpath = new Path(attributes.getProject());
+        Path classpath = new Path(attributes.getProject());
 
-	java.io.File destDir = attributes.getDestdir();
-	if(destDir != null)
-	{
-	    classpath.setLocation(destDir);
-	}
+        java.io.File destDir = attributes.getDestdir();
+        if(destDir != null)
+        {
+            classpath.setLocation(destDir);
+        }
 
-	Path cp = attributes.getClasspath();
-	if(cp != null)
-	{
-	    classpath.addExisting(cp);
-	}
+        Path cp = attributes.getClasspath();
+        if(cp != null)
+        {
+            classpath.addExisting(cp);
+        }
 
-	Path runtime = new Path(attributes.getProject(), _javacHome + "/lib/classes.zip");
-	classpath.append(runtime);
+        Path runtime = new Path(attributes.getProject(), _javacHome + "/lib/classes.zip");
+        classpath.append(runtime);
 
-	return classpath;
+        return classpath;
     }
 
     public boolean
     execute()
-	throws BuildException
+        throws BuildException
     {
-	Project project = attributes.getProject();
-	_javacHome = project.getProperty("java11.home");
-	if(_javacHome == null)
-	{
-	    throw new BuildException("The property java11.home is not defined");
-	}
+        Project project = attributes.getProject();
+        _javacHome = project.getProperty("java11.home");
+        if(_javacHome == null)
+        {
+            throw new BuildException("The property java11.home is not defined");
+        }
 
-	attributes.log("Using javac 1.1 compiler", Project.MSG_VERBOSE);
+        attributes.log("Using javac 1.1 compiler", Project.MSG_VERBOSE);
 
-	Commandline cmd = new Commandline();
-	cmd.setExecutable(_javacHome + "/bin/javac");
-	setupJavacCommandlineSwitches(cmd, true);
-	logAndAddFilesToCompile(cmd);
+        Commandline cmd = new Commandline();
+        cmd.setExecutable(_javacHome + "/bin/javac");
+        setupJavacCommandlineSwitches(cmd, true);
+        logAndAddFilesToCompile(cmd);
 
         String[] commandArray = cmd.getCommandline();
 
-	try
-	{
-	    Execute exe = new Execute(new LogStreamHandler(attributes, Project.MSG_INFO, Project.MSG_WARN));
+        try
+        {
+            Execute exe = new Execute(new LogStreamHandler(attributes, Project.MSG_INFO, Project.MSG_WARN));
 
-	    //
-	    // Overwrite JAVA_HOME so that javac runs correctly.
-	    //
-	    final String[] env = { "JAVA_HOME=" + _javacHome };
-	    exe.setEnvironment(env);
+            //
+            // Overwrite JAVA_HOME so that javac runs correctly.
+            //
+            final String[] env = { "JAVA_HOME=" + _javacHome };
+            exe.setEnvironment(env);
 
-	    exe.setAntRun(project);
-	    exe.setWorkingDirectory(project.getBaseDir());
-	    exe.setCommandline(commandArray);
-	    exe.execute();
+            exe.setAntRun(project);
+            exe.setWorkingDirectory(project.getBaseDir());
+            exe.setCommandline(commandArray);
+            exe.execute();
 
-	    return exe.getExitValue() == 0;
-	}
-	catch(java.io.IOException ex)
-	{
-	    throw new BuildException("Error running " + commandArray[0] + " compiler", ex, location);
-	}
+            return exe.getExitValue() == 0;
+        }
+        catch(java.io.IOException ex)
+        {
+            throw new BuildException("Error running " + commandArray[0] + " compiler", ex, location);
+        }
     }
 
     private String _javacHome;

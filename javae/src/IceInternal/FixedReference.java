@@ -13,14 +13,14 @@ public class FixedReference extends Reference
 {
     public
     FixedReference(Instance inst,
-		   Ice.Communicator com,
-    		   Ice.Identity ident,
+                   Ice.Communicator com,
+                       Ice.Identity ident,
                     java.util.Hashtable context,
-		   String fs,
-		   int md,
-		   Ice.Connection[] fixedConns)
+                   String fs,
+                   int md,
+                   Ice.Connection[] fixedConns)
     {
-    	super(inst, com, ident, context, fs, md, false);
+            super(inst, com, ident, context, fs, md, false);
         _fixedConnections = fixedConns;
     }
 
@@ -62,14 +62,14 @@ public class FixedReference extends Reference
 
     public void
     streamWrite(BasicStream s)
-	throws Ice.MarshalException
+        throws Ice.MarshalException
     {
         throw new Ice.FixedProxyException();
     }
 
     public String
     toString()
-	throws Ice.MarshalException
+        throws Ice.MarshalException
     {
         throw new Ice.FixedProxyException();
     }
@@ -148,26 +148,26 @@ public class FixedReference extends Reference
             //
             java.util.Vector secureConnections = new java.util.Vector();
 
-	    for(int i = connections.size(); i > 0; --i)
-	    {
-		if(((Endpoint)connections.elementAt(i - 1)).secure())
-		{
-		    secureConnections.addElement(connections.elementAt(i - 1));
-		    connections.removeElementAt(i - 1);
-		}
-	    }
-	    
+            for(int i = connections.size(); i > 0; --i)
+            {
+                if(((Endpoint)connections.elementAt(i - 1)).secure())
+                {
+                    secureConnections.addElement(connections.elementAt(i - 1));
+                    connections.removeElementAt(i - 1);
+                }
+            }
+            
             if(getSecure())
             {
                 connections = secureConnections;
             }
             else
             {
-		java.util.Enumeration e = secureConnections.elements();
-		while(e.hasMoreElements())
-		{
-		    connections.addElement(e.nextElement());
-		}
+                java.util.Enumeration e = secureConnections.elements();
+                while(e.hasMoreElements())
+                {
+                    connections.addElement(e.nextElement());
+                }
             }
         }
         else if(connections.size() == 1)
@@ -185,34 +185,34 @@ public class FixedReference extends Reference
             ex.proxy = ""; // No stringified representation for fixed proxies.
             throw ex;
         }
-	
-	Ice.Connection connection = (Ice.Connection)connections.elementAt(0);
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(connection != null);
-	}
-	connection.throwException();
-	return connection;
+        
+        Ice.Connection connection = (Ice.Connection)connections.elementAt(0);
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(connection != null);
+        }
+        connection.throwException();
+        return connection;
     }
 
     public boolean
     equals(java.lang.Object obj)
     {
         if(this == obj)
-	{
-	    return true;
-	}
-	if(!(obj instanceof FixedReference))
-	{
-	    return false;
-	}
+        {
+            return true;
+        }
+        if(!(obj instanceof FixedReference))
+        {
+            return false;
+        }
         FixedReference rhs = (FixedReference)obj;
         if(!super.equals(rhs))
         {
             return false;
         }
-	
-	return IceUtil.Arrays.equals(_fixedConnections, rhs._fixedConnections);
+        
+        return IceUtil.Arrays.equals(_fixedConnections, rhs._fixedConnections);
     }
 
     protected
@@ -223,17 +223,17 @@ public class FixedReference extends Reference
     protected void
     shallowCopy(FixedReference ref)
     {
-	super.shallowCopy(ref);
-	ref._fixedConnections = _fixedConnections;
-	ref._rand = _rand;
+        super.shallowCopy(ref);
+        ref._fixedConnections = _fixedConnections;
+        ref._rand = _rand;
     }
 
     public java.lang.Object
     ice_clone()
     {
-	FixedReference result = new FixedReference();
+        FixedReference result = new FixedReference();
         shallowCopy(result);
-	return result;
+        return result;
     }
 
     private Ice.Connection _fixedConnections[];

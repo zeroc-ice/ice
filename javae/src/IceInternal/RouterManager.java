@@ -18,7 +18,7 @@ public final class RouterManager
     synchronized void
     destroy()
     {
-	java.util.Enumeration e = _table.elements();
+        java.util.Enumeration e = _table.elements();
         while(e.hasMoreElements())
         {
             RouterInfo info = (RouterInfo)e.nextElement();
@@ -57,18 +57,18 @@ public final class RouterManager
     public RouterInfo
     erase(Ice.RouterPrx rtr)
     {
-	RouterInfo info = null;
-	if(rtr != null)
-	{
-	    // The router cannot be routed.
-	    Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
+        RouterInfo info = null;
+        if(rtr != null)
+        {
+            // The router cannot be routed.
+            Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
 
-	    synchronized(this)
-	    {
-		info = (RouterInfo)_table.remove(router);
-	    }
-	}
-	return info;
+            synchronized(this)
+            {
+                info = (RouterInfo)_table.remove(router);
+            }
+        }
+        return info;
     }
 
     private java.util.Hashtable _table = new java.util.Hashtable();

@@ -20,7 +20,7 @@ public:
     virtual void
     callback(Ice::Int num, const Ice::Current&)
     {
-	printf("received callback #%d\n", num);
+        printf("received callback #%d\n", num);
     }
 };
 
@@ -34,26 +34,27 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "Callback.Client.CallbackServer";
+    const char* proxyProperty = "CallbackSender.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
+        return EXIT_FAILURE;
     }
 
     CallbackSenderPrx server = CallbackSenderPrx::checkedCast(communicator->stringToProxy(proxy));
     if(!server)
     {
-	fprintf(stderr, "%s: invalid proxy\n", argv[0]);
-	return EXIT_FAILURE;
+        fprintf(stderr, "%s: invalid proxy\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
     Ice::Identity ident;
     ident.name = IceUtil::generateUUID();
     ident.category = "";
-    adapter->add(new CallbackReceiverI, ident);
+    CallbackReceiverPtr cr = new CallbackReceiverI;
+    adapter->add(cr, ident);
     adapter->activate();
     server->ice_getConnection()->setAdapter(adapter);
     server->addClient(ident);
@@ -72,7 +73,7 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
-        initData.properties->load("config");
+        initData.properties->load("config.client");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

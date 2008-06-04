@@ -17,7 +17,7 @@ void IceUtil::StaticMutex::initialize() const
     //
     CRITICAL_SECTION* newCriticalSection = new CRITICAL_SECTION;
     InitializeCriticalSection(newCriticalSection);
-	    	
+                    
     //
     // Then assign it to _mutex
     // Note that Windows performs a full memory barrier before the assignment;
@@ -25,11 +25,11 @@ void IceUtil::StaticMutex::initialize() const
     //
     if(InterlockedCompareExchangePointer(reinterpret_cast<void**>(&_mutex), newCriticalSection, 0) != 0)
     {
-	//
-	// Another thread was doing the same thing
-	//
-	DeleteCriticalSection(newCriticalSection);
-	delete newCriticalSection;
+        //
+        // Another thread was doing the same thing
+        //
+        DeleteCriticalSection(newCriticalSection);
+        delete newCriticalSection;
     }
 
     //

@@ -97,13 +97,13 @@ public:
 
     ICE_DEPRECATED_API ::Ice::Int ice_hash() const
     {
-	return ice_getHash();
+        return ice_getHash();
     }
     ICE_API ::Ice::Int ice_getHash() const;
 
     ICE_DEPRECATED_API ::Ice::CommunicatorPtr ice_communicator() const
     {
-	return ice_getCommunicator();
+        return ice_getCommunicator();
     }
     ICE_API ::Ice::CommunicatorPtr ice_getCommunicator() const;
 
@@ -148,21 +148,21 @@ public:
     ICE_API ::Ice::Identity ice_getIdentity() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity& id) const
     {
-	return ice_identity(id);
+        return ice_identity(id);
     }
     ICE_API ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
     
     ICE_API ::Ice::Context ice_getContext() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context& ctx) const
     {
-	return ice_context(ctx);
+        return ice_context(ctx);
     }
     ICE_API ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
 
     ICE_API const ::std::string& ice_getFacet() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string& facet) const
     {
-	return ice_facet(facet);
+        return ice_facet(facet);
     }
     ICE_API ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
@@ -226,14 +226,14 @@ public:
 
     ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection()
     {
-	return ice_getConnection();
+        return ice_getConnection();
     }
     ICE_API ::Ice::ConnectionPtr ice_getConnection();
     ICE_API ::Ice::ConnectionPtr ice_getCachedConnection() const;
 
     ::IceInternal::ReferencePtr __reference() const
     {
-	return _reference;
+        return _reference;
     }
 
     ICE_API void __copyFrom(const ::Ice::ObjectPrx&);
@@ -258,15 +258,15 @@ private:
 
     void setup(const ::IceInternal::ReferencePtr& ref)
     {
-	//
-	// No need to synchronize "*this", as this operation is only
-	// called upon initialization.
-	//
-	
-	assert(!_reference);
-	assert(!_connection);
-	
-	_reference = ref;
+        //
+        // No need to synchronize "*this", as this operation is only
+        // called upon initialization.
+        //
+        
+        assert(!_reference);
+        assert(!_connection);
+        
+        _reference = ref;
     }
     friend class ::IceInternal::ProxyFactory;
 
@@ -288,7 +288,7 @@ struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityLess(lhs, rhs);
+        return proxyIdentityLess(lhs, rhs);
     }
 };
 
@@ -296,7 +296,7 @@ struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityEqual(lhs, rhs);
+        return proxyIdentityEqual(lhs, rhs);
     }
 };
 
@@ -304,7 +304,7 @@ struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrx&, Object
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityAndFacetLess(lhs, rhs);
+        return proxyIdentityAndFacetLess(lhs, rhs);
     }
 };
 
@@ -312,7 +312,7 @@ struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, Objec
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityAndFacetEqual(lhs, rhs);
+        return proxyIdentityAndFacetEqual(lhs, rhs);
     }
 };
 
@@ -391,14 +391,14 @@ checkedCastImpl(const ::Ice::ObjectPrx& b)
     P d = 0;
     if(b.get())
     {
-	typedef typename P::element_type T;
+        typedef typename P::element_type T;
 
-	d = dynamic_cast<T*>(b.get());
-	if(!d && b->ice_isA(T::ice_staticId()))
-	{
-	    d = new T;
-	    d->__copyFrom(b);
-	}
+        d = dynamic_cast<T*>(b.get());
+        if(!d && b->ice_isA(T::ice_staticId()))
+        {
+            d = new T;
+            d->__copyFrom(b);
+        }
     }
     return d;
 }
@@ -409,14 +409,14 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context& ctx)
     P d = 0;
     if(b.get())
     {
-	typedef typename P::element_type T;
+        typedef typename P::element_type T;
 
-	d = dynamic_cast<T*>(b.get());
-	if(!d && b->ice_isA(T::ice_staticId(), ctx))
-	{
-	    d = new T;
-	    d->__copyFrom(b);
-	}
+        d = dynamic_cast<T*>(b.get());
+        if(!d && b->ice_isA(T::ice_staticId(), ctx))
+        {
+            d = new T;
+            d->__copyFrom(b);
+        }
     }
     return d;
 }
@@ -427,14 +427,14 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b)
     P d = 0;
     if(b)
     {
-	typedef typename P::element_type T;
+        typedef typename P::element_type T;
 
-	d = dynamic_cast<T*>(b.get());
-	if(!d)
-	{
-	    d = new T;
-	    d->__copyFrom(b);
-	}
+        d = dynamic_cast<T*>(b.get());
+        if(!d)
+        {
+            d = new T;
+            d->__copyFrom(b);
+        }
     }
     return d;
 }
@@ -473,7 +473,7 @@ uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::strin
     ::Ice::ObjectPrx d = 0;
     if(b)
     {
-	d = b->ice_facet(f);
+        d = b->ice_facet(f);
     }
     return d;
 }
@@ -488,8 +488,8 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
 
     if(bb)
     {
-	d = new T;
-	d->__copyFrom(bb);
+        d = new T;
+        d->__copyFrom(bb);
     }
     return d;
 }
@@ -504,8 +504,8 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Co
 
     if(bb)
     {
-	d = new T;
-	d->__copyFrom(bb);
+        d = new T;
+        d->__copyFrom(bb);
     }
     return d;
 }
@@ -516,11 +516,11 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
     P d = 0;
     if(b)
     {
-	typedef typename P::element_type T;
+        typedef typename P::element_type T;
 
-	::Ice::ObjectPrx bb = b->ice_facet(f);
-	d = new T;
-	d->__copyFrom(bb);
+        ::Ice::ObjectPrx bb = b->ice_facet(f);
+        d = new T;
+        d->__copyFrom(bb);
     }
     return d;
 }

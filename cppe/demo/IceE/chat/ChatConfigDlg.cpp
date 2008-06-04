@@ -19,7 +19,7 @@
 using namespace std;
 
 CChatConfigDlg::CChatConfigDlg(const CString& user, const CString& password,
-			       const CString& host, const CString& port, CWnd* pParent /*=NULL*/) :
+                               const CString& host, const CString& port, CWnd* pParent /*=NULL*/) :
     CDialog(CChatConfigDlg::IDD, pParent),
     _user(user),
     _password(password),

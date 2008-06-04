@@ -29,26 +29,26 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 
     if(p == _servantMapMap.end() || p->first != ident)
     {
-	p = _servantMapMap.find(ident);
+        p = _servantMapMap.find(ident);
     }
 
     if(p == _servantMapMap.end())
     {
-	p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, FacetMap>(ident, FacetMap()));
+        p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, FacetMap>(ident, FacetMap()));
     }
     else
     {
-	if(p->second.find(facet) != p->second.end())
-	{
-	    AlreadyRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "servant";
-	    ex.id = _instance->identityToString(ident);
-	    if(!facet.empty())
-	    {
-		ex.id += " -f " + IceUtil::escapeString(facet, "");
-	    }
-	    throw ex;
-	}
+        if(p->second.find(facet) != p->second.end())
+        {
+            AlreadyRegisteredException ex(__FILE__, __LINE__);
+            ex.kindOfObject = "servant";
+            ex.id = _instance->identityToString(ident);
+            if(!facet.empty())
+            {
+                ex.id += " -f " + IceUtil::escapeString(facet, "");
+            }
+            throw ex;
+        }
     }
 
     _servantMapMapHint = p;
@@ -75,19 +75,19 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 
     if(p == _servantMapMap.end() || p->first != ident)
     {
-	p = _servantMapMap.find(ident);
+        p = _servantMapMap.find(ident);
     }
     
     if(p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-	NotRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = "servant";
-	ex.id = _instance->identityToString(ident);
-	if(!facet.empty())
-	{
-	    ex.id += " -f " + IceUtil::escapeString(facet, "");
-	}
-	throw ex;
+        NotRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "servant";
+        ex.id = _instance->identityToString(ident);
+        if(!facet.empty())
+        {
+            ex.id += " -f " + IceUtil::escapeString(facet, "");
+        }
+        throw ex;
     }
 
     servant = q->second;
@@ -95,15 +95,15 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 
     if(p->second.empty())
     {
-	if(p == _servantMapMapHint)
-	{
-	    _servantMapMap.erase(p++);
-	    _servantMapMapHint = p;
-	}
-	else
-	{
-	    _servantMapMap.erase(p);
-	}
+        if(p == _servantMapMapHint)
+        {
+            _servantMapMap.erase(p++);
+            _servantMapMapHint = p;
+        }
+        else
+        {
+            _servantMapMap.erase(p);
+        }
     }
     return servant;
 }
@@ -119,27 +119,27 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 
     if(p == _servantMapMap.end() || p->first != ident)
     {
-	p = _servantMapMap.find(ident);
+        p = _servantMapMap.find(ident);
     }
     
     if(p == _servantMapMap.end())
     {
-	NotRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = "servant";
-	ex.id = _instance->identityToString(ident);
-	throw ex;
+        NotRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "servant";
+        ex.id = _instance->identityToString(ident);
+        throw ex;
     }
 
     FacetMap result = p->second;
 
     if(p == _servantMapMapHint)
     {
-	_servantMapMap.erase(p++);
-	_servantMapMapHint = p;
+        _servantMapMap.erase(p++);
+        _servantMapMapHint = p;
     }
     else
     {
-	_servantMapMap.erase(p);
+        _servantMapMap.erase(p);
     }
 
     return result;
@@ -155,7 +155,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
     // requests from bidir connections. This method might be called if
     // requests are received over the bidir connection after the
     // adapter was deactivated.
-    //	
+    //        
     //assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
@@ -165,17 +165,17 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 
     if(p == servantMapMap.end() || p->first != ident)
     {
-	p = servantMapMap.find(ident);
+        p = servantMapMap.find(ident);
     }
     
     if(p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-	return 0;
+        return 0;
     }
     else
     {
-	_servantMapMapHint = p;
-	return q->second;
+        _servantMapMapHint = p;
+        return q->second;
     }
 }
 
@@ -192,17 +192,17 @@ IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 
     if(p == servantMapMap.end() || p->first != ident)
     {
-	p = servantMapMap.find(ident);
+        p = servantMapMap.find(ident);
     }
     
     if(p == servantMapMap.end())
     {
-	return FacetMap();
+        return FacetMap();
     }
     else
     {
-	_servantMapMapHint = p;
-	return p->second;
+        _servantMapMapHint = p;
+        return p->second;
     }
 }
 
@@ -216,7 +216,7 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
     // requests from bidir connections. This method might be called if
     // requests are received over the bidir connection after the
     // adapter was deactivated.
-    //	
+    //        
     //assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
@@ -224,18 +224,18 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
 
     if(p == servantMapMap.end() || p->first != ident)
     {
-	p = servantMapMap.find(ident);
+        p = servantMapMap.find(ident);
     }
     
     if(p == servantMapMap.end())
     {
-	return false;
+        return false;
     }
     else
     {
-	_servantMapMapHint = p;
-	assert(!p->second.empty());
-	return true;
+        _servantMapMapHint = p;
+        assert(!p->second.empty());
+        return true;
     }
 }
 
@@ -262,14 +262,14 @@ IceInternal::ServantManager::destroy()
     ServantMapMap servantMapMap;
 
     {
-	IceUtil::Mutex::Lock sync(*this);
-	
-	assert(_instance); // Must not be called after destruction.
-	
-	servantMapMap.swap(_servantMapMap);
-	_servantMapMapHint = _servantMapMap.end();
-	
-	_instance = 0;
+        IceUtil::Mutex::Lock sync(*this);
+        
+        assert(_instance); // Must not be called after destruction.
+        
+        servantMapMap.swap(_servantMapMap);
+        _servantMapMapHint = _servantMapMap.end();
+        
+        _instance = 0;
     }
 
     //

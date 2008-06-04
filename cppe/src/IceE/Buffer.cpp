@@ -35,32 +35,32 @@ IceInternal::Buffer::Container::swap(Container& other)
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
     if(_buf == _fixed)
     {
-	if(other._buf == other._fixed)
-	{
-	    value_type tmp[ICE_BUFFER_FIXED_SIZE];
-	    memcpy(tmp, _fixed, _size);
-	    memcpy(_fixed, other._fixed, other._size);
-	    memcpy(other._fixed, tmp, _size);
-	}
-	else
-	{
-	    _buf = other._buf;
-	    memcpy(other._fixed, _fixed, _size);
-	    other._buf = other._fixed;
-	}
+        if(other._buf == other._fixed)
+        {
+            value_type tmp[ICE_BUFFER_FIXED_SIZE];
+            memcpy(tmp, _fixed, _size);
+            memcpy(_fixed, other._fixed, other._size);
+            memcpy(other._fixed, tmp, _size);
+        }
+        else
+        {
+            _buf = other._buf;
+            memcpy(other._fixed, _fixed, _size);
+            other._buf = other._fixed;
+        }
     }
     else
     {
-	if(other._buf == other._fixed)
-	{
-	    other._buf = _buf;
-	    memcpy(_fixed, other._fixed, other._size);
-	    _buf = _fixed;
-	}
-	else
-	{
-	    std::swap(_buf, other._buf);
-	}
+        if(other._buf == other._fixed)
+        {
+            other._buf = _buf;
+            memcpy(_fixed, other._fixed, other._size);
+            _buf = _fixed;
+        }
+        else
+        {
+            std::swap(_buf, other._buf);
+        }
     }
 #else
     std::swap(_buf, other._buf);
@@ -77,8 +77,8 @@ IceInternal::Buffer::Container::clear()
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
     if(_buf != _fixed)
     {
-	free(_buf);
-	_buf = _fixed;
+        free(_buf);
+        _buf = _fixed;
     }
     _size = 0;
     _capacity = ICE_BUFFER_FIXED_SIZE;
@@ -95,43 +95,43 @@ IceInternal::Buffer::Container::reserve(size_type n)
 {
     if(n > _capacity)
     {
-	_capacity = std::max<size_type>(n, std::min(2 * _capacity, _maxCapacity));
-	_capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
+        _capacity = std::max<size_type>(n, std::min(2 * _capacity, _maxCapacity));
+        _capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
     }
     else if(n < _capacity)
     {
-	_capacity = n;
+        _capacity = n;
     }
     else
     {
-	return;
+        return;
     }
     
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
     if(_buf != _fixed)
     {
-	_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
+        _buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
     }
     else if(_capacity > ICE_BUFFER_FIXED_SIZE)
     {
-	_buf = reinterpret_cast<pointer>(malloc(_capacity));
-	memcpy(_buf, _fixed, _size);
+        _buf = reinterpret_cast<pointer>(malloc(_capacity));
+        memcpy(_buf, _fixed, _size);
     }
 #else
     if(_buf)
     {
-	_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
+        _buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
     }
     else
     {
-	_buf = reinterpret_cast<pointer>(malloc(_capacity));
+        _buf = reinterpret_cast<pointer>(malloc(_capacity));
     }
 #endif
-	
+        
     if(!_buf)
     {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
 }

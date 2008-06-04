@@ -70,7 +70,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             Connection __connection = null;
             try
             {
-	        __checkTwowayOnly("ice_isA");
+                __checkTwowayOnly("ice_isA");
                 __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_isA", OperationMode.Nonmutating,
                                                                      __context);
@@ -91,14 +91,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
-			    try
-			    {
+                            try
+                            {
                                 __is.throwException();
-			    }
-			    catch(UserException __ex)
-			    {
-			        throw new Ice.UnknownUserException(__ex.ice_name());
-			    }
+                            }
+                            catch(UserException __ex)
+                            {
+                                throw new Ice.UnknownUserException(__ex.ice_name());
+                            }
                         }
                         return __is.readBool();
                     }
@@ -138,7 +138,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             Connection __connection = null;
             try
             {
-		__connection = ice_getConnection();
+                __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_ping", OperationMode.Nonmutating,
                                                                     __context);
                 try
@@ -149,14 +149,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
-			    try
-			    {
+                            try
+                            {
                                 __is.throwException();
-			    }
-			    catch(UserException __ex)
-			    {
-			        throw new Ice.UnknownUserException(__ex.ice_name());
-			    }
+                            }
+                            catch(UserException __ex)
+                            {
+                                throw new Ice.UnknownUserException(__ex.ice_name());
+                            }
                         }
                     }
                     catch(LocalException __ex)
@@ -196,8 +196,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
             Connection __connection = null;
             try
             {
-	        __checkTwowayOnly("ice_ids");
-	        __connection = ice_getConnection();
+                __checkTwowayOnly("ice_ids");
+                __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_ids", OperationMode.Nonmutating,
                                                                     __context);
                 try
@@ -208,14 +208,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
-			    try
-			    {
+                            try
+                            {
                             __is.throwException();
-			    }
-			    catch(UserException __ex)
-			    {
-			        throw new Ice.UnknownUserException(__ex.ice_name());
-			    }
+                            }
+                            catch(UserException __ex)
+                            {
+                                throw new Ice.UnknownUserException(__ex.ice_name());
+                            }
                         }
                         return __is.readStringSeq();
                     }
@@ -255,8 +255,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
             Connection __connection = null;
             try
             {
-	        __checkTwowayOnly("ice_id");
-	        __connection = ice_getConnection();
+                __checkTwowayOnly("ice_id");
+                __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_id", OperationMode.Nonmutating,
                                                                     __context);
                 try
@@ -267,14 +267,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
-			    try
-			    {
+                            try
+                            {
                                 __is.throwException();
-			    }
-			    catch(UserException __ex)
-			    {
-			        throw new Ice.UnknownUserException(__ex.ice_name());
-			    }
+                            }
+                            catch(UserException __ex)
+                            {
+                                throw new Ice.UnknownUserException(__ex.ice_name());
+                            }
                         }
                         return __is.readString();
                     }
@@ -308,10 +308,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_identity(Identity newIdentity)
     {
-	if(newIdentity.equals(""))
-	{
-	    throw new Ice.IllegalIdentityException();
-	}
+        if(newIdentity.equals(""))
+        {
+            throw new Ice.IllegalIdentityException();
+        }
         if(newIdentity.equals(_reference.getIdentity()))
         {
             return this;
@@ -330,7 +330,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newIdentity(Identity newIdentity)
     {
-	return ice_identity(newIdentity);
+        return ice_identity(newIdentity);
     }
 
     public final java.util.Hashtable
@@ -342,9 +342,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_context(java.util.Hashtable newContext)
     {
-	ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-	proxy.setup(_reference.changeContext(newContext));
-	return proxy;
+        ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+        proxy.setup(_reference.changeContext(newContext));
+        return proxy;
     }
 
     /**
@@ -353,7 +353,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newContext(java.util.Hashtable newContext)
     {
-	return ice_context(newContext);
+        return ice_context(newContext);
     }
 
     public final String
@@ -388,7 +388,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newFacet(String newFacet)
     {
-	return ice_facet(newFacet);
+        return ice_facet(newFacet);
     }
 
     public final String
@@ -441,8 +441,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Ice.RouterPrx
     ice_getRouter()
     {
-	IceInternal.RouterInfo ri = _reference.getRouterInfo();
-	return ri != null ? ri.getRouter() : null;
+        IceInternal.RouterInfo ri = _reference.getRouterInfo();
+        return ri != null ? ri.getRouter() : null;
     }
 
     public final ObjectPrx
@@ -464,8 +464,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Ice.LocatorPrx
     ice_getLocator()
     {
-	IceInternal.LocatorInfo ri = _reference.getLocatorInfo();
-	return ri != null ? ri.getLocator() : null;
+        IceInternal.LocatorInfo ri = _reference.getLocatorInfo();
+        return ri != null ? ri.getLocator() : null;
     }
 
     public final ObjectPrx
@@ -503,7 +503,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isTwoway()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeTwoway;
+        return _reference.getMode() == IceInternal.Reference.ModeTwoway;
     }
 
     public final ObjectPrx
@@ -525,7 +525,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isOneway()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeOneway;
+        return _reference.getMode() == IceInternal.Reference.ModeOneway;
     }
 
     public final ObjectPrx
@@ -547,7 +547,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isBatchOneway()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeBatchOneway;
+        return _reference.getMode() == IceInternal.Reference.ModeBatchOneway;
     }
 
     public final ObjectPrx
@@ -569,7 +569,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isDatagram()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeDatagram;
+        return _reference.getMode() == IceInternal.Reference.ModeDatagram;
     }
 
     public final ObjectPrx
@@ -591,7 +591,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isBatchDatagram()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeBatchDatagram;
+        return _reference.getMode() == IceInternal.Reference.ModeBatchDatagram;
     }
 
     public final ObjectPrx
@@ -622,28 +622,28 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public synchronized final Connection
     ice_getConnection()
     {
-	if(_connection == null)
-	{
-	    _connection = _reference.getConnection();
+        if(_connection == null)
+        {
+            _connection = _reference.getConnection();
 
             //
             // If this proxy is for a non-local object, and we are
             // using a router, then add this proxy to the router info
             // object.
             //
-	    try
-	    {
-	        IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
-	        if(rr != null && rr.getRouterInfo() != null)
-	        {
-	            rr.getRouterInfo().addProxy(this);
-	        }
-	    }
-	    catch(ClassCastException e)
-	    {
-	    }
-	}
-	return _connection;
+            try
+            {
+                IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
+                if(rr != null && rr.getRouterInfo() != null)
+                {
+                    rr.getRouterInfo().addProxy(this);
+                }
+            }
+            catch(ClassCastException e)
+            {
+            }
+        }
+        return _connection;
     }
 
     public synchronized final Connection
@@ -683,96 +683,96 @@ public class ObjectPrxHelperBase implements ObjectPrx
         // called upon initialization.
         //
 
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_reference == null);
-	    IceUtil.Debug.Assert(_connection == null);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(_reference == null);
+            IceUtil.Debug.Assert(_connection == null);
+        }
 
         _reference = ref;
-	_connection = con;
+        _connection = con;
     }
 
     public final int
     __handleException(Connection connection, LocalException ex, int cnt)
     {
-	//
-	// Only _connection needs to be mutex protected here.
-	//
-	synchronized(this)
-	{
+        //
+        // Only _connection needs to be mutex protected here.
+        //
+        synchronized(this)
+        {
             if(connection == _connection)
             {
                 _connection = null;
             }
-	}
+        }
 
-	IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
-	if(proxyFactory != null)
-	{
-	    return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
-	}
-	else
-	{
-	    //
+        IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
+        if(proxyFactory != null)
+        {
+            return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
+        }
+        else
+        {
+            //
             // The communicator is already destroyed, so we cannot
             // retry.
-	    //
-	    throw ex;
-	}
+            //
+            throw ex;
+        }
     }
 
     public final void
     __handleExceptionWrapper(Connection connection, IceInternal.LocalExceptionWrapper ex)
     {
         synchronized(this)
-	{
+        {
             if(connection == _connection)
             {
                 _connection = null;
             }
-	}
+        }
 
-	if(!ex.retry())
-	{
-	    throw ex.get();
-	}
+        if(!ex.retry())
+        {
+            throw ex.get();
+        }
     }
 
     public final int
     __handleExceptionWrapperRelaxed(Connection connection, IceInternal.LocalExceptionWrapper ex, int cnt)
     {
         if(!ex.retry())
-	{
-	    return __handleException(connection, ex.get(), cnt);
-	}
-	else
-	{
-	    synchronized(this)
-	    {
+        {
+            return __handleException(connection, ex.get(), cnt);
+        }
+        else
+        {
+            synchronized(this)
+            {
                 if(connection == _connection)
                 {
                     _connection = null;
                 }
-	    }
-	    return cnt;
-	}
+            }
+            return cnt;
+        }
     }
 
     public final void
     __checkTwowayOnly(String name)
     {
-	//
-	// No mutex lock necessary, there is nothing mutable in this
-	// operation.
-	//
+        //
+        // No mutex lock necessary, there is nothing mutable in this
+        // operation.
+        //
 
         if(!ice_isTwoway())
-	{
-	    TwowayOnlyException ex = new TwowayOnlyException();
-	    ex.operation = name;
-	    throw ex;
-	}
+        {
+            TwowayOnlyException ex = new TwowayOnlyException();
+            ex.operation = name;
+            throw ex;
+        }
     }
 
     //
@@ -786,11 +786,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
         // upon initial initialization.
         //
 
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_reference == null);
-	    IceUtil.Debug.Assert(_connection == null);
-	}
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(_reference == null);
+            IceUtil.Debug.Assert(_connection == null);
+        }
 
         _reference = ref;
     }

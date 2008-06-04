@@ -45,12 +45,12 @@ public:
 
     void write(Buffer& buf)
     {
-	writeWithTimeout(buf, _writeTimeout);
+        writeWithTimeout(buf, _writeTimeout);
     }
 
     void read(Buffer& buf)
     {
-	readWithTimeout(buf, _readTimeout);
+        readWithTimeout(buf, _readTimeout);
     }
     
     std::string type() const;

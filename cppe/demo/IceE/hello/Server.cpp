@@ -22,7 +22,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
-    Ice::ObjectPtr object = new HelloI;
+    Demo::HelloPtr object = new HelloI;
     adapter->add(object, communicator->stringToIdentity("hello"));
     adapter->activate();
     communicator->waitForShutdown();
@@ -38,29 +38,29 @@ main(int argc, char* argv[])
     try
     {
         Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	initData.properties->setProperty("Ice.Override.Timeout", "100");
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+        initData.properties = Ice::createProperties();
+        initData.properties->load("config.server");
+        initData.properties->setProperty("Ice.Override.Timeout", "100");
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
-	status = EXIT_FAILURE;
+        fprintf(stderr, "%s\n", ex.toString().c_str());
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

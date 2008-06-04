@@ -55,10 +55,10 @@ struct InitializationData
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
-				   Int = ICEE_INT_VERSION);
+                                   Int = ICEE_INT_VERSION);
 
 ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData& = InitializationData(),
-				   Int = ICEE_INT_VERSION);
+                                   Int = ICEE_INT_VERSION);
 
 ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(), Int = ICEE_INT_VERSION);
 

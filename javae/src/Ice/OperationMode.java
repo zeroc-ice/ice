@@ -26,53 +26,53 @@ public final class OperationMode
     public static OperationMode
     convert(int val)
     {
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(val < 3);
-	}
-	return __values[val];
+        if(IceUtil.Debug.ASSERT)
+        {
+            IceUtil.Debug.Assert(val < 3);
+        }
+        return __values[val];
     }
 
     public int
     value()
     {
-	return __value;
+        return __value;
     }
 
     public String
     toString()
     {
-	return __T[__value];
+        return __T[__value];
     }
 
     private
     OperationMode(int val)
     {
-	__value = val;
-	__values[val] = this;
+        __value = val;
+        __values[val] = this;
     }
 
     public void
     __write(IceInternal.BasicStream __os)
     {
-	__os.writeByte((byte)__value);
+        __os.writeByte((byte)__value);
     }
 
     public static OperationMode
     __read(IceInternal.BasicStream __is)
     {
-	int __v = __is.readByte();
-	if(__v < 0 || __v >= 3)
-	{
-	    throw new Ice.MarshalException();
-	}
-	return OperationMode.convert(__v);
+        int __v = __is.readByte();
+        if(__v < 0 || __v >= 3)
+        {
+            throw new Ice.MarshalException();
+        }
+        return OperationMode.convert(__v);
     }
 
     final static private String[] __T =
     {
-	"Normal",
-	"Nonmutating",
-	"Idempotent"
+        "Normal",
+        "Nonmutating",
+        "Idempotent"
     };
 }

@@ -45,15 +45,15 @@ IceInternal::Incoming::setAdapter(const Ice::ObjectAdapterPtr& adapter)
     _adapter = adapter;
     if(_adapter)
     {
-	_servantManager = _adapter->getServantManager().get();
-	if(!_servantManager)
-	{
-	    _adapter = 0;
-	}
+        _servantManager = _adapter->getServantManager().get();
+        if(!_servantManager)
+        {
+            _adapter = 0;
+        }
     }
     else
     {
-	_servantManager = 0;
+        _servantManager = 0;
     }
 }
 
@@ -85,26 +85,26 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 //     string facet;
 //     if(!facetPath.empty())
 //     {
-// 	if(facetPath.size() > 1)
-// 	{
-// 	    throw MarshalException(__FILE__, __LINE__);
-// 	}
-// 	facet.swap(facetPath[0]);
+//         if(facetPath.size() > 1)
+//         {
+//             throw MarshalException(__FILE__, __LINE__);
+//         }
+//         facet.swap(facetPath[0]);
 //     }
 //     _current.facet.swap(facet);
     Int sz;
     _is.readSize(sz);
     if(sz > 0)
     {
-	if(sz > 1)
-	{
-	    throw MarshalException(__FILE__, __LINE__);
-	}
-	_is.read(_current.facet);
+        if(sz > 1)
+        {
+            throw MarshalException(__FILE__, __LINE__);
+        }
+        _is.read(_current.facet);
     }
     else
     {
-	_current.facet.clear();
+        _current.facet.clear();
     }
 
     _is.read(_current.operation, false);
@@ -116,19 +116,19 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
     _is.readSize(sz);
     while(sz--)
     {
-	pair<const string, string> pr;
-	_is.read(const_cast<string&>(pr.first));
-	_is.read(pr.second);
-	_current.ctx.insert(_current.ctx.end(), pr);
+        pair<const string, string> pr;
+        _is.read(const_cast<string&>(pr.first));
+        _is.read(pr.second);
+        _current.ctx.insert(_current.ctx.end(), pr);
     }
 
     _is.startReadEncaps();
 
     if(response)
     {
-	assert(_os.b.size() == headerSize + 4); // Reply status position.
-	_os.write(replyOK);
-	_os.startWriteEncaps();
+        assert(_os.b.size() == headerSize + 4); // Reply status position.
+        _os.write(replyOK);
+        _os.startWriteEncaps();
     }
 
     
@@ -143,294 +143,294 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 
     try
     {
-	Ice::ObjectPtr servant;
-	if(_servantManager)
-	{
-	    servant = _servantManager->findServant(_current.id, _current.facet);
-	}
-	    
-	if(!servant)
-	{
-	    if(_servantManager && _servantManager->hasServant(_current.id))
-	    {
-	        replyStatus = replyFacetNotExist;
-	    }
-	    else
-	    {
-	        replyStatus = replyObjectNotExist;
-	    }
-	}
-	else
-	{
-	    dispatchStatus = servant->__dispatch(*this, _current);
+        Ice::ObjectPtr servant;
+        if(_servantManager)
+        {
+            servant = _servantManager->findServant(_current.id, _current.facet);
+        }
+            
+        if(!servant)
+        {
+            if(_servantManager && _servantManager->hasServant(_current.id))
+            {
+                replyStatus = replyFacetNotExist;
+            }
+            else
+            {
+                replyStatus = replyObjectNotExist;
+            }
+        }
+        else
+        {
+            dispatchStatus = servant->__dispatch(*this, _current);
             if(dispatchStatus == DispatchUserException)
             {
                 replyStatus = replyUserException;
             }
-	}
+        }
     }
     catch(RequestFailedException& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(ex.id.name.empty())
-	{
-	    ex.id = _current.id;
-	}
-	
-	if(ex.facet.empty() && !_current.facet.empty())
-	{
-	    ex.facet = _current.facet;
-	}
-	
-	if(ex.operation.empty() && !_current.operation.empty())
-	{
-	    ex.operation = _current.operation;
-	}
+        if(ex.id.name.empty())
+        {
+            ex.id = _current.id;
+        }
+        
+        if(ex.facet.empty() && !_current.facet.empty())
+        {
+            ex.facet = _current.facet;
+        }
+        
+        if(ex.operation.empty() && !_current.operation.empty())
+        {
+            ex.operation = _current.operation;
+        }
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-	{
-	    __warning(ex);
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+        {
+            __warning(ex);
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    if(dynamic_cast<ObjectNotExistException*>(&ex))
-	    {
-		_os.write(replyObjectNotExist);
-	    }
-	    else if(dynamic_cast<FacetNotExistException*>(&ex))
-	    {
-		_os.write(replyFacetNotExist);
-	    }
-	    else if(dynamic_cast<OperationNotExistException*>(&ex))
-	    {
-		_os.write(replyOperationNotExist);
-	    }
-	    else
-	    {
-		assert(false);
-	    }
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            if(dynamic_cast<ObjectNotExistException*>(&ex))
+            {
+                _os.write(replyObjectNotExist);
+            }
+            else if(dynamic_cast<FacetNotExistException*>(&ex))
+            {
+                _os.write(replyFacetNotExist);
+            }
+            else if(dynamic_cast<OperationNotExistException*>(&ex))
+            {
+                _os.write(replyOperationNotExist);
+            }
+            else
+            {
+                assert(false);
+            }
 
-	    ex.id.__write(&_os);
+            ex.id.__write(&_os);
 
-	    //
-	    // For compatibility with the old FacetPath.
-	    //
-	    if(ex.facet.empty())
-	    {
-		_os.write(static_cast<string*>(0), static_cast<string*>(0));
-	    }
-	    else
-	    {
-		_os.write(&ex.facet, &ex.facet + 1);
-	    }
+            //
+            // For compatibility with the old FacetPath.
+            //
+            if(ex.facet.empty())
+            {
+                _os.write(static_cast<string*>(0), static_cast<string*>(0));
+            }
+            else
+            {
+                _os.write(&ex.facet, &ex.facet + 1);
+            }
 
-	    _os.write(ex.operation, false);
-	    
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
-	
-	return;
+            _os.write(ex.operation, false);
+            
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
+        
+        return;
     }
     catch(const UnknownLocalException& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning(ex);
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(ex);
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownLocalException);
-	    _os.write(ex.unknown, false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownLocalException);
+            _os.write(ex.unknown, false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
     catch(const UnknownUserException& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning(ex);
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(ex);
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownUserException);
-	    _os.write(ex.unknown, false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownUserException);
+            _os.write(ex.unknown, false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
     catch(const UnknownException& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning(ex);
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(ex);
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownException);
-	    _os.write(ex.unknown, false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownException);
+            _os.write(ex.unknown, false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
     catch(const LocalException& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning(ex);
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(ex);
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownLocalException);
-	    _os.write(ex.toString(), false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownLocalException);
+            _os.write(ex.toString(), false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
     catch(const UserException& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning(ex);
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(ex);
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownUserException);
-	    _os.write(ex.toString(), false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownUserException);
+            _os.write(ex.toString(), false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
     catch(const Exception& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning(ex);
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(ex);
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownException);
-	    _os.write(ex.toString(), false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownException);
+            _os.write(ex.toString(), false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
     catch(const std::exception& ex)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning(string("std::exception: ") + ex.what());
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(string("std::exception: ") + ex.what());
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownException);
-	    string msg = string("std::exception: ") + ex.what();
-	    _os.write(msg, false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownException);
+            string msg = string("std::exception: ") + ex.what();
+            _os.write(msg, false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
     catch(...)
     {
-	_is.endReadEncaps();
+        _is.endReadEncaps();
 
-	if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    __warning("unknown c++ exception");
-	}
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning("unknown c++ exception");
+        }
 
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyUnknownException);
-	    _os.write(string("unknown c++ exception"), false);
-	    _connection->sendResponse(&_os);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+        if(response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownException);
+            _os.write(string("unknown c++ exception"), false);
+            _connection->sendResponse(&_os);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
 
-	return;
+        return;
     }
 
     //
@@ -443,42 +443,42 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 
     if(response)
     {
-	_os.endWriteEncaps();
-	
-	if(replyStatus != replyOK && replyStatus != replyUserException)
-	{
-	    assert(replyStatus == replyObjectNotExist ||
-		   replyStatus == replyFacetNotExist);
-	    
-	    _os.b.resize(headerSize + 4); // Reply status position.
-	    _os.write(replyStatus);
-	    
-	    _current.id.__write(&_os);
+        _os.endWriteEncaps();
+        
+        if(replyStatus != replyOK && replyStatus != replyUserException)
+        {
+            assert(replyStatus == replyObjectNotExist ||
+                   replyStatus == replyFacetNotExist);
+            
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyStatus);
+            
+            _current.id.__write(&_os);
 
-	    //
-	    // For compatibility with the old FacetPath.
-	    //
-	    if(_current.facet.empty())
-	    {
-		_os.write(static_cast<string*>(0), static_cast<string*>(0));
-	    }
-	    else
-	    {
-		_os.write(&_current.facet, &_current.facet + 1);
-	    }
+            //
+            // For compatibility with the old FacetPath.
+            //
+            if(_current.facet.empty())
+            {
+                _os.write(static_cast<string*>(0), static_cast<string*>(0));
+            }
+            else
+            {
+                _os.write(&_current.facet, &_current.facet + 1);
+            }
 
-	    _os.write(_current.operation, false);
-	}
-	else
-	{
-	    *(_os.b.begin() + headerSize + 4) = replyStatus; // Reply status position.
-	}
+            _os.write(_current.operation, false);
+        }
+        else
+        {
+            *(_os.b.begin() + headerSize + 4) = replyStatus; // Reply status position.
+        }
 
-	_connection->sendResponse(&_os);
+        _connection->sendResponse(&_os);
     }
     else
     {
-	_connection->sendNoResponse();
+        _connection->sendNoResponse();
     }
 }
 

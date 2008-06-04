@@ -88,7 +88,7 @@ IceInternal::Instance::routerManager() const
 
     if(_state == StateDestroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     return _routerManager;
@@ -105,7 +105,7 @@ IceInternal::Instance::locatorManager() const
 
     if(_state == StateDestroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     return _locatorManager;
@@ -120,7 +120,7 @@ IceInternal::Instance::referenceFactory() const
 
     if(_state == StateDestroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     return _referenceFactory;
@@ -133,7 +133,7 @@ IceInternal::Instance::proxyFactory() const
 
     if(_state == StateDestroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     return _proxyFactory;
@@ -146,7 +146,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
 
     if(_state == StateDestroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     return _outgoingConnectionFactory;
@@ -160,7 +160,7 @@ IceInternal::Instance::objectAdapterFactory() const
 
     if(_state == StateDestroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     return _objectAdapterFactory;
@@ -183,7 +183,7 @@ IceInternal::Instance::endpointFactory() const
 
     if(_state == StateDestroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     return _endpointFactory;
@@ -200,16 +200,16 @@ IceInternal::Instance::flushBatchRequests()
 #endif
 
     {
-	IceUtil::RecMutex::Lock sync(*this);
+        IceUtil::RecMutex::Lock sync(*this);
 
-	if(_state == StateDestroyed)
-	{
-	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	}
+        if(_state == StateDestroyed)
+        {
+            throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        }
 
-	connectionFactory = _outgoingConnectionFactory;
+        connectionFactory = _outgoingConnectionFactory;
 #ifndef ICEE_PURE_CLIENT
-	adapterFactory = _objectAdapterFactory;
+        adapterFactory = _objectAdapterFactory;
 #endif
     }
 
@@ -337,181 +337,181 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 {
     try
     {
-	__setNoDelete(true);
+        __setNoDelete(true);
 
-	IceUtil::StaticMutex::Lock sync(staticMutex);
-	instanceCount++;
+        IceUtil::StaticMutex::Lock sync(staticMutex);
+        instanceCount++;
 
-	if(!oneOffDone)
-	{
-	    //
-	    // StdOut and StdErr redirection
-	    //
+        if(!oneOffDone)
+        {
+            //
+            // StdOut and StdErr redirection
+            //
 
-	    string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
-	    string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
-	    
-	    if(stdOutFilename != "")
-	    {
-	    	FILE * file;
+            string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
+            string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
+            
+            if(stdOutFilename != "")
+            {
+                    FILE * file;
 #ifdef _WIN32_WCE
-		wchar_t* wtext = new wchar_t[sizeof(wchar_t) * stdOutFilename.length()];
-		mbstowcs(wtext, stdOutFilename.c_str(), stdOutFilename.length());
-		file = _wfreopen(wtext, L"a", stdout);
-		delete wtext;
+                wchar_t* wtext = new wchar_t[sizeof(wchar_t) * stdOutFilename.length()];
+                mbstowcs(wtext, stdOutFilename.c_str(), stdOutFilename.length());
+                file = _wfreopen(wtext, L"a", stdout);
+                delete wtext;
 #else
-		file = freopen(stdOutFilename.c_str(), "a", stdout);
+                file = freopen(stdOutFilename.c_str(), "a", stdout);
 #endif
-		if(file == 0)
-		{
-		    SyscallException ex(__FILE__, __LINE__);
-		    ex.error = getSystemErrno();
-		    throw ex;
-		}
-	    }
-	    
-	    if(stdErrFilename != "")
-	    {
-	    	FILE* file;
+                if(file == 0)
+                {
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = getSystemErrno();
+                    throw ex;
+                }
+            }
+            
+            if(stdErrFilename != "")
+            {
+                    FILE* file;
 #ifdef _WIN32_WCE
-		wchar_t* wtext = new wchar_t[sizeof(wchar_t) * stdErrFilename.length()];
-		mbstowcs(wtext, stdErrFilename.c_str(), stdErrFilename.length());
-		file = _wfreopen(wtext, L"a", stderr);
-		delete wtext;
+                wchar_t* wtext = new wchar_t[sizeof(wchar_t) * stdErrFilename.length()];
+                mbstowcs(wtext, stdErrFilename.c_str(), stdErrFilename.length());
+                file = _wfreopen(wtext, L"a", stderr);
+                delete wtext;
 #else
-		file = freopen(stdErrFilename.c_str(), "a", stderr);
+                file = freopen(stdErrFilename.c_str(), "a", stderr);
 #endif
-		if(file == 0)
-		{
-		    SyscallException ex(__FILE__, __LINE__);
-		    ex.error = getSystemErrno();
-		    throw ex;
-		}
-	    }
-	    
-	    unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
-	    srand(seed);
+                if(file == 0)
+                {
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = getSystemErrno();
+                    throw ex;
+                }
+            }
+            
+            unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
+            srand(seed);
 #ifndef _WIN32
-	    srand48(seed);
+            srand48(seed);
 #endif
-	    
-	    if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
-	    {
-		IceUtil::nullHandleAbort = true;
-	    }
-	    
+            
+            if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
+            {
+                IceUtil::nullHandleAbort = true;
+            }
+            
 #ifndef _WIN32
-	    string newUser = _initData.properties->getProperty("Ice.ChangeUser");
-	    if(!newUser.empty())
-	    {
-		struct passwd* pw = getpwnam(newUser.c_str());
-		if(!pw)
-		{
-		    SyscallException ex(__FILE__, __LINE__);
-		    ex.error = getSystemErrno();
-		    throw ex;
-		}
-		
-		if(setgid(pw->pw_gid) == -1)
-		{
-		    SyscallException ex(__FILE__, __LINE__);
-		    ex.error = getSystemErrno();
-		    throw ex;
-		}
-		
-		if(setuid(pw->pw_uid) == -1)
-		{
-		    SyscallException ex(__FILE__, __LINE__);
-		    ex.error = getSystemErrno();
-		    throw ex;
-		}
-	    }
+            string newUser = _initData.properties->getProperty("Ice.ChangeUser");
+            if(!newUser.empty())
+            {
+                struct passwd* pw = getpwnam(newUser.c_str());
+                if(!pw)
+                {
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = getSystemErrno();
+                    throw ex;
+                }
+                
+                if(setgid(pw->pw_gid) == -1)
+                {
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = getSystemErrno();
+                    throw ex;
+                }
+                
+                if(setuid(pw->pw_uid) == -1)
+                {
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = getSystemErrno();
+                    throw ex;
+                }
+            }
 #endif
-	    oneOffDone = true;
-	}   
-	
-	if(instanceCount == 1)
-	{	 	    
-	    
+            oneOffDone = true;
+        }   
+        
+        if(instanceCount == 1)
+        {                     
+            
 #ifdef _WIN32
-	    WORD version = MAKEWORD(1, 1);
-	    WSADATA data;
-	    if(WSAStartup(version, &data) != 0)
-	    {
-		SocketException ex(__FILE__, __LINE__);
-		ex.error = WSAGetLastError();
-		throw ex;
-	    }
+            WORD version = MAKEWORD(1, 1);
+            WSADATA data;
+            if(WSAStartup(version, &data) != 0)
+            {
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = WSAGetLastError();
+                throw ex;
+            }
 #endif
-	    
+            
 #ifndef _WIN32
-	    struct sigaction action;
-	    action.sa_handler = SIG_IGN;
-	    sigemptyset(&action.sa_mask);
-	    action.sa_flags = 0;
-	    sigaction(SIGPIPE, &action, 0);
+            struct sigaction action;
+            action.sa_handler = SIG_IGN;
+            sigemptyset(&action.sa_mask);
+            action.sa_flags = 0;
+            sigaction(SIGPIPE, &action, 0);
 #endif
-	}
-	
-	sync.release();
-	
+        }
+        
+        sync.release();
+        
 
-	if(!_initData.logger)
-	{
-	    _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"));
-	}
+        if(!_initData.logger)
+        {
+            _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"));
+        }
 
-	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
+        const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
 
-	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_initData.properties);
+        const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_initData.properties);
 
-	{
-	    static const int defaultMessageSizeMax = 1024;
-	    Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
-	    if(num < 1)
-	    {
-		const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore non-sensical values.
-	    }
-	    else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
-	    {
-		const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
-	    }
-	    else
-	    {
-		// Property is in kilobytes, _messageSizeMax in bytes.
-		const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
-	    }
-	}
+        {
+            static const int defaultMessageSizeMax = 1024;
+            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+            if(num < 1)
+            {
+                const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore non-sensical values.
+            }
+            else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
+            {
+                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+            }
+            else
+            {
+                // Property is in kilobytes, _messageSizeMax in bytes.
+                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
+            }
+        }
 
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-	{
-	    Int stackSize = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
-	    if(stackSize < 0)
-	    {
-		stackSize = 0;
-	    }
-	    const_cast<size_t&>(_threadPerConnectionStackSize) = static_cast<size_t>(stackSize);
-	}
+        {
+            Int stackSize = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+            if(stackSize < 0)
+            {
+                stackSize = 0;
+            }
+            const_cast<size_t&>(_threadPerConnectionStackSize) = static_cast<size_t>(stackSize);
+        }
 #endif
 
 #ifdef ICEE_HAS_ROUTER
-	_routerManager = new RouterManager;
+        _routerManager = new RouterManager;
 #endif
 
 #ifdef ICEE_HAS_LOCATOR
-	_locatorManager = new LocatorManager;
+        _locatorManager = new LocatorManager;
 #endif
 
-	_referenceFactory = new ReferenceFactory(this, communicator);
+        _referenceFactory = new ReferenceFactory(this, communicator);
 
-	_proxyFactory = new ProxyFactory(this);
+        _proxyFactory = new ProxyFactory(this);
 
         _endpointFactory = new EndpointFactory(this);
 
-	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+        _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
 #ifndef ICEE_PURE_CLIENT
-	_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
+        _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 #endif
 
 #ifdef ICEE_HAS_WSTRING
@@ -521,17 +521,17 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         }
 #endif
 
-	__setNoDelete(false);
+        __setNoDelete(false);
     }
     catch(...)
     {
-	{
-	    IceUtil::StaticMutex::Lock sync(staticMutex);
-	    --instanceCount;
-	}
-	destroy();
-	__setNoDelete(false);
-	throw;
+        {
+            IceUtil::StaticMutex::Lock sync(staticMutex);
+            --instanceCount;
+        }
+        destroy();
+        __setNoDelete(false);
+        throw;
     }
 }
 
@@ -556,15 +556,15 @@ IceInternal::Instance::~Instance()
     if(--instanceCount == 0)
     {
 #ifdef _WIN32
-	WSACleanup();
+        WSACleanup();
 #endif
-	
+        
 #ifndef _WIN32
-	struct sigaction action;
-	action.sa_handler = SIG_DFL;
-	sigemptyset(&action.sa_mask);
-	action.sa_flags = 0;
-	sigaction(SIGPIPE, &action, 0);
+        struct sigaction action;
+        action.sa_handler = SIG_DFL;
+        sigemptyset(&action.sa_mask);
+        action.sa_flags = 0;
+        sigaction(SIGPIPE, &action, 0);
 #endif
     }
 }
@@ -580,16 +580,16 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 #ifdef ICEE_HAS_ROUTER
     if(!_defaultsAndOverrides->defaultRouter.empty())
     {
-	_referenceFactory->setDefaultRouter(
-	    RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultRouter)));
+        _referenceFactory->setDefaultRouter(
+            RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultRouter)));
     }
 #endif
 
 #ifdef ICEE_HAS_LOCATOR
     if(!_defaultsAndOverrides->defaultLocator.empty())
     {
-	_referenceFactory->setDefaultLocator(
-	    LocatorPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultLocator)));
+        _referenceFactory->setDefaultLocator(
+            LocatorPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultLocator)));
     }
 #endif
 
@@ -600,26 +600,26 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     bool printProcessId = false;
     if(!printProcessIdDone && _initData.properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
-	//
-	// Safe double-check locking (no dependent variable!)
-	// 
-	IceUtil::StaticMutex::Lock sync(staticMutex);
-	printProcessId = !printProcessIdDone;
-	
-	//
-	// We anticipate: we want to print it once, and we don't care when.
-	//
-	printProcessIdDone = true;
+        //
+        // Safe double-check locking (no dependent variable!)
+        // 
+        IceUtil::StaticMutex::Lock sync(staticMutex);
+        printProcessId = !printProcessIdDone;
+        
+        //
+        // We anticipate: we want to print it once, and we don't care when.
+        //
+        printProcessIdDone = true;
     }
 
     if(printProcessId)
     {
 #ifdef _WIN32
-	printf("%d\n", _getpid());
+        printf("%d\n", _getpid());
 #else
-	printf("%d\n", getpid()); 
+        printf("%d\n", getpid()); 
 #endif
-	fflush(stdout);
+        fflush(stdout);
     }
 #endif
 }
@@ -628,30 +628,30 @@ void
 IceInternal::Instance::destroy()
 {
     {
-	IceUtil::RecMutex::Lock sync(*this);
-	
-	//
-	// If the _state is not StateActive then the instance is
-	// either being destroyed, or has already been destroyed.
-	//
-	if(_state != StateActive)
-	{
-	    return;
-	}
+        IceUtil::RecMutex::Lock sync(*this);
+        
+        //
+        // If the _state is not StateActive then the instance is
+        // either being destroyed, or has already been destroyed.
+        //
+        if(_state != StateActive)
+        {
+            return;
+        }
 
-	//
-	// We cannot set state to StateDestroyed otherwise instance
-	// methods called during the destroy process (such as
-	// outgoingConnectionFactory() from
-	// ObjectAdapterI::deactivate() will cause an exception.
-	//
-	_state = StateDestroyInProgress;
+        //
+        // We cannot set state to StateDestroyed otherwise instance
+        // methods called during the destroy process (such as
+        // outgoingConnectionFactory() from
+        // ObjectAdapterI::deactivate() will cause an exception.
+        //
+        _state = StateDestroyInProgress;
     }
 
 #ifndef ICEE_PURE_CLIENT
     if(_objectAdapterFactory)
     {
-        _objectAdapterFactory->shutdown();	
+        _objectAdapterFactory->shutdown();        
     }
 
     if(_outgoingConnectionFactory)
@@ -677,46 +677,46 @@ IceInternal::Instance::destroy()
 #endif
 
     {
-	IceUtil::RecMutex::Lock sync(*this);
+        IceUtil::RecMutex::Lock sync(*this);
 
 #ifndef ICEE_PURE_CLIENT
-	_objectAdapterFactory = 0;
+        _objectAdapterFactory = 0;
 #endif
-	_outgoingConnectionFactory = 0;
+        _outgoingConnectionFactory = 0;
 
-	if(_referenceFactory)
-	{
-	    _referenceFactory->destroy();
-	    _referenceFactory = 0;
-	}
-	
-	// No destroy function defined.
-	// _proxyFactory->destroy();
-	_proxyFactory = 0;
-	
+        if(_referenceFactory)
+        {
+            _referenceFactory->destroy();
+            _referenceFactory = 0;
+        }
+        
+        // No destroy function defined.
+        // _proxyFactory->destroy();
+        _proxyFactory = 0;
+        
 #ifdef ICEE_HAS_ROUTER
-	if(_routerManager)
-	{
-	    _routerManager->destroy();
-	    _routerManager = 0;
-	}
+        if(_routerManager)
+        {
+            _routerManager->destroy();
+            _routerManager = 0;
+        }
 #endif
 
 #ifdef ICEE_HAS_LOCATOR
-	if(_locatorManager)
-	{
-	    _locatorManager->destroy();
-	    _locatorManager = 0;
-	}
+        if(_locatorManager)
+        {
+            _locatorManager->destroy();
+            _locatorManager = 0;
+        }
 #endif
 
-	if(_endpointFactory)
-	{
-	    _endpointFactory->destroy();
-	    _endpointFactory = 0;
-	}
+        if(_endpointFactory)
+        {
+            _endpointFactory->destroy();
+            _endpointFactory = 0;
+        }
 
-	_state = StateDestroyed;
+        _state = StateDestroyed;
     }
 }
 

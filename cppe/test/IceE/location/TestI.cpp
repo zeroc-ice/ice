@@ -19,7 +19,7 @@
 using namespace Test;
 
 ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, const ServerLocatorRegistryPtr& registry,
-			       const Ice::InitializationData& initData) :
+                               const Ice::InitializationData& initData) :
     _adapter(adapter), _registry(registry), _initData(initData)
 {
 
@@ -32,8 +32,8 @@ ServerManagerI::startServer(const Ice::Current&)
 {
     for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
-	(*i)->waitForShutdown();
-	(*i)->destroy();
+        (*i)->waitForShutdown();
+        (*i)->destroy();
     }
     _communicators.clear();
 
@@ -78,7 +78,7 @@ ServerManagerI::shutdown(const Ice::Current&)
     //
     for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
-	(*i)->destroy();
+        (*i)->destroy();
     }
     _adapter->getCommunicator()->shutdown();
 #ifdef _WIN32_WCE
@@ -87,8 +87,8 @@ ServerManagerI::shutdown(const Ice::Current&)
 }
 
 TestI::TestI(const Ice::ObjectAdapterPtr& adapter, 
-	     const Ice::ObjectAdapterPtr& adapter2, 
-	     const ServerLocatorRegistryPtr& registry) :
+             const Ice::ObjectAdapterPtr& adapter2, 
+             const ServerLocatorRegistryPtr& registry) :
     _adapter1(adapter), _adapter2(adapter2), _registry(registry)
 {
     _registry->addObject(_adapter1->add(new HelloI(), _adapter1->getCommunicator()->stringToIdentity("hello")));
@@ -104,7 +104,7 @@ HelloPrx
 TestI::getHello(const Ice::Current&)
 {
     return HelloPrx::uncheckedCast(_adapter1->createIndirectProxy(
-    				_adapter1->getCommunicator()->stringToIdentity("hello")));
+                                    _adapter1->getCommunicator()->stringToIdentity("hello")));
 }
 
 HelloPrx
@@ -119,11 +119,11 @@ TestI::migrateHello(const Ice::Current&)
     const Ice::Identity id = _adapter1->getCommunicator()->stringToIdentity("hello");
     try
     {
-	_registry->addObject(_adapter2->add(_adapter1->remove(id), id));
+        _registry->addObject(_adapter2->add(_adapter1->remove(id), id));
     }
     catch(Ice::NotRegisteredException&)
     {
-	_registry->addObject(_adapter1->add(_adapter2->remove(id), id));
+        _registry->addObject(_adapter1->add(_adapter2->remove(id), id));
     }
 }
 

@@ -14,36 +14,36 @@ public class Instance
     public Ice.InitializationData
     initializationData()
     {
-	//
-	// No check for destruction. It must be possible to access the
-	// initialization data after destruction.
-	//
-	// No mutex lock, immutable.
-	//
+        //
+        // No check for destruction. It must be possible to access the
+        // initialization data after destruction.
+        //
+        // No mutex lock, immutable.
+        //
         return _initData;
     }
 
     public TraceLevels
     traceLevels()
     {
-	// No mutex lock, immutable.
+        // No mutex lock, immutable.
         return _traceLevels;
     }
 
     public DefaultsAndOverrides
     defaultsAndOverrides()
     {
-	// No mutex lock, immutable.
+        // No mutex lock, immutable.
         return _defaultsAndOverrides;
     }
 
     public synchronized RouterManager
     routerManager()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _routerManager;
     }
@@ -51,10 +51,10 @@ public class Instance
     public synchronized LocatorManager
     locatorManager()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _locatorManager;
     }
@@ -62,10 +62,10 @@ public class Instance
     public synchronized ReferenceFactory
     referenceFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _referenceFactory;
     }
@@ -73,10 +73,10 @@ public class Instance
     public synchronized ProxyFactory
     proxyFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _proxyFactory;
     }
@@ -84,10 +84,10 @@ public class Instance
     public synchronized OutgoingConnectionFactory
     outgoingConnectionFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _outgoingConnectionFactory;
     }
@@ -95,10 +95,10 @@ public class Instance
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _objectAdapterFactory;
     }
@@ -106,16 +106,16 @@ public class Instance
     public int
     threadPerConnectionStackSize()
     {
-	return _threadPerConnectionStackSize;
+        return _threadPerConnectionStackSize;
     }
 
     public synchronized EndpointFactory
     endpointFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _endpointFactory;
     }
@@ -124,28 +124,28 @@ public class Instance
     messageSizeMax()
     {
         // No mutex lock, immutable.
-	return _messageSizeMax;
+        return _messageSizeMax;
     }
 
     public void
     flushBatchRequests()
     {
-	OutgoingConnectionFactory connectionFactory;
-	ObjectAdapterFactory adapterFactory;
+        OutgoingConnectionFactory connectionFactory;
+        ObjectAdapterFactory adapterFactory;
 
-	synchronized(this)
-	{
-	    if(_state == StateDestroyed)
-	    {
-		throw new Ice.CommunicatorDestroyedException();
-	    }
-	    
-	    connectionFactory = _outgoingConnectionFactory;
-	    adapterFactory = _objectAdapterFactory;
-	}
+        synchronized(this)
+        {
+            if(_state == StateDestroyed)
+            {
+                throw new Ice.CommunicatorDestroyedException();
+            }
+            
+            connectionFactory = _outgoingConnectionFactory;
+            adapterFactory = _objectAdapterFactory;
+        }
 
-	connectionFactory.flushBatchRequests();
-	adapterFactory.flushBatchRequests();
+        connectionFactory.flushBatchRequests();
+        adapterFactory.flushBatchRequests();
     }
 
     public Ice.Identity
@@ -244,10 +244,10 @@ public class Instance
 
         try
         {
-	    if(_initData.logger == null)
-	    {
-	        _initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"));
-	    }
+            if(_initData.logger == null)
+            {
+                _initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+            }
 
             validatePackages();
 
@@ -255,31 +255,31 @@ public class Instance
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 
-	    {
-		final int defaultMessageSizeMax = 1024;
-		int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
-		if(num < 1)
-		{
-		    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore non-sensical values.
-		}
-		else if(num > 0x7fffffff / 1024)
-		{
-		    _messageSizeMax = 0x7fffffff;
-		}
-		else
-		{
-		    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
-		}
-	    }
+            {
+                final int defaultMessageSizeMax = 1024;
+                int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+                if(num < 1)
+                {
+                    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore non-sensical values.
+                }
+                else if(num > 0x7fffffff / 1024)
+                {
+                    _messageSizeMax = 0x7fffffff;
+                }
+                else
+                {
+                    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                }
+            }
 
-	    {
-		int stackSize = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
-		if(stackSize < 0)
-		{
-		    stackSize = 0;
-		}
-		_threadPerConnectionStackSize = stackSize;
-	    }
+            {
+                int stackSize = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+                if(stackSize < 0)
+                {
+                    stackSize = 0;
+                }
+                _threadPerConnectionStackSize = stackSize;
+            }
 
             _routerManager = new RouterManager();
 
@@ -315,28 +315,28 @@ public class Instance
         IceUtil.Debug.FinalizerAssert(_locatorManager == null);
         IceUtil.Debug.FinalizerAssert(_endpointFactory == null);
 
-	//
-	// Do not call parent's finalizer, CLDC Object does not have it.
-	//
+        //
+        // Do not call parent's finalizer, CLDC Object does not have it.
+        //
     }
     
     public void
     finishSetup(Ice.StringSeqHolder args)
     {
-	//
-	// Get default router and locator proxies. 
-	//
-	if(_defaultsAndOverrides.defaultRouter.length() > 0)
-	{
-	    _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
-		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
-	}
+        //
+        // Get default router and locator proxies. 
+        //
+        if(_defaultsAndOverrides.defaultRouter.length() > 0)
+        {
+            _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
+                    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
+        }
 
-	if(_defaultsAndOverrides.defaultLocator.length() > 0)
-	{
-	    _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
-		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
-	}
+        if(_defaultsAndOverrides.defaultLocator.length() > 0)
+        {
+            _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
+                    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
+        }
     }
 
     //
@@ -345,25 +345,25 @@ public class Instance
     public void
     destroy()
     {
-	synchronized(this)
-	{
-	    //
-	    // If the _state is not StateActive then the instance is
-	    // either being destroyed, or has already been destroyed.
-	    //
-	    if(_state != StateActive)
-	    {
-		return;
-	    }
-	    
-	    //
-	    // We cannot set state to StateDestroyed otherwise instance
-	    // methods called during the destroy process (such as
-	    // outgoingConnectionFactory() from
-	    // ObjectAdapterI::deactivate() will cause an exception.
-	    //
-	    _state = StateDestroyInProgress;
-	}
+        synchronized(this)
+        {
+            //
+            // If the _state is not StateActive then the instance is
+            // either being destroyed, or has already been destroyed.
+            //
+            if(_state != StateActive)
+            {
+                return;
+            }
+            
+            //
+            // We cannot set state to StateDestroyed otherwise instance
+            // methods called during the destroy process (such as
+            // outgoingConnectionFactory() from
+            // ObjectAdapterI::deactivate() will cause an exception.
+            //
+            _state = StateDestroyInProgress;
+        }
 
         if(_objectAdapterFactory != null)
         {
@@ -379,27 +379,27 @@ public class Instance
         {
             _objectAdapterFactory.destroy();
         }
-	
+        
         if(_outgoingConnectionFactory != null)
         {
             _outgoingConnectionFactory.waitUntilFinished();
         }
-	
-	synchronized(this)
-	{
-	    _objectAdapterFactory = null;
+        
+        synchronized(this)
+        {
+            _objectAdapterFactory = null;
 
-	    _outgoingConnectionFactory = null;
+            _outgoingConnectionFactory = null;
 
             if(_referenceFactory != null)
             {
                 _referenceFactory.destroy();
                 _referenceFactory = null;
             }
-	    
-	    // No destroy function defined.
-	    // _proxyFactory.destroy();
-	    _proxyFactory = null;
+            
+            // No destroy function defined.
+            // _proxyFactory.destroy();
+            _proxyFactory = null;
 
             if(_routerManager != null)
             {
@@ -418,9 +418,9 @@ public class Instance
                 _endpointFactory.destroy();
                 _endpointFactory = null;
             }
-	    
-	    _state = StateDestroyed;
-	}
+            
+            _state = StateDestroyed;
+        }
     }
 
     private void

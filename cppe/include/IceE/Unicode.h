@@ -97,10 +97,10 @@ ICE_API std::wstring stringToWstring(const std::string&);
 
 enum ConversionResult
 {
-	conversionOK, 		/* conversion successful */
-	sourceExhausted,	/* partial character in source, but hit end */
-	targetExhausted,	/* insuff. room in target for conversion */
-	sourceIllegal		/* source sequence is illegal/malformed */
+        conversionOK,                 /* conversion successful */
+        sourceExhausted,        /* partial character in source, but hit end */
+        targetExhausted,        /* insuff. room in target for conversion */
+        sourceIllegal                /* source sequence is illegal/malformed */
 };
 
 
@@ -117,15 +117,15 @@ isLegalUTF8Sequence(const Byte* source, const Byte* end);
 
 ICE_API ConversionResult 
 convertUTFWstringToUTF8(const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
-			Byte*& targetStart, Byte* targetEnd, ConversionFlags flags);
+                        Byte*& targetStart, Byte* targetEnd, ConversionFlags flags);
 
 ICE_API ConversionResult
 convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd, 
-			wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
+                        wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
 
 ICE_API ConversionResult 
 convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd, 
-			std::wstring& target, ConversionFlags flags);
+                        std::wstring& target, ConversionFlags flags);
 
 
 

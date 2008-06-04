@@ -34,7 +34,7 @@ IceUtil::RecMutex::lock() const
     EnterCriticalSection(&_mutex);
     if(++_count > 1)
     {
-	LeaveCriticalSection(&_mutex);
+        LeaveCriticalSection(&_mutex);
     }
 }
 
@@ -43,11 +43,11 @@ IceUtil::RecMutex::tryLock() const
 {
     if(!TryEnterCriticalSection(&_mutex))
     {
-	return false;
+        return false;
     }
     if(++_count > 1)
     {
-	LeaveCriticalSection(&_mutex);
+        LeaveCriticalSection(&_mutex);
     }
     return true;
 }
@@ -57,7 +57,7 @@ IceUtil::RecMutex::unlock() const
 {
     if(--_count == 0)
     {
-	LeaveCriticalSection(&_mutex);
+        LeaveCriticalSection(&_mutex);
     }
 }
 
@@ -84,7 +84,7 @@ IceUtil::RecMutex::RecMutex() :
     _mutex = CreateMutex(0, false, 0);
     if(_mutex == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -94,7 +94,7 @@ IceUtil::RecMutex::~RecMutex()
     BOOL rc = CloseHandle(_mutex);
     if(rc == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -104,23 +104,23 @@ IceUtil::RecMutex::lock() const
     DWORD rc = WaitForSingleObject(_mutex, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
-	if(rc == WAIT_FAILED)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
-	else
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, 0);
-	}
+        if(rc == WAIT_FAILED)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
+        else
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, 0);
+        }
     }
     
     if(++_count > 1)
     {
-	BOOL rc2 = ReleaseMutex(_mutex);
-	if(rc2 == 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        BOOL rc2 = ReleaseMutex(_mutex);
+        if(rc2 == 0)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
     }
 }
 
@@ -130,15 +130,15 @@ IceUtil::RecMutex::tryLock() const
     DWORD rc = WaitForSingleObject(_mutex, 0);
     if(rc != WAIT_OBJECT_0)
     {
-	return false;
+        return false;
     }
     if(++_count > 1)
     {
-	BOOL rc2 = ReleaseMutex(_mutex);
-	if(rc2 == 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        BOOL rc2 = ReleaseMutex(_mutex);
+        if(rc2 == 0)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
     }
     return true;
 }
@@ -148,11 +148,11 @@ IceUtil::RecMutex::unlock() const
 {
     if(--_count == 0)
     {
-	BOOL rc = ReleaseMutex(_mutex);
-	if(rc == 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        BOOL rc = ReleaseMutex(_mutex);
+        if(rc == 0)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
     }
 }
 
@@ -164,7 +164,7 @@ IceUtil::RecMutex::unlock(LockState& state) const
     BOOL rc = ReleaseMutex(_mutex);
     if(rc == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -174,14 +174,14 @@ IceUtil::RecMutex::lock(LockState& state) const
     DWORD rc = WaitForSingleObject(_mutex, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
-	if(rc == WAIT_FAILED)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
-	else
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, 0);
-	}
+        if(rc == WAIT_FAILED)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
+        else
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, 0);
+        }
     }
     
     _count = state.count;
@@ -203,19 +203,19 @@ IceUtil::RecMutex::RecMutex() :
     rc = pthread_mutexattr_init(&attr);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 #endif
     
     rc = pthread_mutex_init(&_mutex, &attr);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 
 #if defined(__linux) && !defined(__USE_UNIX98)
@@ -224,7 +224,7 @@ IceUtil::RecMutex::RecMutex() :
     rc = pthread_mutexattr_destroy(&attr);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 #endif
 }
@@ -243,12 +243,12 @@ IceUtil::RecMutex::lock() const
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
     if(++_count > 1)
     {
-	rc = pthread_mutex_unlock(&_mutex);
-	assert(rc == 0);
+        rc = pthread_mutex_unlock(&_mutex);
+        assert(rc == 0);
     }
 }
 
@@ -259,18 +259,18 @@ IceUtil::RecMutex::tryLock() const
     bool result = (rc == 0);
     if(!result)
     {
-	if(rc != EBUSY)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        if(rc != EBUSY)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     } 
     else if(++_count > 1)
     {
-	rc = pthread_mutex_unlock(&_mutex);
-	if(rc != 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        rc = pthread_mutex_unlock(&_mutex);
+        if(rc != 0)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
     return result;
 }
@@ -280,9 +280,9 @@ IceUtil::RecMutex::unlock() const
 {
     if(--_count == 0)
     {
-	int rc = 0; // Prevent warnings when NDEBUG is defined.
-	rc = pthread_mutex_unlock(&_mutex);
-	assert(rc == 0);
+        int rc = 0; // Prevent warnings when NDEBUG is defined.
+        rc = pthread_mutex_unlock(&_mutex);
+        assert(rc == 0);
     }
 }
 

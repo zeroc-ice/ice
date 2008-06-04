@@ -29,7 +29,7 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.Properties properties = communicator.getProperties();
-        final String proxyProperty = "Callback.Client.CallbackServer";
+        final String proxyProperty = "CallbackSender.Proxy";
         String proxy = properties.getProperty(proxyProperty);
         if(proxy.length() == 0)
         {
@@ -52,7 +52,7 @@ public class Client
         adapter.activate();
 
         CallbackReceiverPrx twowayR = 
-	    CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
+            CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
                 communicator.stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
 
@@ -86,7 +86,7 @@ public class Client
                 }
                 else if(line.equals("f"))
                 {
-		    communicator.flushBatchRequests();
+                    communicator.flushBatchRequests();
                 }
                 else if(line.equals("s"))
                 {
@@ -128,9 +128,9 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.load("config");
+            initData.properties.load("config.client");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }

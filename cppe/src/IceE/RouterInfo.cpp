@@ -46,7 +46,7 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
 {
     if(!rtr)
     {
-	return 0;
+        return 0;
     }
 
     RouterPrx router = RouterPrx::uncheckedCast(rtr->ice_router(0)); // The router cannot be routed.
@@ -57,24 +57,24 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
     
     if(_tableHint != _table.end())
     {
-	if(_tableHint->first == router)
-	{
-	    p = _tableHint;
-	}
+        if(_tableHint->first == router)
+        {
+            p = _tableHint;
+        }
     }
     
     if(p == _table.end())
     {
-	p = _table.find(router);
+        p = _table.find(router);
     }
 
     if(p == _table.end())
     {
-	_tableHint = _table.insert(_tableHint, pair<const RouterPrx, RouterInfoPtr>(router, new RouterInfo(router)));
+        _tableHint = _table.insert(_tableHint, pair<const RouterPrx, RouterInfoPtr>(router, new RouterInfo(router)));
     }
     else
     {
-	_tableHint = p;
+        _tableHint = p;
     }
 
     return _tableHint->second;
@@ -86,26 +86,26 @@ IceInternal::RouterManager::erase(const RouterPrx& rtr)
     RouterInfoPtr info;
     if(rtr)
     {
-	RouterPrx router = RouterPrx::uncheckedCast(rtr->ice_router(0)); // The router cannot be routed.
-	IceUtil::Mutex::Lock sync(*this);
+        RouterPrx router = RouterPrx::uncheckedCast(rtr->ice_router(0)); // The router cannot be routed.
+        IceUtil::Mutex::Lock sync(*this);
 
-	map<RouterPrx, RouterInfoPtr>::iterator p = _table.end();
-	if(_tableHint != _table.end() && _tableHint->first == router)
-	{
-	    p = _tableHint;
-	    _tableHint = _table.end();
-	}
-	
-	if(p == _table.end())
-	{
-	    p = _table.find(router);
-	}
-	
-	if(p != _table.end())
-	{
-	    info = p->second;
-	    _table.erase(p);
-	}
+        map<RouterPrx, RouterInfoPtr>::iterator p = _table.end();
+        if(_tableHint != _table.end() && _tableHint->first == router)
+        {
+            p = _tableHint;
+            _tableHint = _table.end();
+        }
+        
+        if(p == _table.end())
+        {
+            p = _table.find(router);
+        }
+        
+        if(p != _table.end())
+        {
+            info = p->second;
+            _table.erase(p);
+        }
     }
 
     return info;
@@ -164,24 +164,24 @@ IceInternal::RouterInfo::getClientEndpoints()
     
     if(_clientEndpoints.size() == 0) // Lazy initialization.
     {
-	ObjectPrx clientProxy = _router->getClientProxy();
-	if(!clientProxy)
-	{
+        ObjectPrx clientProxy = _router->getClientProxy();
+        if(!clientProxy)
+        {
             //
             // If getClientProxy() return nil, use router endpoints.
             //
             _clientEndpoints = _router->__reference()->getEndpoints();
-	}
+        }
         else
         {
-	    clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
+            clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
 
-	    //
-	    // In order to avoid creating a new connection to the router,
-	    // we must use the same timeout as the already existing
-	    // connection.
-	    //
-	    clientProxy = clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
+            //
+            // In order to avoid creating a new connection to the router,
+            // we must use the same timeout as the already existing
+            // connection.
+            //
+            clientProxy = clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
 
             _clientEndpoints = clientProxy->__reference()->getEndpoints();
         }
@@ -197,13 +197,13 @@ IceInternal::RouterInfo::getServerEndpoints()
     
     if(_serverEndpoints.size() == 0) // Lazy initialization.
     {
-	ObjectPrx serverProxy = _router->getServerProxy();
-	if(!serverProxy)
-	{
-	    throw NoEndpointException(__FILE__, __LINE__);
-	}
+        ObjectPrx serverProxy = _router->getServerProxy();
+        if(!serverProxy)
+        {
+            throw NoEndpointException(__FILE__, __LINE__);
+        }
 
-	serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
+        serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
 
         _serverEndpoints = serverProxy->__reference()->getEndpoints();
     }

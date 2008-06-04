@@ -51,7 +51,7 @@ IceInternal::EndpointFactory::create(const std::string& str) const
 
     if(protocol == "default" || protocol == "tcp")
     {
-	return new TcpEndpoint(_instance, str.substr(end));
+        return new TcpEndpoint(_instance, str.substr(end));
     }
 
     return 0;

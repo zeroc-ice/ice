@@ -24,10 +24,10 @@ public class AllTests
         out.print("testing stringToProxy... ");
         out.flush();
         String ref = communicator.getProperties().getPropertyWithDefault("Retry.Proxy", 
-		"retry:default -p 12010 -t 10000");
+                "retry:default -p 12010 -t 10000");
         Ice.ObjectPrx base1 = communicator.stringToProxy(ref);
         test(base1 != null);
-	Ice.ObjectPrx base2 = communicator.stringToProxy(ref);
+        Ice.ObjectPrx base2 = communicator.stringToProxy(ref);
         test(base2 != null);
         out.println("ok");
 
@@ -35,33 +35,33 @@ public class AllTests
         out.flush();
         Test.RetryPrx retry1 = Test.RetryPrxHelper.checkedCast(base1);
         test(retry1 != null);
-	test(retry1.equals(base1));
+        test(retry1.equals(base1));
         Test.RetryPrx retry2 = Test.RetryPrxHelper.checkedCast(base2);
         test(retry2 != null);
-	test(retry2.equals(base2));
+        test(retry2.equals(base2));
         out.println("ok");
 
-	out.print("calling regular operation with first proxy... ");
-	out.flush();
-	retry1.op(false);
-	out.println("ok");
+        out.print("calling regular operation with first proxy... ");
+        out.flush();
+        retry1.op(false);
+        out.println("ok");
 
-	out.print("calling operation to kill connection with second proxy... ");
-	out.flush();
-	try
-	{
-	    retry2.op(true);
-	    test(false);
-	}
-	catch(Ice.ConnectionLostException ex)
-	{
-	    out.println("ok");
-	}
+        out.print("calling operation to kill connection with second proxy... ");
+        out.flush();
+        try
+        {
+            retry2.op(true);
+            test(false);
+        }
+        catch(Ice.ConnectionLostException ex)
+        {
+            out.println("ok");
+        }
 
         out.print("calling regular operation with first proxy again... ");
         out.flush();
-	retry1.op(false);
-	out.println("ok");
+        retry1.op(false);
+        out.println("ok");
 
         return retry1;
     }

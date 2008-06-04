@@ -17,45 +17,45 @@ public class JADTask extends org.apache.tools.ant.Task
     public void
     setFile(java.io.File jadFile)
     {
-	_jad = jadFile;
+        _jad = jadFile;
     }
 
     public void
     addConfiguredAttribute(JADAttribute attribute)
     {
-	_attributes.add(attribute);
+        _attributes.add(attribute);
     }
 
     public void
     execute()
-	throws org.apache.tools.ant.BuildException
+        throws org.apache.tools.ant.BuildException
     {
-	if(_jad == null)
-	{
-	    throw new org.apache.tools.ant.BuildException("No JAD filename set.");
-	}
+        if(_jad == null)
+        {
+            throw new org.apache.tools.ant.BuildException("No JAD filename set.");
+        }
 
-	if(_jad.exists() && !_jad.canWrite())
-	{
-	    throw new org.apache.tools.ant.BuildException("Cannot write to " + _jad.getName());
-	}
+        if(_jad.exists() && !_jad.canWrite())
+        {
+            throw new org.apache.tools.ant.BuildException("Cannot write to " + _jad.getName());
+        }
 
-	try
-	{
-	    java.io.PrintWriter out = new java.io.PrintWriter(new java.io.FileWriter(_jad));
-	    java.util.Iterator iter = _attributes.iterator();
-	    while(iter.hasNext())
-	    {
-		JADAttribute attr = (JADAttribute)iter.next();
-		out.println(attr.getName() + ": " + attr.getValue());
-	    }
-	    out.flush();
-	    out.close();
-	}
-	catch(java.io.IOException ex)
-	{
-	    throw new org.apache.tools.ant.BuildException(ex.getMessage());
-	}
+        try
+        {
+            java.io.PrintWriter out = new java.io.PrintWriter(new java.io.FileWriter(_jad));
+            java.util.Iterator iter = _attributes.iterator();
+            while(iter.hasNext())
+            {
+                JADAttribute attr = (JADAttribute)iter.next();
+                out.println(attr.getName() + ": " + attr.getValue());
+            }
+            out.flush();
+            out.close();
+        }
+        catch(java.io.IOException ex)
+        {
+            throw new org.apache.tools.ant.BuildException(ex.getMessage());
+        }
     }
 
     private java.io.File _jad;
