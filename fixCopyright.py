@@ -321,4 +321,3 @@ files += find(os.path.join(ice_dir, "php"), "*.php")
 
 for f in files:
     fileMatchAndReplace(f, [(vpatMatch, copyright)])
->>>>>>> 5dd7ba1... Updated fixCopyright to fix a lot of files it missed handling.:fixCopyright.py
