@@ -26,10 +26,6 @@ CPPFLAGS	= -I..\include $(CPPFLAGS) -DICE_TEST_COMMON_API_EXPORTS
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(EMBEDDED_DEVICE)" != ""
-LIBS		= $(LIBS) 
-!endif
-
 !if "$(STATICLIBS)" == "yes"
 
 $(DLLNAME):
@@ -42,7 +38,7 @@ $(LIBNAME): $(OBJS)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	$(LINK) $(LDFLAGS) /dll $(PDBFLAGS) $(OBJS) /out:$(DLLNAME) $(LIBS)
+	$(LINK) $(LDFLAGS) /dll $(PDBFLAGS) $(OBJS) /out:$(DLLNAME) $(MINLIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
