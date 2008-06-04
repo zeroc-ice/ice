@@ -115,6 +115,7 @@ def find(path, patt):
 #
 def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
 
+    mode = os.stat(filename)[ST_MODE]
     oldConfigFile = open(filename, "r")
     newConfigFile = open(filename + ".new", "w")
 
@@ -147,6 +148,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
     if updated:
         print "updated " + filename
         os.rename(filename + ".new", filename)
+        os.chmod(filename, S_IMODE(mode))
     elif warn:
         print "warning: " + filename + " didn't contain any version"
         os.unlink(filename + ".new")

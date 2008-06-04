@@ -128,7 +128,7 @@ BEGIN
             VALUE "FileDescription", "IceE Chat Client\0"
             VALUE "FileVersion", "1.0.0.1\0"
             VALUE "InternalName", "ChatClient.exe\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003 - 2007 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright (c) 2003-2007 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "ChatClient.exe\0"
             VALUE "ProductName", "IceE\0"
             VALUE "ProductVersion", "1.0.0.1\0"

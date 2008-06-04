@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 import os, sys, shutil, fnmatch, re, glob
+from stat import *
 
 #
 # Program usage.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options] [path]"
+    print "Usage: " + sys.argv[0] + " [options]"
     print
     print "Options:"
-    print "-e    Fix version for Ice-E instead of Ice."
     print "-h    Show this message."
     print
 
@@ -112,6 +112,8 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
 
     if copyrightFound and newCopyrightLines != oldCopyrightLines:
 
+        mode = os.stat(file)[ST_MODE]
+
         origFile = file + ".orig"
         shutil.copy2(file, origFile)
 
@@ -127,6 +129,8 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
 
         newFile.writelines(newLines)
         newFile.close()        
+
+        os.chmod(file, S_IMODE(mode))
         print "------ Replaced copyright in " + file + " -------"
 
         #
@@ -222,6 +226,7 @@ def find(path, patt):
 
 def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
 
+    mode = os.stat(filename)[ST_MODE]
     oldConfigFile = open(filename, "r")
     newConfigFile = open(filename + ".new", "w")
 
@@ -253,6 +258,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
     if updated:
         print "updated " + filename
         os.rename(filename + ".new", filename)
+        os.chmod(filename, S_IMODE(mode))
     elif warn:
         print "warning: " + filename + " didn't contain any copyright"
         os.unlink(filename + ".new")
@@ -261,38 +267,31 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
 # Main
 #
 
-patchIceE = False
-
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-e":
-        patchIceE = True
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
         usage()
         sys.exit(1)
-    else:
-        path = x
 
 ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 
 #
 # Fix copyright header in files
 #
-if patchIceE:
-    for dir in ["cppe", "javae"]:
-        home = os.path.join(ice_dir, dir)
-        if home:
-            replaceAllCopyrights(home, True, True)
-else:
-    replaceAllCopyrights(ice_dir, False, False)
-    for dir in ["slice", "cpp", "java", "cs", "vb", "php", "py", "rb", "sl", "demoscript", "distribution", "config", "certs"]:
-        home = os.path.join(ice_dir, dir)
-        if home:
-            replaceAllCopyrights(home, False, True)
+replaceAllCopyrights(ice_dir, False, False)
+for dir in ["slice", "cpp", "java", "cs", "vb", "php", "py", "rb", "sl", "demoscript", "distribution", "config", "certs"]:
+    home = os.path.join(ice_dir, dir)
+    if home:
+        replaceAllCopyrights(home, False, True)
+
+for dir in ["cppe", "javae"]:
+    home = os.path.join(ice_dir, dir)
+    if home:
+        replaceAllCopyrights(home, True, True)
 
 #
 # Fix various other files that have copyright info in them that
