@@ -45,25 +45,6 @@ private:
     OFTable _oft;
 };
 
-class ICE_API FactoryTableWrapper : private IceUtil::noncopyable
-{
-public:
-
-    friend class FactoryTable;
-
-    FactoryTableWrapper();
-    ~FactoryTableWrapper();
-
-private:
-
-    void initialize();
-    void finalize();
-    static IceUtil::StaticMutex _m;
-    static int _initCount;
-};
-
-extern ICE_API FactoryTableWrapper factoryTableWrapper;
-
 }
 
 #endif
