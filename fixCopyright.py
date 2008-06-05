@@ -177,7 +177,10 @@ def replaceAllCopyrights(path, patchIceE, recursive):
             elif fnmatch.fnmatch(x, "Make*") or fnmatch.fnmatch(x, "*.properties"):
                 commentMark = "#"
                 copyrightLines = makefileCopyright
-            elif fnmatch.fnmatch(x, "*.h") or fnmatch.fnmatch(x, "*.cpp") or fnmatch.fnmatch(x, "*.cs") or fnmatch.fnmatch(x, "*.ice") or fnmatch.fnmatch(x, "*.java") or fnmatch.fnmatch(x, "*.l") or fnmatch.fnmatch(x, "*.y"):
+            elif fnmatch.fnmatch(x, "*.h") or fnmatch.fnmatch(x, "*.cpp") or fnmatch.fnmatch(x, "*.cs") or fnmatch.fnmatch(x, "*.java") or fnmatch.fnmatch(x, "*.l") or fnmatch.fnmatch(x, "*.y"):
+                commentMark = "//"
+                copyrightLines = cppCopyright
+            elif fnmatch.fnmatch(x, "*.ice") and not fnmatch.fnmatch(x, "IllegalIdentifier.ice"):
                 commentMark = "//"
                 copyrightLines = cppCopyright
             elif fnmatch.fnmatch(x, "*.py"):
@@ -318,6 +321,7 @@ files += find(os.path.join(ice_dir), "AssemblyInfo.cs")
 files += find(os.path.join(ice_dir, "sl"), "*.as*x")
 files += find(os.path.join(ice_dir, "distribution", "src", "rpm"), "*")
 files += find(os.path.join(ice_dir, "php"), "*.php")
+files += [os.path.join(ice_dir, "cpp", "test", "Slice", "errorDetection", "IllegalIdentifier.ice")]
 
 for f in files:
     fileMatchAndReplace(f, [(vpatMatch, copyright)])
