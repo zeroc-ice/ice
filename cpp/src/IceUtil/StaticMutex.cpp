@@ -18,14 +18,14 @@ using namespace std;
 
 static CRITICAL_SECTION _criticalSection;
 
-typedef list<CRITICAL_SECTION*> MutexList;
-
-static MutexList* _mutexList;
-
 //
 // Although apparently not documented by Microsoft, static objects are
 // initialized before DllMain/DLL_PROCESS_ATTACH and finalized after
-// DllMain/DLL_PROCESS_DETACH ... that's why we use a static object.
+// DllMain/DLL_PROCESS_DETACH ... However, note that after the DLL is
+// detached the allocated StaticMutexes may still be accessed. See
+// http://blogs.msdn.com/larryosterman/archive/2004/06/10/152794.aspx
+// for some details. This means that there is no convenient place to
+// cleanup the globally allocated static mutexes.
 //
 
 namespace IceUtil
@@ -36,7 +36,6 @@ class Init
 public:
 
     Init();
-    ~Init();
 };
 
 static Init _init;
@@ -44,20 +43,8 @@ static Init _init;
 Init::Init()
 {
     InitializeCriticalSection(&_criticalSection);
-    _mutexList = new MutexList;
 }
 
-Init::~Init()
-{
-    for(MutexList::iterator p = _mutexList->begin(); 
-        p != _mutexList->end(); ++p)
-    {
-        DeleteCriticalSection(*p);
-        delete *p;
-    }
-    delete _mutexList;
-    DeleteCriticalSection(&_criticalSection);
-}
 }
 
 void IceUtil::StaticMutex::initialize() const
@@ -81,7 +68,6 @@ void IceUtil::StaticMutex::initialize() const
         //
         void* oldVal = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&_mutex), newMutex, 0);
         assert(oldVal == 0);
-        _mutexList->push_back(_mutex);
 
     }
     LeaveCriticalSection(&_criticalSection);
