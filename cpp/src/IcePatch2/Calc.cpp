@@ -10,6 +10,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/Unicode.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <IcePatch2/Util.h>
 #include <OS.h>
 
@@ -195,14 +196,14 @@ main(int argc, char* argv[])
             throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
         }
 
-        if(!isAbsolute(absDataDir))
+        if(!IceUtilInternal::isAbsolutePath(absDataDir))
         {
             absDataDir = simplify(cwd + '/' + absDataDir);
         }
         
         for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
         {
-            if(!isAbsolute(*p))
+            if(!IceUtilInternal::isAbsolutePath(*p))
             {
                 *p = cwd + '/' + *p;
             }

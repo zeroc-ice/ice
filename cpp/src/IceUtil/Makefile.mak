@@ -20,13 +20,14 @@ OBJS		= ArgVector.obj \
 		  CountDownLatch.obj \
 		  CtrlCHandler.obj \
 		  Exception.obj \
-		  Shared.obj \
+		  FileUtil.obj \
 		  InputUtil.obj \
 		  Options.obj \
 		  OutputUtil.obj \
 		  Random.obj \
 		  RWRecMutex.obj \
 		  RecMutex.obj \
+		  Shared.obj \
 		  StaticMutex.obj \
 		  StringUtil.obj \
 		  Thread.obj \

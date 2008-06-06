@@ -21,7 +21,7 @@ OBJS		= ArgVector.o \
 		  CountDownLatch.o \
 		  CtrlCHandler.o \
 		  Exception.o \
-		  Shared.o \
+		  FileUtil.o \
 		  InputUtil.o \
 		  Options.o \
 		  OutputUtil.o \
@@ -29,6 +29,7 @@ OBJS		= ArgVector.o \
 		  RWRecMutex.o \
 		  RecMutex.o \
 		  StaticMutex.o \
+		  Shared.o \
 		  StringUtil.o \
 		  Thread.o \
 		  ThreadException.o \

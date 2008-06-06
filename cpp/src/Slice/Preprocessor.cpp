@@ -12,6 +12,7 @@
 #include <Slice/Util.h>
 #include <Slice/SignalHandler.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
 #include <algorithm>
@@ -295,7 +296,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     {
         end += 4;
         string file = IceUtilInternal::trim(unprocessed.substr(pos, end - pos));
-        if(isAbsolute(file))
+        if(IceUtilInternal::isAbsolutePath(file))
         {
             if(file == absoluteFileName)
             {
@@ -313,7 +314,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
                     if(file.compare(0, p->length(), *p) == 0)
                     {
                         string s = includePaths[p - fullIncludePaths.begin()] + file.substr(p->length());
-                        if(isAbsolute(newFile) || s.size() < newFile.size())
+                        if(IceUtilInternal::isAbsolutePath(newFile) || s.size() < newFile.size())
                         {
                             newFile = s;
                         }

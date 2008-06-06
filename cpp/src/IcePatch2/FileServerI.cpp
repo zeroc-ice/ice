@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/FileUtil.h>
 #include <IceUtil/ScopedArray.h>
 #include <IceUtil/Unicode.h>
 #include <IcePatch2/FileServerI.h>
@@ -64,7 +65,7 @@ void
 IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileCompressedPtr& cb,
                                                 const string& pa, Int pos, Int num, const Current&) const
 {
-    if(isAbsolute(pa))
+    if(IceUtilInternal::isAbsolutePath(pa))
     {
         FileAccessException ex;
         ex.reason = "illegal absolute path `" + pa + "'";

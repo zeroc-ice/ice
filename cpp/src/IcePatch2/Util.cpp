@@ -309,26 +309,6 @@ IcePatch2::simplify(const string& path)
 }
 
 bool
-IcePatch2::isAbsolute(const string& pa)
-{
-    if(pa.empty())
-    {
-        return false;
-    }
-
-    unsigned i = 0;
-    while(isspace(pa[i]))
-    {
-        ++i;
-    }
-#ifdef _WIN32
-    return pa[i] == '\\' || pa[i] == '/' || pa.size() > i + 1 && isalpha(pa[i]) && pa[i + 1] == ':';
-#else
-    return pa[i] == '/';
-#endif
-}
-
-bool
 IcePatch2::isRoot(const string& pa)
 {
     string path = simplify(pa);

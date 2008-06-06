@@ -7,17 +7,19 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_UTIL_H
-#define SLICE_UTIL_H
+#ifndef ICE_FILE_UTIL_H
+#define ICE_FILE_UTIL_H
 
-#include <Slice/Parser.h>
+#include <IceUtil/Config.h>
 
-namespace Slice
+namespace IceUtilInternal
 {
 
-SLICE_API std::string fullPath(const std::string&);
-SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
+//
+// Detemine if path is an absolute path.
+//
+ICE_UTIL_API bool isAbsolutePath(const std::string&);
 
-}
+};
 
 #endif
