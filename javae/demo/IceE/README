@@ -1,8 +1,0 @@
-Ice-E for Java demos are divided into jdk and midp demos.
-
-The jdk demos can run on:
- - Java SE
- - Java ME CDC 1.0 with PP 1.0
-
-The midp demos can run on:
- - Java ME CLDC 1.1 with MIDP 2.0
