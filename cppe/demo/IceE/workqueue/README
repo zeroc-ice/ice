@@ -1,3 +1,0 @@
-This application illustrates the use of the threading and
-synchronization primitives provided by Ice-E. It uses
-Ice-E to implement a simple producer/ consumer queuing application.
