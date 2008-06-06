@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
 #include <IcePatch2/Util.h>
@@ -118,7 +119,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     try
     {
-        if(!isAbsolute(dataDir))
+        if(!IceUtilInternal::isAbsolutePath(dataDir))
         {
             string cwd;
             if(OS::getcwd(cwd) != 0)

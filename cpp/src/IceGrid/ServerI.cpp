@@ -18,6 +18,7 @@
 
 #include <IcePatch2/Util.h>
 #include <IcePatch2/OS.h>
+#include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -2027,7 +2028,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     for(Ice::StringSeq::const_iterator p = _desc->logs.begin(); p != _desc->logs.end(); ++p)
     {
         string path = IcePatch2::simplify(*p);
-        if(IcePatch2::isAbsolute(path))
+        if(IceUtilInternal::isAbsolutePath(path))
         {
             _logs.push_back(path);
         }
@@ -2714,7 +2715,7 @@ ServerI::getFilePath(const string& filename) const
     else if(!filename.empty() && filename[0] == '#')
     {
         string path = IcePatch2::simplify(filename.substr(1));
-        if(!IcePatch2::isAbsolute(path))
+        if(!IceUtilInternal::isAbsolutePath(path))
         {
             path = _node->getPlatformInfo().getCwd() + "/" + path;
         }

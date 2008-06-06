@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/ArgVector.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/Admin.h>
@@ -345,7 +346,7 @@ Activator::activate(const string& name,
 
     string pwd = IcePatch2::simplify(pwdPath);
 #ifdef _WIN32
-    if(!IcePatch2::isAbsolute(path))
+    if(!IceUtilInternal::isAbsolutePath(path))
     {
         if(path.find('/') == string::npos)
         {

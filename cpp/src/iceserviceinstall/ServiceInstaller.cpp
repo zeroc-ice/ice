@@ -15,6 +15,7 @@
 
 #include <ServiceInstaller.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -50,34 +51,6 @@ fixDirSeparator(const string& path)
     return result;
 }
 
-bool
-isAbsolutePath(const string& path)
-{
-    size_t i = 0;
-    size_t size = path.size();
-
-    // Skip whitespace
-    while(i < size && isspace(path[i]))
-    {
-        ++i;
-    }
-
-    // We need at least 3 non whitespace character to have
-    // and absolute path
-    if(i + 3 > size)
-    {
-        return false;
-    }
-
-    // Check for X:\ path
-    if((path[i] >= 'A' && path[i] <= 'Z') || (path[i] >= 'a' && path[i] <= 'z'))
-    {
-        return path[i + 1] == ':' && path[i + 2] == '\\';
-    }
-
-    // Check for UNC path
-    return path[i] == '\\' && path[i + 1] == '\\';
-}
 }
 
 IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFile,
@@ -210,7 +183,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         {
             throw "IceGrid.Registry.Data must be set in " + _configFile;
         }
-        if(!isAbsolutePath(registryDataDir))
+        if(!IceUtilInternal::isAbsolutePath(registryDataDir))
         {
             throw "'" + registryDataDir + "' is a relative path; IceGrid.Registry.Data must be an absolute path";
         }
@@ -227,7 +200,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         {
             throw "IceGrid.Node.Data must be set in " + _configFile;
         }
-        if(!isAbsolutePath(nodeDataDir))
+        if(!IceUtilInternal::isAbsolutePath(nodeDataDir))
         {
             throw "'" + nodeDataDir + "' is a relative path; IceGrid.Node.Data must be an absolute path";
         }

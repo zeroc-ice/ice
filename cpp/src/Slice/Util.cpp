@@ -9,6 +9,7 @@
 
 #include <Slice/Util.h>
 #include <IceUtil/Unicode.h>
+#include <IceUtil/FileUtil.h>
 #include <climits>
 
 #include <unistd.h> // For readlink()
@@ -64,25 +65,11 @@ normalizePath(const string& path)
     return result;
 }
 
-bool
-Slice::isAbsolute(const string& path)
-{
-#ifdef _WIN32
-    if(path[0] == '\\' || path[0] == '/' || path.size() > 1 && isalpha(path[0]) && path[1] == ':')
-#else
-    if(path[0] == '/')
-#endif
-    {
-        return true;
-    }
-    return false;
-}
-
 string
 Slice::fullPath(const string& path)
 {
 #ifdef _WIN32
-    if(!isAbsolute(path))
+    if(!IceUtilInternal::isAbsolutePath(path))
     {
         wchar_t cwdbuf[_MAX_PATH];
         if(_wgetcwd(cwdbuf, _MAX_PATH) != NULL)
@@ -93,7 +80,7 @@ Slice::fullPath(const string& path)
     return normalizePath(path);
 #else
     string result = path;
-    if(!isAbsolute(result))
+    if(!IceUtilInternal::isAbsolutePath(result))
     {
         char cwdbuf[PATH_MAX];
         if(::getcwd(cwdbuf, PATH_MAX) != NULL)
@@ -125,7 +112,7 @@ Slice::fullPath(const string& path)
         {
             buf[len] = '\0';
             string linkpath = buf;
-            if(!isAbsolute(linkpath)) // Path relative to the location of the link
+            if(!IceUtilInternal::isAbsolutePath(linkpath)) // Path relative to the location of the link
             {
                 string::size_type pos = subpath.rfind('/');
                 assert(pos != string::npos);
