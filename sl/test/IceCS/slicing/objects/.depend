@@ -1,3 +1,0 @@
-Test.cs: ./Test.ice
-Forward.cs: ./Forward.ice
-ClientPrivate.cs: ./ClientPrivate.ice Test.ice
