@@ -38,15 +38,7 @@ filesToRemove = [ \
     "fixCopyright.py", \
     "fixVersion.py", \
     "makedist.py", \
-    "makesldist.py", \
-    "cpp/iceemakedist.py", \
     "cpp/config/makegitignore.py", \
-    "cpp/config/Make.rules.icee", \
-    "cpp/config/Make.rules.mak.icee", \
-    "cpp/config/Make.rules.mak.icesl", \
-    "cpp/src/slice2cppe", \
-    "cpp/src/slice2javae", \
-    "cpp/src/slice2sl", \
     "rb/config/Make.rules.Darwin", \
 ]
 

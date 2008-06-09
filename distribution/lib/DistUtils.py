@@ -161,10 +161,10 @@ def move(src, dest, warnDestExists = True):
 #
 # Copy files from srcpath and matching the given patterns to destpath
 #
-def copyMatchingFiles(srcpath, destpath, patterns):
+def copyMatchingFiles(srcpath, destpath, patterns, warnDestExists = True):
     for p in patterns:
         for f in glob.glob(os.path.join(srcpath, p)):
-            copy(f, os.path.join(destpath, os.path.basename(f)))
+            copy(f, os.path.join(destpath, os.path.basename(f)), warnDestExists)
 
 #
 # Get the language mapping directory for a given suffix.

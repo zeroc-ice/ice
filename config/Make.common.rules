@@ -156,6 +156,7 @@ $(warning Found $(slice_translator) in both /usr/bin and /opt/Ice-$(VERSION)/bin
 $(error Unable to find a valid Ice distribution, please verify ICE_HOME is properly configured and Ice is correctly installed.)
     endif
     ice_bin_dist = 1
+    ice_cpp_dir = $(ice_dir)
 endif
 
 #
