@@ -111,6 +111,7 @@ ice_dir = C:\Ice-$(VERSION)
 !error Unable to find a valid Ice distribution, please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 ice_bin_dist = 1
+ice_cpp_dir = $(ice_dir)
 !endif
 
 #
