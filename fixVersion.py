@@ -40,8 +40,8 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules")
 
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules.mak"),
                     [("^VERSION[\t\s]*= " + FixUtil.vpatMatch, version),
-                     ("INTVERSION[\t\s]*= " + FixUtil.vpatMatch, FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + \
-                                                         "." + FixUtil.patchVersion(version)),
+                     ("INTVERSION[\t\s]*= " + FixUtil.vpatMatch, FixUtil.majorVersion(version) + "." + \
+                                FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version)),
                      ("SHORT_VERSION[\t\s]*= ([0-9]*\.[0-9]*)", FixUtil.shortVersion(version)),
                      ("SOVERSION[\t\s]*= ([0-9]+b?)", FixUtil.soVersion(version))])
 
@@ -51,8 +51,8 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", 
                     [("%define soversion ([0-9]+b?)", FixUtil.soVersion(version))])
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "ice.spec"),
                     [("%define dotnetversion ([0-9]*\.[0-9]*\.[0-9]*)",
-                      FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version))])
-
+                      FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + \
+                      "." + FixUtil.patchVersion(version))])
 
 #
 # Fix version in C++ sources
@@ -91,13 +91,13 @@ if ice_home:
     FixUtil.fileMatchAndReplace(os.path.join(ice_home, "test", "IceStorm", "repgrid", "application.xml"),
                         [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
-    for f in find(os.path.join(ice_home, "src"), "*.rc"):
+    for f in FixUtil.find(os.path.join(ice_home, "src"), "*.rc"):
         FixUtil.fileMatchAndReplace(f, [("\"FileVersion\", \"" + FixUtil.vpatMatch, version), \
                                 ("\"ProductVersion\", \"" + FixUtil.vpatMatch, version), \
                                 ("INTERNALNAME \"[^0-9]*2?([0-9][0-9]b?)d?", FixUtil.soVersion(version)), \
                                 ("ORIGINALFILENAME \"[^0-9]*2?([0-9][0-9]b?)d?\.dll", FixUtil.soVersion(version)), \
-                                ("FILEVERSION ([0-9]+,[0-9]+,[0-9]+)", commaVersion(version)), \
-                                ("PRODUCTVERSION ([0-9]+,[0-9]+,[0-9]+)", commaVersion(version))])
+                                ("FILEVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version)), \
+                                ("PRODUCTVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version))])
     
 #
 # Fix version in Java sources
@@ -123,7 +123,7 @@ if icej_home:
 #
 icecs_home = os.path.join(ice_dir, "cs")
 if icecs_home:
-    for f in find(icecs_home, "AssemblyInfo.cs"):
+    for f in FixUtil.find(icecs_home, "AssemblyInfo.cs"):
         if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
             FixUtil.fileMatchAndReplace(f, [("AssemblyVersion\(\"" + FixUtil.vpatMatch + "\"",
                                      FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + \
@@ -132,22 +132,23 @@ if icecs_home:
     FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "demo", "IceStorm", "clock", "config.icebox"),
                         [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
-    for f in find(icecs_home, "*.pc"):
+    for f in FixUtil.find(icecs_home, "*.pc"):
         print "matching " + f
-        FixUtil.fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]* " + FixUtil.vpatMatch, FixUtil.majorVersion(version) + "." + \
-                            FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version))])
+        FixUtil.fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]* " + FixUtil.vpatMatch, 
+                            FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + \
+                            FixUtil.patchVersion(version))])
 
-    for f in find(icecs_home, "config*"):
+    for f in FixUtil.find(icecs_home, "config*"):
         print "matching " + f
         FixUtil.fileMatchAndReplace(f, 
                             [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0",
-                             FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version))],
+                             FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + 
+                             FixUtil.patchVersion(version))],
                             False) # Disable warnings as many files might not have SSL configuration
 
     FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
                         [("return \"" + FixUtil.vpatMatch +"\".*A=major", version), \
                          ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
-
 
 #
 # Fix version in VB sources
@@ -157,11 +158,12 @@ if icevb_home:
     FixUtil.fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
                         [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
-    for f in find(icevb_home, "config*"):
+    for f in FixUtil.find(icevb_home, "config*"):
         print "matching " + f
         FixUtil.fileMatchAndReplace(f, 
                             [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0",
-                             FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version))],
+                             FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + \
+                             FixUtil.patchVersion(version))],
                             False) # Disable warnings as many files might not have SSL configuration
 
 #
@@ -182,7 +184,6 @@ if icepy_home:
                         [("Ice-" + FixUtil.vpatMatch, version)])
     FixUtil.fileMatchAndReplace(os.path.join(icepy_home, "demo", "Ice", "bidir", "Client.py"),
                         [("Ice-" + FixUtil.vpatMatch, version)])
-
 #
 # Fix version in IceRuby
 #
