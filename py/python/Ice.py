@@ -624,6 +624,8 @@ class CtrlCHandler(threading.Thread):
         #
         if signal.__dict__.has_key('SIGHUP'):
             signal.signal(signal.SIGHUP, CtrlCHandler.signalHandler)
+        if signal.__dict__.has_key('SIGBREAK'):
+            signal.signal(signal.SIGBREAK, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGINT, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGTERM, CtrlCHandler.signalHandler)
 
@@ -659,6 +661,8 @@ class CtrlCHandler(threading.Thread):
         #
         if signal.__dict__.has_key('SIGHUP'):
             signal.signal(signal.SIGHUP, signal.SIG_DFL)
+        if signal.__dict__.has_key('SIGBREAK'):
+            signal.signal(signal.SIGBREAK, signal.SIG_DFL)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         CtrlCHandler._self = None

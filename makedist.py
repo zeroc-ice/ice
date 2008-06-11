@@ -191,7 +191,8 @@ for root, dirnames, filenames in os.walk('.'):
 
 move("distribution", distFilesDir) # Move the distribution directory to the top-level
 move("demoscript", os.path.join(demoscriptDir, "demoscript")) # Move the demoscript directory
-copy(os.path.join("config", "DemoUtil.py"), os.path.join(demoscriptDir, "config", "DemoUtil.py"))
+# and the associated top level demo script.
+move("allDemos.py", os.path.join(demoscriptDir, "demoscript", "allDemos.py"))
 
 print "ok"
 

@@ -10,35 +10,31 @@
 
 import sys, os, signal
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "C++"
+from demoscript import *
 
-if demoscript.Util.isDarwin():
+if Util.isDarwin():
     print "This demo is not supported under MacOS."
     sys.exit(0)
 
 print "cleaning databases...",
 sys.stdout.flush()
-demoscript.Util.cleanDbDir("db")
+Util.cleanDbDir("db")
 print "ok"
 
 print "testing IceUtl::Cache evictor"
-server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
+server = Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect(".* ready", timeout=120)
 
-client = demoscript.Util.spawn('./client')
+client = Util.spawn('./client')
 client.waitTestSuccess(timeout=8 * 60)
 print client.before
 
@@ -46,10 +42,10 @@ server.kill(signal.SIGINT)
 server.waitTestSuccess(timeout=60)
 
 print "testing simple evictor"
-server = demoscript.Util.spawn('./server simple --Ice.PrintAdapterReady')
+server = Util.spawn('./server simple --Ice.PrintAdapterReady')
 server.expect(".* ready")
 
-client = demoscript.Util.spawn('./client')
+client = Util.spawn('./client')
 client.waitTestSuccess(timeout=8*60)
 print client.before
 

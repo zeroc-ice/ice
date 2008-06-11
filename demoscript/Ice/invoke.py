@@ -9,6 +9,7 @@
 # **********************************************************************
 
 import sys, demoscript
+from demoscript import *
 
 def run(client, server):
     print "testing...",
@@ -19,12 +20,10 @@ def run(client, server):
     server.expect("Printing string sequence \\{'The', 'streaming', 'API', 'works!'\\}");
     client.sendline('3')
     server.expect("Printing dictionary \\{")
-    i = server.expect(["API=works!", "The=streaming"])
-    j = server.expect(["API=works!", "The=streaming"])
-    assert i != j
+    server.expectall(["API=works!", "The=streaming"])
     server.expect("\\}")
     client.sendline('4')
-    if demoscript.Util.defaultLanguage == "VB":
+    if Util.getMapping() == "vb":
         server.expect("Printing enum 1")
         client.sendline('5')
         server.expect("Printing struct: name=red, value=0")

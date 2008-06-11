@@ -10,39 +10,44 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "C++"
+from demoscript import *
 import time, signal
 
 print "cleaning databases...",
 sys.stdout.flush()
-demoscript.Util.cleanDbDir("db1");
-demoscript.Util.cleanDbDir("db2")
-demoscript.Util.cleanDbDir("db3")
+Util.cleanDbDir("db1");
+Util.cleanDbDir("db2")
+Util.cleanDbDir("db3")
 print "ok"
 
-directory = os.path.dirname(os.path.abspath(__file__))
-demoscript.Util.addLdPath(directory)
+if Util.defaultHost:
+    a1 = ' --IceBox.Service.IceStorm="IceStormService,33:createIceStorm --Ice.Config=config.s1 %s"' \
+        % Util.defaultHost
+    a2 = ' --IceBox.Service.IceStorm="IceStormService,33:createIceStorm --Ice.Config=config.s2 %s"' \
+        % Util.defaultHost
+    a3 = ' --IceBox.Service.IceStorm="IceStormService,33:createIceStorm --Ice.Config=config.s3 %s"' \
+        % Util.defaultHost
+else:
+    a1 = ''
+    a2 = ''
+    a3 = ''
 
 print "starting replicas...",
 sys.stdout.flush()
-ib1 = demoscript.Util.spawn('%s --Ice.Config=config.ib1 --Ice.PrintAdapterReady' % (demoscript.Util.getIceBox()))
+ib1 = Util.spawn('%s --Ice.Config=config.ib1 --Ice.PrintAdapterReady %s' % (Util.getIceBox(), a1))
 ib1.expect('.* ready')
-ib2 = demoscript.Util.spawn('%s --Ice.Config=config.ib2 --Ice.PrintAdapterReady' % (demoscript.Util.getIceBox()))
+ib2 = Util.spawn('%s --Ice.Config=config.ib2 --Ice.PrintAdapterReady %s' % (Util.getIceBox(), a2))
 ib2.expect('.* ready')
-ib3 = demoscript.Util.spawn('%s --Ice.Config=config.ib3 --Ice.PrintAdapterReady' % (demoscript.Util.getIceBox()))
+ib3 = Util.spawn('%s --Ice.Config=config.ib3 --Ice.PrintAdapterReady %s' % (Util.getIceBox(), a3))
 ib3.expect('.* ready')
 print "ok"
 
@@ -52,7 +57,7 @@ ib1.expect('Election: node 0: reporting for duty in group 2:[-0-9A-Fa-f]+ with c
 
 print "testing pub/sub...",
 sys.stdout.flush()
-sub = demoscript.Util.spawn('./subscriber --Ice.PrintAdapterReady')
+sub = Util.spawn('./subscriber --Ice.PrintAdapterReady')
 
 ib1.expect('Topic: time: add replica observer: [-0-9A-Fa-f]+')
 ib2.expect('Topic: time: add replica observer: [-0-9A-Fa-f]+' )
@@ -60,10 +65,10 @@ ib3.expect('Topic: time: subscribeAndGetPublisher: [-0-9A-Fa-f]+')
 
 sub.expect('.* ready')
 
-pub = demoscript.Util.spawn('./publisher')
+pub = Util.spawn('./publisher')
 
 time.sleep(3)
-sub.expect('[0-9][0-9]/[0-9][0-9].*\r{1,2}\n[0-9][0-9]/[0-9][0-9]')
+sub.expect('[0-9][0-9]/[0-9][0-9].*\n[0-9][0-9]/[0-9][0-9]')
 print "ok"
 
 print "shutting down...",
@@ -73,16 +78,14 @@ sub.waitTestSuccess()
 pub.kill(signal.SIGINT)
 pub.waitTestSuccess()
 
-# With Cygwin SIGINT isn't intercepted.
-if not demoscript.Util.isCygwin():
-    ib1.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
-    ib2.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
-    ib3.expect('Topic: time: unsubscribe: [-0-9A-Fa-f]+')
+ib1.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
+ib2.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
+ib3.expect('Topic: time: unsubscribe: [-0-9A-Fa-f]+')
 
-admin = demoscript.Util.spawn('iceboxadmin --Ice.Config=config.ib1 shutdown')
+admin = Util.spawn('iceboxadmin --Ice.Config=config.ib1 shutdown')
 admin.waitTestSuccess()
-admin = demoscript.Util.spawn('iceboxadmin --Ice.Config=config.ib2 shutdown')
+admin = Util.spawn('iceboxadmin --Ice.Config=config.ib2 shutdown')
 admin.waitTestSuccess()
-admin = demoscript.Util.spawn('iceboxadmin --Ice.Config=config.ib3 shutdown')
+admin = Util.spawn('iceboxadmin --Ice.Config=config.ib3 shutdown')
 admin.waitTestSuccess()
 print "ok"

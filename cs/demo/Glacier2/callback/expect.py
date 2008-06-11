@@ -10,31 +10,27 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "C#"
-import demoscript.Glacier2.callback
+from demoscript import *
+from demoscript.Glacier2 import callback
 
-server = demoscript.Util.spawn('./server.exe --Ice.PrintAdapterReady')
+server = Util.spawn('./server.exe --Ice.PrintAdapterReady')
 server.expect('.* ready')
-sessionserver = demoscript.Util.spawn('./sessionserver.exe --Ice.PrintAdapterReady')
+sessionserver = Util.spawn('./sessionserver.exe --Ice.PrintAdapterReady')
 sessionserver.expect('.* ready')
 
-glacier2 = demoscript.Util.spawn('glacier2router --Ice.Config=config.glacier2 --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5', language="C++")
+glacier2 = Util.spawn('glacier2router --Ice.Config=config.glacier2 --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5')
 glacier2.expect('Glacier2.Client ready')
 glacier2.expect('Glacier2.Server ready')
 
-client = demoscript.Util.spawn('./client.exe')
+client = Util.spawn('./client.exe')
 
-demoscript.Glacier2.callback.run(client, server, sessionserver, glacier2)
+callback.run(client, server, sessionserver, glacier2)

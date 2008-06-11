@@ -43,6 +43,7 @@ class Client(Ice.Application):
         server.addClient(ident)
         self.communicator().waitForShutdown()
 
+        print "here"
         return 0
 
 app = Client()
