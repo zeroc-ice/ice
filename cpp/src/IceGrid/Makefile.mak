@@ -176,20 +176,16 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
-	del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
-	del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
-
-clean::
-	del /q Internal.cpp Internal.h
-	del /q $(ADMIN:.exe=.*)
-	del /q $(NODE_SERVER:.exe=.*)
-	del /q $(REGISTRY_SERVER:.exe=.*)
-	del /q IceGridAdmin.res IceGridNode.res IceGridRegistry.res
-
-clean::
-	del /q Grammar.cpp Grammar.h
-	del /q Scanner.cpp
+	-del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
+	-del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
+	-del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+	-del /q Internal.cpp Internal.h
+	-del /q $(ADMIN:.exe=.*)
+	-del /q $(NODE_SERVER:.exe=.*)
+	-del /q $(REGISTRY_SERVER:.exe=.*)
+	-del /q IceGridAdmin.res IceGridNode.res IceGridRegistry.res
+	-del /q Grammar.cpp Grammar.h
+	-del /q Scanner.cpp
 
 install:: all
 	copy $(ADMIN) $(install_bindir)

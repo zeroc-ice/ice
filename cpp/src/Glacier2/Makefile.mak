@@ -79,16 +79,15 @@ $(ROUTER): $(ROBJS) Glacier2Router.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
-	del /q PermissionsVerifierF.cpp $(HDIR)\PermissionsVerifierF.h
-	del /q PermissionsVerifier.cpp $(HDIR)\PermissionsVerifier.h
-	del /q RouterF.cpp $(HDIR)\RouterF.h
-	del /q Router.cpp $(HDIR)\Router.h
-	del /q SessionF.cpp $(HDIR)\SessionF.h
-	del /q Session.cpp $(HDIR)\Session.h
-	del /q SSLInfo.cpp $(HDIR)\SSLInfo.h
-	del /q Glacier2Router.res Glacier2.res
-	del /q $(DLLNAME:.dll=.*)
-	del /q $(ROUTER:.exe=.*)
+	-del /q PermissionsVerifierF.cpp $(HDIR)\PermissionsVerifierF.h
+	-del /q PermissionsVerifier.cpp $(HDIR)\PermissionsVerifier.h
+	-del /q RouterF.cpp $(HDIR)\RouterF.h
+	-del /q Router.cpp $(HDIR)\Router.h
+	-del /q SessionF.cpp $(HDIR)\SessionF.h
+	-del /q Session.cpp $(HDIR)\Session.h
+	-del /q SSLInfo.cpp $(HDIR)\SSLInfo.h
+	-del /q Glacier2Router.res Glacier2.res
+	-del /q $(ROUTER:.exe=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

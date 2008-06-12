@@ -93,13 +93,12 @@ $(CALC): $(CALCOBJS) IcePatch2Calc.res
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
-	del /q FileInfo.cpp $(HDIR)\FileInfo.h
-	del /q FileServer.cpp $(HDIR)\FileServer.h
-	del /q $(DLLNAME:.dll=.*)
-	del /q $(SERVER:.exe=.*)
-	del /q $(CLIENT:.exe=.*)
-	del /q $(CALC:.exe=.*)
-	del /q IcePatch.res IcePatch2Server.res IcePatch2Client.res IcePatch2Calc.res
+	-del /q FileInfo.cpp $(HDIR)\FileInfo.h
+	-del /q FileServer.cpp $(HDIR)\FileServer.h
+	-del /q $(SERVER:.exe=.*)
+	-del /q $(CLIENT:.exe=.*)
+	-del /q $(CALC:.exe=.*)
+	-del /q IcePatch.res IcePatch2Server.res IcePatch2Client.res IcePatch2Calc.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)
