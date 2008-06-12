@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+#ifndef INTERCEPTOR_TEST_API_EXPORTS
+#   define INTERCEPTOR_TEST_API_EXPORTS
+#endif
 #include <Ice/Ice.h>
 #include <Test.h>
 #include <iostream>
