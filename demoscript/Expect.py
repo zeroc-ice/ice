@@ -376,7 +376,7 @@ class Expect (object):
 	try:
             if win32:
                 # Next kill the app.
-                if Util.hasInterruptSupport():
+                if self.hasInterruptSupport():
                     print "%s: did not respond to break. terminating: %d" % (self.desc, self.p.pid)
                 subprocess.TerminateProcess(self.p._handle, -1)
             else:

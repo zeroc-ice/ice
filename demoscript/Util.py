@@ -390,7 +390,7 @@ def run(demos, root = False):
         for x in demoErrors:
             print x
 
-def guessModeForDir(cwd):
+def guessBuildModeForDir(cwd):
     import glob
     debugDll = glob.glob(os.path.join(cwd, "*d.dll"))
     # *.dll includes d.dll, so do an intersection on the set.
@@ -407,22 +407,26 @@ def guessModeForDir(cwd):
             return "debug"
     return None
 
-def guessMode():
-    m = guessModeForDir(".")
+def guessBuildMode():
+    m = guessBuildModeForDir(".")
     if m is None and not iceHome and sourcedist:
-        m = guessModeForDir(os.path.join(toplevel, "cpp", "bin"))
+        m = guessBuildModeForDir(os.path.join(toplevel, "cpp", "bin"))
     if m is None:
         raise "cannot guess debug or release mode"
     return m
+
+def getBuild():
+    global buildmode
+    # Guess the mode, if not set on the command line.
+    if buildmode is None:
+	buildmode = guessBuildMode()
+	print "(guessed build mode %s)" % buildmode
+    return buildmode
         
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
         if isWin32():
-            global mode
-            # Guess the mode, if not set on the command line.
-            if mode is None:
-                mode = guessMode()
-                print "(guessed build mode %s)" % mode
+	    mode = getBuild()
             if mode == 'release':
                 return "icebox"
             else:
@@ -518,7 +522,7 @@ def processCmdLine():
     global fast
     global defaultHost
     global tracefile
-    global mode
+    global buildmode
     global x64
     global debug
     global host
@@ -526,7 +530,7 @@ def processCmdLine():
 
     fast = False
     trace = False
-    mode = None
+    buildmode = None
     x64 = False
     tracefile = None
     env = False
@@ -550,8 +554,8 @@ def processCmdLine():
         if o == "--ice-home":
             iceHome = a
 	if o == "--mode":
-	    mode = a
-	    if mode != 'debug' and mode != 'release':
+	    buildmode = a
+	    if buildmode != 'debug' and mode != 'release':
 		usage()
 
     if host != "":

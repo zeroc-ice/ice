@@ -89,14 +89,7 @@ def run(client, server):
     client.expect('^> ')
 
     client.sendline('lr')
-    #client.expect('lr\n')
-    i = client.expect(['a \(file\)\n', 'b \(directory\):\n'])
-    if i == 1:
-	client.expect('c \(directory\):\n')
-        client.expect('a \(file\)\n')
-    else:
-        client.expect('b \(directory\):\n')
-	client.expect('c \(directory\):\n')
+    client.expectall(['a \(file\)\n', 'b \(directory\):\n\tc \(directory\):\n'])
     client.expect('^> ')
 
     client.sendline('mkfile c')

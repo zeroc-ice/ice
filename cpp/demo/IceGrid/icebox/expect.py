@@ -23,7 +23,7 @@ from demoscript import *
 from demoscript.IceGrid import icebox
 
 desc = 'application.xml'
-if Util.mode == 'debug':
+if Util.getBuild() == 'debug':
     fi = open(desc, "r")
     desc = 'tmp_application.xml'
     fo = open(desc, "w")
