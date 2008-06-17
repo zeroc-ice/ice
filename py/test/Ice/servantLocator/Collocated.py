@@ -10,13 +10,6 @@
 
 import os, sys, traceback, time
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "python", "Ice.py")):
-        break
-else:
-    raise "can't find toplevel directory!"
-
 import Ice
 Ice.loadSlice('Test.ice')
 import Test, TestI, AllTests

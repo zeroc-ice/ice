@@ -32,6 +32,18 @@ C++ Changes
 - Fixed a bug which could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
 
+Python Changes
+==============
+
+- Ice.getSliceDir() now only searches for the slice directory in
+  a standard Ice installation.
+
+Ruby Changes
+============
+
+- Added helper Ice.getSliceDir, which locates the slice directory
+  in a standard Ice installation.
+
 
 ======================================================================
 Changes since version 3.2.1
