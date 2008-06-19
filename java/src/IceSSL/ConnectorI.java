@@ -144,15 +144,6 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
             return _connectionId.compareTo(p._connectionId);
         }
 
-        if(_timeout < p._timeout)
-        {
-            return -1;
-        }
-        else if(p._timeout < _timeout)
-        {
-            return 1;
-        }
-
         return IceInternal.Network.compareAddress(_addr, p._addr);
     }
 
