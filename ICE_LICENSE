@@ -24,6 +24,9 @@ b) any Orca library (http://orca-robotics.sourceforge.net/) licensed
 under the GNU Lesser General Public License (LGPL), version 2.1
 (http://www.gnu.org/licenses/lgpl.html)
 
+c) any Mumble library (http://mumble.sourceforge.net) licensed under
+the BSD license.
+
 and distribute linked combinations of Ice with any of these libraries.
 
 You must obey the GNU General Public License version 2 in all respects
