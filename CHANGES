@@ -19,6 +19,7 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 Changes since version 3.3.0
 ======================================================================
 
+
 C++ Changes
 ===========
 
@@ -32,11 +33,16 @@ C++ Changes
 - Fixed a bug which could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
 
+
 Python Changes
 ==============
 
+- Fixed bugs in stringToProxy and propertyToProxy related to null
+  proxies.
+
 - Ice.getSliceDir() now only searches for the slice directory in
   a standard Ice installation.
+
 
 Ruby Changes
 ============

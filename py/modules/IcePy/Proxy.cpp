@@ -2152,6 +2152,8 @@ IcePy::initProxy(PyObject* module)
 PyObject*
 IcePy::createProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
 {
+    assert(proxy);
+
     if(!type)
     {
         PyTypeObject* proxyType = &ProxyType; // Necessary to prevent GCC's strict-alias warnings.
