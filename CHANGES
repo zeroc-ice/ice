@@ -16,8 +16,17 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 
 
 ======================================================================
+Changes since version 3.3.x
+
+NOTE: Use this section for changes that are NOT included in the 3.3
+branch.
+======================================================================
+
+
+======================================================================
 Changes since version 3.3.0
 ======================================================================
+
 
 C++ Changes
 ===========
@@ -31,6 +40,13 @@ C++ Changes
 
 - Fixed a bug which could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
+
+
+Python Changes
+==============
+
+- Fixed bugs in stringToProxy and propertyToProxy related to null
+  proxies.
 
 
 ======================================================================
