@@ -14,16 +14,13 @@ top_srcdir	= ..
 SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp \
-		  slice2cppe \
 		  slice2cs \
 		  slice2freeze \
 		  slice2freezej \
 		  slice2docbook \
 		  slice2java \
-		  slice2javae \
 		  slice2py \
 		  slice2rb \
-		  slice2sl \
 		  slice2html \
 		  Ice \
 		  IceXML \
