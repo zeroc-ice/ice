@@ -10,53 +10,150 @@
 #include <Ice/FactoryTable.h>
 #include <Ice/UserExceptionFactory.h>
 
-namespace IceInternal
+#ifdef __APPLE__
+#   include <dlfcn.h>
+#endif
+
+//
+// Add a factory to the exception factory table.
+// If the factory is present already, increment its reference count.
+//
+void
+IceInternal::FactoryTable::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
 {
-
-//
-// Single global instance of the factory table for non-local
-// exceptions and non-abstract classes.
-//
-ICE_DECLSPEC_EXPORT FactoryTableDef* factoryTable;
-
-}
-
-namespace
-{
-
-static int initCount = 0;   // Initialization count
-IceUtil::StaticMutex initCountMutex = ICE_STATIC_MUTEX_INITIALIZER;
-
-
-}
-
-//
-// This constructor initializes the single global
-// IceInternal::factoryTable instance from the outside (if it hasn't
-// been initialized yet). The constructor here is triggered by a
-// file-static instance of FactoryTable in each slice2cpp-generated
-// header file that uses non-local exceptions or non-abstract classes.
-// This ensures that IceInternal::factoryTable is always initialized
-// before it is used.
-//
-IceInternal::FactoryTable::FactoryTable()
-{
-    IceUtil::StaticMutex::Lock lock(initCountMutex);
-    if(0 == initCount++)
+    IceUtil::Mutex::Lock lock(_m);
+    EFTable::iterator i = _eft.find(t);
+    if(i == _eft.end())
     {
-        factoryTable = new FactoryTableDef;
+        _eft[t] = EFPair(f, 1);
+    }
+    else
+    {
+        i->second.second++;
     }
 }
 
 //
-// The destructor decrements the reference count and, once the
-// count drops to zero, deletes the table.
+// Return the exception factory for a given type ID
 //
-IceInternal::FactoryTable::~FactoryTable()
+IceInternal::UserExceptionFactoryPtr
+IceInternal::FactoryTable::getExceptionFactory(const std::string& t) const
 {
-    IceUtil::StaticMutex::Lock lock(initCountMutex);
-    if(0 == --initCount)
+    IceUtil::Mutex::Lock lock(_m);
+    EFTable::const_iterator i = _eft.find(t);
+#ifdef __APPLE__
+    if(i == _eft.end())
     {
-        delete factoryTable;
+        lock.release();
+
+        //
+        // Try to find the symbol, if found this should trigger the
+        // object static constructors to be called.
+        //
+        std::string symbol = "__F";
+        for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
+        {
+            symbol += ((*p) == ':') ? '_' : *p;
+        }
+        symbol += "__initializer";
+        dlsym(RTLD_DEFAULT, symbol.c_str());
+
+        lock.acquire(); 
+
+        i = _eft.find(t);
+    }
+#endif
+    return i != _eft.end() ? i->second.first : IceInternal::UserExceptionFactoryPtr();
+}
+
+//
+// Remove a factory from the exception factory table. If the factory
+// is not present, do nothing; otherwise, decrement the factory's
+// reference count; if the count drops to zero, remove the factory's
+// entry from the table.
+//
+void
+IceInternal::FactoryTable::removeExceptionFactory(const std::string& t)
+{
+    IceUtil::Mutex::Lock lock(_m);
+    EFTable::iterator i = _eft.find(t);
+    if(i != _eft.end())
+    {
+        if(--i->second.second == 0)
+        {
+            _eft.erase(i);
+        }
     }
 }
+
+//
+// Add a factory to the object factory table.
+//
+void
+IceInternal::FactoryTable::addObjectFactory(const std::string& t, const Ice::ObjectFactoryPtr& f)
+{
+    IceUtil::Mutex::Lock lock(_m);
+    OFTable::iterator i = _oft.find(t);
+    if(i == _oft.end())
+    {
+        _oft[t] = OFPair(f, 1);
+    }
+    else
+    {
+        i->second.second++;
+    }
+}
+
+//
+// Return the object factory for a given type ID
+//
+Ice::ObjectFactoryPtr
+IceInternal::FactoryTable::getObjectFactory(const std::string& t) const
+{
+    IceUtil::Mutex::Lock lock(_m);
+    OFTable::const_iterator i = _oft.find(t);
+#ifdef __APPLE__
+    if(i == _oft.end())
+    {
+        lock.release();
+
+        //
+        // Try to find the symbol, if found this should trigger the
+        // object static constructors to be called.
+        //
+        std::string symbol = "__F";
+        for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
+        {
+            symbol += ((*p) == ':') ? '_' : *p;
+        }
+        symbol += "__initializer";
+        dlsym(RTLD_DEFAULT, symbol.c_str());
+
+        lock.acquire(); 
+
+        i = _oft.find(t);
+    }
+#endif
+    return i != _oft.end() ? i->second.first : Ice::ObjectFactoryPtr();
+}
+
+//
+// Remove a factory from the object factory table. If the factory
+// is not present, do nothing; otherwise, decrement the factory's
+// reference count if the count drops to zero, remove the factory's
+// entry from the table.
+//
+void
+IceInternal::FactoryTable::removeObjectFactory(const std::string& t)
+{
+    IceUtil::Mutex::Lock lock(_m);
+    OFTable::iterator i = _oft.find(t);
+    if(i != _oft.end())
+    {
+        if(--i->second.second == 0)
+        {
+            _oft.erase(i);
+        }
+    }
+}
+

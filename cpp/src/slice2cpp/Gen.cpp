@@ -257,7 +257,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(p->hasDataOnlyClasses() || p->hasNonLocalExceptions())
     {
-        H << "\n#include <Ice/FactoryTable.h>";
+        H << "\n#include <Ice/FactoryTableInit.h>";
     }
 
     if(p->usesNonLocals())

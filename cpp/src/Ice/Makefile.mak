@@ -43,8 +43,8 @@ OBJS		= Acceptor.obj \
 		  EventLoggerI.obj \
 		  Exception.obj \
 		  FacetMap.obj \
-		  FactoryTableDef.obj \
 		  FactoryTable.obj \
+		  FactoryTableInit.obj \
 		  GC.obj \
 		  Identity.obj \
 		  ImplicitContextI.obj \

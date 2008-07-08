@@ -42,8 +42,8 @@ OBJS		= Acceptor.o \
 		  EventHandler.o \
 		  Exception.o \
 		  FacetMap.o \
-		  FactoryTableDef.o \
 		  FactoryTable.o \
+		  FactoryTableInit.o \
 		  GC.o \
 		  Identity.o \
 		  ImplicitContextI.o \

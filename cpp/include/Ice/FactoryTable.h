@@ -10,22 +10,40 @@
 #ifndef ICE_FACTORYTABLE_H
 #define ICE_FACTORYTABLE_H
 
-#include <Ice/FactoryTableDef.h>
+#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <Ice/UserExceptionFactoryF.h>
+#include <Ice/ObjectFactoryF.h>
+#include <string>
+#include <map>
 
 namespace IceInternal
 {
 
-class ICE_API FactoryTable
+class ICE_API FactoryTable : private IceUtil::noncopyable
 {
 public:
 
-    FactoryTable();
-    ~FactoryTable();
+    void addExceptionFactory(const ::std::string&, const IceInternal::UserExceptionFactoryPtr&);
+    IceInternal::UserExceptionFactoryPtr getExceptionFactory(const ::std::string&) const;
+    void removeExceptionFactory(const ::std::string&);
+
+    void addObjectFactory(const ::std::string&, const Ice::ObjectFactoryPtr&);
+    Ice::ObjectFactoryPtr getObjectFactory(const ::std::string&) const;
+    void removeObjectFactory(const ::std::string&);
+
+private:
+
+    IceUtil::Mutex _m;
+
+    typedef ::std::pair<IceInternal::UserExceptionFactoryPtr, int> EFPair;
+    typedef ::std::map< ::std::string, EFPair> EFTable;
+    EFTable _eft;
+
+    typedef ::std::pair<Ice::ObjectFactoryPtr, int> OFPair;
+    typedef ::std::map< ::std::string, OFPair> OFTable;
+    OFTable _oft;
 };
-
-static FactoryTable factoryTableInitializer;    // Dummy variable to force initialization of factoryTable
-
-extern ICE_API FactoryTableDef* factoryTable;
 
 }
 

@@ -18,7 +18,7 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
-#include <Ice/FactoryTable.h>
+#include <Ice/FactoryTableInit.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
