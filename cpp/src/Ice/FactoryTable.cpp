@@ -49,9 +49,8 @@ IceInternal::FactoryTable::FactoryTable()
 }
 
 //
-// Similarly, the destructor calls the finalize() method on the
-// factory table wrapper which, once the tables reference count drops
-// to zero, deletes the table.
+// The destructor decrements the reference count and, once the
+// count drops to zero, deletes the table.
 //
 IceInternal::FactoryTable::~FactoryTable()
 {
