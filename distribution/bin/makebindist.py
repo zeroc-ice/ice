@@ -22,6 +22,18 @@ sys.path.append(os.path.join(distDir, "lib"))
 import DistUtils
 from DistUtils import copy
 
+
+#
+# Defines which languages are to also be built in 64bits mode
+#
+# NOTE: makebindist.py doesn't currently support different third party locations
+# for 32 and 64 bits. This is an issue on HP-UX for example where Bzip2 32bits is
+# in /usr/local and in /opt for the 64bits version.
+#
+build_lp64 = { \
+    'SunOS' : ['cpp'], \
+}
+
 #
 # Program usage.
 #
@@ -35,9 +47,18 @@ def usage():
     print "-v    Be verbose."
 
 #
-# Instantiate the gobal platform object
+# Instantiate the gobal platform object with the given third-parties
 #
-platform = DistUtils.getPlatform()
+thirdParties = [
+    "BerkeleyDB", \
+    "Expat", \
+    "OpenSSL", \
+    "Mcpp", \
+    "JGoodiesLooks", \
+    "JGoodiesForms", \
+    "Proguard", \
+]
+platform = DistUtils.getPlatform(thirdParties)
 
 #
 # Check arguments
@@ -84,12 +105,11 @@ else:
 # Ensure the script is being run from the dist-@ver@ directory.
 #
 cwd = os.getcwd()
-
 if not os.path.exists(os.path.join(distDir, "src", "windows", "LICENSE.rtf")):
     print sys.argv[0] + ": you must run makebindist.py from the dist-" + version + " directory created by makedist.py"
     sys.exit(1)
 
-print "Building Ice " + version + " binary distribution (" + platform.getPackageName(version) + ".tar.gz)"
+print "Building Ice " + version + " binary distribution (" + platform.getPackageName("Ice", version) + ".tar.gz)"
 print "Using the following third party libraries:"
 if not platform.checkAndPrintThirdParties():
     print "error: some required third party dependencies were not found"
@@ -98,12 +118,12 @@ if not platform.checkAndPrintThirdParties():
 #
 # Ensure that the source archive or directory exists and create the build directory.
 #
-buildRootDir = os.path.join(cwd, os.path.join("build-" + platform.pkgname + "-" + version))
+buildRootDir = os.path.join(cwd, os.path.join("build-" + platform.pkgPlatform + "-" + version))
 srcDir = os.path.join(buildRootDir, "Ice-" + version + "-src")
 buildDir = os.path.join(buildRootDir, "Ice-" + version)
 if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
     if os.path.exists(buildRootDir):
-        print "Removing previous build from " + os.path.join("build-" + platform.pkgname + "-" + version) + "...",
+        print "Removing previous build from " + os.path.join("build-" + platform.pkgPlatform + "-" + version) + "...",
         sys.stdout.flush()
         shutil.rmtree(buildRootDir)
         print "ok"
@@ -133,8 +153,8 @@ if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
         print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
         sys.exit(1)
     os.rename("Ice-" + version, srcDir)
-
-    if platform.build_lp64:
+    
+    if build_lp64.has_key(str(platform)):
         if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
             print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
             sys.exit(1)
@@ -159,7 +179,7 @@ for l in buildLanguages:
 
         makeCmd = "gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install"
 
-        if not platform.build_lp64:
+        if not l in build_lp64.get(str(platform), []):
             if os.system(makeCmd) != 0:
                 print sys.argv[0] + ": `" + l + "' build failed"
                 os.chdir(cwd)
@@ -214,10 +234,10 @@ print "ok"
 #
 # Everything should be clean now, we can create the binary distribution archive
 # 
-print "Archiving " + platform.getPackageName(version) + ".tar.gz ...",
+print "Archiving " + platform.getPackageName("Ice", version) + ".tar.gz ...",
 sys.stdout.flush()
 os.chdir(buildRootDir)
-tarfile = os.path.join(cwd, platform.getPackageName(version)) + ".tar.gz"
+tarfile = os.path.join(cwd, platform.getPackageName("Ice", version)) + ".tar.gz"
 os.system("tar c" + quiet + "f - Ice-" + version + " | gzip -9 - > " + tarfile)
 os.chdir(cwd)
 print "ok"

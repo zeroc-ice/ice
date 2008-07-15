@@ -453,6 +453,10 @@ communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
     try
     {
         proxy = (*self->communicator)->stringToProxy(str);
+        if(proxy)
+        {
+            return createProxy(proxy, *self->communicator);
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -460,7 +464,8 @@ communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, *self->communicator);
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 #ifdef WIN32
@@ -515,6 +520,10 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
     try
     {
         proxy = (*self->communicator)->propertyToProxy(str);
+        if(proxy)
+        {
+            return createProxy(proxy, *self->communicator);
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -522,7 +531,8 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, *self->communicator);
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 #ifdef WIN32

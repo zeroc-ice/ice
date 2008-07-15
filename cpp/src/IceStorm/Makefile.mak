@@ -12,8 +12,19 @@ top_srcdir	= ..\..
 LIBNAME		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\icestorm$(SOVERSION)$(LIBSUFFIX).dll
 
-SVCLIBNAME	= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
-SVCDLLNAME	= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX).dll
+SVCLIBNAME_D	= $(top_srcdir)\lib\icestormserviced.lib
+SVCDLLNAME_D	= $(top_srcdir)\bin\icestormservice$(SOVERSION)d.dll
+
+SVCLIBNAME_R	= $(top_srcdir)\lib\icestormservice.lib
+SVCDLLNAME_R	= $(top_srcdir)\bin\icestormservice$(SOVERSION).dll
+
+!if "$(OPTIMIZE)" != "yes"
+SVCLIBNAME		= $(SVCLIBNAME_D)
+SVCDLLNAME		= $(SVCDLLNAME_D)
+!else
+SVCLIBNAME		= $(SVCLIBNAME_R)
+SVCDLLNAME		= $(SVCDLLNAME_R)
+!endif
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
@@ -175,18 +186,18 @@ clean::
 	del /q V32FormatDB.cpp V31FormatDB.cpp V31FormatDB.h V31FormatDB.h
 
 clean::
-	del /q IceStorm.cpp $(HDIR)\IceStorm.h
-	del /q IceStormInternal.cpp IceStormInternal.h
-	del /q V32Migrate.cpp V32Migrate.h
-	del /q V31Migrate.cpp V31Migrate.h
-	del /q LinkRecord.cpp LinkRecord.h
-	del /q Election.cpp Election.h
-	del /q SubscriberRecord.cpp SubscriberRecord.h
-	del /q $(DLLNAME:.dll=.*)
-	del /q $(SVCDLLNAME:.dll=.*)
-	del /q $(ADMIN:.exe=.*)
-	del /q $(MIGRATE:.exe=.*)
-	del /q IceStormAdmin.res IceStormMigrate.res IceStorm.res IceStormService.res
+	-del /q IceStorm.cpp $(HDIR)\IceStorm.h
+	-del /q IceStormInternal.cpp IceStormInternal.h
+	-del /q V32Migrate.cpp V32Migrate.h
+	-del /q V31Migrate.cpp V31Migrate.h
+	-del /q LinkRecord.cpp LinkRecord.h
+	-del /q Election.cpp Election.h
+	-del /q SubscriberRecord.cpp SubscriberRecord.h
+	-del /q $(SVCDLLNAME_R:.dll=.*) $(SVCDLLNAME_D:.dll=.*)
+	-del /q $(SVCLIBNAME_R) $(SVCLIBNAME_D)
+	-del /q $(ADMIN:.exe=.*)
+	-del /q $(MIGRATE:.exe=.*)
+	-del /q IceStormAdmin.res IceStormMigrate.res IceStorm.res IceStormService.res
 
 clean::
 	del /q Grammar.cpp Grammar.h

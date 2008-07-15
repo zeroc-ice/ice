@@ -9,19 +9,6 @@
 # **********************************************************************
 
 require 'pathname'
-
-rubyDir = nil
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]
-    path = Pathname.new(toplevel).join("ruby", "Ice.rb")
-    if path.file?
-        rubyDir = Pathname.new(toplevel).join("ruby")
-        break
-    end
-end
-if not rubyDir
-    fail "can't find toplevel directory!"
-end
-
 require 'Ice'
 Ice::loadSlice('Test.ice')
 require 'AllTests'

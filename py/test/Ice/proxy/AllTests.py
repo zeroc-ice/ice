@@ -15,6 +15,15 @@ def test(b):
 
 def allTests(communicator, collocated):
     print "testing stringToProxy...",
+
+    #
+    # Test nil proxies.
+    #
+    p = communicator.stringToProxy('')
+    test(p == None)
+    p = communicator.propertyToProxy('bogus')
+    test(p == None)
+
     ref = "test:default -p 12010 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)

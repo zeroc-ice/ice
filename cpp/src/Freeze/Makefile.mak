@@ -78,9 +78,6 @@ $(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPA
 	Catalog $(slicedir)/Freeze/CatalogData.ice
 	move Catalog.h $(HDIR)
 
-clean::
-	del /q $(HDIR)\Catalog.h Catalog.cpp
-
 $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
@@ -88,23 +85,21 @@ $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequence
 	move CatalogIndexList.h $(HDIR)
 
 clean::
-	del /q $(HDIR)\CatalogIndexList.h CatalogIndexList.cpp
-
-clean::
-	del /q $(DLLNAME:.dll=.*)
-	del /q DB.cpp $(HDIR)\DB.h
-	del /q BackgroundSaveEvictor.cpp $(HDIR)\BackgroundSaveEvictor.h
-	del /q CatalogData.cpp $(HDIR)\CatalogData.h
-	del /q Connection.cpp $(HDIR)\Connection.h
-	del /q ConnectionF.cpp $(HDIR)\ConnectionF.h 
-	del /q Exception.cpp $(HDIR)\Exception.h
-	del /q EvictorF.cpp $(HDIR)\EvictorF.h
-	del /q Evictor.cpp $(HDIR)\Evictor.h
-	del /q EvictorStorage.cpp $(HDIR)\EvictorStorage.h
-	del /q Transaction.cpp $(HDIR)\Transaction.h
-	del /q TransactionalEvictor.cpp $(HDIR)\TransactionalEvictor.h
-	del /q PingObject.cpp PingObject.h
-	del /q Freeze.res
+	-del /q Catalog.cpp $(HDIR)\Catalog.h
+	-del /q CatalogIndexList.cpp $(HDIR)\CatalogIndexList.h
+	-del /q DB.cpp $(HDIR)\DB.h
+	-del /q BackgroundSaveEvictor.cpp $(HDIR)\BackgroundSaveEvictor.h
+	-del /q CatalogData.cpp $(HDIR)\CatalogData.h
+	-del /q Connection.cpp $(HDIR)\Connection.h
+	-del /q ConnectionF.cpp $(HDIR)\ConnectionF.h 
+	-del /q Exception.cpp $(HDIR)\Exception.h
+	-del /q EvictorF.cpp $(HDIR)\EvictorF.h
+	-del /q Evictor.cpp $(HDIR)\Evictor.h
+	-del /q EvictorStorage.cpp $(HDIR)\EvictorStorage.h
+	-del /q Transaction.cpp $(HDIR)\Transaction.h
+	-del /q TransactionalEvictor.cpp $(HDIR)\TransactionalEvictor.h
+	-del /q PingObject.cpp PingObject.h
+	-del /q Freeze.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

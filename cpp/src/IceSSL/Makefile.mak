@@ -58,8 +58,7 @@ $(DLLNAME): $(OBJS) IceSSL.res
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
-	del /q $(DLLNAME:.dll=.*)
-	del /q IceSSL.res
+	-del /q IceSSL.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

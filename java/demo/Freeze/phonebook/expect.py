@@ -10,42 +10,38 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "Java"
-import demoscript.Freeze.phonebook
+from demoscript import *
+from demoscript.Freeze import phonebook
 
 print "cleaning databases...",
 sys.stdout.flush()
-demoscript.Util.cleanDbDir("db")
+Util.cleanDbDir("db")
 print "ok"
 
-server = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
+server = Util.spawn('java Server --Ice.PrintAdapterReady --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
 server.expect('.* ready')
-client = demoscript.Util.spawn('java Client')
+client = Util.spawn('java Client')
 client.expect('>>> ')
 
-demoscript.Freeze.phonebook.run(client, server)
+phonebook.run(client, server)
 
 print "running with collocated server"
 
 print "cleaning databases...",
 sys.stdout.flush()
-demoscript.Util.cleanDbDir("db")
+Util.cleanDbDir("db")
 print "ok"
 
-server = demoscript.Util.spawn('java Collocated --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
+server = Util.spawn('java Collocated --Freeze.Trace.Evictor=0 --Freeze.Trace.DbEnv=0')
 server.expect('>>> ')
 
-demoscript.Freeze.phonebook.run(server, server)
+phonebook.run(server, server)

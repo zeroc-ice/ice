@@ -81,10 +81,9 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	del /q Grammar.cpp Grammar.h
-	del /q Scanner.cpp
-	del /q $(DLLNAME:.dll=.*)
-	del /q Slice.res
+	-del /q Grammar.cpp Grammar.h
+	-del /q Scanner.cpp
+	-del /q Slice.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

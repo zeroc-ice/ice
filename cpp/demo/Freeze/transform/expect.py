@@ -10,20 +10,16 @@
 
 import sys, os, signal
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-import demoscript.Freeze.transform
-demoscript.Util.defaultLanguage = "C++"
+from demoscript import *
+from demoscript.Freeze import transform
 
-demoscript.Freeze.transform.run('./create', './recreate', './read', './readnew')
+transform.run('./create', './recreate', './read', './readnew')

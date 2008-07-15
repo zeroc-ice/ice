@@ -10,40 +10,37 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "C++"
+from demoscript import *
 import signal
 
 print "cleaning databases...",
 sys.stdout.flush()
-demoscript.Util.cleanDbDir("db")
+Util.cleanDbDir("db")
 print "ok"
 
-if demoscript.Util.defaultHost:
-    args = ' --IceBox.UseSharedCommunicator.IceStorm=1'
+if Util.defaultHost:
+    args = ' --IceBox.Service.IceStorm="IceStormService,33:createIceStorm --Ice.Config=config.service %s"' \
+        % Util.defaultHost
 else:
     args = ''
 
-icestorm = demoscript.Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (demoscript.Util.getIceBox(), args))
+icestorm = Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (Util.getIceBox(), args))
 icestorm.expect('.* ready')
 
 print "testing single client...",
 sys.stdout.flush()
-server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
+server = Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client1 = demoscript.Util.spawn('./client')
+client1 = Util.spawn('./client')
 client1.expect('init: 0')
 client1.sendline('i')
 client1.expect('int: 1 total: 1')
@@ -51,7 +48,7 @@ print "ok"
 
 print "testing second client...",
 sys.stdout.flush()
-client2 = demoscript.Util.spawn('./client')
+client2 = Util.spawn('./client')
 client2.expect('init: 1')
 client2.sendline('i')
 client1.expect('int: 1 total: 2')
@@ -59,7 +56,7 @@ client2.expect('int: 1 total: 2')
 print "ok"
 
 print "testing third client...",
-client3 = demoscript.Util.spawn('./client')
+client3 = Util.spawn('./client')
 client3.expect('init: 2')
 client3.sendline('d')
 client1.expect('int: -1 total: 1')
@@ -83,6 +80,6 @@ print "ok"
 server.kill(signal.SIGINT)
 server.waitTestSuccess()
 
-admin = demoscript.Util.spawn('iceboxadmin --Ice.Config=config.icebox shutdown')
+admin = Util.spawn('iceboxadmin --Ice.Config=config.icebox shutdown')
 admin.waitTestSuccess()
 icestorm.waitTestSuccess()

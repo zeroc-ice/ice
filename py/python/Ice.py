@@ -103,14 +103,6 @@ class UserException(Exception):
 #
 def getSliceDir():
     #
-    # Check for <ICE_HOME>/slice first.
-    #
-    if os.environ.has_key("ICE_HOME"):
-        dir = os.path.join(os.environ["ICE_HOME"], "slice")
-        if os.path.exists(dir):
-            return dir
-
-    #
     # Get the parent of the directory containing this file (Ice.py).
     #
     pyHome = os.path.join(os.path.dirname(__file__), "..")
@@ -133,28 +125,11 @@ def getSliceDir():
 
     iceVer = stringVersion()
 
-    #
-    # Check platform-specific locations.
-    #
-    if sys.platform[:6] == "cygwin" or sys.platform == "win32":
-        dir = os.path.join("\\", "Ice-" + iceVer, "slice")
-        if os.path.exists(dir):
-            return dir
-        dir = os.path.join("C:\\", "Ice-" + iceVer, "slice")
-        if os.path.exists(dir):
-            return dir
-    else:
-        if sys.platform[:5] == "linux":
-            #
-            # Check the default RPM location.
-            #
-            dir = os.path.join("/", "usr", "share", "Ice-" + iceVer, "slice")
-            if os.path.exists(dir):
-                return dir
+    if sys.platform[:5] == "linux":
         #
-        # Check in /opt.
+        # Check the default RPM location.
         #
-        dir = os.path.join("/", "opt", "Ice-" + iceVer, "slice")
+        dir = os.path.join("/", "usr", "share", "Ice-" + iceVer, "slice")
         if os.path.exists(dir):
             return dir
 
@@ -624,6 +599,8 @@ class CtrlCHandler(threading.Thread):
         #
         if signal.__dict__.has_key('SIGHUP'):
             signal.signal(signal.SIGHUP, CtrlCHandler.signalHandler)
+        if signal.__dict__.has_key('SIGBREAK'):
+            signal.signal(signal.SIGBREAK, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGINT, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGTERM, CtrlCHandler.signalHandler)
 
@@ -659,6 +636,8 @@ class CtrlCHandler(threading.Thread):
         #
         if signal.__dict__.has_key('SIGHUP'):
             signal.signal(signal.SIGHUP, signal.SIG_DFL)
+        if signal.__dict__.has_key('SIGBREAK'):
+            signal.signal(signal.SIGBREAK, signal.SIG_DFL)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         CtrlCHandler._self = None

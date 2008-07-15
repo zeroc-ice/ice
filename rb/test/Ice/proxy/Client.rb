@@ -9,33 +9,12 @@
 # **********************************************************************
 
 require 'pathname'
-
-rubyDir = nil
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]
-    path = Pathname.new(toplevel).join("ruby", "Ice.rb")
-    if path.file?
-        rubyDir = Pathname.new(toplevel).join("ruby")
-        break
-    end
-end
-if not rubyDir
-    fail "can't find toplevel directory!"
-end
-
-#
-# Find Slice directory.
-#
-slice_dir = ''
-if ENV.has_key?('ICE_HOME') and Pathname.new(ENV['ICE_HOME']).join("slice").directory?
-    slice_dir = ENV['ICE_HOME'] + '/slice'
-elsif Pathname.new(toplevel + '/../slice').directory?
-    slice_dir = toplevel + '/../slice' 
-else
-    puts $0 + ': Slice directory not found. Define ICERB_HOME or ICE_HOME.'
-    exit(1)
-end
-
 require 'Ice'
+slice_dir = Ice.getSliceDir
+if not slice_dir:
+    fail "Slice directory not found"
+end
+
 Ice::loadSlice('-I' + slice_dir + ' Test.ice')
 require 'AllTests'
 

@@ -14,11 +14,7 @@ DLLNAME		= InterceptorTest$(SOVERSION)$(LIBSUFFIX).dll
 
 CLIENT		= client.exe
 
-!ifdef BUILD_CLIENT
-TARGETS		= $(CLIENT)
-!else
-TARGETS		= $(LIBNAME) $(DLLNAME)
-!endif
+TARGETS		= $(LIBNAME) $(DLLNAME) $(CLIENT)
 
 LOBJS           = Test.obj \
                   TestI.obj
@@ -28,30 +24,19 @@ COBJS		= Client.obj \
 		  AMDInterceptorI.obj \
 		  MyObjectI.obj
 
-!ifdef BUILD_CLIENT
-SRCS		= $(COBJS:.obj=.cpp)
-!else
-SRCS		= $(LOBJS:.obj=.cpp)
-!endif
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(LOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-!ifdef BUILD_CLIENT
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(GENERATE_PDB)" == "yes"
-PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
-!endif
-
-!else
-SLICE2CPPFLAGS	= --dll-export INTERCEPTOR_TEST_API $(SLICE2CPPFLAGS)
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -DINTERCEPTOR_TEST_API_EXPORTS
-
-!if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
-!endif
+CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
+SLICE2CPPFLAGS	= --dll-export INTERCEPTOR_TEST_API $(SLICE2CPPFLAGS)
 
 $(LIBNAME): $(DLLNAME)
 
@@ -64,18 +49,11 @@ $(DLLNAME): $(LOBJS)
 
 
 $(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS) 
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS) 
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-!ifdef BUILD_CLIENT
 clean::
 	del /q Test.cpp Test.h
-!else
-
-$(EVERYTHING)::
-	@$(MAKE) -nologo /f Makefile.mak BUILD_CLIENT=1 $@
-
-!endif
 
 !include .depend

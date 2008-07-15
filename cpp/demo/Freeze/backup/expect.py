@@ -10,35 +10,35 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "C++"
+from demoscript import *
+import shutil
 import signal, time
-import demoscript.pexpect as pexpect
+
+def cleandb():
+    shutil.rmtree("db.save", True)
+    Util.cleanDbDir("db/data")
+    Util.cleanDbDir("db/logs")
+    for filename in [ os.path.join("db", f) for f in os.listdir("db") if f.startswith("__") ]:
+        os.remove(filename)
 
 print "cleaning databases...",
 sys.stdout.flush()
-os.system('rm -fr db.save')
-demoscript.Util.cleanDbDir("db/data")
-demoscript.Util.cleanDbDir("db/logs")
-os.system('rm -fr db/__*')
+cleandb()
 for d in os.listdir('.'):
     if d.startswith('hotbackup'):
-        os.system('rm -rf %s' % (d))
+        shutil.rmtree(d)
 print "ok"
 
-client = demoscript.Util.spawn('./client')
+client = Util.spawn('./client')
 
 print "populating map...",
 sys.stdout.flush()
@@ -46,10 +46,12 @@ client.expect('Updating map', timeout=60)
 time.sleep(3) # Let the client do some work for a bit.
 print "ok"
 
-
 print "performing full backup...",
 sys.stdout.flush()
-backup = demoscript.Util.spawn('./backup full')
+if Util.isWin32():
+    backup = Util.spawn('./backup.bat full')
+else:
+    backup = Util.spawn('./backup full')
 backup.expect('hot backup started', timeout=30)
 backup.waitTestSuccess(timeout=30)
 print "ok"
@@ -61,7 +63,10 @@ print "ok"
 
 print "performing incremental backup...",
 sys.stdout.flush()
-backup = demoscript.Util.spawn('./backup incremental')
+if Util.isWin32():
+    backup = Util.spawn('./backup.bat incremental')
+else:
+    backup = Util.spawn('./backup incremental')
 backup.expect('hot backup started', timeout=30)
 backup.waitTestSuccess(timeout=30)
 print "ok"
@@ -76,9 +81,7 @@ assert os.path.isdir('hotbackup')
 print "killing client with SIGTERM...",
 sys.stdout.flush()
 client.kill(signal.SIGTERM)
-client.expect(pexpect.EOF, timeout=30)
-client.wait()
-assert client.signalstatus == signal.SIGTERM
+client.waitTestSuccess(-signal.SIGTERM)
 print "ok"
 
 print "Client output: ",
@@ -86,11 +89,22 @@ print "%s " % (client.before)
 
 print "restarting client...",
 sys.stdout.flush()
-os.system('rm -fr db/data/* db/logs/* db/__*')
-os.system('cp -Rp hotbackup/* db')
+cleandb()
+# Annoying. shutil.copytree cannot be used since db already exists
+# (and cannot be removed since it contains .gitignore.
+#os.system('cp -Rp hotbackup/* db')
+for root, dirnames, filesnames in os.walk("hotbackup"):
+    dbroot = os.path.join("db", root[len("hotbackup")+1:])
+    for d in dirnames:
+        try:
+            os.mkdir(os.path.join("db", d))
+        except OSError:
+            pass
+    for f in filesnames:
+        shutil.copy2(os.path.join(root, f), os.path.join(dbroot, f))
 sys.stdout.flush()
 
-client = demoscript.Util.spawn('./client')
+client = Util.spawn('./client')
 client.expect('(.*)Updating map', timeout=60)
 assert client.match.group(1).find('Creating new map') == -1
 print "ok"
@@ -102,9 +116,7 @@ print "ok"
 
 print "killing client with SIGTERM...",
 client.kill(signal.SIGTERM)
-client.expect(pexpect.EOF, timeout=30)
-client.wait()
-assert client.signalstatus == signal.SIGTERM
+client.waitTestSuccess(-signal.SIGTERM)
 print "ok"
 
 print "Restarted client output:",

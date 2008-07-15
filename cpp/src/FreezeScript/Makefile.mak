@@ -82,11 +82,11 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	del /q $(TRANSFORMDB:.exe=.*)
-	del /q $(DUMPDB:.exe=.*)
-	del /q Grammar.cpp Grammar.h
-	del /q Scanner.cpp
-	del /q TransformDB.res DumpDB.res
+	-del /q $(TRANSFORMDB:.exe=.*)
+	-del /q $(DUMPDB:.exe=.*)
+	-del /q Grammar.cpp Grammar.h
+	-del /q Scanner.cpp
+	-del /q TransformDB.res DumpDB.res
 
 install:: all
 	copy $(TRANSFORMDB) $(install_bindir)

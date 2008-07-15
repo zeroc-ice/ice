@@ -156,4 +156,3 @@ IceInternal::FactoryTableDef::removeObjectFactory(const std::string& t)
         }
     }
 }
-
