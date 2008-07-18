@@ -3655,7 +3655,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-        string expectedType = ContainedPtr::dynamicCast(value)->scoped();
         _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << valueS << ">";
         _out << sb;
         _out << sp << nl << "internal Patcher__(string type, " << name << " m, " << keyS << " key) : base(type)";

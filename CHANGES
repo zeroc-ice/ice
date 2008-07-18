@@ -42,6 +42,12 @@ C++ Changes
   incorrectly be sent compressed or not compressed.
 
 
+C# Changes
+==========
+
+- Fixed a bug in slice2cs that caused a core dump if a dictionary
+  had a value type of Object.
+
 Python Changes
 ==============
 
