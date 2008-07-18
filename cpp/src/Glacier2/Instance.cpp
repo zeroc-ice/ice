@@ -38,6 +38,8 @@ Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice
         const_cast<RequestQueueThreadPtr&>(_clientRequestQueueThread) = new RequestQueueThread(sleepTime);
         _clientRequestQueueThread->start();
     }
+
+    const_cast<ProxyVerifierPtr&>(_proxyVerifier) = new ProxyVerifier(communicator);
 }
 
 Glacier2::Instance::~Instance()
