@@ -467,7 +467,15 @@ Glacier2::RouterService::start(int argc, char* argv[])
     //
     // Create the instance object.
     //
-    _instance = new Instance(communicator(), clientAdapter, serverAdapter);
+    try
+    {
+        _instance = new Instance(communicator(), clientAdapter, serverAdapter);
+    }
+    catch(const Ice::InitializationException& ex)
+    {
+        error("Glacier2 initialization failed:\n" + ex.reason);
+        return false;
+    }
 
     //
     // Create the session router. The session router registers itself

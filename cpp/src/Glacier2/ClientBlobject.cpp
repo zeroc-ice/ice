@@ -21,7 +21,7 @@ Glacier2::ClientBlobject::ClientBlobject(const InstancePtr& instance,
                                          const Ice::Context& sslContext):
                                          
     Glacier2::Blobject(instance, false, sslContext),
-    _routingTable(new RoutingTable(_instance->communicator())),
+    _routingTable(new RoutingTable(_instance->communicator(), _instance->proxyVerifier())),
     _filters(filters),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
