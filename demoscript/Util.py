@@ -14,12 +14,25 @@ import re
 import os
 import signal
 import time
-import Expect
+
+# Locate the top level directory of the demo dist (or the top of the
+# source tree for a source dist).
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+toplevel = path[0]
+if os.path.isdir(os.path.join(toplevel, "cpp")):
+    sourcedist = True
+else:
+    sourcedist = False
+
+from scripts import Expect
 
 keepGoing = False
 iceHome = None
 x64 = False
-toplevel = None
 demoErrors = []
 
 #
@@ -32,18 +45,6 @@ host = "127.0.0.1"
 #
 debug = False
 
-# Locate the top level directory of the demo dist (or the top of the
-# source tree for a source dist).
-path = [ ".", "..", "../..", "../../..", "../../../.." ]
-head, tail = os.path.split(sys.argv[0])
-if len(head) > 0:
-    path = [os.path.join(head, p) for p in path]
-path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
-toplevel = path[0]
-if os.path.isdir(os.path.join(toplevel, "cpp")):
-    sourcedist = True
-else:
-    sourcedist = False
 
 origenv = {}
 def dumpenv():
@@ -408,29 +409,28 @@ def guessBuildModeForDir(cwd):
     return None
 
 def guessBuildMode():
-    m = guessBuildModeForDir(".")
-    if m is None and not iceHome and sourcedist:
+    if not iceHome and sourcedist:
         m = guessBuildModeForDir(os.path.join(toplevel, "cpp", "bin"))
+    else:
+	m = guessBuildModeForDir(".")
     if m is None:
         raise "cannot guess debug or release mode"
     return m
 
-def getBuild():
+def isDebugBuild():
     global buildmode
     # Guess the mode, if not set on the command line.
+    if not isWin32():
+	return False
     if buildmode is None:
 	buildmode = guessBuildMode()
 	print "(guessed build mode %s)" % buildmode
-    return buildmode
+    return buildmode == "debug"
         
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
-        if isWin32():
-	    mode = getBuild()
-            if mode == 'release':
-                return "icebox"
-            else:
-                return "iceboxd"
+        if isWin32() and isDebugBuild():
+	    return "iceboxd"
         return "icebox"
     elif mapping == "cs":
         if isMono(): # Mono cannot locate icebox in the PATH.

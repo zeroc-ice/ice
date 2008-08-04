@@ -55,6 +55,7 @@ module Ice
 
         return nil
     end
+
     #
     # Exceptions.
     #

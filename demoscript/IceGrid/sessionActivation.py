@@ -10,6 +10,7 @@
 
 import sys,  os
 from demoscript import *
+from scripts import Expect
 
 def run(clientCmd):
     print "cleaning databases...",

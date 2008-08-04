@@ -23,7 +23,7 @@ from demoscript import *
 import time, signal
 
 desc = 'application.xml'
-if Util.getBuild() == 'debug':
+if Util.isDebugBuild():
     fi = open(desc, "r")
     desc = 'tmp_application.xml'
     fo = open(desc, "w")

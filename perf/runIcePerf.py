@@ -25,7 +25,7 @@ else:
     raise "can't find toplevel directory!"
 
 sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
+from scripts import *
 
 def usage():
     print "usage: " + sys.argv[0] + " [-h|--help] [-i|--iter N] [-n|--hostname HOSTNAME] [-o|--output FILENAME]"

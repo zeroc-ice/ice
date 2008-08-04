@@ -10,25 +10,20 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-testdir = os.path.dirname(os.path.abspath(__file__))
-
-server = os.path.join(testdir, "server")
+server = os.path.join(os.getcwd(), "server")
 
 print "starting server...",
-serverPipe = TestUtil.startServer(server, "")
-TestUtil.getServerPid(serverPipe)
-TestUtil.getAdapterReady(serverPipe, True, 3)
+serverProc = TestUtil.startServer(server, count=3)
 print "ok"
 
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
@@ -42,26 +37,15 @@ args = r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
         r' --Ice.Default.Locator="locator:default -p 12012 -t 10000"'
 
 print "starting router...",
-starterPipe = TestUtil.startServer(router, args) 
-TestUtil.getServerPid(starterPipe)
-TestUtil.getAdapterReady(starterPipe, True, 2)
+starterProc = TestUtil.startServer(router, args, count=2) 
 print "ok"
 
-client = os.path.join(testdir, "client")
+client = os.path.join(os.getcwd(), "client")
 
 print "starting client...",
-clientPipe = TestUtil.startClient(client, " 2>&1")
-TestUtil.ignorePid(clientPipe)
+proc = TestUtil.startClient(client)
 print "ok"
+proc.waitTestSuccess()
 
-TestUtil.printOutputFromPipe(clientPipe)
-clientStatus = TestUtil.closePipe(clientPipe)
-if clientStatus:
-    TestUtil.killServers()
-
-if clientStatus or TestUtil.serverStatus():
-    print >>sys.stderr, "Client status:", clientStatus
-    print >>sys.stderr, "Server status:", TestUtil.serverStatus()
-    sys.exit(1)
-
-sys.exit(0)
+serverProc.waitTestSuccess()
+starterProc.waitTestSuccess()

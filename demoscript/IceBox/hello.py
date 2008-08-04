@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, demoscript
-import demoscript.Expect as Expect
+from scripts import Expect
 
 def runtests(client, server, secure):
     print "testing twoway",

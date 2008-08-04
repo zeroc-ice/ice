@@ -10,31 +10,17 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
-
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-testdir = os.path.dirname(os.path.abspath(__file__))
-
-cwd = os.getcwd()
-os.chdir(testdir)
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
 print "starting client...",
-clientPipe = os.popen("python Client.py --Ice.Default.Host=127.0.0.1 2>&1")
+clientProc = TestUtil.startClient("Client.py", "--Ice.Default.Host=127.0.0.1")
 print "ok"
-
-TestUtil.printOutputFromPipe(clientPipe);
-    
-clientStatus = TestUtil.closePipe(clientPipe)
-
-if clientStatus:
-    sys.exit(1)
-
-sys.exit(0)
+clientProc.waitTestSuccess()

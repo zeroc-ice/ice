@@ -10,49 +10,32 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-name = os.path.join("Freeze", "complex")
-testdir = os.path.join(toplevel, "test", name)
-testdir = os.path.dirname(os.path.abspath(__file__))
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
+TestUtil.addClasspath(os.path.join(os.getcwd(), "classes"))
 
 #
 # Clean the contents of the database directory.
 #
-dbdir = os.path.join(testdir, "db")
+dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
-
 print "starting populate...",
-populatePipe = TestUtil.startClient("Client", " --dbdir " + testdir + " populate" + " 2>&1")
+populateProc = TestUtil.startClient("Client", " --dbdir %s populate" % os.getcwd())
 print "ok"
 
-TestUtil.printOutputFromPipe(populatePipe)
-
-populateStatus = TestUtil.closePipe(populatePipe)
-
-if populateStatus:
-    sys.exit(1)
+populateProc.waitTestSuccess()
 
 print "starting verification client...",
-clientPipe = TestUtil.startClient("Client", " --dbdir " + testdir + " validate" + " 2>&1")
+clientProc = TestUtil.startClient("Client", " --dbdir %s validate" % os.getcwd())
+
 print "ok"
-
-TestUtil.printOutputFromPipe(clientPipe)
-
-clientStatus = TestUtil.closePipe(clientPipe)
-
-if clientStatus:
-    sys.exit(1)
-
-sys.exit(0)
+clientProc.waitTestSuccess()

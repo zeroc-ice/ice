@@ -11,24 +11,18 @@
 import os, sys
 import time
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
-
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-name = os.path.join("IceStorm", "single")
-testdir = os.path.dirname(os.path.abspath(__file__))
-
-import IceStormUtil
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
 def dotest(type):
-    icestorm = IceStormUtil.init(toplevel, testdir, type)
+    icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), type)
 
     icestorm.start()
 
@@ -37,14 +31,12 @@ def dotest(type):
     icestorm.admin("create single")
     print "ok"
 
-    publisher = os.path.join(testdir, "publisher")
-    subscriber = os.path.join(testdir, "subscriber")
+    publisher = os.path.join(os.getcwd(), "publisher")
+    subscriber = os.path.join(os.getcwd(), "subscriber")
 
     print "starting subscriber...",
     sys.stdout.flush()
-    subscriberPipe = TestUtil.startServer(subscriber, icestorm.reference())
-    TestUtil.getServerPid(subscriberPipe)
-    TestUtil.getAdapterReady(subscriberPipe, True, 5)
+    subscriberProc = TestUtil.startServer(subscriber, icestorm.reference(), count = 5)
     print "ok"
 
     #
@@ -53,11 +45,11 @@ def dotest(type):
     #
     print "starting publisher...",
     sys.stdout.flush()
-    publisherPipe = TestUtil.startClient(publisher, icestorm.reference())
+    publisherProc = TestUtil.startClient(publisher, icestorm.reference())
     print "ok"
 
-    subscriberStatus = TestUtil.specificServerStatus(subscriberPipe, 30)
-    publisherStatus = TestUtil.closePipe(publisherPipe)
+    subscriberProc.waitTestSuccess()
+    publisherProc.waitTestSuccess()
 
     #
     # Destroy the topic.
@@ -71,10 +63,6 @@ def dotest(type):
     # Shutdown icestorm.
     #
     icestorm.stop()
-
-    if TestUtil.serverStatus() or subscriberStatus or publisherStatus:
-        TestUtil.killServers()
-        sys.exit(1)
 
 dotest("persistent")
 dotest("transient")

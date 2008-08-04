@@ -10,8 +10,8 @@
 
 import os, sys, imp
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "config"))
-import TestUtil
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from scripts import *
 
 testGroups = []
 

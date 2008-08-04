@@ -23,7 +23,7 @@ from demoscript import *
 from demoscript.IceGrid import icebox
 
 desc = 'application.xml'
-if Util.getBuild() == 'debug':
+if Util.isDebugBuild():
     fi = open(desc, "r")
     desc = 'tmp_application.xml'
     fo = open(desc, "w")
@@ -34,7 +34,6 @@ if Util.getBuild() == 'debug':
     fi.close()
     fo.close()
 
-directory = os.path.dirname(os.path.abspath(__file__))
-Util.addLdPath(directory)
+Util.addLdPath(os.getcwd())
 
 icebox.run('./client', desc[0:len(desc)-4])

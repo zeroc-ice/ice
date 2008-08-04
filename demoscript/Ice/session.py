@@ -10,6 +10,7 @@
 
 import sys
 from demoscript import *
+from scripts import Expect
 
 def run(clientStr, server):
     client = Util.spawn(clientStr)

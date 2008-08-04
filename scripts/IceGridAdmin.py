@@ -17,13 +17,6 @@ from threading import Thread
 #nreplicas=0
 nreplicas=1
 
-for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
-    raise "can't find toplevel directory!"
-
 iceGridPort = 12010;
 
 nodeOptions = r' --Ice.Warn.Connections=0' + \
@@ -38,7 +31,7 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.PrintServersReady=node' + \
               r' --Ice.NullHandleAbort' + \
               r' --Ice.ThreadPool.Server.Size=0' + \
-              r' --Ice.ServerIdleTime=0';
+              r' --Ice.ServerIdleTime=0'
 
 registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.PermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
@@ -62,7 +55,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
                   r' --Ice.ServerIdleTime=0' + \
                   r' --IceGrid.Registry.DefaultTemplates=' + \
-                  os.path.abspath(os.path.join(TestUtil.findTopLevel(), "cpp", "config", "templates.xml"))
+                  os.path.abspath(os.path.join(TestUtil.toplevel, "cpp", "config", "templates.xml"))
 
 def getDefaultLocatorProperty():
 
@@ -83,6 +76,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
     if dynamicRegistration:
         command += r' --IceGrid.Registry.DynamicRegistration'        
 
+    procs = []
     i = 0
     while i < (nreplicas + 1):
 
@@ -108,15 +102,14 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
 
         driverConfig = TestUtil.DriverConfig("server")
         driverConfig.lang = "cpp"
-        pipe = TestUtil.startServer(iceGrid, cmd + " 2>&1", driverConfig)
-        if TestUtil.getDefaultMapping() != "java":
-            TestUtil.getServerPid(pipe)
-        TestUtil.getAdapterReady(pipe, True, 4)
+        proc = TestUtil.startServer(iceGrid, cmd, driverConfig, count = 4)
+        procs.append(proc)
         print "ok"
 
         i = i + 1
+    return procs
 
-def shutdownIceGridRegistry():
+def shutdownIceGridRegistry(procs):
 
     i = nreplicas
     while i > 0:
@@ -128,6 +121,9 @@ def shutdownIceGridRegistry():
     print "shutting down icegrid registry...",
     iceGridAdmin("registry shutdown")
     print "ok"
+
+    for p in procs:
+        p.waitTestSuccess()
 
 def startIceGridNode(testdir):
 
@@ -158,15 +154,11 @@ def startIceGridNode(testdir):
 
     driverConfig = TestUtil.DriverConfig("server")
     driverConfig.lang = "cpp"
-    iceGridPipe = TestUtil.startServer(iceGrid, command + " 2>&1", driverConfig)
-    if TestUtil.getDefaultMapping() != "java":
-        TestUtil.getServerPid(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe, False)
-    TestUtil.waitServiceReady(iceGridPipe, 'node')
+    proc = TestUtil.startServer(iceGrid, command, driverConfig, adapter='node')
         
     print "ok"
 
-    return iceGridPipe
+    return proc
 
 def iceGridAdmin(cmd, ignoreFailure = False):
 
@@ -180,17 +172,12 @@ def iceGridAdmin(cmd, ignoreFailure = False):
 
     driverConfig = TestUtil.DriverConfig("client")
     driverConfig.lang = "cpp"
-    iceGridAdminPipe = TestUtil.startClient(iceGridAdmin, command + " 2>&1", driverConfig)
-
-    output = iceGridAdminPipe.readlines()
-    iceGridAdminStatus = TestUtil.closePipe(iceGridAdminPipe)
-    if not ignoreFailure and iceGridAdminStatus:
-        for line in output:
-            print line
-        TestUtil.killServers()
+    proc = TestUtil.startClient(iceGridAdmin, command, driverConfig)
+    status = proc.wait()
+    if not ignoreFailure and status:
+        print proc.buf
         sys.exit(1)
-
-    return output
+    return proc.buf
     
 def killNodeServers():
     
@@ -199,13 +186,17 @@ def killNodeServers():
         iceGridAdmin("server disable " + server, True)
         iceGridAdmin("server signal " + server + " SIGKILL", True)
 
-def iceGridTest(testdir, name, application, additionalOptions = "", applicationOptions = ""):
+def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
 
+    testdir = os.getcwd()
     if not TestUtil.isWin32() and os.getuid() == 0:
         print
         print "*** can't run test as root ***"
         print
         return
+
+    if TestUtil.getDefaultMapping() == "java":
+        os.environ['CLASSPATH'] = os.path.join(os.getcwd(), "classes") + os.pathsep + os.environ.get("CLASSPATH", "")
 
     client = TestUtil.getDefaultClientFile()
     if TestUtil.getDefaultMapping() != "java":
@@ -213,8 +204,8 @@ def iceGridTest(testdir, name, application, additionalOptions = "", applicationO
 
     clientOptions = ' ' + getDefaultLocatorProperty() + ' ' + additionalOptions
 
-    startIceGridRegistry(testdir)
-    iceGridNodePipe = startIceGridNode(testdir)
+    registryProcs = startIceGridRegistry(testdir)
+    iceGridNodeProc = startIceGridNode(testdir)
     
     if application != "":
         print "adding application...",
@@ -223,20 +214,10 @@ def iceGridTest(testdir, name, application, additionalOptions = "", applicationO
         print "ok"
 
     print "starting client...",
-    clientPipe = TestUtil.startClient(client, clientOptions + " 2>&1", TestUtil.DriverConfig("client"))
+    clientProc = TestUtil.startClient(client, clientOptions, TestUtil.DriverConfig("client"))
     print "ok"
 
-    TestUtil.printOutputFromPipe(clientPipe)
-    
-    clientStatus = TestUtil.closePipe(clientPipe)
-    if clientStatus:
-        killNodeServers()
-        if application != "":
-            print "remove application...",
-            iceGridAdmin("application remove Test", True)
-            print "ok"
-        TestUtil.killServers()
-        sys.exit(1)
+    clientProc.waitTestSuccess()
 
     if application != "":
         print "remove application...",
@@ -246,50 +227,38 @@ def iceGridTest(testdir, name, application, additionalOptions = "", applicationO
     print "shutting down icegrid node...",
     iceGridAdmin("node shutdown localnode")
     print "ok"
-    shutdownIceGridRegistry()
+    shutdownIceGridRegistry(registryProcs)
+    iceGridNodeProc.waitTestSuccess()
 
-    TestUtil.joinServers()
+def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
 
-    if TestUtil.serverStatus():
-        sys.exit(1)                
-
-def iceGridClientServerTest(testdir, name, additionalClientOptions, additionalServerOptions):
-
+    testdir = os.getcwd()
     server = TestUtil.getDefaultServerFile()
     client = TestUtil.getDefaultClientFile()
     if TestUtil.getDefaultMapping() != "java":
         server = os.path.join(testdir, server) 
         client = os.path.join(testdir, client) 
 
+    if TestUtil.getDefaultMapping() == "java":
+        os.environ['CLASSPATH'] = os.path.join(os.getcwd(), "classes") + os.pathsep + os.environ.get("CLASSPATH", "")
+
     clientOptions = getDefaultLocatorProperty() + ' ' + additionalClientOptions
     serverOptions = getDefaultLocatorProperty() + ' ' + additionalServerOptions
     
-    startIceGridRegistry(testdir, True)
+    registryProcs = startIceGridRegistry(testdir, True)
 
     print "starting server...",
-    serverPipe = TestUtil.startServer(server, serverOptions + " 2>&1", TestUtil.DriverConfig("server"))
-    if TestUtil.getDefaultMapping() != "java":
-        TestUtil.getServerPid(serverPipe)
-    TestUtil.getAdapterReady(serverPipe)
+    serverProc= TestUtil.startServer(server, serverOptions, TestUtil.DriverConfig("server"))
     print "ok"
 
     print "starting client...",
-    clientPipe = TestUtil.startClient(client, clientOptions + " 2>&1", TestUtil.DriverConfig("client"))
+    clientProc = TestUtil.startClient(client, clientOptions, TestUtil.DriverConfig("client"))
     print "ok"
 
-    TestUtil.printOutputFromPipe(clientPipe)
-    
-    clientStatus = TestUtil.closePipe(clientPipe)
-    if clientStatus:
-        TestUtil.killServers()
-        sys.exit(1)
+    clientProc.waitTestSuccess()
+    serverProc.waitTestSuccess()
 
-    shutdownIceGridRegistry()
-
-    TestUtil.joinServers()
-
-    if TestUtil.serverStatus():
-        sys.exit(1)
+    shutdownIceGridRegistry(registryProcs)
 
 def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore"]:
