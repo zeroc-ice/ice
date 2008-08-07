@@ -74,8 +74,7 @@ $(DLLNAME): $(OBJS) IceUtil.res
 !endif
 
 clean::
-	del /q $(DLLNAME:.dll=.*)
-	del /q IceUtil.res
+	-del /q IceUtil.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

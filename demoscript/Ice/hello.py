@@ -9,7 +9,8 @@
 # **********************************************************************
 
 import sys
-import demoscript.pexpect as pexpect
+from demoscript import *
+from scripts import Expect
 
 def runtests(client, server, secure):
     print "testing twoway",
@@ -32,7 +33,7 @@ def runtests(client, server, secure):
     client.sendline('O')
     try:
         server.expect('Hello World!', timeout=1)
-    except pexpect.TIMEOUT:
+    except Expect.TIMEOUT:
         pass
     client.sendline('O')
     client.sendline('f')
@@ -44,7 +45,7 @@ def runtests(client, server, secure):
         client.sendline('D')
         try:
             server.expect('Hello World!', timeout=1)
-        except pexpect.TIMEOUT:
+        except Expect.TIMEOUT:
             pass
         client.sendline('D')
         client.sendline('f')

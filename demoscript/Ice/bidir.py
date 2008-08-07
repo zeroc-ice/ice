@@ -8,19 +8,21 @@
 #
 # **********************************************************************
 
-import sys, signal, demoscript
+import sys, signal
+from demoscript import *
+from scripts import Expect
 
 def run(clientStr, server):
     print "adding client 1... ",
     sys.stdout.flush()
-    client1 = demoscript.Util.spawn(clientStr)
+    client1 = Util.spawn(clientStr)
     server.expect('adding client')
     client1.expect('received callback #1')
     print "ok"
 
     print "adding client 2... ",
     sys.stdout.flush()
-    client2 = demoscript.Util.spawn(clientStr)
+    client2 = Util.spawn(clientStr)
     server.expect('adding client')
     client1.expect('received callback #')
     client2.expect('received callback #')

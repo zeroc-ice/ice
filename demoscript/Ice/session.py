@@ -8,10 +8,12 @@
 #
 # **********************************************************************
 
-import sys, demoscript
+import sys
+from demoscript import *
+from scripts import Expect
 
 def run(clientStr, server):
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('foo')
 
@@ -20,7 +22,7 @@ def run(clientStr, server):
     server.expect('The session foo is now created.')
     client.sendline('c')
     client.sendline('0')
-    server.expect("Hello object #0 for session `foo' says:\r{1,2}\nHello foo!")
+    server.expect("Hello object #0 for session `foo' says:\nHello foo!")
     client.sendline('1')
     client.expect('Index is too high')
     client.sendline('x')
@@ -30,22 +32,21 @@ def run(clientStr, server):
 
     print "testing session cleanup...",
     sys.stdout.flush()
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('foo')
     server.expect('The session foo is now created.')
     client.sendline('c')
     client.sendline('t')
     client.waitTestSuccess()
-    server.expect("The session foo is now destroyed.\r{1,2}\n.*The session foo has timed out.", timeout=25)
+    server.expect("The session foo is now destroyed.\n.*The session foo has timed out.", timeout=25)
     print "ok"
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('foo')
     server.expect('The session foo is now created.')
     client.sendline('s')
     server.waitTestSuccess()
 
-    client.sendline('x')
     client.waitTestSuccess()

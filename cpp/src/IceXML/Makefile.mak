@@ -44,8 +44,7 @@ $(DLLNAME): $(OBJS) IceXML.res
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
-	del /q $(DLLNAME:.dll=.*)
-	del /q IceXML.res
+	-del /q IceXML.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

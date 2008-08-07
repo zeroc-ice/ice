@@ -30,7 +30,7 @@ public class ThrowerI : ThrowerDisp_
 
     public override void supportsAssertException_async(AMD_Thrower_supportsAssertException cb, Ice.Current current)
     {
-        cb.ice_response(true);
+        cb.ice_response(false);
     }
 
     public override void throwAasA_async(AMD_Thrower_throwAasA cb, int a, Ice.Current current)

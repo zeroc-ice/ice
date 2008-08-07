@@ -8,7 +8,9 @@
 #
 # **********************************************************************
 
-import sys, demoscript, os
+import sys,  os
+from demoscript import *
+from scripts import Expect
 
 def run(clientCmd):
     print "cleaning databases...",
@@ -17,28 +19,28 @@ def run(clientCmd):
     if not os.path.exists(nodeDir):
         os.mkdir(nodeDir)
     else:
-        demoscript.Util.cleanDbDir(nodeDir)
+        Util.cleanDbDir(nodeDir)
     regDir = os.path.join("db", "registry")
     if not os.path.exists(regDir):
         os.mkdir(regDir)
     else:
-        demoscript.Util.cleanDbDir(regDir)
+        Util.cleanDbDir(regDir)
     print "ok"
 
-    if demoscript.Util.defaultHost:
+    if Util.defaultHost:
         args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
     else:
         args = ''
 
     print "starting icegridnode...",
     sys.stdout.flush()
-    node = demoscript.Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
-    node.expect('IceGrid.Registry.Internal ready\r{1,2}\nIceGrid.Registry.Server ready\r{1,2}\nIceGrid.Registry.Client ready\r{1,2}\nIceGrid.Node ready')
+    node = Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
+    node.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
     print "ok"
 
     print "deploying application...",
     sys.stdout.flush()
-    admin = demoscript.Util.spawn('icegridadmin --Ice.Config=config.grid')
+    admin = Util.spawn('icegridadmin --Ice.Config=config.grid')
     admin.expect('>>>')
     admin.sendline("application add \'application.xml\'")
     admin.expect('>>>')
@@ -47,7 +49,7 @@ def run(clientCmd):
     print "testing client...", 
     sys.stdout.flush()
 
-    client = demoscript.Util.spawn(clientCmd)
+    client = Util.spawn(clientCmd)
     client.expect('user id:')
     client.sendline('foo')
     client.expect('password:')
@@ -60,7 +62,7 @@ def run(clientCmd):
     client.waitTestSuccess(timeout=1)
     node.expect('detected termination of server')
 
-    client = demoscript.Util.spawn(clientCmd)
+    client = Util.spawn(clientCmd)
     client.expect('user id:')
     client.sendline('foo')
     client.expect('password:')

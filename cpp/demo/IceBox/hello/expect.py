@@ -10,32 +10,29 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "C++"
-import demoscript.IceBox.hello
+from demoscript import *
+from demoscript.IceBox import hello
 
-if demoscript.Util.defaultHost:
-    args = ' --IceBox.UseSharedCommunicator.IceStorm=1'
+# Override the service command line
+if Util.defaultHost:
+    args = ' --IceBox.Service.Hello="HelloService:create --Ice.Config=config.service %s"' % Util.defaultHost
 else:
     args = ''
 
-directory = os.path.dirname(os.path.abspath(__file__))
-demoscript.Util.addLdPath(directory)
-server = demoscript.Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (demoscript.Util.getIceBox(), args))
+Util.addLdPath(os.getcwd())
+
+server = Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (Util.getIceBox(), args))
 server.expect('.* ready')
-client = demoscript.Util.spawn('./client')
+client = Util.spawn('./client')
 client.expect('.*==>')
 
-demoscript.IceBox.hello.run(client, server)
+hello.run(client, server)

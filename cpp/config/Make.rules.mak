@@ -207,6 +207,35 @@ clean::
 
 !endif
 
+# Suffix set, we're using a debug build.
+!if "$(LIBSUFFIX)" != ""
+
+!if "$(LIBNAME)" != ""
+clean::
+	-del /q $(LIBNAME:d.lib=.lib)
+	-del /q $(LIBNAME)
+!endif
+!if "$(DLLNAME)" != ""
+clean::
+	-del /q $(DLLNAME:d.dll=.*)
+	-del /q $(DLLNAME:.dll=.*)
+!endif
+
+!else
+
+!if "$(LIBNAME)" != ""
+clean::
+	-del /q $(LIBNAME:.lib=d.lib)
+	-del /q $(LIBNAME)
+!endif
+!if "$(DLLNAME)" != ""
+clean::
+	-del /q $(DLLNAME:.dll=d.*)
+	-del /q $(DLLNAME:.dll=.*)
+!endif
+
+!endif
+
 clean::
 	-del /q *.obj *.bak *.ilk *.exp *.pdb *.tds *.idb
 

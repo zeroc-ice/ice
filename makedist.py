@@ -25,6 +25,7 @@ includeSubDirs = [ \
     "vb", \
     "rb", \
     "config", \
+    "scripts", \
     "certs", \
     "slice", \
     "distribution", \
@@ -191,7 +192,8 @@ for root, dirnames, filenames in os.walk('.'):
 
 move("distribution", distFilesDir) # Move the distribution directory to the top-level
 move("demoscript", os.path.join(demoscriptDir, "demoscript")) # Move the demoscript directory
-copy(os.path.join("config", "DemoUtil.py"), os.path.join(demoscriptDir, "config", "DemoUtil.py"))
+# and the associated top level demo script.
+move("allDemos.py", os.path.join(demoscriptDir, "demoscript", "allDemos.py"))
 
 print "ok"
 
@@ -224,6 +226,7 @@ for d in ["", "cpp", "java", "cs"]:
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules.cs"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(demoDir, "config"), False)
+copy(os.path.join(srcDir, "scripts"), os.path.join(demoscriptDir, "scripts"))
 
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):

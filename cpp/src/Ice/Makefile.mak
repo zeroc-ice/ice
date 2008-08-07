@@ -153,42 +153,41 @@ EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
 Ice.res: EventLoggerMsg.rc
 
 clean::
-	del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
-	del /q CommunicatorF.cpp $(HDIR)\CommunicatorF.h
-	del /q Communicator.cpp $(HDIR)\Communicator.h
-	del /q ConnectionF.cpp $(HDIR)\ConnectionF.h
-	del /q Connection.cpp $(HDIR)\Connection.h
-	del /q Current.cpp $(HDIR)\Current.h
-	del /q Endpoint.cpp $(HDIR)\Endpoint.h
-	del /q FacetMap.cpp $(HDIR)\FacetMap.h
-	del /q ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h	
-	del /q ImplicitContext.cpp $(HDIR)\ImplicitContext.h	
-	del /q Identity.cpp $(HDIR)\Identity.h
-	del /q LocalException.cpp $(HDIR)\LocalException.h
-	del /q LocatorF.cpp $(HDIR)\LocatorF.h
-	del /q Locator.cpp $(HDIR)\Locator.h
-	del /q LoggerF.cpp $(HDIR)\LoggerF.h
-	del /q Logger.cpp $(HDIR)\Logger.h
-	del /q ObjectAdapterF.cpp $(HDIR)\ObjectAdapterF.h
-	del /q ObjectAdapter.cpp $(HDIR)\ObjectAdapter.h
-	del /q ObjectFactoryF.cpp $(HDIR)\ObjectFactoryF.h
-	del /q ObjectFactory.cpp $(HDIR)\ObjectFactory.h
-	del /q PluginF.cpp $(HDIR)\PluginF.h
-	del /q Plugin.cpp $(HDIR)\Plugin.h
-	del /q ProcessF.cpp $(HDIR)\ProcessF.h
-	del /q Process.cpp $(HDIR)\Process.h
-	del /q PropertiesF.cpp $(HDIR)\PropertiesF.h
-	del /q Properties.cpp $(HDIR)\Properties.h
-	del /q RouterF.cpp $(HDIR)\RouterF.h
-	del /q Router.cpp $(HDIR)\Router.h
-	del /q ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
-	del /q ServantLocator.cpp $(HDIR)\ServantLocator.h
-	del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
-	del /q StatsF.cpp $(HDIR)\StatsF.h
-	del /q Stats.cpp $(HDIR)\Stats.h
-	del /q $(DLLNAME:.dll=.*)
-	del /q EventLoggerMsg.h EventLoggerMsg.rc
-	del /q Ice.res
+	-del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
+	-del /q CommunicatorF.cpp $(HDIR)\CommunicatorF.h
+	-del /q Communicator.cpp $(HDIR)\Communicator.h
+	-del /q ConnectionF.cpp $(HDIR)\ConnectionF.h
+	-del /q Connection.cpp $(HDIR)\Connection.h
+	-del /q Current.cpp $(HDIR)\Current.h
+	-del /q Endpoint.cpp $(HDIR)\Endpoint.h
+	-del /q FacetMap.cpp $(HDIR)\FacetMap.h
+	-del /q ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h	
+	-del /q ImplicitContext.cpp $(HDIR)\ImplicitContext.h	
+	-del /q Identity.cpp $(HDIR)\Identity.h
+	-del /q LocalException.cpp $(HDIR)\LocalException.h
+	-del /q LocatorF.cpp $(HDIR)\LocatorF.h
+	-del /q Locator.cpp $(HDIR)\Locator.h
+	-del /q LoggerF.cpp $(HDIR)\LoggerF.h
+	-del /q Logger.cpp $(HDIR)\Logger.h
+	-del /q ObjectAdapterF.cpp $(HDIR)\ObjectAdapterF.h
+	-del /q ObjectAdapter.cpp $(HDIR)\ObjectAdapter.h
+	-del /q ObjectFactoryF.cpp $(HDIR)\ObjectFactoryF.h
+	-del /q ObjectFactory.cpp $(HDIR)\ObjectFactory.h
+	-del /q PluginF.cpp $(HDIR)\PluginF.h
+	-del /q Plugin.cpp $(HDIR)\Plugin.h
+	-del /q ProcessF.cpp $(HDIR)\ProcessF.h
+	-del /q Process.cpp $(HDIR)\Process.h
+	-del /q PropertiesF.cpp $(HDIR)\PropertiesF.h
+	-del /q Properties.cpp $(HDIR)\Properties.h
+	-del /q RouterF.cpp $(HDIR)\RouterF.h
+	-del /q Router.cpp $(HDIR)\Router.h
+	-del /q ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
+	-del /q ServantLocator.cpp $(HDIR)\ServantLocator.h
+	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
+	-del /q StatsF.cpp $(HDIR)\StatsF.h
+	-del /q Stats.cpp $(HDIR)\Stats.h
+	-del /q EventLoggerMsg.h EventLoggerMsg.rc
+	-del /q Ice.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

@@ -15,151 +15,118 @@ def run(client, server):
     sys.stdout.flush()
     client.expect('>')
     client.sendline('pwd')
-    client.expect('pwd')
-    client.expect('/\r{1,2}\n>')
+    #client.expect('pwd')
+    client.expect('/\n>')
 
     client.sendline('cd x')
-    client.expect('cd x')
+    #client.expect('cd x')
     client.expect('`x\': no such directory')
-    client.expect('\r{1,2}\n>')
+    client.expect('\n> ')
 
     client.sendline('cd')
-    client.expect('cd')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('pwd')
-    client.expect('pwd')
-    client.expect('/\r{1,2}\n>')
+    client.expect('^/\n> ')
 
     client.sendline('mkfile a')
-    client.expect('mkfile a')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('cd a')
-    client.expect('cd a')
-    client.expect('`a\': not a directory')
-    client.expect('\r{1,2}\n>')
+    client.expect('`a\': not a directory\n> ')
 
     client.sendline('mkdir a')
-    client.expect('mkdir a')
-    client.expect('`a\' exists already')
-    client.expect('\r{1,2}\n>')
+    client.expect('`a\' exists already\n> ')
 
     client.sendline('mkdir b')
-    client.expect('mkdir b')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('cd b')
-    client.expect('cd b')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('pwd')
-    client.expect('pwd')
-    client.expect('/b\r{1,2}\n>')
+    client.expect('^/b\n> ')
 
     client.sendline('cd')
-    client.expect('cd')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('pwd')
-    client.expect('pwd')
-    client.expect('/\r{1,2}\n>')
+    client.expect('^/\n> ')
 
     client.sendline('cd b')
-    client.expect('cd b')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('pwd')
-    client.expect('pwd')
-    client.expect('/b\r{1,2}\n>')
+    client.expect('^/b\n> ')
 
     client.sendline('cd /')
-    client.expect('cd /')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('pwd')
-    client.expect('pwd')
-    client.expect('/\r{1,2}\n>')
+    client.expect('^/\n> ')
 
     client.sendline('ls')
-    client.expect('ls\r{1,2}\n')
-    i = client.expect(['a \(file\)', 'b \(directory\)'])
-    j = client.expect(['a \(file\)', 'b \(directory\)'])
-    assert i != j
-    client.expect('\r{1,2}\n>')
+    client.expectall(['a \(file\)\n', 'b \(directory\)\n'])
+    client.expect('^> ')
 
     client.sendline('lr')
-    client.expect('lr\r{1,2}\n')
-    i = client.expect(['a \(file\)', 'b \(directory\)'])
-    j = client.expect(['a \(file\)', 'b \(directory\)'])
-    assert i != j
-    client.expect('\r{1,2}\n>')
+    client.expectall(['a \(file\)\n', 'b \(directory\):\n'])
+    client.expect('^> ')
 
     client.sendline('cd b')
-    client.expect('cd b\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('mkdir c')
-    client.expect('mkdir c\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('cd c')
-    client.expect('cd c\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('pwd')
-    client.expect('pwd')
-    client.expect('/b/c\r{1,2}\n>')
+    client.expect('/b/c\n> ')
 
     client.sendline('cd /')
-    client.expect('cd /\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('lr')
-    client.expect('lr\r{1,2}\n')
-    i = client.expect(['a \(file\)', 'b \(directory\)'])
-    if i == 1:
-	client.expect('c \(directory\):')
-        client.expect('a \(file\)')
-    else:
-        client.expect('b \(directory\)')
-	client.expect('c \(directory\):')
+    client.expectall(['a \(file\)\n', 'b \(directory\):\n\tc \(directory\):\n'])
+    client.expect('^> ')
 
     client.sendline('mkfile c')
-    client.expect('mkfile c\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('write c blah c')
-    client.expect('write c blah c\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('cat c')
-    client.expect('cat c\r{1,2}\n')
-    client.expect('blah\r{1,2}\n')
-    client.expect('c')
-    client.expect('\r{1,2}\n>')
+    client.expect('blah\n')
+    client.expect('c\n')
+    client.expect('^> ')
 
     client.sendline('rm b')
-    client.expect('rm b\r{1,2}\n')
     client.expect('cannot remove `b\': Cannot destroy non-empty directory')
-    client.expect('\r{1,2}\n>')
+    client.expect('\n> ')
 
     client.sendline('cd b')
-    client.expect('cd b')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('rm *')
-    client.expect('rm \*')
-    client.expect('\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('ls')
-    client.expect('ls\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('cd ..')
-    client.expect('cd \.\.\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('rm b')
-    client.expect('rm b\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('rm a c')
-    client.expect('rm a c\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('ls')
-    client.expect('ls\r{1,2}\n>')
+    client.expect('^> ')
 
     client.sendline('exit')
     client.waitTestSuccess()

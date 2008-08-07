@@ -8,32 +8,33 @@
 #
 # **********************************************************************
 
-import sys, demoscript, signal
-import demoscript.pexpect as pexpect
+import sys, signal
+from demoscript import *
+from scripts import Expect
 
 def runClient(clientCmd, server1, server2):
-    client = demoscript.Util.spawn(clientCmd)
+    client = Util.spawn(clientCmd)
     received = False
     try:
         server1.expect('Hello World!')
         received = True
-    except pexpect.TIMEOUT:
+    except Expect.TIMEOUT:
         pass
     try:
         server2.expect('Hello World!')
         received = True
-    except pexpect.TIMEOUT:
+    except Expect.TIMEOUT:
         pass
     if not received:
-        raise pexpect.TIMEOUT
+        raise Expect.TIMEOUT
     client.waitTestSuccess()
 
 def runDemo(clientCmd, serverCmd):
-    server1 = demoscript.Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
+    server1 = Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
     server1.expect('Discover ready')
     server1.expect('Hello ready')
 
-    server2 = demoscript.Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
+    server2 = Util.spawn(serverCmd + ' --Ice.PrintAdapterReady')
     server2.expect('Discover ready')
     server2.expect('Hello ready')
 
@@ -53,12 +54,12 @@ def run(clientCmd, serverCmd):
     runDemo(clientCmd, serverCmd)
     print "ok"
 
-    if demoscript.Util.defaultLanguage == "Java" and demoscript.Util.isCygwin():
+    if Util.getMapping() == "java" and Util.isWin32():
         print "skipping testing multicast discovery (IPv6) under windows...",
     else:
         print "testing multicast discovery (IPv6)...",
         sys.stdout.flush()
-        serverCmd += " --Ice.IPv6=1 --Discover.Endpoints='udp -h \"ff01::1:1\" -p 10000'"
-        clientCmd += " --Ice.IPv6=1 --Discover.Proxy='discover:udp -h \"ff01::1:1\" -p 10000'"
+        serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="udp -h \\"ff01::1:1\\" -p 10000"'
+        clientCmd += ' --Ice.IPv6=1 --Discover.Proxy="discover:udp -h \\"ff01::1:1\\" -p 10000"'
         runDemo(clientCmd, serverCmd)
     print "ok"

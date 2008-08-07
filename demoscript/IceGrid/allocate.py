@@ -8,8 +8,9 @@
 #
 # **********************************************************************
 
-import sys, demoscript, os
-import demoscript.pexpect as pexpect
+import sys, os
+from demoscript import *
+from scripts import Expect
 
 def run(clientCmd):
     print "cleaning databases...",
@@ -18,28 +19,28 @@ def run(clientCmd):
     if not os.path.exists(nodeDir):
         os.mkdir(nodeDir)
     else:
-        demoscript.Util.cleanDbDir(nodeDir)
+        Util.cleanDbDir(nodeDir)
     regDir = os.path.join("db", "registry")
     if not os.path.exists(regDir):
         os.mkdir(regDir)
     else:
-        demoscript.Util.cleanDbDir(regDir)
+        Util.cleanDbDir(regDir)
     print "ok"
 
-    if demoscript.Util.defaultHost:
+    if Util.defaultHost:
         args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
     else:
         args = ''
 
     print "starting icegridnode...",
     sys.stdout.flush()
-    node = demoscript.Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
-    node.expect('IceGrid.Registry.Internal ready\r{1,2}\nIceGrid.Registry.Server ready\r{1,2}\nIceGrid.Registry.Client ready\r{1,2}\nIceGrid.Node ready')
+    node = Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
+    node.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
     print "ok"
 
     print "deploying application...",
     sys.stdout.flush()
-    admin = demoscript.Util.spawn('icegridadmin --Ice.Config=config.grid')
+    admin = Util.spawn('icegridadmin --Ice.Config=config.grid')
     admin.expect('>>>')
     admin.sendline("application add \'application-single.xml\'")
     admin.expect('>>>')
@@ -47,13 +48,13 @@ def run(clientCmd):
 
     print "testing client...", 
     sys.stdout.flush()
-    client1 = demoscript.Util.spawn(clientCmd)
+    client1 = Util.spawn(clientCmd)
     client1.expect('user id:')
     client1.sendline('foo')
     client1.expect('password:')
     client1.sendline('foo')
 
-    client2 = demoscript.Util.spawn(clientCmd)
+    client2 = Util.spawn(clientCmd)
     client2.expect('user id:')
     client2.sendline('foo')
     client2.expect('password:')
@@ -61,11 +62,11 @@ def run(clientCmd):
 
     node.expect('activating server')
     client1.expect('==>')
-    client2.expect(pexpect.TIMEOUT, timeout = 0)
+    client2.expect(Expect.TIMEOUT, timeout = 0)
 
     client1.sendline('t')
     node.expect('says Hello World!')
-    client2.expect(pexpect.TIMEOUT, timeout = 0)
+    client2.expect(Expect.TIMEOUT, timeout = 0)
     client1.sendline('x')
     client1.waitTestSuccess(timeout=1)
 
@@ -86,19 +87,19 @@ def run(clientCmd):
 
     print "testing client...", 
     sys.stdout.flush()
-    client1 = demoscript.Util.spawn(clientCmd)
+    client1 = Util.spawn(clientCmd)
     client1.expect('user id:')
     client1.sendline('foo')
     client1.expect('password:')
     client1.sendline('foo')
 
-    client2 = demoscript.Util.spawn(clientCmd)
+    client2 = Util.spawn(clientCmd)
     client2.expect('user id:')
     client2.sendline('foo')
     client2.expect('password:')
     client2.sendline('foo')
 
-    client3 = demoscript.Util.spawn(clientCmd)
+    client3 = Util.spawn(clientCmd)
     client3.expect('user id:')
     client3.sendline('foo')
     client3.expect('password:')
@@ -107,13 +108,13 @@ def run(clientCmd):
     node.expect('activating server')
     client1.expect('==>')
     client2.expect('==>')
-    client3.expect(pexpect.TIMEOUT, timeout = 0)
+    client3.expect(Expect.TIMEOUT, timeout = 0)
 
     client1.sendline('t')
     node.expect('says Hello World!')
     client2.sendline('t')
     node.expect('says Hello World!')
-    client3.expect(pexpect.TIMEOUT, timeout = 0)
+    client3.expect(Expect.TIMEOUT, timeout = 0)
 
     client1.sendline('x')
     client1.waitTestSuccess(timeout=1)

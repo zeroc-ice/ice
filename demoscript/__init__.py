@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # **********************************************************************
 #
 # Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
@@ -7,3 +6,5 @@
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
+
+__all__ = [ "Util" ]

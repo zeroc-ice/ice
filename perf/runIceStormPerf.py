@@ -24,7 +24,7 @@ else:
     raise "can't find toplevel directory!"
 
 sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
+from scripts import *
 
 latencyRepetitions = 10000
 throughputRepetitions = 30000

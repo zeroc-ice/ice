@@ -11,6 +11,51 @@ require 'IceRuby'
 require 'thread'
 
 module Ice
+
+    #
+    # Convenience function for locating the directory containing the
+    # Slice files.
+    #
+    def Ice.getSliceDir
+        #
+        # Get the parent of the directory containing this file
+        # (Ice.rb).
+        #
+        rbHome = File::join(File::dirname(__FILE__), "..")
+
+        #
+        # For an installation from a source distribution, a binary
+        # tarball, or a Windows installer, the "slice" directory is a
+        # sibling of the "rb" directory.
+        #
+        dir = File::join(rbHome, "slice")
+        if File::exists?(dir)
+            return File::expand_path(dir)
+        end
+
+        #
+        # In a source distribution, the "slice" directory is one level
+        # higher.
+        #
+        dir = File::join(rbHome, "..", "slice")
+        if File::exists?(dir)
+            return File::expand_path(dir)
+        end
+
+        if RUBY_PLATFORM =~ /linux/i
+            iceVer = Ice::stringVersion
+            #
+            # Check the default RPM location.
+            #
+            dir = File::join("/", "usr", "share", "Ice-" + iceVer, "slice")
+            if File::exists?(dir)
+                return dir
+            end
+        end
+
+        return nil
+    end
+
     #
     # Exceptions.
     #

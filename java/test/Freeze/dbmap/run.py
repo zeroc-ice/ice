@@ -10,34 +10,22 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
+TestUtil.addClasspath(os.path.join(os.getcwd(), "classes"))
 
-name = os.path.join("Freeze", "dbmap")
-testdir = os.path.join(toplevel, "test", name)
-testdir = os.path.dirname(os.path.abspath(__file__))
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
-
-dbdir = os.path.join(testdir, "db")
+dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
 print "starting client...",
-clientPipe = TestUtil.startClient("Client", testdir + " 2>&1")
+clientProc = TestUtil.startClient("Client", os.getcwd())
 print "ok"
-
-TestUtil.printOutputFromPipe(clientPipe)
-
-clientStatus = TestUtil.closePipe(clientPipe)
-
-if clientStatus:
-    sys.exit(1)
-
-sys.exit(0)
+clientProc.waitTestSuccess()

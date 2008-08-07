@@ -10,31 +10,27 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "Java"
+from demoscript import *
 
-server = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
+server = Util.spawn('java Server --Ice.PrintAdapterReady')
 server.expect('.* ready')
 
 print "testing...",
 sys.stdout.flush()
-client = demoscript.Util.spawn('java Client')
+client = Util.spawn('java Client')
 client.waitTestSuccess()
 server.expect('Hello World!')
 print "ok"
 
 import signal
 server.kill(signal.SIGINT)
-server.waitTestSuccess()
+server.waitTestSuccess(-signal.SIGINT)

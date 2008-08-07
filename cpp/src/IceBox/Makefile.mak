@@ -12,7 +12,15 @@ top_srcdir	= ..\..
 LIBNAME		= $(top_srcdir)\lib\icebox$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\icebox$(SOVERSION)$(LIBSUFFIX).dll
 
-SERVER		= $(top_srcdir)\bin\icebox$(LIBSUFFIX).exe
+SERVER_D	= $(top_srcdir)\bin\iceboxd.exe
+SERVER_R	= $(top_srcdir)\bin\icebox.exe
+
+!if "$(OPTIMIZE)" != "yes"
+SERVER		= $(SERVER_D)
+!else
+SERVER		= $(SERVER_R)
+!endif
+
 ADMIN		= $(top_srcdir)\bin\iceboxadmin.exe
 
 TARGETS         = $(LIBNAME) $(DLLNAME) $(SERVER) $(ADMIN)
@@ -76,11 +84,10 @@ $(ADMIN): $(AOBJS) IceBoxAdmin.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
-	del /q IceBox.cpp $(HDIR)\IceBox.h
-	del /q $(DLLNAME:.dll=.*)
-	del /q $(SERVER:.exe=.*)
-	del /q $(ADMIN:.exe=.*)
-	del /q IceBox.res IceBoxAdmin.res IceBoxExe.res
+	-del /q IceBox.cpp $(HDIR)\IceBox.h
+	-del /q $(SERVER_D:.exe=.*) $(SERVER_R:.exe=.*)
+	-del /q $(ADMIN:.exe=.*)
+	-del /q IceBox.res IceBoxAdmin.res IceBoxExe.res
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

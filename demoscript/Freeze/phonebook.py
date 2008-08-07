@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-import demoscript.pexpect as pexpect
+from scripts import Expect
 
 def dequote(s):
     cur = 0
@@ -44,13 +44,13 @@ def run(client, server):
     for l in f:
         client.sendline(l)
         try:
-            client.expect('\r{1,2}\n', timeout=0)
-        except pexpect.TIMEOUT:
+            client.expect('\n', timeout=0)
+        except Expect.TIMEOUT:
             pass
     try:
         while True:
-            client.expect('\r{1,2}\n', timeout=1)
-    except pexpect.TIMEOUT:
+            client.expect('\n', timeout=1)
+    except Expect.TIMEOUT:
         pass
     print "ok"
 

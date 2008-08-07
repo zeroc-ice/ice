@@ -8,7 +8,9 @@
 #
 # **********************************************************************
 
-import sys, demoscript, time, os
+import sys, time, os
+from demoscript import *
+from scripts import Expect
 
 def run(clientStr, desc = 'application'):
     print "cleaning databases...",
@@ -17,34 +19,33 @@ def run(clientStr, desc = 'application'):
     if not os.path.exists(nodeDir):
         os.mkdir(nodeDir)
     else:
-        demoscript.Util.cleanDbDir(nodeDir)
+        Util.cleanDbDir(nodeDir)
     regDir = os.path.join("db", "registry")
     if not os.path.exists(regDir):
         os.mkdir(regDir)
     else:
-        demoscript.Util.cleanDbDir(regDir)
+        Util.cleanDbDir(regDir)
     print "ok"
 
-    if demoscript.Util.defaultHost:
+    if Util.defaultHost:
         args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
     else:
         args = ''
 
     print "starting icegridnode...",
     sys.stdout.flush()
-    node = demoscript.Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args),
-                                 language="C++")
+    node = Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
     node.expect('IceGrid.Registry.Internal ready')
     node.expect('IceGrid.Registry.Server ready')
     node.expect('IceGrid.Registry.Client ready')
-    if demoscript.Util.defaultLanguage == "C++":
+    if Util.getMapping() == "cpp":
         node.expect('IceGrid.Registry.AdminSessionManager ready')
     node.expect('IceGrid.Node ready')
     print "ok"
 
     print "deploying application...",
     sys.stdout.flush()
-    admin = demoscript.Util.spawn('icegridadmin --Ice.Config=config.grid', language="C++")
+    admin = Util.spawn('icegridadmin --Ice.Config=config.grid')
     admin.expect('>>>')
     admin.sendline("application add \'%s.xml\'" %(desc))
     admin.expect('>>>')
@@ -56,7 +57,7 @@ def run(clientStr, desc = 'application'):
     sys.stdout.flush()
 
     for s in [ "Homer", "Marge", "Bart", "Lisa", "Maggie" ]:
-	client = demoscript.Util.spawn(clientStr)
+	client = Util.spawn(clientStr)
 	node.expect("Hello from %s" % s)
 	client.waitTestSuccess(timeout=1)
 
@@ -70,19 +71,19 @@ def run(clientStr, desc = 'application'):
     admin.sendline("service stop IceBox Maggie")
     admin.expect('>>>')
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Homer")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Marge")
     client.waitTestSuccess(timeout=1)
     
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Bart")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Homer")
     client.waitTestSuccess(timeout=1)
 
@@ -96,19 +97,19 @@ def run(clientStr, desc = 'application'):
     admin.sendline("service stop IceBox Marge")
     admin.expect('>>>')
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Bart")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Lisa")
     client.waitTestSuccess(timeout=1)
     
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Maggie")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Bart")
     client.waitTestSuccess(timeout=1)
 
@@ -121,11 +122,11 @@ def run(clientStr, desc = 'application'):
     admin.expect('>>>')
     admin.sendline('exit')
 
-    # Cygwin seems to have problems with the password input.
-    if demoscript.Util.isCygwin():
-	admin = demoscript.Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063" -u foo -p foo', language="C++")
+    # Windows seems to have problems with the password input.
+    if Util.isWin32():
+	admin = Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063" -u foo -p foo')
     else:
-	admin = demoscript.Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"', language="C++")
+	admin = Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"')
 	admin.expect('user id:')
 	admin.sendline('foo')
 	admin.expect('password:')
@@ -137,23 +138,23 @@ def run(clientStr, desc = 'application'):
     admin.sendline("service start IceBox Marge")
     admin.expect('>>>')
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Lisa")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Maggie")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Homer")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Marge")
     client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr)
+    client = Util.spawn(clientStr)
     node.expect("Hello from Bart")
     client.waitTestSuccess(timeout=1)
 

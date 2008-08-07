@@ -9,8 +9,8 @@
 #
 # **********************************************************************
 
-import TestUtil
 import os, sys
+import TestUtil
 
 global testdir
 global toplevel
@@ -28,60 +28,29 @@ origIceStormService = ' --IceBox.Service.IceStorm=IceStormService,' + TestUtil.g
 origIceStormProxy = '%s/TopicManager:default -p %d'
 origIceStormReference = ' --IceStormAdmin.TopicManager.Default="%s"'
 
-def printOutput(pipe):
-    try:
-        while True:
-            line = pipe.readline()
-            if not line:
-                break
-            print line,
-    except IOError:
-        pass
-
-def captureOutput(pipe):
-    out = ""
-    try:
-        while True:
-            line = pipe.readline()
-            if not line:
-                break
-            out = out + line
-    except IOError:
-        pass
-    return out
-
 class IceStormUtil(object):
     def __init__(self, toplevel, testdir):
         self.toplevel = toplevel
         self.testdir = testdir
-        self.iceBox = TestUtil.getIceBox(testdir)
+        self.iceBox = TestUtil.getIceBox()
         self.iceBoxAdmin = os.path.join(TestUtil.getCppBinDir(), "iceboxadmin")
         self.iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
     def runIceBoxAdmin(self, endpts, command):
-        clientCfg = TestUtil.DriverConfig("client")
-        pipe = TestUtil.startClient(self.iceBoxAdmin, endpts + " " + command)
-        out = captureOutput(pipe)
-        status = TestUtil.closePipe(pipe)
-        if status:
-            print "non-zero status! %d" % status
-            print out
-            TestUtil.killServers()
-            sys.exit(1)
-        return out
+        proc = TestUtil.startClient(self.iceBoxAdmin, endpts + " " + command, echo = False)
+        proc.waitTestSuccess()
+        return proc.buf
 
     def admin(self, cmd, **args):
-        return self.adminWithRef(self.iceStormReference, cmd, **args)
+        self.adminWithRef(self.iceStormReference, cmd, **args)
 
-    def adminWithRef(self, ref, cmd, terminateOnError=True):
-        pipe = TestUtil.startClient(self.iceStormAdmin, ref + r' -e "%s"' % cmd)
-        out = captureOutput(pipe)
-        status = TestUtil.closePipe(pipe)
-        if terminateOnError and status:
-            print "failed!"
-            TestUtil.killServers()
-            sys.exit(1)
-        return status, out.strip()
+    def adminWithRef(self, ref, cmd, expect = None):
+        proc = TestUtil.startClient(self.iceStormAdmin, ref + r' -e "%s"' % cmd, echo = False)
+        if expect:
+            proc.expect(expect)
+            proc.wait()
+        else:
+            proc.waitTestSuccess()
 
     def reference(self):
         return self.iceStormReference
@@ -95,7 +64,7 @@ class Replicated(IceStormUtil):
                  dbDir = "db",
                  instanceName="IceStorm", port = 12010):
         IceStormUtil.__init__(self, toplevel, testdir)
-        self.pipes = []
+        self.procs = []
         self.nendpoints = [] # Node endpoints
         self.instanceName = instanceName
         self.ibendpoints = [] # IceBox endpoints
@@ -130,7 +99,7 @@ class Replicated(IceStormUtil):
         self.replicaProperties = []
         self.dbHome= []
         self.iceStormDBEnv= []
-        self.pipes = []
+        self.procs = []
         for replica in range(0, 3):
             self.iceBoxEndpoints.append(origIceBoxEndpoints % self.ibendpoints[replica])
             service = origIceStormService % self.isendpoints[replica]
@@ -152,17 +121,17 @@ class Replicated(IceStormUtil):
             self.dbHome.append(dbHome)
             TestUtil.cleanDbDir(dbHome)
             self.iceStormDBEnv.append(" --Freeze.DbEnv.IceStorm.DbHome=%s" % dbHome)
-            self.pipes.append(None)
+            self.procs.append(None)
 
         topicReplicaProxy = '%s/TopicManager:%s' % (instanceName, replicaTopicManagerEndpoints)
         self.iceStormProxy = topicReplicaProxy
         self.iceStormReference = ' --IceStormAdmin.TopicManager.Default="%s"' % topicReplicaProxy
 
-    def adminForReplica(self, replica, cmd, **args):
+    def adminForReplica(self, replica, cmd, expect = None, **args):
         ep = self.isendpoints[replica]
         proxy = origIceStormProxy % (self.instanceName, self.isendpoints[replica])
         ref = origIceStormReference % proxy
-        return self.adminWithRef(ref, cmd, **args)
+        self.adminWithRef(ref, cmd, expect, **args)
 
     def clean(self):
         for replica in range(0, 3):
@@ -181,21 +150,20 @@ class Replicated(IceStormUtil):
         if echo:
             print "ok"
 
-    def startReplica(self, replica, echo = True, additionalOptions = "", createThread = True):
+    def startReplica(self, replica, echo = True, additionalOptions = ""):
         if echo:
             print "starting icestorm replica %d..." % replica,
             sys.stdout.flush()
 
-        pipe = TestUtil.startServer(self.iceBox,
+        proc = TestUtil.startServer(self.iceBox,
                                     self.iceBoxEndpoints[replica] +
                                     self.iceStormEndpoints[replica] +
                                     self.replicaProperties[replica] +
                                     self.iceStormDBEnv[replica] +
-                                    additionalOptions)
-        self.pipes.append(pipe)
-        TestUtil.getServerPid(pipe)
-        TestUtil.waitServiceReady(pipe, "IceStorm")
-        self.pipes[replica] = pipe
+                                    additionalOptions,
+                                    adapter = "IceStorm",
+                                    echo = False)
+        self.procs[replica] = proc
         if echo:
             print "ok"
 
@@ -204,13 +172,10 @@ class Replicated(IceStormUtil):
             self.stopReplica(replica)
 
     def stopReplica(self, replica):
-        if self.pipes[replica]:
+        if self.procs[replica]:
             self.runIceBoxAdmin(self.iceBoxEndpoints[replica], "shutdown")
-            if TestUtil.specificServerStatus(self.pipes[replica]):
-                print "failed!"
-                TestUtil.killServers()
-                sys.exit(1)
-            self.pipes[replica] = None
+            self.procs[replica].waitTestSuccess()
+            self.procs[replica] = None
 
     def reference(self, replica=-1):
         if replica == -1:
@@ -255,7 +220,7 @@ class NonReplicated(IceStormUtil):
     def clean(self):
         TestUtil.cleanDbDir(self.dbHome)
 
-    def start(self, echo = True, additionalOptions = "", createThread = True):
+    def start(self, echo = True, additionalOptions = ""):
         if echo:
             if self.transient:
                 print "starting transient icestorm service...",
@@ -263,23 +228,19 @@ class NonReplicated(IceStormUtil):
                 print "starting icestorm service...",
             sys.stdout.flush()
 
-        self.pipe = TestUtil.startServer(self.iceBox,
+        self.proc = TestUtil.startServer(self.iceBox,
                                          self.iceBoxEndpoints +
                                          self.iceStormService +
                                          self.iceStormDBEnv +
-                                         additionalOptions)
-        TestUtil.getServerPid(self.pipe)
-        TestUtil.waitServiceReady(self.pipe, "IceStorm", createThread)
+                                         additionalOptions, adapter = "IceStorm",
+                                         echo = False)
         if echo:
             print "ok"
-        return self.pipe
+        return self.proc
 
     def stop(self):
         self.runIceBoxAdmin(self.iceBoxEndpoints, "shutdown")
-        if TestUtil.specificServerStatus(self.pipe):
-            print "failed!"
-            TestUtil.killServers()
-            sys.exit(1)
+        self.proc.waitTestSuccess()
 
 def init(toplevel, testdir, type, **args):
     if type == "replicated":

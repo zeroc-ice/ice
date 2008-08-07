@@ -9,7 +9,8 @@
 # **********************************************************************
 
 import sys
-import demoscript.pexpect as pexpect
+from demoscript import *
+from scripts import Expect
 
 def run(client, server):
     print "testing client... ",
@@ -19,7 +20,7 @@ def run(client, server):
     client.sendline('d')
     try:
         server.expect('Hello World!', timeout=1)
-    except pexpect.TIMEOUT:
+    except Expect.TIMEOUT:
         pass
     client.sendline('i')
     server.expect('Hello World!')

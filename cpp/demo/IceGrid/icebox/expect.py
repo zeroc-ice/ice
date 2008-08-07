@@ -10,24 +10,20 @@
 
 import sys, os
 
-try:
-    import demoscript
-except ImportError:
-    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-        toplevel = os.path.normpath(toplevel)
-        if os.path.exists(os.path.join(toplevel, "demoscript")):
-            break 
-    else:
-        raise "can't find toplevel directory!"
-    sys.path.append(os.path.join(toplevel))
-    import demoscript
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+if len(path) == 0:
+    raise "can't find toplevel directory!"
+sys.path.append(path[0])
 
-import demoscript.Util
-demoscript.Util.defaultLanguage = "C++"
-import demoscript.IceGrid.icebox
+from demoscript import *
+from demoscript.IceGrid import icebox
 
 desc = 'application.xml'
-if demoscript.Util.mode == 'debug':
+if Util.isDebugBuild():
     fi = open(desc, "r")
     desc = 'tmp_application.xml'
     fo = open(desc, "w")
@@ -38,7 +34,6 @@ if demoscript.Util.mode == 'debug':
     fi.close()
     fo.close()
 
-directory = os.path.dirname(os.path.abspath(__file__))
-demoscript.Util.addLdPath(directory)
+Util.addLdPath(os.getcwd())
 
-demoscript.IceGrid.icebox.run('./client', desc[0:len(desc)-4])
+icebox.run('./client', desc[0:len(desc)-4])

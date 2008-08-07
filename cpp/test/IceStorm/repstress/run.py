@@ -10,55 +10,25 @@
 
 import os, sys, time, re
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-from threading import Thread
-
-name = os.path.join("IceStorm", "repstress")
-testdir = os.path.dirname(os.path.abspath(__file__))
-publisher = os.path.join(testdir, "publisher")
-subscriber = os.path.join(testdir, "subscriber")
-control = os.path.join(testdir, "control")
-
-def printOutput(pipe):
-    try:
-        while True:
-            line = pipe.readline()
-            if not line:
-                break
-            print line,
-            sys.stdout.flush()
-    except IOError:
-        pass
-
-def captureOutput(pipe):
-    out = ""
-    try:
-        while True:
-            line = pipe.readline()
-            if not line:
-                break
-            out = out + line
-    except IOError:
-        pass
-    return out
+publisher = os.path.join(os.getcwd(), "publisher")
+subscriber = os.path.join(os.getcwd(), "subscriber")
+control = os.path.join(os.getcwd(), "control")
 
 def runcontrol(proxy):
-    pipe = TestUtil.startClient(control, ' "' + proxy + '"')
-    printOutput(pipe)
-    return TestUtil.closePipe(pipe)
+    proc = TestUtil.startClient(control, ' "%s"' % proxy)
+    proc.waitTestSuccess()
 
-import IceStormUtil
-
-icestorm = IceStormUtil.init(toplevel, testdir, "replicated", replicatedPublisher=True, additional =
+icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), "replicated", replicatedPublisher=True, additional =
                              ' --IceStorm.Election.MasterTimeout=2' +
                              ' --IceStorm.Election.ElectionTimeout=2' +
                              ' --IceStorm.Election.ResponseTimeout=2')
@@ -71,18 +41,16 @@ print "ok"
 
 print "running subscriber...",
 sys.stdout.flush()
-subscriberPipe = TestUtil.startServer(subscriber, ' --Ice.ServerIdleTime=0 ' + icestorm.reference())
-TestUtil.getServerPid(subscriberPipe)
-TestUtil.getAdapterReady(subscriberPipe, False)
-subControl = subscriberPipe.readline().strip()
+subscriberProc = TestUtil.startServer(subscriber, ' --Ice.ServerIdleTime=0 ' + icestorm.reference())
+subscriberProc.expect("([^\n]+)\n")
+subControl = subscriberProc.match.group(1)
 print "ok"
 
 print "running publisher...",
 sys.stdout.flush()
-publisherPipe = TestUtil.startServer(publisher, ' --Ice.ServerIdleTime=0 ' + icestorm.reference())
-TestUtil.getServerPid(publisherPipe)
-TestUtil.getAdapterReady(publisherPipe, False)
-pubControl = publisherPipe.readline().strip()
+publisherProc = TestUtil.startServer(publisher, ' --Ice.ServerIdleTime=0 ' + icestorm.reference())
+publisherProc.expect("([^\n]+)\n")
+pubControl = publisherProc.match.group(1)
 print "ok"
 
 time.sleep(2)
@@ -126,14 +94,10 @@ for i in range(0, 3):
 
 print "stopping publisher...",
 sys.stdout.flush()
-if runcontrol(pubControl):
-    printOutput(publisherPipe)
-    TestUtil.killServers()
-    sys.exit(1)
-publisherCount = publisherPipe.readline().strip()
-if TestUtil.closePipe(publisherPipe):
-    TestUtil.killServers()
-    sys.exit(1)
+runcontrol(pubControl)
+publisherProc.expect("([^\n]+)\n")
+publisherCount = publisherProc.match.group(1)
+publisherProc.waitTestSuccess()
 print "ok"
 
 print "stopping replicas...",
@@ -143,26 +107,10 @@ print "ok"
 
 print "stopping subscriber...",
 sys.stdout.flush()
-if runcontrol(subControl):
-    printOutput(subscriberPipe)
-    TestUtil.killServers()
-    sys.exit(1)
-subscriberCount = subscriberPipe.readline().strip()
-if TestUtil.closePipe(subscriberPipe):
-    TestUtil.killServers()
-    sys.exit(1)
+runcontrol(subControl)
+subscriberProc.expect("([^\n]+)\n")
+subscriberCount = subscriberProc.match.group(1)
+subscriberProc.waitTestSuccess()
 print "ok"
 
 print "publisher published %s events, subscriber received %s events" % (publisherCount, subscriberCount)
-#print "comparing counts...",
-#sys.stdout.flush()
-#if publisherCount != subscriberCount:
-    #TestUtil.killServers()
-    #sys.exit(1)
-#print "ok"
-
-if TestUtil.serverStatus():
-    TestUtil.killServers()
-    sys.exit(1)
-
-sys.exit(0)

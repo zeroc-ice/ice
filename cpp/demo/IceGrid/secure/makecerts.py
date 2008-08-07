@@ -11,6 +11,7 @@
 import os, sys, shutil, glob
 
 def iceca(args):
+    os.environ['PYTHONUNBUFFERED'] = '1'
     if os.system("iceca " + args):
         sys.exit(1)
 

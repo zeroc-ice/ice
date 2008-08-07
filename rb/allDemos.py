@@ -12,13 +12,13 @@ import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.abspath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "DemoUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "demoscript")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
-import DemoUtil
+sys.path.append(os.path.join(toplevel))
+from demoscript import Util
 
 #
 # List of all basic demos.
@@ -34,4 +34,5 @@ demos = [
     "book/simple_filesystem",
 ]
 
-DemoUtil.run(demos)
+if __name__ == "__main__":
+    Util.run(demos)

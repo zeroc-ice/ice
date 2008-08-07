@@ -12,7 +12,7 @@ import os, sys, traceback, threading, Ice
 
 slice_dir = Ice.getSliceDir()
 if not slice_dir:
-    print sys.argv[0] + ': Slice directory not found. Define ICE_HOME.'
+    print sys.argv[0] + ': Slice directory not found.'
     sys.exit(1)
 
 Ice.loadSlice('-I' + slice_dir + ' Callback.ice')

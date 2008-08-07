@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, demoscript, time
-import demoscript.pexpect as pexpect
+from scripts import Expect
 
 def run(createCmd, recreateCmd, readCmd, readnewCmd):
     print "cleaning databases...",
@@ -26,29 +26,27 @@ def run(createCmd, recreateCmd, readCmd, readnewCmd):
 
     print "reading database...",
     read = demoscript.Util.spawn(readCmd)
-    read.expect_list(read.compile_pattern_list([ \
-                    "All contacts \(default order\)", \
-                    'arnold:\t{1,2}\(333\)333-3333 x1234', \
-                    'bob:\t{1,2}\(222\)222-2222', \
-                    'carlos:\t{1,2}\(111\)111-1111', \
-                    'don:\t{1,2}\(777\)777-7777', \
-                    'ed:\t{1,2}\(666\)666-6666', \
-                    'frank:\t{1,2}\(555\)555-5555 x123', \
-                    'gary:\t{1,2}\(444\)444-4444', \
-                    'All contacts \(ordered by phone number\)', \
-                    'carlos:\t{1,2}\(111\)111-1111', \
-                    'bob:\t{1,2}\(222\)222-2222', \
-                    'arnold:\t{1,2}\(333\)333-3333 x1234', \
-                    'gary:\t{1,2}\(444\)444-4444', \
-                    'frank:\t{1,2}\(555\)555-5555 x123', \
-                    'ed:\t{1,2}\(666\)666-6666', \
-                    'don:\t{1,2}\(777\)777-7777', \
-                    ]))
+    read.expect(["All contacts \(default order\)",
+                 'arnold:\t{1,2}\(333\)333-3333 x1234',
+                 'bob:\t{1,2}\(222\)222-2222',
+                 'carlos:\t{1,2}\(111\)111-1111',
+                 'don:\t{1,2}\(777\)777-7777',
+                 'ed:\t{1,2}\(666\)666-6666',
+                 'frank:\t{1,2}\(555\)555-5555 x123',
+                 'gary:\t{1,2}\(444\)444-4444',
+                 'All contacts \(ordered by phone number\)',
+                 'carlos:\t{1,2}\(111\)111-1111',
+                 'bob:\t{1,2}\(222\)222-2222',
+                 'arnold:\t{1,2}\(333\)333-3333 x1234',
+                 'gary:\t{1,2}\(444\)444-4444',
+                 'frank:\t{1,2}\(555\)555-5555 x123',
+                 'ed:\t{1,2}\(666\)666-6666',
+                 'don:\t{1,2}\(777\)777-7777'])
     read.waitTestSuccess()
     print "ok"
 
     print "transforming database...",
-    transform = demoscript.Util.spawn('transformdb --old ContactData.ice --new NewContactData.ice -f transform.xml  db dbnew', language="C++")
+    transform = demoscript.Util.spawn('transformdb --old ContactData.ice --new NewContactData.ice -f transform.xml  db dbnew')
     transform.waitTestSuccess()
     print "ok"
 
@@ -67,23 +65,21 @@ def run(createCmd, recreateCmd, readCmd, readnewCmd):
 
     print "rereading new database...",
     readnew = demoscript.Util.spawn(readnewCmd)
-    readnew.expect_list(readnew.compile_pattern_list([ \
-                    "All contacts \(default order\)", \
-                    'arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com', \
-                    'bob:\t{1,2}\(222\)222-2222 bob@gmail.com', \
-                    'carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com', \
-                    'don:\t{1,2}\(777\)777-7777 don@gmail.com', \
-                    'ed:\t{1,2}\(666\)666-6666 ed@gmail.com', \
-                    'frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com', \
-                    'gary:\t{1,2}\(444\)444-4444 gary@gmail.com', \
-                    'All contacts \(ordered by phone number\)', \
-                    'carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com', \
-                    'bob:\t{1,2}\(222\)222-2222 bob@gmail.com', \
-                    'arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com', \
-                    'gary:\t{1,2}\(444\)444-4444 gary@gmail.com', \
-                    'frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com', \
-                    'ed:\t{1,2}\(666\)666-6666 ed@gmail.com', \
-                    'don:\t{1,2}\(777\)777-7777 don@gmail.com', \
-                        ]))
+    readnew.expect(["All contacts \(default order\)",
+                    'arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com',
+                    'bob:\t{1,2}\(222\)222-2222 bob@gmail.com',
+                    'carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com',
+                    'don:\t{1,2}\(777\)777-7777 don@gmail.com',
+                    'ed:\t{1,2}\(666\)666-6666 ed@gmail.com',
+                    'frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com',
+                    'gary:\t{1,2}\(444\)444-4444 gary@gmail.com',
+                    'All contacts \(ordered by phone number\)',
+                    'carlos:\t{1,2}\(111\)111-1111 carlos@gmail.com',
+                    'bob:\t{1,2}\(222\)222-2222 bob@gmail.com',
+                    'arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com',
+                    'gary:\t{1,2}\(444\)444-4444 gary@gmail.com',
+                    'frank:\t{1,2}\(555\)555-5555 x123 frank@gmail.com',
+                    'ed:\t{1,2}\(666\)666-6666 ed@gmail.com',
+                    'don:\t{1,2}\(777\)777-7777 don@gmail.com',])
     readnew.waitTestSuccess()
     print "ok"

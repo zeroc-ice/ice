@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-SUBDIRS		= router attack
+SUBDIRS		= router
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

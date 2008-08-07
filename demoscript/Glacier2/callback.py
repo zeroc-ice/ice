@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, time, signal
-import demoscript.pexpect as pexpect
+from scripts import Expect
 
 def run(client, server, sessionserver, glacier2):
     print "testing ",
@@ -43,7 +43,7 @@ def run(client, server, sessionserver, glacier2):
     client.sendline('O')
     try:
         server.expect('initiating callback to', timeout=1)
-    except pexpect.TIMEOUT:
+    except Expect.TIMEOUT:
         pass
     client.sendline('O')
     client.sendline('f')
@@ -68,7 +68,7 @@ def run(client, server, sessionserver, glacier2):
     glacier2.expect('_fwd/t, _ovrd/some_value')
     try:
         client.expect('received callback', timeout=1)
-    except pexpect.TIMEOUT:
+    except Expect.TIMEOUT:
         pass
     print "ok"
 

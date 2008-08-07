@@ -10,45 +10,19 @@
 
 import os, sys, time, re
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-name = os.path.join("IceStorm", "rep1")
-testdir = os.path.dirname(os.path.abspath(__file__))
-publisher = os.path.join(testdir, "publisher")
-subscriber = os.path.join(testdir, "subscriber")
-subscriber2 = os.path.join(testdir, "sub")
-
-def printOutput(pipe):
-    try:
-        while True:
-            line = pipe.readline()
-            if not line:
-                break
-            print line,
-            sys.stdout.flush()
-    except IOError:
-        pass
-
-def captureOutput(pipe):
-    out = ""
-    try:
-        while True:
-            line = pipe.readline()
-            if not line:
-                break
-            out = out + line
-    except IOError:
-        pass
-    return out
+publisher = os.path.join(os.getcwd(), "publisher")
+subscriber = os.path.join(os.getcwd(), "subscriber")
+subscriber2 = os.path.join(os.getcwd(), "sub")
 
 def runsub(opt, ref, arg = "", echo=False):
     qos = ""
@@ -56,53 +30,42 @@ def runsub(opt, ref, arg = "", echo=False):
         qos = " --twoway"
     if opt == "ordered":
         qos = " --ordered"
-    pipe = TestUtil.startServer(subscriber, ref + arg + qos)
-    TestUtil.getServerPid(pipe)
-    TestUtil.getAdapterReady(pipe, True)
-    return pipe
+    return TestUtil.startServer(subscriber, ref + arg + qos)
 
 def runpub(ref, arg = "", echo=False):
     return TestUtil.startClient(publisher, ref + arg)
 
 def runtest(opt, ref, subopt="", pubopt=""):
-    subscriberPipe = runsub(opt, ref, subopt)
-    publisherPipe = runpub(ref, pubopt)
-    printOutput(publisherPipe)
-    publisherStatus = TestUtil.closePipe(publisherPipe)
-    subscriberStatus = TestUtil.specificServerStatus(subscriberPipe, 30)
-    if subscriberStatus or publisherStatus:
-        print "FAILED!"
-        while True:
-            import time
-            time.sleep(1000)
-        TestUtil.killServers()
-        sys.exit(1)
+    subscriberProc = runsub(opt, ref, subopt)
+    publisherProc = runpub(ref, pubopt)
+    publisherProc.waitTestSuccess()
+    subscriberProc.waitTestSuccess(timeout=30)
 
-def runsub2(replica = -1, cmd = "", terminateOnError=True):
-    pipe = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo' + cmd)
-    TestUtil.getServerPid(pipe)
-    #TestUtil.getAdapterReady(pipe, True)
-    out = captureOutput(pipe)
-    status = TestUtil.closePipe(pipe)
-    if terminateOnError and status:
-        print "status: %d out: '%s'" % (status, out)
-        TestUtil.killServers()
-        sys.exit(1)
-    return status, out.strip()
+def runsub2(replica = -1, expect = None):
+    proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo', count=0)
+    if expect:
+        proc.expect(expect)
+        proc.wait()
+    else:
+        proc.waitTestSuccess()
 
-def rununsub2(replica = -1, terminateOnError=True):
+def rununsub2(replica = -1, expect = None):
     if replica == -1:
-        runsub2(replica, " --unsub", terminateOnError)
+        proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo --unsub', count=0)
+        proc.waitTestSuccess()
     # Else we first subscribe to this replica, then unsub. We
     # shouldn't get an AlreadySubscribedException.
-    status, out = runsub2(replica, terminateOnError=terminateOnError)
-    if status:
-        return status, out
-    return runsub2(replica, " --unsub", terminateOnError=terminateOnError)
+    proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo', count=0)
+    if expect:
+        proc.expect(expect)
+        proc.wait()
+        return
+    else:
+        proc.waitTestSuccess()
+    proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo --unsub', count=0)
+    proc.waitTestSuccess()
 
-import IceStormUtil
-
-icestorm = IceStormUtil.init(toplevel, testdir, "replicated", replicatedPublisher=True, additional =
+icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), "replicated", replicatedPublisher=True, additional =
                              ' --IceStorm.Election.MasterTimeout=2' +
                              ' --IceStorm.Election.ElectionTimeout=2' +
                              ' --IceStorm.Election.ResponseTimeout=2')
@@ -113,10 +76,7 @@ sys.stdout.flush()
 icestorm.admin("create single")
 
 for replica in range(0, 3):
-    status, out = icestorm.adminForReplica(replica, "create single", terminateOnError=False)
-    if out != "error: topic `single' exists":
-        TestUtil.killServers()
-        sys.exit(1)
+    icestorm.adminForReplica(replica, "create single", "error: topic `single' exists")
 print "ok"
 
 print "testing topic destruction across replicas...",
@@ -124,10 +84,7 @@ sys.stdout.flush()
 icestorm.admin("destroy single")
 
 for replica in range(0, 3):
-    status, out = icestorm.adminForReplica(replica, "destroy single", terminateOnError=False)
-    if out != "error: couldn't find topic `single'":
-        TestUtil.killServers()
-        sys.exit(1)
+    icestorm.adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
 print "ok"
 
 print "testing topic creation without replica...",
@@ -137,22 +94,13 @@ icestorm.stopReplica(0)
 icestorm.admin("create single")
 
 for replica in range(1, 3):
-    status, out = icestorm.adminForReplica(replica, "create single", terminateOnError=False)
-    if out != "error: topic `single' exists":
-        TestUtil.killServers()
-        sys.exit(1)
+    icestorm.adminForReplica(replica, "create single", "error: topic `single' exists")
 
-status, out = icestorm.adminForReplica(0, "create single", terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(0, "create single", "ConnectionRefused")
 
 icestorm.startReplica(0, echo=False)
 
-status, out = icestorm.adminForReplica(0, "create single", terminateOnError=False)
-if out != "error: topic `single' exists":
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(0, "create single", "error: topic `single' exists")
 print "ok"
 
 icestorm.admin("destroy single")
@@ -164,22 +112,13 @@ icestorm.stopReplica(2)
 icestorm.admin("create single")
 
 for replica in range(0, 2):
-    status, out = icestorm.adminForReplica(replica, "create single", terminateOnError=False)
-    if out != "error: topic `single' exists":
-        TestUtil.killServers()
-        sys.exit(1)
+    icestorm.adminForReplica(replica, "create single", "error: topic `single' exists")
 
-status, out = icestorm.adminForReplica(2, "create single", terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(2, "create single", "ConnectionRefused")
 
 icestorm.startReplica(2, echo=False)
 
-status, out = icestorm.adminForReplica(2, "create single", terminateOnError=False)
-if out != "error: topic `single' exists":
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(2, "create single", "error: topic `single' exists")
 print "ok"
 
 # All replicas are running
@@ -191,23 +130,13 @@ icestorm.stopReplica(0)
 icestorm.admin("destroy single")
 
 for replica in range(1, 3):
-    status, out = icestorm.adminForReplica(replica, "destroy single", terminateOnError=False)
-    if out != "error: couldn't find topic `single'":
-        TestUtil.killServers()
-        sys.exit(1)
+    icestorm.adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
 
-status, out = icestorm.adminForReplica(0, "destroy single", terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(0, "destroy single", "ConnectionRefused")
 
 icestorm.startReplica(0, echo=False)
 
-status, out = icestorm.adminForReplica(0, "destroy single", terminateOnError=False)
-if out != "error: couldn't find topic `single'":
-    print out
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(0, "destroy single", "error: couldn't find topic `single'")
 print "ok"
 
 print "testing topic destruction without master...",
@@ -219,22 +148,13 @@ icestorm.stopReplica(2)
 icestorm.admin("destroy single")
 
 for replica in range(0, 2):
-    status, out = icestorm.adminForReplica(replica, "destroy single", terminateOnError=False)
-    if out != "error: couldn't find topic `single'":
-        TestUtil.killServers()
-        sys.exit(1)
+    icestorm.adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
 
-status, out = icestorm.adminForReplica(2, "destroy single", terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(2, "destroy single", "ConnectionRefused")
 
 icestorm.startReplica(2, echo=False)
 
-status, out = icestorm.adminForReplica(2, "destroy single", terminateOnError=False)
-if out != "error: couldn't find topic `single'":
-    TestUtil.killServers()
-    sys.exit(1)
+icestorm.adminForReplica(2, "destroy single", "error: couldn't find topic `single'")
 print "ok"
 
 # Now test subscription/unsubscription on all replicas.
@@ -246,11 +166,7 @@ sys.stdout.flush()
 runsub2()
 
 for replica in range(0, 3):
-    status, out = runsub2(replica, terminateOnError=False)
-    if out != "IceStorm::AlreadySubscribed":
-        print out
-        TestUtil.killServers()
-        sys.exit(1)
+    runsub2(replica, "IceStorm::AlreadySubscribed")
 print "ok"
 
 print "testing unsubscription across replicas...",
@@ -258,7 +174,7 @@ sys.stdout.flush()
 rununsub2()
 
 for replica in range(0, 3):
-    rununsub2(replica, terminateOnError=False)
+    rununsub2(replica)
 print "ok"
 
 print "testing subscription without master...",
@@ -268,22 +184,13 @@ icestorm.stopReplica(2)
 runsub2()
 
 for replica in range(0, 2):
-    status, out = runsub2(replica, terminateOnError=False)
-    if out != "IceStorm::AlreadySubscribed":
-        TestUtil.killServers()
-        sys.exit(1)
+    runsub2(replica, "IceStorm::AlreadySubscribed")
 
-status, out = runsub2(2, terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+runsub2(2, "ConnectionRefused")
 
 icestorm.startReplica(2, echo=False)
 
-status, out = runsub2(2, terminateOnError=False)
-if out != "IceStorm::AlreadySubscribed":
-    TestUtil.killServers()
-    sys.exit(1)
+runsub2(2, "IceStorm::AlreadySubscribed")
 print "ok"
 
 print "testing unsubscription without master...",
@@ -293,12 +200,9 @@ icestorm.stopReplica(2)
 rununsub2()
 
 for replica in range(0, 2):
-    rununsub2(replica, terminateOnError=False)
+    rununsub2(replica)
 
-status, out = rununsub2(2, terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+rununsub2(2, "ConnectionRefused")
 
 icestorm.startReplica(2, echo=False)
 
@@ -312,22 +216,13 @@ icestorm.stopReplica(0)
 runsub2()
 
 for replica in range(1, 3):
-    status, out = runsub2(replica, terminateOnError=False)
-    if out != "IceStorm::AlreadySubscribed":
-        TestUtil.killServers()
-        sys.exit(1)
+    runsub2(replica, "IceStorm::AlreadySubscribed")
 
-status, out = runsub2(0, terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+runsub2(0, "ConnectionRefused")
 
 icestorm.startReplica(0, echo=False)
 
-status, out = runsub2(0, terminateOnError=False)
-if out != "IceStorm::AlreadySubscribed":
-    TestUtil.killServers()
-    sys.exit(1)
+runsub2(0, "IceStorm::AlreadySubscribed")
 print "ok"
 
 print "testing unsubscription without replica...",
@@ -337,12 +232,9 @@ icestorm.stopReplica(0)
 rununsub2()
 
 for replica in range(1, 3):
-    rununsub2(replica, terminateOnError=False)
+    rununsub2(replica)
 
-status, out = rununsub2(0, terminateOnError=False)
-if not re.search("ConnectionRefused", out):
-    TestUtil.killServers()
-    sys.exit(1)
+rununsub2(0, "ConnectionRefused")
 
 icestorm.startReplica(0, echo=False)
 
@@ -389,9 +281,3 @@ print "stopping replicas...",
 sys.stdout.flush()
 icestorm.stop()
 print "ok"
-
-if TestUtil.serverStatus():
-    TestUtil.killServers()
-    sys.exit(1)
-
-sys.exit(0)

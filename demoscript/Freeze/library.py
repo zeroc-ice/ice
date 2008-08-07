@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-import demoscript.pexpect as pexpect
+from scripts import Expect
 
 def dequote(s):
     cur = 0
@@ -44,7 +44,6 @@ def run(client, server):
     books = []
     for l in f:
         client.sendline(l)
-        #server.expect('added object')
         client.expect('added new book')
         isbn, title, author = dequote(l)
         books.append((isbn, title, author))
@@ -62,8 +61,6 @@ def run(client, server):
     for b in books:
         isbn, title, author = b
         client.sendline('isbn %s' %(isbn))
-        #server.expect('locate found')
-        #server.expect('locate found')
         client.expect('current book is:')
         client.expect('isbn: %s' %(isbn))
         client.expect('title: %s' %(mkregexp(title)))
@@ -80,15 +77,8 @@ def run(client, server):
         n = int(client.match.group(1))
         assert len(bl) == n
         for i in range(0, n):
-            #server.expect('locate found')
-            # Consume evicting messages otherwise its possible to get
-            # hangs.
-            #try:
-                #server.expect('evicting', timeout=0)
-            #except pexpect.TIMEOUT:
-                #pass
             client.expect('current book is:')
-            client.expect('isbn: ([a-zA-Z0-9]+)')
+            client.expect('isbn: ([a-zA-Z0-9]+)\n')
             findisbn = client.match.group(1)
             nbl = []
             for b in bl:
@@ -113,24 +103,19 @@ def run(client, server):
     sys.stdout.flush()
     isbn, title, author = books[0]
     client.sendline('isbn %s' % (isbn))
-    #server.expect('locate')
-    client.expect('current book is:.*isbn.*\r{1,2}\ntitle.*\r{1,2}\nauthors')
+    client.expect('current book is:.*isbn.*\ntitle.*\nauthors')
     client.sendline('rent matthew')
-    #server.expect('locate')
     client.expect("the book is now rented by `matthew'")
     client.sendline('current')
-    #server.expect('locate')
     client.expect('rented: matthew')
     client.sendline('rent john')
-    #server.expect('locate')
     client.expect('the book has already been rented')
     client.sendline('return')
-    #server.expect('locate')
     client.expect('the book has been returned')
     client.sendline('current')
     try:
         client.expect('rented:', timeout=2)
-    except pexpect.TIMEOUT:
+    except Expect.TIMEOUT:
         pass
     print "ok"
 
@@ -138,14 +123,10 @@ def run(client, server):
     sys.stdout.flush()
     isbn, title, author = books[0]
     client.sendline('isbn %s' % (isbn))
-    #server.expect('locate')
-    client.expect('current book is:.*isbn.*\r{1,2}\ntitle.*\r{1,2}\nauthors')
+    client.expect('current book is:.*isbn.*\ntitle.*\nauthors')
     client.sendline('remove')
-    #server.expect('locate')
-    #server.expect('removed')
     client.expect('removed current book')
     client.sendline('remove')
-    #server.expect(['locate could not find', 'locate found.*but it was dead or destroyed'])
     client.expect('current book no longer exists')
 
     client.sendline('shutdown')

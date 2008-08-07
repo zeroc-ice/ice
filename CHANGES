@@ -54,6 +54,15 @@ Python Changes
 - Fixed bugs in stringToProxy and propertyToProxy related to null
   proxies.
 
+- Ice.getSliceDir() now only searches for the slice directory in
+  a standard Ice installation.
+
+
+Ruby Changes
+============
+
+- Added helper Ice.getSliceDir, which locates the slice directory
+  in a standard Ice installation.
 
 ======================================================================
 Changes since version 3.2.1
