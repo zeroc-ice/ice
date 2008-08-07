@@ -16,6 +16,7 @@
 #include <IceUtil/Time.h>
 
 #include <Glacier2/RequestQueue.h>
+#include <Glacier2/ProxyVerifier.h>
 
 namespace Glacier2
 {
@@ -39,6 +40,7 @@ public:
 
     const RequestQueueThreadPtr& clientRequestQueueThread() const { return _clientRequestQueueThread; }
     const RequestQueueThreadPtr& serverRequestQueueThread() const { return _serverRequestQueueThread; }
+    const ProxyVerifierPtr& proxyVerifier() const { return _proxyVerifier; }
 
     void destroy();
     
@@ -51,6 +53,7 @@ private:
     const Ice::ObjectAdapterPtr _serverAdapter;
     const RequestQueueThreadPtr _clientRequestQueueThread;
     const RequestQueueThreadPtr _serverRequestQueueThread;
+    const ProxyVerifierPtr _proxyVerifier;
 };
 typedef IceUtil::Handle<Instance> InstancePtr;
 

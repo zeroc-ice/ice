@@ -28,8 +28,7 @@ if Util.defaultHost:
 else:
     args = ''
 
-directory = os.path.dirname(os.path.abspath(__file__))
-Util.addLdPath(directory)
+Util.addLdPath(os.getcwd())
 
 server = Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (Util.getIceBox(), args))
 server.expect('.* ready')

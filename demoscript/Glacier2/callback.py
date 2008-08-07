@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys, time, signal
-import demoscript.Expect as Expect
+from scripts import Expect
 
 def run(client, server, sessionserver, glacier2):
     print "testing ",

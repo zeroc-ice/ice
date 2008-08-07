@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-import demoscript.Expect as Expect
+from scripts import Expect
 
 def dequote(s):
     cur = 0

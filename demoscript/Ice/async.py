@@ -10,6 +10,7 @@
 
 import sys
 from demoscript import *
+from scripts import Expect
 
 def run(client, server):
     print "testing client... ",

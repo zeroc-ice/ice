@@ -9,6 +9,7 @@
 # **********************************************************************
 
 import os, sys, traceback
+import Ice
 
 import Ice
 slice_dir = Ice.getSliceDir()

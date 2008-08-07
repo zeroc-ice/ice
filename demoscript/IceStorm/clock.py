@@ -10,6 +10,7 @@
 
 import sys, time, signal
 from demoscript import *
+from scripts import Expect
 
 def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
     print "testing pub%s/sub%s..." % (pubargs, subargs),

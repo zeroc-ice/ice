@@ -76,6 +76,9 @@ class reader(threading.Thread):
 	self.buf = StringIO.StringIO()
     	self.cv = threading.Condition()
 	self.p = p
+        self._trace = False
+        self._tbuf = StringIO.StringIO()
+        self._tracesupress = None
 	self.logfile = logfile
         threading.Thread.__init__(self)
 
@@ -88,12 +91,39 @@ class reader(threading.Thread):
 
 		self.cv.acquire()
 		try:
+                    self.trace(c)
 		    self.buf.write(c)
 		    self.cv.notify()
 		finally:
 		    self.cv.release()
         except IOError, e:
 	    print e
+
+    def trace(self, c):
+        if self._trace:
+            self._tbuf.write(c)
+            if c == '\n':
+                content = self._tbuf.getvalue()
+                supress = False
+                if self._tracesupress:
+                    for p in self._tracesupress:
+                        if p.search(content):
+                            supress = True
+                            break
+                if not supress:
+                    sys.stdout.write(content)
+                self._tbuf.truncate(0)
+
+    def enabletrace(self, supress = None):
+	self.cv.acquire()
+	try:
+            if not self._trace:
+                self._trace = True
+                self._tracesupress = supress
+                for c in self.buf.getvalue():
+                    self.trace(c)
+	finally:
+	    self.cv.release()
 
     def getbuf(self):
 	self.cv.acquire()
@@ -205,7 +235,7 @@ class reader(threading.Thread):
 	    self.cv.release()
 
 class Expect (object):
-    def __init__(self, command, timeout=30, logfile=None, mapping = None, desc = None, cwd = None):
+    def __init__(self, command, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
 	self.buf = "" # The part before the match
 	self.before = "" # The part before the match
 	self.after = "" # The part after the match
@@ -227,11 +257,11 @@ class Expect (object):
             #import win32process
                                       #creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
             CREATE_NEW_PROCESS_GROUP = 512
-            self.p = subprocess.Popen(command, cwd = cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
+            self.p = subprocess.Popen(command, env = env, cwd = cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                       creationflags = 512) # CREATE_NEW_PROCESS_GROUP
         else:
-            self.p = subprocess.Popen(command, cwd = cwd, shell=True, bufsize=0, stdin=subprocess.PIPE,
+            self.p = subprocess.Popen(command, env = env, cwd = cwd, shell=True, bufsize=0, stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	self.r = reader(desc, self.p, logfile)
 
@@ -333,8 +363,7 @@ class Expect (object):
 
             # A Windows application with a negative exit status means
             # killed by CTRL_BREAK. Fudge the exit status.
-            if win32 and self.exitstatus < 0:
-                assert self.killed is not None
+            if win32 and self.exitstatus < 0 and self.killed is not None:
                 self.exitstatus = -self.killed
 	    self.p = None
 	    self.r.join()
@@ -437,6 +466,9 @@ class Expect (object):
                 assert self.exitstatus == exitstatus
         else:
             test(self.exitstatus, exitstatus)
+
+    def trace(self, supress = None):
+        self.r.enabletrace(supress)
 
     def hasInterruptSupport(self):
         """Return True if the application gracefully terminated, False otherwise."""

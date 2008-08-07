@@ -10,6 +10,7 @@
 
 import sys
 from demoscript import *
+from scripts import Expect
 
 def runtests(client, server, secure):
     print "testing twoway",

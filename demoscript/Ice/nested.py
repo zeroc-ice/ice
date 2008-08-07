@@ -10,6 +10,7 @@
 
 import sys, signal
 from demoscript import *
+from scripts import Expect
 
 def run(client, server):
     print "testing nested...",

@@ -17,8 +17,8 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "demoscript"))
-import Util
+sys.path.append(os.path.join(toplevel))
+from demoscript import Util
 
 #
 # List of all basic demos.

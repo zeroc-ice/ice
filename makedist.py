@@ -25,6 +25,7 @@ includeSubDirs = [ \
     "vb", \
     "rb", \
     "config", \
+    "scripts", \
     "certs", \
     "slice", \
     "distribution", \
@@ -225,6 +226,7 @@ for d in ["", "cpp", "java", "cs"]:
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules.cs"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(demoDir, "config"), False)
+copy(os.path.join(srcDir, "scripts"), os.path.join(demoscriptDir, "scripts"))
 
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):

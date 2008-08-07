@@ -10,6 +10,7 @@
 
 import sys
 from demoscript import *
+from scripts import Expect
 
 def runseries(client):
     client.expect('==> ', timeout=240)

@@ -10,10 +10,6 @@
 
 require 'pathname'
 require 'Ice'
-# The tests shouldn't use ICE_HOME unless USE_BIN_DIST=yes is set.
-if ENV::has_key?("ICE_HOME") and ENV["USE_BIN_DIST"] != "yes"
-    ENV.delete("ICE_HOME")
-end
 slice_dir = Ice.getSliceDir
 if not slice_dir:
     fail "Slice directory not found"
