@@ -3766,7 +3766,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         {
             if(isValueType(key))
             {
-                _out << nl << "v__ = new " << typeToString(key) << "();";
+                _out << nl << "k__ = new " << typeToString(key) << "();";
             }
             else
             {
