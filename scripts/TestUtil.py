@@ -144,19 +144,14 @@ def configurePaths():
 		libDir = libDir + "64"
     addLdPath(libDir)
 
-<<<<<<< HEAD:config/TestUtil.py
     if getDefaultMapping() == "javae":
         javaDir = os.path.join(getIceDir("javae"), "jdk", "lib")
+	addClasspath(os.path.join(javaDir, "IceE.jar"))
         os.environ["CLASSPATH"] = os.path.join(javaDir, "IceE.jar") + os.pathsep + os.getenv("CLASSPATH", "")
     else:
-        javaDir = os.path.join(getIceDir("java"), "lib")
-        os.environ["CLASSPATH"] = os.path.join(javaDir, "Ice.jar") + os.pathsep + os.getenv("CLASSPATH", "")
-    os.environ["CLASSPATH"] = os.path.join(javaDir) + os.pathsep + os.getenv("CLASSPATH", "")
-=======
-    javaDir = os.path.join(getIceDir("java"), "lib")
-    addClasspath(os.path.join(javaDir, "Ice.jar"))
+	javaDir = os.path.join(getIceDir("java"), "lib")
+	addClasspath(os.path.join(javaDir, "Ice.jar"))
     addClasspath(os.path.join(javaDir))
->>>>>>> R3_3_branch:scripts/TestUtil.py
     
     # 
     # On Windows, C# assemblies are found thanks to the .exe.config files.
@@ -562,39 +557,14 @@ sslConfigTree["php"] = sslConfigTree["cpp"]
 def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""
 
-<<<<<<< HEAD:config/TestUtil.py
-    if currentDir != "":
-        # Caller has specified the current path to use as a base. 
-        scriptPath = os.path.abspath(currentDir).split(os.sep)
-        scriptPath.reverse()
-        for p in scriptPath: 
-            if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp", "cppe", "javae"]:
-                return p
-
-    scriptPath = os.path.abspath(sys.argv[0]).split(os.sep)
-    scriptPath.reverse()
-    for p in scriptPath: 
-        if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp", "cppe", "javae"]:
-            return p
-
-    scriptPath = os.path.abspath(os.getcwd()).split(os.sep)
-    scriptPath.reverse()
-    for p in scriptPath: 
-        if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp", "cppe", "javae"]:
-            return p
-
-    #  Default to C++
-    return "cpp"
-=======
     here = os.getcwd()
     while len(here) > 0:
 	current = os.path.basename(here)
 	here = os.path.dirname(here)
-        if current in ["cpp", "cs", "java", "php", "py", "rb", "tmp"]:
+        if current in ["cpp", "cs", "java", "php", "py", "rb", "cppe", "javae", "tmp"]:
 	    return current
     else:
         raise "cannot determine mapping"
->>>>>>> R3_3_branch:scripts/TestUtil.py
 
 def getTestEnv():
     env = {}
@@ -784,93 +754,6 @@ def getDefaultCollocatedFile():
 def isDebug():
     return debug
 
-<<<<<<< HEAD:config/TestUtil.py
-def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
-                                        serverName, clientName):
-    lang = getDefaultMapping()
-    testdir = os.path.join(findTopLevel(), lang, "test", name)
-    
-    server = serverName
-    client = clientName
-    
-    if lang != "java" and lang != "javae":
-        if lang in ["rb", "php"]:
-            server = os.path.join(findTopLevel(), "cpp", "test", name, serverName)
-        else:
-            server = os.path.join(testdir, serverName)
-        client = os.path.join(testdir, clientName)
-    
-    print "starting " + serverName + "...",
-    serverCfg = DriverConfig("server")
-    if lang in ["rb", "php"]:
-        serverCfg.lang = "cpp"
-    serverCmd = getCommandLine(server, serverCfg) + " " + additionalServerOptions
-    if debug:
-        print "(" + serverCmd + ")",
-    serverPipe = os.popen(serverCmd + " 2>&1")
-    if lang != "java" and lang != "javae":
-        getServerPid(serverPipe)
-    getAdapterReady(serverPipe)
-    print "ok"
-
-    cwd = os.getcwd()
-    os.chdir(testdir)
-
-    if lang == "php":
-        writePhpIni("php.ini", "tmp.ini")
-
-    print "starting " + clientName + "...",
-    clientCmd = getCommandLine(client, DriverConfig("client")) + " " + additionalClientOptions
-    if debug:
-        print "(" + clientCmd + ")",
-    clientPipe = os.popen(clientCmd + " 2>&1")
-    print "ok"
-
-    printOutputFromPipe(clientPipe)
-
-    clientStatus = closePipe(clientPipe)
-    if clientStatus:
-        killServers()
-
-    joinServers()
-
-    if lang == "php":
-	os.remove("tmp.ini")
-
-    os.chdir(cwd)
-
-    if clientStatus or serverStatus():
-        sys.exit(1)
-
-def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
-
-    clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, getDefaultServerFile(),
-                                        getDefaultClientFile())
-
-def clientServerTest(name):
-
-    clientServerTestWithOptions(name, "", "")
-
-def clientServerTestWithClasspath(name, serverClasspath, clientClasspath):
-
-    cp = os.getenv("CLASSPATH", "")
-    scp = serverClasspath + os.pathsep + cp
-    ccp = clientClasspath + os.pathsep + cp
-
-    print "starting server...",
-    os.environ["CLASSPATH"] = scp
-    serverPipe = startServer(getDefaultServerFile(), "")
-    os.environ["CLASSPATH"] = cp
-
-    getAdapterReady(serverPipe)
-    print "ok"
-
-    print "starting client...",
-    os.environ["CLASSPATH"] = ccp
-    clientPipe = startClient(getDefaultClientFile(), "")
-    os.environ["CLASSPATH"] = cp
-    print "ok"
-=======
 import Expect
 def spawn(cmd, env = None, cwd = None):
     if debug:
@@ -909,7 +792,6 @@ def getMirrorDir(base, mapping):
     else:
         raise "cannot find language dir"
     return os.path.join(before, mapping, *after)
->>>>>>> R3_3_branch:scripts/TestUtil.py
 
 
 def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
@@ -922,32 +804,6 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
     clientDesc = client
 
     lang = getDefaultMapping()
-<<<<<<< HEAD:config/TestUtil.py
-    server =  getDefaultServerFile()
-    client = getDefaultClientFile()
-    if lang != "java" and lang != "javae":
-        server = os.path.join(testdir, server)
-        client = os.path.join(testdir, client)
-
-    print "starting server...",
-    serverCmd = getCommandLine(server, DriverConfig("server")) + ' ' + additionalServerOptions
-    if debug:
-        print "(" + serverCmd + ")",
-    serverPipe = os.popen(serverCmd + " 2>&1")
-    if lang != "java" and lang != "javae":
-        getServerPid(serverPipe)
-    getAdapterReady(serverPipe)
-    print "ok"
-    
-    print "starting client...",
-    clientCmd = getCommandLine(client, DriverConfig("client")) + ' ' + additionalClientOptions
-    if debug:
-        print "(" + clientCmd + ")",
-    clientPipe = os.popen(clientCmd + " 2>&1")
-    ignorePid(clientPipe)
-    getAdapterReady(clientPipe, False)
-    print "ok"
-=======
     testdir = os.getcwd()
 
     # Setup the server.
@@ -975,7 +831,6 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             if clientDesc != getDefaultClientFile():
                 print "** skipping cross test"
                 return
->>>>>>> R3_3_branch:scripts/TestUtil.py
 
             clientCfg.lang = clientLang
             client = getDefaultClientFile(clientLang)
