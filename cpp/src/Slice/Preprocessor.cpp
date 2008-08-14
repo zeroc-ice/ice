@@ -176,18 +176,32 @@ Slice::Preprocessor::preprocess(bool keepComments)
         //
         char* buf = mcpp_get_mem_buffer(Out);
 
-        _cppFile = ".preprocess." + IceUtil::generateUUID();
-        SignalHandler::addFile(_cppFile);
 #ifdef _WIN32
+        TCHAR buffer[512];
+        DWORD ret = GetTempPath(512, buffer);
+        if(ret > 512 || ret == 0)
+        {
+            fprintf(stderr, "GetTempPath failed (%d)\n", GetLastError());
+        }
+        _cppFile = string(buffer) + "\\.preprocess." + IceUtil::generateUUID();
         _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
 #else
+        _cppFile = "/tmp/.preprocess." + IceUtil::generateUUID();
         _cppHandle = ::fopen(_cppFile.c_str(), "w+");
 #endif
-        if(buf)
+        if(_cppHandle != NULL)
         {
-            ::fwrite(buf, strlen(buf), 1, _cppHandle);
+            SignalHandler::addFile(_cppFile);
+            if(buf)
+            {
+                ::fwrite(buf, strlen(buf), 1, _cppHandle);
+            }
+            ::rewind(_cppHandle);
         }
-        ::rewind(_cppHandle);
+        else
+        {
+            fprintf(stderr, "Could not open temporary file: %s\n", _cppFile.c_str());
+        }
     }
 
     //
