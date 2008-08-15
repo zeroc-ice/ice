@@ -1,0 +1,51 @@
+MySQL JDBC Demo
+===============
+
+This demo shows how to implement an Ice server that uses mysql
+through a JDBC API.
+
+It is a fairly simple demo that illustrates how to:
+
+ - Map relational data to Ice objects, in particular convert between 
+   Ice and JDBC types.
+ - Use an JDBC connection pool to provide JDBC connections to Ice
+   requests.
+ - Use an Ice servant locator.
+
+
+Building the demo
+-----------------
+
+- Install mysql.
+
+- Download version 5.0.8 of the mysql JDBC connector. Ensure that 
+  mysql-connector-java-5.0.8-bin.jar is in your CLASSPATH.
+
+- Ensure that your user (by default, matthew) has appropriate
+  privileges.
+
+- Create the SQL tables using the provided createTypes.sql 
+  script. For example:
+
+  $ mysql --user=matthew --pass=foo library < initialize.mysql
+
+Running the demo
+----------------
+
+Review the JDBC properties in the config.server file. You may need to
+change them to connect to your mysql server.
+
+To run the demo, first start the server:
+
+  $ java Server
+
+In another window, populate the server's database by starting the
+client and redirecting its input from the file "books":
+
+$ java Client < books
+
+Then start the client again to use the demo interactively:
+
+$ java Client
+
+Type "help" to get a list of valid commands.
