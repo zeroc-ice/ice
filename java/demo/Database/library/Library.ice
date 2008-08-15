@@ -51,15 +51,6 @@ exception NoResultsException
 {
 };
 
-/**
- *
- * This exception is raised if a query is already active.
- *
- **/
-exception QueryActiveException
-{
-};
-
 /** Forward declaration for the interface Book. */
 interface Book;
 
@@ -201,11 +192,9 @@ interface Library
 
      * @throws NoResultsException Raised if there are no results.
      *
-     * @throws QueryActiveException Raised if an existing query is active.
-     *
      **/
     void queryByIsbn(string isbn, out BookDescription first, out BookQueryResult* result)
-        throws QueryActiveException, NoResultsException;
+        throws NoResultsException;
 
     /**
      *
@@ -221,11 +210,9 @@ interface Library
 
      * @throws NoResultsException Raised if there are no results.
      *
-     * @throws QueryActiveException Raised if an existing query is active.
-     *
      **/
     void queryByAuthor(string author, out BookDescription first, out BookQueryResult* result)
-        throws QueryActiveException, NoResultsException;
+        throws NoResultsException;
 
     /**
      *

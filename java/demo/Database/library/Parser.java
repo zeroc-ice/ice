@@ -99,10 +99,6 @@ class Parser
             _query = result.value;
             printCurrent();
         }
-        catch(QueryActiveException ex)
-        {
-            error(ex.toString());
-        }
         catch(NoResultsException ex)
         {
             error(ex.toString());
@@ -145,10 +141,6 @@ class Parser
             _current = first.value;
             _query = result.value;
             printCurrent();
-        }
-        catch(QueryActiveException ex)
-        {
-            error(ex.toString());
         }
         catch(NoResultsException ex)
         {

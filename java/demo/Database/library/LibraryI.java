@@ -127,9 +127,9 @@ class LibraryI extends _LibraryDisp
 
     synchronized public void
     queryByIsbn(String isbn, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
-        throws QueryActiveException, NoResultsException
+        throws NoResultsException
     {
-        reapQuery();
+        reapQueries();
 
         java.sql.Connection conn = _pool.acquire();
         try
@@ -148,9 +148,10 @@ class LibraryI extends _LibraryDisp
                 first.value = BookI.extractDescription(conn, rs, current.adapter);
                 if(rs.next())
                 {
-                    _queryImpl = new BookQueryResultI(conn, stmt, rs);
-                    result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(_queryImpl));
-                    _query = result.value;
+                    BookQueryResultI impl = new BookQueryResultI(conn, stmt, rs);
+                    result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
+                    _queries.add(new QueryProxyPair(result.value, impl));
+
                     // The java.sql.Connection, result set and
                     // statement are now owned by the book query. Set
                     // to null so they are not prematurely released.
@@ -184,9 +185,9 @@ class LibraryI extends _LibraryDisp
 
     synchronized public void
     queryByAuthor(String author, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
-        throws QueryActiveException, NoResultsException
+        throws NoResultsException
     {
-        reapQuery();
+        reapQueries();
 
         java.sql.Connection conn = _pool.acquire();
         try
@@ -235,9 +236,10 @@ class LibraryI extends _LibraryDisp
                 first.value = BookI.extractDescription(conn, rs, current.adapter);
                 if(rs.next())
                 {
-                    _queryImpl = new BookQueryResultI(conn, stmt, rs);
-                    result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(_queryImpl));
-                    _query = result.value;
+                    BookQueryResultI impl = new BookQueryResultI(conn, stmt, rs);
+                    result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
+                    _queries.add(new QueryProxyPair(result.value, impl));
+
                     // The java.sql.Connection, result set and
                     // statement are now owned by the book query. Set
                     // to null so they are not prematurely released.
@@ -422,30 +424,24 @@ class LibraryI extends _LibraryDisp
     synchronized void
     destroy()
     {
-        if(_query != null)
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
         {
-            try
-            {
-                _query.destroy();
-            }
-            catch(Ice.ObjectNotExistException e)
-            {
-            }
-            _query = null;
-            _queryImpl = null;
+            p.next().proxy.destroy();
         }
+        _queries.clear();
     }
 
     // Called on application shutdown.
     synchronized void
     shutdown()
     {
-        if(_queryImpl != null)
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
         {
-            _queryImpl.shutdown();
-            _queryImpl = null;
-            _query = null;
+            p.next().impl.shutdown();
         }
+        _queries.clear();
     }
 
     private void
@@ -459,30 +455,36 @@ class LibraryI extends _LibraryDisp
     }
 
     private void
-    reapQuery()
-        throws QueryActiveException
+    reapQueries()
     {
-        if(_query != null)
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
         {
+            QueryProxyPair pair = p.next();
             try
             {
-                _query.ice_ping();
+                pair.proxy.ice_ping();
             }
             catch(Ice.ObjectNotExistException e)
             {
-                _query = null;
-                _queryImpl = null;
-            }
-
-            if(_query != null)
-            {
-                throw new QueryActiveException();
+                p.remove();
             }
         }
     }
 
     private Ice.Logger _logger;
     private ConnectionPool _pool;
-    private BookQueryResultPrx _query = null;
-    private BookQueryResultI _queryImpl = null;
+
+    static class QueryProxyPair
+    {
+        QueryProxyPair(BookQueryResultPrx p, BookQueryResultI i)
+        {
+            proxy = p;
+            impl = i;
+        }
+
+        BookQueryResultPrx proxy;
+        BookQueryResultI impl;
+    };
+    java.util.List<QueryProxyPair> _queries = new java.util.LinkedList<QueryProxyPair>();
 }
