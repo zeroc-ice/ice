@@ -21,7 +21,9 @@ class ConnectionPool
         _nconnections = numConnections;
         while(numConnections-- > 0)
         {
-            _connections.add(java.sql.DriverManager.getConnection (url, username, password));
+            java.sql.Connection connection = java.sql.DriverManager.getConnection (url, username, password);
+            connection.setAutoCommit(false);
+            _connections.add(connection);
         }
     }
 
@@ -100,6 +102,7 @@ class ConnectionPool
             try
             {
                 conn = java.sql.DriverManager.getConnection (_url, _username, _password);
+                conn.setAutoCommit(false);
             }
             catch(java.sql.SQLException e)
             {

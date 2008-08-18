@@ -16,28 +16,18 @@ class BookI extends _BookDisp
     public void
     ice_ping(Ice.Current current)
     {
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
         Integer id = new Integer(current.id.name);
 
-        java.sql.Connection conn = _pool.acquire();
         try
         {
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
             {
-                stmt = conn.prepareStatement("SELECT * FROM books WHERE id = ?");
-                stmt.setInt(1, id);
-                java.sql.ResultSet rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new Ice.ObjectNotExistException();
-                }
-            }
-            finally
-            {
-                if(stmt != null)
-                {
-                    stmt.close();
-                }
+                throw new Ice.ObjectNotExistException();
             }
         }
         catch(java.sql.SQLException e)
@@ -47,40 +37,26 @@ class BookI extends _BookDisp
             Ice.UnknownException ex = new Ice.UnknownException();
             ex.initCause(e);
             throw ex;
-        }
-        finally
-        {
-            _pool.release(conn);
         }
     }
 
     public BookDescription
     describe(Ice.Current current)
     {
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
         Integer id = new Integer(current.id.name);
 
-        java.sql.Connection conn = _pool.acquire();
         try
         {
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
             {
-                stmt = conn.prepareStatement("SELECT * FROM books WHERE id = ?");
-                stmt.setInt(1, id);
-                java.sql.ResultSet rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new Ice.ObjectNotExistException();
-                }
-                return extractDescription(conn, rs, current.adapter);
+                throw new Ice.ObjectNotExistException();
             }
-            finally
-            {
-                if(stmt != null)
-                {
-                    stmt.close();
-                }
-            }
+            return extractDescription(context, rs, current.adapter);
         }
         catch(java.sql.SQLException e)
         {
@@ -89,37 +65,24 @@ class BookI extends _BookDisp
             Ice.UnknownException ex = new Ice.UnknownException();
             ex.initCause(e);
             throw ex;
-        }
-        finally
-        {
-            _pool.release(conn);
         }
     }
 
     public void
     destroy(Ice.Current current)
     {
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
         Integer id = new Integer(current.id.name);
-        java.sql.Connection conn = _pool.acquire();
+
         try
         {
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("DELETE FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            int count = stmt.executeUpdate();
+            if(count == 0)
             {
-                stmt = conn.prepareStatement("DELETE FROM books WHERE id = ?");
-                stmt.setInt(1, id);
-                int count = stmt.executeUpdate();
-                if(count == 0)
-                {
-                    throw new Ice.ObjectNotExistException();
-                }
-            }
-            finally
-            {
-                if(stmt != null)
-                {
-                    stmt.close();
-                }
+                throw new Ice.ObjectNotExistException();
             }
         }
         catch(java.sql.SQLException e)
@@ -129,10 +92,6 @@ class BookI extends _BookDisp
             Ice.UnknownException ex = new Ice.UnknownException();
             ex.initCause(e);
             throw ex;
-        }
-        finally
-        {
-            _pool.release(conn);
         }
     }
 
@@ -140,43 +99,32 @@ class BookI extends _BookDisp
     getRenter(Ice.Current current)
         throws BookNotRentedException
     {
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
         Integer id = new Integer(current.id.name);
-        java.sql.Connection conn = _pool.acquire();
+
         try
         {
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
             {
-                stmt = conn.prepareStatement("SELECT * FROM books WHERE id = ?");
-                stmt.setInt(1, id);
-                java.sql.ResultSet rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new Ice.ObjectNotExistException();
-                }
+                throw new Ice.ObjectNotExistException();
+            }
 
-                int renterId = rs.getInt("renter_id");
-                if(rs.wasNull())
-                {
-                    throw new BookNotRentedException();
-                }
-                stmt.close();
-                stmt = null;
-                
-                stmt = conn.prepareStatement("SELECT * FROM customers WHERE id = ?");
-                stmt.setInt(1, renterId);
-                rs = stmt.executeQuery();
-                boolean next = rs.next();
-                assert next;
-                return rs.getString("name");
-            }
-            finally
+            int renterId = rs.getInt("renter_id");
+            if(rs.wasNull())
             {
-                if(stmt != null)
-                {
-                    stmt.close();
-                }
+                throw new BookNotRentedException();
             }
+
+            stmt = context.prepareStatement("SELECT * FROM customers WHERE id = ?");
+            stmt.setInt(1, renterId);
+            rs = stmt.executeQuery();
+            boolean next = rs.next();
+            assert next;
+            return rs.getString("name");
         }
         catch(java.sql.SQLException e)
         {
@@ -185,10 +133,6 @@ class BookI extends _BookDisp
             Ice.UnknownException ex = new Ice.UnknownException();
             ex.initCause(e);
             throw ex;
-        }
-        finally
-        {
-            _pool.release(conn);
         }
     }
 
@@ -196,88 +140,60 @@ class BookI extends _BookDisp
     rentBook(String name, Ice.Current current)
         throws BookRentedException
     {
-        java.sql.Connection conn = _pool.acquire();
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
         Integer id = new Integer(current.id.name);
+
         try
         {
-            conn.setAutoCommit(false);
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
             {
-                stmt = conn.prepareStatement("SELECT * FROM books WHERE id = ?");
-                stmt.setInt(1, id);
-                java.sql.ResultSet rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new Ice.ObjectNotExistException();
-                }
+                throw new Ice.ObjectNotExistException();
+            }
 
-                rs.getInt("renter_id");
-                if(!rs.wasNull())
-                {
-                    throw new BookRentedException();
-                }
-                stmt.close();
-                stmt = null;
+            rs.getInt("renter_id");
+            if(!rs.wasNull())
+            {
+                throw new BookRentedException();
+            }
 
-                stmt = conn.prepareStatement("SELECT * FROM customers WHERE name = ?");
+            stmt = context.prepareStatement("SELECT * FROM customers WHERE name = ?");
+            stmt.setString(1, name);
+            rs = stmt.executeQuery();
+
+            Integer renterId = null;
+            if(rs.next())
+            {
+                renterId = rs.getInt("id");
+                assert !rs.next();
+            }
+            else
+            {
+
+                stmt = context.prepareStatement("INSERT into customers (name) VALUES(?)",
+                                                java.sql.Statement.RETURN_GENERATED_KEYS);
                 stmt.setString(1, name);
-                rs = stmt.executeQuery();
-
-                Integer renterId = null;
-                if(rs.next())
-                {
-                    renterId = rs.getInt("id");
-                    assert !rs.next();
-                }
-                else
-                {
-                    stmt.close();
-                    stmt = null;
-
-                    stmt = conn.prepareStatement("INSERT into customers (name) VALUES(?)",
-                                                        java.sql.Statement.RETURN_GENERATED_KEYS);
-                    stmt.setString(1, name);
-                    int count = stmt.executeUpdate();
-                    assert count == 1;
-                    rs = stmt.getGeneratedKeys();
-                    if(!rs.next())
-                    {
-                        // ERROR:
-                    }
-                    renterId = rs.getInt(1);
-                }
-                stmt.close();
-                stmt = null;
-
-                stmt = conn.prepareStatement("UPDATE books SET renter_id = ? WHERE id = ?");
-                stmt.setInt(1, renterId);
-                stmt.setInt(2, id);
                 int count = stmt.executeUpdate();
                 assert count == 1;
-
-                // Commit the transaction.
-                conn.commit();
-            }
-            catch(RuntimeException e)
-            {
-                // Rollback any updates.
-                conn.rollback();
-                throw e;
-            }
-            catch(java.sql.SQLException e)
-            {
-                // Rollback any updates.
-                conn.rollback();
-                throw e;
-            }
-            finally
-            {
-                if(stmt != null)
+                rs = stmt.getGeneratedKeys();
+                if(!rs.next())
                 {
-                    stmt.close();
+                    // ERROR:
                 }
+                renterId = rs.getInt(1);
             }
+
+            stmt = context.prepareStatement("UPDATE books SET renter_id = ? WHERE id = ?");
+            stmt.setInt(1, renterId);
+            stmt.setInt(2, id);
+            int count = stmt.executeUpdate();
+            assert count == 1;
+
+            // Commit the transaction.
+            context.commit();
         }
         catch(java.sql.SQLException e)
         {
@@ -286,18 +202,6 @@ class BookI extends _BookDisp
             Ice.UnknownException ex = new Ice.UnknownException();
             ex.initCause(e);
             throw ex;
-        }
-        finally
-        {
-            try
-            {
-                conn.setAutoCommit(true);
-            }
-            catch(java.sql.SQLException e)
-            {
-                // Ignore
-            }
-            _pool.release(conn);
         }
     }
 
@@ -305,40 +209,28 @@ class BookI extends _BookDisp
     returnBook(Ice.Current current)
         throws BookNotRentedException
     {
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
         Integer id = new Integer(current.id.name);
-        java.sql.Connection conn = _pool.acquire();
         try
         {
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE id = ?");
+            stmt.setInt(1, id);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
             {
-                stmt = conn.prepareStatement("SELECT * FROM books WHERE id = ?");
-                stmt.setInt(1, id);
-                java.sql.ResultSet rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new Ice.ObjectNotExistException();
-                }
-                Integer renterId = rs.getInt("renter_id");
-                if(rs.wasNull())
-                {
-                    throw new BookNotRentedException();
-                }
-                stmt.close();
-                stmt = null;
+                throw new Ice.ObjectNotExistException();
+            }
+            Integer renterId = rs.getInt("renter_id");
+            if(rs.wasNull())
+            {
+                throw new BookNotRentedException();
+            }
 
-                stmt = conn.prepareStatement("UPDATE books SET renter_id = NULL WHERE id = ?");
-                stmt.setInt(1, id);
-                int count = stmt.executeUpdate();
-                assert count == 1;
-            }
-            finally
-            {
-                if(stmt != null)
-                {
-                    stmt.close();
-                }
-            }
+            stmt = context.prepareStatement("UPDATE books SET renter_id = NULL WHERE id = ?");
+            stmt.setInt(1, id);
+            int count = stmt.executeUpdate();
+            assert count == 1;
         }
         catch(java.sql.SQLException e)
         {
@@ -348,16 +240,11 @@ class BookI extends _BookDisp
             ex.initCause(e);
             throw ex;
         }
-        finally
-        {
-            _pool.release(conn);
-        }
     }
 
-    BookI(Ice.Logger logger, ConnectionPool pool)
+    BookI(Ice.Logger logger)
     {
         _logger = logger;
-        _pool = pool;
     }
 
     static Ice.Identity
@@ -370,7 +257,7 @@ class BookI extends _BookDisp
     }
 
     static BookDescription
-    extractDescription(java.sql.Connection conn, java.sql.ResultSet rs, Ice.ObjectAdapter adapter)
+    extractDescription(RequestContext context, java.sql.ResultSet rs, Ice.ObjectAdapter adapter)
         throws java.sql.SQLException
     {
         Integer id = rs.getInt("id");
@@ -382,39 +269,26 @@ class BookI extends _BookDisp
         desc.proxy = BookPrxHelper.uncheckedCast(adapter.createProxy(createIdentity(id)));
 
         java.sql.PreparedStatement stmt = null;
-        try
+        // Query for the rentedBy.
+        Integer renterId = rs.getInt("renter_id");
+        if(!rs.wasNull())
         {
-            // Query for the rentedBy.
-            Integer renterId = rs.getInt("renter_id");
-            if(!rs.wasNull())
-            {
-                stmt = conn.prepareStatement("SELECT * FROM customers WHERE id = ?");
-                stmt.setInt(1, renterId);
-                java.sql.ResultSet customerRS = stmt.executeQuery();
-                boolean next = customerRS.next();
-                assert next;
-                desc.rentedBy = customerRS.getString(2);
-
-                stmt.close();
-                stmt = null;
-            }
-
-            // Query for the authors.
-            stmt = conn.prepareStatement("SELECT * FROM authors INNER JOIN authors_books ON " +
-                                         "authors.id=authors_books.author_id AND authors_books.book_id = ?");
-            stmt.setInt(1, id);
-            java.sql.ResultSet authorRS = stmt.executeQuery();
-            while(authorRS.next())
-            {
-                desc.authors.add(authorRS.getString("name"));
-            }
+            stmt = context.prepareStatement("SELECT * FROM customers WHERE id = ?");
+            stmt.setInt(1, renterId);
+            java.sql.ResultSet customerRS = stmt.executeQuery();
+            boolean next = customerRS.next();
+            assert next;
+            desc.rentedBy = customerRS.getString(2);
         }
-        finally
+
+        // Query for the authors.
+        stmt = context.prepareStatement("SELECT * FROM authors INNER JOIN authors_books ON " +
+                                        "authors.id=authors_books.author_id AND authors_books.book_id = ?");
+        stmt.setInt(1, id);
+        java.sql.ResultSet authorRS = stmt.executeQuery();
+        while(authorRS.next())
         {
-            if(stmt != null)
-            {
-                stmt.close();
-            }
+            desc.authors.add(authorRS.getString("name"));
         }
 
         return desc;
@@ -431,5 +305,4 @@ class BookI extends _BookDisp
     }
 
     private Ice.Logger _logger;
-    private ConnectionPool _pool;
 }

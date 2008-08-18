@@ -11,27 +11,53 @@ import Demo.*;
 
 class LibraryServer extends Ice.Application
 {
-    static class BookLocator implements Ice.ServantLocator
+    static class LocatorI implements Ice.ServantLocator
     {
-        BookLocator(Ice.Object servant)
+        LocatorI(Ice.Logger logger, ConnectionPool pool, Ice.Object bookServant, Ice.Object libraryServant)
         {
-            _servant = servant;
+            _logger = logger;
+            _pool = pool;
+            _bookServant = bookServant;
+            _libraryServant = libraryServant;
         }
 
-        public Ice.Object locate(Ice.Current c, Ice.LocalObjectHolder cookie)
+        public Ice.Object
+        locate(Ice.Current c, Ice.LocalObjectHolder cookie)
         {
-            return _servant;
+            assert c.id.category.equals("library") || c.id.category.equals("book");
+
+            // Setup new context.
+            RequestContext context = new RequestContext(_logger, _pool);
+
+            if(c.id.category.equals("library"))
+            {
+                return _libraryServant;
+            }
+            else //if(c.id.category.equals("book"))
+            {
+                return _bookServant;
+            }
         }
 
-        public void finished(Ice.Current c, Ice.Object servant, Object cookie) 
+        public void
+        finished(Ice.Current c, Ice.Object servant, Object cookie) 
         { 
+            RequestContext context = RequestContext.getCurrentContext();
+            if(context != null)
+            {
+                context.releaseFromLocator();
+            }
         }
 
-        public void deactivate(String category) 
+        public void
+        deactivate(String category) 
         { 
         } 
 
-        private Ice.Object _servant;
+        private Ice.Logger _logger;
+        private ConnectionPool _pool;
+        private Ice.Object _bookServant;
+        private Ice.Object _libraryServant;
     }
 
     public int
@@ -91,9 +117,13 @@ class LibraryServer extends Ice.Application
         // Create an object adapter
         //
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
-        adapter.add(new SessionFactoryI(logger, pool, reaper), communicator().stringToIdentity("SessionFactory"));
-        BookI book = new BookI(logger, pool);
-        adapter.addServantLocator(new BookLocator(book), "book");
+
+        LocatorI locator = new LocatorI(logger, pool, new BookI(logger), new LibraryI(logger));
+
+        adapter.add(new SessionFactoryI(logger, reaper), communicator().stringToIdentity("SessionFactory"));
+
+        adapter.addServantLocator(locator, "book");
+        adapter.addServantLocator(locator, "library");
 
         //
         // Everything ok, let's go.

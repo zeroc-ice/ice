@@ -9,164 +9,45 @@
 
 import Demo.*;
 
-// Per-session library object.
+// This servant is a default servant. The book identity is retreived
+// from Ice.Current object. The session object associated with the
+// library is also retrieved using the Libraries identity.
 class LibraryI extends _LibraryDisp
 {
-    class BookQueryResultI extends _BookQueryResultDisp
-    {
-        // The query result owns the java.sql.Connection object until
-        // destroyed.
-        BookQueryResultI(java.sql.Connection conn, java.sql.PreparedStatement stmt, java.sql.ResultSet rs)
-        {
-            _conn = conn;
-            _stmt = stmt;
-            _rs = rs;
-        }
-
-        synchronized public java.util.List<BookDescription>
-        next(int n, Ice.BooleanHolder destroyed, Ice.Current current)
-        {
-            if(_destroyed)
-            {
-                throw new Ice.ObjectNotExistException();
-            }
-            destroyed.value = false;
-            java.util.List<BookDescription> l = new java.util.LinkedList<BookDescription>();
-            if(n <= 0)
-            {
-                return l;
-            }
-            boolean next = true;
-            try
-            {
-                for(int i = 0; i < n && next; ++i)
-                {
-                    l.add(BookI.extractDescription(_conn, _rs, current.adapter));
-                    next = _rs.next();
-                }
-            }
-            catch(java.sql.SQLException e)
-            {
-                // Log the error, and raise an UnknownException.
-                error(e);
-                Ice.UnknownException ex = new Ice.UnknownException();
-                ex.initCause(e);
-                throw ex;
-            }
-
-            if(!next)
-            {
-                try
-                {
-                    destroyed.value = true;
-                    destroy(current);
-                }
-                catch(Exception e)
-                {
-                    // Ignore.
-                }
-            }
-
-            return l;
-        }
-
-        synchronized public void
-        destroy(Ice.Current current)
-        {
-            if(_destroyed)
-            {
-                throw new Ice.ObjectNotExistException();
-            }
-            _destroyed = true;
-
-            try
-            {
-                // Closing a statement closes the associated
-                // java.sql.ResultSet.
-                _stmt.close();
-            }
-            catch(java.sql.SQLException e)
-            {
-                // Log the error, but otherwise ignore the exception.
-                error(e);
-            }
-            _pool.release(_conn);
-
-            current.adapter.remove(current.id);
-        }
-
-        // Called on application shutdown by the Library.
-        synchronized private void
-        shutdown()
-        {
-            if(!_destroyed)
-            {
-                _destroyed = true;
-
-                try
-                {
-                    // Closing a statement closes the associated
-                    // java.sql.ResultSet.
-                    _stmt.close();
-                }
-                catch(java.sql.SQLException e)
-                {
-                    // Log the error, but otherwise ignore the
-                    // exception.
-                    error(e);
-                }
-                _pool.release(_conn);
-            }
-        }
-
-        private java.sql.Connection _conn;
-        private java.sql.PreparedStatement _stmt;
-        private java.sql.ResultSet _rs;
-        private boolean _destroyed = false;
-    }
-
-    synchronized public void
+    public void
     queryByIsbn(String isbn, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
         throws NoResultsException
     {
-        reapQueries();
+        SessionI session = SessionI.getSession(current.id);
+        if(session == null)
+        {
+            // No associated session.
+            throw new Ice.ObjectNotExistException();
+        }
+        session.reapQueries();
 
-        java.sql.Connection conn = _pool.acquire();
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
+
         try
         {
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE isbn LIKE ?");
+            stmt.setString(1, "%" + isbn + "%");
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
             {
-                stmt = conn.prepareStatement("SELECT * FROM books WHERE isbn LIKE ?");
-                stmt.setString(1, "%" + isbn + "%");
-                java.sql.ResultSet rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new NoResultsException();
-                }
-
-                first.value = BookI.extractDescription(conn, rs, current.adapter);
-                if(rs.next())
-                {
-                    BookQueryResultI impl = new BookQueryResultI(conn, stmt, rs);
-                    result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                    _queries.add(new QueryProxyPair(result.value, impl));
-
-                    // The java.sql.Connection, result set and
-                    // statement are now owned by the book query. Set
-                    // to null so they are not prematurely released.
-                    conn = null;
-                    stmt = null;
-                }
+                throw new NoResultsException();
             }
-            finally
+
+            first.value = BookI.extractDescription(context, rs, current.adapter);
+            if(rs.next())
             {
-                if(stmt != null)
-                {
-                    // Closing a statement closes the associated
-                    // java.sql.ResultSet.
-                    stmt.close();
-                }
+                // The RequestContext is now owned by the query
+                // implementation.
+                context.obtain();
+                BookQueryResultI impl = new BookQueryResultI(_logger, context, rs);
+                result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
+                session.add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
@@ -177,84 +58,69 @@ class LibraryI extends _LibraryDisp
             ex.initCause(e);
             throw ex;
         }
-        finally
-        {
-            _pool.release(conn);
-        }
     }
 
-    synchronized public void
+    public void
     queryByAuthor(String author, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
         throws NoResultsException
     {
-        reapQueries();
+        SessionI session = SessionI.getSession(current.id);
+        if(session == null)
+        {
+            // No associated session.
+            throw new Ice.ObjectNotExistException();
+        }
+        session.reapQueries();
 
-        java.sql.Connection conn = _pool.acquire();
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
+
         try
         {
-            java.sql.PreparedStatement stmt = null;
-            try
-            {
                 // Find each of the authors.
-                stmt = conn.prepareStatement("SELECT * FROM authors WHERE name LIKE ?");
-                stmt.setString(1, "%" + author + "%");
-                java.sql.ResultSet rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new NoResultsException();
-                }
-
-                // Build a query that finds all books by these set of
-                // authors.
-                StringBuffer sb = new StringBuffer("SELECT * FROM books INNER JOIN authors_books ON " +
-                                                   "books.id=authors_books.book_id AND (");
-                boolean front = true;
-                do
-                {
-                    if(!front)
-                    {
-                        sb.append(" OR ");
-                    }
-                    front = false;
-                    sb.append("authors_books.author_id=");
-                    sb.append(rs.getInt("id"));
-                }
-                while(rs.next());
-                sb.append(")");
-
-                stmt.close();
-                stmt = null;
-
-                // Execute the query.
-                stmt = conn.prepareStatement(sb.toString());
-                rs = stmt.executeQuery();
-                if(!rs.next())
-                {
-                    throw new NoResultsException();
-                }
-
-                first.value = BookI.extractDescription(conn, rs, current.adapter);
-                if(rs.next())
-                {
-                    BookQueryResultI impl = new BookQueryResultI(conn, stmt, rs);
-                    result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                    _queries.add(new QueryProxyPair(result.value, impl));
-
-                    // The java.sql.Connection, result set and
-                    // statement are now owned by the book query. Set
-                    // to null so they are not prematurely released.
-                    stmt = null;
-                    conn = null;
-                }
-            }
-            finally
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM authors WHERE name LIKE ?");
+            stmt.setString(1, "%" + author + "%");
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(!rs.next())
             {
-                // Closing a statement closes the associated
-                // java.sql.ResultSet.
-                if(stmt != null)
+                throw new NoResultsException();
+            }
+
+            // Build a query that finds all books by these set of
+            // authors.
+            StringBuffer sb = new StringBuffer("SELECT * FROM books INNER JOIN authors_books ON " +
+                                               "books.id=authors_books.book_id AND (");
+            boolean front = true;
+            do
+            {
+                if(!front)
                 {
-                    stmt.close();
+                    sb.append(" OR ");
                 }
+                front = false;
+                sb.append("authors_books.author_id=");
+                sb.append(rs.getInt("id"));
+            }
+            while(rs.next());
+            sb.append(")");
+
+            // Execute the query.
+            stmt = context.prepareStatement(sb.toString());
+            rs = stmt.executeQuery();
+            if(!rs.next())
+            {
+                throw new NoResultsException();
+            }
+
+            first.value = BookI.extractDescription(context, rs, current.adapter);
+            if(rs.next())
+            {
+                // The RequestContext is now owned by the query
+                // implementation.
+                context.obtain();
+                BookQueryResultI impl = new BookQueryResultI(_logger, context, rs);
+                result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
+                session.add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
@@ -265,132 +131,90 @@ class LibraryI extends _LibraryDisp
             ex.initCause(e);
             throw ex;
         }
-        finally
-        {
-            _pool.release(conn);
-        }
     }
 
-    synchronized public BookPrx
+    public BookPrx
     createBook(String isbn, String title, java.util.List<String> authors, Ice.Current current)
         throws BookExistsException
     {
-        java.sql.Connection conn = _pool.acquire();
+        RequestContext context = RequestContext.getCurrentContext();
+        assert context != null;
         try
         {
-            conn.setAutoCommit(false);
-            java.sql.PreparedStatement stmt = null;
-            try
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE isbn = ?");
+            stmt.setString(1, isbn);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if(rs.next())
             {
-                stmt = conn.prepareStatement("SELECT * FROM books WHERE isbn = ?");
-                stmt.setString(1, isbn);
-                java.sql.ResultSet rs = stmt.executeQuery();
+                throw new BookExistsException();
+            }
+
+            //
+            // First convert the authors string to an id set.
+            //
+            java.util.List<Integer> authIds = new java.util.LinkedList<Integer>();
+            java.util.Iterator<String> p = authors.iterator();
+            while(p.hasNext())
+            {
+                String author = p.next();
+
+                Integer id;
+                stmt = context.prepareStatement("SELECT * FROM authors WHERE name = ?");
+                stmt.setString(1, author);
+                rs = stmt.executeQuery();
                 if(rs.next())
                 {
-                    throw new BookExistsException();
+                    // If there is a result, then the database
+                    // already contains this author.
+                    id = rs.getInt(1);
+                    assert !rs.next();
                 }
-
-                stmt.close();
-                stmt = null;
-
-                //
-                // First convert the authors string to an id set.
-                //
-                java.util.List<Integer> authIds = new java.util.LinkedList<Integer>();
-                java.util.Iterator<String> p = authors.iterator();
-                while(p.hasNext())
+                else
                 {
-                    String author = p.next();
-
-                    Integer id;
-                    stmt = conn.prepareStatement("SELECT * FROM authors WHERE name = ?");
+                    // Otherwise, create a new author record.
+                    stmt = context.prepareStatement("INSERT INTO authors (name) VALUES(?)",
+                                                 java.sql.Statement.RETURN_GENERATED_KEYS);
                     stmt.setString(1, author);
-                    rs = stmt.executeQuery();
-                    if(rs.next())
-                    {
-                        // If there is a result, then the database
-                        // already contains this author.
-                        id = rs.getInt(1);
-                        assert !rs.next();
-                    }
-                    else
-                    {
-                        stmt.close();
-                        stmt = null;
-
-                        // Otherwise, create a new author record.
-                        stmt = conn.prepareStatement("INSERT INTO authors (name) VALUES(?)",
-                                                     java.sql.Statement.RETURN_GENERATED_KEYS);
-                        stmt.setString(1, author);
-                        int count = stmt.executeUpdate();
-                        assert count == 1;
-                        rs = stmt.getGeneratedKeys();
-                        boolean next = rs.next();
-                        assert next;
-                        id = rs.getInt(1);
-                    }
-
-                    stmt.close();
-                    stmt = null;
-
-                    // Add the new id to the list of ids.
-                    authIds.add(id);
-                }
-
-                // Create the new book.
-                stmt = conn.prepareStatement("INSERT INTO books (isbn, title) VALUES(?, ?)",
-                                             java.sql.Statement.RETURN_GENERATED_KEYS);
-                stmt.setString(1, isbn);
-                stmt.setString(2, title);
-                int count = stmt.executeUpdate();
-                assert count == 1;
-
-                rs = stmt.getGeneratedKeys();
-                boolean next = rs.next();
-                assert next;
-                Integer bookId = rs.getInt(1);
-
-                stmt.close();
-                stmt = null;
-
-                // Create new authors_books records.
-                java.util.Iterator<Integer> q = authIds.iterator();
-                while(q.hasNext())
-                {
-                    stmt = conn.prepareStatement("INSERT INTO authors_books (book_id, author_id) VALUES(?, ?)");
-                    stmt.setInt(1, bookId);
-                    stmt.setInt(2, q.next());
-                    count = stmt.executeUpdate();
+                    int count = stmt.executeUpdate();
                     assert count == 1;
-
-                    stmt.close();
-                    stmt = null;
+                    rs = stmt.getGeneratedKeys();
+                    boolean next = rs.next();
+                    assert next;
+                    id = rs.getInt(1);
                 }
 
-                // Commit the transaction.
-                conn.commit();
-                
-                return BookPrxHelper.uncheckedCast(current.adapter.createProxy(BookI.createIdentity(bookId)));
+                // Add the new id to the list of ids.
+                authIds.add(id);
             }
-            catch(RuntimeException e)
+
+            // Create the new book.
+            stmt = context.prepareStatement("INSERT INTO books (isbn, title) VALUES(?, ?)",
+                                         java.sql.Statement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, isbn);
+            stmt.setString(2, title);
+            int count = stmt.executeUpdate();
+            assert count == 1;
+
+            rs = stmt.getGeneratedKeys();
+            boolean next = rs.next();
+            assert next;
+            Integer bookId = rs.getInt(1);
+
+            // Create new authors_books records.
+            java.util.Iterator<Integer> q = authIds.iterator();
+            while(q.hasNext())
             {
-                // Rollback any updates.
-                conn.rollback();
-                throw e;
+                stmt = context.prepareStatement("INSERT INTO authors_books (book_id, author_id) VALUES(?, ?)");
+                stmt.setInt(1, bookId);
+                stmt.setInt(2, q.next());
+                count = stmt.executeUpdate();
+                assert count == 1;
             }
-            catch(java.sql.SQLException e)
-            {
-                // Rollback any updates.
-                conn.rollback();
-                throw e;
-            }
-            finally
-            {
-                if(stmt != null)
-                {
-                    stmt.close();
-                }
-            }
+
+            // Commit the transaction.
+            context.commit();
+
+            return BookPrxHelper.uncheckedCast(current.adapter.createProxy(BookI.createIdentity(bookId)));
         }
         catch(java.sql.SQLException e)
         {
@@ -400,48 +224,11 @@ class LibraryI extends _LibraryDisp
             ex.initCause(e);
             throw ex;
         }
-        finally
-        {
-            try
-            {
-                conn.setAutoCommit(true);
-            }
-            catch(java.sql.SQLException e)
-            {
-                // Ignore
-            }
-            _pool.release(conn);
-        }
     }
 
-    LibraryI(Ice.Logger logger, ConnectionPool pool)
+    LibraryI(Ice.Logger logger)
     {
         _logger = logger;
-        _pool = pool;
-    }
-
-    // Called when the session is destroyed.
-    synchronized void
-    destroy()
-    {
-        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-        while(p.hasNext())
-        {
-            p.next().proxy.destroy();
-        }
-        _queries.clear();
-    }
-
-    // Called on application shutdown.
-    synchronized void
-    shutdown()
-    {
-        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-        while(p.hasNext())
-        {
-            p.next().impl.shutdown();
-        }
-        _queries.clear();
     }
 
     private void
@@ -454,37 +241,5 @@ class LibraryI extends _LibraryDisp
         _logger.error("LibraryI: error:\n" + sw.toString());
     }
 
-    private void
-    reapQueries()
-    {
-        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-        while(p.hasNext())
-        {
-            QueryProxyPair pair = p.next();
-            try
-            {
-                pair.proxy.ice_ping();
-            }
-            catch(Ice.ObjectNotExistException e)
-            {
-                p.remove();
-            }
-        }
-    }
-
     private Ice.Logger _logger;
-    private ConnectionPool _pool;
-
-    static class QueryProxyPair
-    {
-        QueryProxyPair(BookQueryResultPrx p, BookQueryResultI i)
-        {
-            proxy = p;
-            impl = i;
-        }
-
-        BookQueryResultPrx proxy;
-        BookQueryResultI impl;
-    };
-    java.util.List<QueryProxyPair> _queries = new java.util.LinkedList<QueryProxyPair>();
 }

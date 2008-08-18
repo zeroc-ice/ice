@@ -11,14 +11,13 @@ import Demo.*;
 
 class SessionI extends _SessionDisp
 {
-    public
-    SessionI(ConnectionPool pool, Ice.Logger logger, Ice.ObjectAdapter adapter)
+    static public SessionI
+    getSession(Ice.Identity id)
     {
-        _pool = pool;
-        _logger = logger;
-        _timestamp = System.currentTimeMillis();
-        _libraryImpl = new LibraryI(_logger, _pool);
-        _library = LibraryPrxHelper.uncheckedCast(adapter.addWithUUID(_libraryImpl));
+        synchronized(_sessions)
+        {
+            return _sessions.get(id);
+        }
     }
 
     synchronized public LibraryPrx
@@ -50,21 +49,30 @@ class SessionI extends _SessionDisp
         }
 
         _destroyed = true;
-        _logger.trace("Session", "The session " + c.id + " is now destroyed.");
-        _libraryImpl.destroy();
-        try
+        _logger.trace("Session", "session " + c.id + " is now destroyed.");
+
+        // Remove the session from the sessions map.
+        synchronized(_sessions)
         {
-            if(c != null)
+            Object o = _sessions.remove(_library.ice_getIdentity());
+            assert o != null;
+        }
+
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
+        {
+            try
             {
-                c.adapter.remove(c.id);
-                c.adapter.remove(_library.ice_getIdentity());
+                p.next().proxy.destroy();
+            }
+            catch(Ice.ObjectNotExistException e)
+            {
+                // Ignore, it could have already been destroyed.
             }
         }
-        catch(Ice.ObjectAdapterDeactivatedException e)
-        {
-            // This method is called on shutdown of the server, in
-            // which case this exception is expected.
-        }
+
+        // This method is never called on shutdown of the server.
+        c.adapter.remove(c.id);
     }
 
     // Called on application shutdown.
@@ -74,7 +82,13 @@ class SessionI extends _SessionDisp
         if(!_destroyed)
         {
             _destroyed = true;
-            _libraryImpl.shutdown();
+
+            // Shutdown each of the associated query objects.
+            java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+            while(p.hasNext())
+            {
+                p.next().impl.shutdown();
+            }
         }
     }
 
@@ -88,10 +102,77 @@ class SessionI extends _SessionDisp
         return _timestamp;
     }
 
+    synchronized public void
+    add(BookQueryResultPrx proxy, BookQueryResultI impl)
+    {
+        // If the session has been destroyed, then destroy the book
+        // result, and raise an ObjectNotExistException.
+        if(_destroyed)
+        {
+            proxy.destroy();
+            throw new Ice.ObjectNotExistException();
+        }
+        _queries.add(new QueryProxyPair(proxy, impl));
+    }
+
+    synchronized public void
+    reapQueries()
+    {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
+        {
+            QueryProxyPair pair = p.next();
+            try
+            {
+                pair.proxy.ice_ping();
+            }
+            catch(Ice.ObjectNotExistException e)
+            {
+                p.remove();
+            }
+        }
+    }
+
+    SessionI(Ice.Logger logger, Ice.ObjectAdapter adapter)
+    {
+        _logger = logger;
+        _timestamp = System.currentTimeMillis();
+
+        Ice.Identity id = new Ice.Identity();
+        id.category = "library";
+        id.name = Ice.Util.generateUUID();
+        _library = LibraryPrxHelper.uncheckedCast(adapter.createProxy(id));
+
+        // Add the library to the sessions map.
+        synchronized(_sessions)
+        {
+            _sessions.put(_library.ice_getIdentity(), this);
+        }
+    }
+
+    static class QueryProxyPair
+    {
+        QueryProxyPair(BookQueryResultPrx p, BookQueryResultI i)
+        {
+            proxy = p;
+            impl = i;
+        }
+
+        BookQueryResultPrx proxy;
+        BookQueryResultI impl;
+    };
+
+    private static java.util.Map<Ice.Identity, SessionI> _sessions =
+        new java.util.HashMap<Ice.Identity, SessionI>();
+
+    private java.util.List<QueryProxyPair> _queries = new java.util.LinkedList<QueryProxyPair>();
     private Ice.Logger _logger;
-    private ConnectionPool _pool;
     private boolean _destroyed = false; // true if destroy() was called, false otherwise.
     private long _timestamp; // The last time the session was refreshed.
     private LibraryPrx _library;
-    private LibraryI _libraryImpl;
 }

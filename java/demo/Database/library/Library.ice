@@ -282,6 +282,13 @@ interface SessionFactory
     Session* create();
 };
 
+/*
+interface Glacier2SessionFactory extends Glacier2::Session
+{
+    Session* create();
+};
+*/
+
 };
 
 #endif
