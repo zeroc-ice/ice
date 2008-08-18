@@ -26,7 +26,7 @@ class LibraryI extends _LibraryDisp
         }
         session.reapQueries();
 
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
 
         try
@@ -42,7 +42,7 @@ class LibraryI extends _LibraryDisp
             first.value = BookI.extractDescription(context, rs, current.adapter);
             if(rs.next())
             {
-                // The RequestContext is now owned by the query
+                // The SQLRequestContext is now owned by the query
                 // implementation.
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(_logger, context, rs);
@@ -72,7 +72,7 @@ class LibraryI extends _LibraryDisp
         }
         session.reapQueries();
 
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
 
         try
@@ -115,7 +115,7 @@ class LibraryI extends _LibraryDisp
             first.value = BookI.extractDescription(context, rs, current.adapter);
             if(rs.next())
             {
-                // The RequestContext is now owned by the query
+                // The SQLRequestContext is now owned by the query
                 // implementation.
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(_logger, context, rs);
@@ -137,7 +137,7 @@ class LibraryI extends _LibraryDisp
     createBook(String isbn, String title, java.util.List<String> authors, Ice.Current current)
         throws BookExistsException
     {
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         try
         {

@@ -16,7 +16,7 @@ class BookI extends _BookDisp
     public void
     ice_ping(Ice.Current current)
     {
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         Integer id = new Integer(current.id.name);
 
@@ -43,7 +43,7 @@ class BookI extends _BookDisp
     public BookDescription
     describe(Ice.Current current)
     {
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         Integer id = new Integer(current.id.name);
 
@@ -71,7 +71,7 @@ class BookI extends _BookDisp
     public void
     destroy(Ice.Current current)
     {
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         Integer id = new Integer(current.id.name);
 
@@ -99,7 +99,7 @@ class BookI extends _BookDisp
     getRenter(Ice.Current current)
         throws BookNotRentedException
     {
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         Integer id = new Integer(current.id.name);
 
@@ -140,7 +140,7 @@ class BookI extends _BookDisp
     rentBook(String name, Ice.Current current)
         throws BookRentedException
     {
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         Integer id = new Integer(current.id.name);
 
@@ -209,7 +209,7 @@ class BookI extends _BookDisp
     returnBook(Ice.Current current)
         throws BookNotRentedException
     {
-        RequestContext context = RequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         Integer id = new Integer(current.id.name);
         try
@@ -257,7 +257,7 @@ class BookI extends _BookDisp
     }
 
     static BookDescription
-    extractDescription(RequestContext context, java.sql.ResultSet rs, Ice.ObjectAdapter adapter)
+    extractDescription(SQLRequestContext context, java.sql.ResultSet rs, Ice.ObjectAdapter adapter)
         throws java.sql.SQLException
     {
         Integer id = rs.getInt("id");

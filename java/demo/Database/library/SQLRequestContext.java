@@ -7,17 +7,28 @@
 //
 // **********************************************************************
 
-class RequestContext
+// A SQL request context encapsulates SQL resources allocated in the
+// process a of executing a request, such as the database connection,
+// and associated SQL statements.
+//
+// The request context is automatically destroyed at the end of a
+// request, or if obtain is called it must be destroyed manually by
+// calling destroy.
+//
+// When the request context is destroyed, the transaction is rolled
+// back, if not already committed, and all allocated resources are
+// released,
+class SQLRequestContext
 {
-    public static RequestContext
+    public static SQLRequestContext
     getCurrentContext()
     {
         synchronized(_contextMap)
         {
-            RequestContext context = _contextMap.get(Thread.currentThread());
+            SQLRequestContext context = _contextMap.get(Thread.currentThread());
             if(context != null)
             {
-                //context._logger.trace("RequestContext", "getCurrentContext: thread " + Thread.currentThread() +
+                //context._logger.trace("SQLRequestContext", "getCurrentContext: thread " + Thread.currentThread() +
                                       //": connection: " + context._conn);
             }
             return context;
@@ -42,8 +53,8 @@ class RequestContext
         return stmt;
     }
 
-    // Called to obtain ownership of the context. If context is no
-    // longer released automatically when the current request has
+    // Called to obtain ownership of the context. The context is no
+    // longer destroyed automatically when the current request has
     // completed.
     public void
     obtain()
@@ -51,22 +62,21 @@ class RequestContext
         // Remove the current context from the map.
         synchronized(_contextMap)
         {
-            //_logger.trace("RequestContext", "obtain: connection: " + _conn);
+            //_logger.trace("SQLRequestContext", "obtain: connection: " + _conn);
             _contextMap.remove(Thread.currentThread());
         }
     }
 
-    // Called to release the context resources.
     public void
-    release()
+    destroy()
     {
         synchronized(_contextMap)
         {
-            RequestContext context = _contextMap.remove(Thread.currentThread());
+            SQLRequestContext context = _contextMap.remove(Thread.currentThread());
             assert context == null;
         }
 
-        //_logger.trace("RequestContext", "release: connection: " + _conn);
+        //_logger.trace("SQLRequestContext", "destroy: connection: " + _conn);
 
         // Release all resources.
         try
@@ -74,7 +84,7 @@ class RequestContext
             // Rollback the transaction if it was not committed.
             if(!_commit)
             {
-                //_logger.trace("RequestContext", "rollback: thread " + Thread.currentThread() + ": connection: " + _conn);
+                //_logger.trace("SQLRequestContext", "rollback: thread " + Thread.currentThread() + ": connection: " + _conn);
                 _conn.rollback();
             }
 
@@ -101,34 +111,34 @@ class RequestContext
         throws java.sql.SQLException
     {
         _conn.commit();
-        //_logger.trace("RequestContext", "commit: thread " + Thread.currentThread() + ": connection: " + _conn);
+        //_logger.trace("SQLRequestContext", "commit: thread " + Thread.currentThread() + ": connection: " + _conn);
         _commit = true;
     }
 
-    RequestContext(Ice.Logger logger, ConnectionPool pool)
+    SQLRequestContext(Ice.Logger logger, ConnectionPool pool)
     {
         _logger = logger;
         _pool = pool;
         _conn = pool.acquire();
         synchronized(_contextMap)
         {
-            //_logger.trace("RequestContext", "associate: thread " + Thread.currentThread() + ": connection: " + _conn);
+            //_logger.trace("SQLRequestContext", "associate: thread " + Thread.currentThread() + ": connection: " + _conn);
             _contextMap.put(Thread.currentThread(), this);
         }
     }
 
-    // Called only from the servant locator.
+    // Called only by the servant locator.
     void
-    releaseFromLocator()
+    destroyFromLocator()
     {
         synchronized(_contextMap)
         {
-            //_logger.trace("RequestContext", "release: connection: " + _conn);
+            //_logger.trace("SQLRequestContext", "release: connection: " + _conn);
             // Remove the current context from the map.
-            RequestContext context = _contextMap.remove(Thread.currentThread());
+            SQLRequestContext context = _contextMap.remove(Thread.currentThread());
             assert context == this;
         }
-        release();
+        destroy();
     }
 
     private void
@@ -138,11 +148,11 @@ class RequestContext
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
         ex.printStackTrace(pw);
         pw.flush();
-        _logger.error("RequestContext: error:\n" + sw.toString());
+        _logger.error("SQLRequestContext: error:\n" + sw.toString());
     }
 
     // A map of threads to request contexts.
-    private static java.util.Map<Thread, RequestContext> _contextMap = new java.util.HashMap<Thread, RequestContext>();
+    private static java.util.Map<Thread, SQLRequestContext> _contextMap = new java.util.HashMap<Thread, SQLRequestContext>();
 
     private Ice.Logger _logger;
     private ConnectionPool _pool;

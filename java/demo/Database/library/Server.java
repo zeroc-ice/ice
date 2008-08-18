@@ -26,8 +26,8 @@ class LibraryServer extends Ice.Application
         {
             assert c.id.category.equals("library") || c.id.category.equals("book");
 
-            // Setup new context.
-            RequestContext context = new RequestContext(_logger, _pool);
+            // Setup the new SQL request context.
+            SQLRequestContext context = new SQLRequestContext(_logger, _pool);
 
             if(c.id.category.equals("library"))
             {
@@ -42,10 +42,13 @@ class LibraryServer extends Ice.Application
         public void
         finished(Ice.Current c, Ice.Object servant, Object cookie) 
         { 
-            RequestContext context = RequestContext.getCurrentContext();
+            // If a SQL request context is still associated with this
+            // request, then destroy it (it will not be associated if
+            // obtain was called).
+            SQLRequestContext context = SQLRequestContext.getCurrentContext();
             if(context != null)
             {
-                context.releaseFromLocator();
+                context.destroyFromLocator();
             }
         }
 
@@ -56,6 +59,7 @@ class LibraryServer extends Ice.Application
 
         private Ice.Logger _logger;
         private ConnectionPool _pool;
+
         private Ice.Object _bookServant;
         private Ice.Object _libraryServant;
     }

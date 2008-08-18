@@ -13,7 +13,7 @@ class BookQueryResultI extends _BookQueryResultDisp
 {
     // The query result owns the java.sql.Connection object until
     // destroyed.
-    BookQueryResultI(Ice.Logger logger, RequestContext context, java.sql.ResultSet rs)
+    BookQueryResultI(Ice.Logger logger, SQLRequestContext context, java.sql.ResultSet rs)
     {
         _logger = logger;
         _context = context;
@@ -75,7 +75,7 @@ class BookQueryResultI extends _BookQueryResultDisp
             throw new Ice.ObjectNotExistException();
         }
         _destroyed = true;
-        _context.release();
+        _context.destroy();
 
         current.adapter.remove(current.id);
     }
@@ -87,7 +87,7 @@ class BookQueryResultI extends _BookQueryResultDisp
         if(!_destroyed)
         {
             _destroyed = true;
-            _context.release();
+            _context.destroy();
         }
     }
 
@@ -102,7 +102,7 @@ class BookQueryResultI extends _BookQueryResultDisp
     }
 
     private Ice.Logger _logger;
-    private RequestContext _context;
+    private SQLRequestContext _context;
     private java.sql.ResultSet _rs;
     private boolean _destroyed = false;
 }
