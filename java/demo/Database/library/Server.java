@@ -125,6 +125,7 @@ class LibraryServer extends Ice.Application
         LocatorI locator = new LocatorI(logger, pool, new BookI(logger), new LibraryI(logger));
 
         adapter.add(new SessionFactoryI(logger, reaper), communicator().stringToIdentity("SessionFactory"));
+        adapter.add(new Glacier2SessionManagerI(logger, reaper), communicator().stringToIdentity("LibrarySessionManager"));
 
         adapter.addServantLocator(locator, "book");
         adapter.addServantLocator(locator, "library");

@@ -11,9 +11,67 @@ import Demo.*;
 
 class RunParser
 {
+    //
+    // Adapter for the two types of session objects.
+    //
+    interface SessionAdapter
+    {
+        public LibraryPrx getLibrary();
+        public void destroy();
+        public void refresh();
+    }
+
+    static class Glacier2SessionAdapter implements SessionAdapter
+    {
+        public LibraryPrx getLibrary()
+        {
+            return _session.getLibrary();
+        }
+        public void destroy()
+        {
+            _session.destroy();
+        }
+            
+        public void refresh()
+        {
+            _session.refresh();
+        }
+
+        Glacier2SessionAdapter(Glacier2SessionPrx session)
+        {
+            _session = session;
+        }
+
+        private Glacier2SessionPrx _session;
+    }
+
+    static class DemoSessionAdapter implements SessionAdapter
+    {
+        public LibraryPrx getLibrary()
+        {
+            return _session.getLibrary();
+        }
+        public void destroy()
+        {
+            _session.destroy();
+        }
+            
+        public void refresh()
+        {
+            _session.refresh();
+        }
+
+        DemoSessionAdapter(SessionPrx session)
+        {
+            _session = session;
+        }
+
+        private SessionPrx _session;
+    }
+
     static private class SessionRefreshThread extends Thread
     {
-        SessionRefreshThread(Ice.Logger logger, long timeout, SessionPrx session)
+        SessionRefreshThread(Ice.Logger logger, long timeout, SessionAdapter session)
         {
             _logger = logger;
             _session = session;
@@ -55,7 +113,7 @@ class RunParser
         }
 
         final private Ice.Logger _logger;
-        final private SessionPrx _session;
+        final private SessionAdapter _session;
         final private long _timeout;
         private boolean _terminated = false;
     }
@@ -63,15 +121,61 @@ class RunParser
     static int
     runParser(String appName, String[] args, Ice.Communicator communicator)
     {
-        SessionFactoryPrx factory = SessionFactoryPrxHelper.checkedCast(
-            communicator.propertyToProxy("SessionFactory.Proxy"));
-        if(factory == null)
+        SessionAdapter session;
+        Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(communicator.getDefaultRouter());
+        if(router != null)
         {
-            System.err.println(appName + ": invalid object reference");
-            return 1;
-        }
+            Glacier2.SessionPrx glacier2session = null;
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+            while(true)
+            {
+                System.out.println("This demo accepts any user-id / password combination.");
 
-        SessionPrx session = factory.create();
+                try
+                {
+                    String id;
+                    System.out.print("user id: ");
+                    System.out.flush();
+                    id = in.readLine();
+
+                    String pw;
+                    System.out.print("password: ");
+                    System.out.flush();
+                    pw = in.readLine();
+
+                    try
+                    {
+                        glacier2session = router.createSession(id, pw);
+                        break;
+                    }
+                    catch(Glacier2.PermissionDeniedException ex)
+                    {
+                        System.out.println("permission denied:\n" + ex.reason);
+                    }
+                    catch(Glacier2.CannotCreateSessionException ex)
+                    {
+                        System.out.println("cannot create session:\n" + ex.reason);
+                    }
+                }
+                catch(java.io.IOException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+            session = new Glacier2SessionAdapter(Glacier2SessionPrxHelper.uncheckedCast(glacier2session));
+        }
+        else
+        {
+            SessionFactoryPrx factory = SessionFactoryPrxHelper.checkedCast(
+                communicator.propertyToProxy("SessionFactory.Proxy"));
+            if(factory == null)
+            {
+                System.err.println(appName + ": invalid object reference");
+                return 1;
+            }
+            
+            session = new DemoSessionAdapter(factory.create());
+        }
         SessionRefreshThread refresh = new SessionRefreshThread(communicator.getLogger(), 5000, session);
         refresh.start();
 

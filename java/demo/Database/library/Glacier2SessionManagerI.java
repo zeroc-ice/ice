@@ -9,20 +9,20 @@
 
 import Demo.*;
 
-class SessionFactoryI extends _SessionFactoryDisp
+class Glacier2SessionManagerI extends Glacier2._SessionManagerDisp
 {
-    public synchronized SessionPrx
-    create(Ice.Current c)
+    public Glacier2.SessionPrx
+    create(String userId, Glacier2.SessionControlPrx control, Ice.Current c)
     {
         SessionI session = new SessionI(_logger, c.adapter);
-        _SessionTie servant = new _SessionTie(session);
-        SessionPrx proxy = SessionPrxHelper.uncheckedCast(c.adapter.addWithUUID(servant));
+        _Glacier2SessionTie servant = new _Glacier2SessionTie(session);
+        Glacier2.SessionPrx proxy = Glacier2.SessionPrxHelper.uncheckedCast(c.adapter.addWithUUID(servant));
         _logger.trace("SessionFactory", "create new session: " + proxy.ice_getIdentity());
         _reaper.add(proxy, session);
         return proxy;
     }
 
-    SessionFactoryI(Ice.Logger logger, ReapThread reaper)
+    Glacier2SessionManagerI(Ice.Logger logger, ReapThread reaper)
     {
         _logger = logger;
         _reaper = reaper;

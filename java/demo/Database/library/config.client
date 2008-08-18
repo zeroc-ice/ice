@@ -2,7 +2,25 @@
 # The client reads this property to create the reference to the
 # "SessionFactory" object in the server.
 #
-SessionFactory.Proxy=SessionFactory:default -p 10000
+#SessionFactory.Proxy=SessionFactory:default -p 10000
+
+#
+# The proxy to the Glacier2 router for all outgoing connections. This
+# must match the value of Glacier2.Client.Endpoints in config.glacier2.
+#
+Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h 127.0.0.1
+
+#
+# No active connection management is permitted with Glacier2.
+# Connections must remain established.
+#
+Ice.ACM.Client=0
+
+#
+# Connection retry is not possible with Glacier2. Connections must
+# remain established.
+#
+Ice.RetryIntervals=-1
 
 #
 # Warn about connection exceptions
@@ -26,3 +44,20 @@ Ice.Warn.Connections=1
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL.PluginFactory
+IceSSL.DefaultDir=../../../../certs
+IceSSL.Keystore=client.jks
+IceSSL.Password=password
+IceSSL.Truststore=certs.jks

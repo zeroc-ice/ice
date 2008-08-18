@@ -20,24 +20,15 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <slice2java outputdir="${generated.dir}">
+        <slice2java outputdir="${generated.dir}" tie="on">
 	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="." includes="Library.ice"/>
+            <fileset dir="." includes="Session.ice"/>
+            <fileset dir="." includes="Glacier2Session.ice"/>
         </slice2java>
-        <slice2freezej ice="on" outputdir="${generated.dir}">
-	    <meta value="${java2metadata}"/>
-            <includepath>
-                <pathelement path="${slice.dir}" />
-            </includepath>
-            <fileset dir="${slice.dir}/Ice">
-                <include name="BuiltinSequences.ice" />
-            </fileset>
-            <fileset dir="." includes="Library.ice"/>
-	    <dict name="StringIsbnSeqDict" key="string" value="Ice::StringSeq"/>
-        </slice2freezej>
     </target>
 
     <target name="compile" depends="generate">

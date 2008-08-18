@@ -15,10 +15,19 @@ class ReapThread extends Thread
     {
         SessionProxyPair(Demo.SessionPrx p, SessionI s)
         {
+            glacier2proxy = null;
             proxy = p;
             session = s;
         }
 
+        SessionProxyPair(Glacier2.SessionPrx p, SessionI s)
+        {
+            glacier2proxy = p;
+            proxy = null;
+            session = s;
+        }
+
+        Glacier2.SessionPrx glacier2proxy;
         Demo.SessionPrx proxy;
         SessionI session;
     }
@@ -57,7 +66,14 @@ class ReapThread extends Thread
                         if((System.currentTimeMillis() - s.session.timestamp()) > _timeout)
                         {
                             _logger.trace("ReapThread", "The session " + s.proxy.ice_getIdentity() + " has timed out.");
-                            s.proxy.destroy();
+                            if(s.proxy != null)
+                            {
+                                s.proxy.destroy();
+                            }
+                            else
+                            {
+                                s.glacier2proxy.destroy();
+                            }
                             p.remove();
                         }
                     }
@@ -91,6 +107,12 @@ class ReapThread extends Thread
 
     synchronized public void
     add(SessionPrx proxy, SessionI session)
+    {
+        _sessions.add(new SessionProxyPair(proxy, session));
+    }
+
+    synchronized public void
+    add(Glacier2.SessionPrx proxy, SessionI session)
     {
         _sessions.add(new SessionProxyPair(proxy, session));
     }

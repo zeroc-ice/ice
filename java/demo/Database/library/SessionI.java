@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-class SessionI extends _SessionDisp
+class SessionI implements _SessionOperations, _Glacier2SessionOperations
 {
     static public SessionI
     getSession(Ice.Identity id)
