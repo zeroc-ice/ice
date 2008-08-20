@@ -40,8 +40,8 @@ class LibraryServer extends Ice.Application
         }
 
         public void
-        finished(Ice.Current c, Ice.Object servant, Object cookie) 
-        { 
+        finished(Ice.Current c, Ice.Object servant, Object cookie)
+        {
             // If a SQL request context is still associated with this
             // request, then destroy it (it will not be associated if
             // obtain was called).
@@ -53,9 +53,9 @@ class LibraryServer extends Ice.Application
         }
 
         public void
-        deactivate(String category) 
-        { 
-        } 
+        deactivate(String category)
+        {
+        }
 
         private Ice.Logger _logger;
         private ConnectionPool _pool;
@@ -88,7 +88,7 @@ class LibraryServer extends Ice.Application
 
         try
         {
-            Class.forName ("com.mysql.jdbc.Driver").newInstance ();
+            Class.forName ("com.mysql.jdbc.Driver").newInstance();
         }
         catch(Exception e)
         {
@@ -116,7 +116,7 @@ class LibraryServer extends Ice.Application
 
         ReapThread reaper = new ReapThread(logger);
         reaper.start();
-    
+
         //
         // Create an object adapter
         //
@@ -125,7 +125,8 @@ class LibraryServer extends Ice.Application
         LocatorI locator = new LocatorI(logger, pool, new BookI(logger), new LibraryI(logger));
 
         adapter.add(new SessionFactoryI(logger, reaper), communicator().stringToIdentity("SessionFactory"));
-        adapter.add(new Glacier2SessionManagerI(logger, reaper), communicator().stringToIdentity("LibrarySessionManager"));
+        adapter.add(new Glacier2SessionManagerI(logger, reaper),
+                    communicator().stringToIdentity("LibrarySessionManager"));
 
         adapter.addServantLocator(locator, "book");
         adapter.addServantLocator(locator, "library");

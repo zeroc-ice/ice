@@ -21,7 +21,7 @@ class ConnectionPool
         _nconnections = numConnections;
         while(numConnections-- > 0)
         {
-            java.sql.Connection connection = java.sql.DriverManager.getConnection (url, username, password);
+            java.sql.Connection connection = java.sql.DriverManager.getConnection(url, username, password);
             connection.setAutoCommit(false);
             _connections.add(connection);
         }
@@ -94,14 +94,14 @@ class ConnectionPool
             conn = null;
         }
 
-        // If the connection has been closed, or is otherwise invalid
-        // re-establish the connection.
+        // If the connection has been closed, or is otherwise invalid,
+        // we need to re-establish the connection.
         while(conn == null)
         {
             _logger.trace("ConnectionPool", "establishing new database connection");
             try
             {
-                conn = java.sql.DriverManager.getConnection (_url, _username, _password);
+                conn = java.sql.DriverManager.getConnection(_url, _username, _password);
                 conn.setAutoCommit(false);
             }
             catch(java.sql.SQLException e)

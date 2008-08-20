@@ -9,9 +9,11 @@
 
 import Demo.*;
 
-// This servant is a default servant. The book identity is retreived
-// from Ice.Current object. The session object associated with the
-// library is also retrieved using the Libraries identity.
+//
+// This servant is a default servant. The book identity is retrieved
+// from the Ice.Current object. The session object associated with the
+// library is also retrieved using the Library's identity.
+//
 class LibraryI extends _LibraryDisp
 {
     public void
@@ -77,7 +79,7 @@ class LibraryI extends _LibraryDisp
 
         try
         {
-                // Find each of the authors.
+            // Find each of the authors.
             java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM authors WHERE name LIKE ?");
             stmt.setString(1, "%" + author + "%");
             java.sql.ResultSet rs = stmt.executeQuery();
@@ -86,8 +88,7 @@ class LibraryI extends _LibraryDisp
                 throw new NoResultsException();
             }
 
-            // Build a query that finds all books by these set of
-            // authors.
+            // Build a query that finds all books by these authors.
             StringBuffer sb = new StringBuffer("SELECT * FROM books INNER JOIN authors_books ON " +
                                                "books.id=authors_books.book_id AND (");
             boolean front = true;
@@ -115,8 +116,7 @@ class LibraryI extends _LibraryDisp
             first.value = BookI.extractDescription(context, rs, current.adapter);
             if(rs.next())
             {
-                // The SQLRequestContext is now owned by the query
-                // implementation.
+                // The SQLRequestContext is now owned by the query implementation.
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(_logger, context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
@@ -173,7 +173,7 @@ class LibraryI extends _LibraryDisp
                 {
                     // Otherwise, create a new author record.
                     stmt = context.prepareStatement("INSERT INTO authors (name) VALUES(?)",
-                                                 java.sql.Statement.RETURN_GENERATED_KEYS);
+                                                    java.sql.Statement.RETURN_GENERATED_KEYS);
                     stmt.setString(1, author);
                     int count = stmt.executeUpdate();
                     assert count == 1;
@@ -189,7 +189,7 @@ class LibraryI extends _LibraryDisp
 
             // Create the new book.
             stmt = context.prepareStatement("INSERT INTO books (isbn, title) VALUES(?, ?)",
-                                         java.sql.Statement.RETURN_GENERATED_KEYS);
+                                            java.sql.Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, isbn);
             stmt.setString(2, title);
             int count = stmt.executeUpdate();

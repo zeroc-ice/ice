@@ -37,10 +37,10 @@ class Parser
     {
         if(args.size() != 3)
         {
-            error("`add' requires at exactly three arguments (type `help' for more info)");
+            error("`add' requires exactly three arguments (type `help' for more info)");
             return;
         }
-        
+
         try
         {
             String isbn = (String)args.get(0);
@@ -52,7 +52,7 @@ class Parser
             {
                 authors.add(st.nextToken().trim());
             }
-            
+
             BookPrx book = _library.createBook(isbn, title, authors);
             System.out.println("added new book with isbn " + isbn);
         }
@@ -74,7 +74,7 @@ class Parser
             error("`isbn' requires exactly one argument (type `help' for more info)");
             return;
         }
-        
+
         try
         {
             if(_query != null)
@@ -117,7 +117,7 @@ class Parser
             error("`authors' requires exactly one argument (type `help' for more info)");
             return;
         }
-        
+
         try
         {
             if(_query != null)
@@ -172,7 +172,7 @@ class Parser
         }
         printCurrent();
     }
-    
+
     void
     printCurrent()
     {
@@ -180,7 +180,7 @@ class Parser
         {
             if(_current != null)
             {
-                System.out.println("current book is:" );
+                System.out.println("current book is:");
                 System.out.println("isbn: " + _current.isbn);
                 System.out.println("title: " + _current.title);
                 System.out.println("authors: " + _current.authors);

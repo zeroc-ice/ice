@@ -49,7 +49,8 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         }
 
         _destroyed = true;
-        _logger.trace("Session", "session " + c.id + " is now destroyed.");
+        _logger.trace("Session", "session " + c.adapter.getCommunicator().identityToString(c.id) +
+                      " is now destroyed.");
 
         // Remove the session from the sessions map.
         synchronized(_sessions)
@@ -165,7 +166,7 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
 
         BookQueryResultPrx proxy;
         BookQueryResultI impl;
-    };
+    }
 
     private static java.util.Map<Ice.Identity, SessionI> _sessions =
         new java.util.HashMap<Ice.Identity, SessionI>();

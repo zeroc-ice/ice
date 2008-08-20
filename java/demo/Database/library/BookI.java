@@ -9,8 +9,10 @@
 
 import Demo.*;
 
-// This servant is a default servant. The book identity is retreived
-// from Ice.Current object.
+//
+// This servant is a default servant. The book identity is retrieved
+// from the Ice.Current object.
+//
 class BookI extends _BookDisp
 {
     public void

@@ -4,8 +4,8 @@
 SessionFactory.Endpoints=default -p 10000
 
 # JDBC configuration.
-JDBC.Username=matthew
-JDBC.Password=foo
+JDBC.Username=USER
+JDBC.Password=PASSWORD
 JDBC.Url=jdbc:mysql://localhost/library
 
 # The number of connections in the JDBC connection pool. This number

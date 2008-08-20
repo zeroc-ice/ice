@@ -199,7 +199,7 @@ interface Library
     /**
      *
      * Query based on the author name. The query is a partial match of
-     * the authors name.
+     * the author's name.
      *
      * @param author The authors name.
      *

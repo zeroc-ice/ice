@@ -27,11 +27,12 @@ class RunParser
         {
             return _session.getLibrary();
         }
+
         public void destroy()
         {
             _session.destroy();
         }
-            
+
         public void refresh()
         {
             _session.refresh();
@@ -51,11 +52,12 @@ class RunParser
         {
             return _session.getLibrary();
         }
+
         public void destroy()
         {
             _session.destroy();
         }
-            
+
         public void refresh()
         {
             _session.refresh();
@@ -173,7 +175,7 @@ class RunParser
                 System.err.println(appName + ": invalid object reference");
                 return 1;
             }
-            
+
             session = new DemoSessionAdapter(factory.create());
         }
         SessionRefreshThread refresh = new SessionRefreshThread(communicator.getLogger(), 5000, session);

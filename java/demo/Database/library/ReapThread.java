@@ -10,7 +10,7 @@
 import Demo.*;
 
 class ReapThread extends Thread
-{ 
+{
     static class SessionProxyPair
     {
         SessionProxyPair(Demo.SessionPrx p, SessionI s)
@@ -49,7 +49,7 @@ class ReapThread extends Thread
             catch(InterruptedException e)
             {
             }
-            
+
             if(!_terminated)
             {
                 java.util.Iterator<SessionProxyPair> p = _sessions.iterator();
@@ -95,7 +95,7 @@ class ReapThread extends Thread
         // Destroy each of the sessions, releasing any resources they
         // may hold. This calls directly on the session, not via the
         // proxy since terminate() is called after the communicator is
-        // shutdown, which means calls on collocated objects is not
+        // shutdown, which means calls on collocated objects are not
         // permitted.
         java.util.Iterator<SessionProxyPair> p = _sessions.iterator();
         while(p.hasNext())

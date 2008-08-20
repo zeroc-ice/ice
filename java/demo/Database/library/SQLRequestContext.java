@@ -7,8 +7,9 @@
 //
 // **********************************************************************
 
+//
 // A SQL request context encapsulates SQL resources allocated in the
-// process a of executing a request, such as the database connection,
+// process of executing a request, such as the database connection,
 // and associated SQL statements.
 //
 // The request context is automatically destroyed at the end of a
@@ -18,6 +19,7 @@
 // When the request context is destroyed, the transaction is rolled
 // back, if not already committed, and all allocated resources are
 // released,
+//
 class SQLRequestContext
 {
     public static SQLRequestContext
@@ -100,7 +102,7 @@ class SQLRequestContext
         }
 
         _pool.release(_conn);
-        
+
         _statements.clear();
         _conn = null;
         _pool = null;
@@ -152,7 +154,8 @@ class SQLRequestContext
     }
 
     // A map of threads to request contexts.
-    private static java.util.Map<Thread, SQLRequestContext> _contextMap = new java.util.HashMap<Thread, SQLRequestContext>();
+    private static java.util.Map<Thread, SQLRequestContext> _contextMap =
+        new java.util.HashMap<Thread, SQLRequestContext>();
 
     private Ice.Logger _logger;
     private ConnectionPool _pool;

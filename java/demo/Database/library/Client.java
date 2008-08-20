@@ -42,6 +42,6 @@ public class Client extends Ice.Application
     main(String[] args)
     {
         Client app = new Client();
-        app.main("demo.Freeze.library.Client", args, "config.client");
+        app.main("demo.Database.library.Client", args, "config.client");
     }
 }
