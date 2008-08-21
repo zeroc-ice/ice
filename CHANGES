@@ -31,6 +31,8 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed icegridadmin `service list' command crash.
+
 - Fixed a bug where slice2cpp would generate absolute include paths
   if the command line option "-I." was used.
 

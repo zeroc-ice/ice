@@ -1546,7 +1546,6 @@ Parser::listServices(const list<string>& args)
     }
 
     string server = args.front();
-    string service = *(++args.begin());
     try
     {
         ServerInfo info = _admin->getServerInfo(server);
