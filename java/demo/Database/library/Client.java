@@ -28,6 +28,12 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+        if(args.length > 1)
+        {
+            System.err.println("Usage: " + appName() + " [file]");
+            return 1;
+        }
+
         //
         // Since this is an interactive demo we want to clear the
         // Application installed interrupt callback and install our

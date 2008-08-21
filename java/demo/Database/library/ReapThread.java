@@ -65,7 +65,9 @@ class ReapThread extends Thread
                         //
                         if((System.currentTimeMillis() - s.session.timestamp()) > _timeout)
                         {
-                            _logger.trace("ReapThread", "The session " + s.proxy.ice_getIdentity() + " has timed out.");
+                            _logger.trace("ReapThread", "The session " +
+                                          s.proxy.ice_getCommunicator().identityToString(s.proxy.ice_getIdentity()) +
+                                          " has timed out.");
                             if(s.proxy != null)
                             {
                                 s.proxy.destroy();

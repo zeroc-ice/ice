@@ -33,8 +33,9 @@ class LibraryServer extends Ice.Application
             {
                 return _libraryServant;
             }
-            else //if(c.id.category.equals("book"))
+            else
             {
+                assert(c.id.category.equals("book"));
                 return _bookServant;
             }
         }
@@ -88,7 +89,7 @@ class LibraryServer extends Ice.Application
 
         try
         {
-            Class.forName ("com.mysql.jdbc.Driver").newInstance();
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
         }
         catch(Exception e)
         {

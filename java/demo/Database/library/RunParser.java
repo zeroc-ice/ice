@@ -184,7 +184,18 @@ class RunParser
         LibraryPrx library = session.getLibrary();
 
         Parser parser = new Parser(communicator, library);
-        int rc = parser.parse();
+
+        int rc = 0;
+
+        if(args.length == 1)
+        {
+            rc = parser.parse(args[0]);
+        }
+
+        if(rc == 0)
+        {
+            rc = parser.parse();
+        }
 
         if(refresh != null)
         {

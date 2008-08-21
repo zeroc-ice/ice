@@ -336,6 +336,36 @@ class Parser
         return 0;
     }
 
+    int
+    parse(String file)
+    {
+        _query = null;
+        _current = null;
+
+        try
+        {
+            _in = new java.io.BufferedReader(new java.io.FileReader(file));
+        }
+        catch(java.io.FileNotFoundException ex)
+        {
+            error(ex.getMessage());
+            return 1;
+        }
+
+        Grammar g = new Grammar(this);
+        g.parse();
+
+        try
+        {
+            _in.close();
+        }
+        catch(java.io.IOException ex)
+        {
+        }
+
+        return 0;
+    }
+
     private BookQueryResultPrx _query;
     private BookDescription _current;
 
