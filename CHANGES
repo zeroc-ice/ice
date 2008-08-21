@@ -28,8 +28,18 @@ Changes since version 3.3.0
 ======================================================================
 
 
+General Changes
+===============
+
+- Fixed a bug in the slice translators that prevented them from being
+  run from a directory without write permissions, even if no output 
+  files were being written to the directory.
+
+
 C++ Changes
 ===========
+
+- Fixed icegridadmin `service list' command crash.
 
 - Fixed a bug where slice2cpp would generate absolute include paths
   if the command line option "-I." was used.
