@@ -27,13 +27,7 @@ class SQLRequestContext
     {
         synchronized(_contextMap)
         {
-            SQLRequestContext context = _contextMap.get(Thread.currentThread());
-            if(context != null)
-            {
-                //context._logger.trace("SQLRequestContext", "getCurrentContext: thread " + Thread.currentThread() +
-                                      //": connection: " + context._conn);
-            }
-            return context;
+            return _contextMap.get(Thread.currentThread());
         }
     }
 
@@ -64,7 +58,6 @@ class SQLRequestContext
         // Remove the current context from the map.
         synchronized(_contextMap)
         {
-            //_logger.trace("SQLRequestContext", "obtain: connection: " + _conn);
             _contextMap.remove(Thread.currentThread());
         }
     }
@@ -78,15 +71,12 @@ class SQLRequestContext
             assert context == null;
         }
 
-        //_logger.trace("SQLRequestContext", "destroy: connection: " + _conn);
-
         // Release all resources.
         try
         {
             // Rollback the transaction if it was not committed.
             if(!_commit)
             {
-                //_logger.trace("SQLRequestContext", "rollback: thread " + Thread.currentThread() + ": connection: " + _conn);
                 _conn.rollback();
             }
 
@@ -113,7 +103,6 @@ class SQLRequestContext
         throws java.sql.SQLException
     {
         _conn.commit();
-        //_logger.trace("SQLRequestContext", "commit: thread " + Thread.currentThread() + ": connection: " + _conn);
         _commit = true;
     }
 
@@ -124,7 +113,6 @@ class SQLRequestContext
         _conn = pool.acquire();
         synchronized(_contextMap)
         {
-            //_logger.trace("SQLRequestContext", "associate: thread " + Thread.currentThread() + ": connection: " + _conn);
             _contextMap.put(Thread.currentThread(), this);
         }
     }
@@ -135,7 +123,6 @@ class SQLRequestContext
     {
         synchronized(_contextMap)
         {
-            //_logger.trace("SQLRequestContext", "release: connection: " + _conn);
             // Remove the current context from the map.
             SQLRequestContext context = _contextMap.remove(Thread.currentThread());
             assert context == this;

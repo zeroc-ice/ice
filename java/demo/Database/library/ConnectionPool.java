@@ -42,7 +42,7 @@ class ConnectionPool
             }
         }
 
-        while(_connections.isEmpty())
+        while(!_connections.isEmpty())
         {
             java.sql.Connection conn = _connections.removeFirst();
             try

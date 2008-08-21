@@ -181,10 +181,8 @@ class BookI extends _BookDisp
                 int count = stmt.executeUpdate();
                 assert count == 1;
                 rs = stmt.getGeneratedKeys();
-                if(!rs.next())
-                {
-                    // ERROR:
-                }
+                boolean next = rs.next();
+                assert next;
                 renterId = rs.getInt(1);
             }
 
