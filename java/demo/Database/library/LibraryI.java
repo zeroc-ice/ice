@@ -21,7 +21,7 @@ class LibraryI extends _LibraryDisp
         SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
 
-        _session.reapQueries();
+        reapQueries();
 
         try
         {
@@ -41,7 +41,7 @@ class LibraryI extends _LibraryDisp
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                _session.add(result.value, impl);
+                add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
@@ -59,7 +59,7 @@ class LibraryI extends _LibraryDisp
         SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
 
-        _session.reapQueries();
+        reapQueries();
 
         try
         {
@@ -104,7 +104,7 @@ class LibraryI extends _LibraryDisp
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                _session.add(result.value, impl);
+                add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
@@ -203,10 +203,97 @@ class LibraryI extends _LibraryDisp
         }
     }
 
-    LibraryI(SessionI session)
+    LibraryI()
     {
-        _session = session;
     }
 
-    private SessionI _session;
+    synchronized public void
+    destroy()
+    {
+        if(_destroyed)
+        {
+            return;
+        }
+        _destroyed = true;
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
+        {
+            try
+            {
+                p.next().proxy.destroy();
+            }
+            catch(Ice.ObjectNotExistException e)
+            {
+                // Ignore, it could have already been destroyed.
+            }
+        }
+    }
+
+    synchronized public void
+    shutdown()
+    {
+        if(_destroyed)
+        {
+            return;
+        }
+        _destroyed = true;
+
+        // Shutdown each of the associated query objects.
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
+        {
+            p.next().impl.shutdown();
+        }
+    }
+
+    synchronized private void
+    add(BookQueryResultPrx proxy, BookQueryResultI impl)
+    {
+        // If the session has been destroyed, then destroy the book
+        // result, and raise an ObjectNotExistException.
+        if(_destroyed)
+        {
+            proxy.destroy();
+            throw new Ice.ObjectNotExistException();
+        }
+        _queries.add(new QueryProxyPair(proxy, impl));
+    }
+
+    synchronized private void
+    reapQueries()
+    {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
+        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
+        while(p.hasNext())
+        {
+            QueryProxyPair pair = p.next();
+            try
+            {
+                pair.proxy.ice_ping();
+            }
+            catch(Ice.ObjectNotExistException e)
+            {
+                p.remove();
+            }
+        }
+    }
+
+    static class QueryProxyPair
+    {
+        QueryProxyPair(BookQueryResultPrx p, BookQueryResultI i)
+        {
+            proxy = p;
+            impl = i;
+        }
+
+        BookQueryResultPrx proxy;
+        BookQueryResultI impl;
+    }
+
+    private java.util.List<QueryProxyPair> _queries = new java.util.LinkedList<QueryProxyPair>();
+    private boolean _destroyed = false;
 }

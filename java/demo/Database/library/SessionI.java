@@ -43,20 +43,8 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         _logger.trace("Session", "session " + c.adapter.getCommunicator().identityToString(c.id) +
                       " is now destroyed.");
 
-        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-        while(p.hasNext())
-        {
-            try
-            {
-                p.next().proxy.destroy();
-            }
-            catch(Ice.ObjectNotExistException e)
-            {
-                // Ignore, it could have already been destroyed.
-            }
-        }
-
         // This method is never called on shutdown of the server.
+        _libraryI.destroy();
         c.adapter.remove(_library.ice_getIdentity());
         c.adapter.remove(c.id);
     }
@@ -68,13 +56,7 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         if(!_destroyed)
         {
             _destroyed = true;
-
-            // Shutdown each of the associated query objects.
-            java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-            while(p.hasNext())
-            {
-                p.next().impl.shutdown();
-            }
+            _libraryI.shutdown();
         }
     }
 
@@ -88,64 +70,17 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         return _timestamp;
     }
 
-    synchronized public void
-    add(BookQueryResultPrx proxy, BookQueryResultI impl)
-    {
-        // If the session has been destroyed, then destroy the book
-        // result, and raise an ObjectNotExistException.
-        if(_destroyed)
-        {
-            proxy.destroy();
-            throw new Ice.ObjectNotExistException();
-        }
-        _queries.add(new QueryProxyPair(proxy, impl));
-    }
-
-    synchronized public void
-    reapQueries()
-    {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException();
-        }
-
-        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-        while(p.hasNext())
-        {
-            QueryProxyPair pair = p.next();
-            try
-            {
-                pair.proxy.ice_ping();
-            }
-            catch(Ice.ObjectNotExistException e)
-            {
-                p.remove();
-            }
-        }
-    }
-
     SessionI(Ice.Logger logger, Ice.ObjectAdapter adapter)
     {
         _logger = logger;
         _timestamp = System.currentTimeMillis();
-        _library = LibraryPrxHelper.uncheckedCast(adapter.addWithUUID(new DispatchInterceptorI(new LibraryI(this))));
+        _libraryI = new LibraryI();
+        _library = LibraryPrxHelper.uncheckedCast(adapter.addWithUUID(new DispatchInterceptorI(_libraryI)));
     }
 
-    static class QueryProxyPair
-    {
-        QueryProxyPair(BookQueryResultPrx p, BookQueryResultI i)
-        {
-            proxy = p;
-            impl = i;
-        }
-
-        BookQueryResultPrx proxy;
-        BookQueryResultI impl;
-    }
-
-    private java.util.List<QueryProxyPair> _queries = new java.util.LinkedList<QueryProxyPair>();
     private Ice.Logger _logger;
     private boolean _destroyed = false; // true if destroy() was called, false otherwise.
     private long _timestamp; // The last time the session was refreshed.
     private LibraryPrx _library;
+    private LibraryI _libraryI;
 }
