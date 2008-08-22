@@ -139,7 +139,7 @@ class ConnectionPool
 
 
     private Ice.Logger _logger;
-    private boolean _trace = false;
+    private boolean _trace = true;
     private String _url;
     private String _username;
     private String _password;

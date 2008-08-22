@@ -16,9 +16,9 @@
 // request, or if obtain is called it must be destroyed manually by
 // calling destroy.
 //
-// When the request context is destroyed, the transaction is rolled
-// back, if not already committed, and all allocated resources are
-// released,
+// When the request context is destroyed, the transaction is either
+// automatically committed or rolled back, depending whether the
+// request executed successfully.
 //
 class SQLRequestContext
 {
@@ -29,6 +29,16 @@ class SQLRequestContext
         {
             return _contextMap.get(Thread.currentThread());
         }
+    }
+
+    public static void
+    initialize(Ice.Logger logger, ConnectionPool pool)
+    {
+        assert _logger == null;
+        assert _pool == null;
+
+        _logger = logger;
+        _pool = pool;
     }
 
     public java.sql.PreparedStatement
@@ -66,6 +76,7 @@ class SQLRequestContext
     public void
     destroy(boolean commit)
     {
+        // Must only be called on an obtained context.
         assert _obtain;
         destroyInternal(commit);
     }
@@ -80,11 +91,9 @@ class SQLRequestContext
         _logger.error(prefix + ": error:\n" + sw.toString());
     }
 
-    SQLRequestContext(Ice.Logger logger, ConnectionPool pool)
+    SQLRequestContext()
     {
-        _logger = logger;
-        _pool = pool;
-        _conn = pool.acquire();
+        _conn = _pool.acquire();
 
         synchronized(_contextMap)
         {
@@ -105,11 +114,13 @@ class SQLRequestContext
     {
         synchronized(_contextMap)
         {
-            // Remove the current context from the map.
+            // Remove the current context from the thread->context
+            // map.
             SQLRequestContext context = _contextMap.remove(Thread.currentThread());
             assert context != null;
         }
 
+        // If the context was obtained then don't destroy.
         if(!_obtain)
         {
             destroyInternal(commit);
@@ -154,16 +165,16 @@ class SQLRequestContext
 
         _statements.clear();
         _conn = null;
-        _pool = null;
     }
 
     // A map of threads to request contexts.
     private static java.util.Map<Thread, SQLRequestContext> _contextMap =
         new java.util.HashMap<Thread, SQLRequestContext>();
 
-    private Ice.Logger _logger;
-    private boolean _trace = false;
-    private ConnectionPool _pool;
+    private static Ice.Logger _logger = null;
+    private static ConnectionPool _pool = null;
+
+    private boolean _trace = true;
     private java.util.List<java.sql.Statement> _statements = new java.util.LinkedList<java.sql.Statement>();
     private java.sql.Connection _conn;
     private boolean _obtain = false;

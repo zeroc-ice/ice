@@ -11,51 +11,8 @@ import Demo.*;
 
 class LibraryServer extends Ice.Application
 {
-    static class BookDispatchInterceptorI extends Ice.DispatchInterceptor
-    {
-        BookDispatchInterceptorI(Ice.Logger logger, ConnectionPool pool, Ice.Object servant)
-        {
-            _logger = logger;
-            _pool = pool;
-            _servant = servant;
-        }
-
-        public Ice.DispatchStatus 
-        dispatch(Ice.Request request)
-        {
-            SQLRequestContext context = new SQLRequestContext(_logger, _pool);
-            try
-            {
-                Ice.DispatchStatus status = _servant.ice_dispatch(request, null);
-                context.destroyFromDispatch(status == Ice.DispatchStatus.DispatchOK);
-                return status;
-            }
-            catch(JDBCException ex)
-            {
-                context.error("dispatch to " +
-                              request.getCurrent().id.category + "/" + request.getCurrent().id.name +
-                              " failed.", ex);
-                context.destroyFromDispatch(false);
-
-                // Translate the exception to UnknownException.
-                Ice.UnknownException e = new Ice.UnknownException();
-                ex.initCause(e);
-                throw e;
-            }
-        }
-
-        private Ice.Logger _logger;
-        private ConnectionPool _pool;
-        private Ice.Object _servant;
-    }
-
     static class LocatorI implements Ice.ServantLocator
     {
-        LocatorI(Ice.Logger logger, ConnectionPool pool, Ice.Object servant)
-        {
-            _servant = new BookDispatchInterceptorI(logger, pool, servant);
-        }
-
         public Ice.Object
         locate(Ice.Current c, Ice.LocalObjectHolder cookie)
         {
@@ -71,6 +28,11 @@ class LibraryServer extends Ice.Application
         public void
         deactivate(String category)
         {
+        }
+
+        LocatorI(Ice.Object servant)
+        {
+            _servant = new DispatchInterceptorI(servant);
         }
 
         private Ice.Object _servant;
@@ -136,15 +98,12 @@ class LibraryServer extends Ice.Application
         //
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
 
-        LocatorI locator = new LocatorI(logger, pool, new BookI());
-        Ice.Object library = new LibraryI();
+        SQLRequestContext.initialize(logger, pool);
+        adapter.addServantLocator(new LocatorI(new BookI()), "book");
         
-        adapter.add(new SessionFactoryI(logger, reaper, pool, library),
-                    communicator().stringToIdentity("SessionFactory"));
-        adapter.add(new Glacier2SessionManagerI(logger, reaper, pool, library),
+        adapter.add(new SessionFactoryI(logger, reaper), communicator().stringToIdentity("SessionFactory"));
+        adapter.add(new Glacier2SessionManagerI(logger, reaper),
                     communicator().stringToIdentity("LibrarySessionManager"));
-
-        adapter.addServantLocator(locator, "book");
 
         //
         // Everything ok, let's go.

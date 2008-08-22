@@ -10,9 +10,7 @@
 import Demo.*;
 
 //
-// This servant is a default servant. The book identity is retrieved
-// from the Ice.Current object. The session object associated with the
-// library is also retrieved using the Library's identity.
+// This is a per-session library object.
 //
 class LibraryI extends _LibraryDisp
 {
@@ -20,10 +18,10 @@ class LibraryI extends _LibraryDisp
     queryByIsbn(String isbn, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
         throws NoResultsException
     {
-        SessionSQLRequestContext context = (SessionSQLRequestContext)SQLRequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
 
-        context.getSession().reapQueries();
+        _session.reapQueries();
 
         try
         {
@@ -43,7 +41,7 @@ class LibraryI extends _LibraryDisp
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                context.getSession().add(result.value, impl);
+                _session.add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
@@ -58,10 +56,10 @@ class LibraryI extends _LibraryDisp
     queryByAuthor(String author, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
         throws NoResultsException
     {
-        SessionSQLRequestContext context = (SessionSQLRequestContext)SQLRequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
 
-        context.getSession().reapQueries();
+        _session.reapQueries();
 
         try
         {
@@ -106,7 +104,7 @@ class LibraryI extends _LibraryDisp
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                context.getSession().add(result.value, impl);
+                _session.add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
@@ -121,7 +119,7 @@ class LibraryI extends _LibraryDisp
     createBook(String isbn, String title, java.util.List<String> authors, Ice.Current current)
         throws BookExistsException
     {
-        SessionSQLRequestContext context = (SessionSQLRequestContext)SQLRequestContext.getCurrentContext();
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         try
         {
@@ -205,7 +203,10 @@ class LibraryI extends _LibraryDisp
         }
     }
 
-    LibraryI()
+    LibraryI(SessionI session)
     {
+        _session = session;
     }
+
+    private SessionI _session;
 }

@@ -11,46 +11,6 @@ import Demo.*;
 
 class SessionI implements _SessionOperations, _Glacier2SessionOperations
 {
-    static class SessionDispatchInterceptorI extends Ice.DispatchInterceptor
-    {
-        SessionDispatchInterceptorI(Ice.Logger logger, ConnectionPool pool, Ice.Object servant, SessionI session)
-        {
-            _logger = logger;
-            _pool = pool;
-            _servant = servant;
-            _session = session;
-        }
-
-        public Ice.DispatchStatus 
-        dispatch(Ice.Request request)
-        {
-            SessionSQLRequestContext context = new SessionSQLRequestContext(_session, _logger, _pool);
-            try
-            {
-                Ice.DispatchStatus status = _servant.ice_dispatch(request, null);
-                context.destroyFromDispatch(status == Ice.DispatchStatus.DispatchOK);
-                return status;
-            }
-            catch(JDBCException ex)
-            {
-                context.error("dispatch to " +
-                              request.getCurrent().id.category + "/" + request.getCurrent().id.name +
-                              " failed.", ex);
-                context.destroyFromDispatch(false);
-
-                // Translate the exception to UnknownException.
-                Ice.UnknownException e = new Ice.UnknownException();
-                ex.initCause(e);
-                throw e;
-            }
-        }
-
-        private Ice.Logger _logger;
-        private ConnectionPool _pool;
-        private Ice.Object _servant;
-        private SessionI _session;
-    }
-
     synchronized public LibraryPrx
     getLibrary(Ice.Current c)
     {
@@ -164,13 +124,11 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         }
     }
 
-    SessionI(Ice.Logger logger, ConnectionPool pool, Ice.ObjectAdapter adapter, Ice.Object libraryServant)
+    SessionI(Ice.Logger logger, Ice.ObjectAdapter adapter)
     {
         _logger = logger;
         _timestamp = System.currentTimeMillis();
-
-        _library = LibraryPrxHelper.uncheckedCast(
-            adapter.addWithUUID(new SessionDispatchInterceptorI(logger, pool, libraryServant, this)));
+        _library = LibraryPrxHelper.uncheckedCast(adapter.addWithUUID(new DispatchInterceptorI(new LibraryI(this))));
     }
 
     static class QueryProxyPair

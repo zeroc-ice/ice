@@ -14,7 +14,7 @@ JDBC.Url=jdbc:mysql://localhost/library
 JDBC.NumConnections=5
 
 # Number of threads in the server-side dispatch thread pool.
-Ice.ThreadPool.Server.Size=1
+Ice.ThreadPool.Server.Size=5
 
 #
 # Warn about connection exceptions
