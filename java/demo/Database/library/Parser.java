@@ -355,6 +355,8 @@ class Parser
         Grammar g = new Grammar(this);
         g.parse();
 
+        System.out.println();
+
         try
         {
             _in.close();
