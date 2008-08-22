@@ -20,16 +20,10 @@ class LibraryI extends _LibraryDisp
     queryByIsbn(String isbn, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
         throws NoResultsException
     {
-        SessionI session = SessionI.getSession(current.id);
-        if(session == null)
-        {
-            // No associated session.
-            throw new Ice.ObjectNotExistException();
-        }
-        session.reapQueries();
-
-        SQLRequestContext context = SQLRequestContext.getCurrentContext();
+        SessionSQLRequestContext context = (SessionSQLRequestContext)SQLRequestContext.getCurrentContext();
         assert context != null;
+
+        context.getSession().reapQueries();
 
         try
         {
@@ -47,16 +41,14 @@ class LibraryI extends _LibraryDisp
                 // The SQLRequestContext is now owned by the query
                 // implementation.
                 context.obtain();
-                BookQueryResultI impl = new BookQueryResultI(_logger, context, rs);
+                BookQueryResultI impl = new BookQueryResultI(context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                session.add(result.value, impl);
+                context.getSession().add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
@@ -66,16 +58,10 @@ class LibraryI extends _LibraryDisp
     queryByAuthor(String author, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
         throws NoResultsException
     {
-        SessionI session = SessionI.getSession(current.id);
-        if(session == null)
-        {
-            // No associated session.
-            throw new Ice.ObjectNotExistException();
-        }
-        session.reapQueries();
-
-        SQLRequestContext context = SQLRequestContext.getCurrentContext();
+        SessionSQLRequestContext context = (SessionSQLRequestContext)SQLRequestContext.getCurrentContext();
         assert context != null;
+
+        context.getSession().reapQueries();
 
         try
         {
@@ -118,16 +104,14 @@ class LibraryI extends _LibraryDisp
             {
                 // The SQLRequestContext is now owned by the query implementation.
                 context.obtain();
-                BookQueryResultI impl = new BookQueryResultI(_logger, context, rs);
+                BookQueryResultI impl = new BookQueryResultI(context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
-                session.add(result.value, impl);
+                context.getSession().add(result.value, impl);
             }
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
@@ -137,7 +121,7 @@ class LibraryI extends _LibraryDisp
     createBook(String isbn, String title, java.util.List<String> authors, Ice.Current current)
         throws BookExistsException
     {
-        SQLRequestContext context = SQLRequestContext.getCurrentContext();
+        SessionSQLRequestContext context = (SessionSQLRequestContext)SQLRequestContext.getCurrentContext();
         assert context != null;
         try
         {
@@ -211,35 +195,17 @@ class LibraryI extends _LibraryDisp
                 assert count == 1;
             }
 
-            // Commit the transaction.
-            context.commit();
-
             return BookPrxHelper.uncheckedCast(current.adapter.createProxy(BookI.createIdentity(bookId)));
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
     }
 
-    LibraryI(Ice.Logger logger)
+    LibraryI()
     {
-        _logger = logger;
     }
-
-    private void
-    error(Exception ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        _logger.error("LibraryI: error:\n" + sw.toString());
-    }
-
-    private Ice.Logger _logger;
 }

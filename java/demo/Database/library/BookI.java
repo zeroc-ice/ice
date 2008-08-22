@@ -34,9 +34,7 @@ class BookI extends _BookDisp
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
@@ -62,9 +60,7 @@ class BookI extends _BookDisp
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
@@ -89,9 +85,7 @@ class BookI extends _BookDisp
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
@@ -130,9 +124,7 @@ class BookI extends _BookDisp
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
@@ -191,15 +183,10 @@ class BookI extends _BookDisp
             stmt.setInt(2, id);
             int count = stmt.executeUpdate();
             assert count == 1;
-
-            // Commit the transaction.
-            context.commit();
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
@@ -234,17 +221,14 @@ class BookI extends _BookDisp
         }
         catch(java.sql.SQLException e)
         {
-            // Log the error, and raise an UnknownException.
-            error(e);
-            Ice.UnknownException ex = new Ice.UnknownException();
+            JDBCException ex = new JDBCException();
             ex.initCause(e);
             throw ex;
         }
     }
 
-    BookI(Ice.Logger logger)
+    BookI()
     {
-        _logger = logger;
     }
 
     static Ice.Identity
@@ -293,16 +277,4 @@ class BookI extends _BookDisp
 
         return desc;
     }
-
-    private void
-    error(Exception ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        _logger.error("BookI: error:\n" + sw.toString());
-    }
-
-    private Ice.Logger _logger;
 }

@@ -11,13 +11,44 @@ import Demo.*;
 
 class SessionI implements _SessionOperations, _Glacier2SessionOperations
 {
-    static public SessionI
-    getSession(Ice.Identity id)
+    static class SessionDispatchInterceptorI extends Ice.DispatchInterceptor
     {
-        synchronized(_sessions)
+        SessionDispatchInterceptorI(Ice.Logger logger, ConnectionPool pool, Ice.Object servant, SessionI session)
         {
-            return _sessions.get(id);
+            _logger = logger;
+            _pool = pool;
+            _servant = servant;
+            _session = session;
         }
+
+        public Ice.DispatchStatus 
+        dispatch(Ice.Request request)
+        {
+            SessionSQLRequestContext context = new SessionSQLRequestContext(_session, _logger, _pool);
+            try
+            {
+                Ice.DispatchStatus status = _servant.ice_dispatch(request, null);
+                context.destroyFromDispatch(status == Ice.DispatchStatus.DispatchOK);
+                return status;
+            }
+            catch(JDBCException ex)
+            {
+                context.error("dispatch to " +
+                              request.getCurrent().id.category + "/" + request.getCurrent().id.name +
+                              " failed.", ex);
+                context.destroyFromDispatch(false);
+
+                // Translate the exception to UnknownException.
+                Ice.UnknownException e = new Ice.UnknownException();
+                ex.initCause(e);
+                throw e;
+            }
+        }
+
+        private Ice.Logger _logger;
+        private ConnectionPool _pool;
+        private Ice.Object _servant;
+        private SessionI _session;
     }
 
     synchronized public LibraryPrx
@@ -52,13 +83,6 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         _logger.trace("Session", "session " + c.adapter.getCommunicator().identityToString(c.id) +
                       " is now destroyed.");
 
-        // Remove the session from the sessions map.
-        synchronized(_sessions)
-        {
-            Object o = _sessions.remove(_library.ice_getIdentity());
-            assert o != null;
-        }
-
         java.util.Iterator<QueryProxyPair> p = _queries.iterator();
         while(p.hasNext())
         {
@@ -73,6 +97,7 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         }
 
         // This method is never called on shutdown of the server.
+        c.adapter.remove(_library.ice_getIdentity());
         c.adapter.remove(c.id);
     }
 
@@ -139,21 +164,13 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         }
     }
 
-    SessionI(Ice.Logger logger, Ice.ObjectAdapter adapter)
+    SessionI(Ice.Logger logger, ConnectionPool pool, Ice.ObjectAdapter adapter, Ice.Object libraryServant)
     {
         _logger = logger;
         _timestamp = System.currentTimeMillis();
 
-        Ice.Identity id = new Ice.Identity();
-        id.category = "library";
-        id.name = Ice.Util.generateUUID();
-        _library = LibraryPrxHelper.uncheckedCast(adapter.createProxy(id));
-
-        // Add the library to the sessions map.
-        synchronized(_sessions)
-        {
-            _sessions.put(_library.ice_getIdentity(), this);
-        }
+        _library = LibraryPrxHelper.uncheckedCast(
+            adapter.addWithUUID(new SessionDispatchInterceptorI(logger, pool, libraryServant, this)));
     }
 
     static class QueryProxyPair
@@ -167,9 +184,6 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         BookQueryResultPrx proxy;
         BookQueryResultI impl;
     }
-
-    private static java.util.Map<Ice.Identity, SessionI> _sessions =
-        new java.util.HashMap<Ice.Identity, SessionI>();
 
     private java.util.List<QueryProxyPair> _queries = new java.util.LinkedList<QueryProxyPair>();
     private Ice.Logger _logger;

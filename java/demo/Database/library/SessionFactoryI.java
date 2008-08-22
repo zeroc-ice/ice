@@ -14,7 +14,7 @@ class SessionFactoryI extends _SessionFactoryDisp
     public synchronized SessionPrx
     create(Ice.Current c)
     {
-        SessionI session = new SessionI(_logger, c.adapter);
+        SessionI session = new SessionI(_logger, _pool, c.adapter, _libraryServant);
         _SessionTie servant = new _SessionTie(session);
         SessionPrx proxy = SessionPrxHelper.uncheckedCast(c.adapter.addWithUUID(servant));
         _logger.trace("SessionFactory", "create new session: " +
@@ -23,12 +23,16 @@ class SessionFactoryI extends _SessionFactoryDisp
         return proxy;
     }
 
-    SessionFactoryI(Ice.Logger logger, ReapThread reaper)
+    SessionFactoryI(Ice.Logger logger, ReapThread reaper, ConnectionPool pool, Ice.Object libraryServant)
     {
         _logger = logger;
         _reaper = reaper;
+        _pool = pool;
+        _libraryServant = libraryServant;
     }
 
     private Ice.Logger _logger;
     private ReapThread _reaper;
+    private ConnectionPool _pool;
+    private Ice.Object _libraryServant;
 }

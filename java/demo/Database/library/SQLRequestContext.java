@@ -55,29 +55,88 @@ class SQLRequestContext
     public void
     obtain()
     {
-        // Remove the current context from the map.
-        synchronized(_contextMap)
+        if(_trace)
         {
-            _contextMap.remove(Thread.currentThread());
+            _logger.trace("SQLRequestContext", "obtain context: " + this +
+                          " thread: " + Thread.currentThread());
         }
+        _obtain = true;
     }
 
     public void
-    destroy()
+    destroy(boolean commit)
+    {
+        assert _obtain;
+        destroyInternal(commit);
+    }
+
+    public void
+    error(String prefix, Exception ex)
+    {
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        _logger.error(prefix + ": error:\n" + sw.toString());
+    }
+
+    SQLRequestContext(Ice.Logger logger, ConnectionPool pool)
+    {
+        _logger = logger;
+        _pool = pool;
+        _conn = pool.acquire();
+
+        synchronized(_contextMap)
+        {
+            if(_trace)
+            {
+                _logger.trace("SQLRequestContext", "create new context: " + this +
+                              " thread: " + Thread.currentThread() +
+                              ": connection: " + _conn);
+            }
+
+            _contextMap.put(Thread.currentThread(), this);
+        }
+    }
+
+    // Called only during the dispatch process.
+    void
+    destroyFromDispatch(boolean commit)
     {
         synchronized(_contextMap)
         {
+            // Remove the current context from the map.
             SQLRequestContext context = _contextMap.remove(Thread.currentThread());
-            assert context == null;
+            assert context != null;
         }
 
+        if(!_obtain)
+        {
+            destroyInternal(commit);
+        }
+    }
+
+    private void
+    destroyInternal(boolean commit)
+    {
         // Release all resources.
         try
         {
-            // Rollback the transaction if it was not committed.
-            if(!_commit)
+            if(commit)
+            {
+                _conn.commit();
+                if(_trace)
+                {
+                    _logger.trace("SQLRequestContext", "commit context: " + this);
+                }
+            }
+            else
             {
                 _conn.rollback();
+                if(_trace)
+                {
+                    _logger.trace("SQLRequestContext", "rollback context: " + this);
+                }
             }
 
             java.util.Iterator<java.sql.Statement> p = _statements.iterator();
@@ -88,7 +147,7 @@ class SQLRequestContext
         }
         catch(java.sql.SQLException e)
         {
-            error(e);
+            error("SQLRequestContext", e);
         }
 
         _pool.release(_conn);
@@ -98,55 +157,14 @@ class SQLRequestContext
         _pool = null;
     }
 
-    public void
-    commit()
-        throws java.sql.SQLException
-    {
-        _conn.commit();
-        _commit = true;
-    }
-
-    SQLRequestContext(Ice.Logger logger, ConnectionPool pool)
-    {
-        _logger = logger;
-        _pool = pool;
-        _conn = pool.acquire();
-        synchronized(_contextMap)
-        {
-            _contextMap.put(Thread.currentThread(), this);
-        }
-    }
-
-    // Called only by the servant locator.
-    void
-    destroyFromLocator()
-    {
-        synchronized(_contextMap)
-        {
-            // Remove the current context from the map.
-            SQLRequestContext context = _contextMap.remove(Thread.currentThread());
-            assert context == this;
-        }
-        destroy();
-    }
-
-    private void
-    error(Exception ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        _logger.error("SQLRequestContext: error:\n" + sw.toString());
-    }
-
     // A map of threads to request contexts.
     private static java.util.Map<Thread, SQLRequestContext> _contextMap =
         new java.util.HashMap<Thread, SQLRequestContext>();
 
     private Ice.Logger _logger;
+    private boolean _trace = false;
     private ConnectionPool _pool;
     private java.util.List<java.sql.Statement> _statements = new java.util.LinkedList<java.sql.Statement>();
     private java.sql.Connection _conn;
-    private boolean _commit = false;
+    private boolean _obtain = false;
 }

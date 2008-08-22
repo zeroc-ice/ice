@@ -11,11 +11,10 @@ import Demo.*;
 
 class BookQueryResultI extends _BookQueryResultDisp
 {
-    // The query result owns the java.sql.Connection object until
+    // The query result owns the SQLRequestContext object until
     // destroyed.
-    BookQueryResultI(Ice.Logger logger, SQLRequestContext context, java.sql.ResultSet rs)
+    BookQueryResultI(SQLRequestContext context, java.sql.ResultSet rs)
     {
-        _logger = logger;
         _context = context;
         _rs = rs;
     }
@@ -45,7 +44,7 @@ class BookQueryResultI extends _BookQueryResultDisp
         catch(java.sql.SQLException e)
         {
             // Log the error, and raise an UnknownException.
-            error(e);
+            _context.error("BookQueryResultI", e);
             Ice.UnknownException ex = new Ice.UnknownException();
             ex.initCause(e);
             throw ex;
@@ -75,7 +74,7 @@ class BookQueryResultI extends _BookQueryResultDisp
             throw new Ice.ObjectNotExistException();
         }
         _destroyed = true;
-        _context.destroy();
+        _context.destroy(false);
 
         current.adapter.remove(current.id);
     }
@@ -87,21 +86,10 @@ class BookQueryResultI extends _BookQueryResultDisp
         if(!_destroyed)
         {
             _destroyed = true;
-            _context.destroy();
+            _context.destroy(false);
         }
     }
 
-    private void
-    error(Exception ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        _logger.error("BookQueryResultI: error:\n" + sw.toString());
-    }
-
-    private Ice.Logger _logger;
     private SQLRequestContext _context;
     private java.sql.ResultSet _rs;
     private boolean _destroyed = false;

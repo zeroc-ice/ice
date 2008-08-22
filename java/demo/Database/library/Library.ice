@@ -17,6 +17,16 @@ module Demo
 
 /**
  *
+ * This local exception is used internally if a java.sql.SQLException
+ * is raised.
+ *
+ **/
+local exception JDBCException
+{
+};
+
+/**
+ *
  * This exception is raised if the book already exists.
  *
  **/

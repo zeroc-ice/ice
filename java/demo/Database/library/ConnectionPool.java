@@ -9,24 +9,6 @@
 
 class ConnectionPool
 {
-    public
-    ConnectionPool(Ice.Logger logger, String url, String username, String password, int numConnections)
-        throws java.sql.SQLException
-    {
-        _logger = logger;
-        _url = url;
-        _username = username;
-        _password = password;
-
-        _nconnections = numConnections;
-        while(numConnections-- > 0)
-        {
-            java.sql.Connection connection = java.sql.DriverManager.getConnection(url, username, password);
-            connection.setAutoCommit(false);
-            _connections.add(connection);
-        }
-    }
-
     public synchronized void
     destroy()
     {
@@ -98,7 +80,10 @@ class ConnectionPool
         // we need to re-establish the connection.
         while(conn == null)
         {
-            _logger.trace("ConnectionPool", "establishing new database connection");
+            if(_trace)
+            {
+                _logger.trace("ConnectionPool", "establishing new database connection");
+            }
             try
             {
                 conn = java.sql.DriverManager.getConnection(_url, _username, _password);
@@ -113,6 +98,11 @@ class ConnectionPool
                 _logger.warning("ConnectionPool: database connection failed:\n" + sw.toString());
             }
         }
+        if(_trace)
+        {
+            _logger.trace("ConnectionPool", "returning connection: " + conn + " " +
+                          _connections.size() + "/" + _nconnections + " remaining");
+        }
         return conn;
     }
 
@@ -126,7 +116,30 @@ class ConnectionPool
         }
     }
 
-    Ice.Logger _logger;
+    ConnectionPool(Ice.Logger logger, String url, String username, String password, int numConnections)
+        throws java.sql.SQLException
+    {
+        _logger = logger;
+        _url = url;
+        _username = username;
+        _password = password;
+
+        _nconnections = numConnections;
+        if(_trace)
+        {
+            _logger.trace("ConnectionPool", "establishing " + numConnections + " connections to " + url);
+        }
+        while(numConnections-- > 0)
+        {
+            java.sql.Connection connection = java.sql.DriverManager.getConnection(url, username, password);
+            connection.setAutoCommit(false);
+            _connections.add(connection);
+        }
+    }
+
+
+    private Ice.Logger _logger;
+    private boolean _trace = false;
     private String _url;
     private String _username;
     private String _password;

@@ -11,46 +11,61 @@ import Demo.*;
 
 class LibraryServer extends Ice.Application
 {
-    static class LocatorI implements Ice.ServantLocator
+    static class BookDispatchInterceptorI extends Ice.DispatchInterceptor
     {
-        LocatorI(Ice.Logger logger, ConnectionPool pool, Ice.Object bookServant, Ice.Object libraryServant)
+        BookDispatchInterceptorI(Ice.Logger logger, ConnectionPool pool, Ice.Object servant)
         {
             _logger = logger;
             _pool = pool;
-            _bookServant = bookServant;
-            _libraryServant = libraryServant;
+            _servant = servant;
+        }
+
+        public Ice.DispatchStatus 
+        dispatch(Ice.Request request)
+        {
+            SQLRequestContext context = new SQLRequestContext(_logger, _pool);
+            try
+            {
+                Ice.DispatchStatus status = _servant.ice_dispatch(request, null);
+                context.destroyFromDispatch(status == Ice.DispatchStatus.DispatchOK);
+                return status;
+            }
+            catch(JDBCException ex)
+            {
+                context.error("dispatch to " +
+                              request.getCurrent().id.category + "/" + request.getCurrent().id.name +
+                              " failed.", ex);
+                context.destroyFromDispatch(false);
+
+                // Translate the exception to UnknownException.
+                Ice.UnknownException e = new Ice.UnknownException();
+                ex.initCause(e);
+                throw e;
+            }
+        }
+
+        private Ice.Logger _logger;
+        private ConnectionPool _pool;
+        private Ice.Object _servant;
+    }
+
+    static class LocatorI implements Ice.ServantLocator
+    {
+        LocatorI(Ice.Logger logger, ConnectionPool pool, Ice.Object servant)
+        {
+            _servant = new BookDispatchInterceptorI(logger, pool, servant);
         }
 
         public Ice.Object
         locate(Ice.Current c, Ice.LocalObjectHolder cookie)
         {
-            assert c.id.category.equals("library") || c.id.category.equals("book");
-
-            // Setup the new SQL request context.
-            SQLRequestContext context = new SQLRequestContext(_logger, _pool);
-
-            if(c.id.category.equals("library"))
-            {
-                return _libraryServant;
-            }
-            else
-            {
-                assert(c.id.category.equals("book"));
-                return _bookServant;
-            }
+            assert c.id.category.equals("book");
+            return _servant;
         }
 
         public void
         finished(Ice.Current c, Ice.Object servant, Object cookie)
         {
-            // If a SQL request context is still associated with this
-            // request, then destroy it (it will not be associated if
-            // obtain was called).
-            SQLRequestContext context = SQLRequestContext.getCurrentContext();
-            if(context != null)
-            {
-                context.destroyFromLocator();
-            }
         }
 
         public void
@@ -58,16 +73,14 @@ class LibraryServer extends Ice.Application
         {
         }
 
-        private Ice.Logger _logger;
-        private ConnectionPool _pool;
-
-        private Ice.Object _bookServant;
-        private Ice.Object _libraryServant;
+        private Ice.Object _servant;
     }
 
     public int
     run(String[] args)
     {
+        args = communicator().getProperties().parseCommandLineOptions("JDBC", args);
+
         if(args.length > 0)
         {
             System.err.println(appName() + ": too many arguments");
@@ -123,14 +136,15 @@ class LibraryServer extends Ice.Application
         //
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
 
-        LocatorI locator = new LocatorI(logger, pool, new BookI(logger), new LibraryI(logger));
-
-        adapter.add(new SessionFactoryI(logger, reaper), communicator().stringToIdentity("SessionFactory"));
-        adapter.add(new Glacier2SessionManagerI(logger, reaper),
+        LocatorI locator = new LocatorI(logger, pool, new BookI());
+        Ice.Object library = new LibraryI();
+        
+        adapter.add(new SessionFactoryI(logger, reaper, pool, library),
+                    communicator().stringToIdentity("SessionFactory"));
+        adapter.add(new Glacier2SessionManagerI(logger, reaper, pool, library),
                     communicator().stringToIdentity("LibrarySessionManager"));
 
         adapter.addServantLocator(locator, "book");
-        adapter.addServantLocator(locator, "library");
 
         //
         // Everything ok, let's go.
