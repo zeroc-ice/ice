@@ -9,6 +9,7 @@ a JDBC API and demonstrates the following techniques:
  - Using a JDBC connection pool to provide JDBC connections for Ice
    requests.
  - Using an Ice servant locator.
+ - Using a dispatch interceptor.
 
 
 Building the demo
