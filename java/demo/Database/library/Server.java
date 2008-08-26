@@ -90,7 +90,9 @@ class LibraryServer extends Ice.Application
             return 1;
         }
 
-        ReapThread reaper = new ReapThread(logger);
+        long timeout = properties.getPropertyAsIntWithDefault("SessionTimeout", 30);
+
+        ReapThread reaper = new ReapThread(logger, timeout);
         reaper.start();
 
         //
@@ -101,7 +103,7 @@ class LibraryServer extends Ice.Application
         SQLRequestContext.initialize(logger, pool);
         adapter.addServantLocator(new LocatorI(new BookI()), "book");
         
-        adapter.add(new SessionFactoryI(logger, reaper), communicator().stringToIdentity("SessionFactory"));
+        adapter.add(new SessionFactoryI(logger, reaper, timeout), communicator().stringToIdentity("SessionFactory"));
         adapter.add(new Glacier2SessionManagerI(logger, reaper),
                     communicator().stringToIdentity("LibrarySessionManager"));
 

@@ -32,9 +32,10 @@ class ReapThread extends Thread
         SessionI session;
     }
 
-    ReapThread(Ice.Logger logger)
+    ReapThread(Ice.Logger logger, long timeout)
     {
         _logger = logger;
+        _timeout = timeout;
     }
 
     synchronized public void
@@ -44,7 +45,7 @@ class ReapThread extends Thread
         {
             try
             {
-                wait(1000);
+                wait((_timeout / 2) * 1000);
             }
             catch(InterruptedException e)
             {
@@ -63,7 +64,7 @@ class ReapThread extends Thread
                         // real-world example. Therefore the current time
                         // is computed for each iteration.
                         //
-                        if((System.currentTimeMillis() - s.session.timestamp()) > _timeout)
+                        if((System.currentTimeMillis() - s.session.timestamp()) > _timeout * 1000)
                         {
                             _logger.trace("ReapThread", "The session " +
                                           s.proxy.ice_getCommunicator().identityToString(s.proxy.ice_getIdentity()) +
@@ -119,7 +120,7 @@ class ReapThread extends Thread
         _sessions.add(new SessionProxyPair(proxy, session));
     }
 
-    private final long _timeout = 10 * 1000; // 10 seconds.
+    private final long _timeout; // Seconds.
     private Ice.Logger _logger;
     private boolean _terminated = false;
     private java.util.List<SessionProxyPair> _sessions = new java.util.LinkedList<SessionProxyPair>();

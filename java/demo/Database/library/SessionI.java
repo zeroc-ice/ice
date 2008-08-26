@@ -31,6 +31,16 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         _timestamp = System.currentTimeMillis();
     }
 
+    synchronized public long
+    getSessionTimeout(Ice.Current c)
+    {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+        return 5000;
+    }
+
     synchronized public void
     destroy(Ice.Current c)
     {

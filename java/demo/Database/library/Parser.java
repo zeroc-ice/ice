@@ -170,37 +170,30 @@ class Parser
                 _current = next.get(0);
             }
         }
+        else
+        {
+            _current = null;
+        }
         printCurrent();
     }
 
     void
     printCurrent()
     {
-        try
+        if(_current != null)
         {
-            if(_current != null)
+            System.out.println("current book is:");
+            System.out.println("isbn: " + _current.isbn);
+            System.out.println("title: " + _current.title);
+            System.out.println("authors: " + _current.authors);
+            if(_current.rentedBy.length() > 0)
             {
-                System.out.println("current book is:");
-                System.out.println("isbn: " + _current.isbn);
-                System.out.println("title: " + _current.title);
-                System.out.println("authors: " + _current.authors);
-                if(_current.rentedBy.length() > 0)
-                {
-                    System.out.println("rented: " + _current.rentedBy);
-                }
-            }
-            else
-            {
-                System.out.println("no current book");
+                System.out.println("rented: " + _current.rentedBy);
             }
         }
-        catch(Ice.ObjectNotExistException ex)
+        else
         {
-            System.out.println("current book no longer exists");
-        }
-        catch(Ice.LocalException ex)
-        {
-            error(ex.toString());
+            System.out.println("no current book");
         }
     }
 
