@@ -179,7 +179,7 @@ class RunParser
             }
 
             session = new DemoSessionAdapter(factory.create());
-            timeout = factory.getSessionTimeout();
+            timeout = factory.getSessionTimeout()/2;
         }
         SessionRefreshThread refresh = new SessionRefreshThread(communicator.getLogger(), timeout, session);
         refresh.start();
