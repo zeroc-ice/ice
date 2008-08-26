@@ -77,7 +77,7 @@ class RunParser
         {
             _logger = logger;
             _session = session;
-            _timeout = timeout;
+            _timeout = timeout; // seconds.
         }
 
         synchronized public void
@@ -87,7 +87,7 @@ class RunParser
             {
                 try
                 {
-                    wait(_timeout);
+                    wait(_timeout * 1000);
                 }
                 catch(InterruptedException e)
                 {
@@ -125,6 +125,7 @@ class RunParser
     {
         SessionAdapter session;
         Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(communicator.getDefaultRouter());
+        long timeout;
         if(router != null)
         {
             Glacier2.SessionPrx glacier2session = null;
@@ -148,6 +149,7 @@ class RunParser
                     try
                     {
                         glacier2session = router.createSession(id, pw);
+                        timeout = router.getSessionTimeout() / 2;
                         break;
                     }
                     catch(Glacier2.PermissionDeniedException ex)
@@ -177,8 +179,9 @@ class RunParser
             }
 
             session = new DemoSessionAdapter(factory.create());
+            timeout = factory.getSessionTimeout();
         }
-        SessionRefreshThread refresh = new SessionRefreshThread(communicator.getLogger(), 5000, session);
+        SessionRefreshThread refresh = new SessionRefreshThread(communicator.getLogger(), timeout, session);
         refresh.start();
 
         LibraryPrx library = session.getLibrary();

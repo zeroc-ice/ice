@@ -17,6 +17,12 @@ JDBC.NumConnections=5
 Ice.ThreadPool.Server.Size=5
 
 #
+# How long to keep sessions alive with no activity. Its best to use
+# the same value as config.glacier2.
+#
+SessionTimeout=30
+
+#
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1

@@ -27,12 +27,20 @@ class SessionFactoryI extends _SessionFactoryDisp
         return proxy;
     }
 
-    SessionFactoryI(Ice.Logger logger, ReapThread reaper)
+    public long
+    getSessionTimeout(Ice.Current c)
+    {
+        return _timeout;
+    }
+
+    SessionFactoryI(Ice.Logger logger, ReapThread reaper, long timeout)
     {
         _logger = logger;
         _reaper = reaper;
+        _timeout = timeout;
     }
 
     private Ice.Logger _logger;
     private ReapThread _reaper;
+    private long _timeout;
 }
