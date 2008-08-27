@@ -64,6 +64,13 @@ class ConnectionPool
                 _logger.warning("ConnectionPool: lost connection to database");
                 conn = null;
             }
+            else
+            {
+                // Probe the connection with the database.
+                java.sql.PreparedStatement stmt = conn.prepareStatement("SELECT 1");
+                java.sql.ResultSet rs = stmt.executeQuery();
+                stmt.close();
+            }
         }
         catch(java.sql.SQLException e)
         {
