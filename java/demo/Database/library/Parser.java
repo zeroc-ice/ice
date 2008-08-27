@@ -58,7 +58,7 @@ class Parser
         }
         catch(BookExistsException ex)
         {
-            error("the book already exists.");
+            error("the book already exists");
         }
         catch(Ice.LocalException ex)
         {
@@ -87,14 +87,14 @@ class Parser
                 {
                     // Ignore
                 }
+                _query = null;
+                _current = null;
             }
-            _query = null;
-            _current = null;
 
             BookDescriptionHolder first = new BookDescriptionHolder();
             BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
-
             _library.queryByIsbn((String)args.get(0), first, result);
+
             _current = first.value;
             _query = result.value;
             printCurrent();
@@ -130,14 +130,14 @@ class Parser
                 {
                     // Ignore
                 }
+                _query = null;
+                _current = null;
             }
-            _query = null;
-            _current = null;
 
             BookDescriptionHolder first = new BookDescriptionHolder();
             BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
-
             _library.queryByAuthor((String)args.get(0), first, result);
+
             _current = first.value;
             _query = result.value;
             printCurrent();
@@ -155,26 +155,39 @@ class Parser
     void
     nextFoundBook()
     {
-        if(_query != null)
+        if(_query == null)
         {
-            Ice.IntHolder remaining = new Ice.IntHolder();
+            System.out.println("no next book");
+            return;
+        }
+
+        try
+        {
             Ice.BooleanHolder destroyed = new Ice.BooleanHolder();
             java.util.List<BookDescription> next = _query.next(1, destroyed);
-            if(destroyed.value)
-            {
-                _query = null;
-                _current = null;
-            }
-            else
+            if(next.size() > 0)
             {
                 _current = next.get(0);
             }
+            else
+            {
+                assert destroyed.value;
+                _current = null;
+            }
+            if(destroyed.value)
+            {
+                _query = null;
+            }
+            printCurrent();
         }
-        else
+        catch(Ice.ObjectNotExistException ex)
         {
-            _current = null;
+            System.out.println("the query object no longer exists");
         }
-        printCurrent();
+        catch(Ice.LocalException ex)
+        {
+            error(ex.toString());
+        }
     }
 
     void
@@ -212,6 +225,7 @@ class Parser
             {
                 _current.proxy.rentBook((String)args.get(0));
                 System.out.println("the book is now rented by `" + (String)args.get(0) + "'");
+                _current = _current.proxy.describe();
             }
             else
             {
@@ -220,7 +234,7 @@ class Parser
         }
         catch(BookRentedException ex)
         {
-            System.out.println("the book has already been rented.");
+            System.out.println("the book has already been rented");
         }
         catch(Ice.ObjectNotExistException ex)
         {
@@ -240,7 +254,8 @@ class Parser
             if(_current != null)
             {
                 _current.proxy.returnBook();
-                System.out.println( "the book has been returned.");
+                System.out.println( "the book has been returned");
+                _current = _current.proxy.describe();
             }
             else
             {
@@ -249,7 +264,7 @@ class Parser
         }
         catch(BookNotRentedException ex)
         {
-            System.out.println("the book is not currently rented.");
+            System.out.println("the book is not currently rented");
         }
         catch(Ice.ObjectNotExistException ex)
         {
