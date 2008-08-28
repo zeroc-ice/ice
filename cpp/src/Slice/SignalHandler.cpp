@@ -33,6 +33,8 @@ static BOOL WINAPI signalHandler(DWORD dwCtrlType)
 static void signalHandler(int signal)
 #endif
 {
+    cout << "Signal handler called" << endl;
+
     if(_callback != 0)
     {
         _callback();

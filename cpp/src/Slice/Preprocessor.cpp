@@ -71,9 +71,6 @@ Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, co
 
 Slice::Preprocessor::~Preprocessor()
 {
-    _preprocess = 0;
-    SignalHandler::setCallback(0);
-
     close();
 }
 
@@ -176,22 +173,9 @@ Slice::Preprocessor::preprocess(bool keepComments)
         //
         char* buf = mcpp_get_mem_buffer(Out);
 
-#ifdef _WIN32
-        TCHAR buffer[512];
-        DWORD ret = GetTempPath(512, buffer);
-        if(ret > 512 || ret == 0)
-        {
-            fprintf(stderr, "GetTempPath failed (%d)\n", GetLastError());
-        }
-        _cppFile = string(buffer) + "\\.preprocess." + IceUtil::generateUUID();
-        _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
-#else
-        _cppFile = "/tmp/.preprocess." + IceUtil::generateUUID();
-        _cppHandle = ::fopen(_cppFile.c_str(), "w+");
-#endif
+        _cppHandle = tmpfile();
         if(_cppHandle != NULL)
         {
-            SignalHandler::addFile(_cppFile);
             if(buf)
             {
                 ::fwrite(buf, strlen(buf), 1, _cppHandle);
@@ -200,7 +184,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
         }
         else
         {
-            fprintf(stderr, "Could not open temporary file: %s\n", _cppFile.c_str());
+            fprintf(stderr, "Could not open temporary file.\n");
         }
     }
 
@@ -468,6 +452,9 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
 bool
 Slice::Preprocessor::close()
 {
+    _preprocess = 0;
+    SignalHandler::setCallback(0);
+
     if(_cppHandle != 0)
     {
         int status = fclose(_cppHandle);
@@ -477,12 +464,6 @@ Slice::Preprocessor::close()
         {
             return false;
         }
-
-#ifdef _WIN32
-        _unlink(_cppFile.c_str());
-#else
-        unlink(_cppFile.c_str());
-#endif
     }
     
     return true;
