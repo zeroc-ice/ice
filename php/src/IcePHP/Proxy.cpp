@@ -1307,7 +1307,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_router)
     Ice::RouterPrx router;
     if(proxy)
     {
-        if(!def || !def->isA("Ice::Router"))
+        if(!def || !def->isA("::Ice::Router"))
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "ice_router requires a proxy narrowed to Ice::Router");
             RETURN_NULL();
@@ -1398,7 +1398,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_locator)
     Ice::LocatorPrx locator;
     if(proxy)
     {
-        if(!def || !def->isA("Ice::Locator"))
+        if(!def || !def->isA("::Ice::Locator"))
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "ice_locator requires a proxy narrowed to Ice::Locator");
             RETURN_NULL();

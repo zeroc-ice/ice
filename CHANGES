@@ -23,7 +23,7 @@ Changes since version 3.3.0
 General Changes
 ===============
 
-- Fixed a bug in the slice translators that prevented them from being
+- Fixed a bug in the Slice translators that prevented them from being
   run from a directory without write permissions, even if no output 
   files were being written to the directory.
 
@@ -36,11 +36,11 @@ C++ Changes
 - Fixed a bug where slice2cpp would generate absolute include paths
   if the command line option "-I." was used.
 
-- Fixed Freeze transactional evictor bug which could cause the
+- Fixed Freeze transactional evictor bug that could cause the
   transaction of an asynchronous method dispatch to be rolled back if
   rollback on user exception was enabled.
 
-- Fixed a bug which could cause the first invocation on a proxy to
+- Fixed a bug that could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
 
 
@@ -49,6 +49,7 @@ C# Changes
 
 - Fixed a bug in slice2cs that caused a core dump if a dictionary
   had a value type of Object.
+
 
 Python Changes
 ==============
@@ -65,6 +66,12 @@ Ruby Changes
 
 - Added helper Ice.getSliceDir, which locates the slice directory
   in a standard Ice installation.
+
+
+PHP Changes
+===========
+
+- Fixed bugs in the ice_router and ice_locator proxy methods.
 
 
 ======================================================================
