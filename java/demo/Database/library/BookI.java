@@ -67,6 +67,100 @@ class BookI extends _BookDisp
     }
 
     public void
+    setTitle(String title, Ice.Current current)
+    {
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
+        assert context != null;
+        Integer id = new Integer(current.id.name);
+
+        try
+        {
+            java.sql.PreparedStatement stmt = context.prepareStatement("UPDATE books SET title = ? WHERE id = ?");
+            stmt.setString(1, title);
+            stmt.setInt(2, id);
+            int count = stmt.executeUpdate();
+            assert count == 1;
+        }
+        catch(java.sql.SQLException e)
+        {
+            JDBCException ex = new JDBCException();
+            ex.initCause(e);
+            throw ex;
+        }
+    }
+
+    public void
+    setAuthors(java.util.List<String> authors, Ice.Current current)
+    {
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
+        assert context != null;
+        Integer id = new Integer(current.id.name);
+
+        try
+        {
+            // First destroy each of the authors_books records.
+            java.sql.PreparedStatement stmt = context.prepareStatement("DELETE FROM authors_books WHERE book_id = ?");
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+
+            //
+            // Convert the authors string to an id set.
+            //
+            java.util.List<Integer> authIds = new java.util.LinkedList<Integer>();
+            java.util.Iterator<String> p = authors.iterator();
+            while(p.hasNext())
+            {
+                String author = p.next();
+
+                Integer authid;
+                stmt = context.prepareStatement("SELECT * FROM authors WHERE name = ?");
+                stmt.setString(1, author);
+                java.sql.ResultSet rs = stmt.executeQuery();
+                if(rs.next())
+                {
+                    // If there is a result, then the database
+                    // already contains this author.
+                    authid = rs.getInt(1);
+                    assert !rs.next();
+                }
+                else
+                {
+                    // Otherwise, create a new author record.
+                    stmt = context.prepareStatement("INSERT INTO authors (name) VALUES(?)",
+                                                    java.sql.Statement.RETURN_GENERATED_KEYS);
+                    stmt.setString(1, author);
+                    int count = stmt.executeUpdate();
+                    assert count == 1;
+                    rs = stmt.getGeneratedKeys();
+                    boolean next = rs.next();
+                    assert next;
+                    authid = rs.getInt(1);
+                }
+
+                // Add the new id to the list of ids.
+                authIds.add(authid);
+            }
+
+            // Create new authors_books records.
+            java.util.Iterator<Integer> q = authIds.iterator();
+            while(q.hasNext())
+            {
+                stmt = context.prepareStatement("INSERT INTO authors_books (book_id, author_id) VALUES(?, ?)");
+                stmt.setInt(1, id);
+                stmt.setInt(2, q.next());
+                int count = stmt.executeUpdate();
+                assert count == 1;
+            }
+        }
+        catch(java.sql.SQLException e)
+        {
+            JDBCException ex = new JDBCException();
+            ex.initCause(e);
+            throw ex;
+        }
+    }
+
+    public void
     destroy(Ice.Current current)
     {
         SQLRequestContext context = SQLRequestContext.getCurrentContext();
@@ -132,11 +226,16 @@ class BookI extends _BookDisp
 
     public void
     rentBook(String name, Ice.Current current)
-        throws BookRentedException
+        throws InvalidCustomerException, BookRentedException
     {
         SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
         Integer id = new Integer(current.id.name);
+        name = name.trim();
+        if(name.length() == 0)
+        {
+            throw new InvalidCustomerException();
+        }
 
         try
         {

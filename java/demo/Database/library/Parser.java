@@ -23,8 +23,9 @@ class Parser
             "help                    Print this message.\n" +
             "exit, quit              Exit this program.\n" +
             "add isbn title authors  Create new book.\n" +
-            "isbn NUMBER             Find the book with given ISBN number.\n" +
+            "isbn NUMBER             Find the book that start with the given ISBN number.\n" +
             "authors NAME            Find all books by the given authors.\n" +
+            "title NAME              Find all books which have the given title.\n" +
             "next                    Set the current book to the next one that was found.\n" +
             "current                 Display the current book.\n" +
             "rent NAME               Rent the current book for customer NAME.\n" +
@@ -91,17 +92,20 @@ class Parser
                 _current = null;
             }
 
-            BookDescriptionHolder first = new BookDescriptionHolder();
+            BookDescriptionSeqHolder first = new BookDescriptionSeqHolder();
+            Ice.IntHolder nrows = new Ice.IntHolder();
             BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
-            _library.queryByIsbn((String)args.get(0), first, result);
+            _library.queryByIsbn((String)args.get(0), 1, first, nrows, result);
 
-            _current = first.value;
+            System.out.println(nrows.value + " results");
+            if(nrows.value == 0)
+            {   
+                return;
+            }
+
+            _current = first.value.get(0);
             _query = result.value;
             printCurrent();
-        }
-        catch(NoResultsException ex)
-        {
-            error(ex.toString());
         }
         catch(Ice.LocalException ex)
         {
@@ -134,17 +138,66 @@ class Parser
                 _current = null;
             }
 
-            BookDescriptionHolder first = new BookDescriptionHolder();
+            BookDescriptionSeqHolder first = new BookDescriptionSeqHolder();
+            Ice.IntHolder nrows = new Ice.IntHolder();
             BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
-            _library.queryByAuthor((String)args.get(0), first, result);
+            _library.queryByAuthor((String)args.get(0), 1, first, nrows, result);
 
-            _current = first.value;
+            System.out.println(nrows.value + " results");
+            if(nrows.value == 0)
+            {   
+                return;
+            }
+
+            _current = first.value.get(0);
             _query = result.value;
             printCurrent();
         }
-        catch(NoResultsException ex)
+        catch(Ice.LocalException ex)
         {
             error(ex.toString());
+        }
+    }
+
+    void
+    findTitle(java.util.List args)
+    {
+        if(args.size() != 1)
+        {
+            error("`title' requires exactly one argument (type `help' for more info)");
+            return;
+        }
+
+        try
+        {
+            if(_query != null)
+            {
+                try
+                {
+                    _query.destroy();
+                }
+                catch(Exception e)
+                {
+                    // Ignore
+                }
+                _query = null;
+                _current = null;
+            }
+
+            BookDescriptionSeqHolder first = new BookDescriptionSeqHolder();
+            Ice.IntHolder nrows = new Ice.IntHolder();
+            BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
+            _library.queryByTitle((String)args.get(0), 1, first, nrows, result);
+
+            System.out.println(nrows.value + " results");
+            if(nrows.value == 0)
+            {   
+                return;
+            }
+
+            _current = first.value.get(0);
+            _query = result.value;
+            printCurrent();
         }
         catch(Ice.LocalException ex)
         {
@@ -235,6 +288,10 @@ class Parser
         catch(BookRentedException ex)
         {
             System.out.println("the book has already been rented");
+        }
+        catch(InvalidCustomerException ex)
+        {
+            System.out.println("the customer name is invalid");
         }
         catch(Ice.ObjectNotExistException ex)
         {

@@ -47,6 +47,10 @@ class Scanner
         {
             return new Token(Token.TOK_FIND_AUTHORS);
         }
+        else if(s.equals("title"))
+        {
+            return new Token(Token.TOK_FIND_TITLE);
+        }
         else if(s.equals("next"))
         {
             return new Token(Token.TOK_NEXT_FOUND_BOOK);

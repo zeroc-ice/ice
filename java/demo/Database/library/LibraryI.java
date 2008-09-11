@@ -15,8 +15,8 @@ import Demo.*;
 class LibraryI extends _LibraryDisp
 {
     public void
-    queryByIsbn(String isbn, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
-        throws NoResultsException
+    queryByIsbn(String isbn, int n, BookDescriptionSeqHolder first, Ice.IntHolder nrows,
+                BookQueryResultPrxHolder result, Ice.Current current)
     {
         SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
@@ -25,16 +25,31 @@ class LibraryI extends _LibraryDisp
 
         try
         {
-            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT * FROM books WHERE isbn LIKE ?");
-            stmt.setString(1, "%" + isbn + "%");
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT COUNT(*) FROM books WHERE isbn LIKE ?");
+            stmt.setString(1, isbn + "%");
             java.sql.ResultSet rs = stmt.executeQuery();
-            if(!rs.next())
+            boolean next = rs.next();
+            assert next;
+            nrows.value = rs.getInt(1);
+            if(nrows.value == 0)
             {
-                throw new NoResultsException();
+                return;
             }
 
-            first.value = BookI.extractDescription(context, rs, current.adapter);
-            if(rs.next())
+            stmt = context.prepareStatement("SELECT * FROM books WHERE isbn LIKE ?");
+            stmt.setString(1, "%" + isbn + "%");
+            rs = stmt.executeQuery();
+            next = rs.next();
+            assert next;
+
+            first.value = new java.util.LinkedList<BookDescription>();
+            next = true;
+            for(int i = 0; i < n && next; ++i)
+            {
+                first.value.add(BookI.extractDescription(context, rs, current.adapter));
+                next = rs.next();
+            }
+            if(next)
             {
                 // The SQLRequestContext is now owned by the query
                 // implementation.
@@ -53,8 +68,8 @@ class LibraryI extends _LibraryDisp
     }
 
     public void
-    queryByAuthor(String author, BookDescriptionHolder first, BookQueryResultPrxHolder result, Ice.Current current)
-        throws NoResultsException
+    queryByAuthor(String author, int n, BookDescriptionSeqHolder first, Ice.IntHolder nrows,
+                  BookQueryResultPrxHolder result, Ice.Current current)
     {
         SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
@@ -69,12 +84,13 @@ class LibraryI extends _LibraryDisp
             java.sql.ResultSet rs = stmt.executeQuery();
             if(!rs.next())
             {
-                throw new NoResultsException();
+                // No results are available.
+                nrows.value = 0;
+                return;
             }
 
             // Build a query that finds all books by these authors.
-            StringBuffer sb = new StringBuffer("SELECT * FROM books INNER JOIN authors_books ON " +
-                                               "books.id=authors_books.book_id AND (");
+            StringBuffer sb = new StringBuffer("(");
             boolean front = true;
             do
             {
@@ -89,18 +105,89 @@ class LibraryI extends _LibraryDisp
             while(rs.next());
             sb.append(")");
 
-            // Execute the query.
-            stmt = context.prepareStatement(sb.toString());
+            stmt = context.prepareStatement(
+                "SELECT COUNT(*) FROM books INNER JOIN authors_books ON books.id=authors_books.book_id AND " +
+                sb.toString());
             rs = stmt.executeQuery();
-            if(!rs.next())
+            boolean next = rs.next();
+            assert next;
+            nrows.value = rs.getInt(1);
+            if(nrows.value == 0)
             {
-                throw new NoResultsException();
+                return;
             }
 
-            first.value = BookI.extractDescription(context, rs, current.adapter);
-            if(rs.next())
+            // Execute the query.
+            stmt = context.prepareStatement(
+                "SELECT * FROM books INNER JOIN authors_books ON books.id=authors_books.book_id AND " + sb.toString());
+            rs = stmt.executeQuery();
+            next = rs.next();
+            assert next;
+
+            next = true;
+            first.value = new java.util.LinkedList<BookDescription>();
+            for(int i = 0; i < n && next; ++i)
             {
-                // The SQLRequestContext is now owned by the query implementation.
+                first.value.add(BookI.extractDescription(context, rs, current.adapter));
+                next = rs.next();
+            }
+            if(next)
+            {
+                // The SQLRequestContext is now owned by the query
+                // implementation.
+                context.obtain();
+                BookQueryResultI impl = new BookQueryResultI(context, rs);
+                result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));
+                add(result.value, impl);
+            }
+        }
+        catch(java.sql.SQLException e)
+        {
+            JDBCException ex = new JDBCException();
+            ex.initCause(e);
+            throw ex;
+        }
+    }
+
+    public void
+    queryByTitle(String title, int n, BookDescriptionSeqHolder first, Ice.IntHolder nrows,
+                BookQueryResultPrxHolder result, Ice.Current current)
+    {
+        SQLRequestContext context = SQLRequestContext.getCurrentContext();
+        assert context != null;
+
+        reapQueries();
+
+        try
+        {
+            java.sql.PreparedStatement stmt = context.prepareStatement("SELECT COUNT(*) FROM books WHERE title LIKE ?");
+            stmt.setString(1, "%" + title + "%");
+            java.sql.ResultSet rs = stmt.executeQuery();
+            boolean next = rs.next();
+            assert next;
+            nrows.value = rs.getInt(1);
+            if(nrows.value == 0)
+            {
+                return;
+            }
+
+            stmt = context.prepareStatement("SELECT * FROM books WHERE title LIKE ?");
+            stmt.setString(1, "%" + title + "%");
+            rs = stmt.executeQuery();
+            next = rs.next();
+            assert next;
+
+            first.value = new java.util.LinkedList<BookDescription>();
+            next = true;
+            for(int i = 0; i < n && next; ++i)
+            {
+                first.value.add(BookI.extractDescription(context, rs, current.adapter));
+                next = rs.next();
+            }
+            if(next)
+            {
+                // The SQLRequestContext is now owned by the query
+                // implementation.
                 context.obtain();
                 BookQueryResultI impl = new BookQueryResultI(context, rs);
                 result.value = BookQueryResultPrxHelper.uncheckedCast(current.adapter.addWithUUID(impl));

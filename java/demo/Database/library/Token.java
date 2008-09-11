@@ -14,13 +14,14 @@ class Token
     public static final int TOK_ADD_BOOK = 2;
     public static final int TOK_FIND_ISBN = 3;
     public static final int TOK_FIND_AUTHORS = 4;
-    public static final int TOK_NEXT_FOUND_BOOK = 5;
-    public static final int TOK_PRINT_CURRENT = 6;
-    public static final int TOK_RENT_BOOK = 7;
-    public static final int TOK_RETURN_BOOK = 8;
-    public static final int TOK_REMOVE_CURRENT = 9;
-    public static final int TOK_STRING = 12;
-    public static final int TOK_SEMI = 13;
+    public static final int TOK_FIND_TITLE = 5;
+    public static final int TOK_NEXT_FOUND_BOOK = 6;
+    public static final int TOK_PRINT_CURRENT = 7;
+    public static final int TOK_RENT_BOOK = 8;
+    public static final int TOK_RETURN_BOOK = 9;
+    public static final int TOK_REMOVE_CURRENT = 10;
+    public static final int TOK_STRING = 11;
+    public static final int TOK_SEMI = 12;
     
     int type;
     String value;

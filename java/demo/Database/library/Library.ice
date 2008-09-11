@@ -45,19 +45,19 @@ exception BookRentedException
 
 /**
  *
- * This exception is raised if the book has not been rented.
+ * This exception is raised if a customer name is invalid.
  *
  **/
-exception BookNotRentedException
+exception InvalidCustomerException
 {
 };
 
 /**
  *
- * This exception is raised if a query has no results.
+ * This exception is raised if the book has not been rented.
  *
  **/
-exception NoResultsException
+exception BookNotRentedException
 {
 };
 
@@ -109,6 +109,24 @@ interface Book
 
     /**
      *
+     * Set the title of a book.
+     *
+     * @param title The book title.
+     *
+     **/
+    void setTitle(string title);
+
+    /**
+     *
+     * Set the book authors.
+     *
+     * @param authors The book authors.
+     *
+     **/
+    void setAuthors(["java:type:java.util.LinkedList<String>:java.util.List<String>"] Ice::StringSeq authors);
+
+    /**
+     *
      * Rent the book to the specified customer.
      *
      * @param customer The customer.
@@ -116,9 +134,11 @@ interface Book
      * @throws BookRentedException Raised if the book has already been
      * rented.
      *
+     * @throws InvalidCustomerException Raised if the customer is invalid.
+     *
      **/
     void rentBook(string name)
-        throws BookRentedException;
+        throws InvalidCustomerException, BookRentedException;
 
     /**
      *
@@ -190,21 +210,22 @@ interface Library
 {
     /**
      *
-     * Query based on isbn number. The query is a partial match of the
-     * isbn number.
+     * Query based on isbn number. The query is a partial match at the
+     * start of the isbn number.
      *
      * @param isbn The ISBN number.
      *
-     * @param first The first book description.
+     * @param n The number of rows to retrieve in the initial request.
+
+     * @param first The first set of results, up to n results.
+     *
+     * @param nrows The total number of rows.
      *
      * @param result The remainder of the results. If there are no
      * further results, a null proxy is returned.
-
-     * @throws NoResultsException Raised if there are no results.
      *
      **/
-    void queryByIsbn(string isbn, out BookDescription first, out BookQueryResult* result)
-        throws NoResultsException;
+    void queryByIsbn(string isbn, int n, out BookDescriptionSeq first, out int nrows, out BookQueryResult* result);
 
     /**
      *
@@ -213,16 +234,36 @@ interface Library
      *
      * @param author The authors name.
      *
-     * @param first The first book description.
+     * @param n The number of rows to retrieve in the initial request.
+
+     * @param first The first set of results, up to n results.
+     *
+     * @param nrows The total number of rows.
      *
      * @param result The remainder of the results. If there are no
      * further results, a null proxy is returned.
-
-     * @throws NoResultsException Raised if there are no results.
      *
      **/
-    void queryByAuthor(string author, out BookDescription first, out BookQueryResult* result)
-        throws NoResultsException;
+    void queryByAuthor(string author, int n, out BookDescriptionSeq first, out int nrows, out BookQueryResult* result);
+
+    /**
+     *
+     * Query based on the book title. The query is a partial match of
+     * the book title.
+     *
+     * @param author The authors name.
+     *
+     * @param n The number of rows to retrieve in the initial request.
+
+     * @param first The first set of results, up to n results.
+     *
+     * @param nrows The total number of rows.
+     *
+     * @param result The remainder of the results. If there are no
+     * further results, a null proxy is returned.
+     *
+     **/
+    void queryByTitle(string title, int n, out BookDescriptionSeq first, out int nrows, out BookQueryResult* result);
 
     /**
      *
