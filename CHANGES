@@ -31,6 +31,10 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a bug in the IceGrid locator implementation which could cause
+  the registry to crash when resolving the endpoints of a replica
+  group and if some servers were activating.
+
 - Fixed icegridadmin `service list' command crash.
 
 - Fixed a bug where slice2cpp would generate absolute include paths
