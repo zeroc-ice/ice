@@ -588,13 +588,15 @@ LocatorI::activate(const LocatorAdapterInfo& adapter, const RequestPtr& request)
         // we just add this one to the queue. If not, we add it to the queue and initiate
         // a call on the adapter to get its direct proxy.
         //
-        PendingRequestsMap::iterator p;
-        p = _pendingRequests.insert(make_pair(adapter.id, PendingRequests())).first;
-        p->second.insert(request);
-        if(p->second.size() != 1)
+        PendingRequestsMap::iterator p = _pendingRequests.find(adapter.id);
+        if(p != _pendingRequests.end())
         {
+            p->second.insert(request);
             return;
         }
+
+        p = _pendingRequests.insert(make_pair(adapter.id, PendingRequests())).first;
+        p->second.insert(request);
     }
 
     AMI_Adapter_activatePtr amiCB = new AMI_Adapter_activateI(this, adapter.id);

@@ -11,6 +11,7 @@
 #include <Util.h>
 
 #include <Slice/Preprocessor.h>
+#include <Slice/SignalHandler.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/InputUtil.h>
 #include <fstream>
@@ -402,6 +403,8 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
 
     for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
     {
+        SignalHandler signalHandler;
+
         Slice::Preprocessor icecpp("icecpp", *p, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
 

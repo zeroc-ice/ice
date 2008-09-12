@@ -11,6 +11,7 @@
 #include <Util.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/RubyUtil.h>
+#include <Slice/SignalHandler.h>
 #include <IceUtil/Options.h>
 
 using namespace std;
@@ -121,6 +122,8 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
 
         for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
         {
+            SignalHandler signalHandler;
+
             string file = *p;
             Slice::Preprocessor icecpp("icecpp", file, cppArgs);
             FILE* cppHandle = icecpp.preprocess(false);
