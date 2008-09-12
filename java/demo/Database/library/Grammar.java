@@ -78,6 +78,15 @@ class Grammar
                     }
                     _parser.findAuthors(s);
                 }
+                else if(_token.type == Token.TOK_FIND_TITLE)
+                {
+                    java.util.List s = strings();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
+                    _parser.findTitle(s);
+                }
                 else if(_token.type == Token.TOK_NEXT_FOUND_BOOK)
                 {
                     _token = _scanner.nextToken();
