@@ -37,7 +37,7 @@ class LibraryI extends _LibraryDisp
             }
 
             stmt = context.prepareStatement("SELECT * FROM books WHERE isbn LIKE ?");
-            stmt.setString(1, "%" + isbn + "%");
+            stmt.setString(1, isbn + "%");
             rs = stmt.executeQuery();
             next = rs.next();
             assert next;
