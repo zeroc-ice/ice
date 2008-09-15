@@ -247,17 +247,21 @@ class BookI extends _BookDisp
                 throw new Ice.ObjectNotExistException();
             }
 
-            rs.getInt("renter_id");
+            Integer renterId = rs.getInt("renter_id");
             if(!rs.wasNull())
             {
-                throw new BookRentedException();
+                stmt = context.prepareStatement("SELECT * FROM customers WHERE id = ?");
+                stmt.setInt(1, renterId);
+                rs = stmt.executeQuery();
+                boolean next = rs.next();
+                assert next;
+                throw new BookRentedException(rs.getString("name"));
             }
 
             stmt = context.prepareStatement("SELECT * FROM customers WHERE name = ?");
             stmt.setString(1, name);
             rs = stmt.executeQuery();
 
-            Integer renterId = null;
             if(rs.next())
             {
                 renterId = rs.getInt("id");

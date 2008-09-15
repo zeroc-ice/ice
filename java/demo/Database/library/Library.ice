@@ -41,6 +41,7 @@ exception BookExistsException
  **/
 exception BookRentedException
 {
+    string renter;
 };
 
 /**
