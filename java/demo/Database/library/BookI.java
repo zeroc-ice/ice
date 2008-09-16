@@ -269,7 +269,6 @@ class BookI extends _BookDisp
             }
             else
             {
-
                 stmt = context.prepareStatement("INSERT into customers (name) VALUES(?)",
                                                 java.sql.Statement.RETURN_GENERATED_KEYS);
                 stmt.setString(1, name);
