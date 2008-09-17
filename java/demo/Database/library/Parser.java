@@ -23,7 +23,7 @@ class Parser
             "help                    Print this message.\n" +
             "exit, quit              Exit this program.\n" +
             "add isbn title authors  Create new book.\n" +
-            "isbn NUMBER             Find the book that start with the given ISBN number.\n" +
+            "isbn NUMBER             Find all books that start with the given ISBN number.\n" +
             "authors NAME            Find all books by the given authors.\n" +
             "title NAME              Find all books which have the given title.\n" +
             "next                    Set the current book to the next one that was found.\n" +
