@@ -357,7 +357,14 @@ void
 TimedServerCommand::startTimer()
 {
     _timerTask = new CommandTimeoutTimerTask(this);
-    _timer->schedule(_timerTask, IceUtil::Time::seconds(_timeout));
+    try
+    {
+        _timer->schedule(_timerTask, IceUtil::Time::seconds(_timeout));
+    }
+    catch(const IceUtil::Exception&)
+    {
+        // Ignore, timer is destroyed because node is shutting down.
+    }
 }
 
 void
@@ -2514,7 +2521,14 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         if(_activation == Always)
         {
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+            try
+            {
+                _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+            }
+            catch(const IceUtil::Exception&)
+            {
+                // Ignore, timer is destroyed because node is shutting down.
+            }
         }
         else if(_activation == Disabled && _disableOnFailure > 0 && _failureTime != IceUtil::Time())
         {
@@ -2526,8 +2540,16 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             // callback is executed.  
             //
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, 
-                                        IceUtil::Time::seconds(_disableOnFailure) + IceUtil::Time::milliSeconds(500));
+            try
+            {
+                _node->getTimer()->schedule(_timerTask, 
+                                            IceUtil::Time::seconds(_disableOnFailure) + 
+                                            IceUtil::Time::milliSeconds(500));
+            }
+            catch(const IceUtil::Exception&)
+            {
+                // Ignore, timer is destroyed because node is shutting down.
+            }
         }
     }
 

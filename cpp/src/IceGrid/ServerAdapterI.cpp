@@ -96,6 +96,12 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
         destroy();
         activationFailed("server destroyed");
     }
+    catch(const Ice::Exception& ex)
+    {
+        ostringstream os;
+        os << "unexpected exception: " << ex;
+        activationFailed(os.str());
+    }
 }
 
 Ice::ObjectPrx
@@ -188,7 +194,14 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
 void
 ServerAdapterI::destroy()
 {
-    _node->getAdapter()->remove(_this->ice_getIdentity());
+    try
+    {
+        _node->getAdapter()->remove(_this->ice_getIdentity());
+    }
+    catch(const Ice::LocalException&)
+    {
+        // Ignore.
+    }
 }
 
 void
