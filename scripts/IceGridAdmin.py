@@ -209,7 +209,7 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
     
     if application != "":
         print "adding application...",
-        iceGridAdmin('application add ' + os.path.join(testdir, application) + ' ' + \
+        iceGridAdmin('application add -n ' + os.path.join(testdir, application) + ' ' + \
                      '"test.dir=' + testdir + '" "ice.bindir=' + TestUtil.getCppBinDir() + '" ' + applicationOptions)
         print "ok"
 

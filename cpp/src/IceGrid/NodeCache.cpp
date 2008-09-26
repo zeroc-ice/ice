@@ -781,7 +781,10 @@ NodeEntry::checkSession() const
 
     while(_registering)
     {
-        wait();
+        if(!timedWait(IceUtil::Time::seconds(5)))
+        {
+            break; // Consider the node down if it doesn't respond promptly.
+        }
     }
     
     if(!_session)

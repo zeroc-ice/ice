@@ -133,7 +133,7 @@ sequence<NodeDynamicInfo> NodeDynamicInfoSeq;
  * nodes.
  * 
  **/
-interface NodeObserver
+["ami"] interface NodeObserver
 {
     /**
      *
@@ -143,7 +143,7 @@ interface NodeObserver
      * @param nodes The current state of the nodes.
      *
      **/
-    ["ami"] void nodeInit(NodeDynamicInfoSeq nodes);
+    void nodeInit(NodeDynamicInfoSeq nodes);
 
     /**
      *
@@ -187,7 +187,7 @@ interface NodeObserver
      * @param updatedInfo The new adapter state.
      * 
      **/
-    void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
+     void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
 };
 
 /**

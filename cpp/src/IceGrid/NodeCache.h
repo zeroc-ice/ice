@@ -45,7 +45,6 @@ public:
     void addServer(const ServerEntryPtr&);
     void removeServer(const ServerEntryPtr&);
     void setSession(const NodeSessionIPtr&);
-    void setSavedProxy(const NodePrx&);
 
     NodePrx getProxy() const;
     InternalNodeInfoPtr getInfo() const;

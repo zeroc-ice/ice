@@ -189,7 +189,7 @@ public:
     }
 
     virtual void
-    tryCreateSession(bool waitForTry = true)
+    tryCreateSession(bool waitForTry = true, const IceUtil::Time& timeout = IceUtil::Time())
     {
         {
             Lock sync(*this);
@@ -215,7 +215,17 @@ public:
             // Wait until the action is executed and the state changes.
             while(_nextAction == Connect || _nextAction == KeepAlive || _state == InProgress)
             {
-                wait();
+                if(timeout == IceUtil::Time())
+                {
+                    wait();
+                }
+                else
+                {
+                    if(!timedWait(timeout))
+                    {
+                        break;
+                    }
+                }
             }
         }
     }

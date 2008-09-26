@@ -38,7 +38,14 @@ AllocationRequest::pending()
 
     if(_timeout > 0)
     {
-        _session->getTimer()->schedule(this, IceUtil::Time::milliSeconds(_timeout));
+        try
+        {
+            _session->getTimer()->schedule(this, IceUtil::Time::milliSeconds(_timeout));
+        }
+        catch(const IceUtil::Exception&)
+        {
+            // Ignore, timer is destroyed because of shutdown
+        }
     }
     _state = Pending;
     return true;
