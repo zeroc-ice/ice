@@ -687,7 +687,14 @@ LocatorI::removePendingResolve(const string& adapterId, int roundRobinCount)
         //
         if(roundRobinCount > 0)
         {
-            _database->getAdapter(adapterId)->increaseRoundRobinCount(roundRobinCount);
+            try
+            {
+                _database->getAdapter(adapterId)->increaseRoundRobinCount(roundRobinCount);
+            }
+            catch(const Ice::Exception&)
+            {
+                // Ignore.
+            }
         }
         
         map<string, deque<Ice::AMD_Locator_findAdapterByIdPtr> >::iterator p = _resolves.find(adapterId);
