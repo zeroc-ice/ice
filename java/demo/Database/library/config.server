@@ -1,7 +1,7 @@
 #
 # Configure the server endpoints.
 #
-SessionFactory.Endpoints=default -p 10000
+SessionFactory.Endpoints=tcp -p 10000:ssl -p 10001
 
 # JDBC configuration.
 JDBC.Username=USER
@@ -44,3 +44,20 @@ Ice.Warn.Connections=1
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL.PluginFactory
+IceSSL.DefaultDir=../../../../certs
+IceSSL.Keystore=server.jks
+IceSSL.Password=password
+IceSSL.Truststore=certs.jks
