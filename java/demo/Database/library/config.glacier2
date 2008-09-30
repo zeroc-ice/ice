@@ -8,7 +8,7 @@ Glacier2.InstanceName=DemoGlacier2
 # visible from the public Internet, and it should be secure.
 # 
 Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
-#Glacier2.Client.Endpoints=tcp -p 4064 -h 127.0.0.1
+#Glacier2.Client.Endpoints=tcp -p 4502 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
