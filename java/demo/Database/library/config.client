@@ -58,6 +58,5 @@ Ice.Warn.Connections=1
 #
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs
-IceSSL.Keystore=client.jks
-IceSSL.Password=password
 IceSSL.Truststore=certs.jks
+IceSSL.TrustOnly.Client=CN=Server

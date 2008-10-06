@@ -8,7 +8,6 @@ Glacier2.InstanceName=DemoGlacier2
 # visible from the public Internet, and it should be secure.
 # 
 Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
-#Glacier2.Client.Endpoints=tcp -p 4502 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -43,7 +42,7 @@ Glacier2.SessionTimeout=30
 # 0 = no security tracing
 # 1 = trace messages
 #
-#IceSSL.Trace.Security=1
+IceSSL.Trace.Security=1
 
 #
 # SSL Configuration
@@ -53,3 +52,4 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
+IceSSL.VerifyPeer=0
