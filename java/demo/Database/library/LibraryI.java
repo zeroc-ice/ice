@@ -106,8 +106,8 @@ class LibraryI extends _LibraryDisp
             sb.append(")");
 
             stmt = context.prepareStatement(
-                "SELECT COUNT(*) FROM books INNER JOIN authors_books ON books.id=authors_books.book_id AND " +
-                sb.toString());
+                "SELECT COUNT(DISTINCT ID) FROM books INNER JOIN authors_books ON books.id=authors_books.book_id AND "
+                + sb.toString());
             rs = stmt.executeQuery();
             boolean next = rs.next();
             assert next;
@@ -119,7 +119,8 @@ class LibraryI extends _LibraryDisp
 
             // Execute the query.
             stmt = context.prepareStatement(
-                "SELECT * FROM books INNER JOIN authors_books ON books.id=authors_books.book_id AND " + sb.toString());
+                "SELECT DISTINCT ID, ISBN, TITLE, RENTER_ID FROM books INNER JOIN authors_books ON " +
+                "books.id=authors_books.book_id AND " + sb.toString());
             rs = stmt.executeQuery();
             next = rs.next();
             assert next;
