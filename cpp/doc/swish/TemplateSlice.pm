@@ -337,8 +337,12 @@ EOF
 #
 
 sub footer {
+    my $links = '';
     my $results = shift;
-    my $links = qq[<table width="100%"><tr><td colspan="2" bgcolor="#EEEEEE">$results->{LINKS}</td></tr></table>] if $results->{LINKS};
+    if ($results)
+    {
+        my $links = qq[<table width="100%"><tr><td colspan="2" bgcolor="#EEEEEE">$results->{LINKS}</td></tr></table>] if $results->{LINKS};
+    }
     return <<EOF;
             $links
         </div>
