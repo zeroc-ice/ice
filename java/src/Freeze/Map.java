@@ -110,7 +110,7 @@ public abstract class Map extends java.util.AbstractMap
                 //
                 // Rename existing database
                 //
-                String oldDbName = dbName + ".old-" + Ice.Util.generateUUID().replace(':', '-');
+                String oldDbName = dbName + ".old-" + java.util.UUID.randomUUID().toString();
 
                 if(connection.trace() >= 2)
                 {

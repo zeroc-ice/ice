@@ -202,29 +202,13 @@ public final class Util
         }
     }
 
-    public static synchronized String
+    /**
+     * @deprecated generateUUID() is deprecated, use java.util.UUID instead.
+     **/
+    public static String
     generateUUID()
     {
-        java.rmi.server.UID uid = new java.rmi.server.UID();
-
-        if(_localAddress == null)
-        {
-            java.net.InetAddress addr = IceInternal.Network.getLocalAddress(IceInternal.Network.EnableBoth);
-
-            byte[] ip = addr.getAddress();
-            _localAddress = "";
-            for(int i = 0; i < ip.length; i++)
-            {
-                if(i > 0)
-                {
-                    _localAddress += ":";
-                }
-                int n = ip[i] < 0 ? ip[i] + 256 : ip[i];
-                _localAddress += Integer.toHexString(n);
-            }
-        }
-
-        return _localAddress + ":" + uid;
+    	return java.util.UUID.randomUUID().toString();
     }
 
     public static int

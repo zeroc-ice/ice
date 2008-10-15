@@ -167,7 +167,7 @@ public class Subscriber extends Ice.Application
         Ice.Identity subId = new Ice.Identity(id, "");
         if(subId.name == null)
         {
-            subId.name = Ice.Util.generateUUID();
+            subId.name = java.util.UUID.randomUUID().toString();
         }
         Ice.ObjectPrx subscriber = adapter.add(new ClockI(), subId);
 

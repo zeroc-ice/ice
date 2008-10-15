@@ -1436,7 +1436,7 @@ public class Coordinator
             if(registry.ice_getIdentity().equals(currentRegistry.ice_getIdentity()))
             {
                 Ice.Properties properties = _communicator.getProperties();
-                properties.setProperty("CollocInternal.AdapterId", Ice.Util.generateUUID());
+                properties.setProperty("CollocInternal.AdapterId", java.util.UUID.randomUUID().toString());
                 Ice.ObjectAdapter colloc = _communicator.createObjectAdapter("CollocInternal");
                 colloc.setLocator(null);
                 Ice.ObjectPrx router = colloc.addWithUUID(new ReuseConnectionRouter(defaultLocator));

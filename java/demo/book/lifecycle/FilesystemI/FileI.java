@@ -78,7 +78,7 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
         _parent = parent;
         _destroyed = false;
         _id = new Identity();
-        _id.name = Util.generateUUID();
+        _id.name = java.util.UUID.randomUUID().toString();
     }
 
     public FilePrx

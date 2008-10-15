@@ -21,7 +21,7 @@ public final class DirectoryI extends _DirectoryDisp
 
         // Create an identity. The root directory has the fixed identity "RootDir"
         //
-        _id = communicator.stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
+        _id = communicator.stringToIdentity(_parent != null ? java.util.UUID.randomUUID().toString() : "RootDir");
 
     }
 

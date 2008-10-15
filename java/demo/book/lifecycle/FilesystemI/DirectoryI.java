@@ -198,7 +198,7 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
         _destroyed = false;
         _contents = new java.util.HashMap<String, NodeI>();
 
-        _id.name = parent == null ? "RootDir" : Util.generateUUID();
+        _id.name = parent == null ? "RootDir" : java.util.UUID.randomUUID().toString();
     }
 
 

@@ -46,7 +46,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         // NOTE: COMPILERBUG: The timeout here is required for MacOS X.
         //
         _evictorAdapter = _adapter.getCommunicator().
-            createObjectAdapterWithEndpoints(Ice.Util.generateUUID(), "default -t 30000");
+            createObjectAdapterWithEndpoints(java.util.UUID.randomUUID().toString(), "default -t 30000");
 
         Initializer initializer = new Initializer();
 

@@ -374,7 +374,7 @@ public final class Instance
                     {
                         if(instanceName.length() == 0)
                         {
-                            instanceName = Ice.Util.generateUUID();
+                            instanceName = java.util.UUID.randomUUID().toString();
                         }
                         _adminIdentity = new Ice.Identity("admin", instanceName);
                         //

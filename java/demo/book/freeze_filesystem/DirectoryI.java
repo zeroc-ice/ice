@@ -123,7 +123,7 @@ public final class DirectoryI extends PersistentDirectory
             throw new NameInUse(name);
         }
 
-        Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
+        Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
         PersistentDirectory dir = new DirectoryI(id);
         dir.nodeName = name;
         dir.parent = PersistentDirectoryPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
@@ -152,7 +152,7 @@ public final class DirectoryI extends PersistentDirectory
             throw new NameInUse(name);
         }
 
-        Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
+        Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
         PersistentFile file = new FileI(id);
         file.nodeName = name;
         file.parent = PersistentDirectoryPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));

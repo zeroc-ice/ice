@@ -19,7 +19,7 @@ class PhoneBookI extends _PhoneBookDisp
         // Generate a new unique identity.
         //
         Ice.Identity ident = new Ice.Identity();
-        ident.name = Ice.Util.generateUUID();
+        ident.name = java.util.UUID.randomUUID().toString();
         ident.category = "contact";
 
         //

@@ -53,7 +53,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         // some operations can take some time to complete on slow machines.
         //
         _evictorAdapter = _adapter.getCommunicator().
-            createObjectAdapterWithEndpoints(Ice.Util.generateUUID(), "default -t 60000");
+            createObjectAdapterWithEndpoints(java.util.UUID.randomUUID().toString(), "default -t 60000");
 
         Initializer initializer = new Initializer();
 

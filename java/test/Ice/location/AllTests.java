@@ -332,7 +332,7 @@ public class AllTests
         test(registry != null);
 
         Ice.Identity id = new Ice.Identity();
-        id.name = Ice.Util.generateUUID();
+        id.name = java.util.UUID.randomUUID().toString();
         registry.addObject(adapter.add(new HelloI(), id));
         adapter.activate();
 

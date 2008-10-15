@@ -23,7 +23,7 @@ public class FileI extends _FileDisp
 
         // Create an identity
         //
-        _id = communicator.stringToIdentity(Ice.Util.generateUUID());
+        _id = communicator.stringToIdentity(java.util.UUID.randomUUID().toString());
     }
 
     // Slice Node::name() operation

@@ -96,7 +96,7 @@ class BankI extends CasinoStore.PersistentBank
     public Casino.BetPrx
     createBet(int amount, int lifetime, Ice.Current current)
     {
-        Ice.Identity ident = new Ice.Identity(Ice.Util.generateUUID(), "bet");
+        Ice.Identity ident = new Ice.Identity(java.util.UUID.randomUUID().toString(), "bet");
         long closeTime = System.currentTimeMillis() + lifetime;
 
         outstandingChips += amount;

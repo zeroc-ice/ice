@@ -418,7 +418,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         Identity ident = new Identity();
         ident.category = "";
-        ident.name = Util.generateUUID();
+        ident.name = java.util.UUID.randomUUID().toString();
 
         return addFacet(object, ident, facet);
     }

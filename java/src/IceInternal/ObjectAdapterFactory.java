@@ -174,7 +174,7 @@ public final class ObjectAdapterFactory
 
         if(name.length() == 0)
         {
-            String uuid = Ice.Util.generateUUID();
+            String uuid = java.util.UUID.randomUUID().toString();
             adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, "", null, true);
             _adapters.put(uuid, adapter);
         }

@@ -284,15 +284,15 @@ class SessionKeeper
             //
             // Create servants and proxies
             //
-            _applicationObserverIdentity.name = "application-" + Ice.Util.generateUUID();
+            _applicationObserverIdentity.name = "application-" + java.util.UUID.randomUUID().toString();
             _applicationObserverIdentity.category = category;
-            _adapterObserverIdentity.name = "adapter-" + Ice.Util.generateUUID();
+            _adapterObserverIdentity.name = "adapter-" + java.util.UUID.randomUUID().toString();
             _adapterObserverIdentity.category = category;
-            _objectObserverIdentity.name = "object-" + Ice.Util.generateUUID();
+            _objectObserverIdentity.name = "object-" + java.util.UUID.randomUUID().toString();
             _objectObserverIdentity.category = category;
-            _registryObserverIdentity.name = "registry-" + Ice.Util.generateUUID();
+            _registryObserverIdentity.name = "registry-" + java.util.UUID.randomUUID().toString();
             _registryObserverIdentity.category = category;
-            _nodeObserverIdentity.name = "node-" + Ice.Util.generateUUID();
+            _nodeObserverIdentity.name = "node-" + java.util.UUID.randomUUID().toString();
             _nodeObserverIdentity.category = category;
             
             ApplicationObserverI applicationObserverServant = new ApplicationObserverI(
