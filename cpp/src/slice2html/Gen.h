@@ -45,7 +45,7 @@ protected:
 
     void openDoc(const ::std::string&, const std::string&, const std::string& = "", const std::string& = "");
     void openDoc(const ContainedPtr&);
-    void closeDoc();
+    void closeDoc(const std::string& = "");
 
     void start(const ::std::string&, const ::std::string& = ::std::string());
     void end();
@@ -70,6 +70,8 @@ protected:
     static ::std::string getImageDir();
     static ::std::string getLogoURL();
 
+    static ::std::string getFooter(const ::std::string&);
+
     ::IceUtilInternal::XMLOutput& _out;
 
     static size_t _indexCount;
@@ -89,7 +91,6 @@ private:
     static ::std::string readFile(const ::std::string&);
     static void readFile(const ::std::string&, ::std::string&, ::std::string&);
     static void getHeaders(const ::std::string&, ::std::string&, ::std::string&);
-    static ::std::string getFooter(const ::std::string&);
 
     ::std::string _indexFooter;
     const Files _files;
@@ -171,6 +172,7 @@ private:
 
     void writeEntry(const ContainedPtr&);
 
+    ::std::string _footer;
     ModuleList _modules;
     ContainedList _symbols;
     ::IceUtilInternal::XMLOutput _out;

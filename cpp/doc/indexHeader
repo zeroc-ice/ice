@@ -1,6 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="robots" content="noindex">
 	<title>
 TITLE
@@ -10,7 +11,9 @@ TITLE
 		font-family: Arial, Helvetica, sans-serif;
 	    }
 	    .Page {
-		width: 850px; margin-left: auto; margin-right: auto;
+		width: 850px;
+		margin-left: auto;
+		margin-right: auto;
 	    }
 	    .Symbol {
 		font-family: "Courier New", Courier, mono;
@@ -47,60 +50,50 @@ TITLE
 		cursor: pointer;
 	    }
 	    .HeaderFooter {
-		position: relative;
 		width: 100%;
 	    }
-	    .ButtonTable {
-	    }
-	    .LogoTable {
-	        position: absolute;
-		right: 0;
-		top: 0;
+	    .Button {
+	        border-style: none;
 	    }
 	    .Logo {
 	        border-style: none;
 	    }
-	    .SearchTable {
-		position: absolute;
-		top: 0px;
-		margin-left: auto;
-		margin-right: auto;
-	    }
 	</style>
     </head>
     <body>
-	<div class="Page">
-	    <div class="HeaderFooter">
-		<table class="ButtonTable">
-		    <tr>
-			<td>
-			    <a href="index.html">
-				<img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
-			    </a>
-			</td>
-		    </tr>
-		</table>
-                <div style="text-align: center;">
-                    <table class="SearchTable">
+        <div class="Page">
+
+        <!-- SwishCommand noindex -->
+        <table class="HeaderFooter">
+            <tr>
+                <td align="left">
+                    <table>
                         <tr>
-                            <td>
-                                <form method="get" action="/cgi-bin/swish.cgi"
-                                      enctype="application/x-www-form-urlencoded" class="form">
-                                    <div>
-                                        <input maxlength="100" value="" type="text" name="query">
-                                        <input type="submit" value="Search" name="submit">
-                                    </div>
-                                </form>
-                            </td>
+                            <td><a href="index.html"><img class="Button" src="images/home.gif" alt="Home"></a></td>
                         </tr>
                     </table>
-                </div>
-		<table class="LogoTable">
-		    <tr>
-			<td>
-			    <a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"/></a>
-			</td>
-		    </tr>
-		</table>
-	    </div>
-	    <hr>
+                </td>
+                <td align="center">
+                    <table>
+                        <tr>
+                            <td>
+                                <form method="get" action="/cgi-bin/swish.cgi" enctype="application/x-www-form-urlencoded" class="form">
+                                    <div>
+                                        <input maxlength="100" value="" type="text" name="query">
+                                        <input type="submit" value="Search" name="submit"></div>
+                                </form></td>
+                        </tr>
+                    </table>
+                </td>
+                <td align="right">
+                    <table class="LogoTable">
+                        <tr>
+                            <td><a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"></a></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <!-- SwishCommand index -->
+        
+        <hr>
