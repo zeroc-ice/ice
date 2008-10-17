@@ -315,10 +315,10 @@ if sys.argv[script] == "init":
     # Construct the DN for the CA certificate.
     DNelements = { \
 	'C':['countryName', "Country name", "", 'match'], \
-	'ST':['stateOfProviceName', "State or province name", "", 'match'], \
+	'ST':['stateOrProvinceName', "State or province name", "", 'match'], \
 	'L':['localityName', "Locality", "", 'match'], \
 	'O':['organizationName', "Organization name", "GridCA-" + socket.gethostname(), 'match'], \
-	'OU':['organizationUnitName', "Organization unit name", "", 'optional'], \
+	'OU':['organizationalUnitName', "Organizational unit name", "", 'optional'], \
 	'CN':['commonName', "Common name", "Grid CA", 'supplied'] \
     }
 

@@ -236,12 +236,15 @@ LocatorI::Request::activate(const string& id)
     // NOTE: we use a timeout large enough to ensure that the activate() call won't
     // timeout if the server hangs in deactivation and/or activation.
     //
-    for(LocatorAdapterInfoSeq::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
-        if(p->id == id)
+        Lock sync(*this);
+        for(LocatorAdapterInfoSeq::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
         {
-            _locator->activate(*p, this);
-            _activating.insert(id);
+            if(p->id == id)
+            {
+                _locator->activate(*p, this);
+                _activating.insert(id);
+            }
         }
     }
 
@@ -684,7 +687,14 @@ LocatorI::removePendingResolve(const string& adapterId, int roundRobinCount)
         //
         if(roundRobinCount > 0)
         {
-            _database->getAdapter(adapterId)->increaseRoundRobinCount(roundRobinCount);
+            try
+            {
+                _database->getAdapter(adapterId)->increaseRoundRobinCount(roundRobinCount);
+            }
+            catch(const Ice::Exception&)
+            {
+                // Ignore.
+            }
         }
         
         map<string, deque<Ice::AMD_Locator_findAdapterByIdPtr> >::iterator p = _resolves.find(adapterId);

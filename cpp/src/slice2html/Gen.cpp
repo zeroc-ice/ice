@@ -250,7 +250,6 @@ Slice::GeneratorBase::openDoc(const string& file, const string& title, const str
     {
         _out << h2;
     }
-    _indexFooter = getFooter(footer);
     _out.inc();
     _out.inc();
 }
@@ -291,11 +290,11 @@ Slice::GeneratorBase::openDoc(const ContainedPtr& c)
 // Close an open HTML file after writing the footer.
 //
 void
-Slice::GeneratorBase::closeDoc()
+Slice::GeneratorBase::closeDoc(const string& footer)
 {
     _out.dec();
     _out.dec();
-    _out << nl << (!_indexFooter.empty() ? _indexFooter : _footer);
+    _out << nl << (!footer.empty() ? footer : _footer);
     _out << nl;
 }
 
@@ -738,23 +737,24 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
         }
         path += imageDir + "/";
 
-        prevImage = "<img class=\"" + prevClass + "\" src=\"" + path + prevImage + "\" alt=\"Previous\"/>";
-        nextImage = "<img class=\"" + nextClass + "\" src=\"" + path + nextImage + "\" alt=\"Next\"/>";
-        upImage = "<img class=\"" + upClass + "\" src=\"" + path + upImage + "\" alt=\"Up\"/>";
-        homeImage = "<img class=\"Button\" src=\"" + path + homeImage + "\" alt=\"Home\"/>";
-        indexImage = "<img class=\"Button\" src=\"" + path + indexImage + "\" alt=\"Index\"/>";
+        prevImage = "<img class=\"" + prevClass + "\" src=\"" + path + prevImage + "\" alt=\"Previous\">";
+        nextImage = "<img class=\"" + nextClass + "\" src=\"" + path + nextImage + "\" alt=\"Next\">";
+        upImage = "<img class=\"" + upClass + "\" src=\"" + path + upImage + "\" alt=\"Up\">";
+        homeImage = "<img class=\"Button\" src=\"" + path + homeImage + "\" alt=\"Home\">";
+        indexImage = "<img class=\"Button\" src=\"" + path + indexImage + "\" alt=\"Index\">";
     }
 
     _out << nl << "<!-- SwishCommand noindex -->";
 
-    start("div", "HeaderFooter");
-
-    start("table", "ButtonTable");
+    start("table", "HeaderFooter");
     start("tr");
+    start("td align=\"left\"");
 
+    start("table");
+    start("tr");
     start("td");
     _out << "<a href=\"" << homeLink << "\">" << homeImage << "</a>";
-    end();
+    end(); // td
 
     if(!imageDir.empty() || !isFirst)
     {
@@ -805,16 +805,22 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     _out << "<a href=\"" << indexLink << "\">" << indexImage << "</a>";
     end();
 
-    end();
-    end();
+    end(); // tr
+    end(); // table
+    end(); // td
 
+    start("td align=\"center\"");
     printSearch();
-
-    printLogo(c, container, onEnumPage);
-
-    _out << nl << "<!-- SwishCommand index -->";
-
     end();
+
+    start("td align=\"right\"");
+    printLogo(c, container, onEnumPage);
+    end();
+
+    end(); // tr
+    end(); // table
+
+    _out << nl << "<!-- SwishCommand index -->" << nl;
 }
 
 void
@@ -822,9 +828,7 @@ Slice::GeneratorBase::printSearch()
 {
     if(!_searchAction.empty())
     {
-        _out << nl << "<div style=\"text-align: center;\">";
-        _out.inc();
-        start("table", "SearchTable");
+        start("table");
         start("tr");
         start("td");
         _out << nl << "<form method=\"get\" action=\"" << _searchAction << "\""
@@ -833,14 +837,12 @@ Slice::GeneratorBase::printSearch()
         start("div");
         _out << nl << "<input maxlength=\"100\" value=\"\" type=\"text\" name=\"query\">";
         _out << nl << "<input type=\"submit\" value=\"Search\" name=\"submit\">";
-        end();
         _out.dec();
+        end();
         _out << nl << "</form>";
-        end();
-        end();
-        end();
-        _out.dec();
-        _out << nl << "</div>";
+        end(); // td
+        end(); // tr
+        end(); // table
     }
 }
 
@@ -863,7 +865,7 @@ Slice::GeneratorBase::printLogo(const ContainedPtr& c, const ContainerPtr& conta
         {
             _out << "<a href=\"" + _logoURL + "\">";
         }
-        _out << "<img class=\"Logo\" src=\"" + path + "\" alt=\"Logo\"/>";
+        _out << "<img class=\"Logo\" src=\"" + path + "\" alt=\"Logo\">";
         if(!_logoURL.empty())
         {
             _out << "</a>";
@@ -1646,9 +1648,10 @@ Slice::StartPageGenerator::generate(const ModulePtr& m)
 void
 Slice::StartPageGenerator::printHeaderFooter()
 {
-    start("div", "HeaderFooter");
-
-    start("table", "ButtonTable");
+    start("table", "HeaderFooter");
+    start("tr");
+    start("td align=\"left\"");
+    start("table");
     start("tr");
     start("td");
     string imageDir = getImageDir();
@@ -1659,17 +1662,21 @@ Slice::StartPageGenerator::printHeaderFooter()
     else
     {
         string src = imageDir + "/index.gif";
-        _out << "<a href=\"_sindex.html\"><img class=\"Button\" src=\"" + src + "\" alt=\"Index Button\"/></a>";
+        _out << "<a href=\"_sindex.html\"><img class=\"Button\" src=\"" + src + "\" alt=\"Index Button\"></a>";
     }
-    end();
-    end();
-    end();
+    end(); // td
+    end(); // tr
+    end(); // table
+    end(); // td
 
+    start("td align=\"center\"");
     printSearch();
+    end(); // td
 
     if(!imageDir.empty())
     {
-        start("table", "LogoTable");
+	start("td align=\"right\"");
+        start("table");
         start("tr");
         start("td");
         string logoURL = getLogoURL();
@@ -1677,17 +1684,19 @@ Slice::StartPageGenerator::printHeaderFooter()
         {
             _out << "<a href=\"" + logoURL + "\">";
         }
-        _out << "<img class=\"Logo\" src=\"" + imageDir + "/logo.gif\" alt=\"Logo\"/>";
+        _out << "<img class=\"Logo\" src=\"" + imageDir + "/logo.gif\" alt=\"Logo\">";
         if(!logoURL.empty())
         {
             _out << "</a>";
         }
-        end();
-        end();
-        end();
+        end(); // td
+        end(); // tr
+        end(); // table
+	end(); // td
     }
 
-    end();
+    end(); // tr
+    end(); // table
 }
 
 Slice::FileVisitor::FileVisitor(Files& files)
@@ -1774,6 +1783,7 @@ Slice::StartPageVisitor::visitModuleStart(const ModulePtr& m)
 TOCGenerator::TOCGenerator(const Files& files, const string& header, const string& footer)
     : GeneratorBase(_out, files)
 {
+    _footer = footer;
     openDoc("_sindex.html", "Slice API Index", header, footer);
 
     start("h1");
@@ -1820,7 +1830,8 @@ TOCGenerator::writeTOC()
     _symbols.sort();
     _symbols.unique();
 
-    closeDoc();
+    string f = getFooter(_footer);
+    closeDoc(getFooter(_footer));
 }
 
 const ContainedList&

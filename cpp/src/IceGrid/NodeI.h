@@ -35,9 +35,29 @@ typedef IceUtil::Handle<ServerCommand> ServerCommandPtr;
 
 class NodeSessionManager;
 
+class NodeI;
+typedef IceUtil::Handle<NodeI> NodeIPtr;
+
 class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
+    class Update : virtual public IceUtil::Shared
+    {
+    public:
+        
+        Update(const NodeIPtr&, const NodeObserverPrx&);
+        virtual ~Update();
+
+        virtual void send() = 0;
+
+        void finished(bool);
+
+    protected:
+
+        const NodeIPtr _node;
+        const NodeObserverPrx _observer;
+    };
+    typedef IceUtil::Handle<Update> UpdatePtr;
 
     NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const IceUtil::TimerPtr&, 
           const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&);
@@ -97,6 +117,8 @@ public:
     void removeObserver(const NodeSessionPrx&);
     void observerUpdateServer(const ServerDynamicInfo&);
     void observerUpdateAdapter(const AdapterDynamicInfo&);
+    void queueUpdate(const NodeObserverPrx&, const UpdatePtr&);
+    void dequeueUpdate(const NodeObserverPrx&, const UpdatePtr&, bool);
 
     void addServer(const ServerIPtr&, const std::string&);
     void removeServer(const ServerIPtr&, const std::string&);
@@ -142,6 +164,8 @@ private:
     std::map<NodeSessionPrx, NodeObserverPrx> _observers;
     std::map<std::string, ServerDynamicInfo> _serversDynamicInfo;
     std::map<std::string, AdapterDynamicInfo> _adaptersDynamicInfo;
+
+    std::map<NodeObserverPrx, std::deque<UpdatePtr> > _observerUpdates;
 
     IceUtil::Mutex _serversLock;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;

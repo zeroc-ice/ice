@@ -174,7 +174,7 @@ IceInternal::OutgoingAsyncMessageCallback::__warning(const std::exception& exc) 
 {
     if(__os) // Don't print anything if release() was already called.
     {
-        __warning(__os->instance());
+        __warning(__os->instance(), exc);
     }
 }
 
@@ -187,7 +187,7 @@ IceInternal::OutgoingAsyncMessageCallback::__warning(const InstancePtr& instance
         const Exception* ex = dynamic_cast<const Exception*>(&exc);
         if(ex)
         {
-            out << "Ice::Exception raised by AMI callback:\n" << ex;
+            out << "Ice::Exception raised by AMI callback:\n" << *ex;
         }
         else
         {
@@ -434,7 +434,7 @@ IceInternal::OutgoingAsync::__finished(const Ice::LocalException& exc)
 }
 
 void
-IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& ex)
+IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& exc)
 {
     assert(__os && !_sent);
     
@@ -446,7 +446,7 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& ex)
 
     try
     {
-        handleException(ex); // This will throw if the invocation can't be retried.
+        handleException(exc); // This will throw if the invocation can't be retried.
     }
     catch(const Ice::LocalException& ex)
     {

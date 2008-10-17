@@ -581,7 +581,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     //
     for(vector<NodeSessionKeepAliveThreadPtr>::const_iterator p = sessions.begin(); p != sessions.end(); ++p)
     {
-        (*p)->tryCreateSession(true);
+        (*p)->tryCreateSession(true, IceUtil::Time::seconds(5));
     }
 }
 
