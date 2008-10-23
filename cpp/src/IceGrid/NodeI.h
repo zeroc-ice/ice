@@ -48,7 +48,7 @@ public:
         Update(const NodeIPtr&, const NodeObserverPrx&);
         virtual ~Update();
 
-        virtual void send() = 0;
+        virtual bool send() = 0;
 
         void finished(bool);
 
