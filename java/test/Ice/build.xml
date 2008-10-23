@@ -38,6 +38,7 @@
         <ant dir="servantLocator"/>
         <ant dir="servantLocatorAMD"/>
         <ant dir="interceptor"/>
+        <ant dir="udp"/>
     </target>
 
     <target name="clean">
@@ -67,6 +68,7 @@
         <ant dir="servantLocator" target="clean"/>
         <ant dir="servantLocatorAMD" target="clean"/>
         <ant dir="interceptor" target="clean"/>
+        <ant dir="udp" target="clean"/>
     </target>
 
 </project>

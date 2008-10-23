@@ -32,7 +32,8 @@ SUBDIRS		= proxy \
 		  servantLocator \
                   interceptor \
                   stringConverter \
-	  	  background
+	  	  background \
+		  udp
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -48,6 +48,7 @@ tests = [
     ("Ice/background", ["core"]),
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core"]),
+    ("Ice/udp", ["core"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),

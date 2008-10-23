@@ -282,6 +282,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         {
             EndpointParseException ex(__FILE__, __LINE__);
             ex.str = "udp " + str;
+            throw ex;
         }
     }
 

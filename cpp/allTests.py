@@ -55,6 +55,7 @@ tests = [
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core"]),
     ("Ice/stringConverter", ["core"]),
+    ("Ice/udp", ["core"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
