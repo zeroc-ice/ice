@@ -1005,6 +1005,13 @@ Activator::destroy()
     assert(_processes.empty());
 }
 
+bool
+Activator::isActive()
+{
+    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    return !_deactivating;
+}
+
 void
 Activator::runTerminationListener()
 {

@@ -51,6 +51,7 @@ public:
     virtual void shutdown();
     virtual void destroy();
     
+    bool isActive();
     
     void sendSignal(const std::string&, int);
     void runTerminationListener();

@@ -914,7 +914,8 @@ ServerI::isAdapterActivatable(const string& id) const
     }
     else if(_state < Destroying)
     {
-        return true; // The server is being deactivated.
+        return _node->getActivator()->isActive(); // The server is being deactivated and the
+                                                  // node isn't shutting down yet.
     }
     else
     {

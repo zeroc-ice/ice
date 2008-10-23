@@ -474,7 +474,8 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
                                 const Ice::Current&) const
 {
     LocatorIPtr self = const_cast<LocatorI*>(this);
-    if(self->addPendingResolve(id, cb))
+    bool pending = false;
+    if(self->addPendingResolve(id, cb, true, pending)) // Add only if there's already requests pending.
     {
         //
         // Another request is currently resolving the adapter endpoints. We'll 
@@ -508,7 +509,14 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         // adapters, and replica groups, there's no need to serialize
         // the requests.
         //
-        if(!roundRobin)
+        if(roundRobin)
+        {
+            if(self->addPendingResolve(id, cb, false, pending))
+            {
+                return;
+            }
+        }
+        else if(pending)
         {
             self->removePendingResolve(id, 0);
         }
@@ -518,6 +526,11 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     }
     catch(const AdapterNotExistException&)
     {
+        if(pending)
+        {
+            self->removePendingResolve(id, 0);
+        }
+
         try
         {
             cb->ice_response(_database->getAdapterDirectProxy(id));
@@ -526,11 +539,15 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         {
             cb->ice_exception(Ice::AdapterNotFoundException());
         }
-        self->removePendingResolve(id, 0);
         return;
     }
     catch(const Ice::Exception& ex)
     {
+        if(pending)
+        {
+            self->removePendingResolve(id, 0);
+        }
+
         const TraceLevelsPtr traceLevels = _database->getTraceLevels();
         if(traceLevels->locator > 0)
         {
@@ -545,7 +562,6 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
             }
         }
         cb->ice_response(0);
-        self->removePendingResolve(id, 0);
         return;
     }
 }
@@ -655,16 +671,25 @@ LocatorI::activateException(const string& id, const Ice::Exception& ex)
 }
 
 bool
-LocatorI::addPendingResolve(const string& adapterId, const Ice::AMD_Locator_findAdapterByIdPtr& cb)
+LocatorI::addPendingResolve(const string& adapterId, 
+                            const Ice::AMD_Locator_findAdapterByIdPtr& cb, 
+                            bool addIfExists, 
+                            bool& pending)
 {
     Lock sync(*this);
+    pending = false;
     map<string, deque<Ice::AMD_Locator_findAdapterByIdPtr> >::iterator p = _resolves.find(adapterId);
     if(p == _resolves.end())
     {
+        if(addIfExists)
+        {
+            return false;
+        }
         p = _resolves.insert(make_pair(adapterId, deque<Ice::AMD_Locator_findAdapterByIdPtr>())).first;
     }
     else if(p->second.front().get() == cb.get())
     {
+        pending = true;
         return false;
     }
     

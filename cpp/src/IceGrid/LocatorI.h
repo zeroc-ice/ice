@@ -94,7 +94,7 @@ public:
     void activateFinished(const std::string&, const Ice::ObjectPrx&);
     void activateException(const std::string&, const Ice::Exception&);
 
-    bool addPendingResolve(const std::string&, const Ice::AMD_Locator_findAdapterByIdPtr&);
+    bool addPendingResolve(const std::string&, const Ice::AMD_Locator_findAdapterByIdPtr&, bool, bool&);
     void removePendingResolve(const std::string&, int);
 
 protected:

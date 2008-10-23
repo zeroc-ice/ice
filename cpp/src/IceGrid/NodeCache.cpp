@@ -746,8 +746,12 @@ NodeEntry::__decRef()
 void
 NodeEntry::checkSession() const
 { 
-    if(_session && !_session->isDestroyed())
+    if(_session)
     {
+        if(_session->isDestroyed())
+        {
+            throw NodeUnreachableException(_name, "the node is not active");
+        }
         return;
     }
     else if(!_proxy && !_registering)
@@ -787,7 +791,7 @@ NodeEntry::checkSession() const
         }
     }
     
-    if(!_session)
+    if(!_session || _session->isDestroyed())
     {
         throw NodeUnreachableException(_name, "the node is not active");
     }
