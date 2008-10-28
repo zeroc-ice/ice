@@ -68,6 +68,8 @@ public class BasicStream
         {
             _objectList.clear();
         }
+
+        _sliceObjects = true;
     }
 
     public Instance

@@ -129,6 +129,8 @@ namespace IceInternal
             {
                 _objectList.Clear();
             }
+
+            _sliceObjects = true;
         }
 
         public virtual Instance instance()
