@@ -24,6 +24,7 @@
 #include <Ice/ReplyStatus.h>
 #include <Ice/ImplicitContextI.h>
 #include <Ice/ThreadPool.h>
+#include <Ice/RetryQueue.h>
 
 using namespace std;
 using namespace Ice;
@@ -454,6 +455,24 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& exc)
     }
 }
 
+void
+IceInternal::OutgoingAsync::__retry(int interval)
+{
+    //
+    // This method is called by the proxy to retry an invocation, no
+    // other threads can access this object.
+    //
+    if(interval > 0)
+    {
+        assert(__os);
+        __os->instance()->retryQueue()->add(this, interval);
+    }
+    else
+    {
+        __send();
+    }
+}
+
 bool
 IceInternal::OutgoingAsync::__send()
 {
@@ -466,11 +485,11 @@ IceInternal::OutgoingAsync::__send()
     }
     catch(const LocalExceptionWrapper& ex)
     {
-        handleException(ex);
+        handleException(ex); // Might call __send() again upon retry and assign _sentSynchronously
     }
     catch(const Ice::LocalException& ex)
     {
-        handleException(ex);
+        handleException(ex); // Might call __send() again upon retry and assign _sentSynchronously
     }
     return _sentSynchronously;
 }
@@ -483,6 +502,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
     _delegate = 0;
     _cnt = 0;
     _mode = mode;
+    _sentSynchronously = false;
 
     //
     // Can't call async via a batch proxy.

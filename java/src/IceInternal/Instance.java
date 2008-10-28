@@ -201,6 +201,17 @@ public final class Instance
         return _endpointHostResolver;
     }
 
+    synchronized public RetryQueue
+    retryQueue()
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }        
+
+        return _retryQueue;
+    }
+
     synchronized public Timer
     timer()
     {
@@ -713,6 +724,8 @@ public final class Instance
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
+            _retryQueue = new RetryQueue(this);
+
             //
             // Add Process and Properties facets
             //
@@ -753,6 +766,7 @@ public final class Instance
         IceUtilInternal.Assert.FinalizerAssert(_locatorManager == null);
         IceUtilInternal.Assert.FinalizerAssert(_endpointFactoryManager == null);
         IceUtilInternal.Assert.FinalizerAssert(_pluginManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_retryQueue == null);
 
         super.finalize();
     }
@@ -874,6 +888,11 @@ public final class Instance
         {
             _outgoingConnectionFactory.waitUntilFinished();
         }
+
+        if(_retryQueue != null)
+        {
+            _retryQueue.destroy();
+        }
         
         ThreadPool serverThreadPool = null;
         ThreadPool clientThreadPool = null;
@@ -883,8 +902,8 @@ public final class Instance
         synchronized(this)
         {
             _objectAdapterFactory = null;
-
             _outgoingConnectionFactory = null;
+            _retryQueue = null;
 
             if(_connectionMonitor != null)
             {
@@ -1060,6 +1079,7 @@ public final class Instance
     private ThreadPool _serverThreadPool;
     private SelectorThread _selectorThread;
     private EndpointHostResolver _endpointHostResolver;
+    private RetryQueue _retryQueue;
     private Timer _timer;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;

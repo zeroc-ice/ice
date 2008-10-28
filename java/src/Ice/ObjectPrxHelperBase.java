@@ -908,7 +908,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
             if(out != null)
             {
-                out.__send(cnt);
+                out.__send();
             }
 
             return cnt;

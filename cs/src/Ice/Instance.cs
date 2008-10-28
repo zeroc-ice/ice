@@ -216,6 +216,20 @@ namespace IceInternal
             }
         }
 
+        public RetryQueue
+        retryQueue()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                return _retryQueue;
+            }
+        }
+
         public Timer
         timer()
         {
@@ -742,7 +756,9 @@ namespace IceInternal
                 _servantFactoryManager = new ObjectFactoryManager();
                 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
-
+                
+                _retryQueue = new RetryQueue(this);
+                
                 string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
                 if(facetFilter.Length > 0)
                 {
@@ -892,6 +908,11 @@ namespace IceInternal
                 _outgoingConnectionFactory.waitUntilFinished();
             }
             
+            if(_retryQueue != null)
+            {
+                _retryQueue.destroy();
+            }
+
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;
             EndpointHostResolver endpointHostResolver = null;
@@ -899,9 +920,9 @@ namespace IceInternal
             lock(this)
             {
                 _objectAdapterFactory = null;
-                
                 _outgoingConnectionFactory = null;
-                
+                _retryQueue = null;
+
                 if(_connectionMonitor != null)
                 {
                     _connectionMonitor.destroy();
@@ -1038,6 +1059,7 @@ namespace IceInternal
         private ThreadPool _serverThreadPool;
         private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
+        private RetryQueue _retryQueue;
         private bool _background;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;

@@ -27,6 +27,9 @@ General Changes
   run from a directory without write permissions, even if no output 
   files were being written to the directory.
 
+- Fixed a bug where retried AMI calls could cause the timer thread to
+  print an error message if the retry failed and if Ice.RetryIntervals
+  was configured with non zero time intervals.
 
 C++ Changes
 ===========
