@@ -76,6 +76,7 @@ SRCS		= Acceptor.cs \
 		  ReferenceFactory.cs \
                   ReplyStatus.cs \
                   RequestHandler.cs \
+		  RetryQueue.cs \
 		  RouterInfo.cs \
 		  ServantManager.cs \
 		  Set.cs \

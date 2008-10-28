@@ -80,6 +80,7 @@ OBJS		= Acceptor.o \
 		  Proxy.o \
 		  ReferenceFactory.o \
 		  Reference.o \
+		  RetryQueue.o \
 		  RequestHandler.o \
 		  RouterInfo.o \
 		  Router.o \

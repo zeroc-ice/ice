@@ -13,21 +13,6 @@ namespace IceInternal
 {
     public sealed class ProxyFactory
     {
-        private sealed class RetryTask : TimerTask
-        {
-            internal RetryTask(OutgoingAsync outAsync)
-            {
-                _outAsync = outAsync;
-            }
-            
-            public void runTimerTask()
-            {
-                _outAsync.send__();
-            }
-
-            private OutgoingAsync _outAsync;
-        }
-
         public Ice.ObjectPrx stringToProxy(string str)
         {
             Reference r = instance_.referenceFactory().create(str, null);
@@ -209,26 +194,16 @@ namespace IceInternal
                 logger.trace(traceLevels.retryCat, s);
             }
 
-            if(interval > 0)
+            if(outAsync != null)
             {
-                if(outAsync != null)
-                {
-                    instance_.timer().schedule(new RetryTask(outAsync), interval);
-                }
-                else
-                {
-                    //
-                    // Sleep before retrying.
-                    //
-                    System.Threading.Thread.Sleep(interval);
-                }
+                outAsync.retry__(interval);
             }
-            else
+            else if(interval > 0)
             {
-                if(outAsync != null)
-                {
-                    outAsync.send__();
-                }
+                //
+                // Sleep before retrying.
+                //
+                System.Threading.Thread.Sleep(interval);
             }
         }
 

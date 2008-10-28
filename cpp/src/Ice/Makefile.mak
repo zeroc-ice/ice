@@ -81,6 +81,7 @@ OBJS		= Acceptor.obj \
 		  Proxy.obj \
 		  ReferenceFactory.obj \
 		  Reference.obj \
+		  RetryQueue.obj \
 		  RequestHandler.obj \
 		  RouterInfo.obj \
 		  Router.obj \
