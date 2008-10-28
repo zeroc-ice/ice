@@ -17,7 +17,7 @@ HelloI::HelloI(const string& name) : _name(name)
 }
 
 void
-HelloI::sayHello(const Ice::Current&) const
+HelloI::sayHello(const Ice::Current&)
 {
     cout << _name << " says Hello World!" << endl;
 }

@@ -14,7 +14,7 @@
 using namespace std;
 
 void
-HelloI::sayHello(int delay, const Ice::Current&) const
+HelloI::sayHello(int delay, const Ice::Current&)
 {
     if(delay != 0)
     {

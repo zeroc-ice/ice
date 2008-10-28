@@ -19,7 +19,7 @@ exception RequestCanceledException
 
 interface Hello
 {
-    ["ami", "amd"] void sayHello(int delay)
+    ["ami", "amd"] idempotent void sayHello(int delay)
         throws RequestCanceledException;
 
     void shutdown();

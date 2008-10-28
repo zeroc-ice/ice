@@ -15,7 +15,7 @@ module Demo
 
 interface Hello
 {
-    ["cpp:const"] idempotent void sayHello();
+    idempotent void sayHello();
 };
 
 };
