@@ -1129,7 +1129,9 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 
     //
-    // Start connection monitor if necessary.
+    // Start connection monitor if necessary. Set the check interval to
+    // 1/10 of the ACM timeout with a minmal value of 1 second and a 
+    // maximum value of 5 minutes.
     //
     Int interval = 0;
     if(_clientACM > 0 && _serverACM > 0)
@@ -1143,6 +1145,10 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     else if(_serverACM > 0)
     {
         interval = _serverACM;
+    }
+    if(interval > 0)
+    {
+        interval = min(300, max(1, (int)interval / 10));
     }
     interval = _initData.properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
     if(interval > 0)

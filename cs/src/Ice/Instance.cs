@@ -807,7 +807,9 @@ namespace IceInternal
             }
 
             //
-            // Start connection monitor if necessary.
+            // Start connection monitor if necessary. Set the check interval to
+            // 1/10 of the ACM timeout with a minmal value of 1 second and a
+            // maximum value of 5 minutes.
             //
             int interval = 0;
             if(_clientACM > 0 && _serverACM > 0)
@@ -828,6 +830,10 @@ namespace IceInternal
             else if(_serverACM > 0)
             {
                 interval = _serverACM;
+            }
+            if(interval > 0)
+            {
+                interval = System.Math.Min(300, System.Math.Max(1, (int)interval / 10));
             }
             interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
             if(interval > 0)
