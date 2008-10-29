@@ -9,7 +9,7 @@
 
 using Demo;
 
-class InitialI : Initial
+class InitialI : InitialDisp_
 {
     internal InitialI(Ice.ObjectAdapter adapter)
     {

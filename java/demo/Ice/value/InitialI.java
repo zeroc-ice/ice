@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-class InitialI extends Initial
+class InitialI extends _InitialDisp
 {
     InitialI(Ice.ObjectAdapter adapter)
     {

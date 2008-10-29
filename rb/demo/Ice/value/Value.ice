@@ -35,7 +35,7 @@ exception DerivedPrinterException
     DerivedPrinter derived;
 };
 
-class Initial
+interface Initial
 {
     Simple getSimple();
     void getPrinter(out Printer impl, out Printer* proxy);
