@@ -185,12 +185,23 @@
     <target name="ice-jar" depends="ice-compile">
         <jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
             <include name="**/*.class"/>
+            <exclude name="Freeze/**"/>
             <exclude name="IceGridGUI/**"/>
             <exclude name="ant/**"/>
             <exclude name="*.jar"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
-                <attribute name="Class-Path" value="db.jar db-${db.version}.jar ../db.jar"/>
+                <attribute name="Class-Path" value="Freeze.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="freeze-jar" depends="ice-compile">
+        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${lib.dir}">
+            <include name="Freeze/**"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+                <attribute name="Class-Path" value="db.jar db-${db.version}.jar /usr/share/java/db-${db.version}.jar ../db.jar"/>
             </manifest>
         </jar>
     </target>
@@ -269,7 +280,6 @@
 
         <proguard>
              -injars ${lib.dir}/IceGridGUItemp.jar
-             -injars ${lib.dir}/Ice.jar(!META-INF/**,!Freeze/**)
              -injars ${jgoodies.looks}(!META-INF/**)
              -injars ${jgoodies.forms}(!META-INF/**)
              -outjars ${lib.dir}/IceGridGUI.jar
@@ -282,7 +292,7 @@
     <target name="compile" depends="ice-compile, icegridadmin-compile">
     </target>
 
-    <target name="jar" depends="ice-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
+    <target name="jar" depends="ice-jar, freeze-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
 
     <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
