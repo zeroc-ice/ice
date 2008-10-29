@@ -19,8 +19,9 @@ debug = False                   # Set to True to enable test suite debugging.
 mono = False                    # Set to True when not on Windows
 keepGoing = False               # Set to True to have the tests continue on failure.
 ipv6 = False                    # Default to use IPv4 only
-iceHome = None                 # Binary distribution to use (None to use binaries from source distribution)
+iceHome = None                  # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
+java2 = False                   # Use Java 2 jar file from binary distribution
 javaCmd = "java"                # Default java loader
 valgrind = False                # Set to True to use valgrind for C++ executables.
 tracefile = None
@@ -125,7 +126,10 @@ def configurePaths():
     #
     if iceHome == "/usr":
         javaDir = os.path.join("/", "usr", "share", "java")
-        addClasspath(os.path.join(javaDir, "Ice.jar"))
+        if java2:
+            addClasspath(os.path.join(javaDir, "Ice-java2.jar"))
+        else:
+            addClasspath(os.path.join(javaDir, "Ice.jar"))
         return # That's it, we're done!
     
     if isWin32():
@@ -145,7 +149,10 @@ def configurePaths():
     addLdPath(libDir)
 
     javaDir = os.path.join(getIceDir("java"), "lib")
-    addClasspath(os.path.join(javaDir, "Ice.jar"))
+    if iceHome and java2:
+        addClasspath(os.path.join(javaDir, "java2", "Ice.jar"))
+    else:
+        addClasspath(os.path.join(javaDir, "Ice.jar"))
     addClasspath(os.path.join(javaDir))
     
     # 
@@ -187,6 +194,7 @@ def addClasspath(dir, env = None):
     if env is None:
         env = os.environ
     env["CLASSPATH"] = dir + os.pathsep + env.get("CLASSPATH", "")
+    print env.get("CLASSPATH", "")
     return env
 
 # List of supported cross languages test.
@@ -230,6 +238,7 @@ def run(tests, root = False):
           --ipv6                  Use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
+          --java2                 Use Java 2 jar file.
           --cross=lang            Run cross language test.
           --script                Generate a script to run the tests.
         """
@@ -239,7 +248,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "ice-home=", "cross=", "x64", "script"])
+                                    "ipv6", "ice-home=", "cross=", "x64", "script", "java2"])
     except getopt.GetoptError:
         usage()
 
@@ -288,7 +297,7 @@ def run(tests, root = False):
                 sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--ice-home", "--x64"):
+                  "--ice-home", "--x64", "--java2"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -578,6 +587,7 @@ class DriverConfig:
     overrides = None
     ipv6 = False
     x64 = False
+    java2 = False
 
     def __init__(self, type = None):
         global protocol
@@ -588,6 +598,7 @@ class DriverConfig:
         global valgrind
         global ipv6
         global x64
+        global java2
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -598,6 +609,7 @@ class DriverConfig:
         self.type = type
         self.ipv6 = ipv6
         self.x64 = x64
+        self.java2 = java2
         
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -965,6 +977,7 @@ def processCmdLine():
           --ipv6                  Use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
+          --java2                 Use Java 2 jar file.
           --cross=lang            Run cross language test.
         """
         sys.exit(2)
@@ -972,7 +985,7 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                              "ice-home=", "x64", "cross="])
+                              "ice-home=", "x64", "cross=", "java2"])
     except getopt.GetoptError:
         usage()
 
@@ -1004,6 +1017,9 @@ def processCmdLine():
         elif o == "--x64":
             global x64
             x64 = True
+        elif o == "--java2":
+            global java2
+            java2 = True
         elif o == "--compress":
             global compress
             compress = True
