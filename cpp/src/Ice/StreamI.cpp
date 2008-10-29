@@ -698,7 +698,8 @@ Ice::UserExceptionWriter::~UserExceptionWriter() throw()
 void
 Ice::UserExceptionWriter::__write(BasicStream* os) const
 {
-    OutputStreamPtr stream = new OutputStreamI(_communicator, os);
+    OutputStreamI* stream = reinterpret_cast<OutputStreamI*>(os->closure());
+    assert(stream);
     write(stream);
 }
 
