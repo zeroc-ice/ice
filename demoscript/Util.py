@@ -33,6 +33,7 @@ from scripts import Expect
 keepGoing = False
 iceHome = None
 x64 = False
+preferIPv4 = False
 demoErrors = []
 
 #
@@ -319,6 +320,7 @@ def run(demos, root = False):
         --continue              Keep running when a demo fails."
         --ice-home=<path>       Use the binary distribution from the given path."
         --x64                   Binary distribution is 64-bit."
+        --preferIPv4            Prefer IPv4 stack (java only)."
         --fast                  Run an abbreviated version of the demos."
         --script                Generate a script to run the demos.
         --env                   Dump the environment.""" % (sys.argv[0])
@@ -329,7 +331,7 @@ def run(demos, root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "env", "script"])
+                "continue", "ice-home=", "x64", "preferIPv4", "env", "script"])
     except getopt.GetoptError:
         usage()
 
@@ -349,6 +351,10 @@ def run(demos, root = False):
         elif o == "--x64":
             global x64
             x64 = True
+            arg += " " + o
+        elif o == "--preferIPv4":
+            global preferIPv4
+            preferIPv4 = True
             arg += " " + o
         elif o == "--env":
             env = True
@@ -464,6 +470,8 @@ def spawn(command, cwd = None):
     elif mapping == "vb":
         command = "./" + command
     elif mapping == "java":
+        if preferIPv4:
+            command = command.replace("java", "java -Djava.net.preferIPv4Stack=true")
         if isSolaris() and x64:
             command = command.replace("java", "java -d64")
 
@@ -512,10 +520,10 @@ def addLdPath(libpath):
 
 def processCmdLine():
     def usage():
-	print "usage: " + sys.argv[0] + " --x64 --env --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
+	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
 	sys.exit(2)
     try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "x64", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
     except getopt.GetoptError:
 	usage()
 
@@ -524,6 +532,7 @@ def processCmdLine():
     global tracefile
     global buildmode
     global x64
+    global preferIPv4
     global debug
     global host
     global iceHome
@@ -551,6 +560,8 @@ def processCmdLine():
 	    fast = True
 	if o == "--x64":
 	    x64 = True
+	if o == "--preferIPv4":
+	    preferIPv4 = True
         if o == "--ice-home":
             iceHome = a
 	if o == "--mode":
