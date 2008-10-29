@@ -15,11 +15,7 @@ DLLNAME		= $(top_srcdir)\bin\icebox$(SOVERSION)$(LIBSUFFIX).dll
 SERVER_D	= $(top_srcdir)\bin\iceboxd.exe
 SERVER_R	= $(top_srcdir)\bin\icebox.exe
 
-!if "$(OPTIMIZE)" != "yes"
-SERVER		= $(SERVER_D)
-!else
-SERVER		= $(SERVER_R)
-!endif
+SERVER		= $(top_srcdir)\bin\icebox$(LIBSUFFIX).exe
 
 ADMIN		= $(top_srcdir)\bin\iceboxadmin.exe
 
