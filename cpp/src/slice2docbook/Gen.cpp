@@ -932,7 +932,7 @@ Slice::Gen::getComment(const ContainedPtr& contained, const ContainerPtr& contai
             }
             comment += toString(literal, container);
         }
-        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
+        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
         {
             comment += '.';
             break;

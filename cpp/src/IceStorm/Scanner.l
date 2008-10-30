@@ -209,7 +209,7 @@ keyword [[:alpha:]]*
 	{
 	    break;
 	}
-	else if(isspace(c) || c == ';')
+	else if(isspace(static_cast<unsigned char>(c)) || c == ';')
 	{
             unput(c);
             break;

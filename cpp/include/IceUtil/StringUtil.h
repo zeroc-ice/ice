@@ -65,6 +65,18 @@ ICE_UTIL_API std::string errorToString(int, LPCVOID = NULL);
 #else
 ICE_UTIL_API std::string errorToString(int);
 #endif
+
+//
+// Functions to convert to to all lower/upper case
+//
+ICE_UTIL_API std::string toLower(const std::string&);
+ICE_UTIL_API std::string toUpper(const std::string&);
+
+//
+// Remove all whitespace from a string
+//
+ICE_UTIL_API std::string removeWhitespace(const std::string&);
+
 }
 
 #endif

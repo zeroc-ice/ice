@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <Ice/Application.h>
 #include <IcePatch2/Util.h>
 #include <IcePatch2/ClientUtil.h>
@@ -54,7 +55,7 @@ public:
         {
             cout << "Do a thorough patch? (yes/no)" << endl;
             cin >> answer;
-            transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
+            answer = IceUtilInternal::toLower(answer);
             if(answer == "no")
             {
                 return false;

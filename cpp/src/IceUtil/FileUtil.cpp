@@ -21,7 +21,7 @@ IceUtilInternal::isAbsolutePath(const string& path)
     size_t size = path.size();
 
     // Skip whitespace
-    while(i < size && isspace(path[i]))
+    while(i < size && isspace(static_cast<unsigned char>(path[i])))
     {
         ++i;
     }

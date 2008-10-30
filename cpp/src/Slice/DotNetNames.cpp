@@ -84,7 +84,7 @@ ciEquals(const string& s, const char* p)
     string::const_iterator i = s.begin();
     while(i != s.end())
     {
-        if(tolower(*i++) != tolower(*p++))
+        if(tolower(static_cast<unsigned char>(*i++)) != tolower(static_cast<unsigned char>(*p++)))
         {
             return false;
         }

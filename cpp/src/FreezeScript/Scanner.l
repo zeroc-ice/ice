@@ -330,14 +330,14 @@ parseString(char start)
                 case 'x':
                 {
                     IceUtil::Int64 ull = 0;
-                    while(isxdigit(next = static_cast<char>(yyinput())))
+                    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))))
                     {
                         ull *= 16;
-                        if(isdigit(next))
+                        if(isdigit(static_cast<unsigned char>(next)))
                         {
                             ull += next - '0';
                         }
-                        else if(islower(next))
+                        else if(islower(static_cast<unsigned char>(next)))
                         {
                             ull += next - 'a' + 10;
                         }

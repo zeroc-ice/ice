@@ -194,7 +194,6 @@ def addClasspath(dir, env = None):
     if env is None:
         env = os.environ
     env["CLASSPATH"] = dir + os.pathsep + env.get("CLASSPATH", "")
-    print env.get("CLASSPATH", "")
     return env
 
 # List of supported cross languages test.

@@ -320,7 +320,7 @@ struct EnvironmentEval : std::unary_function<string, string>
             else
             {
                 end = beg + 1;
-                while((isalnum(v[end]) || v[end] == '_')  && end < v.size())
+                while((isalnum(static_cast<unsigned char>(v[end])) || v[end] == '_')  && end < v.size())
                 {
                     ++end;
                 }
