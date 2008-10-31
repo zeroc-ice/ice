@@ -92,6 +92,6 @@ class ReadNew extends Ice.Application
     main(String[] args)
     {
         ReadNew app = new ReadNew();
-        app.main("test.Freeze.transform.ReadNew", args);
+        app.main("demo.Freeze.transform.ReadNew", args);
     }
 }

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-class PhoneBookCollocated extends Ice.Application
+class Collocated extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
@@ -97,20 +97,17 @@ class PhoneBookCollocated extends Ice.Application
         return status;
     }
 
-    PhoneBookCollocated(String envName)
+    Collocated(String envName)
     {
         _envName = envName;
     }
 
-    private String _envName;
-}
-
-public class Collocated
-{
     static public void
     main(String[] args)
     {
-        PhoneBookCollocated app = new PhoneBookCollocated("db");
+        Collocated app = new Collocated("db");
         app.main("demo.Freeze.phonebook.Collocated", args, "config.collocated");
     }
+
+    private String _envName;
 }
