@@ -324,7 +324,6 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
             quoteChar = str[pos];
             ++pos;
         }
-        bool trim = true;
         while(pos < length)
         {
             if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < length && str[pos + 1] == quoteChar)
@@ -333,7 +332,6 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
             }
             else if(quoteChar != '\0' && str[pos] == quoteChar)
             {
-                trim = false;
                 ++pos;
                 quoteChar = '\0';
                 break;
