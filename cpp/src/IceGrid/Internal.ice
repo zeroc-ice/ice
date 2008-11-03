@@ -69,6 +69,9 @@ class InternalServerDescriptor
     /** The application revision. */
     int revision;
 
+    /** The Ice version. */
+    int iceVersion;
+
     /** The id of the session which allocated the server. */
     string sessionId;
 

@@ -898,14 +898,14 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     //
     // For newer versions of Ice, we generate Ice.Admin properties:
     //
-    int iceVersion = 0;
+    server->iceVersion = 0;
     if(info.descriptor->iceVersion != "")
     {
-        iceVersion = getMMVersion(info.descriptor->iceVersion);
+        server->iceVersion = getMMVersion(info.descriptor->iceVersion);
     }
 
     server->processRegistered = false;
-    if(iceVersion == 0 || iceVersion >= 30300)
+    if(server->iceVersion == 0 || server->iceVersion >= 30300)
     {
         props.push_back(createProperty("Ice.Admin.ServerId", info.descriptor->id));
         if(hasProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints"))
@@ -949,7 +949,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         }
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
 
-        if(iceVersion != 0 && iceVersion < 30300)
+        if(server->iceVersion != 0 && server->iceVersion < 30300)
         {
             if(hasProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess"))
             {
@@ -975,7 +975,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     // logs, adapters, db envs and properties to the internal server 
     // descriptor.
     //
-    forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo(), iceVersion))(info.descriptor);
+    forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo(), server->iceVersion))(info.descriptor);
 
     return server;
 }
