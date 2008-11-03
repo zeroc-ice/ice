@@ -65,6 +65,9 @@ C# Changes
 Python Changes
 ==============
 
+- Fixed bugs in getImplicitContext related to using it when an
+  implicit context had not been set.
+
 - Fixed bugs in stringToProxy and propertyToProxy related to null
   proxies.
 
