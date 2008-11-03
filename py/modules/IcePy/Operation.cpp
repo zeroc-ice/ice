@@ -1127,8 +1127,15 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args)
                 else
                 {
                     PyObject* ret = PyTuple_GET_ITEM(results.get(), 0);
-                    Py_INCREF(ret);
-                    return ret;
+                    if(!ret)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        Py_INCREF(ret);
+                        return ret;
+                    }
                 }
             }
         }
