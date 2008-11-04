@@ -1,0 +1,39 @@
+diff -r -c -N ../mcpp-2.7.1-old/noconfig/vc6.dif ./noconfig/vc6.dif
+*** ../mcpp-2.7.1-old/noconfig/vc6.dif	2008-04-28 12:32:01.000000000 -0230
+--- ./noconfig/vc6.dif	2008-11-04 15:49:37.000000000 -0330
+***************
+*** 47,56 ****
+    #define ONE_PASS            TRUE
+    #endif
+    #define COMPILER_EXT        "_MSC_VER"
+! ! #define COMPILER_EXT_VAL    "1200"
+        /* VC 2002: "1300", VC 2003: "1310", VC 2005: "1400", VC 2008: "1500" */
+    #define COMPILER_EXT2       "_MSC_FULL_VER"
+! ! #define COMPILER_EXT2_VAL   "12008804"
+        /* VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320" */
+        /* VC 2008 "150021022"  */
+    #define COMPILER_SP1        "_MSC_EXTENSIONS"
+--- 47,56 ----
+    #define ONE_PASS            TRUE
+    #endif
+    #define COMPILER_EXT        "_MSC_VER"
+! ! #define COMPILER_EXT_VAL    "1500"
+        /* VC 2002: "1300", VC 2003: "1310", VC 2005: "1400", VC 2008: "1500" */
+    #define COMPILER_EXT2       "_MSC_FULL_VER"
+! ! #define COMPILER_EXT2_VAL   "150021022"
+        /* VC 2002:13009466, VC 2003:13103077, VC 2005: "140050320" */
+        /* VC 2008 "150021022"  */
+    #define COMPILER_SP1        "_MSC_EXTENSIONS"
+diff -r -c -N ../mcpp-2.7.1-old/src/main.c ./src/main.c
+*** ../mcpp-2.7.1-old/src/main.c	2008-04-26 10:49:52.000000000 -0230
+--- ./src/main.c	2008-11-04 15:48:10.000000000 -0330
+***************
+*** 308,313 ****
+--- 308,314 ----
+      errors = src_col = 0;
+      warn_level = -1;
+      infile = NULL;
++     src_line = 0L;
+      in_directive = in_define = in_getarg = in_include = FALSE;
+      in_asm = 0L;
+      macro_line = 0L;
