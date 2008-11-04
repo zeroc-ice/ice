@@ -699,7 +699,13 @@ void
 Ice::UserExceptionWriter::__write(BasicStream* os) const
 {
     OutputStreamI* stream = reinterpret_cast<OutputStreamI*>(os->closure());
-    assert(stream);
+    if(!stream)
+    {
+        //
+        // Required for IcePy usage
+        //
+        stream = new OutputStreamI(_communicator, os);
+    }
     write(stream);
 }
 
