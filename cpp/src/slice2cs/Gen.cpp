@@ -1223,7 +1223,7 @@ Slice::Gen::generateChecksums(const UnitPtr& u)
         string className = "X" + IceUtil::generateUUID();
         for(string::size_type pos = 1; pos < className.size(); ++pos)
         {
-            if(!isalnum(className[pos]))
+            if(!isalnum(static_cast<unsigned char>(className[pos])))
             {
                 className[pos] = '_';
             }

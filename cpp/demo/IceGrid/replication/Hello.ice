@@ -15,7 +15,7 @@ module Demo
 
 interface Hello
 {
-    ["cpp:const"] idempotent string getGreeting();
+    idempotent string getGreeting();
     void shutdown();
 };
 

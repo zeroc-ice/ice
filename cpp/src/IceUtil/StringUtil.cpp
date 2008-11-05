@@ -324,7 +324,6 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
             quoteChar = str[pos];
             ++pos;
         }
-        bool trim = true;
         while(pos < length)
         {
             if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < length && str[pos + 1] == quoteChar)
@@ -333,7 +332,6 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
             }
             else if(quoteChar != '\0' && str[pos] == quoteChar)
             {
-                trim = false;
                 ++pos;
                 quoteChar = '\0';
                 break;
@@ -685,6 +683,42 @@ string
 IceUtilInternal::lastErrorToString()
 {
     return errorToString(errno);
+}
+
+string
+IceUtilInternal::toLower(const std::string& s)
+{
+    string result;
+    for(unsigned int i = 0; i < s.length(); ++ i)
+    {
+         result += tolower(static_cast<unsigned char>(s[i]));
+    }
+    return result;
+}
+
+string
+IceUtilInternal::toUpper(const std::string& s)
+{
+    string result;
+    for(unsigned int i = 0; i < s.length(); ++ i)
+    {
+         result += toupper(static_cast<unsigned char>(s[i]));
+    }
+    return result;
+}
+
+string
+IceUtilInternal::removeWhitespace(const std::string& s)
+{
+    string result;
+    for(unsigned int i = 0; i < s.length(); ++ i)
+    {
+         if(!isspace(static_cast<unsigned char>(s[i])))
+         {
+             result += s[i];
+         }
+    }
+    return result;
 }
 
 #endif

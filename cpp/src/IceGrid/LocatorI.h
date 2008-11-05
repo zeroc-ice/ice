@@ -43,7 +43,7 @@ public:
 
         void execute();
         void response(const std::string&, const Ice::ObjectPrx&);
-        void activate(const std::string&);
+        void activating();
         void exception(const std::string&, const Ice::Exception&); 
 
         virtual bool
@@ -68,7 +68,6 @@ public:
         LocatorAdapterInfoSeq::const_iterator _lastAdapter;
         std::map<std::string, Ice::ObjectPrx> _proxies;
         std::auto_ptr<Ice::Exception> _exception;
-        std::set<std::string> _activating;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
@@ -88,14 +87,12 @@ public:
     const Ice::CommunicatorPtr& getCommunicator() const;
     const TraceLevelsPtr& getTraceLevels() const;
 
-    void activate(const LocatorAdapterInfo&, const RequestPtr&);
-    void cancelActivate(const std::string&, const RequestPtr&);
+    bool addPendingRoundRobinRequest(const std::string&, const Ice::AMD_Locator_findAdapterByIdPtr&, bool, bool&);
+    void removePendingRoundRobinRequest(const std::string&, int);
 
-    void activateFinished(const std::string&, const Ice::ObjectPrx&);
-    void activateException(const std::string&, const Ice::Exception&);
-
-    bool addPendingResolve(const std::string&, const Ice::AMD_Locator_findAdapterByIdPtr&);
-    void removePendingResolve(const std::string&, int);
+    bool getDirectProxy(const LocatorAdapterInfo&, const RequestPtr&);
+    void getDirectProxyResponse(const LocatorAdapterInfo&, const Ice::ObjectPrx&);
+    void getDirectProxyException(const LocatorAdapterInfo&, const Ice::Exception&);
 
 protected:
 
@@ -105,10 +102,10 @@ protected:
     const RegistryPrx _localRegistry;
     const QueryPrx _localQuery;
 
-    typedef std::set<RequestPtr> PendingRequests;
+    typedef std::vector<RequestPtr> PendingRequests;
     typedef std::map<std::string, PendingRequests> PendingRequestsMap;
-
     PendingRequestsMap _pendingRequests;
+    std::set<std::string> _activating;
 
     std::map<std::string, std::deque<Ice::AMD_Locator_findAdapterByIdPtr> > _resolves;
 };

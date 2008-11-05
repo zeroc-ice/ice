@@ -1116,7 +1116,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             comment += toString(literal, container, false, forIndex, summary ? &sz : 0);
             summarySize += sz;
         }
-        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
+        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
         {
             comment += '.';
             ++summarySize;

@@ -216,6 +216,20 @@ namespace IceInternal
             }
         }
 
+        public RetryQueue
+        retryQueue()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                return _retryQueue;
+            }
+        }
+
         public Timer
         timer()
         {
@@ -742,7 +756,9 @@ namespace IceInternal
                 _servantFactoryManager = new ObjectFactoryManager();
                 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
-
+                
+                _retryQueue = new RetryQueue(this);
+                
                 string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
                 if(facetFilter.Length > 0)
                 {
@@ -807,7 +823,9 @@ namespace IceInternal
             }
 
             //
-            // Start connection monitor if necessary.
+            // Start connection monitor if necessary. Set the check interval to
+            // 1/10 of the ACM timeout with a minmal value of 1 second and a
+            // maximum value of 5 minutes.
             //
             int interval = 0;
             if(_clientACM > 0 && _serverACM > 0)
@@ -828,6 +846,10 @@ namespace IceInternal
             else if(_serverACM > 0)
             {
                 interval = _serverACM;
+            }
+            if(interval > 0)
+            {
+                interval = System.Math.Min(300, System.Math.Max(1, (int)interval / 10));
             }
             interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
             if(interval > 0)
@@ -886,6 +908,11 @@ namespace IceInternal
                 _outgoingConnectionFactory.waitUntilFinished();
             }
             
+            if(_retryQueue != null)
+            {
+                _retryQueue.destroy();
+            }
+
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;
             EndpointHostResolver endpointHostResolver = null;
@@ -893,9 +920,9 @@ namespace IceInternal
             lock(this)
             {
                 _objectAdapterFactory = null;
-                
                 _outgoingConnectionFactory = null;
-                
+                _retryQueue = null;
+
                 if(_connectionMonitor != null)
                 {
                     _connectionMonitor.destroy();
@@ -1032,6 +1059,7 @@ namespace IceInternal
         private ThreadPool _serverThreadPool;
         private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
+        private RetryQueue _retryQueue;
         private bool _background;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;

@@ -800,12 +800,10 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
 
             if(!certNameOK && !dnsNames.empty())
             {
-                string host = address;
-                transform(host.begin(), host.end(), host.begin(), ::tolower);
+                string host = IceUtilInternal::toLower(address);
                 for(vector<string>::const_iterator p = dnsNames.begin(); p != dnsNames.end() && !certNameOK; ++p)
                 {
-                    string s = *p;
-                    transform(s.begin(), s.end(), s.begin(), ::tolower);
+                    string s = IceUtilInternal::toLower(*p);
                     if(host == s)
                     {
                         certNameOK = true;

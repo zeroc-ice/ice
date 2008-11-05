@@ -43,7 +43,7 @@ struct IFileInfoPathEqual: public binary_function<const FileInfo&, const FileInf
 
         for(string::size_type i = 0; i < lhs.path.size(); ++i)
         {
-            if(::tolower(lhs.path[i]) != ::tolower(rhs.path[i]))
+            if(::tolower(static_cast<unsigned char>(lhs.path[i])) != ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return false;
             }
@@ -60,11 +60,12 @@ struct IFileInfoPathLess: public binary_function<const FileInfo&, const FileInfo
     {
         for(string::size_type i = 0; i < lhs.path.size() && i < rhs.path.size(); ++i)
         {
-            if(::tolower(lhs.path[i]) < ::tolower(rhs.path[i]))
+            if(::tolower(static_cast<unsigned char>(lhs.path[i])) < ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return true;
             }
-            else if(::tolower(lhs.path[i]) > ::tolower(rhs.path[i]))
+            else if(::tolower(static_cast<unsigned char>(lhs.path[i])) > 
+                    ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return false;
             }

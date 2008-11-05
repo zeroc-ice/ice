@@ -25,6 +25,7 @@ namespace IceInternal
 class BasicStream;
 class LocalExceptionWrapper;
 class Outgoing;
+class RetryTask;
 
 class ICE_API OutgoingAsyncMessageCallback : virtual public IceUtil::Shared
 {
@@ -48,6 +49,8 @@ public:
     void __exception(const Ice::Exception&);
 
 protected:
+
+    friend class ::IceInternal::RetryTask;
 
     void __acquireCallback(const Ice::ObjectPrx&);
     void __releaseCallback(const Ice::LocalException&);
@@ -83,6 +86,7 @@ public:
     void __finished(const Ice::LocalException&);
     void __finished(const LocalExceptionWrapper&);
 
+    void __retry(int);
     bool __send();
 
 protected:

@@ -29,6 +29,7 @@
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
 #include <Ice/EndpointFactoryManager.h>
+#include <Ice/RetryQueue.h>
 #include <Ice/TcpEndpointI.h>
 #include <Ice/UdpEndpointI.h>
 #include <Ice/DynamicLibrary.h>
@@ -283,6 +284,19 @@ IceInternal::Instance::endpointHostResolver()
     }
 
     return _endpointHostResolver;
+}
+
+RetryQueuePtr
+IceInternal::Instance::retryQueue()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    return _retryQueue;
 }
 
 IceUtil::TimerPtr
@@ -991,6 +1005,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _servantFactoryManager = new ObjectFactoryManager();
 
         _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
+        
+        _retryQueue = new RetryQueue(this);
 
         if(_initData.wstringConverter == 0)
         {
@@ -1039,6 +1055,7 @@ IceInternal::Instance::~Instance()
     assert(!_serverThreadPool);
     assert(!_selectorThread);
     assert(!_endpointHostResolver);
+    assert(!_retryQueue);
     assert(!_timer);
     assert(!_routerManager);
     assert(!_locatorManager);
@@ -1129,7 +1146,9 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 
     //
-    // Start connection monitor if necessary.
+    // Start connection monitor if necessary. Set the check interval to
+    // 1/10 of the ACM timeout with a minmal value of 1 second and a 
+    // maximum value of 5 minutes.
     //
     Int interval = 0;
     if(_clientACM > 0 && _serverACM > 0)
@@ -1143,6 +1162,10 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     else if(_serverACM > 0)
     {
         interval = _serverACM;
+    }
+    if(interval > 0)
+    {
+        interval = min(300, max(1, (int)interval / 10));
     }
     interval = _initData.properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
     if(interval > 0)
@@ -1200,6 +1223,11 @@ IceInternal::Instance::destroy()
         _outgoingConnectionFactory->waitUntilFinished();
     }
 
+    if(_retryQueue)
+    {
+        _retryQueue->destroy();
+    }
+
     ThreadPoolPtr serverThreadPool;
     ThreadPoolPtr clientThreadPool;
     SelectorThreadPtr selectorThread;
@@ -1210,6 +1238,7 @@ IceInternal::Instance::destroy()
 
         _objectAdapterFactory = 0;
         _outgoingConnectionFactory = 0;
+        _retryQueue = 0;
 
         if(_connectionMonitor)
         {

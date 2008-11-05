@@ -123,7 +123,7 @@ FreezeScript::TransformVisitor::visitDouble(const DoubleDataPtr& dest)
                 {
                     while(*end)
                     {
-                        if(!isspace(*end))
+                        if(!isspace(static_cast<unsigned char>(*end)))
                         {
                             conversionError(type, _src->getType(), str);
                             return;

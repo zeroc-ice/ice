@@ -320,7 +320,7 @@ struct EnvironmentEval : std::unary_function<string, string>
             else
             {
                 end = beg + 1;
-                while((isalnum(v[end]) || v[end] == '_')  && end < v.size())
+                while((isalnum(static_cast<unsigned char>(v[end])) || v[end] == '_')  && end < v.size())
                 {
                     ++end;
                 }
@@ -914,7 +914,8 @@ ServerI::isAdapterActivatable(const string& id) const
     }
     else if(_state < Destroying)
     {
-        return true; // The server is being deactivated.
+        return _node->getActivator()->isActive(); // The server is being deactivated and the
+                                                  // node isn't shutting down yet.
     }
     else
     {
@@ -2126,6 +2127,12 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     // Create the configuration files, remove the old ones.
     //
     {
+        //
+        // We do not want to esapce the properties if the Ice version is 
+        // previous to Ice 3.3.
+        //
+        bool escapeProperties = (_desc->iceVersion == 0 || _desc->iceVersion > 30300);
+
         Ice::StringSeq knownFiles;
         for(PropertyDescriptorSeqDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
         {
@@ -2146,7 +2153,14 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                 }
                 else
                 {
-                    configfile << escapeProperty(r->name) << "=" << escapeProperty(r->value) << endl;
+                    if(escapeProperties)
+                    {
+                        configfile << escapeProperty(r->name) << "=" << escapeProperty(r->value) << endl;
+                    }
+                    else
+                    {
+                        configfile << r->name << "=" << r->value << endl;
+                    }
                 }
             }
             configfile.close();

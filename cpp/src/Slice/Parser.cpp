@@ -48,16 +48,6 @@ Unit* unit;
 }
 
 // ----------------------------------------------------------------------
-// toLower() helper function
-// ----------------------------------------------------------------------
-
-static void
-toLower(string& s)
-{
-    transform(s.begin(), s.end(), s.begin(), ::tolower);
-}
-
-// ----------------------------------------------------------------------
 // DefinitionContext
 // ----------------------------------------------------------------------
 
@@ -2044,10 +2034,8 @@ Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
         }
         if(!_unit->caseSensitive())
         {
-            string name = newName;
-            toLower(name);
-            string thisName = module->name();
-            toLower(thisName);
+            string name = IceUtilInternal::toLower(newName);
+            string thisName = IceUtilInternal::toLower(module->name());
             if(name == thisName)
             {
                 string msg = newConstruct;
@@ -2075,10 +2063,8 @@ Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
         }
         if(!_unit->caseSensitive())
         {
-            string name = newName;
-            toLower(name);
-            string thisName = module->name();
-            toLower(thisName);
+            string name = IceUtilInternal::toLower(newName);
+            string thisName = IceUtilInternal::toLower(module->name());
             if(name == thisName)
             {
                 string msg = newConstruct;
@@ -2125,9 +2111,9 @@ Slice::Container::checkPrefix(const string& name) const
         if(name.size() >= 3)
         {
             string prefix3;
-            prefix3 += ::tolower(name[0]);
-            prefix3 += ::tolower(name[1]);
-            prefix3 += ::tolower(name[2]);
+            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
             if(prefix3 == "ice")
             {
                 _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
@@ -2649,10 +2635,8 @@ Slice::ClassDef::createOperation(const string& name,
     }
     if(!_unit->caseSensitive())
     {
-        string newName = name;
-        toLower(newName);
-        string thisName = this->name();
-        toLower(thisName);
+        string newName = IceUtilInternal::toLower(name);
+        string thisName = IceUtilInternal::toLower(this->name());
         if(newName == thisName)
         {
             string msg = "operation `" + name + "' differs only in capitalization from enclosing ";
@@ -2690,10 +2674,8 @@ Slice::ClassDef::createOperation(const string& name,
             }
             if(!_unit->caseSensitive())
             {
-                string baseName = (*q)->name();
-                toLower(baseName);
-                string newName = name;
-                toLower(newName);
+                string baseName = IceUtilInternal::toLower((*q)->name());
+                string newName = IceUtilInternal::toLower(name);
                 if(baseName == newName)
                 {
                     string msg = "operation `" + name + "' differs only in capitalization from " + (*q)->kindOf();
@@ -2788,10 +2770,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
     }
     if(!_unit->caseSensitive())
     {
-        string newName = name;
-        toLower(newName);
-        string thisName = this->name();
-        toLower(thisName);
+        string newName = IceUtilInternal::toLower(name);
+        string thisName = IceUtilInternal::toLower(this->name());
         if(newName == thisName)
         {
             string msg = "data member `" + name + "' differs only in capitalization from enclosing class name `";
@@ -2828,10 +2808,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
             }
             if(!_unit->caseSensitive())
             {
-                string baseName = (*q)->name();
-                toLower(baseName);
-                string newName = name;
-                toLower(newName);
+                string baseName = IceUtilInternal::toLower((*q)->name());
+                string newName = IceUtilInternal::toLower(name);
                 if(baseName == newName)
                 {
                     string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
@@ -3266,10 +3244,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
     }
     if(!_unit->caseSensitive())
     {
-        string newName = name;
-        toLower(newName);
-        string thisName = this->name();
-        toLower(thisName);
+        string newName = IceUtilInternal::toLower(name);
+        string thisName = IceUtilInternal::toLower(this->name());
         if(newName == thisName)
         {
             string msg = "exception member `" + name + "' differs only in capitalization ";
@@ -3297,10 +3273,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
             }
             if(!_unit->caseSensitive())
             {
-                string baseName = (*r)->name();
-                toLower(baseName);
-                string newName = name;
-                toLower(newName);
+                string baseName = IceUtilInternal::toLower((*r)->name());
+                string newName = IceUtilInternal::toLower(name);
                 if(baseName == newName)
                 {
                     string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
@@ -3578,10 +3552,8 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
     }
     if(!_unit->caseSensitive())
     {
-        string newName = name;
-        toLower(newName);
-        string thisName = this->name();
-        toLower(thisName);
+        string newName = IceUtilInternal::toLower(name);
+        string thisName = IceUtilInternal::toLower(this->name());
         if(newName == thisName)
         {
             string msg = "struct member `" + name + "' differs only in capitalization from enclosing struct name `";
@@ -4503,10 +4475,8 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     }
     if(!_unit->caseSensitive())
     {
-        string newName = name;
-        toLower(newName);
-        string thisName = this->name();
-        toLower(thisName);
+        string newName = IceUtilInternal::toLower(name);
+        string thisName = IceUtilInternal::toLower(this->name());
         if(newName == thisName)
         {
             string msg = "parameter `" + name + "' differs only in capitalization from operation name `";
@@ -5279,7 +5249,7 @@ Slice::Unit::addContent(const ContainedPtr& contained)
     string scoped = contained->scoped();
     if(!caseSensitive())
     {
-        toLower(scoped);
+        scoped = IceUtilInternal::toLower(scoped);
     }
     _contentMap[scoped].push_back(contained);
 }
@@ -5290,7 +5260,7 @@ Slice::Unit::removeContent(const ContainedPtr& contained)
     string scoped = contained->scoped();
     if(!caseSensitive())
     {
-        toLower(scoped);
+        scoped = IceUtilInternal::toLower(scoped);
     }
     map<string, ContainedList>::iterator p = _contentMap.find(scoped);
     assert(p != _contentMap.end());
@@ -5315,7 +5285,7 @@ Slice::Unit::findContents(const string& scoped) const
     string name = scoped;
     if(!_unit->caseSensitive())
     {
-        toLower(name);
+        name = IceUtilInternal::toLower(name);
     }
 
     map<string, ContainedList>::const_iterator p = _contentMap.find(name);
@@ -5600,7 +5570,8 @@ Slice::CICompare::operator()(const string& s1, const string& s2) const
 {
     string::const_iterator p1 = s1.begin();
     string::const_iterator p2 = s2.begin();
-    while(p1 != s1.end() && p2 != s2.end() && ::tolower(*p1) == ::tolower(*p2))
+    while(p1 != s1.end() && p2 != s2.end() &&
+          ::tolower(static_cast<unsigned char>(*p1)) == ::tolower(static_cast<unsigned char>(*p2)))
     {
         ++p1;
         ++p2;
@@ -5619,7 +5590,7 @@ Slice::CICompare::operator()(const string& s1, const string& s2) const
     }
     else
     {
-        return ::tolower(*p1) < ::tolower(*p2);
+        return ::tolower(static_cast<unsigned char>(*p1)) < ::tolower(static_cast<unsigned char>(*p2));
     }
 }
 

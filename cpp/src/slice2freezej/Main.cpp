@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/JavaUtil.h>
 #include <Slice/SignalHandler.h>
@@ -351,7 +352,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             indexTypes.push_back(dataMemberType);
 
             string capitalizedMember = member;
-            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMember[0] = toupper(static_cast<unsigned char>(capitalizedMember[0]));
             capitalizedMembers.push_back(capitalizedMember);
             indexNames.push_back(member);
         }
@@ -1203,8 +1204,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("dict");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Dict dict;
 
@@ -1251,8 +1251,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Index index;
 
@@ -1320,8 +1319,7 @@ main(int argc, char* argv[])
         vector<string> optargs = opts.argVec("dict-index");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            string s = *i;
-            s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+            string s = IceUtilInternal::removeWhitespace(*i);
             
             string dictName;
             DictIndex index;

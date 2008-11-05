@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-class LibraryCollocated extends Ice.Application
+class Collocated extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
@@ -76,20 +76,17 @@ class LibraryCollocated extends Ice.Application
         return status;
     }
 
-    LibraryCollocated(String envName)
+    Collocated(String envName)
     {
         _envName = envName;
     }
 
-    private String _envName;
-}
-
-public class Collocated
-{
     static public void
     main(String[] args)
     {
-        LibraryCollocated app = new LibraryCollocated("db");
+        Collocated app = new Collocated("db");
         app.main("demo.Freeze.library.Collocated", args, "config.collocated");
     }
+
+    private String _envName;
 }

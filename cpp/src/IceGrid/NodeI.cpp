@@ -197,7 +197,7 @@ public:
     {
     }
 
-    virtual void
+    virtual bool
     send()
     {
         try
@@ -206,8 +206,9 @@ public:
         }
         catch(const Ice::LocalException&)
         {
-            finished(false);
+            return false;
         }
+        return true;
     }
 
     virtual void
@@ -236,7 +237,7 @@ public:
     {
     }
 
-    virtual void
+    virtual bool
     send()
     {
         try
@@ -245,8 +246,9 @@ public:
         }
         catch(const Ice::LocalException&)
         {
-            finished(false);
+            return false;
         }
+        return true;
     }
 
     virtual void
@@ -275,7 +277,7 @@ public:
     {
     }
 
-    virtual void
+    virtual bool
     send()
     {
         try
@@ -284,8 +286,9 @@ public:
         }
         catch(const Ice::LocalException&)
         {
-            finished(false);
+            return false;
         }
+        return true;
     }
 
     virtual void
@@ -1074,11 +1077,17 @@ void
 NodeI::queueUpdate(const NodeObserverPrx& proxy, const UpdatePtr& update)
 {
     //Lock sync(*this); Called within the synchronization
-    deque<UpdatePtr>& queue = _observerUpdates[proxy];
-    queue.push_back(update);
-    if(queue.size() == 1)
+    map<NodeObserverPrx, deque<UpdatePtr> >::iterator p = _observerUpdates.find(proxy);
+    if(p == _observerUpdates.end()) 
     {
-        queue.front()->send();
+        if(update->send())
+        {
+            _observerUpdates[proxy].push_back(update);
+        }
+    }
+    else
+    {
+        p->second.push_back(update);
     }
 }
 
@@ -1092,21 +1101,14 @@ NodeI::dequeueUpdate(const NodeObserverPrx& proxy, const UpdatePtr& update, bool
         return;
     }
 
-    deque<UpdatePtr>& queue = p->second;
-    if(all)
+    p->second.pop_front();
+
+    if(all || (!p->second.empty() && !p->second.front()->send()))
     {
-        queue.clear();
-    }
-    else
-    {
-        queue.pop_front();
+        p->second.clear();
     }
 
-    if(!queue.empty())
-    {
-        queue.front()->send();
-    }
-    else
+    if(p->second.empty())
     {
         _observerUpdates.erase(p);
     }

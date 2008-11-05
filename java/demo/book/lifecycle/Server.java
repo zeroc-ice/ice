@@ -9,7 +9,7 @@
 
 import FilesystemI.*;
 
-class FilesystemApp extends Ice.Application
+class Server extends Ice.Application
 {
     public int
     run(String[] args)
@@ -44,14 +44,11 @@ class FilesystemApp extends Ice.Application
 
         return 0;
     }
-}
 
-public class Server
-{
     static public void
     main(String[] args)
     {
-        FilesystemApp app = new FilesystemApp();
+        Server app = new Server();
         app.main("demo.book.lifecycle.Server", args);
     }
 }

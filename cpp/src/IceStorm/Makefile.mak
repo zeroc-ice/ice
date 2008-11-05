@@ -18,13 +18,8 @@ SVCDLLNAME_D	= $(top_srcdir)\bin\icestormservice$(SOVERSION)d.dll
 SVCLIBNAME_R	= $(top_srcdir)\lib\icestormservice.lib
 SVCDLLNAME_R	= $(top_srcdir)\bin\icestormservice$(SOVERSION).dll
 
-!if "$(OPTIMIZE)" != "yes"
-SVCLIBNAME		= $(SVCLIBNAME_D)
-SVCDLLNAME		= $(SVCDLLNAME_D)
-!else
-SVCLIBNAME		= $(SVCLIBNAME_R)
-SVCDLLNAME		= $(SVCDLLNAME_R)
-!endif
+SVCLIBNAME	= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
+SVCDLLNAME	= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX).dll
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe

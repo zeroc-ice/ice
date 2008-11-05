@@ -707,8 +707,8 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
             // TODO: assuming that there is no leading or trailing whitespace. This
             // should probably be confirmed.
             //
-            assert(!isspace(parameter[current]));
-            assert(!isspace(addr[addr.size() -1]));
+            assert(!isspace(static_cast<unsigned char>(parameter[current])));
+            assert(!isspace(static_cast<unsigned char>(addr[addr.size() -1])));
 
             if(current != 0)
             {

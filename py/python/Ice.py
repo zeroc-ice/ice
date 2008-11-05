@@ -302,7 +302,11 @@ class CommunicatorI(Communicator):
         return self._impl.getDefaultContext()
 
     def getImplicitContext(self):
-        return ImplicitContextI(self._impl.getImplicitContext())
+        context = self._impl.getImplicitContext()
+        if context == None:
+            return None;
+        else:
+            return ImplicitContextI(context)
 
     def getProperties(self):
         properties = self._impl.getProperties()

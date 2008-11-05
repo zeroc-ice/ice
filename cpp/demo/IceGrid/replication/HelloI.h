@@ -18,7 +18,7 @@ public:
 
     HelloI(const std::string&);
 
-    virtual std::string getGreeting(const Ice::Current&) const;
+    virtual std::string getGreeting(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

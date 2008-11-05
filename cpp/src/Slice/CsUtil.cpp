@@ -887,7 +887,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             default:
             {
-                typeS[0] = toupper(typeS[0]);
+                typeS[0] = toupper(static_cast<unsigned char>(typeS[0]));
                 if(marshal)
                 {
                     out << nl << stream << ".write" << typeS << "Seq(";

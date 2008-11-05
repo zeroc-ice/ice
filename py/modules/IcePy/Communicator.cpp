@@ -867,7 +867,8 @@ communicatorGetImplicitContext(CommunicatorObject* self)
     
     if(implicitContext == 0)
     {
-        return 0;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     return createImplicitContext(implicitContext);

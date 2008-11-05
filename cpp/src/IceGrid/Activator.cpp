@@ -514,8 +514,7 @@ Activator::activate(const string& name,
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
-                string key = s.substr(0, pos);
-                std::transform(key.begin(), key.end(), key.begin(), toupper);
+                string key = IceUtilInternal::toUpper(s.substr(0, pos));
                 envMap.insert(map<string, string>::value_type(key, s.substr(pos + 1)));
             }
             var += s.size();
@@ -528,8 +527,7 @@ Activator::activate(const string& name,
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
-                string key = s.substr(0, pos);
-                std::transform(key.begin(), key.end(), key.begin(), toupper);
+                string key = IceUtilInternal::toUpper(s.substr(0, pos));
                 envMap.erase(key);
                 envMap.insert(map<string, string>::value_type(key, s.substr(pos + 1)));
             }
@@ -1003,6 +1001,13 @@ Activator::destroy()
     _thread->getThreadControl().join();
     _thread = 0;
     assert(_processes.empty());
+}
+
+bool
+Activator::isActive()
+{
+    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    return !_deactivating;
 }
 
 void

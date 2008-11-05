@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/SignalHandler.h>
 #include <Gen.h>
@@ -130,8 +131,7 @@ main(int argc, char* argv[])
     string::size_type pos = docbook.rfind('.');
     if(pos != string::npos)
     {
-        suffix = docbook.substr(pos);
-        transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
+        suffix = IceUtilInternal::toLower(docbook.substr(pos));
     }
     if(suffix != ".sgml")
     {

@@ -112,7 +112,8 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
         result.replace(pos, 2, "/");
     }
 
-    if(result == "/" || (result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/'))
+    if(result == "/" || (result.size() == 3 && isalpha(static_cast<unsigned char>(result[0])) && result[1] == ':' &&
+       result[2] == '/'))
     {
 	return result;
     }
@@ -477,8 +478,7 @@ Slice::Preprocessor::checkInputFile()
     string::size_type pos = base.rfind('.');
     if(pos != string::npos)
     {
-        suffix = base.substr(pos);
-        transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
+        suffix = IceUtilInternal::toLower(base.substr(pos));
     }
     if(suffix != ".ice")
     {

@@ -170,7 +170,7 @@ namespace IceInternal
 			_loadedAssemblies[ra.FullName] = ra;
 			loadReferencedAssemblies(ra);
 		    }
-		    catch(System.Exception ex)
+		    catch(System.Exception)
 		    {
 		        // Ignore assemblies that cannot be loaded.
 		    }

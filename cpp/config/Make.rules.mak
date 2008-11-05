@@ -20,12 +20,6 @@ prefix			= C:\Ice-$(VERSION)
 #OPTIMIZE		= yes
 
 #
-# Define if you want to build the Ice-E/Ice-SL slice compilers with
-# static libraries.
-#
-#STATICLIBS             = yes
-
-#
 # Define if you want pdb files to be generated for optimized/release
 # builds
 #

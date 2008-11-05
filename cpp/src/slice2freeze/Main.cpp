@@ -13,6 +13,7 @@
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/OutputUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <Slice/SignalHandler.h>
 #include <cstring>
 
@@ -221,7 +222,7 @@ usage(const char* n)
 bool
 checkIdentifier(string n, string t, string s)
 {
-    if(s.empty() || (!isalpha(s[0]) && s[0] != '_'))
+    if(s.empty() || (!isalpha(static_cast<unsigned char>(s[0])) && s[0] != '_'))
     {
         cerr << n << ": `" << t << "' is not a valid type name" << endl;
         return false;
@@ -229,7 +230,7 @@ checkIdentifier(string n, string t, string s)
     
     for(unsigned int i = 1; i < s.size(); ++i)
     {
-        if(!isalnum(s[i]) && s[i] != '_')
+        if(!isalnum(static_cast<unsigned char>(s[i])) && s[i] != '_')
         {
             cerr << n << ": `" << t << "' is not a valid type name" << endl;
             return false;
@@ -409,7 +410,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
         if(!member.empty())
         {
             string capitalizedMember = member;
-            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMember[0] = toupper(static_cast<unsigned char>(capitalizedMember[0]));
             capitalizedMembers.push_back(capitalizedMember);
         }
         else
@@ -604,7 +605,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
         if(!member.empty())
         {
             string capitalizedMember = member;
-            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMember[0] = toupper(static_cast<unsigned char>(capitalizedMember[0]));
             capitalizedMembers.push_back(capitalizedMember);
         }
         else
@@ -1429,8 +1430,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("dict");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Dict dict;
 
@@ -1562,8 +1562,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Index index;
 
@@ -1629,8 +1628,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("dict-index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         string dictName;
         DictIndex index;

@@ -25,7 +25,7 @@ Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
 char
 Slice::ToIfdef::operator()(char c)
 {
-    if(!isalnum(c))
+    if(!isalnum(static_cast<unsigned char>(c)))
     {
         return '_';
     }

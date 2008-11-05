@@ -99,12 +99,6 @@ USE_READLINE		?= no
 #
 #GENPIC                     ?= yes
 
-#
-# Support for creating static libraries is currently provided only for
-# building the Ice-E translators.
-#
-#STATICLIBS		= yes
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------

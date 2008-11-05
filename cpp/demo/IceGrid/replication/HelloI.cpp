@@ -17,7 +17,7 @@ HelloI::HelloI(const string& name) : _name(name)
 }
 
 std::string
-HelloI::getGreeting(const Ice::Current&) const
+HelloI::getGreeting(const Ice::Current&)
 {
     return _name + " says Hello World!";
 }
