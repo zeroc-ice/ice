@@ -685,6 +685,8 @@ IceUtilInternal::lastErrorToString()
     return errorToString(errno);
 }
 
+#endif
+
 string
 IceUtilInternal::toLower(const std::string& s)
 {
@@ -720,5 +722,3 @@ IceUtilInternal::removeWhitespace(const std::string& s)
     }
     return result;
 }
-
-#endif
