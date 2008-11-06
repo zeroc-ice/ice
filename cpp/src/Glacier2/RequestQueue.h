@@ -17,6 +17,9 @@
 namespace Glacier2
 {
 
+class Instance;
+typedef IceUtil::Handle<Instance> InstancePtr;
+
 class Request;
 typedef IceUtil::Handle<Request> RequestPtr;
 
@@ -28,9 +31,9 @@ class Request : public IceUtil::Shared
 public:
 
     Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
-            const Ice::Context&, const Ice::AMD_Array_Object_ice_invokePtr&);
+            const Ice::Context&, const Ice::AMD_Array_Object_ice_invokePtr&, const Ice::ConnectionPtr&);
     
-    bool invoke();
+    bool invoke(const InstancePtr&);
     bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const { return _proxy; }
     bool hasOverride() const { return !_override.empty(); }
@@ -44,13 +47,14 @@ private:
     const Ice::Context _sslContext;
     const std::string _override;
     const Ice::AMD_Array_Object_ice_invokePtr _amdCB;
+    const Ice::ConnectionPtr _connection;
 };
 
 class RequestQueue : public IceUtil::Mutex, public IceUtil::Shared
 {
 public:
 
-    RequestQueue(const RequestQueueThreadPtr&);
+    RequestQueue(const RequestQueueThreadPtr&, const InstancePtr&);
 
     bool addRequest(const RequestPtr&);
     void flushRequests(std::set<Ice::ObjectPrx>&);
@@ -58,6 +62,7 @@ public:
 private:
     
     const RequestQueueThreadPtr _requestQueueThread;
+    const InstancePtr _instance;
     std::vector<RequestPtr> _requests;
 };
 typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;

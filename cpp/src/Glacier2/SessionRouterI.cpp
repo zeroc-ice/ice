@@ -677,6 +677,8 @@ Glacier2::SessionRouterI::SessionRouterI(const InstancePtr& instance,
     {
         _sessionThread->start();
     }
+
+    _instance->setSessionRouter(this);
 }
 
 Glacier2::SessionRouterI::~SessionRouterI()

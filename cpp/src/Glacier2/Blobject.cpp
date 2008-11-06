@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/Blobject.h>
+#include <Glacier2/SessionRouterI.h>
 
 using namespace std;
 using namespace Ice;
@@ -29,8 +30,12 @@ class AMI_Array_Object_ice_invokeTwowayI : public AMI_Array_Object_ice_invoke
 {
 public:
 
-    AMI_Array_Object_ice_invokeTwowayI(const AMD_Array_Object_ice_invokePtr& amdCB) :
-        _amdCB(amdCB)
+    AMI_Array_Object_ice_invokeTwowayI(const AMD_Array_Object_ice_invokePtr& amdCB,
+                                       const InstancePtr& instance,
+                                       const ConnectionPtr& connection) :
+        _amdCB(amdCB),
+        _instance(instance),
+        _connection(connection)
     {
     }
 
@@ -43,20 +48,50 @@ public:
     virtual void
     ice_exception(const Exception& ex)
     {
+        //
+        // If the connection has been lost, destroy the session.
+        //
+        if(_connection)
+        {
+            try
+            {
+                ex.ice_throw();
+            }
+            catch(const Ice::ConnectionLostException&)
+            {
+                try
+                {
+                    _instance->sessionRouter()->destroySession(_connection);
+                }
+                catch(const Exception&)
+                {
+                }
+            }
+            catch(const Exception&)
+            {
+            }
+        }
+
         _amdCB->ice_exception(ex);
     }
 
 private:
 
     const AMD_Array_Object_ice_invokePtr _amdCB;
+    const InstancePtr _instance;
+    const ConnectionPtr _connection;
 };
 
 class AMI_Array_Object_ice_invokeOnewayI : public AMI_Array_Object_ice_invoke, public Ice::AMISentCallback
 {
 public:
 
-    AMI_Array_Object_ice_invokeOnewayI(const AMD_Array_Object_ice_invokePtr& amdCB) :
-        _amdCB(amdCB)
+    AMI_Array_Object_ice_invokeOnewayI(const AMD_Array_Object_ice_invokePtr& amdCB,
+                                       const InstancePtr& instance,
+                                       const ConnectionPtr& connection) :
+        _amdCB(amdCB),
+        _instance(instance),
+        _connection(connection)
     {
     }
 
@@ -75,44 +110,65 @@ public:
     virtual void
     ice_exception(const Exception& ex)
     {
+        //
+        // If the connection has been lost, destroy the session.
+        //
+        if(_connection)
+        {
+            try
+            {
+                ex.ice_throw();
+            }
+            catch(const Ice::ConnectionLostException&)
+            {
+                try
+                {
+                    _instance->sessionRouter()->destroySession(_connection);
+                }
+                catch(const Exception&)
+                {
+                }
+            }
+            catch(const Exception&)
+            {
+            }
+        }
+
         _amdCB->ice_exception(ex);
     }
 
 private:
 
     const AMD_Array_Object_ice_invokePtr _amdCB;
+    const InstancePtr _instance;
+    const ConnectionPtr _connection;
 };
 
 }
 
-Glacier2::Blobject::Blobject(const InstancePtr& instance, bool reverse, const Ice::Context& sslContext) :
+Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& reverseConnection,
+                             const Ice::Context& sslContext) :
     _instance(instance),
-    _reverse(reverse),
-    _forwardContext(_reverse ?
+    _reverseConnection(reverseConnection),
+    _forwardContext(_reverseConnection ?
                     _instance->properties()->getPropertyAsInt(serverForwardContext) > 0 :
                     _instance->properties()->getPropertyAsInt(clientForwardContext) > 0),
-    _alwaysBatch(_reverse ?
+    _alwaysBatch(_reverseConnection ?
                  _instance->properties()->getPropertyAsInt(serverAlwaysBatch) > 0 :
                  _instance->properties()->getPropertyAsInt(clientAlwaysBatch) > 0),
-    _requestTraceLevel(_reverse ?
+    _requestTraceLevel(_reverseConnection ?
                        _instance->properties()->getPropertyAsInt(serverTraceRequest) :
                        _instance->properties()->getPropertyAsInt(clientTraceRequest)),
-    _overrideTraceLevel(reverse ?
+    _overrideTraceLevel(reverseConnection ?
                         _instance->properties()->getPropertyAsInt(serverTraceOverride) :
                         _instance->properties()->getPropertyAsInt(clientTraceOverride)),
     _sslContext(sslContext)
 {
-    RequestQueueThreadPtr t = _reverse ? _instance->serverRequestQueueThread() : _instance->clientRequestQueueThread();
+    RequestQueueThreadPtr t = _reverseConnection ? _instance->serverRequestQueueThread() : 
+                                                   _instance->clientRequestQueueThread();
     if(t)
     {
-        if(reverse)
-        {
-            const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t);
-        }
-        else
-        {
-            const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t);
-        }
+        const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t, _instance);
     }
 }
 
@@ -246,7 +302,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
     if(_requestTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");
-        if(_reverse)
+        if(_reverseConnection)
         {
             out << "reverse ";
         }
@@ -259,7 +315,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
         {
             out << " (not buffered)";
         }
-        if(_reverse)
+        if(_reverseConnection)
         {
             out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
         }
@@ -291,8 +347,8 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
         bool override;
         try
         {
-            override = 
-                _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, _sslContext, amdCB));
+            override = _requestQueue->addRequest(
+                new Request(proxy, inParams, current, _forwardContext, _sslContext, amdCB, _reverseConnection));
         }
         catch(const ObjectNotExistException& ex)
         {
@@ -303,12 +359,12 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
         if(override && _overrideTraceLevel >= 1)
         {
             Trace out(_instance->logger(), "Glacier2");
-            if(_reverse)
+            if(_reverseConnection)
             {
                 out << "reverse ";
             }
             out << "routing override";
-            if(_reverse)
+            if(_reverseConnection)
             {
                 out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
             }
@@ -343,11 +399,12 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
             Ice::AMISentCallback* sentCB = 0;
             if(proxy->ice_isTwoway())
             {
-                amiCB = new AMI_Array_Object_ice_invokeTwowayI(amdCB);
+                amiCB = new AMI_Array_Object_ice_invokeTwowayI(amdCB, _instance, _reverseConnection);
             }
             else
             {
-                AMI_Array_Object_ice_invokeOnewayI* cb = new AMI_Array_Object_ice_invokeOnewayI(amdCB);
+                AMI_Array_Object_ice_invokeOnewayI* cb = 
+                    new AMI_Array_Object_ice_invokeOnewayI(amdCB, _instance, _reverseConnection);
                 amiCB = cb;
                 sentCB = cb;
             }

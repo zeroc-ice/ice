@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/RequestQueue.h>
+#include <Glacier2/SessionRouterI.h>
 #include <set>
 
 using namespace std;
@@ -24,7 +25,12 @@ class AMI_Array_Object_ice_invokeI : public AMI_Array_Object_ice_invoke
 {
 public:
     
-    AMI_Array_Object_ice_invokeI(const AMD_Array_Object_ice_invokePtr& amdCB) : _amdCB(amdCB)
+    AMI_Array_Object_ice_invokeI(const AMD_Array_Object_ice_invokePtr& amdCB,
+                                 const InstancePtr& instance,
+                                 const ConnectionPtr& connection) :
+        _amdCB(amdCB),
+        _instance(instance),
+        _connection(connection)
     {
     }
     
@@ -40,6 +46,30 @@ public:
     virtual void
     ice_exception(const Exception& ex)
     {
+        //
+        // If the connection has been lost, destroy the session.
+        //
+        if(_connection)
+        {
+            try
+            {
+                ex.ice_throw();
+            }
+            catch(const Ice::ConnectionLostException&)
+            {
+                try
+                {
+                    _instance->sessionRouter()->destroySession(_connection);
+                }
+                catch(const Exception&)
+                {
+                }
+            }
+            catch(const Exception&)
+            {
+            }
+        }
+     
         if(_amdCB)
         {
             _amdCB->ice_exception(ex);
@@ -49,19 +79,22 @@ public:
 private:
 
     const AMD_Array_Object_ice_invokePtr _amdCB;
+    const InstancePtr _instance;
+    const ConnectionPtr _connection;
 };
 
 }
 
 Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, const Byte*>& inParams,
                            const Current& current, bool forwardContext, const Ice::Context& sslContext,
-                           const AMD_Array_Object_ice_invokePtr& amdCB) :
+                           const AMD_Array_Object_ice_invokePtr& amdCB, const ConnectionPtr& connection) :
     _proxy(proxy),
     _inParams(inParams.first, inParams.second),
     _current(current),
     _forwardContext(forwardContext),
     _sslContext(sslContext),
-    _amdCB(amdCB)
+    _amdCB(amdCB),
+    _connection(connection)
 {
     //
     // If this is not a twoway call, we can finish the AMD call right
@@ -81,7 +114,7 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, 
 
 
 bool
-Glacier2::Request::invoke()
+Glacier2::Request::invoke(const InstancePtr& instance)
 {
     pair<const Byte*, const Byte*> inPair;
     if(_inParams.size() == 0)
@@ -128,11 +161,11 @@ Glacier2::Request::invoke()
         AMI_Array_Object_ice_invokePtr amiCB;
         if(_proxy->ice_isTwoway())
         {
-            amiCB = new AMI_Array_Object_ice_invokeI(_amdCB);
+            amiCB = new AMI_Array_Object_ice_invokeI(_amdCB, instance, _connection);
         }
         else
         {
-            amiCB = new AMI_Array_Object_ice_invokeI(0);
+            amiCB = new AMI_Array_Object_ice_invokeI(0, instance, _connection);
         }
         
         if(_forwardContext)
@@ -194,8 +227,10 @@ Glacier2::Request::override(const RequestPtr& other) const
     return _override == other->_override;
 }
 
-Glacier2::RequestQueue::RequestQueue(const RequestQueueThreadPtr& requestQueueThread) :
-    _requestQueueThread(requestQueueThread)
+Glacier2::RequestQueue::RequestQueue(const RequestQueueThreadPtr& requestQueueThread,
+                                     const InstancePtr& instance) :
+    _requestQueueThread(requestQueueThread),
+    _instance(instance)
 {
 }
 
@@ -238,7 +273,7 @@ Glacier2::RequestQueue::flushRequests(set<Ice::ObjectPrx>& batchProxies)
     {
         try
         {
-            if((*p)->invoke()) // If batch invocation, add the proxy to the batch proxy set.
+            if((*p)->invoke(_instance)) // If batch invocation, add the proxy to the batch proxy set.
             {
                 batchProxies.insert((*p)->getProxy());
             }

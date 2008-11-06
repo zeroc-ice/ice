@@ -21,6 +21,9 @@
 namespace Glacier2
 {
 
+class SessionRouterI;
+typedef IceUtil::Handle<SessionRouterI> SessionRouterIPtr;
+
 class Instance : public IceUtil::Shared
 {
 public:
@@ -41,10 +44,14 @@ public:
     const RequestQueueThreadPtr& clientRequestQueueThread() const { return _clientRequestQueueThread; }
     const RequestQueueThreadPtr& serverRequestQueueThread() const { return _serverRequestQueueThread; }
     const ProxyVerifierPtr& proxyVerifier() const { return _proxyVerifier; }
+    const SessionRouterIPtr& sessionRouter() const { return _sessionRouter; }
 
     void destroy();
     
 private:
+
+    friend class SessionRouterI;
+    void setSessionRouter(const SessionRouterIPtr&);
 
     const Ice::CommunicatorPtr _communicator;
     const Ice::PropertiesPtr _properties;
@@ -54,6 +61,7 @@ private:
     const RequestQueueThreadPtr _clientRequestQueueThread;
     const RequestQueueThreadPtr _serverRequestQueueThread;
     const ProxyVerifierPtr _proxyVerifier;
+    const SessionRouterIPtr _sessionRouter;
 };
 typedef IceUtil::Handle<Instance> InstancePtr;
 
