@@ -26,6 +26,10 @@ public abstract class UserExceptionWriter extends UserException
     __write(IceInternal.BasicStream os)
     {
         OutputStream stream = (OutputStream)os.closure();
+        if(stream == null)
+        {
+            stream = new OutputStreamI(_communicator, os);
+        }
         write(stream);
     }
 
