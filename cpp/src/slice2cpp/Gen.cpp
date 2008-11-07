@@ -2720,7 +2720,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         }
     }
 
-    if(p->returnsData())
+    if(ret || !outParams.empty())
     {
         C << nl << "::IceInternal::BasicStream* __is = __og.is();";
         C << nl << "__is->startReadEncaps();";
@@ -5357,7 +5357,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << nl << "return;";
         C << eb;
 
-        if(p->returnsData())
+        if(ret || !outParams.empty())
         {
             C << nl << "__is->startReadEncaps();";
             writeUnmarshalCode(C, outParams, 0, StringList(), true);
