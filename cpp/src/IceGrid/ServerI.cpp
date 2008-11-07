@@ -2131,8 +2131,6 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         // We do not want to esapce the properties if the Ice version is 
         // previous to Ice 3.3.
         //
-        bool escapeProperties = (_desc->iceVersion == 0 || _desc->iceVersion > 30300);
-
         Ice::StringSeq knownFiles;
         for(PropertyDescriptorSeqDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
         {
@@ -2153,14 +2151,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                 }
                 else
                 {
-                    if(escapeProperties)
-                    {
-                        configfile << escapeProperty(r->name) << "=" << escapeProperty(r->value) << endl;
-                    }
-                    else
-                    {
-                        configfile << r->name << "=" << r->value << endl;
-                    }
+                    configfile << r->name << "=" << r->value << endl;
                 }
             }
             configfile.close();
