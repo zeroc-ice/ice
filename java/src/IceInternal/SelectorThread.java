@@ -34,8 +34,24 @@ public class SelectorThread
         _destroyed = false;
         _selector = new Selector(instance, 0);
 
-        _thread = new HelperThread();
-        _thread.start();
+        try
+        {
+            _thread = new HelperThread();
+            _thread.start();
+        }
+        catch(RuntimeException ex)
+        {
+            _selector.destroy();
+            _selector = null;
+
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            String s = "cannot create thread for selector thread:\n" + sw.toString();
+            _instance.initializationData().logger.error(s);
+            throw ex;
+        }
 
         _timer = _instance.timer();
     }

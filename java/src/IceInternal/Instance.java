@@ -27,6 +27,7 @@ public final class Instance
     traceLevels()
     {
         // No mutex lock, immutable.
+        assert(_traceLevels != null);
         return _traceLevels;
     }
 
@@ -34,6 +35,7 @@ public final class Instance
     defaultsAndOverrides()
     {
         // No mutex lock, immutable.
+        assert(_defaultsAndOverrides != null);
         return _defaultsAndOverrides;
     }
 
@@ -45,6 +47,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_routerManager != null);
         return _routerManager;
     }
 
@@ -56,6 +59,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_locatorManager != null);
         return _locatorManager;
     }
 
@@ -67,6 +71,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_referenceFactory != null);
         return _referenceFactory;
     }
     
@@ -78,6 +83,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_proxyFactory != null);
         return _proxyFactory;
     }
 
@@ -89,6 +95,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_outgoingConnectionFactory != null);
         return _outgoingConnectionFactory;
     }
 
@@ -100,6 +107,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        //assert(_connectionMonitor != null); // Optional
         return _connectionMonitor;
     }
 
@@ -111,6 +119,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_servantFactoryManager != null);
         return _servantFactoryManager;
     }
 
@@ -122,6 +131,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_objectAdapterFactory != null);
         return _objectAdapterFactory;
     }
 
@@ -143,12 +153,8 @@ public final class Instance
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        
-        if(_clientThreadPool == null) // Lazy initialization.
-        {
-            _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
-        }
 
+        assert(_clientThreadPool != null);
         return _clientThreadPool;
     }
 
@@ -177,11 +183,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }        
 
-        if(_selectorThread == null) // Lazy initialization.
-        {
-            _selectorThread = new SelectorThread(this);
-        }
-
+        assert(_selectorThread != null);
         return _selectorThread;
     }
 
@@ -193,11 +195,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }        
 
-        if(_endpointHostResolver == null) // Lazy initialization.
-        {
-            _endpointHostResolver = new EndpointHostResolver(this);
-        }
-
+        assert(_endpointHostResolver != null);
         return _endpointHostResolver;
     }
 
@@ -209,6 +207,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }        
 
+        assert(_retryQueue != null);
         return _retryQueue;
     }
 
@@ -220,11 +219,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }        
 
-        if(_timer == null) // Lazy initialization.
-        {
-            _timer = new Timer(this);
-        }
-
+        assert(_timer != null);
         return _timer;
     }
 
@@ -236,6 +231,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_endpointFactoryManager != null);
         return _endpointFactoryManager;
     }
 
@@ -247,6 +243,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        assert(_pluginManager != null);
         return _pluginManager;
     }
 
@@ -726,6 +723,40 @@ public final class Instance
 
             _retryQueue = new RetryQueue(this);
 
+            try
+            {
+                _endpointHostResolver = new EndpointHostResolver(this);
+            }
+            catch(RuntimeException ex)
+            {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                String s = "cannot create thread for endpoint host resolver:\n" + sw.toString();
+                _initData.logger.error(s);
+                throw ex;
+            }
+            
+            try
+            {
+                _timer = new Timer(this);
+            }
+            catch(RuntimeException ex)
+            {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                String s = "cannot create thread for timer:\n" + sw.toString();
+                _initData.logger.error(s);
+                throw ex;
+            }
+
+            _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
+
+            _selectorThread = new SelectorThread(this);
+            
             //
             // Add Process and Properties facets
             //
@@ -838,8 +869,7 @@ public final class Instance
         }
 
         //
-        // Thread pool initialization is now lazy initialization in
-        // clientThreadPool() and serverThreadPool().
+        // Server thread pool initialization is lazy in serverThreadPool().
         //
     }
 

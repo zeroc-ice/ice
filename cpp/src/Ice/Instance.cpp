@@ -86,6 +86,7 @@ TraceLevelsPtr
 IceInternal::Instance::traceLevels() const
 {
     // No mutex lock, immutable.
+    assert(_traceLevels);
     return _traceLevels;
 }
 
@@ -93,6 +94,7 @@ DefaultsAndOverridesPtr
 IceInternal::Instance::defaultsAndOverrides() const
 {
     // No mutex lock, immutable.
+    assert(_defaultsAndOverrides);
     return _defaultsAndOverrides;
 }
 
@@ -106,6 +108,7 @@ IceInternal::Instance::routerManager() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_routerManager);
     return _routerManager;
 }
 
@@ -119,6 +122,7 @@ IceInternal::Instance::locatorManager() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_locatorManager);
     return _locatorManager;
 }
 
@@ -132,6 +136,7 @@ IceInternal::Instance::referenceFactory() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_referenceFactory);
     return _referenceFactory;
 }
 
@@ -145,6 +150,7 @@ IceInternal::Instance::proxyFactory() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_proxyFactory);
     return _proxyFactory;
 }
 
@@ -158,6 +164,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_outgoingConnectionFactory);
     return _outgoingConnectionFactory;
 }
 
@@ -171,6 +178,7 @@ IceInternal::Instance::connectionMonitor() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    //assert(_connectionMonitor); // Optional
     return _connectionMonitor;
 }
 
@@ -184,6 +192,7 @@ IceInternal::Instance::servantFactoryManager() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_servantFactoryManager);
     return _servantFactoryManager;
 }
 
@@ -197,6 +206,7 @@ IceInternal::Instance::objectAdapterFactory() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_objectAdapterFactory);
     return _objectAdapterFactory;
 }
 
@@ -223,11 +233,7 @@ IceInternal::Instance::clientThreadPool()
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(!_clientThreadPool) // Lazy initialization.
-    {
-        _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
-    }
-
+    assert(_clientThreadPool);
     return _clientThreadPool;
 }
 
@@ -259,12 +265,8 @@ IceInternal::Instance::selectorThread()
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    
-    if(!_selectorThread) // Lazy initialization.
-    {
-        _selectorThread = new SelectorThread(this);
-    }
 
+    assert(_selectorThread);
     return _selectorThread;
 }
 
@@ -278,11 +280,7 @@ IceInternal::Instance::endpointHostResolver()
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    if(!_endpointHostResolver) // Lazy initialization.
-    {
-        _endpointHostResolver = new EndpointHostResolver(this);
-    }
-
+    assert(_endpointHostResolver);
     return _endpointHostResolver;
 }
 
@@ -296,6 +294,7 @@ IceInternal::Instance::retryQueue()
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_retryQueue);
     return _retryQueue;
 }
 
@@ -309,11 +308,7 @@ IceInternal::Instance::timer()
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(!_timer) // Lazy initialization.
-    {
-        _timer = new IceUtil::Timer;
-    }
-
+    assert(_timer);
     return _timer;
 }
 
@@ -327,6 +322,7 @@ IceInternal::Instance::endpointFactoryManager() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_endpointFactoryManager);
     return _endpointFactoryManager;
 }
 
@@ -340,6 +336,7 @@ IceInternal::Instance::dynamicLibraryList() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_dynamicLibraryList);
     return _dynamicLibraryList;
 }
 
@@ -353,6 +350,7 @@ IceInternal::Instance::pluginManager() const
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    assert(_pluginManager);
     return _pluginManager;
 }
 
@@ -1008,6 +1006,32 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         
         _retryQueue = new RetryQueue(this);
 
+        try
+        {
+            _timer = new IceUtil::Timer;
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            Error out(_initData.logger);
+            out << "cannot create thread for timer:\n" << ex;
+            throw;
+        }
+        
+        try
+        {
+            _endpointHostResolver = new EndpointHostResolver(this);
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            Error out(_initData.logger);
+            out << "cannot create thread for endpoint host resolver:\n" << ex;
+            throw;
+        }
+
+        _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
+
+        _selectorThread = new SelectorThread(this);
+
         if(_initData.wstringConverter == 0)
         {
             _initData.wstringConverter = new UnicodeWstringConverter();
@@ -1174,8 +1198,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 
     //
-    // Thread pool initialization is now lazy initialization in
-    // clientThreadPool() and serverThreadPool().
+    // Server thread pool initialization is lazy in serverThreadPool().
     //
 }
 

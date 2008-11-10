@@ -35,12 +35,14 @@ namespace IceInternal
         public TraceLevels traceLevels()
         {
             // No mutex lock, immutable.
+            Debug.Assert(_traceLevels != null);
             return _traceLevels;
         }
         
         public DefaultsAndOverrides defaultsAndOverrides()
         {
             // No mutex lock, immutable.
+            Debug.Assert(_defaultsAndOverrides != null);
             return _defaultsAndOverrides;
         }
         
@@ -53,6 +55,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_routerManager != null);
                 return _routerManager;
             }
         }
@@ -65,7 +68,8 @@ namespace IceInternal
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                
+
+                Debug.Assert(_locatorManager != null);
                 return _locatorManager;
             }
         }
@@ -79,6 +83,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_referenceFactory != null);
                 return _referenceFactory;
             }
         }
@@ -92,6 +97,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_proxyFactory != null);
                 return _proxyFactory;
             }
         }
@@ -105,6 +111,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_outgoingConnectionFactory != null);
                 return _outgoingConnectionFactory;
             }
         }
@@ -118,6 +125,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                //Debug.Assert(_connectionMonitor != null); // Optional
                 return _connectionMonitor;
             }
         }
@@ -131,6 +139,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_servantFactoryManager != null);
                 return _servantFactoryManager;
             }
         }
@@ -144,6 +153,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_objectAdapterFactory != null);
                 return _objectAdapterFactory;
             }
         }
@@ -170,11 +180,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
-                if(_clientThreadPool == null) // Lazy initialization.
-                {
-                    _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
-                }
-                
+                Debug.Assert(_clientThreadPool != null);
                 return _clientThreadPool;
             }
         }
@@ -207,11 +213,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                if(_endpointHostResolver == null) // Lazy initialization.
-                {
-                    _endpointHostResolver = new EndpointHostResolver(this);
-                }
-
+                Debug.Assert(_endpointHostResolver != null);
                 return _endpointHostResolver;
             }
         }
@@ -226,6 +228,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_retryQueue != null);
                 return _retryQueue;
             }
         }
@@ -239,20 +242,10 @@ namespace IceInternal
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                
-                if(_timer == null)
-                {
-                    _timer = new Timer(this);
-                }
-                
+
+                Debug.Assert(_timer != null);
                 return _timer;
             }
-        }
-
-        public bool background()
-        {
-            // No mutex lock, immutable.
-            return _background;
         }
 
         public EndpointFactoryManager endpointFactoryManager()
@@ -264,6 +257,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_endpointFactoryManager != null);
                 return _endpointFactoryManager;
             }
         }
@@ -277,6 +271,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
+                Debug.Assert(_pluginManager != null);
                 return _pluginManager;
             }
         }
@@ -713,8 +708,6 @@ namespace IceInternal
                 _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
                 _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
-                _background = _initData.properties.getPropertyAsInt("Ice.Background") > 0;
-
                 _routerManager = new RouterManager();
                 
                 _locatorManager = new LocatorManager();
@@ -758,7 +751,31 @@ namespace IceInternal
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
                 
                 _retryQueue = new RetryQueue(this);
-                
+
+                try
+                {
+                    _timer = new Timer(this);
+                }
+                catch(System.Exception ex)
+                {
+                    string s = "cannot create thread for timer:\n" + ex;
+                    _initData.logger.error(s);
+                    throw ex;
+                }
+            
+                try
+                {
+                    _endpointHostResolver = new EndpointHostResolver(this);
+                }
+                catch(System.Exception ex)
+                {
+                    string s = "cannot create thread for endpoint host resolver:\n" + ex;
+                    _initData.logger.error(s);
+                    throw ex;
+                }
+
+                _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
+
                 string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
                 if(facetFilter.Length > 0)
                 {
@@ -821,7 +838,7 @@ namespace IceInternal
             {
                 getAdmin();
             }
-
+            
             //
             // Start connection monitor if necessary. Set the check interval to
             // 1/10 of the ACM timeout with a minmal value of 1 second and a
@@ -858,8 +875,7 @@ namespace IceInternal
             }
             
             //
-            // Thread pool initialization is now lazy initialization in
-            // clientThreadPool() and serverThreadPool().
+            // Server thread pool initialization is lazy in serverThreadPool().
             //
         }
         
@@ -1060,7 +1076,6 @@ namespace IceInternal
         private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
         private RetryQueue _retryQueue;
-        private bool _background;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;
         private Dictionary<string, string> _defaultContext;
