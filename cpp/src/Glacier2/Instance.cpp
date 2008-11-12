@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <Glacier2/SessionRouterI.h>
 #include <Glacier2/Instance.h>
 
 using namespace std;
@@ -58,4 +59,12 @@ Glacier2::Instance::destroy()
     {
         _serverRequestQueueThread->destroy();
     }
+
+    const_cast<SessionRouterIPtr&>(_sessionRouter) = 0;
+}
+
+void
+Glacier2::Instance::setSessionRouter(const SessionRouterIPtr& sessionRouter)
+{
+    const_cast<SessionRouterIPtr&>(_sessionRouter) = sessionRouter;
 }

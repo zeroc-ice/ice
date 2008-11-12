@@ -1495,7 +1495,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& adapterName)
             {
                 // Here we ignore any exceptions in close().
             }
-            
+            _acceptor = 0;
             throw;
         }
     }

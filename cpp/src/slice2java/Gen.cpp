@@ -4270,7 +4270,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
         out << eb;
         out << eb;
-        if(op->returnsData())
+        if(ret || !outParams.empty())
         {
             out << nl << "IceInternal.BasicStream __is = __og.is();";
             out << nl << "__is.startReadEncaps();";
@@ -5150,7 +5150,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
         out << eb;
         out << eb;
-        if(p->returnsData())
+        if(ret || !outParams.empty())
         {
             out << nl << "__is.startReadEncaps();";
             for(pli = outParams.begin(); pli != outParams.end(); ++pli)

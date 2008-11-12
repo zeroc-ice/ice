@@ -169,6 +169,10 @@ namespace Ice
         public override void write__(IceInternal.BasicStream os)
         {
             OutputStream stream = (OutputStream)os.closure();
+            if(stream == null)
+            {
+                stream = new OutputStreamI(communicator_, os);
+            }
             write(stream);
         }
 

@@ -395,7 +395,7 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, AdminS
         Lock sync(*this);
         checkSessionLock(session);
 
-        while(_updating.find(update.descriptor.name) != _updating.end())
+        while(_updating.find(newDesc.name) != _updating.end())
         {
             wait();
         }
