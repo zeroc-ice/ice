@@ -25,7 +25,6 @@ IceInternal::SelectorThread::SelectorThread(const InstancePtr& instance) :
     _selector(instance),
     _timer(_instance->timer())
 {
-
     __setNoDelete(true);
     try
     {

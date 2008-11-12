@@ -33,7 +33,9 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
     _instance(instance),
     _destroyed(false)
 {
+    __setNoDelete(false);
     start();
+    __setNoDelete(true);
 }
 
 void

@@ -604,7 +604,9 @@ Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& check
     _kbyte(kbyte),
     _trace(trace)
 {
+    __setNoDelete(true);
     start();
+    __setNoDelete(false);
 }
 
 void
