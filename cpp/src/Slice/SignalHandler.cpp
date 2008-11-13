@@ -33,8 +33,6 @@ static BOOL WINAPI signalHandler(DWORD dwCtrlType)
 static void signalHandler(int signal)
 #endif
 {
-    cout << "Signal handler called" << endl;
-
     if(_callback != 0)
     {
         _callback();
@@ -44,8 +42,6 @@ static void signalHandler(int signal)
     {
         remove(_fileList[i].c_str());
     }
-
-    exit(1);
 }
 
 
