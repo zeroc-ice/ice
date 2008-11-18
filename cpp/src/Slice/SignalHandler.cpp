@@ -24,7 +24,6 @@ using namespace Slice;
 // Signal handler routine to unlink output files in case of translator
 // being interrupted.
 //
-static SignalHandlerCallback _callback = 0;
 static vector<string> _fileList;
 
 #ifdef _WIN32
@@ -33,15 +32,12 @@ static BOOL WINAPI signalHandler(DWORD dwCtrlType)
 static void signalHandler(int signal)
 #endif
 {
-    if(_callback != 0)
-    {
-        _callback();
-    }
-
     for(unsigned int i = 0; i < _fileList.size(); ++i)
     {
         remove(_fileList[i].c_str());
     }
+
+    exit(1);
 }
 
 
@@ -67,12 +63,6 @@ Slice::SignalHandler::~SignalHandler()
 #endif
 
     _fileList.clear();
-}
-
-void
-Slice::SignalHandler::setCallback(SignalHandlerCallback callback)
-{
-    _callback = callback;
 }
 
 void

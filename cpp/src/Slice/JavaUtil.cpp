@@ -27,20 +27,6 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-//
-// Callback for Crtl-C signal handling
-//
-static Slice::JavaGenerator* _javaGen = 0;
-
-static void closeCallback()
-{
-    if(_javaGen != 0)
-    {
-        _javaGen->close();
-    }
-}
-
-
 Slice::JavaOutput::JavaOutput()
 {
 }
@@ -174,7 +160,7 @@ Slice::JavaGenerator::JavaGenerator(const string& dir) :
     _dir(dir),
     _out(0)
 {
-    SignalHandler::setCallback(closeCallback);
+    //SignalHandler::setCallback(closeCallback);
 }
 
 Slice::JavaGenerator::JavaGenerator(const string& dir, Slice::FeatureProfile profile) :
@@ -198,7 +184,6 @@ Slice::JavaGenerator::open(const string& absolute)
     if(out->openClass(absolute, _dir))
     {
         _out = out;
-        _javaGen = this; // For Ctrl-C handling
     }
     else
     {
@@ -215,7 +200,6 @@ Slice::JavaGenerator::close()
     *_out << nl;
     delete _out;
     _out = 0;
-    _javaGen = 0; // For Ctrl-C handling
 }
 
 Output&

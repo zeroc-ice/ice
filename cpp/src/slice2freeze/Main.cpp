@@ -22,18 +22,6 @@ using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace Slice;
 
-static ::IceUtilInternal::Output _H;
-static ::IceUtilInternal::Output _CPP;
-
-//
-// Callback for Crtl-C signal handling
-//
-static void closeCallback()
-{
-    _H.close();
-    _CPP.close();
-}
-
 static string ICE_ENCODING_COMPARE = "Freeze::IceEncodingCompare";
 
 class MetaDataVisitor : public ParserVisitor
@@ -1854,27 +1842,27 @@ main(int argc, char* argv[])
         SignalHandler::addFile(fileH);
         SignalHandler::addFile(fileC);
 
-        SignalHandler::setCallback(closeCallback);
-
-        _H.open(fileH.c_str());
-        if(!_H)
+        Output H;
+        H.open(fileH.c_str());
+        if(!H)
         {
             cerr << argv[0] << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
             u->destroy();
             return EXIT_FAILURE;
         }
-        printHeader(_H);
-        printFreezeTypes(_H, dicts, indices);
+        printHeader(H);
+        printFreezeTypes(H, dicts, indices);
 
-        _CPP.open(fileC.c_str());
-        if(!_CPP)
+        Output CPP;
+        CPP.open(fileC.c_str());
+        if(!CPP)
         {
             cerr << argv[0] << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
             u->destroy();
             return EXIT_FAILURE;
         }
-        printHeader(_CPP);
-        printFreezeTypes(_CPP, dicts, indices);
+        printHeader(CPP);
+        printFreezeTypes(CPP, dicts, indices);
 
         for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)
         {
@@ -1888,57 +1876,57 @@ main(int argc, char* argv[])
             }
             if(!guard.empty())
             {
-                _CPP << "\n#ifndef " << guard;
-                _CPP << "\n#define " << guard;
+                CPP << "\n#ifndef " << guard;
+                CPP << "\n#define " << guard;
             }
-            _CPP << "\n#include <";
+            CPP << "\n#include <";
             if(!include.empty())
             {
-                _CPP << include << '/';
+                CPP << include << '/';
             }
-            _CPP << hdr << '>';
+            CPP << hdr << '>';
             if(!guard.empty())
             {
-                _CPP << "\n#endif";
+                CPP << "\n#endif";
             }
         }
 
         string s = fileH;
         transform(s.begin(), s.end(), s.begin(), ToIfdef());
-        _H << "\n#ifndef __" << s << "__";
-        _H << "\n#define __" << s << "__";
-        _H << '\n';
+        H << "\n#ifndef __" << s << "__";
+        H << "\n#define __" << s << "__";
+        H << '\n';
         
         if(dicts.size() > 0)
         {
-            _H << "\n#include <Freeze/Map.h>";
+            H << "\n#include <Freeze/Map.h>";
         }
 
         if(indices.size() > 0)
         {
-            _H << "\n#include <Freeze/Index.h>";
+            H << "\n#include <Freeze/Index.h>";
         }
 
         
         {
             for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
             {
-                _H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
+                H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
             }
         }
 
-        _CPP << "\n#include <Ice/BasicStream.h>";
-        _CPP << "\n#include <";
+        CPP << "\n#include <Ice/BasicStream.h>";
+        CPP << "\n#include <";
         if(include.size())
         {
-            _CPP << include << '/';
+            CPP << include << '/';
         }
-        _CPP << includeH << '>';
+        CPP << includeH << '>';
 
-        printVersionCheck(_H);
-        printVersionCheck(_CPP);
+        printVersionCheck(H);
+        printVersionCheck(CPP);
 
-        printDllExportStuff(_H, dllExport);
+        printDllExportStuff(H, dllExport);
         if(dllExport.size())
         {
             dllExport += " ";
@@ -1949,7 +1937,7 @@ main(int argc, char* argv[])
             {
                 try
                 {
-                    if(!writeDict(argv[0], u, *p, _H, _CPP, dllExport))
+                    if(!writeDict(argv[0], u, *p, H, CPP, dllExport))
                     {
                         u->destroy();
                         return EXIT_FAILURE;
@@ -1968,7 +1956,7 @@ main(int argc, char* argv[])
             {
                 try
                 {
-                    if(!writeIndex(argv[0], u, *q, _H, _CPP, dllExport))
+                    if(!writeIndex(argv[0], u, *q, H, CPP, dllExport))
                     {
                         u->destroy();
                         return EXIT_FAILURE;
@@ -1984,8 +1972,8 @@ main(int argc, char* argv[])
 
         }
 
-        _H << "\n\n#endif\n";
-        _CPP << '\n';
+        H << "\n\n#endif\n";
+        CPP << '\n';
 
     }
     

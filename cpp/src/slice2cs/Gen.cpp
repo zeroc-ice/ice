@@ -39,19 +39,6 @@ using IceUtilInternal::eb;
 using IceUtilInternal::spar;
 using IceUtilInternal::epar;
 
-//
-// Callback for Crtl-C signal handling
-//
-static Gen* _gen = 0;
-
-static void closeCallback()
-{
-    if(_gen != 0)
-    {
-        _gen->closeOutput();
-    }
-}
-
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(Operation::Mode opMode)
 {
@@ -1072,9 +1059,6 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
     : _includePaths(includePaths),
       _stream(stream)
 {
-    _gen = this;
-    SignalHandler::setCallback(closeCallback);
-
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
     if(pos != string::npos)
@@ -1146,8 +1130,6 @@ Slice::Gen::~Gen()
     {
         _impl << '\n';
     }
-
-    SignalHandler::setCallback(0);
 }
 
 bool
