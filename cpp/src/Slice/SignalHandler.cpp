@@ -26,13 +26,14 @@ SignalHandler::addFileForCleanup(const string& file)
 {
     StaticMutex::Lock lock(_mutex);
 
-cout << "Adding " << file << endl;
     _fileList.push_back(file);
 }
 
 void
 SignalHandler::setCloseCallback(Slice::SignalHandlerCloseCallback callback)
 {
+    StaticMutex::Lock lock(_mutex);
+
     _callback = callback;
 }
 
@@ -41,7 +42,6 @@ SignalHandler::clearCleanupFileList()
 {
     StaticMutex::Lock lock(_mutex);
 
-cout << "Clearing files" << endl;
     _fileList.clear();
     _callback = 0;
 }
@@ -51,7 +51,6 @@ SignalHandler::removeFilesOnInterrupt(int signal)
 {
     StaticMutex::Lock lock(_mutex);
 
-cout << "Removing files" << endl;
     if(_callback != 0)
     {
         _callback();
@@ -59,7 +58,6 @@ cout << "Removing files" << endl;
 
     for(unsigned int i = 0; i < _fileList.size(); ++i)
     {
-cout << "   Removing " << _fileList[i] << endl;
         remove(_fileList[i].c_str());
     }
 
