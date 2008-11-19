@@ -11,6 +11,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/CtrlCHandler.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>
 #include <Slice/SignalHandler.h>
@@ -32,6 +33,16 @@
 using namespace std;
 using namespace Slice;
 using namespace Slice::Python;
+
+//
+// Callback for Crtl-C signal handling
+//
+static IceUtilInternal::Output _out;
+
+static void closeCallback()
+{
+    _out.close();
+}
 
 //
 // For each Slice file Foo.ice we generate Foo_ice.py containing the Python
@@ -477,7 +488,9 @@ main(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
-        SignalHandler sigHandler;
+        SignalHandler::clearCleanupFileList();
+        IceUtil::CtrlCHandler ctrlCHandler;
+        ctrlCHandler.setCallback(SignalHandler::removeFilesOnInterrupt);
 
         Preprocessor icecpp(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
@@ -537,26 +550,28 @@ main(int argc, char* argv[])
                 {
                     file = output + '/' + file;
                 }
-                SignalHandler::addFile(file);
 
-                IceUtilInternal::Output out;
-                out.open(file.c_str());
-                if(!out)
+                SignalHandler::setCloseCallback(closeCallback);
+
+                SignalHandler::addFileForCleanup(file);
+                _out.open(file.c_str());
+                if(!_out)
                 {
                     cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
                     u->destroy();
                     return EXIT_FAILURE;
                 }
 
-                printHeader(out);
-                out << "\n# Generated from file `" << base << ".ice'\n";
+                printHeader(_out);
+                _out << "\n# Generated from file `" << base << ".ice'\n";
 
                 //
                 // Generate the Python mapping.
                 //
-                generate(u, all, checksum, includePaths, out);
+                generate(u, all, checksum, includePaths, _out);
 
-                out.close();
+                _out.close();
+                SignalHandler::setCloseCallback(0);
 
                 //
                 // Create or update the Python package hierarchy.

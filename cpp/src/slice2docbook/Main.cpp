@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/CtrlCHandler.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/SignalHandler.h>
 #include <Gen.h>
@@ -150,7 +151,8 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    SignalHandler sigHandler;
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(SignalHandler::removeFilesOnInterrupt);
 
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
@@ -188,7 +190,7 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
-        SignalHandler::addFile(docbook);
+        SignalHandler::addFileForCleanup(docbook);
 
         Gen gen(argv[0], docbook, standAlone, chapter, noIndex, sortFields);
         if(!gen)

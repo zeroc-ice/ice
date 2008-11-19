@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/CtrlCHandler.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/SignalHandler.h>
 #include <Gen.h>
@@ -146,7 +147,9 @@ main(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
-        SignalHandler sigHandler;
+        SignalHandler::clearCleanupFileList();
+        IceUtil::CtrlCHandler ctrlCHandler;
+        ctrlCHandler.setCallback(SignalHandler::removeFilesOnInterrupt);
 
         if(depend)
         {

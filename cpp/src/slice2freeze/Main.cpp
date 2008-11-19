@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/CtrlCHandler.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
@@ -21,6 +22,18 @@ using namespace std;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace Slice;
+
+static ::IceUtilInternal::Output _H;
+static ::IceUtilInternal::Output _CPP;
+
+//
+// Callback for Crtl-C signal handling
+//
+static void closeCallback()
+{
+    _H.close();
+    _CPP.close();
+}
 
 static string ICE_ENCODING_COMPARE = "Freeze::IceEncodingCompare";
 
@@ -1780,7 +1793,8 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    SignalHandler sigHandler;
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(SignalHandler::removeFilesOnInterrupt);
 
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
@@ -1839,30 +1853,29 @@ main(int argc, char* argv[])
             }
         }
 
-        SignalHandler::addFile(fileH);
-        SignalHandler::addFile(fileC);
+        SignalHandler::setCloseCallback(closeCallback);
 
-        Output H;
-        H.open(fileH.c_str());
-        if(!H)
+        SignalHandler::addFileForCleanup(fileH);
+        _H.open(fileH.c_str());
+        if(!_H)
         {
             cerr << argv[0] << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
             u->destroy();
             return EXIT_FAILURE;
         }
-        printHeader(H);
-        printFreezeTypes(H, dicts, indices);
+        printHeader(_H);
+        printFreezeTypes(_H, dicts, indices);
 
-        Output CPP;
-        CPP.open(fileC.c_str());
-        if(!CPP)
+        SignalHandler::addFileForCleanup(fileC);
+        _CPP.open(fileC.c_str());
+        if(!_CPP)
         {
             cerr << argv[0] << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
             u->destroy();
             return EXIT_FAILURE;
         }
-        printHeader(CPP);
-        printFreezeTypes(CPP, dicts, indices);
+        printHeader(_CPP);
+        printFreezeTypes(_CPP, dicts, indices);
 
         for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)
         {
@@ -1876,57 +1889,57 @@ main(int argc, char* argv[])
             }
             if(!guard.empty())
             {
-                CPP << "\n#ifndef " << guard;
-                CPP << "\n#define " << guard;
+                _CPP << "\n#ifndef " << guard;
+                _CPP << "\n#define " << guard;
             }
-            CPP << "\n#include <";
+            _CPP << "\n#include <";
             if(!include.empty())
             {
-                CPP << include << '/';
+                _CPP << include << '/';
             }
-            CPP << hdr << '>';
+            _CPP << hdr << '>';
             if(!guard.empty())
             {
-                CPP << "\n#endif";
+                _CPP << "\n#endif";
             }
         }
 
         string s = fileH;
         transform(s.begin(), s.end(), s.begin(), ToIfdef());
-        H << "\n#ifndef __" << s << "__";
-        H << "\n#define __" << s << "__";
-        H << '\n';
+        _H << "\n#ifndef __" << s << "__";
+        _H << "\n#define __" << s << "__";
+        _H << '\n';
         
         if(dicts.size() > 0)
         {
-            H << "\n#include <Freeze/Map.h>";
+            _H << "\n#include <Freeze/Map.h>";
         }
 
         if(indices.size() > 0)
         {
-            H << "\n#include <Freeze/Index.h>";
+            _H << "\n#include <Freeze/Index.h>";
         }
 
         
         {
             for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
             {
-                H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
+                _H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
             }
         }
 
-        CPP << "\n#include <Ice/BasicStream.h>";
-        CPP << "\n#include <";
+        _CPP << "\n#include <Ice/BasicStream.h>";
+        _CPP << "\n#include <";
         if(include.size())
         {
-            CPP << include << '/';
+            _CPP << include << '/';
         }
-        CPP << includeH << '>';
+        _CPP << includeH << '>';
 
-        printVersionCheck(H);
-        printVersionCheck(CPP);
+        printVersionCheck(_H);
+        printVersionCheck(_CPP);
 
-        printDllExportStuff(H, dllExport);
+        printDllExportStuff(_H, dllExport);
         if(dllExport.size())
         {
             dllExport += " ";
@@ -1937,7 +1950,7 @@ main(int argc, char* argv[])
             {
                 try
                 {
-                    if(!writeDict(argv[0], u, *p, H, CPP, dllExport))
+                    if(!writeDict(argv[0], u, *p, _H, _CPP, dllExport))
                     {
                         u->destroy();
                         return EXIT_FAILURE;
@@ -1956,7 +1969,7 @@ main(int argc, char* argv[])
             {
                 try
                 {
-                    if(!writeIndex(argv[0], u, *q, H, CPP, dllExport))
+                    if(!writeIndex(argv[0], u, *q, _H, _CPP, dllExport))
                     {
                         u->destroy();
                         return EXIT_FAILURE;
@@ -1972,9 +1985,11 @@ main(int argc, char* argv[])
 
         }
 
-        H << "\n\n#endif\n";
-        CPP << '\n';
+        _H << "\n\n#endif\n";
+        _CPP << '\n';
 
+        _H.close();
+        _CPP.close();
     }
     
     u->destroy();

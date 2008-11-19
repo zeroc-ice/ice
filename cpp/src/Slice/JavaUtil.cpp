@@ -27,6 +27,19 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+//
+// Callback for Crtl-C signal handling
+//
+static Slice::JavaGenerator* _javaGen = 0;
+
+static void closeCallback()
+{
+    if(_javaGen != 0)
+    {
+        _javaGen->close();
+    }
+}
+
 Slice::JavaOutput::JavaOutput()
 {
 }
@@ -110,7 +123,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
         path += "/";
     }
     path += file;
-    SignalHandler::addFile(path);
+    SignalHandler::addFileForCleanup(path);
 
     open(path.c_str());
     if(isOpen())
@@ -160,7 +173,7 @@ Slice::JavaGenerator::JavaGenerator(const string& dir) :
     _dir(dir),
     _out(0)
 {
-    //SignalHandler::setCallback(closeCallback);
+    SignalHandler::setCloseCallback(closeCallback);
 }
 
 Slice::JavaGenerator::JavaGenerator(const string& dir, Slice::FeatureProfile profile) :
@@ -173,6 +186,8 @@ Slice::JavaGenerator::JavaGenerator(const string& dir, Slice::FeatureProfile pro
 Slice::JavaGenerator::~JavaGenerator()
 {
     assert(_out == 0);
+
+    SignalHandler::setCloseCallback(0);
 }
 
 bool
@@ -184,6 +199,7 @@ Slice::JavaGenerator::open(const string& absolute)
     if(out->openClass(absolute, _dir))
     {
         _out = out;
+        _javaGen = this; // For Ctrl-C handling
     }
     else
     {
@@ -198,6 +214,7 @@ Slice::JavaGenerator::close()
 {
     assert(_out != 0);
     *_out << nl;
+    _javaGen = this; // For Ctrl-C handling
     delete _out;
     _out = 0;
 }

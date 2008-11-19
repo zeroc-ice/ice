@@ -11,6 +11,7 @@
 #define SLICE_SIGNAL_HANDLER_H
 
 #include <IceUtil/Config.h>
+#include <IceUtil/OutputUtil.h>
 #include <string>
 
 #ifndef SLICE_API
@@ -24,14 +25,19 @@
 namespace Slice
 {
 
+typedef void (*SignalHandlerCloseCallback)();
+
 class SLICE_API SignalHandler
 {
 public:
 
-    SignalHandler();
-    ~SignalHandler();
+    static void addFileForCleanup(const std::string&);
 
-    static void addFile(const std::string&);
+    static void setCloseCallback(SignalHandlerCloseCallback);
+
+    static void clearCleanupFileList();
+
+    static void removeFilesOnInterrupt(int signal);
 };
 
 }
