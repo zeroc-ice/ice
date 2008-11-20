@@ -161,12 +161,12 @@ Slice::Preprocessor::preprocess(bool keepComments)
         // First try to open temporay file in tmp directory.
         //
 #ifdef _WIN32
-        TCHAR buffer[512];
-        DWORD ret = GetTempPath(512, buffer);
-        if(ret != 0 && ret < 512)
+        wchar_t* name = _wtempnam(NULL, L".preprocess");
+        if(name)
         {
-            _cppFile = string(buffer) + "\\.preprocess." + IceUtil::generateUUID();
-            _cppHandle = ::fopen(_cppFile.c_str(), "w+");
+            _cppFile = wstring(name);
+            free(name);
+            _cppHandle = ::_wfopen(_cppFile.c_str(), L"w+");
         }
 #else
         _cppHandle = tmpfile();
@@ -177,8 +177,13 @@ Slice::Preprocessor::preprocess(bool keepComments)
         //
         if(_cppHandle == 0)
         {
+#ifdef _WIN32
+            _cppFile = L".preprocess." + IceUtil::stringToWstring(IceUtil::generateUUID());
+            _cppHandle = ::_wfopen(_cppFile.c_str(), L"w+");
+#else
             _cppFile = ".preprocess." + IceUtil::generateUUID();
             _cppHandle = ::fopen(_cppFile.c_str(), "w+");
+#endif
         }
 
         if(_cppHandle != 0)
@@ -191,7 +196,13 @@ Slice::Preprocessor::preprocess(bool keepComments)
         }
         else
         {
-            cerr << "Could not open temporary file: " << _cppFile << endl;
+            cerr << "Could not open temporary file: ";
+#ifdef _WIN32
+            cerr << IceUtil::wstringToString(_cppFile);
+#else
+            cerr << _cppFile;
+#endif
+            cerr << endl;
         }
     }
 
@@ -464,10 +475,10 @@ Slice::Preprocessor::close()
         int status = fclose(_cppHandle);
         _cppHandle = 0;
 
-        if(_cppFile != "")
+        if(_cppFile.size() != 0)
         {
 #ifdef _WIN32
-            _unlink(_cppFile.c_str());
+            _wunlink(_cppFile.c_str());
 #else
             unlink(_cppFile.c_str());
 #endif
