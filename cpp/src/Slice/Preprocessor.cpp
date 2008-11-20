@@ -166,7 +166,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
         if(ret != 0 && ret < 512)
         {
             _cppFile = string(buffer) + "\\.preprocess." + IceUtil::generateUUID();
-            _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
+            _cppHandle = ::fopen(_cppFile.c_str(), "w+");
         }
 #else
         _cppHandle = tmpfile();
@@ -178,11 +178,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
         if(_cppHandle == 0)
         {
             _cppFile = ".preprocess." + IceUtil::generateUUID();
-#ifdef _WIN32
-            _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
-#else
             _cppHandle = ::fopen(_cppFile.c_str(), "w+");
-#endif
         }
 
         if(_cppHandle != 0)
