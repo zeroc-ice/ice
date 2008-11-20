@@ -13,7 +13,6 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <Slice/Checksum.h>
-#include <Slice/SignalHandler.h>
 
 #include <limits>
 #include <sys/stat.h>
@@ -22,19 +21,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
-
-//
-// Callback for Crtl-C signal handling
-//
-static Gen* _gen = 0;
-
-static void closeCallback()
-{
-    if(_gen != 0)
-    {
-        _gen->closeOutput();
-    }
-}
 
 static string
 getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
@@ -64,9 +50,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     _stream(stream),
     _ice(ice)
 {
-    _gen = this;
-    SignalHandler::setCloseCallback(closeCallback);
-
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
         *p = fullPath(*p);
@@ -100,7 +83,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
             return;
         }
 
-        SignalHandler::addFileForCleanup(fileImplH);
         implH.open(fileImplH.c_str());
         if(!implH)
         {
@@ -108,7 +90,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
             return;
         }
 
-        SignalHandler::addFileForCleanup(fileImplC);
         implC.open(fileImplC.c_str());
         if(!implC)
         {
@@ -135,7 +116,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
         fileC = dir + '/' + fileC;
     }
 
-    SignalHandler::addFileForCleanup(fileH);
     H.open(fileH.c_str());
     if(!H)
     {
@@ -143,7 +123,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
         return;
     }
 
-    SignalHandler::addFileForCleanup(fileC);
     C.open(fileC.c_str());
     if(!C)
     {
@@ -177,9 +156,6 @@ Slice::Gen::~Gen()
         implH << "\n\n#endif\n";
         implC << '\n';
     }
-
-    _gen = 0;
-    SignalHandler::setCloseCallback(0);
 }
 
 bool

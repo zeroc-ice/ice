@@ -21,7 +21,6 @@
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/DotNetNames.h>
-#include <Slice/SignalHandler.h>
 
 using namespace std;
 using namespace Slice;
@@ -38,19 +37,6 @@ using IceUtilInternal::sb;
 using IceUtilInternal::eb;
 using IceUtilInternal::spar;
 using IceUtilInternal::epar;
-
-//
-// Callback for Crtl-C signal handling
-//
-static Gen* _gen = 0;
-
-static void closeCallback()
-{
-    if(_gen != 0)
-    {
-        _gen->closeOutput();
-    }
-}
 
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(Operation::Mode opMode)
@@ -1072,9 +1058,6 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
     : _includePaths(includePaths),
       _stream(stream)
 {
-    _gen = this;
-    SignalHandler::setCloseCallback(closeCallback);
-
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
     if(pos != string::npos)
@@ -1090,7 +1073,6 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
         fileImpl = dir + '/' + fileImpl;
     }
 
-    SignalHandler::addFileForCleanup(file);
     _out.open(file.c_str());
     if(!_out)
     {
@@ -1127,7 +1109,6 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
             return;
         }
 
-        SignalHandler::addFileForCleanup(fileImpl);
         _impl.open(fileImpl.c_str());
         if(!_impl)
         {
@@ -1147,8 +1128,6 @@ Slice::Gen::~Gen()
     {
         _impl << '\n';
     }
-
-    SignalHandler::setCloseCallback(0);
 }
 
 bool

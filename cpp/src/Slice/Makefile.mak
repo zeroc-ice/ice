@@ -27,8 +27,7 @@ OBJS		= Scanner.obj \
 		  RubyUtil.obj \
 		  Util.obj \
 		  MD5.obj \
-		  MD5I.obj \
-		  SignalHandler.obj
+		  MD5I.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

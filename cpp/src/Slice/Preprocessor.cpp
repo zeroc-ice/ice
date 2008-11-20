@@ -10,7 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/Util.h>
-#include <Slice/SignalHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
@@ -27,19 +26,6 @@
 
 using namespace std;
 using namespace Slice;
-
-//
-// Callback for Crtl-C signal handling
-//
-static Preprocessor* _preprocess = 0;
-
-static void closeCallback()
-{
-    if(_preprocess != 0)
-    {
-        _preprocess->close();
-    }
-}
 
 //
 // mcpp defines
@@ -64,8 +50,6 @@ Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, co
     _args(args),
     _cppHandle(0)
 {
-    _preprocess = this;
-    SignalHandler::setCloseCallback(closeCallback);
 }
 
 Slice::Preprocessor::~Preprocessor()
@@ -479,9 +463,6 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
 bool
 Slice::Preprocessor::close()
 {
-    _preprocess = 0;
-    SignalHandler::setCloseCallback(0);
-
     if(_cppHandle != 0)
     {
         int status = fclose(_cppHandle);

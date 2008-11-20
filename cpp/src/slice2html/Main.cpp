@@ -9,14 +9,25 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
-#include <Slice/SignalHandler.h>
 #include <Gen.h>
 #include <stdlib.h>
 
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
+
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
+
+void
+interruptedCallback(int signal)
+{
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
+}
 
 void
 usage(const char* n)
@@ -175,7 +186,7 @@ main(int argc, char* argv[])
     int status = EXIT_SUCCESS;
 
     IceUtil::CtrlCHandler ctrlCHandler;
-    ctrlCHandler.setCallback(SignalHandler::removeFilesOnInterrupt);
+    ctrlCHandler.setCallback(interruptedCallback);
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
@@ -209,6 +220,15 @@ main(int argc, char* argv[])
             p->destroy();
             return EXIT_FAILURE;
         }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                return EXIT_FAILURE;
+            }
+        }
     }
 
     if(status == EXIT_SUCCESS && !preprocess)
@@ -231,6 +251,15 @@ main(int argc, char* argv[])
     }
 
     p->destroy();
+
+    {
+        IceUtil::StaticMutex::Lock lock(_mutex);
+
+        if(_interrupted)
+        {
+            return EXIT_FAILURE;
+        }
+    }
 
     return status;
 }
