@@ -54,6 +54,7 @@ private:
     const std::string _path;
     const std::string _fileName;
     const std::vector<std::string> _args;
+    std::string _cppFile;
     FILE* _cppHandle;
 };
 
