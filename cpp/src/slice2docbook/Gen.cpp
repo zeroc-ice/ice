@@ -9,7 +9,6 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
-#include <Slice/SignalHandler.h>
 #include <Gen.h>
 #include <cstring>
 
