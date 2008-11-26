@@ -32,6 +32,11 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+static const string ice_ping_name = "ice_ping";
+static const string ice_ids_name = "ice_ids";
+static const string ice_id_name = "ice_id";
+static const string ice_isA_name = "ice_isA";
+
 ::Ice::ObjectPrx
 IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context* context)
 {
@@ -112,7 +117,7 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context* context)
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
-            __checkTwowayOnly("ice_isA");
+            __checkTwowayOnly(ice_isA_name);
             __del = __getDelegate(false);
             return __del->ice_isA(typeId, context);
         }
@@ -160,7 +165,7 @@ IceProxy::Ice::Object::ice_ids(const Context* context)
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
-            __checkTwowayOnly("ice_ids");
+            __checkTwowayOnly(ice_ids_name);
             __del = __getDelegate(false);
             return __del->ice_ids(context);
         }
@@ -184,7 +189,7 @@ IceProxy::Ice::Object::ice_id(const Context* context)
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
-            __checkTwowayOnly("ice_id");
+            __checkTwowayOnly(ice_id_name);
             __del = __getDelegate(false);
             return __del->ice_id(context);
         }
@@ -954,7 +959,9 @@ IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const ::IceInternal::Hand
 // we call this with a const char* and we want to avoid the overhead
 // of constructing a string.
 //
-
+// NOTE: Remove for 3.4, the generated code no long calls __checkTwowayOnly 
+// using a const char*
+//
 void
 IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
 {
@@ -1094,8 +1101,7 @@ IceDelegateM::Ice::Object::~Object()
 bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context* context)
 {
-    static const string __operation("ice_isA");
-    Outgoing __og(__handler.get(), __operation, ::Ice::Nonmutating, context);
+    Outgoing __og(__handler.get(), ice_isA_name, ::Ice::Nonmutating, context);
     try
     {
         BasicStream* __os = __og.os();
@@ -1135,8 +1141,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context* context)
 void
 IceDelegateM::Ice::Object::ice_ping(const Context* context)
 {
-    static const string __operation("ice_ping");
-    Outgoing __og(__handler.get(), __operation, ::Ice::Nonmutating, context);
+    Outgoing __og(__handler.get(), ice_ping_name, ::Ice::Nonmutating, context);
     bool __ok = __og.invoke();
     if(!__og.is()->b.empty())
     {
@@ -1165,8 +1170,7 @@ IceDelegateM::Ice::Object::ice_ping(const Context* context)
 vector<string>
 IceDelegateM::Ice::Object::ice_ids(const Context* context)
 {
-    static const string __operation("ice_ids");
-    Outgoing __og(__handler.get(), __operation, ::Ice::Nonmutating, context);
+    Outgoing __og(__handler.get(), ice_ids_name, ::Ice::Nonmutating, context);
     vector<string> __ret;
     bool __ok = __og.invoke();
     try
@@ -1197,8 +1201,7 @@ IceDelegateM::Ice::Object::ice_ids(const Context* context)
 string
 IceDelegateM::Ice::Object::ice_id(const Context* context)
 {
-    static const string __operation("ice_id");
-    Outgoing __og(__handler.get(), __operation, ::Ice::Nonmutating, context);
+    Outgoing __og(__handler.get(), ice_id_name, ::Ice::Nonmutating, context);
     string __ret;
     bool __ok = __og.invoke();
     try

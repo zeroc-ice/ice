@@ -5278,7 +5278,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(p->returnsData())
         {
-            C << nl << "__prx->__checkTwowayOnly(\"" << p->name() <<  "\");";
+            C << nl << "__prx->__checkTwowayOnly(" << flatName <<  ");";
         }
         C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
         writeMarshalCode(C, inParams, 0, StringList(), true);
