@@ -19,6 +19,7 @@
         <ant dir="Glacier2"/>
         <ant dir="IceGrid"/>
         <ant dir="book"/>
+        <ant dir="RMI"/>
     </target>
 
     <target name="clean">
@@ -29,6 +30,7 @@
         <ant dir="Glacier2" target="clean"/>
         <ant dir="IceGrid" target="clean"/>
         <ant dir="book" target="clean"/>
+        <ant dir="RMI" target="clean"/>
     </target>
 
 </project>
