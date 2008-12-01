@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "latencyC", "latencyC.csproj", "{024C6B2C-63CC-42C0-B921-E9F9E775C04A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "latencyS", "latencyS.csproj", "{7EC9882D-EDE1-482D-A635-EB3B5352BBB5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{024C6B2C-63CC-42C0-B921-E9F9E775C04A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{024C6B2C-63CC-42C0-B921-E9F9E775C04A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{024C6B2C-63CC-42C0-B921-E9F9E775C04A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{024C6B2C-63CC-42C0-B921-E9F9E775C04A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EC9882D-EDE1-482D-A635-EB3B5352BBB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EC9882D-EDE1-482D-A635-EB3B5352BBB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EC9882D-EDE1-482D-A635-EB3B5352BBB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EC9882D-EDE1-482D-A635-EB3B5352BBB5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
