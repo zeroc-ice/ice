@@ -1,0 +1,26 @@
+A simple RMI throughput demo that allows you to send sequences of various
+types between client and server and to measure the maximum bandwidth
+that can be achieved using serialized synchronous requests.
+
+To run the demo, start the RMI registry:
+
+$ rmiregistry
+
+In a separate window, start the server:
+
+$ java -Djava.rmi.server.hostname=127.0.0.1 -Djava.rmi.server.codebase=file:/c:/path/to/ice/java/demo/RMI/throughput/classes/ -Djava.security.policy=policy Server
+
+You need to edit the path on the command line to specify this directory.
+Under Vista, you must run the server as administrator.
+
+In a separate window, start the client:
+
+$ client.exe --Djava.security.policy=policy Client
+
+If you want to run client and server on different machines, you
+can specify the hsot on which you started the registry on
+the client's command line, for example:
+
+$ client.exe --Djava.security.policy=policy Client 192.168.4.2
+
+This directs the client to connect to the registry at the specified IP address.
