@@ -139,6 +139,63 @@ class Client
             fixedSeq[i].d = 0;
         }
 
+        try
+        {
+            Console.Write("Warming up...");
+            Console.Out.Flush();
+
+            byte[] byteS = new byte[1];
+            string[] stringS = new string[1];
+            StringDouble[] structS = new StringDouble[1];
+            Fixed[] fixedS = new Fixed[1];
+
+            for (int i = 0; i < 10000; ++i)
+            {
+                tcpProxy.sendByteSeq(byteS);
+                tcpProxy.recvByteSeq();
+                tcpProxy.echoByteSeq(byteS);
+                httpProxy.sendByteSeq(byteS);
+                httpProxy.recvByteSeq();
+                httpProxy.echoByteSeq(byteS);
+            }
+
+            for (int i = 0; i < 10000; ++i)
+            {
+                tcpProxy.sendStringSeq(stringS);
+                tcpProxy.recvStringSeq();
+                tcpProxy.echoStringSeq(stringS);
+                httpProxy.sendStringSeq(stringS);
+                httpProxy.recvStringSeq();
+                httpProxy.echoStringSeq(stringS);
+            }
+
+            for (int i = 0; i < 10000; ++i)
+            {
+                tcpProxy.sendStructSeq(structS);
+                tcpProxy.recvStructSeq();
+                tcpProxy.echoStructSeq(structS);
+                httpProxy.sendStructSeq(structS);
+                httpProxy.recvStructSeq();
+                httpProxy.echoStructSeq(structS);
+            }
+
+            for (int i = 0; i < 10000; ++i)
+            {
+                tcpProxy.sendFixedSeq(fixedS);
+                tcpProxy.recvFixedSeq();
+                tcpProxy.echoFixedSeq(fixedS);
+                httpProxy.sendFixedSeq(fixedS);
+                httpProxy.recvFixedSeq();
+                httpProxy.echoFixedSeq(fixedS);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+            Environment.Exit(1);
+        }
+        Console.WriteLine();
+
         menu();
 
         //

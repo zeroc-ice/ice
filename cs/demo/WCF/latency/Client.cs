@@ -33,14 +33,27 @@ public class Client
     {
         const int repetitions = 100000;
 
-        string addr = "127.0.0.1";
-        if(args.Length == 1)
+        string addr = null;
+        string tcpPort = "10001";
+        string httpPort = "10002";
+
+        if(args.Length == 0)
+        {
+            addr = "127.0.0.1";
+        }
+        else if(args.Length == 1)
         {
             addr = args[0];
         }
-        else if(args.Length > 1)
+        else if(args.Length == 3)
         {
-            Console.Error.WriteLine("usage: client [host|IP]");
+            addr = args[0];
+            tcpPort = args[1];
+            httpPort = args[2];
+        }
+        else
+        {
+            Console.Error.WriteLine("usage: client [host [tcpPort httpPort]]");
             Environment.Exit(1);
         }
 
@@ -50,14 +63,33 @@ public class Client
         try
         {
             NetTcpBinding tcpBinding = new NetTcpBinding(SecurityMode.None);
-            EndpointAddress tcpAddr = new EndpointAddress("net.tcp://" + addr + ":10001");
+            EndpointAddress tcpAddr = new EndpointAddress("net.tcp://" + addr + ":" + tcpPort);
             ChannelFactory<Service.Latency> tcpFac = new ChannelFactory<Service.Latency>(tcpBinding, tcpAddr);
             tcpProxy = tcpFac.CreateChannel();
 
             WSHttpBinding httpBinding = new WSHttpBinding(SecurityMode.None);
-            EndpointAddress httpAddr = new EndpointAddress("http://" + addr + ":10002");
+            EndpointAddress httpAddr = new EndpointAddress("http://" + addr + ":" + httpPort);
             ChannelFactory<Service.Latency> httpFac = new ChannelFactory<Service.Latency>(httpBinding, httpAddr);
             httpProxy = httpFac.CreateChannel();
+        }
+        catch(Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+            Environment.Exit(1);
+        }
+
+        try
+        {
+            Console.Write("Warming up...");
+            Console.Out.Flush();
+            for(int i = 0; i < 20000; ++i)
+            {
+                tcpProxy.o();
+            }
+            for(int i = 0; i < 20000; ++i)
+            {
+                httpProxy.o();
+            }
         }
         catch(Exception ex)
         {

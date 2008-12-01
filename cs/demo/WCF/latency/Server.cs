@@ -29,16 +29,29 @@ class LatencyI : Service.Latency
 
 class Server
 {
-    static int main(string[] args)
+    public static int Main(string[] args)
     {
-        string addr = "127.0.0.1";
-        if(args.Length == 1)
+        string addr = null;
+        string tcpPort = "10001";
+        string httpPort = "10002";
+
+        if(args.Length == 0)
+        {
+            addr = "127.0.0.1";
+        }
+        else if(args.Length == 1)
         {
             addr = args[0];
         }
-        else if(args.Length > 1)
+        else if(args.Length == 3)
         {
-            Console.Error.WriteLine("usage: server [host|IP]");
+            addr = args[0];
+            tcpPort = args[1];
+            httpPort = args[2];
+        }
+        else
+        {
+            Console.Error.WriteLine("usage: server [host [tcpPort httpPort]]");
             Environment.Exit(1);
         }
 
@@ -47,11 +60,11 @@ class Server
             ServiceHost host = new ServiceHost(typeof(LatencyI));
             LatencyI._sync = host;
 
-            Uri uri = new Uri("net.tcp://" + addr + ":10001");
+            Uri uri = new Uri("net.tcp://" + addr + ":" + tcpPort);
             NetTcpBinding tcpBinding = new NetTcpBinding(SecurityMode.None);
             host.AddServiceEndpoint(typeof(Service.Latency), tcpBinding, uri);
 
-            uri = new Uri("http://" + addr + ":10002");
+            uri = new Uri("http://" + addr + ":" + httpPort);
             WSHttpBinding httpBinding = new WSHttpBinding(SecurityMode.None);
             host.AddServiceEndpoint(typeof(Service.Latency), httpBinding, uri);
 
