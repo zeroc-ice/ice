@@ -11,9 +11,10 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>
-#include <Slice/SignalHandler.h>
 #include <cstring>
 
 #include <fstream>
@@ -33,14 +34,15 @@ using namespace std;
 using namespace Slice;
 using namespace Slice::Python;
 
-//
-// Callback for Crtl-C signal handling
-//
-static IceUtilInternal::Output _out;
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
 
-static void closeCallback()
+void
+interruptedCallback(int signal)
 {
-    _out.close();
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
 }
 
 //
@@ -485,10 +487,11 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(interruptedCallback);
+
     for(i = args.begin(); i != args.end(); ++i)
     {
-        SignalHandler sigHandler;
-
         Preprocessor icecpp(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
 
@@ -547,28 +550,25 @@ main(int argc, char* argv[])
                 {
                     file = output + '/' + file;
                 }
-                SignalHandler::addFile(file);
 
-                SignalHandler::setCallback(closeCallback);
-
-                _out.open(file.c_str());
-                if(!_out)
+                IceUtilInternal::Output out;
+                out.open(file.c_str());
+                if(!out)
                 {
                     cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
                     u->destroy();
                     return EXIT_FAILURE;
                 }
 
-                printHeader(_out);
-                _out << "\n# Generated from file `" << base << ".ice'\n";
+                printHeader(out);
+                out << "\n# Generated from file `" << base << ".ice'\n";
 
                 //
                 // Generate the Python mapping.
                 //
-                generate(u, all, checksum, includePaths, _out);
+                generate(u, all, checksum, includePaths, out);
 
-                _out.close();
-                SignalHandler::setCallback(0);
+                out.close();
 
                 //
                 // Create or update the Python package hierarchy.
@@ -582,6 +582,15 @@ main(int argc, char* argv[])
             }
 
             u->destroy();
+        }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                return EXIT_FAILURE;
+            }
         }
     }
 

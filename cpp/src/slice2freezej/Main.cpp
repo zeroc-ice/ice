@@ -9,9 +9,10 @@
 
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/JavaUtil.h>
-#include <Slice/SignalHandler.h>
 
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
@@ -21,6 +22,17 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
+
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
+
+void
+interruptedCallback(int signal)
+{
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
+}
 
 struct DictIndex
 {
@@ -1421,7 +1433,8 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    SignalHandler sigHandler;
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(interruptedCallback);
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
@@ -1463,6 +1476,15 @@ main(int argc, char* argv[])
                 u->destroy();
                 return EXIT_FAILURE;
             }       
+        }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                return EXIT_FAILURE;
+            }
         }
     }
 
@@ -1520,6 +1542,15 @@ main(int argc, char* argv[])
     }
     
     u->destroy();
+
+    {
+        IceUtil::StaticMutex::Lock lock(_mutex);
+
+        if(_interrupted)
+        {
+            return EXIT_FAILURE;
+        }
+    }
 
     return status;
 }

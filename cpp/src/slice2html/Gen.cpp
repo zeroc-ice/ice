@@ -9,7 +9,6 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
-#include <Slice/SignalHandler.h>
 #include <Gen.h>
 
 #include <sys/types.h>
@@ -30,20 +29,6 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-//
-// Callback for Crtl-C signal handling
-//
-static GeneratorBase* _genBase = 0;
-
-static void closeCallback()
-{
-    if(_genBase != 0)
-    {
-        _genBase->closeStream();
-    }
-}
-
-
 namespace Slice
 {
 
@@ -52,8 +37,6 @@ generate(const UnitPtr& unit, const string& dir, const string& header, const str
          const string& indexHeader, const string& indexFooter, const string& imageDir, const string& logoURL,
          const string& searchAction, unsigned indexCount, unsigned warnSummary)
 {
-    SignalHandler::setCallback(closeCallback);
-
     unit->mergeModules();
 
     //
@@ -212,12 +195,10 @@ Slice::GeneratorBase::setSymbols(const ContainedList& symbols)
 Slice::GeneratorBase::GeneratorBase(XMLOutput& o, const Files& files)
     : _out(o), _files(files)
 {
-    _genBase = this;
 }
 
 Slice::GeneratorBase::~GeneratorBase()
 {
-    _genBase = 0;
 }
 
 //
@@ -1260,8 +1241,6 @@ Slice::GeneratorBase::getLogoURL()
 void
 Slice::GeneratorBase::openStream(const string& path)
 {
-    SignalHandler::addFile(path);
-
     _out.open(path.c_str());
     if(!_out.isOpen())
     {
