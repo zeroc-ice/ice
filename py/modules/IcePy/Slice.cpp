@@ -14,7 +14,6 @@
 #include <Util.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>
-#include <Slice/SignalHandler.h>
 #include <IceUtil/Options.h>
 
 //
@@ -135,8 +134,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
     {
-        SignalHandler sigHandler;
-
         string file = *p;
         Slice::Preprocessor icecpp("icecpp", file, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
