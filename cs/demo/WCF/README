@@ -4,9 +4,17 @@ Demos in this directory:
 
   A simple latency test that measures the basic call dispatch delay of WCF.
 
+- latency_m
+
+  The same demo, but with a multi-threaded server.
+
 - throughput
 
   A simple WCF throughput demo that allows you to send sequences of
   various types between client and server and to measure the maximum
   bandwidth that can be achieved using serialized synchronous
   requests.
+
+- throughput_m
+
+  The same demo, but with a multi-threaded server.
