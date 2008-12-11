@@ -57,6 +57,7 @@ Ice.Warn.Connections=1
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
+IceSSL.VerifyPeer=0
 IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=server.jks
 IceSSL.Password=password
