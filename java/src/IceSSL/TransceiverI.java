@@ -336,15 +336,6 @@ final class TransceiverI implements IceInternal.Transceiver
         _netOutput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
     }
 
-    protected void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
-
-        super.finalize();
-    }
-
     private IceInternal.SocketStatus
     handshakeNonBlocking()
     {

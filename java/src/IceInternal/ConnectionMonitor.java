@@ -48,16 +48,6 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
         _instance.timer().scheduleRepeated(this, interval * 1000);
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
-        
-        super.finalize();
-    }
-
     public void
     runTimerTask()
     {

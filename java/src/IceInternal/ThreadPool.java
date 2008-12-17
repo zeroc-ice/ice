@@ -107,13 +107,6 @@ public final class ThreadPool
         }
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
-    }
-
     public synchronized void
     destroy()
     {

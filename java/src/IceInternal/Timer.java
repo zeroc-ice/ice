@@ -128,15 +128,6 @@ public final class Timer extends Thread
         start();
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-
-        super.finalize();
-    }
-
     public void
     run()
     {

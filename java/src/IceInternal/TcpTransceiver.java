@@ -263,15 +263,6 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
-
-        super.finalize();
-    }
-
     private java.nio.channels.SocketChannel _fd;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;

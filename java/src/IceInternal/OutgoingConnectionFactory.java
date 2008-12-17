@@ -417,19 +417,6 @@ public final class OutgoingConnectionFactory
         _destroyed = false;
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
-        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
-        IceUtilInternal.Assert.FinalizerAssert(_connectionsByEndpoint == null);
-        IceUtilInternal.Assert.FinalizerAssert(_pendingConnectCount == 0);
-        IceUtilInternal.Assert.FinalizerAssert(_pending.isEmpty());
-
-        super.finalize();
-    }
-
     private java.util.List<EndpointI>
     applyOverrides(EndpointI[] endpts)
     {

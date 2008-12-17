@@ -273,17 +273,6 @@ abstract class EvictorI implements Evictor
    
     abstract protected void evict();
 
-
-    synchronized protected void
-    finalize()
-    {
-        if(!_deactivateController.deactivated())
-        {
-            _communicator.getLogger().warning("Freeze evictor " + toString() + " has not been deactivated");
-            deactivate("");
-        }
-    }
-
     protected void
     closeDbEnv()
     {

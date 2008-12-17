@@ -355,9 +355,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             // We're done, now we can throw away all incoming connection
             // factories.
             //
-            // For compatibility with C#, we set _incomingConnectionFactories
-            // to null so that the finalizer does not invoke methods on objects.
-            //
             _incomingConnectionFactories = null;
 
             //
@@ -938,32 +935,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             destroy();
             throw ex;
         }
-    }
-
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        if(!_deactivated)
-        {
-            _instance.initializationData().logger.warning("object adapter `" + getName() + 
-                                                          "' has not been deactivated");
-        }
-        else if(!_destroyed)
-        {
-            _instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been destroyed");
-        }
-        else
-        {
-            IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
-            //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
-            IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
-            IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories == null);
-            IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
-            IceUtilInternal.Assert.FinalizerAssert(!_waitForActivate);
-        }
-
-        super.finalize();
     }
 
     private ObjectPrx

@@ -40,13 +40,6 @@ public class SelectorThread
         _timer = _instance.timer();
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
-    }
-
     public synchronized void
     destroy()
     {

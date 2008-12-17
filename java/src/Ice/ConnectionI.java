@@ -1285,21 +1285,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        IceUtilInternal.Assert.FinalizerAssert(_startCallback == null);
-        IceUtilInternal.Assert.FinalizerAssert(_state == StateClosed);
-        IceUtilInternal.Assert.FinalizerAssert(_transceiver == null);
-        IceUtilInternal.Assert.FinalizerAssert(_dispatchCount == 0);
-        IceUtilInternal.Assert.FinalizerAssert(_sendStreams.isEmpty());
-        IceUtilInternal.Assert.FinalizerAssert(_requests.isEmpty());
-        IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
-
-        super.finalize();
-    }
-
     private static final int StateNotInitialized = 0;
     private static final int StateNotValidated = 1;
     private static final int StateActive = 2;

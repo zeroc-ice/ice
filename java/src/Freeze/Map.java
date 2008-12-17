@@ -281,15 +281,9 @@ public abstract class Map extends java.util.AbstractMap
     }
 
     public void
-    close()
-    {
-        close(false);
-    }
-
-    public void
     closeDb()
     {
-        close(false);
+        close();
         _connection.dbEnv().removeSharedMapDb(_dbName);
     }
 
@@ -843,7 +837,7 @@ public abstract class Map extends java.util.AbstractMap
     public void
     closeAllIterators()
     {
-        closeAllIteratorsExcept(null, false);
+        closeAllIteratorsExcept(null);
     }
 
 
@@ -963,7 +957,7 @@ public abstract class Map extends java.util.AbstractMap
 
     
     void
-    closeAllIteratorsExcept(Object except, boolean finalizing)
+    closeAllIteratorsExcept(Object except)
     {
         synchronized(_iteratorList)
         {
@@ -974,38 +968,29 @@ public abstract class Map extends java.util.AbstractMap
                 Object obj = p.next();
                 if(obj != except)
                 {
-                    ((EntryIteratorImpl)obj).close(finalizing);
+                    ((EntryIteratorImpl)obj).close();
                 }
             }
         }
     }
 
-    protected void
-    finalize()
-    {
-        close(true);
-    }
-
     //
     // The synchronization is only needed when finalizing is true
     //
-    void 
-    close(boolean finalizing)
+    public void 
+    close()
     {
-        synchronized(_connection)
+        if(_db != null)
         {
-            if(_db != null)
+            try
             {
-                try
-                {
-                    closeAllIteratorsExcept(null, finalizing);
-                }
-                finally
-                {
-                    _db = null;
-                    _connection.unregisterMap(_token);
-                    _token = null;
-                }
+                closeAllIteratorsExcept(null);
+            }
+            finally
+            {
+                _db = null;
+                _connection.unregisterMap(_token);
+                _token = null;
             }
         }
     }
@@ -1935,7 +1920,7 @@ public abstract class Map extends java.util.AbstractMap
         {
             if(_txn != null)
             {
-                closeAllIteratorsExcept(this, false);
+                closeAllIteratorsExcept(this);
             }
 
             //
@@ -2034,30 +2019,9 @@ public abstract class Map extends java.util.AbstractMap
             }
         }
 
-        //
-        // Extra operations.
-        //
         public void
         close()
         {
-            close(false);
-        }
-
-        //
-        // The synchronized is needed because this method can be called 
-        // concurrently by Connection, Map and Map.EntryIterator finalizers.
-        //
-        synchronized void
-        close(boolean finalizing)
-        {
-            if(finalizing && (_cursor != null || _txn != null) && _connection.closeInFinalizeWarning())
-            {
-                _connection.communicator().getLogger().warning(
-                    "finalize() closing a live iterator on Map \"" + _db.dbName() + "\"; the application " +
-                     "should have closed it earlier by calling Map.EntryIterator.close(), " +
-                     "Map.closeAllIterators(), Map.close(), Connection.close(), or (if also " +
-                     "leaking a transaction) Transaction.commit() or Transaction.rollback()");
-            }
          
             if(_iteratorListToken != null)
             {
@@ -2138,12 +2102,6 @@ public abstract class Map extends java.util.AbstractMap
             close();
         }
 
-        protected void
-        finalize()
-        {
-            close(true);
-        }
-
         void
         setValue(Map.Entry entry, Object value)
         {
@@ -2155,7 +2113,7 @@ public abstract class Map extends java.util.AbstractMap
 
             if(_txn != null)
             {
-                closeAllIteratorsExcept(this, false);
+                closeAllIteratorsExcept(this);
             }
 
             //

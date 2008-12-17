@@ -199,20 +199,6 @@ public final class ServantManager
         _adapterName = adapterName;
     }
 
-    protected void
-    finalize()
-        throws Throwable
-    {
-        //
-        // Don't check whether destroy() has been called. It might have
-        // not been called if the associated object adapter was not
-        // properly deactivated.
-        //
-        //IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-        
-        super.finalize();
-    }
-
     //
     // Only for use by Ice.ObjectAdapterI.
     //
