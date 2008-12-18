@@ -61,6 +61,12 @@ class ConnectionI implements Connection
     }
 
 
+    public void
+    close()
+    {
+        close(false);
+    }
+
     public Ice.Communicator
     getCommunicator()
     {
@@ -73,11 +79,23 @@ class ConnectionI implements Connection
         return _envName;
     }
 
-    public void
-    close()
+    protected void
+    finalize()
+    {
+        close(true);
+    }
+
+    void
+    close(boolean finalizing)
     {
         if(_transaction != null)
         {
+            if(finalizing)
+            {
+                _communicator.getLogger().warning
+                    ("Finalizing Connection on DbEnv \"" +  _envName + "\" with active transaction");
+            }
+            
             try
             {
                 _transaction.rollback();
@@ -96,7 +114,7 @@ class ConnectionI implements Connection
             java.util.Iterator p = _mapList.iterator();
             while(p.hasNext())
             {
-                ((Map) p.next()).close();
+                ((Map) p.next()).close(finalizing);
             }
         }
         
@@ -124,6 +142,7 @@ class ConnectionI implements Connection
         
         Ice.Properties properties = _communicator.getProperties();
         _deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
+        _closeInFinalizeWarning = properties.getPropertyAsIntWithDefault("Freeze.Warn.CloseInFinalize", 1) > 0; 
     }
 
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
@@ -216,6 +235,11 @@ class ConnectionI implements Connection
         return _deadlockWarning;
     }
 
+    final boolean
+    closeInFinalizeWarning()
+    {
+        return _closeInFinalizeWarning;
+    }
 
     private String errorPrefix()
     {
@@ -231,4 +255,5 @@ class ConnectionI implements Connection
     private int _trace;
     private int _txTrace;
     private boolean _deadlockWarning;
+    private boolean _closeInFinalizeWarning;
 }

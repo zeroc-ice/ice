@@ -156,6 +156,13 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
         return IceInternal.Network.compareAddress(_addr, p._addr);
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        super.finalize();
+    }
+
     private Instance _instance;
     private Ice.Logger _logger;
     private String _host;

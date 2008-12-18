@@ -351,6 +351,17 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
         }
         return null;
     }
+    
+ 
+    protected void 
+    finalize()
+    {
+        if(_tx != null)
+        {
+            _tx.getConnectionI().communicator().getLogger().warning
+                ("Finalizing incomplete TransactionalEvictorContext on DbEnv '" +  _tx.getConnectionI().dbEnv().getEnvName() + "'");
+        }
+    }
 
     private ServantHolder
     findServantHolder(Ice.Identity ident, ObjectStore store)

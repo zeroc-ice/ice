@@ -51,6 +51,14 @@ abstract public class OutgoingAsyncMessageCallback
         }
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        assert(__os == null);
+        assert(__is == null);
+    }
+
     protected void
     __acquireCallback(Ice.ObjectPrx proxy)
     {
@@ -74,7 +82,7 @@ abstract public class OutgoingAsyncMessageCallback
             assert(__is == null);
             __is = new BasicStream(ref.getInstance());
             assert(__os == null);
-            __os = new BasicStream(ref.getInstance());
+            __os = new BasicStream(ref.getInstance());              
         }
     }
 

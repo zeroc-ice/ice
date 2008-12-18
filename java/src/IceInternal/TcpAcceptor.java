@@ -115,6 +115,15 @@ class TcpAcceptor implements Acceptor
         }
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
+
+        super.finalize();
+    }
+
     private Instance _instance;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;

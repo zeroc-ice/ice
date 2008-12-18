@@ -262,6 +262,18 @@ public final class ObjectAdapterFactory
         _waitForShutdown = false;
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        IceUtilInternal.Assert.FinalizerAssert(_instance == null);
+        IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
+        IceUtilInternal.Assert.FinalizerAssert(_adapters == null);
+        IceUtilInternal.Assert.FinalizerAssert(!_waitForShutdown);
+
+        super.finalize();
+    }
+
     private Instance _instance;
     private Ice.Communicator _communicator;
     private java.util.Map<String, Ice.ObjectAdapterI> _adapters = new java.util.HashMap<String, Ice.ObjectAdapterI>();

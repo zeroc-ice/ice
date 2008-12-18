@@ -143,6 +143,13 @@ final class TcpConnector implements Connector, java.lang.Comparable
         }
 
         return Network.compareAddress(_addr, p._addr);
+    } 
+
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        super.finalize();
     }
 
     private Instance _instance;

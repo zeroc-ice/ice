@@ -746,6 +746,31 @@ public final class Instance
         }
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        IceUtilInternal.Assert.FinalizerAssert(_state == StateDestroyed);
+        IceUtilInternal.Assert.FinalizerAssert(_referenceFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_proxyFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_connectionMonitor == null);
+        IceUtilInternal.Assert.FinalizerAssert(_servantFactoryManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
+        IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
+        IceUtilInternal.Assert.FinalizerAssert(_serverThreadPool == null);
+        IceUtilInternal.Assert.FinalizerAssert(_selectorThread == null);
+        IceUtilInternal.Assert.FinalizerAssert(_endpointHostResolver == null);
+        IceUtilInternal.Assert.FinalizerAssert(_timer == null);
+        IceUtilInternal.Assert.FinalizerAssert(_routerManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_locatorManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_endpointFactoryManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_pluginManager == null);
+        IceUtilInternal.Assert.FinalizerAssert(_retryQueue == null);
+
+        super.finalize();
+    }
+
     public void
     finishSetup(Ice.StringSeqHolder args)
     {

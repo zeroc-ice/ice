@@ -137,6 +137,15 @@ final class AcceptorI implements IceInternal.Acceptor
         }
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
+
+        super.finalize();
+    }
+
     private Instance _instance;
     private String _adapterName;
     private Ice.Logger _logger;

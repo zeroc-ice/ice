@@ -550,6 +550,7 @@ public final class PropertyNames
         new Property("Freeze\\.Trace\\.Evictor", false, null),
         new Property("Freeze\\.Trace\\.Map", false, null),
         new Property("Freeze\\.Trace\\.Transaction", false, null),
+        new Property("Freeze\\.Warn\\.CloseInFinalize", false, null),
         new Property("Freeze\\.Warn\\.Deadlocks", false, null),
         new Property("Freeze\\.Warn\\.Rollback", false, null),
         null

@@ -517,6 +517,15 @@ final class UdpTransceiver implements Transceiver
     {
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
+
+        super.finalize();
+    }
+
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private Ice.Stats _stats;

@@ -491,6 +491,17 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         }
     }
 
+    protected synchronized void
+    finalize()
+        throws Throwable
+    {
+        IceUtilInternal.Assert.FinalizerAssert(_state == StateClosed);
+        IceUtilInternal.Assert.FinalizerAssert(_acceptor == null);
+        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
+
+        super.finalize();
+    }
+
     private static final int StateActive = 0;
     private static final int StateHolding = 1;
     private static final int StateClosed = 2;
