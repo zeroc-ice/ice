@@ -36,7 +36,13 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key, "");
+            try
+            {
+                result = System.getProperty(key, "");
+            }
+            catch(java.lang.SecurityException ex)
+            {
+            }
         }
         else
         {
@@ -53,7 +59,13 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key, value);
+            try
+            {
+                result = System.getProperty(key, value);
+            }
+            catch(java.lang.SecurityException ex)
+            {
+            }
         }
         else
         {
@@ -76,7 +88,13 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key);
+            try
+            {
+                result = System.getProperty(key);
+            }
+            catch(java.lang.SecurityException ex)
+            {
+            }
         }
         else
         {
@@ -118,7 +136,13 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key);
+            try
+            {
+                result = System.getProperty(key);
+            }
+            catch(java.lang.SecurityException ex)
+            {
+            }
             if(result == null)
             {
                 return value;
@@ -621,7 +645,7 @@ public final class PropertiesI implements Properties
                     value = "";
                 }
             }
-            catch(SecurityException ex)
+            catch(java.lang.SecurityException ex)
             {
                 Ice.Util.getProcessLogger().warning("unable to access ICE_CONFIG environment variable");
                 value = "";
