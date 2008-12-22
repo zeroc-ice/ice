@@ -42,6 +42,7 @@ public final class PropertiesI implements Properties
             }
             catch(java.lang.SecurityException ex)
             {
+                result = "";
             }
         }
         else
@@ -65,6 +66,7 @@ public final class PropertiesI implements Properties
             }
             catch(java.lang.SecurityException ex)
             {
+                result = value;
             }
         }
         else
@@ -647,7 +649,6 @@ public final class PropertiesI implements Properties
             }
             catch(java.lang.SecurityException ex)
             {
-                Ice.Util.getProcessLogger().warning("unable to access ICE_CONFIG environment variable");
                 value = "";
             }
         }
