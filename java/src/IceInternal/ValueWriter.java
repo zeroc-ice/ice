@@ -190,9 +190,28 @@ public final class ValueWriter
             writeFields(name, obj, c.getSuperclass(), objectTable, out);
 
             //
-            // Write the declared fields of the given class.
+            // Write the declared fields of the given class. We prefer to use the declared
+            // fields because it includes protected fields that may have been defined using
+            // the Slice "protected" metadata. However, if a security manager prevents us
+            // from obtaining the declared fields, we will fall back to using the public ones.
             //
-            java.lang.reflect.Field[] fields = c.getDeclaredFields();
+            java.lang.reflect.Field[] fields = null;
+            try
+            {
+                fields = c.getDeclaredFields();
+            }
+            catch(java.lang.SecurityException ex)
+            {
+                try
+                {
+                    fields = c.getFields();
+                }
+                catch(java.lang.SecurityException e)
+                {
+                    return; // Nothing else we can do.
+                }
+            }
+            assert(fields != null);
             for(int i = 0; i < fields.length; i++)
             {
                 //
