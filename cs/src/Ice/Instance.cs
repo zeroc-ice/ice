@@ -198,6 +198,25 @@ namespace IceInternal
             }
         }
 
+        public AsyncIOThread
+        asyncIOThread()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }        
+                
+                if(_asyncIOThread == null) // Lazy initialization.
+                {
+                    _asyncIOThread = new AsyncIOThread(this);
+                }
+            
+                return _asyncIOThread;
+            }
+        }
+
         public EndpointHostResolver endpointHostResolver()
         {
             lock(this)
@@ -915,6 +934,7 @@ namespace IceInternal
 
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;
+            AsyncIOThread asyncIOThread = null;
             EndpointHostResolver endpointHostResolver = null;
 
             lock(this)
@@ -941,6 +961,13 @@ namespace IceInternal
                     _clientThreadPool.destroy();
                     clientThreadPool = _clientThreadPool;
                     _clientThreadPool = null;
+                }
+
+                if(_asyncIOThread != null)
+                {
+                    _asyncIOThread.destroy();
+                    asyncIOThread = _asyncIOThread;
+                    _asyncIOThread = null;
                 }
 
                 if(_endpointHostResolver != null)
@@ -1013,6 +1040,10 @@ namespace IceInternal
             {
                 serverThreadPool.joinWithAllThreads();
             }
+            if(asyncIOThread != null)
+            {
+                asyncIOThread.joinWithThread();
+            }
             if(endpointHostResolver != null)
             {
                 endpointHostResolver.joinWithThread();
@@ -1057,6 +1088,7 @@ namespace IceInternal
         private int _protocolSupport;
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
+        private AsyncIOThread _asyncIOThread;
         private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
         private RetryQueue _retryQueue;
