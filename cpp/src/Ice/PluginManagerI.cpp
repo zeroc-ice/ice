@@ -118,11 +118,15 @@ Ice::PluginManagerI::destroy()
 
     if(_communicator)
     {
-        map<string, PluginPtr>::iterator r;
-        for(r = _plugins.begin(); r != _plugins.end(); ++r)
+
+        if(_initialized)
         {
-            r->second->destroy();
-            r->second = 0;
+            map<string, PluginPtr>::iterator r;
+            for(r = _plugins.begin(); r != _plugins.end(); ++r)
+            {
+                r->second->destroy();
+                r->second = 0;
+            }
         }
         
         _communicator = 0;
