@@ -1,0 +1,11 @@
+
+A simple demo that show how Ice take advantage of NRVO (Named Return Value Optimization)
+include in Visual Studio c++ compiler.
+
+To run the demo, first start the server:
+
+$ server
+
+In a separate window, start the client:
+
+$ client
