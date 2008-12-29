@@ -11,6 +11,7 @@
 #define ICE_STORM_ICE
 
 #include <Ice/SliceChecksumDict.ice>
+#include <Ice/Identity.ice>
 
 /**
  *
