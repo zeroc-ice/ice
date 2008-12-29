@@ -80,14 +80,14 @@ NrvoClient::run(int argc, char* argv[])
                     case '2':
                     {
                         cout << "calling op2" << endl;
-                        StringSeq seq= nrvo->op2();
+                        MyStringSeq seq = nrvo->op2();
                         break;
                     }
 
                     case '3':
                     {
                         cout << "calling op3" << endl;
-                        StringSeq seq= nrvo->op3(10);
+                        MyStringSeq seq = nrvo->op3(10);
                         break;
                     }
 
@@ -132,9 +132,9 @@ NrvoClient::menu()
         "usage:\n"
         "\n"
         "Operation to call:\n"
-        "1: return a value object.\n"
-        "2: return a value object that is a member attribute.\n"
-        "3: return a value object from an operation with multiple return path.\n"
+        "1: return a string sequence.\n"
+        "2: return a string sequence that is a data member of the servant.\n"
+        "3: return a string sequence from an operation with multiple return path.\n"
         "s: shutdown server.\n"
         "x: exit.\n"
         "?: show this menu.\n";

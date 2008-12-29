@@ -1,6 +1,14 @@
 
 A simple demo that show how Ice take advantage of NRVO (Named Return Value Optimization)
-include in Visual Studio c++ compiler.
+include in moderm c++ compilers.
+
+GCC and Visual Studio compilers suport this optimization
+
+    You could read more about Visual Studio NRVO at
+    http://msdn.microsoft.com/en-us/library/ms364057(VS.80).aspx
+
+    For GCC NRVO was first introduced in gcc-3.1 see the release changes for details
+    http://www.gnu.org/software/gcc/gcc-3.1/changes.html
 
 To run the demo, first start the server:
 
@@ -9,3 +17,25 @@ $ server
 In a separate window, start the client:
 
 $ client
+
+When you start the client it show you a menu with different operations
+you can invoke each operation pressing the correspoding key.
+
+All this operations return a string sequence mapped to a custom class MyStringSeq,
+when a copy is made the message "MyStringSeq copy ctor" is wrote to the console, this
+permit you see what copies of the returned data are made by Ice run time.
+
+To make sure the optimzations are aply you should compile the demo with optimizations
+enabled.
+
+If you call an operation the client and server should print a message "calling <opname>"
+and bellow that message you will see as many "MyStringSeq copy ctor" messages as copies
+are made.
+
+In the server side we show 1 case when NRVO works, that is a function that
+has a single return path implemented in NrvoI::op1 . And 2 case where NRVO dont work, a
+function that return a data member of the servant implemented in NrvoI::op2 and a function
+with multiple returns path implemented in NrvoI::op3.
+
+So if you press option 1 you will see that NRVO is apply in both client and server sides,
+and if you call 2 or 3 the optimization only apply to client side.
