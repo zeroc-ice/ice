@@ -93,7 +93,7 @@ public class XMLWriter
             while(p.hasNext())
             {
                 String[] pair = (String[])p.next();
-                _writer.write(" " + pair[0] + "=\"" + pair[1] + "\"");
+                _writer.write(" " + pair[0] + "=\"" + escape(pair[1]) + "\"");
             }
         }
     }

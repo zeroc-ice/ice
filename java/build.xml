@@ -221,7 +221,8 @@
 
     <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">
         <manifest file="${lib.dir}/icegridgui.mf">
-            <attribute name="Class-Path" value="Ice.jar ../resources/"/>
+            <attribute name="Main-Class" value="IceGridGUI.Main"/>
+            <attribute name="Class-Path" value="Ice.jar ${jgoodies.forms} ${jgoodies.looks} ../resources/ "/>
         </manifest>
         <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>
