@@ -2624,6 +2624,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
 
     C << nl << "bool __ok = __og.invoke();";
+    writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     if(!p->returnsData())
     {
         C << nl << "if(!__og.is()->b.empty())";
@@ -2687,7 +2688,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
 
-    writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     for(ParamDeclList::const_iterator opi = outParams.begin(); opi != outParams.end(); ++opi)
     {
         StructPtr st = StructPtr::dynamicCast((*opi)->type());

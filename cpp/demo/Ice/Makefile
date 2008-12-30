@@ -23,7 +23,8 @@ SUBDIRS		= minimal \
 		  session \
 		  converter \
 		  async \
-		  multicast
+		  multicast \
+		  nrvo
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

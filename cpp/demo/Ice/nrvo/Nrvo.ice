@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef NRV0_ICE
-#define NRV0_ICE
+#ifndef NRVO_ICE
+#define NRVO_ICE
 
 module Demo
 {
