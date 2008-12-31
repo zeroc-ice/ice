@@ -252,6 +252,16 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
     {
 	if(_deactivateController.deactivate())
 	{
+            synchronized(this)
+            {
+                //
+                // Set the evictor size to zero, meaning that we will evict
+                // everything possible.
+                //
+                _evictorSize = 0;
+                evict();
+            }
+
 	    try
 	    {
 		closeDbEnv();

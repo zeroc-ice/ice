@@ -67,14 +67,14 @@ Test::AccountI::transfer2_async(const AMD_Account_transfer2Ptr& cb, int amount, 
     cb->ice_response();
 }
 
-
 class ResponseThread : public IceUtil::Thread, private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
         
     ResponseThread(const Test::AMD_Account_transfer3Ptr& cb) :
         _cb(cb),
-        _response(false)
+        _response(false),
+        _cancelled(false)
     {
     }
 
@@ -92,6 +92,13 @@ public:
         notify();
     }
 
+    void cancel()
+    {
+        Lock sync(*this);
+        _cancelled = true;
+        notify();
+    }
+
 
     virtual void run()
     {
@@ -99,12 +106,12 @@ public:
 
         bool timedOut = false;
 
-        while(!timedOut && _response == false && _exception.get() == 0)
+        while(!timedOut && _response == false && _cancelled == false && _exception.get() == 0)
         {
             timedOut = !timedWait(IceUtil::Time::seconds(1));
         }
 
-        if(timedOut)
+        if(_cancelled)
         {
             return;
         }
@@ -126,9 +133,13 @@ public:
 private:
     Test::AMD_Account_transfer3Ptr _cb;
     bool _response;
+    bool _cancelled;
     std::auto_ptr<Ice::UserException> _exception;
 };
 typedef IceUtil::Handle<ResponseThread> ResponseThreadPtr;
+
+
+
 
 
 void 
@@ -139,8 +150,8 @@ Test::AccountI::transfer3_async(const AMD_Account_transfer3Ptr& cb, int amount, 
     //
 
     ResponseThreadPtr thread = new ResponseThread(cb);
-    thread->start(33000).detach();
- 
+    IceUtil::ThreadControl tc = thread->start(33000);
+    
     test(_evictor->getCurrentTransaction() != 0);
 
     try
@@ -150,6 +161,8 @@ Test::AccountI::transfer3_async(const AMD_Account_transfer3Ptr& cb, int amount, 
     }
     catch(const Ice::UserException& e)
     {
+        tc.detach();
+
         //
         // Need to rollback here -- "rollback on user exception" does not work
         // when the dispatch commits before it gets any response!
@@ -157,9 +170,17 @@ Test::AccountI::transfer3_async(const AMD_Account_transfer3Ptr& cb, int amount, 
         _evictor->getCurrentTransaction()->rollback();
         
         thread->exception(e);
+
         return;
     }
+    catch(...)
+    {
+        thread->cancel();
+        tc.join();
+        throw;
+    }
 
+    tc.detach();
     thread->response();
 }
 
@@ -592,7 +613,6 @@ Test::RemoteEvictorI::destroyAllServants(const string& facetName, const Current&
         _evictor->remove(p->next());
     }
 }
-
 
 Test::RemoteEvictorFactoryI::RemoteEvictorFactoryI(const ObjectAdapterPtr& adapter,
                                                    const std::string& envName) :
