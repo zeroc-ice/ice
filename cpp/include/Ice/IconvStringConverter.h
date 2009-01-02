@@ -11,6 +11,7 @@
 #define ICE_ICONV_STRING_CONVERTER
 
 #include <Ice/StringConverter.h>
+#include <Ice/UndefSysMacros.h>
 
 #include <algorithm>
 #include <iconv.h>
