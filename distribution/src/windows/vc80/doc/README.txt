@@ -98,13 +98,17 @@ compiler, however we have tested the Ice extension extensively and
 have not encountered any compatibility issues.
 
 If you distribute an Ice for Python application, you must include the
-DLLs for the extension, the Ice run time, and the Visual C++ 8.0 run
-time. An appendix in the Ice manual provides more information on
+DLLs for the extension, the Ice run time, and the Visual C++ 8 SP1 
+run time. An appendix in the Ice manual provides more information on
 distributing Ice applications. The link below describes the process
 of deploying the Visual C++ 8.0 run time:
 
   http://msdn2.microsoft.com/en-us/library/ms235291(VS.80).aspx
 
+Make sure to download and install the Visual C++ 8.0 SP1 run time:
+  
+  (x86) http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&displaylang=en
+  (x64) http://www.microsoft.com/downloads/details.aspx?familyid=EB4EBE2D-33C0-4A47-9DD4-B9A6D7BD44DA&displaylang=en
 
 Setting up Visual Studio 2005 SP1 to build Ice applications in C++
 ------------------------------------------------------------------
