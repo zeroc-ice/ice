@@ -270,7 +270,10 @@ Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
 
     if(_postCompletionCallback != 0)
     {
-        _postCompletionCallback->postCompletion(committed, deadlock);
+        PostCompletionCallbackPtr cb = _postCompletionCallback;
+        _postCompletionCallback = 0;
+        
+        cb->postCompletion(committed, deadlock);
     }
 
     ConnectionIPtr connection = _connection;

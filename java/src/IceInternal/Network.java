@@ -317,6 +317,13 @@ public final class Network
             se.initCause(ex);
             throw se;
         }
+        catch(java.lang.SecurityException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
 
         if(System.getProperty("os.name").equals("Linux"))
         {
@@ -827,6 +834,13 @@ public final class Network
         {
             Ice.DNSException e = new Ice.DNSException();
             e.host = host;
+            e.initCause(ex);
+            throw e;
+        }
+        catch(java.lang.SecurityException ex)
+        {
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
             throw e;
         }
     
@@ -875,6 +889,12 @@ public final class Network
             se.initCause(e);
             throw se;
         }
+        catch(java.lang.SecurityException ex)
+        {
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
+            throw e;
+        }
 
         return result;
     }
@@ -916,6 +936,12 @@ public final class Network
             }
             catch(java.net.UnknownHostException ex)
             {
+            }
+            catch(java.lang.SecurityException ex)
+            {
+                Ice.SocketException e = new Ice.SocketException();
+                e.initCause(ex);
+                throw e;
             }
         }
 
@@ -1158,6 +1184,13 @@ public final class Network
         {
             Ice.DNSException e = new Ice.DNSException();
             e.host = host;
+            e.initCause(ex);
+            throw e;
+        }
+        catch(java.lang.SecurityException ex)
+        {
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
             throw e;
         }
 
@@ -1191,6 +1224,12 @@ public final class Network
             assert(false);
             return null;
         }
+        catch(java.lang.SecurityException ex)
+        {
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
+            throw e;
+        }
     }
 
     private static java.net.InetAddress[]
@@ -1214,6 +1253,12 @@ public final class Network
         {
             assert(false);
             return null;
+        }
+        catch(java.lang.SecurityException ex)
+        {
+            Ice.SocketException e = new Ice.SocketException();
+            e.initCause(ex);
+            throw e;
         }
     }
 }

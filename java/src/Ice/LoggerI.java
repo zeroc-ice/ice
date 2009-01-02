@@ -19,7 +19,7 @@ public class LoggerI implements Logger
             _prefix = prefix + ": ";
         }
 
-        _lineSeparator = System.getProperties().getProperty("line.separator");
+        _lineSeparator = System.getProperty("line.separator");
         _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
         _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
     }

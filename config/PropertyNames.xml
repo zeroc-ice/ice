@@ -418,28 +418,50 @@ generated from the section label.
         <property name="Registry.CryptPasswords" />
         <property name="Registry.Data" />
         <property name="Registry.DefaultTemplates" />
+        <property name="Registry.Discard.Interval"/>
         <property name="Registry.DynamicRegistration" />
+        <property name="Registry.Election.ElectionTimeout"/>
+        <property name="Registry.Election.MasterTimeout"/>
+        <property name="Registry.Election.ResponseTimeout"/>
+        <property name="Registry.Flush.Timeout"/>
+        <property name="Registry.IceStormAdmin.TopicManager.Default"/>
+        <property name="Registry.IceStormAdmin.TopicManager.[any]"/>
+        <property name="Registry.InstanceName"/>
         <property name="Registry.Internal" class="objectadapter" />
+        <property name="Registry.Node.[any]"/>
+        <property name="Registry.NodeId"/>
+        <property name="Registry.Nodes.id"/>
         <property name="Registry.NodeSessionTimeout" />
         <property name="Registry.PermissionsVerifier" class="proxy" />
+        <property name="Registry.Publish.[any]"/>
         <property name="Registry.ReplicaName" />
         <property name="Registry.ReplicaSessionTimeout" />
+        <property name="Registry.ReplicatedPublishEndpoints"/>
+        <property name="Registry.ReplicatedTopicManagerEndpoints"/>
+        <property name="Registry.Send.Timeout"/>
         <property name="Registry.Server" class="objectadapter" />
         <property name="Registry.SessionFilters" />
         <property name="Registry.SessionManager" class="objectadapter" />
         <property name="Registry.SessionTimeout" />
         <property name="Registry.SSLPermissionsVerifier" class="proxy" />
+        <property name="Registry.TopicManager.[any]"/>
         <property name="Registry.Trace.Application" />
         <property name="Registry.Trace.Adapter" />
+        <property name="Registry.Trace.Election"/>
         <property name="Registry.Trace.Locator" />
         <property name="Registry.Trace.Node" />
         <property name="Registry.Trace.Object" />
         <property name="Registry.Trace.Patch" />
         <property name="Registry.Trace.Replica" />
+        <property name="Registry.Trace.Replication"/>
         <property name="Registry.Trace.Server" />
         <property name="Registry.Trace.Session" />
+        <property name="Registry.Trace.Subscriber"/>
+        <property name="Registry.Trace.Topic"/>
+        <property name="Registry.Trace.TopicManager"/>
+        <property name="Registry.Transient"/>
         <property name="Registry.UserAccounts" />
-    </section>
+</section>
     
     <section name="IcePatch2">
         <property class="objectadapter" />

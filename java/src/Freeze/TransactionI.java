@@ -222,7 +222,14 @@ class TransactionI implements Transaction
     {
         if(_postCompletionCallback != null)
         {
-            _postCompletionCallback.postCompletion(committed, deadlock);
+            try
+            {
+                _postCompletionCallback.postCompletion(committed, deadlock);
+            }
+            finally
+            {
+                _postCompletionCallback = null;
+            }
         }
     }
 

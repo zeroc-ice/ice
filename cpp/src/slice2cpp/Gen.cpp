@@ -13,7 +13,6 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <Slice/Checksum.h>
-#include <Slice/SignalHandler.h>
 
 #include <limits>
 #include <sys/stat.h>
@@ -22,19 +21,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
-
-//
-// Callback for Crtl-C signal handling
-//
-static Gen* _gen = 0;
-
-static void closeCallback()
-{
-    if(_gen != 0)
-    {
-        _gen->closeOutput();
-    }
-}
 
 static string
 getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
@@ -64,9 +50,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     _stream(stream),
     _ice(ice)
 {
-    _gen = this;
-    SignalHandler::setCallback(closeCallback);
-
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
         *p = fullPath(*p);
@@ -87,8 +70,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
             fileImplH = dir + '/' + fileImplH;
             fileImplC = dir + '/' + fileImplC;
         }
-        SignalHandler::addFile(fileImplH);
-        SignalHandler::addFile(fileImplC);
 
         struct stat st;
         if(stat(fileImplH.c_str(), &st) == 0)
@@ -134,8 +115,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
         fileH = dir + '/' + fileH;
         fileC = dir + '/' + fileC;
     }
-    SignalHandler::addFile(fileH);
-    SignalHandler::addFile(fileC);
 
     H.open(fileH.c_str());
     if(!H)
@@ -177,8 +156,6 @@ Slice::Gen::~Gen()
         implH << "\n\n#endif\n";
         implC << '\n';
     }
-
-    SignalHandler::setCallback(0);
 }
 
 bool
@@ -2647,6 +2624,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
 
     C << nl << "bool __ok = __og.invoke();";
+    writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     if(!p->returnsData())
     {
         C << nl << "if(!__og.is()->b.empty())";
@@ -2710,7 +2688,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
 
-    writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     for(ParamDeclList::const_iterator opi = outParams.begin(); opi != outParams.end(); ++opi)
     {
         StructPtr st = StructPtr::dynamicCast((*opi)->type());
@@ -5301,7 +5278,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(p->returnsData())
         {
-            C << nl << "__prx->__checkTwowayOnly(\"" << p->name() <<  "\");";
+            C << nl << "__prx->__checkTwowayOnly(" << flatName <<  ");";
         }
         C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
         writeMarshalCode(C, inParams, 0, StringList(), true);

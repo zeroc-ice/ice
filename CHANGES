@@ -66,6 +66,9 @@ C++ Changes
 C# Changes
 ==========
 
+- Changed the Ice runtime to not rely anymore on .NET worker threads
+  to start asynchronous IO operations.
+
 - Fixed a bug in slice2cs that caused a core dump if a dictionary
   had a value type of Object.
 

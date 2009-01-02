@@ -8,12 +8,24 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
-#include <Slice/SignalHandler.h>
 #include <Gen.h>
 
 using namespace std;
 using namespace Slice;
+
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
+
+void
+interruptedCallback(int signal)
+{
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
+}
 
 void
 usage(const char* n)
@@ -144,10 +156,11 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(interruptedCallback);
+
     for(i = args.begin(); i != args.end(); ++i)
     {
-        SignalHandler sigHandler;
-
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
@@ -220,6 +233,15 @@ main(int argc, char* argv[])
                 }
 
                 p->destroy();
+            }
+        }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                return EXIT_FAILURE;
             }
         }
     }

@@ -1,0 +1,27 @@
+A simple latency test that measures the basic call dispatch delay of WCF.
+
+To run the demo, first start the server:
+
+$ server.exe
+
+In a separate window, start the client:
+
+$ client.exe
+
+By default, the client and server use the loopback interface (127.0.0.1).
+You can specify a different interface on the command line, for example:
+
+$ server.exe 192.168.4.2
+
+$ client.exe 192.168.4.2
+
+By default server listens on port 10001 for binary messages,
+and on port 10002 for SOAP messages. You can specify different
+ports on the command line:
+
+$ server.exe serverhost.xyz.com 11111 11112
+
+$ client.exe serverhost.xyz.com 11111 11112
+
+Under Vista, you must run the server as administrator.
+

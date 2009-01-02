@@ -62,6 +62,7 @@ public:
     bool 
     empty() const
     {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
         return _items.size() == 0;
     }
         

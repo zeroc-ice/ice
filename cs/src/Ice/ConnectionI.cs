@@ -40,7 +40,8 @@ namespace Ice
 
                     //
                     // Use asynchronous I/O. We cannot begin an asynchronous I/O request from
-                    // this thread if a callback is provided, so we queue a work item.
+                    // this thread if a callback is provided, so we queue it on the async IO 
+                    // thread.
                     //
                     if(callback == null)
                     {
@@ -48,8 +49,7 @@ namespace Ice
                     }
                     else
                     {
-                        bool b = System.Threading.ThreadPool.UnsafeQueueUserWorkItem(initializeAsync, null);
-                        Debug.Assert(b);
+                        _instance.asyncIOThread().queue(initializeAsync);
                         _startCallback = callback;
                         return;
                     }
@@ -1301,8 +1301,8 @@ namespace Ice
         private void initializeAsync(object state)
         {
             //
-            // This method is called from the .NET thread pool via QueueUserWorkItem, and as an
-            // asynchronous I/O callback.
+            // This method is called from the async IO thread, and as
+            // an asynchronous I/O callback.
             //
             IAsyncResult result = (IAsyncResult)state;
 
@@ -1371,8 +1371,8 @@ namespace Ice
         private void validateAsync(object state)
         {
             //
-            // This method is called from the .NET thread pool via QueueUserWorkItem, and as an
-            // asynchronous I/O callback.
+            // This method is called from the async IO thread, and as
+            // an asynchronous I/O callback.
             //
             IAsyncResult result = (IAsyncResult)state;
             
@@ -1590,11 +1590,10 @@ namespace Ice
 
             //
             // It is not safe to begin an asynchronous I/O request in this thread: if the
-            // thread terminates, it also terminates the I/O request. Therefore, we must
-            // schedule a work item.
+            // thread terminates, it also terminates the I/O request. Therefore, we call
+            // it from the async IO thread.
             //
-            bool b = System.Threading.ThreadPool.UnsafeQueueUserWorkItem(writeAsync, null);
-            Debug.Assert(b);
+            _instance.asyncIOThread().queue(writeAsync);
             return false;
         }
 
@@ -1676,14 +1675,14 @@ namespace Ice
         private void writeAsync(object state)
         {
             //
-            // This method is called from the .NET thread pool via QueueUserWorkItem, and as an
-            // asynchronous I/O callback.
+            // This method is called from the async IO thread, and as
+            // an asynchronous I/O callback.
             //
             IAsyncResult result = (IAsyncResult)state;
 
             //
-            // This callback is scheduled with the work queue when we need to begin a new asynchronous I/O
-            // operation from a safe thread (i.e., a thread that will not terminate while the I/O request
+            // This callback is scheduled with the async IO thread when we need to begin a new asynchronous 
+            // I/O operation from a safe thread (i.e., a thread that will not terminate while the I/O request
             // is pending). In this case, the argument is null.
             //
             // This callback is also invoked when an I/O request completes, in which case the result
@@ -1953,8 +1952,7 @@ namespace Ice
             //
             // Schedule a work item to start a new read operation from a safe thread.
             //
-            bool b = System.Threading.ThreadPool.UnsafeQueueUserWorkItem(readAsync, null);
-            Debug.Assert(b);
+            _instance.asyncIOThread().queue(readAsync);
         }
 
         private void readAsync(object state)
@@ -1965,8 +1963,7 @@ namespace Ice
             // occurs.
             //
             // Usually this method is invoked as an AsyncCallback, i.e., when an asynchronous I/O
-            // operation completes. It can also be invoked via the QueueUserWorkItem method in the
-            // .NET thread pool.
+            // operation completes. It can also be invoked from the async IO thread.
             //
             // Return immediately if called as the result of a read operation completing synchronously.
             //
@@ -1975,12 +1972,6 @@ namespace Ice
             {
                 return;
             }
-
-            //
-            // The assertion below must be done after the check above as readAsync can also be called
-            // by the Ice thread pool threads if the call to beginRead completes synchronously.
-            //
-            Debug.Assert(Thread.CurrentThread.IsThreadPoolThread); // Must be invoked from a thread pool thread.
 
             try
             {
