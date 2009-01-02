@@ -3,19 +3,11 @@
 import os, sys, shutil, fnmatch, re, glob, getopt
 from stat import *
 
-# **********************************************************************
-#
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
-#
-# **********************************************************************
 def copyright(commentMark, patchIceE):
     result = [ ]
     result.append(commentMark + " **********************************************************************\n")
     result.append(commentMark + "\n")
-    result.append(commentMark + " Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n")
+    result.append(commentMark + " Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.\n")
     result.append(commentMark + "\n")
     if patchIceE == True:
         result.append(commentMark + " This copy of Ice-E is licensed to you under the terms described in the\n")
@@ -27,9 +19,14 @@ def copyright(commentMark, patchIceE):
     result.append(commentMark + " **********************************************************************\n")
     return result
 
+# **********************************************************************
 #
-# Replace one copyright
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
 def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLines):
     oldFile = open(file, "r")
     oldLines = oldFile.readlines()

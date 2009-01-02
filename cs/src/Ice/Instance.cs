@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -232,7 +232,11 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                Debug.Assert(_endpointHostResolver != null);
+                if(_endpointHostResolver == null) // Lazy initialization.
+                {
+                    _endpointHostResolver = new EndpointHostResolver(this);
+                }
+
                 return _endpointHostResolver;
             }
         }
@@ -782,17 +786,6 @@ namespace IceInternal
                     throw ex;
                 }
             
-                try
-                {
-                    _endpointHostResolver = new EndpointHostResolver(this);
-                }
-                catch(System.Exception ex)
-                {
-                    string s = "cannot create thread for endpoint host resolver:\n" + ex;
-                    _initData.logger.error(s);
-                    throw ex;
-                }
-
                 _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
                 string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
