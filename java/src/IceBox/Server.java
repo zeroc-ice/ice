@@ -29,7 +29,7 @@ public final class Server extends Ice.Application
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
         Server server = new Server();
-        server.main("IceBox.Server", args, initData);
+        System.exit(server.main("IceBox.Server", args, initData));
     }
 
     public int
