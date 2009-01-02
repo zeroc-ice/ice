@@ -156,3 +156,10 @@ location of the <prefix>/lib directory with the -L option.
 If you built in 64-bit mode, the libraries are installed in
 <prefix>/lib/pa20_64 and the binaries are installed in 
 <prefix>/bin/pa20_64. No other changes are necessary.
+
+======================================================================
+Usage
+======================================================================
+
+Ice is built with _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED defined;
+therefore all Ice-based programs need to be linked with -lxnet.
