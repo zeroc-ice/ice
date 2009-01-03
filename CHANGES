@@ -31,7 +31,7 @@ Changes since version 3.3.0
 General Changes
 ===============
 
-- Fixed a bug in IceGrid which would cause it to generate incorrect
+- Fixed a bug in IceGrid that would cause it to generate incorrect
   config files for servers whose ice-version was set to a version
   previous to Ice 3.3.0.
 
@@ -41,12 +41,16 @@ General Changes
 
 - Fixed a bug where retried AMI calls could cause the timer thread to
   print an error message if the retry failed and if Ice.RetryIntervals
-  was configured with non zero time intervals.
+  was configured with non-zero time intervals.
+
 
 C++ Changes
 ===========
 
-- Fixed a bug in the IceGrid locator implementation which could cause
+- Fixed a bug in IceSSL where the IceSSL.CheckCertName property did
+  not have any effect.
+
+- Fixed a bug in the IceGrid locator implementation that could cause
   the registry to crash when resolving the endpoints of a replica
   group and if some servers were activating.
 
@@ -55,7 +59,7 @@ C++ Changes
 - Fixed a bug where slice2cpp would generate absolute include paths
   if the command line option "-I." was used.
 
-- Fixed Freeze transactional evictor bug that could cause the
+- Fixed a Freeze transactional evictor bug that could cause the
   transaction of an asynchronous method dispatch to be rolled back if
   rollback on user exception was enabled.
 

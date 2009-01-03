@@ -109,7 +109,7 @@ IceSSL::AcceptorI::accept()
     // SSL handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
     //
-    return new TransceiverI(_instance, ssl, fd, true, true, _adapterName);
+    return new TransceiverI(_instance, ssl, fd, "", true, true, _adapterName);
 }
 
 string
