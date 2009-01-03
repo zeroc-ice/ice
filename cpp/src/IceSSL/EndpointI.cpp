@@ -474,7 +474,7 @@ IceSSL::EndpointI::connectors(const vector<struct sockaddr_storage>& addresses) 
     vector<IceInternal::ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new ConnectorI(_instance, addresses[i], _timeout, _connectionId));
+        connectors.push_back(new ConnectorI(_instance, _host, addresses[i], _timeout, _connectionId));
     }
     return connectors;
 }
