@@ -380,6 +380,12 @@ public class AllTests
                 fact.destroyServer(server);
                 store.Remove(caCert1);
                 comm.destroy();
+
+                //
+                // NOTE: We can't test IceSSL.CheckCertName here because the common name (CN) field of
+                // the server's certificate has the value "Server" and we can't use "Server" as a host
+                // name in an endpoint (it almost certainly wouldn't resolve correctly).
+                //
             }
             Console.Out.WriteLine("ok");
 

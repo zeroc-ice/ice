@@ -105,7 +105,7 @@ namespace IceSSL
                 _logger.trace(_instance.networkTraceCategory(), s);
             }
 
-            return new TransceiverI(_instance, fd, null, true, null, _adapterName);
+            return new TransceiverI(_instance, fd, null, "", true, _adapterName);
         }
 
         public override string ToString()

@@ -348,7 +348,7 @@ namespace IceSSL
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal TransceiverI(Instance instance, Socket fd, IPEndPoint addr, bool connected, string host,
+        internal TransceiverI(Instance instance, Socket fd, IPEndPoint addr, string host, bool connected,
                               string adapterName)
         {
             _instance = instance;

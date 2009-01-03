@@ -430,7 +430,7 @@ namespace IceSSL
             List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
             foreach(IPEndPoint addr in addresses)
             {
-                connectors.Add(new ConnectorI(_instance, addr, _timeout, _connectionId));
+                connectors.Add(new ConnectorI(_instance, _host, addr, _timeout, _connectionId));
             }
             return connectors;
         }
