@@ -511,7 +511,7 @@ final class EndpointI extends IceInternal.EndpointI
         java.util.Iterator<java.net.InetSocketAddress> p = addresses.iterator();
         while(p.hasNext())
         {
-            connectors.add(new ConnectorI(_instance, p.next(), _timeout, _connectionId));
+            connectors.add(new ConnectorI(_instance, _host, p.next(), _timeout, _connectionId));
         }
         return connectors;
     }

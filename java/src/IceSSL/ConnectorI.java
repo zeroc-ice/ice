@@ -79,11 +79,11 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
     //
     // Only for use by EndpointI.
     //
-    ConnectorI(Instance instance, java.net.InetSocketAddress addr, int timeout, String connectionId)
+    ConnectorI(Instance instance, String host, java.net.InetSocketAddress addr, int timeout, String connectionId)
     {
         _instance = instance;
         _logger = instance.communicator().getLogger();
-        _host = addr.getHostName();
+        _host = host;
         _addr = addr;
         _timeout = timeout;
         _connectionId = connectionId;

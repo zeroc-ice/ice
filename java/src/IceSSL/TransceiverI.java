@@ -303,8 +303,8 @@ final class TransceiverI implements IceInternal.Transceiver
         _engine = engine;
         _fd = fd;
         _host = host;
-        _adapterName = adapterName;
         _incoming = incoming;
+        _adapterName = adapterName;
         _state = connected ? StateConnected : StateNeedConnect;
         _logger = instance.communicator().getLogger();
         try
@@ -756,8 +756,8 @@ final class TransceiverI implements IceInternal.Transceiver
     private java.nio.channels.SocketChannel _fd;
     private javax.net.ssl.SSLEngine _engine;
     private String _host;
-    private String _adapterName;
     private boolean _incoming;
+    private String _adapterName;
     private int _state;
     private Ice.Logger _logger;
     private Ice.Stats _stats;

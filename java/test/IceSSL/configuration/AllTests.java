@@ -424,6 +424,39 @@ public class AllTests
             }
             fact.destroyServer(server);
             comm.destroy();
+
+            //
+            // Test IceSSL.CheckCertName. The test certificate for the server contains "server"
+            // and "127.0.0.1" in its subjectAltName, so we only perform this test when the
+            // default host is "127.0.0.1".
+            //
+            if(defaultHost.equals("127.0.0.1"))
+            {
+                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+                initData.properties.setProperty("IceSSL.Password", "password");
+                initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+                initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                comm = Ice.Util.initialize(args, initData);
+
+                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
+                d.put("IceSSL.Password", "password");
+                d.put("IceSSL.Truststore", "cacert1.jks");
+                server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException ex)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                comm.destroy();
+            }
         }
         System.out.println("ok");
 

@@ -77,6 +77,22 @@ C# Changes
   had a value type of Object.
 
 
+Java Changes
+============
+
+- Fixed a discrepancy between the documented behavior of the property
+  IceSSL.CheckCertName and its actual behavior. The documented
+  behavior states that IceSSL compares the host name as it appears in
+  the proxy's endpoint against the server certificate's alternative
+  subject names. The actual behavior in Ice 3.3.0 differed slightly
+  in that the host name may have undergone a translation that could
+  result in IceSSL using a different host name than that of the proxy.
+  For example, the proxy may have contained "127.0.0.1" but IceSSL
+  used "localhost". This could cause the SSL connection attempt to
+  fail if IceSSL.CheckCertName is enabled. IceSSL now uses the host
+  name from the proxy for this validation step.
+
+
 Python Changes
 ==============
 
