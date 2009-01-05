@@ -295,7 +295,7 @@ ifeq ($(installprogram),)
 endif
 
 ifeq ($(mkdir),)
-    mkdir		= mkdir $(1) ; \
+    mkdir		= mkdir $(1) $(2); \
 			  chmod a+rx $(1)
 endif
 
@@ -305,13 +305,13 @@ install-common::
 	@if test ! -d $(prefix) ; \
 	then \
 	    echo "Creating $(prefix)..." ; \
-	    $(call mkdir,$(prefix)) ; \
+	    $(call mkdir,$(prefix), -p) ; \
 	fi
 
 	@if test ! -d $(install_slicedir) ; \
 	then \
 	    echo "Creating $(install_slicedir)..." ; \
-	    $(call mkdir,$(install_slicedir)) ; \
+	    $(call mkdir, $(install_slicedir)) ; \
 	    cd $(top_srcdir)/../slice ; \
 	    for subdir in * ; \
 	    do \
