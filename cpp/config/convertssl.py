@@ -10,7 +10,7 @@
 
 #
 # This script converts an XML configuration file for earlier versions of
-# the IceSSL plugin to the new property format in 3.1.
+# the IceSSL plug-in to the new property format in 3.1.
 #
 # Usage:
 #

@@ -469,7 +469,7 @@ distribution.
 
   hello = (HelloPrx)hello.ice_oneway();
 
-* The IceSSL plugins for Java and .NET now support a password callback
+* The IceSSL plug-ins for Java and .NET now support a password callback
   interface. You can also specify the class name of a certificate
   verifier or password callback via configuration properties.
 
@@ -504,7 +504,7 @@ distribution.
 * It is now possible to use UNC paths on Windows in the configuration
   of Ice services.
 
-* A string converter plugin has been added to Ice for C++, which is
+* A string converter plug-in has been added to Ice for C++, which is
   particularly useful for the scripting language extensions.
 
 * Ice for Python now accepts Unicode objects as arguments to remote

@@ -22,7 +22,7 @@ class Instance
         // 
         // Register the endpoint factory. We have to do this now, rather than
         // in initialize, because the communicator may need to interpret
-        // proxies before the plugin is fully initialized.
+        // proxies before the plug-in is fully initialized.
         //
         _facade.addEndpointFactory(new EndpointFactoryI(this));
     }
@@ -463,7 +463,7 @@ class Instance
         if(_initialized)
         {
             Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-            ex.reason = "IceSSL: plugin is already initialized";
+            ex.reason = "IceSSL: plug-in is already initialized";
             throw ex;
         }
 

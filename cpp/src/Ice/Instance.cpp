@@ -757,7 +757,7 @@ void
 IceInternal::Instance::setStringConverter(const Ice::StringConverterPtr& stringConverter)
 {
     //
-    // No locking, as it can only be called during plugin loading
+    // No locking, as it can only be called during plug-in loading
     //
     _initData.stringConverter = stringConverter;
 }
@@ -766,7 +766,7 @@ void
 IceInternal::Instance::setWstringConverter(const Ice::WstringConverterPtr& wstringConverter)
 {
     //
-    // No locking, as it can only be called during plugin loading
+    // No locking, as it can only be called during plug-in loading
     //
     _initData.wstringConverter = wstringConverter;
 }
@@ -775,7 +775,7 @@ void
 IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
 {
     //
-    // No locking, as it can only be called during plugin loading
+    // No locking, as it can only be called during plug-in loading
     //
     _initData.logger = logger;
 }

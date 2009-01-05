@@ -107,7 +107,7 @@ private:
 
 
 //
-// A special plugin that sets stringConverter and wstringConverter during
+// A special plug-in that sets stringConverter and wstringConverter during
 // construction (when the provided stringConverter resp. wstringConverter
 // are not null). Both initialize and destroy are no-op. See Ice::InitializationData.
 //

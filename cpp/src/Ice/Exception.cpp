@@ -635,7 +635,7 @@ void
 Ice::PluginInitializationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nplugin initialization failed";
+    out << ":\nplug-in initialization failed";
     if(!reason.empty())
     {
         out << ": " << reason;

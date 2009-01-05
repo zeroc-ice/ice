@@ -233,7 +233,7 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
     //
     // Register the endpoint factory. We have to do this now, rather than
     // in initialize, because the communicator may need to interpret
-    // proxies before the plugin is fully initialized.
+    // proxies before the plug-in is fully initialized.
     //
     _facade->addEndpointFactory(new EndpointFactoryI(this));
 
@@ -662,7 +662,7 @@ IceSSL::Instance::context(SSL_CTX* context)
     if(_ctx)
     {
         PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: plugin is already initialized";
+        ex.reason = "IceSSL: plug-in is already initialized";
         throw ex;
     }
 

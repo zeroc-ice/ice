@@ -22,6 +22,6 @@ from scripts import *
 
 #
 # The drive letter needs to be removed on Windows or loading the SSL
-# plugin will not work.
+# plug-in will not work.
 #
 TestUtil.clientServerTest(additionalClientOptions=os.path.splitdrive(os.getcwd())[1])

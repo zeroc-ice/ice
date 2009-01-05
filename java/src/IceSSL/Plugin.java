@@ -13,12 +13,12 @@ public interface Plugin extends Ice.Plugin
 {
     //
     // Establish the SSL context. This must be done before the
-    // plugin is initialized, therefore the application must define
+    // plug-in is initialized, therefore the application must define
     // the property Ice.InitPlugins=0, set the context, and finally
     // invoke initializePlugins on the PluginManager.
     //
     // When the application supplies its own SSL context, the
-    // plugin skips its normal property-based configuration.
+    // plug-in skips its normal property-based configuration.
     // 
     void setContext(javax.net.ssl.SSLContext context);
 
@@ -42,7 +42,7 @@ public interface Plugin extends Ice.Plugin
 
     //
     // Establish the password callback object. This should be
-    // done before the plugin is initialized.
+    // done before the plug-in is initialized.
     //
     void setPasswordCallback(PasswordCallback callback);
 

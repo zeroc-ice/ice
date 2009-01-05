@@ -150,7 +150,7 @@ template<class Y>
 ICE_API Trace& operator<<(Trace&, std::ios_base& (*)(std::ios_base&));
 
 //
-// A special plugin that installs a logger during a communicator's initialization.
+// A special plug-in that installs a logger during a communicator's initialization.
 // Both initialize and destroy are no-op. See Ice::InitializationData.
 //
 

@@ -521,7 +521,7 @@ NodeService::start(int argc, char* argv[])
         catch(const Ice::NotRegisteredException&)
         {
             //
-            // Some plugin removed the Process facet, so we don't replace it.
+            // Some plug-in removed the Process facet, so we don't replace it.
             // (unlikely error though)
             // 
         }

@@ -221,7 +221,7 @@ StringConverterPlugin::destroy()
 }
 
 //
-// The entry point for the "string converter" plugin built-in the Ice library
+// The entry point for the "string converter" plug-in built-in the Ice library
 //
 extern "C"
 {
