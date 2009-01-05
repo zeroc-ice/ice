@@ -232,11 +232,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                if(_endpointHostResolver == null) // Lazy initialization.
-                {
-                    _endpointHostResolver = new EndpointHostResolver(this);
-                }
-
+                Debug.Assert(_endpointHostResolver != null);
                 return _endpointHostResolver;
             }
         }
@@ -786,6 +782,17 @@ namespace IceInternal
                     throw ex;
                 }
             
+                try
+                {
+                    _endpointHostResolver = new EndpointHostResolver(this);
+                }
+                catch(System.Exception ex)
+                {
+                    string s = "cannot create thread for endpoint host resolver:\n" + ex;
+                    _initData.logger.error(s);
+                    throw ex;
+                }
+
                 _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
                 string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
