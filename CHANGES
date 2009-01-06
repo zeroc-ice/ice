@@ -68,6 +68,8 @@ Java Changes
 - Fixed the IceSSL.ConnectionInfo type so that the "incoming" and
   "adapterName" members are public.
 
+- Added applet demo.
+
 
 C# Changes
 ==========
