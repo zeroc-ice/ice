@@ -1,5 +1,7 @@
 This demo presents an unsigned applet that shows how to make
-asynchronous Ice invocations in a graphical application.
+asynchronous Ice invocations in a graphical application. It also
+demonstrates how to configure IceSSL using a resource file as the
+keystore.
 
 The demo includes a start page (hello.html) that you will need to
 publish on a web server. This page assumes that the demo applet is
