@@ -59,6 +59,16 @@ C++ Changes
   incorrectly be sent compressed or not compressed.
 
 
+Java Changes
+============
+
+- Added methods to the IceSSL plug-in to allow keystores, truststores,
+  and RNG seeds to be specified using input streams.
+
+- Fixed the IceSSL.ConnectionInfo type so that the "incoming" and
+  "adapterName" members are public.
+
+
 C# Changes
 ==========
 
