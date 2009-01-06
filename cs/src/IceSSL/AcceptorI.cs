@@ -19,11 +19,6 @@ namespace IceSSL
 
     class AcceptorI : IceInternal.Acceptor
     {
-        public Socket fd()
-        {
-            return _fd;
-        }
-
         public void close()
         {
             Socket fd;

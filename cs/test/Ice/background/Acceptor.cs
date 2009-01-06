@@ -12,11 +12,6 @@ using System.Net.Sockets;
 
 internal class Acceptor : IceInternal.Acceptor
 {
-    public Socket fd()
-    {
-        return _acceptor.fd();
-    }
-
     public void close()
     {
         _acceptor.close();

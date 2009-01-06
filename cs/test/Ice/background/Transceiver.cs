@@ -12,11 +12,6 @@ using System.Net.Sockets;
 
 internal class Transceiver : IceInternal.Transceiver
 {
-    public Socket fd()
-    {
-        return _transceiver.fd();
-    }
-
     public bool restartable()
     {
         return _transceiver.restartable();
