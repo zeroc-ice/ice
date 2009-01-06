@@ -811,7 +811,7 @@ public final class Network
             //
         }
 
-        if(isValidAddr(addr, protocol))
+        if(addr == null || isValidAddr(addr, protocol))
         {
             //
             // Iterate over the network interfaces and pick an IP
