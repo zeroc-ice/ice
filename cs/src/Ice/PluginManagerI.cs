@@ -115,9 +115,12 @@ namespace Ice
             {
                 if(_communicator != null)
                 {
-                    foreach(Plugin plugin in _plugins.Values)
+                    if(_initialized)
                     {
-                        plugin.destroy();
+                        foreach(Plugin plugin in _plugins.Values)
+                        {
+                            plugin.destroy();
+                        }
                     }
                 
                     _communicator = null;

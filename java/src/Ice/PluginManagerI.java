@@ -104,11 +104,14 @@ public final class PluginManagerI implements PluginManager
     {
         if(_communicator != null)
         {
-            java.util.Iterator<Plugin> i = _plugins.values().iterator();
-            while(i.hasNext())
+            if(_initialized)
             {
-                Plugin p = i.next();
-                p.destroy();
+                java.util.Iterator<Plugin> i = _plugins.values().iterator();
+                while(i.hasNext())
+                {
+                    Plugin p = i.next();
+                    p.destroy();
+                }
             }
 
             _communicator = null;
