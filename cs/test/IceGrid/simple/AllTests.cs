@@ -77,6 +77,11 @@ public class AllTests
         test(@base != null);
         Console.Out.WriteLine("ok");
 
+        Console.Out.Write("testing IceGrid.Locator is present... ");
+        IceGrid.LocatorPrx locator = IceGrid.LocatorPrxHelper.uncheckedCast(@base);
+        test(locator != null);
+        Console.Out.WriteLine("ok");
+
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);

@@ -78,6 +78,11 @@ public class AllTests
         test(base != null);
         System.out.println("ok");
 
+        System.out.print("testing IceGrid.Locator is present... ");
+        IceGrid.LocatorPrx locator = IceGrid.LocatorPrxHelper.uncheckedCast(base);
+        test(locator != null);
+        System.out.println("ok");
+
         System.out.print("testing checked cast... ");
         System.out.flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
