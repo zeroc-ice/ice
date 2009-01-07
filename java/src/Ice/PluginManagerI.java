@@ -106,11 +106,21 @@ public final class PluginManagerI implements PluginManager
         {
             if(_initialized)
             {
-                java.util.Iterator<Plugin> i = _plugins.values().iterator();
+                java.util.Iterator<java.util.Map.Entry<String, Plugin> > i = _plugins.entrySet().iterator();
+                java.util.Map.Entry<String, Plugin> entry;
                 while(i.hasNext())
                 {
-                    Plugin p = i.next();
-                    p.destroy();
+                    entry = i.next();
+                    try
+                    {
+                        Plugin p = entry.getValue();
+                        p.destroy();
+                    }
+                    catch(RuntimeException ex)
+                    {
+                        Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in '" + entry.getKey() + "' destruction.\n");
+                        Ice.Util.getProcessLogger().warning("exception: " + ex.toString());
+                    }
                 }
             }
 

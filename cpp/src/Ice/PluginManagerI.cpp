@@ -123,8 +123,34 @@ Ice::PluginManagerI::destroy()
             map<string, PluginPtr>::iterator r;
             for(r = _plugins.begin(); r != _plugins.end(); ++r)
             {
-                r->second->destroy();
-                r->second = 0;
+                try
+                {
+                    r->second->destroy();
+                    r->second = 0;
+                }
+                catch(const std::exception& ex)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
+                    out << "exception: " << ex.what();
+                }
+                catch(const std::string& str)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
+                    out << "exception: " << str;
+                }
+                catch(const char* msg)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
+                    out << "exception: " << msg;
+                }
+                catch(...)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '"    << r->first << "' destruction.";
+                }
             }
         }
         

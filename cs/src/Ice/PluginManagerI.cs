@@ -44,7 +44,7 @@ namespace Ice
                     initializedPlugins.Add(p);
                 }
             }
-            catch(Exception)
+            catch(System.Exception)
             {
                 //
                 // Destroy the plug-ins that have been successfully initialized, in the
@@ -57,7 +57,7 @@ namespace Ice
                     {
                         p.destroy();
                     }
-                    catch(Exception)
+                    catch(System.Exception)
                     {
                         // Ignore.
                     }
@@ -117,9 +117,18 @@ namespace Ice
                 {
                     if(_initialized)
                     {
-                        foreach(Plugin plugin in _plugins.Values)
+                        foreach(DictionaryEntry entry in _plugins)
                         {
-                            plugin.destroy();
+                            try
+                            {
+                                Plugin plugin = (Plugin) entry.Value;
+                                plugin.destroy();
+                            }
+                            catch(System.Exception ex)
+                            {
+                                Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in '" + entry.Key.ToString() + "' destruction.\n");
+                                Ice.Util.getProcessLogger().warning("exception: " + ex.ToString());
+                            }
                         }
                     }
                 
