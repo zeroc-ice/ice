@@ -831,9 +831,17 @@ NodeI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, 
 }
 
 void
-NodeI::destroy()
+NodeI::shutdown()
 {
     IceUtil::Mutex::Lock sync(_serversLock);
+    for(map<string, set<ServerIPtr> >::const_iterator p = _serversByApplication.begin();
+        p != _serversByApplication.end(); ++p)
+    {    
+        for(set<ServerIPtr>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        {
+            (*q)->shutdown();
+        }
+    }
     _serversByApplication.clear();
 }
 

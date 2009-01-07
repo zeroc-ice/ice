@@ -34,40 +34,14 @@ class LocatorI : public Locator, public IceUtil::Mutex
 {
 public:
 
-    class Request : public IceUtil::Mutex, public IceUtil::Shared
+    class Request : public IceUtil::Shared
     {
     public:
 
-        Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool, bool,
-                const LocatorAdapterInfoSeq&, int);
-
-        void execute();
-        void response(const std::string&, const Ice::ObjectPrx&);
-        void activating();
-        void exception(const std::string&, const Ice::Exception&); 
-
-        virtual bool
-        operator<(const Request& r) const
-        {
-            return this < &r;
-        }
-
-    private:
-
-        void requestAdapter(const LocatorAdapterInfo&);
-        void sendResponse();
-
-        const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
-        const LocatorIPtr _locator;
-        const std::string _id;
-        const bool _replicaGroup;
-        const bool _roundRobin;
-        LocatorAdapterInfoSeq _adapters;
-        const TraceLevelsPtr _traceLevels;
-        unsigned int _count;
-        LocatorAdapterInfoSeq::const_iterator _lastAdapter;
-        std::map<std::string, Ice::ObjectPrx> _proxies;
-        std::auto_ptr<Ice::Exception> _exception;
+        virtual void execute() = 0;
+        virtual void activating(const std::string&) = 0;
+        virtual void response(const std::string&, const Ice::ObjectPrx&) = 0;
+        virtual void exception(const std::string&, const Ice::Exception&) = 0; 
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
@@ -87,12 +61,11 @@ public:
     const Ice::CommunicatorPtr& getCommunicator() const;
     const TraceLevelsPtr& getTraceLevels() const;
 
-    bool addPendingRoundRobinRequest(const std::string&, const Ice::AMD_Locator_findAdapterByIdPtr&, bool, bool&);
-    void removePendingRoundRobinRequest(const std::string&, int);
-
     bool getDirectProxy(const LocatorAdapterInfo&, const RequestPtr&);
     void getDirectProxyResponse(const LocatorAdapterInfo&, const Ice::ObjectPrx&);
     void getDirectProxyException(const LocatorAdapterInfo&, const Ice::Exception&);
+
+    void getAdapterInfo(const std::string&, LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
 
 protected:
 
@@ -106,8 +79,6 @@ protected:
     typedef std::map<std::string, PendingRequests> PendingRequestsMap;
     PendingRequestsMap _pendingRequests;
     std::set<std::string> _activating;
-
-    std::map<std::string, std::deque<Ice::AMD_Locator_findAdapterByIdPtr> > _resolves;
 };
 
 }

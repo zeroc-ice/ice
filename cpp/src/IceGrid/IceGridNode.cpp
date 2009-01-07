@@ -718,12 +718,6 @@ NodeService::stop()
     _node->getPlatformInfo().stop();
 
     //
-    // Break cylic reference counts.
-    //
-    _node->destroy();
-    _node = 0;
-
-    //
     // We can now safely shutdown the communicator.
     //
     try
@@ -737,6 +731,12 @@ NodeService::stop()
         ostr << "unexpected exception while shutting down node:\n" << ex;
         warning(ostr.str());
     }
+
+    //
+    // Break cylic reference counts.
+    //
+    _node->shutdown();
+    _node = 0;
 
     //
     // And shutdown the collocated registry.
