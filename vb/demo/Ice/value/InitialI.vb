@@ -10,7 +10,7 @@
 Imports Demo
 
 Public Class InitialI
-    Inherits Initial
+    Inherits InitialDisp_
 
     Public Sub New(ByVal adapter As Ice.ObjectAdapter)
         _simple = New Simple
