@@ -61,7 +61,12 @@
 	  <object identity="${server}" type="Test"/>
 	</adapter>
       </server>
-
+      <server id="invalid-exe-no-oa" exe="./server2">
+        <property name="Ice.Admin.Endpoints" value=""/>
+      </server>
+      <server id="invalid-pwd-no-oa" exe="./server" pwd="bogus">
+        <property name="Ice.Admin.Endpoints" value=""/>
+      </server>
     </node>
 
     <node name="node-1">

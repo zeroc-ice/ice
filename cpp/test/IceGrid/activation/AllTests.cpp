@@ -480,6 +480,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         threads.resize(0);
 
+
+        try
+        {
+            admin->startServer("invalid-pwd-no-oa");
+            test(false);
+        }
+        catch(const IceGrid::ServerStartException& ex)
+        {
+            test(!ex.reason.empty());
+        }
+
+        try
+        {
+            admin->startServer("invalid-exe-no-oa");
+            test(false);
+        }
+        catch(const IceGrid::ServerStartException& ex)
+        {
+            test(!ex.reason.empty());
+        }
     }
     catch(const Ice::LocalException& ex)
     {

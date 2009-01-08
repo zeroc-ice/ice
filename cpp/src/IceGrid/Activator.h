@@ -61,6 +61,10 @@ private:
     void terminationListener();
     void clearInterrupt();
     void setInterrupt();
+    
+#ifndef _WIN32
+    int waitPid(pid_t);
+#endif
 
     struct Process
     {

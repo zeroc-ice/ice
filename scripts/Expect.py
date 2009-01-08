@@ -279,7 +279,7 @@ class Expect (object):
 	if self.p is not None:
 	    self.terminate()
 
-    def expect(self, pattern, timeout = 10):
+    def expect(self, pattern, timeout = 20):
     	"""pattern is either a string, or a list of string regexp patterns.
 
 	   timeout == None expect can block indefinitely.
