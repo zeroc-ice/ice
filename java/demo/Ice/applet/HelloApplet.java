@@ -43,7 +43,27 @@ public class HelloApplet extends JApplet
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.ACM.Client", "10");
+            initData.properties.setProperty("Ice.Trace.Network", "3");
+            initData.properties.setProperty("IceSSL.Trace.Security", "3");
+            initData.properties.setProperty("IceSSL.Password", "password");
+            initData.properties.setProperty("Ice.InitPlugins", "0");
+            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
             _communicator = Ice.Util.initialize(initData);
+
+            //
+            // We delayed the initialization of the IceSSL plug-in by setting Ice.InitPlugins=0.
+            // Now we obtain a reference to the plugin so that we can supply a keystore and
+            // truststore using a resource file.
+            //
+            IceSSL.Plugin plugin = (IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
+            java.io.InputStream certs = getClass().getClassLoader().getResourceAsStream("client.jks");
+            plugin.setKeystoreStream(certs);
+            plugin.setTruststoreStream(certs);
+
+            //
+            // Finally, we're ready to complete the initialization.
+            //
+            _communicator.getPluginManager().initializePlugins();
         }
         catch(Throwable ex)
         {

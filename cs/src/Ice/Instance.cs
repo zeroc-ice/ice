@@ -612,7 +612,7 @@ namespace IceInternal
         setLogger(Ice.Logger logger)
         {
             //
-            // No locking, as it can only be called during plugin loading
+            // No locking, as it can only be called during plug-in loading
             //
             _initData.logger = logger;
         }

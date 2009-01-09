@@ -64,5 +64,23 @@ class PluginI implements Plugin
         return _instance.getPasswordCallback();
     }
 
+    public void
+    setKeystoreStream(java.io.InputStream stream)
+    {
+        _instance.setKeystoreStream(stream);
+    }
+
+    public void
+    setTruststoreStream(java.io.InputStream stream)
+    {
+        _instance.setTruststoreStream(stream);
+    }
+
+    public void
+    addSeedStream(java.io.InputStream stream)
+    {
+        _instance.addSeedStream(stream);
+    }
+
     private Instance _instance;
 }

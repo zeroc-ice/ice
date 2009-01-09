@@ -12,8 +12,8 @@
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.3.0
-INTVERSION		= 3.3.0
+VERSION			= 3.3.1
+INTVERSION		= 3.3.1
 SHORT_VERSION           = 3.3
 SOVERSION		= 33
 

@@ -44,8 +44,8 @@ Changes since version 3.2.0
                base64 encoding.
 
   This syntax is useful if, for example, a client that has the SSL
-  plugin configured sends a proxy with an SSL endpoint to a server
-  without the SSL plugin. Prior to this version, the server would
+  plug-in configured sends a proxy with an SSL endpoint to a server
+  without the SSL plug-in. Prior to this version, the server would
   drop the unknown SSL endpoint when it stringified the proxy.
   As of this version, the server preserves the endpoint and, when the server
   stringifies a proxy containing an unknown endpoint, it uses the above opaque syntax.
@@ -108,8 +108,8 @@ Changes since version 3.1.1
   logger for all communicators that do not have a logger explicitly
   set.
 
-- Fixed a bug in the plugin property parsing code: if the file name of
-  a plugin included a drive letter, the plugin did not load.
+- Fixed a bug in the plug-in property parsing code: if the file name of
+  a plug-in included a drive letter, the plug-in did not load.
 
 - Added support for a user-defined signal handler in Ice.Application.
   A subclass must override the interruptCallback method and invoke
@@ -201,9 +201,9 @@ Changes since version 3.1.1
   NullReferenceException but instead causes an empty sequence to be
   sent.
 
-- Fixed a bug where loading an Ice plugin or an IceBox service could
+- Fixed a bug where loading an Ice plug-in or an IceBox service could
   result in a System.NullReferenceException if no constructors are
-  available to create the plugin or service instance.
+  available to create the plug-in or service instance.
 
 - New Slice metadata for operations:
 
@@ -227,7 +227,7 @@ Changes since version 3.0.1
 
 - Removed removeObjectFactory() from the communicator interface.
 
-- Added an IceSSL plugin for .NET 2.0. See the Ice manual for more
+- Added an IceSSL plug-in for .NET 2.0. See the Ice manual for more
   information.
 
 - ObjectAdapter::deactivate() now notifies the locator registry when

@@ -772,9 +772,7 @@ public final class Network
             //
         }
 
-        if(addr == null ||
-           (addr instanceof java.net.Inet4Address && protocol == EnableIPv6) ||
-           (addr instanceof java.net.Inet6Address && protocol == EnableIPv4))
+        if(addr == null || isValidAddr(addr, protocol))
         {
             //
             // Iterate over the network interfaces and pick an IP
@@ -785,9 +783,7 @@ public final class Network
             while(addr == null && iter.hasNext())
             {
                 java.net.InetAddress a = iter.next();
-                if(protocol == EnableBoth ||
-                   (protocol == EnableIPv4 && a instanceof java.net.Inet4Address) ||
-                   (protocol == EnableIPv6 && a instanceof java.net.Inet6Address))
+                if(protocol == EnableBoth || isValidAddr(a, protocol))
                 {
                     addr = a;
                 }
@@ -822,9 +818,7 @@ public final class Network
 
             for(int i = 0; i < addrs.length; ++i)
             {
-                if(protocol == EnableBoth ||
-                   (protocol == EnableIPv4 && addrs[i] instanceof java.net.Inet4Address) ||
-                   (protocol == EnableIPv6 && addrs[i] instanceof java.net.Inet6Address))
+                if(protocol == EnableBoth || isValidAddr(addrs[i], protocol))
                 {
                     addresses.add(new java.net.InetSocketAddress(addrs[i], port));
                 }
@@ -873,9 +867,7 @@ public final class Network
                     java.net.InetAddress addr = addrs.nextElement();
                     if(!addr.isLoopbackAddress())
                     {
-                        if(protocol == EnableBoth ||
-                           (protocol == EnableIPv4 && addr instanceof java.net.Inet4Address) ||
-                           (protocol == EnableIPv6 && addr instanceof java.net.Inet6Address))
+                        if(protocol == EnableBoth || isValidAddr(addr, protocol))
                         {
                             result.add(addr);
                         }
@@ -1148,6 +1140,20 @@ public final class Network
         return ex instanceof java.io.InterruptedIOException;
     }
 
+    private static boolean
+    isValidAddr(java.net.InetAddress addr, int protocol)
+    {
+	 byte[] bytes = null;
+	 if(addr != null)
+	 {
+	     bytes = addr.getAddress();
+	 }
+	 return bytes != null && 
+	       ((bytes.length == 16 && protocol == EnableIPv6) ||
+	        (bytes.length == 4 && protocol == EnableIPv4));
+    }
+
+
     private static java.net.InetSocketAddress
     getAddressImpl(String host, int port, int protocol, boolean server)
     {
@@ -1172,9 +1178,7 @@ public final class Network
 
             for(int i = 0; i < addrs.length; ++i)
             {
-                if(protocol == EnableBoth ||
-                   (protocol == EnableIPv4 && addrs[i] instanceof java.net.Inet4Address) ||
-                   (protocol == EnableIPv6 && addrs[i] instanceof java.net.Inet6Address))
+                if(protocol == EnableBoth || isValidAddr(addrs[i], protocol))
                 {
                     return new java.net.InetSocketAddress(addrs[i], port);
                 }

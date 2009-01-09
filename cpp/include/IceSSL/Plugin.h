@@ -428,10 +428,10 @@ typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 // so the application can supply an implementation of PasswordPrompt
 // to take responsibility for obtaining the password.
 //
-// Note that the password is needed during plugin initialization, so
+// Note that the password is needed during plug-in initialization, so
 // in general you will need to delay initialization (by defining
 // IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
-// initialize the plugin.
+// initialize the plug-in.
 //
 class PasswordPrompt : public IceUtil::Shared
 {
@@ -452,12 +452,12 @@ public:
 
     //
     // Establish the OpenSSL context. This must be done before the
-    // plugin is initialized, therefore the application must define
+    // plug-in is initialized, therefore the application must define
     // the property Ice.InitPlugins=0, set the context, and finally
     // invoke initializePlugins on the PluginManager.
     //
     // When the application supplies its own OpenSSL context, the
-    // plugin skips its normal property-based configuration.
+    // plug-in skips its normal property-based configuration.
     // 
     virtual void setContext(SSL_CTX*) = 0;
 
@@ -475,7 +475,7 @@ public:
 
     //
     // Establish the password prompt object. This must be done before
-    // the plugin is initialized.
+    // the plug-in is initialized.
     //
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
 };

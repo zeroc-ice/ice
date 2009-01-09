@@ -608,6 +608,15 @@ Activator::activate(const string& name,
         throw ex;
     }
 
+    int errorFds[2];
+    if(pipe(errorFds) != 0)
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
+    }
+    
+
     //
     // Convert to standard argc/argv.
     //
@@ -650,14 +659,14 @@ Activator::activate(const string& name,
         {
             ostringstream os;
             os << gid;
-            reportChildError(getSystemErrno(), fds[1], "cannot set process group id", os.str().c_str());
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process group id", os.str().c_str());
         }           
         
         if(setuid(uid) == -1)
         {
             ostringstream os;
             os << uid;
-            reportChildError(getSystemErrno(), fds[1], "cannot set process user id", os.str().c_str());
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process user id", os.str().c_str());
         }
 
         //
@@ -673,7 +682,7 @@ Activator::activate(const string& name,
         int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
         for(int fd = 3; fd < maxFd; ++fd)
         {
-            if(fd != fds[1])
+            if(fd != fds[1] && fd != errorFds[1])
             {
                 close(fd);
             }
@@ -686,7 +695,7 @@ Activator::activate(const string& name,
             //
             if(putenv(strdup(env.argv[i])) != 0)
             {
-                reportChildError(errno, fds[1], "cannot set environment variable",  env.argv[i]); 
+                reportChildError(errno, errorFds[1], "cannot set environment variable",  env.argv[i]); 
             }
         }
 
@@ -697,18 +706,65 @@ Activator::activate(const string& name,
         {
             if(chdir(pwdCStr) == -1)
             {
-                reportChildError(errno, fds[1], "cannot change working directory to",  pwdCStr);
+                reportChildError(errno, errorFds[1], "cannot change working directory to",  pwdCStr);
             }
+        }
+
+        //
+        // Close on exec the error message file descriptor.
+        //
+        int flags = fcntl(errorFds[1], F_GETFD);
+        flags |= 1; // FD_CLOEXEC
+        if(fcntl(errorFds[1], F_SETFD, flags) == -1)
+        {
+            close(errorFds[1]);
+            errorFds[1] = -1;
         }
 
         if(execvp(av.argv[0], av.argv) == -1)
         {
-            reportChildError(errno, fds[1], "cannot execute",  av.argv[0]);
+            if(errorFds[1] != -1)
+            {
+                reportChildError(errno, errorFds[1], "cannot execute",  av.argv[0]);
+            }
+            else
+            {
+                reportChildError(errno, fds[1], "cannot execute",  av.argv[0]);
+            }
         }
     }
     else // Parent process.
     {
         close(fds[1]);
+        close(errorFds[1]);
+
+        //
+        // Read a potential error message over the error message pipe.
+        //
+        char s[16];
+        ssize_t rs;
+        string message;
+        while((rs = read(errorFds[0], &s, 16)) > 0)
+        {
+            message.append(s, rs);
+        }
+
+        //
+        // If an error occured before the exec() we do some cleanup and throw.
+        //
+        if(!message.empty())
+        {
+            close(fds[0]);
+            close(errorFds[0]);            
+            waitPid(pid);
+            throw message;
+        }
+
+        //
+        // Otherwise, the exec() was successfull and we don't need the error message
+        // pipe anymore.
+        //
+        close(errorFds[0]);
 
         Process process;
         process.pid = pid;
@@ -1250,45 +1306,7 @@ Activator::terminationListener()
         
         for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
         {
-            int status;
-#if defined(__linux)
-            int nRetry = 0;
-            while(true) // The while loop is necessary for the linux workaround.
-            {
-                pid_t pid = waitpid(p->pid, &status, 0);
-                if(pid < 0)
-                {
-                    //
-                    // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't 
-                    // block and reports an incorrect ECHILD error on the first call. We sleep a 
-                    // little and retry to work around this issue (it appears from testing that a
-                    // single retry is enough but to make sure we retry up to 10 times before to throw.)
-                    //
-                    if(errno == ECHILD && nRetry < 10)
-                    {
-                        // Wait 1ms, 11ms, 21ms, etc.
-                        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1)); 
-                        ++nRetry;
-                        continue;
-                    }
-                    SyscallException ex(__FILE__, __LINE__);
-                    ex.error = getSystemErrno();
-                    throw ex;
-                }
-                assert(pid == p->pid);
-                break;
-            }
-#else
-            pid_t pid = waitpid(p->pid, &status, 0);
-            if(pid < 0)
-            {
-                SyscallException ex(__FILE__, __LINE__);
-                ex.error = getSystemErrno();
-                throw ex;
-            }
-            assert(pid == p->pid);
-#endif
-
+            int status = waitPid(p->pid);
             if(_traceLevels->activator > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
@@ -1348,3 +1366,49 @@ Activator::setInterrupt()
     write(_fdIntrWrite, &c, 1);
 #endif
 }
+
+#ifndef _WIN32
+int
+Activator::waitPid(pid_t processPid)
+{
+    int status;
+#if defined(__linux)
+    int nRetry = 0;
+    while(true) // The while loop is necessary for the linux workaround.
+    {
+        pid_t pid = waitpid(processPid, &status, 0);
+        if(pid < 0)
+        {
+            //
+            // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't 
+            // block and reports an incorrect ECHILD error on the first call. We sleep a 
+            // little and retry to work around this issue (it appears from testing that a
+            // single retry is enough but to make sure we retry up to 10 times before to throw.)
+            //
+            if(errno == ECHILD && nRetry < 10)
+            {
+                // Wait 1ms, 11ms, 21ms, etc.
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1)); 
+                ++nRetry;
+                continue;
+            }
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+        assert(pid == processPid);
+        break;
+    }
+#else
+    pid_t pid = waitpid(processPid, &status, 0);
+    if(pid < 0)
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
+    }
+    assert(pid == processPid);
+#endif
+    return status;
+}
+#endif

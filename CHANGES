@@ -67,6 +67,18 @@ C++ Changes
   incorrectly be sent compressed or not compressed.
 
 
+Java Changes
+============
+
+- Added methods to the IceSSL plug-in to allow keystores, truststores,
+  and RNG seeds to be specified using input streams.
+
+- Fixed the IceSSL.ConnectionInfo type so that the "incoming" and
+  "adapterName" members are public.
+
+- Added applet demo.
+
+
 C# Changes
 ==========
 
@@ -465,7 +477,7 @@ noted.
 
 - The ability to install a logger via the Ice.LoggerPlugin property
   has been removed. The new mechanism requires that you create an
-  instance of the Ice::LoggerPlugin class in your plugin factory.
+  instance of the Ice::LoggerPlugin class in your plug-in factory.
   Please see the manual for more details.
 
 - It is no longer possible to provide input files on the command line
@@ -502,7 +514,7 @@ C++ Changes
   custom string converter and/or wstring converter during communicator
   initialization.
 
-- The Ice shared library now provides a string converter plugin
+- The Ice shared library now provides a string converter plug-in
   factory: createStringConverter. See the Ice manual for details.
 
 - IceUtil::stringToWstring and IceUtil::wstringToString now take
@@ -795,7 +807,7 @@ Python Changes
   8-bit strings.
 
 - Added new Ice/converter demo to illustrate how to use the new Ice
-  for C++ string converter plugin. This demo is very similar to the
+  for C++ string converter plug-in. This demo is very similar to the
   C++ demo.
 
 - Fixed a deadlock bug that could occur when a multithreaded client

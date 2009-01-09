@@ -303,12 +303,12 @@ namespace Ice
 
         public static string stringVersion()
         {
-            return "3.3.0"; // "A.B.C", with A=major, B=minor, C=patch
+            return "3.3.1"; // "A.B.C", with A=major, B=minor, C=patch
         }
 
         public static int intVersion()
         {
-            return 30300; // AABBCC, with AA=major, BB=minor, CC=patch
+            return 30301; // AABBCC, with AA=major, BB=minor, CC=patch
         }
 
         private static object _processLoggerMutex = new object();

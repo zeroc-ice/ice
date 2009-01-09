@@ -19,11 +19,6 @@ namespace IceSSL
 
     class AcceptorI : IceInternal.Acceptor
     {
-        public Socket fd()
-        {
-            return _fd;
-        }
-
         public void close()
         {
             Socket fd;
@@ -65,12 +60,12 @@ namespace IceSSL
         public IAsyncResult beginAccept(AsyncCallback callback, object state)
         {
             //
-            // The plugin may not be fully initialized.
+            // The plug-in may not be fully initialized.
             //
             if(!_instance.initialized())
             {
                 Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: plugin is not initialized";
+                ex.reason = "IceSSL: plug-in is not initialized";
                 throw ex;
             }
 

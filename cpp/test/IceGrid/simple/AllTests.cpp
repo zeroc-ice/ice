@@ -11,6 +11,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Registry.h>
+#include <IceGrid/Locator.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -72,6 +73,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing stringToProxy... " << flush;
     Ice::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
     test(base);
+    cout << "ok" << endl;
+
+    cout << "testing IceGrid.Locator is present... " << flush;
+    IceGrid::LocatorPrx locator = IceGrid::LocatorPrx::uncheckedCast(base);
+    test(locator);
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;

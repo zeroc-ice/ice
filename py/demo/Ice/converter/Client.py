@@ -97,7 +97,7 @@ try:
     communicator1 = Ice.initialize(sys.argv, initData)
 
     #
-    # Clear plugin, so no converter
+    # Clear plug-in, so no converter
     #
     initData.properties.setProperty("Ice.Plugin.StringConverter", "")
     communicator2 = Ice.initialize(sys.argv, initData)

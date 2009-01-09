@@ -19,7 +19,7 @@ using namespace Ice;
 using namespace IceSSL;
 
 //
-// Plugin factory function.
+// Plug-in factory function.
 //
 extern "C"
 {

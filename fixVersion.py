@@ -54,6 +54,11 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", 
                       FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + \
                       "." + FixUtil.patchVersion(version))])
 
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "build.properties"),
+                    [("ice\.version[\t\s]*= " + FixUtil.vpatMatch, version)])
+
+for f in FixUtil.find(os.path.join(ice_dir, "distribution", "bin"), "*.py"):
+    FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= '" + FixUtil.vpatMatch, version)])
 #
 # Fix version in C++ sources
 #
@@ -68,6 +73,9 @@ if ice_home:
 
     FixUtil.fileMatchAndReplace(os.path.join(ice_home, "doc", "swish", "swish.conf"),
                         [("doc/Ice-" + FixUtil.vpatMatch, version)])
+
+    FixUtil.fileMatchAndReplace(os.path.join(ice_home, "doc", "swish", "swishcgi.conf"),
+                        [("ice_version[\t\s]*= '" + FixUtil.vpatMatch, version)])
 
     FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "clock", "config.icebox"),
                         [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
@@ -88,9 +96,6 @@ if ice_home:
     FixUtil.fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
                         [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
-    FixUtil.fileMatchAndReplace(os.path.join(ice_home, "test", "IceStorm", "repgrid", "application.xml"),
-                        [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
-
     for f in FixUtil.find(os.path.join(ice_home, "src"), "*.rc"):
         FixUtil.fileMatchAndReplace(f, [("\"FileVersion\", \"" + FixUtil.vpatMatch, version), \
                                 ("\"ProductVersion\", \"" + FixUtil.vpatMatch, version), \
@@ -107,6 +112,9 @@ if icej_home:
     FixUtil.fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
                         [("ice\.version[\t\s]*= " + FixUtil.vpatMatch, version)])
      
+    FixUtil.fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
+                        [("C:/Ice-" + FixUtil.vpatMatch, version)])
+
     FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
                         [("ICE_STRING_VERSION = \"" + FixUtil.vpatMatch +"\"", version), \
                          ("ICE_INT_VERSION = ([0-9]*)", FixUtil.intVersion(version))])
@@ -180,10 +188,6 @@ if icepy_home:
     FixUtil.fileMatchAndReplace(os.path.join(icepy_home, "demo", "IceStorm", "clock", "config.icebox"),
                         [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
-    FixUtil.fileMatchAndReplace(os.path.join(icepy_home, "demo", "Ice", "bidir", "Server.py"),
-                        [("Ice-" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(os.path.join(icepy_home, "demo", "Ice", "bidir", "Client.py"),
-                        [("Ice-" + FixUtil.vpatMatch, version)])
 #
 # Fix version in IceRuby
 #

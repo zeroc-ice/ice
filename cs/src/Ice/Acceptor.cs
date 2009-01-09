@@ -15,7 +15,6 @@ namespace IceInternal
 
     public interface Acceptor
     {
-        Socket fd();
         void close();
         void listen();
         IAsyncResult beginAccept(AsyncCallback callback, object state);

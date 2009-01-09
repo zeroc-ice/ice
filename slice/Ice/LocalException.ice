@@ -897,7 +897,7 @@ local exception FeatureNotSupportedException
 /**
  *
  * This exception indicates a failure in a security subsystem,
- * such as the IceSSL plugin.
+ * such as the IceSSL plug-in.
  *
  **/
 local exception SecurityException

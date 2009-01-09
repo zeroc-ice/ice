@@ -42,11 +42,11 @@ public class ConnectionInfo
     // If the connection is incoming this bool is true, false
     // otherwise.
     //
-    boolean incoming;
+    public boolean incoming;
 
     //
     // The name of the object adapter that hosts this endpoint, if
     // any.
     //
-    String adapterName;
+    public String adapterName;
 }

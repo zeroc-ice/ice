@@ -231,7 +231,7 @@ ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 
 void
 ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup, 
-                                          bool& roundRobin)
+                                          bool& roundRobin, const set<string>&)
 {
     nReplicas = 1;
     replicaGroup = false;
@@ -240,11 +240,6 @@ ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& 
     info.id = _id;
     info.proxy = _server->getAdapter(info.activationTimeout, info.deactivationTimeout, _id, true);
     adapters.push_back(info);
-}
-
-void
-ServerAdapterEntry::increaseRoundRobinCount(int roundRobinCount)
-{
 }
 
 float
@@ -383,7 +378,7 @@ ReplicaGroupEntry::update(const LoadBalancingPolicyPtr& policy)
 
 void
 ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup,
-                                         bool& roundRobin)
+                                         bool& roundRobin, const set<string>& excludes)
 {
     vector<ServerAdapterEntryPtr> replicas;
     bool adaptive = false;
@@ -453,30 +448,26 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
     //
     for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
-        try
+        if(!roundRobin || excludes.find((*p)->getId()) == excludes.end())
         {
-            int dummy;
-            bool dummy2;
-            bool dummy3;
-            (*p)->getLocatorAdapterInfo(adapters, dummy, dummy2, dummy3);
-        }
-        catch(const AdapterNotExistException&)
-        {
-        }
-        catch(const NodeUnreachableException&)
-        {
-        }
-        catch(const DeploymentException&)
-        {
+            try
+            {
+                int dummy;
+                bool dummy2;
+                bool dummy3;
+                (*p)->getLocatorAdapterInfo(adapters, dummy, dummy2, dummy3, set<string>());
+            }
+            catch(const AdapterNotExistException&)
+            {
+            }
+            catch(const NodeUnreachableException&)
+            {
+            }
+            catch(const DeploymentException&)
+            {
+            }
         }
     }
-}
-
-void
-ReplicaGroupEntry::increaseRoundRobinCount(int count)
-{
-    Lock sync(*this);
-    _lastReplica = (_lastReplica + count) % static_cast<int>(_replicas.size());
 }
 
 float

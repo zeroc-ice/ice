@@ -9,6 +9,12 @@
 
 package IceSSL;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import Ice.Logger;
+
 class Instance
 {
     Instance(Ice.Communicator communicator)
@@ -19,10 +25,10 @@ class Instance
         _securityTraceCategory = "Security";
         _trustManager = new TrustManager(communicator);
 
-        // 
+        //
         // Register the endpoint factory. We have to do this now, rather than
         // in initialize, because the communicator may need to interpret
-        // proxies before the plugin is fully initialized.
+        // proxies before the plug-in is fully initialized.
         //
         _facade.addEndpointFactory(new EndpointFactoryI(this));
     }
@@ -31,7 +37,7 @@ class Instance
     initialize()
     {
         if(_initialized)
-        {   
+        {
             return;
         }
 
@@ -89,12 +95,12 @@ class Instance
         //
         _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
 
-        //  
+        //
         // Check for a certificate verifier.
-        //      
+        //
         final String certVerifierClass = properties.getProperty(prefix + "CertVerifier");
         if(certVerifierClass.length() > 0)
-        {   
+        {
             if(_verifier != null)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
@@ -200,8 +206,6 @@ class Instance
                 final String seedFiles = properties.getProperty(prefix + "Random");
                 if(seedFiles.length() > 0)
                 {
-                    byte[] seed = null;
-                    int start = 0;
                     final String[] arr = seedFiles.split(java.io.File.pathSeparator);
                     for(int i = 0; i < arr.length; ++i)
                     {
@@ -213,23 +217,9 @@ class Instance
                             throw e;
                         }
                         java.io.File f = new java.io.File(seedFile.value);
-                        int num = (int)f.length();
-                        if(seed == null)
-                        {
-                            seed = new byte[num];
-                        }
-                        else
-                        {
-                            byte[] tmp = new byte[seed.length + num];
-                            System.arraycopy(seed, 0, tmp, 0, seed.length);
-                            start = seed.length;
-                            seed = tmp;
-                        }
                         try
                         {
-                            java.io.FileInputStream in = new java.io.FileInputStream(f);
-                            in.read(seed, start, num);
-                            in.close();
+                            _seeds.add(new java.io.FileInputStream(f));
                         }
                         catch(java.io.IOException ex)
                         {
@@ -239,8 +229,42 @@ class Instance
                             throw e;
                         }
                     }
+                }
+
+                if(!_seeds.isEmpty())
+                {
+                    byte[] seed = null;
+                    int start = 0;
+                    for(java.util.Iterator<InputStream> p = _seeds.iterator(); p.hasNext();)
+                    {
+                        InputStream in = p.next();
+                        try
+                        {
+                            int num = in.available();
+                            if(seed == null)
+                            {
+                                seed = new byte[num];
+                            }
+                            else
+                            {
+                                byte[] tmp = new byte[seed.length + num];
+                                System.arraycopy(seed, 0, tmp, 0, seed.length);
+                                start = seed.length;
+                                seed = tmp;
+                            }
+                            in.read(seed, start, num);
+                        }
+                        catch(java.io.IOException ex)
+                        {
+                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                            e.reason = "IceSSL: error while reading random seed";
+                            e.initCause(ex);
+                            throw e;
+                        }
+                    }
                     rand.setSeed(seed);
                 }
+                _seeds.clear();
 
                 //
                 // We call nextInt() in order to force the object to perform any time-consuming
@@ -264,7 +288,8 @@ class Instance
                 String keystorePassword = properties.getProperty(prefix + "KeystorePassword");
 
                 //
-                // The default keystore type value is "JKS", but it can also be "PKCS12".
+                // The default keystore type is usually "JKS", but the legal values are determined
+                // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
                 //
                 final String defaultType = java.security.KeyStore.getDefaultType();
                 final String keystoreType = properties.getPropertyWithDefault(prefix + "KeystoreType", defaultType);
@@ -285,7 +310,8 @@ class Instance
                 String truststorePassword = properties.getProperty(prefix + "TruststorePassword");
 
                 //
-                // The truststore type defaults to "JKS", but it can also be "PKCS12".
+                // The default truststore type is usually "JKS", but the legal values are determined
+                // by the JVM implementation. Other possibilities include "PKCS12" and "BKS".
                 //
                 final String truststoreType =
                     properties.getPropertyWithDefault(prefix + "TruststoreType",
@@ -295,15 +321,16 @@ class Instance
                 // Collect the key managers.
                 //
                 javax.net.ssl.KeyManager[] keyManagers = null;
-                if(keystorePath.value.length() > 0)
+                java.security.KeyStore keys = null;
+                if(_keystoreStream != null || keystorePath.value.length() > 0)
                 {
-                    if(!checkPath(keystorePath, false))
+                    if(_keystoreStream == null && !checkPath(keystorePath, false))
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: keystore file not found:\n" + keystorePath.value;
                         throw e;
                     }
-                    java.security.KeyStore keys = java.security.KeyStore.getInstance(keystoreType);
+                    keys = java.security.KeyStore.getInstance(keystoreType);
                     try
                     {
                         char[] passwordChars = null;
@@ -315,9 +342,21 @@ class Instance
                         {
                             passwordChars = _passwordCallback.getKeystorePassword();
                         }
+                        else if(keystoreType.equals("BKS"))
+                        {
+                            // Bouncy Castle does not permit null passwords.
+                            passwordChars = new char[0];
+                        }
 
-                        java.io.BufferedInputStream bis =
-                            new java.io.BufferedInputStream(new java.io.FileInputStream(keystorePath.value));
+                        java.io.InputStream bis;
+                        if(_keystoreStream != null)
+                        {
+                            bis = _keystoreStream;
+                        }
+                        else
+                        {
+                            bis = new java.io.BufferedInputStream(new java.io.FileInputStream(keystorePath.value));
+                        }
                         keys.load(bis, passwordChars);
 
                         if(passwordChars != null)
@@ -337,7 +376,7 @@ class Instance
                     String algorithm = javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm();
                     javax.net.ssl.KeyManagerFactory kmf = javax.net.ssl.KeyManagerFactory.getInstance(algorithm);
                     char[] passwordChars = new char[0]; // This password cannot be null.
-                    if(password.length() > 0) 
+                    if(password.length() > 0)
                     {
                         passwordChars = password.toCharArray();
                     }
@@ -377,43 +416,71 @@ class Instance
                 // Collect the trust managers.
                 //
                 javax.net.ssl.TrustManager[] trustManagers = null;
-                if(truststorePath.value.length() > 0)
+                if(_truststoreStream != null || truststorePath.value.length() > 0)
                 {
-                    if(!checkPath(truststorePath, false))
+                    if(_truststoreStream == null && !checkPath(truststorePath, false))
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: truststore file not found:\n" + truststorePath.value;
                         throw e;
                     }
-                    java.security.KeyStore ts = java.security.KeyStore.getInstance(truststoreType);
-                    try
+
+                    //
+                    // If the trust store and the key store are the same input
+                    // stream or file, don't create another key store.
+                    //
+                    java.security.KeyStore ts;
+                    if((_truststoreStream != null && _truststoreStream == _keystoreStream) ||
+                       (truststorePath.value.length() > 0 && truststorePath.value.equals(keystorePath.value)))
                     {
-                        char[] passwordChars = null;
-                        if(truststorePassword.length() > 0)
-                        {
-                            passwordChars = truststorePassword.toCharArray();
-                        }
-                        else if(_passwordCallback != null)
-                        {
-                            passwordChars = _passwordCallback.getTruststorePassword();
-                        }
-
-                        java.io.BufferedInputStream bis =
-                            new java.io.BufferedInputStream(new java.io.FileInputStream(truststorePath.value));
-                        ts.load(bis, passwordChars);
-
-                        if(passwordChars != null)
-                        {
-                            java.util.Arrays.fill(passwordChars, '\0');
-                        }
-                        truststorePassword = null;
+                        assert keys != null;
+                        ts = keys;
                     }
-                    catch(java.io.IOException ex)
+                    else
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: unable to load truststore:\n" + truststorePath.value;
-                        e.initCause(ex);
-                        throw e;
+                        ts = java.security.KeyStore.getInstance(truststoreType);
+                        try
+                        {
+                            char[] passwordChars = null;
+                            if(truststorePassword.length() > 0)
+                            {
+                                passwordChars = truststorePassword.toCharArray();
+                            }
+                            else if(_passwordCallback != null)
+                            {
+                                passwordChars = _passwordCallback.getTruststorePassword();
+                            }
+                            else if(truststoreType.equals("BKS"))
+                            {
+                                // Bouncy Castle does not permit null passwords.
+                                passwordChars = new char[0];
+                            }
+
+                            java.io.InputStream bis;
+                            if(_truststoreStream != null)
+                            {
+                                bis = _truststoreStream;
+                            }
+                            else
+                            {
+                                bis = new java.io.BufferedInputStream(
+                                    new java.io.FileInputStream(truststorePath.value));
+                            }
+                            ts.load(bis, passwordChars);
+
+                            if(passwordChars != null)
+                            {
+                                java.util.Arrays.fill(passwordChars, '\0');
+                            }
+                            truststorePassword = null;
+                        }
+                        catch(java.io.IOException ex)
+                        {
+                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                            e.reason = "IceSSL: unable to load truststore:\n" + truststorePath.value;
+                            e.initCause(ex);
+                            throw e;
+                        }
                     }
 
                     String algorithm = javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm();
@@ -442,7 +509,7 @@ class Instance
                 //
                 // Initialize the SSL context.
                 //
-                _context = javax.net.ssl.SSLContext.getInstance("SSL");
+                _context = javax.net.ssl.SSLContext.getInstance("TLS");
                 _context.init(keyManagers, trustManagers, rand);
             }
             catch(java.security.GeneralSecurityException ex)
@@ -454,6 +521,13 @@ class Instance
             }
         }
 
+        //
+        // Clear cached input streams.
+        //
+        _seeds.clear();
+        _keystoreStream = null;
+        _truststoreStream = null;
+
         _initialized = true;
     }
 
@@ -463,7 +537,7 @@ class Instance
         if(_initialized)
         {
             Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-            ex.reason = "IceSSL: plugin is already initialized";
+            ex.reason = "IceSSL: plug-in is already initialized";
             throw ex;
         }
 
@@ -498,6 +572,38 @@ class Instance
     getPasswordCallback()
     {
         return _passwordCallback;
+    }
+
+    void
+    setKeystoreStream(java.io.InputStream stream)
+    {
+        if(_initialized)
+        {
+            Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+            ex.reason = "IceSSL: plugin is already initialized";
+            throw ex;
+        }
+
+        _keystoreStream = stream;
+    }
+
+    void
+    setTruststoreStream(java.io.InputStream stream)
+    {
+        if(_initialized)
+        {
+            Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+            ex.reason = "IceSSL: plugin is already initialized";
+            throw ex;
+        }
+
+        _truststoreStream = stream;
+    }
+
+    void
+    addSeedStream(java.io.InputStream stream)
+    {
+        _seeds.add(stream);
     }
 
     Ice.Communicator
@@ -713,7 +819,6 @@ class Instance
         return _protocols;
     }
 
-    // TODO: Remove
     void
     traceConnection(java.nio.channels.SocketChannel fd, javax.net.ssl.SSLEngine engine, boolean incoming)
     {
@@ -861,12 +966,12 @@ class Instance
         {
             String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
                 IceInternal.Network.fdToString(fd);
-            
+
             if(_securityTraceLevel > 0)
             {
                 _logger.trace(_securityTraceCategory, msg);
             }
-            
+
             Ice.SecurityException ex = new Ice.SecurityException();
             ex.reason = msg;
             throw ex;
@@ -1004,4 +1109,8 @@ class Instance
     private CertificateVerifier _verifier;
     private PasswordCallback _passwordCallback;
     private TrustManager _trustManager;
+
+    private InputStream _keystoreStream;
+    private InputStream _truststoreStream;
+    private List<InputStream> _seeds = new ArrayList<InputStream>();
 }

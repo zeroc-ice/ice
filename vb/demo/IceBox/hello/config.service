@@ -29,7 +29,7 @@ Ice.Warn.Connections=1
 #Ice.Trace.Protocol=1
 
 #
-# SSL plugin configuration
+# SSL plug-in configuration
 #
 Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs

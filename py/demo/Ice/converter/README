@@ -1,4 +1,4 @@
-This demo illustrates how to use a string converter plugin with Ice
+This demo illustrates how to use a string converter plug-in with Ice
 for Python. In this demo, the client represents an application that
 uses ISO-Latin-1 as its character set, while the server uses UTF-8.
 

@@ -961,7 +961,7 @@ IceBox::ServiceManagerI::createCommunicator(const string& service, Ice::StringSe
 
     //
     // Remaining command line options are passed to the communicator. This is 
-    // necessary for Ice plugin properties (e.g.: IceSSL).
+    // necessary for Ice plug-in properties (e.g.: IceSSL).
     //
     InitializationData initData;
     initData.properties = properties;

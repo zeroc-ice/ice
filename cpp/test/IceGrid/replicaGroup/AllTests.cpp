@@ -230,17 +230,73 @@ allTests(const Ice::CommunicatorPtr& comm)
         params["id"] = "Server3";
         instantiateServer(admin, "Server", "localnode", params);
         TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
         try
         {
             test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
             test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
             test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");        
+
+            admin->enableServer("Server1", false);
+            admin->enableServer("Server2", false);
+            admin->enableServer("Server3", false);
+
+            try
+            {
+                obj->getReplicaId();
+                test(false);
+            }
+            catch(const Ice::NoEndpointException&)
+            {
+            }
+
+            admin->enableServer("Server1", true);
+            admin->enableServer("Server2", true);
+            admin->enableServer("Server3", true);
+
+            set<string> adapterIds;
+            string previousId;
+            while(adapterIds.size() != 3)
+            {
+                string id = obj->getReplicaId();
+                adapterIds.insert(id);
+
+                if(adapterIds.size() == 1)
+                {
+                    previousId = id;
+                }
+                else
+                {
+                    test(previousId != id);
+                    previousId = id;
+                }
+            }
+            
+            int i;
+            for(i = 0; i < 3; i++)
+            {
+                if(obj->getReplicaId() == "Server3.ReplicatedAdapter")
+                {
+                    break;
+                }
+            }
+            test(i != 3);
+
+            test(obj->getReplicaId() == "Server1.ReplicatedAdapter");
+            test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
+            test(obj->getReplicaId() == "Server3.ReplicatedAdapter");
+
+            test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
+            test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+            test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");
         }
         catch(const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
         }
+
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
         removeServer(admin, "Server3");
@@ -344,6 +400,42 @@ allTests(const Ice::CommunicatorPtr& comm)
                 test(false);
             }
         }
+        
+        admin->stopServer("Server1");
+        admin->stopServer("Server2");
+        admin->stopServer("Server3");
+
+        admin->enableServer("Server1", false);
+        admin->enableServer("Server2", false);
+        admin->enableServer("Server3", false);
+
+        try
+        {
+            obj->getReplicaId();
+            test(false);
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+        
+        admin->enableServer("Server1", true);
+        admin->enableServer("Server2", true);
+        admin->enableServer("Server3", true);
+
+        replicaIds = serverReplicaIds;
+        while(!replicaIds.empty())
+        {
+            try
+            {
+                replicaIds.erase(obj->getReplicaIdAndShutdown());
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
+
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
         removeServer(admin, "Server3");
@@ -489,6 +581,18 @@ allTests(const Ice::CommunicatorPtr& comm)
                 test(expected.find(replicaId) != expected.end());
                 replicaIds.erase(replicaId);
             }
+
+            admin->stopServer("Server1");
+            admin->stopServer("Server2");
+            admin->stopServer("Server3");
+
+            obj->ice_locatorCacheTimeout(0)->ice_ping();
+            int nRetry = 500; 
+            while(replicaIds.size() != 2 && --nRetry > 0)
+            {
+                replicaIds.insert(obj->getReplicaId());
+            }
+            test(replicaIds.size() == 2);
         }
         catch(const Ice::LocalException& ex)
         {

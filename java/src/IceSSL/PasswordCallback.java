@@ -10,7 +10,7 @@
 package IceSSL;
 
 //
-// A password callback is an alternate way of supplying the plugin with
+// A password callback is an alternate way of supplying the plug-in with
 // passwords that avoids using plaintext configuration properties.
 //
 public interface PasswordCallback

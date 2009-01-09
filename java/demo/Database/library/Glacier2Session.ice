@@ -1,6 +1,10 @@
 // **********************************************************************
 //
+<<<<<<< HEAD:java/demo/Database/library/Glacier2Session.ice
 // Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
+=======
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+>>>>>>> origin/R3_3_branch:java/demo/Database/library/Glacier2Session.ice
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.

@@ -40,7 +40,7 @@ public class Client
             initData.properties.setProperty("Ice.Warn.Connections", "0");
 
             //
-            // Setup the test transport plugin.
+            // Setup the test transport plug-in.
             //
             initData.properties.setProperty("Ice.Plugin.Test", "PluginFactory");
             String defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");

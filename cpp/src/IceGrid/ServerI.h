@@ -109,6 +109,7 @@ public:
     void update();
     void destroy();
     void terminated(const std::string&, int);
+    void shutdown();
 
     //
     // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation

@@ -18,12 +18,6 @@ namespace IceInternal
 
     sealed class TcpTransceiver : Transceiver
     {
-        public Socket fd()
-        {
-            Debug.Assert(_fd != null);
-            return _fd;
-        }
-
         public bool restartable()
         {
             return true;

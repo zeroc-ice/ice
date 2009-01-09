@@ -17,11 +17,6 @@ namespace IceInternal
 
     class TcpAcceptor : Acceptor
     {
-        public virtual Socket fd()
-        {
-            return _fd;
-        }
-
         public virtual void close()
         {
             Socket fd;

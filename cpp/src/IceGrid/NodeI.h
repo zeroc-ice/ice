@@ -92,7 +92,7 @@ public:
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
     virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
-    void destroy();
+    void shutdown();
     
     IceUtil::TimerPtr getTimer() const;
     Ice::CommunicatorPtr getCommunicator() const;

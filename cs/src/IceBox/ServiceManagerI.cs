@@ -980,7 +980,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
         //
         // Remaining command line options are passed to the communicator. This is 
-        // necessary for Ice plugin properties (e.g.: IceSSL).
+        // necessary for Ice plug-in properties (e.g.: IceSSL).
         //
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = properties;

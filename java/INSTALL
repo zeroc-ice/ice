@@ -39,7 +39,7 @@ You can download Java5 and Java6 for Solaris, Windows, and Linux from:
 
 Make sure to add javac and java to your PATH.
 
-When using the Ice for Java SSL plugin (IceSSL), you may experience
+When using the Ice for Java SSL plug-in (IceSSL), you may experience
 occasional hangs. The most likely reason is that your system's entropy
 pool is empty. If you have sufficient system privileges, you can solve
 this issue by editing the following file

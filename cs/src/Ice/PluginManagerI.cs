@@ -28,12 +28,12 @@ namespace Ice
             if(_initialized)
             {
                 InitializationException ex = new InitializationException();
-                ex.reason = "plugins already initialized";
+                ex.reason = "plug-ins already initialized";
                 throw ex;
             }
 
             //
-            // Invoke initialize() on the plugins, in the order they were loaded.
+            // Invoke initialize() on the plug-ins, in the order they were loaded.
             //
             ArrayList initializedPlugins = new ArrayList();
             try
@@ -44,10 +44,10 @@ namespace Ice
                     initializedPlugins.Add(p);
                 }
             }
-            catch(Exception)
+            catch(System.Exception)
             {
                 //
-                // Destroy the plugins that have been successfully initialized, in the
+                // Destroy the plug-ins that have been successfully initialized, in the
                 // reverse order.
                 //
                 initializedPlugins.Reverse();
@@ -57,7 +57,7 @@ namespace Ice
                     {
                         p.destroy();
                     }
-                    catch(Exception)
+                    catch(System.Exception)
                     {
                         // Ignore.
                     }
@@ -115,9 +115,21 @@ namespace Ice
             {
                 if(_communicator != null)
                 {
-                    foreach(Plugin plugin in _plugins.Values)
+                    if(_initialized)
                     {
-                        plugin.destroy();
+                        foreach(DictionaryEntry entry in _plugins)
+                        {
+                            try
+                            {
+                                Plugin plugin = (Plugin) entry.Value;
+                                plugin.destroy();
+                            }
+                            catch(System.Exception ex)
+                            {
+                                Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in '" + entry.Key.ToString() + "' destruction.\n");
+                                Ice.Util.getProcessLogger().warning("exception: " + ex.ToString());
+                            }
+                        }
                     }
                 
                     _communicator = null;
@@ -150,8 +162,8 @@ namespace Ice
             // Ice.Plugin.Logger=logger, Version=0.0.0.0, Culture=neutral:LoginPluginFactory
             //
             // If the Ice.PluginLoadOrder property is defined, load the
-            // specified plugins in the specified order, then load any
-            // remaining plugins.
+            // specified plug-ins in the specified order, then load any
+            // remaining plug-ins.
             //
             string prefix = "Ice.Plugin.";
             Properties properties = _communicator.getProperties();
@@ -168,7 +180,7 @@ namespace Ice
                 if(_plugins.Contains(loadOrder[i]))
                 {
                     PluginInitializationException e = new PluginInitializationException();
-                    e.reason = "plugin `" + loadOrder[i] + "' already loaded";
+                    e.reason = "plug-in `" + loadOrder[i] + "' already loaded";
                     throw e;
                 }
 
@@ -193,13 +205,13 @@ namespace Ice
                 else
                 {
                     PluginInitializationException e = new PluginInitializationException();
-                    e.reason = "plugin `" + loadOrder[i] + "' not defined";
+                    e.reason = "plug-in `" + loadOrder[i] + "' not defined";
                     throw e;
                 }
             }
 
             //
-            // Load any remaining plugins that weren't specified in PluginLoadOrder.
+            // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
             //
             while(plugins.Count > 0)
             {
@@ -257,7 +269,7 @@ namespace Ice
             //      
             // An application can set Ice.InitPlugins=0 if it wants to postpone
             // initialization until after it has interacted directly with the
-            // plugins.
+            // plug-ins.
             //      
             if(properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
             {           
@@ -326,7 +338,7 @@ namespace Ice
             //
             // Retrieve the assembly name and the type.
             //
-            string err = "unable to load plugin '" + entryPoint + "': ";
+            string err = "unable to load plug-in '" + entryPoint + "': ";
             int sepPos = entryPoint.IndexOf(':');
             if (sepPos == -1)
             {
@@ -359,7 +371,7 @@ namespace Ice
                     if(!_sslWarnOnce)
                     {
                         _communicator.getLogger().warning(
-                            "IceSSL plugin not loaded: IceSSL is not supported with Mono");
+                            "IceSSL plug-in not loaded: IceSSL is not supported with Mono");
                         _sslWarnOnce = true;
                     }
                     return;

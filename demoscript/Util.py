@@ -323,7 +323,8 @@ def run(demos, root = False):
         --preferIPv4            Prefer IPv4 stack (java only)."
         --fast                  Run an abbreviated version of the demos."
         --script                Generate a script to run the demos.
-        --env                   Dump the environment.""" % (sys.argv[0])
+        --env                   Dump the environment."
+        --noenv                 Do not automatically modify environment.""" % (sys.argv[0])
         sys.exit(2)
 
     global keepGoing 
@@ -331,7 +332,7 @@ def run(demos, root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "preferIPv4", "env", "script"])
+                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script"])
     except getopt.GetoptError:
         usage()
 
@@ -341,7 +342,6 @@ def run(demos, root = False):
 
     start = 0
     loop = False
-    env = False
     arg = ""
     filters = []
     script = False
@@ -356,8 +356,7 @@ def run(demos, root = False):
             global preferIPv4
             preferIPv4 = True
             arg += " " + o
-        elif o == "--env":
-            env = True
+        elif o in ("--env", "--noenv"):
             arg += " " + o
         elif o in ("-c", "--continue"):
             keepGoing = True
@@ -520,10 +519,10 @@ def addLdPath(libpath):
 
 def processCmdLine():
     def usage():
-	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
+	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
 	sys.exit(2)
     try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
     except getopt.GetoptError:
 	usage()
 
@@ -543,6 +542,7 @@ def processCmdLine():
     x64 = False
     tracefile = None
     env = False
+    noenv = False
 
     for o, a in opts:
 	if o == "--debug":
@@ -556,6 +556,8 @@ def processCmdLine():
 	    host = a
 	if o == "--env":
 	    env = True
+	if o == "--noenv":
+	    noenv = True
 	if o == "--fast":
 	    fast = True
 	if o == "--x64":
@@ -575,7 +577,7 @@ def processCmdLine():
 	defaultHost = None
 
     if not iceHome and os.environ.get("USE_BIN_DIST", "no") == "yes" or os.environ.get("ICE_HOME", "") != "":
-        if not os.environ.get("ICE_HOME", None):
+        if os.environ.get("ICE_HOME", "") != "":
             iceHome = os.environ["ICE_HOME"]
         elif isLinux():
             iceHome = "/usr"
@@ -583,7 +585,8 @@ def processCmdLine():
     if not x64:
         x64 = isWin32() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
 
-    configurePaths()
+    if not noenv:
+        configurePaths()
     if env:
         dumpenv()
 

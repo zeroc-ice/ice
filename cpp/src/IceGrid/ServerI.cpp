@@ -1694,6 +1694,14 @@ ServerI::terminated(const string& msg, int status)
 }
 
 void
+ServerI::shutdown()
+{
+    Lock sync(*this);
+    assert(_state == ServerI::Inactive);
+    _timerTask = 0;
+}
+
+void
 ServerI::update()
 {
     ServerCommandPtr command;

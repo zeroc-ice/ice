@@ -43,8 +43,11 @@ public:
     
     AdapterEntry(AdapterCache&, const std::string&, const std::string&);
 
-    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&) = 0;
-    virtual void increaseRoundRobinCount(int) = 0;
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&) = 0;
+    void getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& count, bool& replicaGroup, bool& roundRobin)
+    {
+        getLocatorAdapterInfo(adapters, count, replicaGroup, roundRobin, std::set<std::string>());
+    }
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
 
@@ -68,8 +71,7 @@ public:
     ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int, 
                        const ServerEntryPtr&);
 
-    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&);
-    virtual void increaseRoundRobinCount(int);
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
     virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
@@ -91,8 +93,7 @@ public:
 
     ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
 
-    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&);
-    virtual void increaseRoundRobinCount(int);
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
 

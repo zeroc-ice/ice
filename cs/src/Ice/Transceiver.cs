@@ -39,8 +39,6 @@ namespace IceInternal
 
     public interface Transceiver
     {
-        Socket fd();
-
         //
         // Return true if read operations can be safely restarted.
         //

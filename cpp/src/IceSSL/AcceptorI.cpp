@@ -67,12 +67,12 @@ IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept()
 {
     //
-    // The plugin may not be initialized.
+    // The plug-in may not be initialized.
     //
     if(!_instance->context())
     {
         PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: plugin is not initialized";
+        ex.reason = "IceSSL: plug-in is not initialized";
         throw ex;
     }
 
