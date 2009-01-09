@@ -148,10 +148,6 @@ clean::
 # Needed for make -jn to work.
 #../IceGrid/Grammar.y: Grammar.h
 
-clean::
-	rm -f Grammar.cpp Grammar.h
-	rm -f Scanner.cpp
-
 install:: all
 	$(call installprogram,$(ADMIN),$(install_bindir))
 	$(call installprogram,$(NODE_SERVER),$(install_bindir))

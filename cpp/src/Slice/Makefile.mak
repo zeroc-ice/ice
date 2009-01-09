@@ -80,8 +80,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	-del /q Grammar.cpp Grammar.h
-	-del /q Scanner.cpp
 	-del /q Slice.res
 
 install:: all

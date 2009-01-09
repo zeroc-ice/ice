@@ -6,7 +6,4 @@ Complex.cpp
 Complex.h
 ComplexDict.h
 ComplexDict.cpp
-Grammar.cpp
-Grammar.h
-Scanner.cpp
 db/*

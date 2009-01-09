@@ -55,8 +55,6 @@ Grammar.cpp Grammar.h: Grammar.y
 
 clean::
 	del /q Complex.cpp Complex.h
-	del /q Grammar.cpp Grammar.h
-	del /q Scanner.cpp
 	del /q ComplexDict.h ComplexDict.cpp
 	for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
