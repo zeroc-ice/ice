@@ -21,56 +21,6 @@ class RunParser
         public void refresh();
     }
 
-    static class Glacier2SessionAdapter implements SessionAdapter
-    {
-        public LibraryPrx getLibrary()
-        {
-            return _session.getLibrary();
-        }
-
-        public void destroy()
-        {
-            _session.destroy();
-        }
-
-        public void refresh()
-        {
-            _session.refresh();
-        }
-
-        Glacier2SessionAdapter(Glacier2SessionPrx session)
-        {
-            _session = session;
-        }
-
-        private Glacier2SessionPrx _session;
-    }
-
-    static class DemoSessionAdapter implements SessionAdapter
-    {
-        public LibraryPrx getLibrary()
-        {
-            return _session.getLibrary();
-        }
-
-        public void destroy()
-        {
-            _session.destroy();
-        }
-
-        public void refresh()
-        {
-            _session.refresh();
-        }
-
-        DemoSessionAdapter(SessionPrx session)
-        {
-            _session = session;
-        }
-
-        private SessionPrx _session;
-    }
-
     static private class SessionRefreshThread extends Thread
     {
         SessionRefreshThread(Ice.Logger logger, long timeout, SessionAdapter session)
@@ -124,7 +74,7 @@ class RunParser
     runParser(String appName, String[] args, Ice.Communicator communicator)
     {
         SessionAdapter session;
-        Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(communicator.getDefaultRouter());
+        final Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(communicator.getDefaultRouter());
         long timeout;
         if(router != null)
         {
@@ -166,7 +116,36 @@ class RunParser
                     ex.printStackTrace();
                 }
             }
-            session = new Glacier2SessionAdapter(Glacier2SessionPrxHelper.uncheckedCast(glacier2session));
+            final Glacier2SessionPrx sess = Glacier2SessionPrxHelper.uncheckedCast(glacier2session);
+            session = new SessionAdapter()
+            {
+                public LibraryPrx getLibrary()
+                {
+                    return sess.getLibrary();
+                }
+
+                public void destroy()
+                {
+                    try
+                    {
+                        router.destroySession();
+                    }
+                    catch(Glacier2.SessionNotExistException ex)
+                    {
+                    }
+                    catch(Ice.ConnectionLostException ex)
+                    {
+                        //
+                        // Expected: the router closed the connection.
+                        //
+                    }
+                }
+
+                public void refresh()
+                {
+                    sess.refresh();
+                }
+            };
         }
         else
         {
@@ -178,7 +157,24 @@ class RunParser
                 return 1;
             }
 
-            session = new DemoSessionAdapter(factory.create());
+            final SessionPrx sess = factory.create();
+            session = new SessionAdapter()
+            {
+                public LibraryPrx getLibrary()
+                {
+                    return sess.getLibrary();
+                }
+
+                public void destroy()
+                {
+                    sess.destroy();
+                }
+
+                public void refresh()
+                {
+                    sess.refresh();
+                }
+            };
             timeout = factory.getSessionTimeout()/2;
         }
         SessionRefreshThread refresh = new SessionRefreshThread(communicator.getLogger(), timeout, session);
