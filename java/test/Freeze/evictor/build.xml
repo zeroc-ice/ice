@@ -48,6 +48,7 @@
         <delete dir="${class.dir}"/>
         <delete>
 	    <fileset dir="db" includes="log.*"/>
+            <fileset dir="db" includes="__catalog*"/>
             <fileset dir="db" includes="Test,__catalog"/>
         </delete>
     </target>

@@ -46,6 +46,7 @@
         <delete quiet="true" includeEmptyDirs="true">
 	    <fileset dir="db/node"/>
 	    <fileset dir="db/registry"/>
+	    <fileset dir="db/replica-1"/>
         </delete>
     </target>
 
