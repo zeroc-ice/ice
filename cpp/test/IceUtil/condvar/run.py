@@ -22,19 +22,13 @@ from scripts import *
 
 workqueue = os.path.join(os.getcwd(), "workqueue")
 
-print "starting workqueue...",
 client = TestUtil.spawnClient(workqueue)
-print "ok"
 client.waitTestSuccess()
 
 match = os.path.join(os.getcwd(), "match")
 
-print "starting signal match...",
 client = TestUtil.spawnClient(match)
-print "ok"
 client.waitTestSuccess()
 
-print "starting broadcast match...",
 client = TestUtil.spawnClient(match + " -b")
-print "ok"
 client.waitTestSuccess()

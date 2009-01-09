@@ -101,18 +101,20 @@ class reader(threading.Thread):
 
     def trace(self, c):
         if self._trace:
-            self._tbuf.write(c)
-            if c == '\n':
-                content = self._tbuf.getvalue()
-                supress = False
-                if self._tracesupress:
-                    for p in self._tracesupress:
-                        if p.search(content):
-                            supress = True
-                            break
-                if not supress:
-                    sys.stdout.write(content)
-                self._tbuf.truncate(0)
+	    if self._tracesupress:
+		self._tbuf.write(c)
+		if c == '\n':
+		    content = self._tbuf.getvalue()
+		    supress = False
+		    for p in self._tracesupress:
+			if p.search(content):
+			    supress = True
+			    break
+		    if not supress:
+			sys.stdout.write(content)
+		    self._tbuf.truncate(0)
+	    else:
+		sys.stdout.write(c)
 
     def enabletrace(self, supress = None):
 	self.cv.acquire()
