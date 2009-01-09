@@ -59,13 +59,7 @@ def runtests(client, server, secure):
     client.sendline('P')
     client.expect('server delay is now set to 2500ms')
     client.sendline('t')
-    # With Java/C# under Windows the tcp connection shutdown takes
-    # longer than expected... hence we use a 6 second timeout instead
-    # of the expected ~4s.
-    #
-    # http://bugzilla/bugzilla/show_bug.cgi?id=2425
-    #
-    client.expect('.*TimeoutException.*', timeout=6)
+    client.expect('.*TimeoutException.*', timeout=5)
     server.expect('Hello World!')
     server.expect('Hello World!') # second because op is idempotent
     client.sendline('P')
