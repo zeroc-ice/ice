@@ -223,6 +223,12 @@ Slice::JavaGenerator::JavaGenerator(const string& dir, Slice::FeatureProfile pro
 
 Slice::JavaGenerator::~JavaGenerator()
 {
+    // If open throws an exception other generators could be left open
+    // during the stack unwind.
+    if(_out != 0)
+    {
+        close();
+    }
     assert(_out == 0);
 }
 
