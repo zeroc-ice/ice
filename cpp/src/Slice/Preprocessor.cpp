@@ -216,12 +216,12 @@ Slice::Preprocessor::preprocess(bool keepComments)
     return _cppHandle;
 }
 
-void
+bool
 Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths)
 {
     if(!checkInputFile())
     {
-        return;
+        return false;
     }
 
     //
@@ -261,7 +261,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         // Calling this again causes the memory buffers to be freed.
         //
         mcpp_use_mem_buffers(1);
-        return;
+        return false;
     }
 
     //
@@ -469,6 +469,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     // Output result
     //
     fputs(result.c_str(), stdout);
+    return true;
 }
 
 bool

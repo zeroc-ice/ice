@@ -1441,7 +1441,10 @@ main(int argc, char* argv[])
         if(depend)
         {
             Preprocessor icecpp(argv[0], args[idx], cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::Java, includePaths);
+            if(!icecpp.printMakefileDependencies(Preprocessor::Java, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
         }
         else
         {

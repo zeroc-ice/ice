@@ -40,7 +40,7 @@ public:
 
     enum Language { CPlusPlus, Java, CSharp, VisualBasic };
 
-    void printMakefileDependencies(Language, const std::vector<std::string>&);
+    bool printMakefileDependencies(Language, const std::vector<std::string>&);
     
     std::string getBaseName();
 
