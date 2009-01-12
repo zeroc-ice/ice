@@ -9,6 +9,7 @@
 
 #include <Slice/JavaUtil.h>
 #include <IceUtil/Functional.h>
+#include <IceUtil/DisableWarnings.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
