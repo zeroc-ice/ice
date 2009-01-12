@@ -16,6 +16,25 @@
 namespace Slice
 {
 
+class SLICE_API FileException : public ::IceUtil::Exception
+{
+public:
+
+    FileException(const char*, int, const std::string&);
+    ~FileException() throw();
+    virtual std::string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason() const;
+
+private:
+
+    static const char* _name;
+    const std::string _reason;
+};
+
 class SLICE_API JavaOutput : public ::IceUtilInternal::Output
 {
 public:
@@ -36,7 +55,7 @@ public:
     // printHeader() and then emits a "package" statement if
     // necessary.
     //
-    bool openClass(const std::string&, const std::string& = std::string());
+    void openClass(const std::string&, const std::string& = std::string());
 
     virtual void printHeader();
 };
@@ -64,7 +83,7 @@ protected:
     // Given the fully-scoped Java class name, create any intermediate
     // package directories and open the class file
     //
-    bool open(const std::string&);
+    void open(const std::string&);
 
     ::IceUtilInternal::Output& output() const;
 

@@ -241,32 +241,41 @@ main(int argc, char* argv[])
                 }
                 else
                 {
-                    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
-                    if(!gen)
+                    try
+                    {
+                        Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
+                        if(!gen)
+                        {
+                            p->destroy();
+                            return EXIT_FAILURE;
+                        }
+                        gen.generate(p, stream);
+                        if(tie)
+                        {
+                            gen.generateTie(p);
+                        }
+                        if(impl)
+                        {
+                            gen.generateImpl(p);
+                        }
+                        if(implTie)
+                        {
+                            gen.generateImplTie(p);
+                        }
+                        if(!checksumClass.empty())
+                        {
+                            //
+                            // Calculate checksums for the Slice definitions in the unit.
+                            //
+                            ChecksumMap m = createChecksums(p);
+                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                        }
+                    }
+                    catch(const Slice::FileException& ex)
                     {
                         p->destroy();
+                        cerr << ex.reason() << endl;
                         return EXIT_FAILURE;
-                    }
-                    gen.generate(p, stream);
-                    if(tie)
-                    {
-                        gen.generateTie(p);
-                    }
-                    if(impl)
-                    {
-                        gen.generateImpl(p);
-                    }
-                    if(implTie)
-                    {
-                        gen.generateImplTie(p);
-                    }
-                    if(!checksumClass.empty())
-                    {
-                        //
-                        // Calculate checksums for the Slice definitions in the unit.
-                        //
-                        ChecksumMap m = createChecksums(p);
-                        copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                     }
                 }
                 p->destroy();

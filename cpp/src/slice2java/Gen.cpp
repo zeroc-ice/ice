@@ -1279,11 +1279,7 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     // Attempt to open the source file for the checksum class.
     //
     JavaOutput out;
-    if(!out.openClass(checksumClass, dir))
-    {
-        cerr << "can't open class `" << checksumClass << "' for writing: " << strerror(errno) << endl;
-        return;
-    }
+    out.openClass(checksumClass, dir);
 
     //
     // Get the class name.
@@ -1383,10 +1379,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     }
     string absolute = getAbsolute(p, "", "_", opIntfName);
 
-    if(!open(absolute))
-    {
-        return;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -1507,10 +1500,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -1693,11 +1683,7 @@ Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
         {
             string markerClass = s.substr(packagePrefix.size()) + "." + fixKwd(p->name()) + "._Marker";
 
-            if(!open(markerClass))
-            {
-                cerr << "can't open class `" << markerClass << "' for writing: " << strerror(errno) << endl;
-                return false;
-            }
+            open(markerClass);
 
             Output& out = output();
             out << sp << nl << "interface _Marker";
@@ -1733,10 +1719,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList::const_iterator d;
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -1951,10 +1934,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList members = p->dataMembers();
     DataMemberList::const_iterator d;
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -2285,10 +2265,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     string name = fixKwd(p->name());
     string absolute = getAbsolute(p);
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -2809,10 +2786,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList::const_iterator en;
     size_t sz = enumerators.size();
 
-    if(!open(absolute))
-    {
-        return;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -3035,10 +3009,8 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     string absolute = getAbsolute(p);
     TypePtr type = p->type();
 
-    if(!open(absolute))
-    {
-        return;
-    }
+    open(absolute);
+
     Output& out = output();
     out << sp << nl << "public interface " << name;
     out << sb;
@@ -3188,22 +3160,20 @@ Slice::Gen::HolderVisitor::visitClassDefStart(const ClassDefPtr& p)
         string name = p->name();
         string absolute = getAbsolute(p, "", "", "PrxHolder");
 
-        if(open(absolute))
-        {
-            Output& out = output();
-            out << sp << nl << "public final class " << name << "PrxHolder";
-            out << sb;
-            out << sp << nl << "public" << nl << name << "PrxHolder()";
-            out << sb;
-            out << eb;
-            out << sp << nl << "public" << nl << name << "PrxHolder(" << name << "Prx value)";
-            out << sb;
-            out << nl << "this.value = value;";
-            out << eb;
-            out << sp << nl << "public " << name << "Prx value;";
-            out << eb;
-            close();
-        }
+        open(absolute);
+        Output& out = output();
+        out << sp << nl << "public final class " << name << "PrxHolder";
+        out << sb;
+        out << sp << nl << "public" << nl << name << "PrxHolder()";
+        out << sb;
+        out << eb;
+        out << sp << nl << "public" << nl << name << "PrxHolder(" << name << "Prx value)";
+        out << sb;
+        out << nl << "this.value = value;";
+        out << eb;
+        out << sp << nl << "public " << name << "Prx value;";
+        out << eb;
+        close();
     }
 
     return false;
@@ -3242,68 +3212,66 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     string name = contained->name();
     string absolute = getAbsolute(contained, "", "", "Holder");
 
-    if(open(absolute))
+    open(absolute);
+    Output& out = output();
+    string typeS = typeToString(p, TypeModeIn, getPackage(contained));
+    out << sp << nl << "public final class " << name << "Holder";
+    out << sb;
+    out << sp << nl << "public" << nl << name << "Holder()";
+    out << sb;
+    out << eb;
+    out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
+    out << sb;
+    out << nl << "this.value = value;";
+    out << eb;
+    if(!p->isLocal())
     {
-        Output& out = output();
-        string typeS = typeToString(p, TypeModeIn, getPackage(contained));
-        out << sp << nl << "public final class " << name << "Holder";
-        out << sb;
-        out << sp << nl << "public" << nl << name << "Holder()";
-        out << sb;
-        out << eb;
-        out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
-        out << sb;
-        out << nl << "this.value = value;";
-        out << eb;
-        if(!p->isLocal())
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
+            out << sp << nl << "public class Patcher implements IceInternal.Patcher";
+            if(_stream)
             {
-                out << sp << nl << "public class Patcher implements IceInternal.Patcher";
-                if(_stream)
-                {
-                    out << ", Ice.ReadObjectCallback";
-                }
-                out << sb;
-                out << nl << "public void";
-                out << nl << "patch(Ice.Object v)";
-                out << sb;
-                out << nl << "try";
-                out << sb;
-                out << nl << "value = (" << typeS << ")v;";
-                out << eb;
-                out << nl << "catch(ClassCastException ex)";
-                out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
-                out << eb;
-                out << eb;
+                out << ", Ice.ReadObjectCallback";
+            }
+            out << sb;
+            out << nl << "public void";
+            out << nl << "patch(Ice.Object v)";
+            out << sb;
+            out << nl << "try";
+            out << sb;
+            out << nl << "value = (" << typeS << ")v;";
+            out << eb;
+            out << nl << "catch(ClassCastException ex)";
+            out << sb;
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+            out << eb;
+            out << eb;
 
-                out << sp << nl << "public String" << nl << "type()";
-                out << sb;
-                out << nl << "return \"" << p->typeId() << "\";";
-                out << eb;
+            out << sp << nl << "public String" << nl << "type()";
+            out << sb;
+            out << nl << "return \"" << p->typeId() << "\";";
+            out << eb;
 
-                if(_stream)
-                {
-                    out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                    out << sb;
-                    out << nl << "patch(v);";
-                    out << eb;
-                }
-                out << eb;
-
-                out << sp << nl << "public Patcher";
-                out << nl << "getPatcher()";
+            if(_stream)
+            {
+                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
                 out << sb;
-                out << nl << "return new Patcher();";
+                out << nl << "patch(v);";
                 out << eb;
             }
+            out << eb;
+
+            out << sp << nl << "public Patcher";
+            out << nl << "getPatcher()";
+            out << sb;
+            out << nl << "return new Patcher();";
+            out << eb;
         }
-        out << sp << nl << "public " << typeS << " value;";
-        out << eb;
-        close();
     }
+    out << sp << nl << "public " << typeS << " value;";
+    out << eb;
+    close();
 }
 
 Slice::Gen::HelperVisitor::HelperVisitor(const string& dir, bool stream) :
@@ -3328,10 +3296,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p);
 
-    if(!open(getAbsolute(p, "", "", "PrxHelper")))
-    {
-        return false;
-    }
+    open(getAbsolute(p, "", "", "PrxHelper"));
 
     Output& out = output();
 
@@ -3698,10 +3663,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Class helper.
         //
-        if(!open(getAbsolute(p, "", "", "Helper")))
-        {
-            return false;
-        }
+        open(getAbsolute(p, "", "", "Helper"));
 
         Output& out2 = output();
 
@@ -3733,10 +3695,7 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
         string name = p->name();
         string fixedName = fixKwd(name);
 
-        if(!open(getAbsolute(p, "", "", "Helper")))
-        {
-            return false;
-        }
+        open(getAbsolute(p, "", "", "Helper"));
 
         Output& out = output();
 
@@ -3779,48 +3738,46 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
 
-    if(open(helper))
+    open(helper);
+    Output& out = output();
+    int iter;
+
+    out << sp << nl << "public final class " << name << "Helper";
+    out << sb;
+
+    out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << typeS << " __v)";
+    out << sb;
+    iter = 0;
+    writeSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
+    out << eb;
+
+    out << sp << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
+    out << sb;
+    out << nl << typeS << " __v;";
+    iter = 0;
+    writeSequenceMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
+    out << nl << "return __v;";
+    out << eb;
+
+    if(_stream)
     {
-        Output& out = output();
-        int iter;
-
-        out << sp << nl << "public final class " << name << "Helper";
-        out << sb;
-
-        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << typeS << " __v)";
+        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << typeS << " __v)";
         out << sb;
         iter = 0;
-        writeSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
+        writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
         out << eb;
 
-        out << sp << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public static " << typeS << nl << "read(Ice.InputStream __inS)";
         out << sb;
         out << nl << typeS << " __v;";
         iter = 0;
-        writeSequenceMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
+        writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
         out << nl << "return __v;";
         out << eb;
-
-        if(_stream)
-        {
-            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << typeS << " __v)";
-            out << sb;
-            iter = 0;
-            writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
-            out << eb;
-
-            out << sp << nl << "public static " << typeS << nl << "read(Ice.InputStream __inS)";
-            out << sb;
-            out << nl << typeS << " __v;";
-            iter = 0;
-            writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
-            out << nl << "return __v;";
-            out << eb;
-        }
-
-        out << eb;
-        close();
     }
+
+    out << eb;
+    close();
 }
 
 void
@@ -3844,51 +3801,49 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     StringList metaData = p->getMetaData();
     string formalType = typeToString(p, TypeModeIn, package, StringList(), true);
 
-    if(open(helper))
+    open(helper);
+    Output& out = output();
+    int iter;
+
+    out << sp << nl << "public final class " << name << "Helper";
+    out << sb;
+
+    out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << formalType << " __v)";
+    out << sb;
+    iter = 0;
+    writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
+    out << eb;
+
+    out << sp << nl << "public static " << formalType
+        << nl << "read(IceInternal.BasicStream __is)";
+    out << sb;
+    out << nl << formalType << " __v;";
+    iter = 0;
+    writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
+    out << nl << "return __v;";
+    out << eb;
+
+    if(_stream)
     {
-        Output& out = output();
-        int iter;
-
-        out << sp << nl << "public final class " << name << "Helper";
-        out << sb;
-
-        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << formalType << " __v)";
+        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << formalType
+            << " __v)";
         out << sb;
         iter = 0;
-        writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
+        writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
         out << eb;
 
         out << sp << nl << "public static " << formalType
-            << nl << "read(IceInternal.BasicStream __is)";
+            << nl << "read(Ice.InputStream __inS)";
         out << sb;
         out << nl << formalType << " __v;";
         iter = 0;
-        writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
+        writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
         out << nl << "return __v;";
         out << eb;
-
-        if(_stream)
-        {
-            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << formalType
-                << " __v)";
-            out << sb;
-            iter = 0;
-            writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
-            out << eb;
-
-            out << sp << nl << "public static " << formalType
-                << nl << "read(Ice.InputStream __inS)";
-            out << sb;
-            out << nl << formalType << " __v;";
-            iter = 0;
-            writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
-            out << nl << "return __v;";
-            out << eb;
-        }
-
-        out << eb;
-        close();
     }
+
+    out << eb;
+    close();
 }
 
 void
@@ -3899,10 +3854,7 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         string name = p->name();
         string fixedName = fixKwd(name);
 
-        if(!open(getAbsolute(p, "", "", "Helper")))
-        {
-            return;
-        }
+        open(getAbsolute(p, "", "", "Helper"));
 
         Output& out = output();
 
@@ -3942,10 +3894,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "Prx");
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -4076,10 +4025,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "Del");
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -4154,10 +4100,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "DelM");
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -4358,10 +4301,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "DelD");
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -4546,10 +4486,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
     string absolute = getAbsolute(p, "", "_", "Disp");
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -4844,10 +4781,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "I");
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -4905,10 +4839,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "I");
 
-    if(!open(absolute))
-    {
-        return false;
-    }
+    open(absolute);
 
     Output& out = output();
 
@@ -5005,10 +4936,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         string classNameAMI = "AMI_" + cl->name();
         string absoluteAMI = getAbsolute(cl, "", "AMI_", "_" + name);
 
-        if(!open(absoluteAMI))
-        {
-            return;
-        }
+        open(absoluteAMI);
         
         Output& out = output();
 
@@ -5235,10 +5163,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         vector<string> paramsAMD = getParamsAsyncCB(p, classPkg);
 
         {
-            if(!open(absoluteAMD))
-            {
-                return;
-            }
+            open(absoluteAMD);
 
             Output& out = output();
             
@@ -5252,10 +5177,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
         
         {
-            if(!open(absoluteAMDI))
-            {
-                return;
-            }
+            open(absoluteAMDI);
             
             Output& out = output();
             

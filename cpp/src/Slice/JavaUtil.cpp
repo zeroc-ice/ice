@@ -26,6 +26,49 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+Slice::FileException::FileException(const char* file, int line, const string& r) :
+    Exception(file, line),
+    _reason(r)
+{
+}
+
+Slice::FileException::~FileException() throw()
+{
+}
+
+const char* Slice::FileException::_name = "Slice::FileException";
+
+string
+Slice::FileException::ice_name() const
+{
+    return _name;
+}
+
+void
+Slice::FileException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ": " << _reason;
+}
+
+IceUtil::Exception*
+Slice::FileException::ice_clone() const
+{
+    return new FileException(*this);
+}
+
+void
+Slice::FileException::ice_throw() const
+{
+    throw *this;
+}
+
+string
+Slice::FileException::reason() const
+{
+    return _reason;
+}
+
 Slice::JavaOutput::JavaOutput()
 {
 }
@@ -40,7 +83,7 @@ Slice::JavaOutput::JavaOutput(const char* s) :
 {
 }
 
-bool
+void
 Slice::JavaOutput::openClass(const string& cls, const string& prefix)
 {
     string package;
@@ -81,6 +124,13 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
             result = stat(path.c_str(), &st);
             if(result == 0)
             {
+                if(!(st.st_mode & S_IFDIR))
+                {
+                    ostringstream os;
+                    os << "failed to create package directory `" << path
+                       << "': file already exists and is not a directory";
+                    throw FileException(__FILE__, __LINE__, os.str());
+                }
                 continue;
             }
 #ifdef _WIN32
@@ -90,7 +140,9 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
 #endif
             if(result != 0)
             {
-                return false;
+                ostringstream os;
+                os << "cannot create directory `" << path << "': " << strerror(errno);
+                throw FileException(__FILE__, __LINE__, os.str());
             }
         }
         while(pos != string::npos);
@@ -123,11 +175,13 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
             print(package.c_str());
             print(";");
         }
-
-        return true;
     }
-
-    return false;
+    else
+    {
+        ostringstream os;
+        os << "cannot open file `" << path << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
+    }
 }
 
 void
@@ -172,22 +226,22 @@ Slice::JavaGenerator::~JavaGenerator()
     assert(_out == 0);
 }
 
-bool
+void
 Slice::JavaGenerator::open(const string& absolute)
 {
     assert(_out == 0);
 
     JavaOutput* out = createOutput();
-    if(out->openClass(absolute, _dir))
+    try
     {
-        _out = out;
+        out->openClass(absolute, _dir);
     }
-    else
+    catch(const FileException&)
     {
         delete out;
+        throw;
     }
-
-    return _out != 0;
+    _out = out;
 }
 
 void
