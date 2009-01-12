@@ -148,8 +148,6 @@ private:
 };
 typedef Handle<Queue> QueuePtr;
 
-static IceUtil::StaticMutex coutMutex = ICE_STATIC_MUTEX_INITIALIZER;
-
 class TestThread : public Thread
 {
 public:
@@ -252,7 +250,6 @@ main(int argc, char** argv)
     // thread.
     //
     int n = atoi(opts.optArg("n").c_str());
-    bool verbose = opts.isSet("v");
 
     cout << "running signal/broadcast timeout test" << flush;
     QueuePtr signalQ = new Queue(false);
