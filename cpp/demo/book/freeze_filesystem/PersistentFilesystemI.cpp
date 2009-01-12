@@ -242,11 +242,11 @@ Filesystem::DirectoryI::DirectoryI(const Ice::Identity& id) :
 Ice::ObjectPtr
 Filesystem::NodeFactory::create(const string& type)
 {
-    if(type == "::Filesystem::PersistentFile")
+    if(type == PersistentFile::ice_staticId())
     {
         return new FileI;
     }
-    else if(type == "::Filesystem::PersistentDirectory")
+    else if(type == PersistentDirectory::ice_staticId())
     {
         return new DirectoryI;
     }
