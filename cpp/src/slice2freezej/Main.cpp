@@ -370,12 +370,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         }
     }
 
-
-    if(!open(dict.name))
-    {
-        cerr << _prog << ": unable to open class " << dict.name << endl;
-        return false;
-    }
+    open(dict.name);
 
     Output& out = output();
 
@@ -1010,11 +1005,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
 
     string memberTypeString = typeToString(dataMember->type(), TypeModeIn);
     
-    if(!open(index.name))
-    {
-        cerr << _prog << ": unable to open class " << index.name << endl;
-        return false;
-    }
+    open(index.name);
 
     Output& out = output();
 
@@ -1515,6 +1506,12 @@ main(int argc, char* argv[])
                     u->destroy();
                     return EXIT_FAILURE;
                 }
+            }
+            catch(const Slice::FileException& ex)
+            {
+                u->destroy();
+                cerr << ex.reason() << endl;
+                return EXIT_FAILURE;
             }
             catch(...)
             {
