@@ -24,7 +24,7 @@ public:
     ~FileException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
+    virtual ::IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     std::string reason() const;
