@@ -7,16 +7,23 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+SERVER		= server
+
+TARGETS		= $(SERVER)
+
+OBJS		= Server.o
+
+SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
+$(SERVER): $(OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
-SUBDIRS		= simple deployer session update activation replicaGroup allocation replication distribution admin
+clean::
+	-rm -rf db/node db/registry db/replica-*
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+include .depend

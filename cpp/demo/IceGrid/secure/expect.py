@@ -62,8 +62,7 @@ print "ok"
 
 print "starting icegrid...",
 sys.stdout.flush()
-registryProps = " --Ice.PrintAdapterReady" + \
-                " --IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier"
+registryProps = " --Ice.PrintAdapterReady"
 registry = Util.spawn('icegridregistry --Ice.Config=config.registry' + registryProps)
 registry.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready')
 node = Util.spawn('icegridnode --Ice.Config=config.node --Ice.PrintAdapterReady %s' % (args))
@@ -73,9 +72,7 @@ print "ok"
 print "starting glacier2...",
 sys.stdout.flush()
 
-glacier2Props = " --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5" + \
-                " --Glacier2.SSLSessionManager=DemoIceGrid/AdminSSLSessionManager" + \
-                " --Glacier2.SSLPermissionsVerifier=DemoGlacier2/NullSSLPermissionsVerifier"
+glacier2Props = " --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5"
 glacier2 = Util.spawn('glacier2router --Ice.Config=config.glacier2' + glacier2Props)
 glacier2.expect('Glacier2.Client ready')
 glacier2.expect('Glacier2.Server ready')
@@ -107,35 +104,6 @@ def runtest():
 print "testing client...", 
 sys.stdout.flush()
 runtest()
-print "ok"
-
-print "testing icegridadmin...",
-sys.stdout.flush()
-
-admin = Util.spawn('icegridadmin --Ice.Config=config.admin --Ice.Default.Router="DemoGlacier2/router:ssl -p 4064"')
-admin.expect('>>>')
-admin.sendline("server list")
-admin.expect('SimpleServer')
-admin.expect('>>>')
-admin.sendline('exit')
-admin.waitTestSuccess(timeout=120)
-
-admin = Util.spawn('icegridadmin --Ice.Config=config.admin --ssl')
-admin.expect('>>>')
-admin.sendline("server list")
-admin.expect('SimpleServer')
-admin.expect('>>>')
-admin.sendline('exit')
-admin.waitTestSuccess(timeout=120)
-
-admin = Util.spawn('icegridadmin --Ice.Config=config.admin --ssl --Ice.Default.Router="DemoGlacier2/router:ssl -p 4064"')
-admin.expect('>>>')
-admin.sendline("server list")
-admin.expect('SimpleServer')
-admin.expect('>>>')
-admin.sendline('exit')
-admin.waitTestSuccess(timeout=120)
-
 print "ok"
 
 print "completing shutdown...", 

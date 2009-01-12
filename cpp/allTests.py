@@ -80,6 +80,7 @@ tests = [
     ("IceGrid/replication", ["service"]),
     ("IceGrid/allocation", ["service"]),
     ("IceGrid/distribution", ["service"]),
+    ("IceGrid/admin", ["service"]),
     ("Glacier2/router", ["service"]),
     ("Glacier2/attack", ["service"]),
     ("Glacier2/sessionControl", ["service"]),

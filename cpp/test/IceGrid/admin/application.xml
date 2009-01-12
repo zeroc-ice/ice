@@ -1,0 +1,11 @@
+<icegrid>
+  <application name="Test">
+    <node name="localnode">
+      <server id="server" exe="./server" activation="on-demand">
+        <adapter name="TestAdapter" endpoints="default" id="TestAdapter">
+	  <object identity="test" type="Test"/>
+	</adapter>
+      </server>
+    </node>
+  </application>
+</icegrid>
