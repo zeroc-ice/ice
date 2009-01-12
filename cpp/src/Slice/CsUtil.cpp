@@ -1119,7 +1119,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         call += "_tmp";
                     }
-                    call += " == null ? new " + typeS + "() : " + param;
+                    call += "[ix__] == null ? new " + typeS + "() : " + param;
                     if(isStack)
                     {
                         call += "_tmp";
