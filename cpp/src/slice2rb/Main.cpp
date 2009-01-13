@@ -12,6 +12,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Slice/RubyUtil.h>
 
 #include <fstream>
@@ -207,24 +208,37 @@ main(int argc, char* argv[])
                     file = output + '/' + file;
                 }
 
-                IceUtilInternal::Output out;
-                out.open(file.c_str());
-                if(!out)
+                try
                 {
-                    cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
+                    IceUtilInternal::Output out;
+                    out.open(file.c_str());
+                    if(!out)
+                    {
+                        ostringstream os;
+                        os << "cannot open`" << file << "': " << strerror(errno);
+                        throw FileException(__FILE__, __LINE__, os.str());
+                    }
+                    FileTracker::instance()->addFile(file);
+
+                    printHeader(out);
+                    out << "\n# Generated from file `" << base << ".ice'\n";
+
+                    //
+                    // Generate the Ruby mapping.
+                    //
+                    generate(u, all, checksum, includePaths, out);
+
+                    out.close();
+                }
+                catch(const Slice::FileException& ex)
+                {
+                    // If a file could not be created, then cleanup
+                    // any created files.
+                    FileTracker::instance()->cleanup();
                     u->destroy();
+                    cerr << argv[0] << ": " << ex.reason() << endl;
                     return EXIT_FAILURE;
                 }
-
-                printHeader(out);
-                out << "\n# Generated from file `" << base << ".ice'\n";
-
-                //
-                // Generate the Ruby mapping.
-                //
-                generate(u, all, checksum, includePaths, out);
-
-                out.close();
             }
 
             u->destroy();
@@ -235,6 +249,7 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
+                FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }

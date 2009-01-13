@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 #ifdef __BCPLUSPLUS__
@@ -234,7 +235,7 @@ main(int argc, char* argv[])
                     p->destroy();
                     return EXIT_FAILURE;
                 }           
-                
+
                 if(parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;
@@ -273,8 +274,11 @@ main(int argc, char* argv[])
                     }
                     catch(const Slice::FileException& ex)
                     {
+                        // If a file could not be created, then
+                        // cleanup any created files.
+                        FileTracker::instance()->cleanup();
                         p->destroy();
-                        cerr << ex.reason() << endl;
+                        cerr << argv[0] << ": " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
                 }
@@ -287,6 +291,9 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
+                // If the translator was interrupted, then cleanup any
+                // created files.
+                FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }
@@ -294,7 +301,18 @@ main(int argc, char* argv[])
 
     if(!checksumClass.empty())
     {
-        Gen::writeChecksumClass(checksumClass, output, checksums, java2);
+        try
+        {
+            Gen::writeChecksumClass(checksumClass, output, checksums, java2);
+        }
+        catch(const Slice::FileException& ex)
+        {
+            // If a file could not be created, then
+            // cleanup any created files.
+            FileTracker::instance()->cleanup();
+            cerr << argv[0] << ": " << ex.reason() << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     return status;

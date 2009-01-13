@@ -26,6 +26,7 @@ OBJS		= Scanner.obj \
 		  DotNetNames.obj \
 		  RubyUtil.obj \
 		  Util.obj \
+		  FileTracker.obj \
 		  MD5.obj \
 		  MD5I.obj
 

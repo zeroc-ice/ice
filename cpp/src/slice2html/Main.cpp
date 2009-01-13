@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 #include <stdlib.h>
 
@@ -238,13 +239,24 @@ main(int argc, char* argv[])
             Slice::generate(p, output, header, footer, indexHeader, indexFooter, imageDir, logoURL,
                             searchAction, indexCount, summaryCount);
         }
+        catch(const Slice::FileException& ex)
+        {
+            // If a file could not be created, then cleanup any
+            // created files.
+            FileTracker::instance()->cleanup();
+            p->destroy();
+            cerr << argv[0] << ": " << ex.reason() << endl;
+            return EXIT_FAILURE;
+        }
         catch(const string& err)
         {
+            FileTracker::instance()->cleanup();
             cerr << argv[0] << ": " << err << endl;
             status = EXIT_FAILURE;
         }
         catch(const char* err)
         {
+            FileTracker::instance()->cleanup();
             cerr << argv[0] << ": " << err << endl;
             status = EXIT_FAILURE;
         }
@@ -257,6 +269,7 @@ main(int argc, char* argv[])
 
         if(_interrupted)
         {
+            FileTracker::instance()->cleanup();
             return EXIT_FAILURE;
         }
     }

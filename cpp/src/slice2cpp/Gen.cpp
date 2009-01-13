@@ -7,12 +7,14 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <Slice/Checksum.h>
+#include <Slice/FileTracker.h>
 
 #include <limits>
 #include <sys/stat.h>
@@ -34,8 +36,8 @@ getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
     return deprecateSymbol;
 }
 
-Slice::Gen::Gen(const string& name, const string& base, const string& headerExtension,
-                const string& sourceExtension, const vector<string>& extraHeaders, const string& include,
+Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
+                const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
                 bool imp, bool checksum, bool stream, bool ice) :
     _base(base),
@@ -74,28 +76,34 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
         struct stat st;
         if(stat(fileImplH.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImplH << "' already exists - will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImplH << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
         if(stat(fileImplC.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImplC << "' already exists - will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImplC << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
 
         implH.open(fileImplH.c_str());
         if(!implH)
         {
-            cerr << name << ": can't open `" << fileImplH << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << "cannot open `" << fileImplH << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+        FileTracker::instance()->addFile(fileImplH);
 
         implC.open(fileImplC.c_str());
         if(!implC)
         {
-            cerr << name << ": can't open `" << fileImplC << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << "cannot open `" << fileImplC << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+        FileTracker::instance()->addFile(fileImplC);
 
         string s = fileImplH;
         if(_include.size())
@@ -119,16 +127,20 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     H.open(fileH.c_str());
     if(!H)
     {
-        cerr << name << ": can't open `" << fileH << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << fileH << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(fileH);
 
     C.open(fileC.c_str());
     if(!C)
     {
-        cerr << name << ": can't open `" << fileC << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << fileC << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(fileC);
 
     printHeader(H);
     printHeader(C);
@@ -156,20 +168,6 @@ Slice::Gen::~Gen()
         implH << "\n\n#endif\n";
         implC << '\n';
     }
-}
-
-bool
-Slice::Gen::operator!() const
-{
-    if(!H || !C)
-    {
-        return true;
-    }
-    if(_impl && (!implH || !implC))
-    {
-        return true;
-    }
-    return false;
 }
 
 void

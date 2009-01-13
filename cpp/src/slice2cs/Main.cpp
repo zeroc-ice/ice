@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 using namespace std;
@@ -164,7 +165,10 @@ main(int argc, char* argv[])
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::CSharp, includePaths);
+            if(!icecpp.printMakefileDependencies(Preprocessor::CSharp, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
         }
         else
         {
@@ -207,28 +211,35 @@ main(int argc, char* argv[])
                 }
                 else
                 {
-                    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output, impl, implTie, stream);
-                    if(!gen)
+                    try
                     {
+                        Gen gen(icecpp.getBaseName(), includePaths, output, impl, implTie, stream);
+                        gen.generate(p);
+                        if(tie)
+                        {
+                            gen.generateTie(p);
+                        }
+                        if(impl)
+                        {
+                            gen.generateImpl(p);
+                        }
+                        if(implTie)
+                        {
+                            gen.generateImplTie(p);
+                        }
+                        if(checksum)
+                        {
+                            gen.generateChecksums(p);
+                        }
+                    }
+                    catch(const Slice::FileException& ex)
+                    {
+                        // If a file could not be created, then
+                        // cleanup any created files.
+                        FileTracker::instance()->cleanup();
                         p->destroy();
+                        cerr << argv[0] << ": " << ex.reason() << endl;
                         return EXIT_FAILURE;
-                    }
-                    gen.generate(p);
-                    if(tie)
-                    {
-                        gen.generateTie(p);
-                    }
-                    if(impl)
-                    {
-                        gen.generateImpl(p);
-                    }
-                    if(implTie)
-                    {
-                        gen.generateImplTie(p);
-                    }
-                    if(checksum)
-                    {
-                        gen.generateChecksums(p);
                     }
                 }
 
@@ -241,6 +252,7 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
+                FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }

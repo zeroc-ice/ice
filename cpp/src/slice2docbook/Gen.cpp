@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 #include <cstring>
 
@@ -21,8 +22,7 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool chapter,
-                bool noIndex, bool sortFields) :
+Slice::Gen::Gen(const string& file, bool standAlone, bool chapter, bool noIndex, bool sortFields) :
     _standAlone(standAlone),
     _noIndex(noIndex),
     _sortFields(sortFields)
@@ -39,19 +39,14 @@ Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool ch
     O.open(file.c_str());
     if(!O)
     {
-        cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << file << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
 }
 
 Slice::Gen::~Gen()
 {
-}
-
-bool
-Slice::Gen::operator!() const
-{
-    return !O;
 }
 
 void

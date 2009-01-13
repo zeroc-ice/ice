@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Slice/JavaUtil.h>
+#include <Slice/FileTracker.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/DisableWarnings.h>
 
@@ -27,49 +29,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
-
-Slice::FileException::FileException(const char* file, int line, const string& r) :
-    Exception(file, line),
-    _reason(r)
-{
-}
-
-Slice::FileException::~FileException() throw()
-{
-}
-
-const char* Slice::FileException::_name = "Slice::FileException";
-
-string
-Slice::FileException::ice_name() const
-{
-    return _name;
-}
-
-void
-Slice::FileException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ": " << _reason;
-}
-
-IceUtil::Exception*
-Slice::FileException::ice_clone() const
-{
-    return new FileException(*this);
-}
-
-void
-Slice::FileException::ice_throw() const
-{
-    throw *this;
-}
-
-string
-Slice::FileException::reason() const
-{
-    return _reason;
-}
 
 Slice::JavaOutput::JavaOutput()
 {
@@ -146,6 +105,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
                 os << "cannot create directory `" << path << "': " << strerror(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
+            FileTracker::instance()->addDirectory(path);
         }
         while(pos != string::npos);
     }
@@ -167,6 +127,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
     open(path.c_str());
     if(isOpen())
     {
+        FileTracker::instance()->addFile(path);
         printHeader();
 
         if(!package.empty())

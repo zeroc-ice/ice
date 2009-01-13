@@ -16,25 +16,6 @@
 namespace Slice
 {
 
-class SLICE_API FileException : public ::IceUtil::Exception
-{
-public:
-
-    FileException(const char*, int, const std::string&);
-    ~FileException() throw();
-    virtual std::string ice_name() const;
-    virtual void ice_print(std::ostream&) const;
-    virtual ::IceUtil::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-    std::string reason() const;
-
-private:
-
-    static const char* _name;
-    const std::string _reason;
-};
-
 class SLICE_API JavaOutput : public ::IceUtilInternal::Output
 {
 public:

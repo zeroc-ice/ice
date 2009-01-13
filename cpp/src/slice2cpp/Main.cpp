@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 using namespace std;
@@ -216,14 +217,21 @@ main(int argc, char* argv[])
                 }
                 else
                 {
-                    Gen gen(argv[0], icecpp.getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
-                            includePaths, dllExport, output, impl, checksum, stream, ice);
-                    if(!gen)
+                    try
                     {
+                        Gen gen(icecpp.getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
+                                includePaths, dllExport, output, impl, checksum, stream, ice);
+                        gen.generate(u);
+                    }
+                    catch(const Slice::FileException& ex)
+                    {
+                        // If a file could not be created, then
+                        // cleanup any created files.
+                        FileTracker::instance()->cleanup();
                         u->destroy();
+                        cerr << argv[0] << ": " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
-                    gen.generate(u);
                 }
 
                 u->destroy();
@@ -235,6 +243,7 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
+                FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }

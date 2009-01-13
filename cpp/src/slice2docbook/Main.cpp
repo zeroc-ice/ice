@@ -12,6 +12,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 using namespace std;
@@ -210,13 +211,20 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
-        Gen gen(argv[0], docbook, standAlone, chapter, noIndex, sortFields);
-        if(!gen)
+        try
         {
+            Gen gen(docbook, standAlone, chapter, noIndex, sortFields);
+            gen.generate(p);
+        }
+        catch(const Slice::FileException& ex)
+        {
+            // If a file could not be created, then
+            // cleanup any created files.
+            FileTracker::instance()->cleanup();
             p->destroy();
+            cerr << argv[0] << ": " << ex.reason() << endl;
             return EXIT_FAILURE;
         }
-        gen.generate(p);
     }
 
     p->destroy();
@@ -226,6 +234,7 @@ main(int argc, char* argv[])
 
         if(_interrupted)
         {
+            FileTracker::instance()->cleanup();
             return EXIT_FAILURE;
         }
     }
