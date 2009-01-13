@@ -235,7 +235,7 @@ appropriate changes as you follow the instructions.
    by creating a file in Apache's document directory (htdocs) called
    phpinfo.php that contains the following line:
 
-   <?phpInfo();?>
+   <?php phpInfo();?>
  
    Open the file in your browser using a URL such as
 
@@ -251,7 +251,7 @@ appropriate changes as you follow the instructions.
 2) Review the settings on the browser page for an entry titled
    "Loaded Configuration File". It will have a value such as
 
-   C:\PHP5\php.ini
+   C:\Program Files\PHP\php.ini
 
    Open this file in a text editor and append the following line:
 
@@ -259,20 +259,27 @@ appropriate changes as you follow the instructions.
 
    The file php_ice.dll contains the Ice extension.
 
+   Next, look for the line that defines PHP's extension directory. It
+   typically has the following definition:
+
+   extension_dir = "./"
+
+   If the extension_dir setting contains a relative path such as the
+   one shown above, it is resolved relative to the working directory
+   of the Apache process. Normally Apache's working directory is its
+   installation directory. Rather than cluttering up this directory
+   with PHP-related files, we recommend setting extension_dir to a
+   different directory, such as
+
+   extension_dir = "\Program Files\PHP\ext"
+
+   If necessary, create the extension directory.
+
 3) Copy the Ice extension to PHP's extension directory.
 
-   PHP's configuration specifies the location of its extension
-   directory. Review the settings on the browser page for the entry
-   named "extension_dir". It will likely have the following value:
-
-   ./
-
-   This value is a path name that is relative to Apache's current
-   working directory, which is its installation directory. Therefore,
-   unless you change the value of extension_dir in php.ini, you will
-   need to copy php_ice.dll to the directory shown below:
-
-   \Program Files\Apache Software Foundation\Apache2.2
+   The file php_ice.dll is located in the bin subdirectory of your Ice
+   installation (e.g., C:\Ice\bin). Copy this file to PHP's extension
+   directory.
 
 4) Review the location of dependent libraries. The Ice extension
    requires the following DLLs:
@@ -287,26 +294,32 @@ appropriate changes as you follow the instructions.
 
    All of these files can be found in the bin subdirectory of your Ice
    installation (e.g., C:\Ice\bin). Apache must be able to load these
-   DLLs during startup; if it cannot load them, the server may still
-   start but will not have loaded PHP.
+   DLLs during startup; if it cannot load them, Apache may still start
+   but will not have loaded PHP.
 
    There are several alternatives for the dependent libraries:
+
+   * Copy the dependent libraries to PHP's extension directory. This
+     is the option that we recommend.
 
    * Add the Ice installation directory to the System PATH. Using the
      System control panel, change the System PATH to include
      C:\Ice\bin. Note that Windows must be restarted for this change
      to take effect.
 
-   * Copy the dependent libraries to Apache's installation directory.
-
-   * Copy the dependent libraries to Windows system directory
+   * Copy the dependent libraries to the Windows system directory
      (\WINDOWS\system32). We do not recommend this option.
 
-5) Review the access rights on the Ice extension and its dependent
-   libraries. When running as a Windows service, Apache runs in the
-   "Local System" account (also known as "NT Authority\SYSTEM"). You
-   can use the "cacls" utility in a command window to view and modify
-   access rights.
+5) Review the access rights on PHP's extension directory, the Ice
+   extension, and its dependent libraries. When running as a Windows
+   service, Apache runs in the "Local System" account (also known as
+   "NT Authority\SYSTEM"). You can use the "cacls" utility in a
+   command window to view and modify access rights. For example, run
+   the following commands to review the current access rights of PHP's
+   extension directory:
+
+   > cd \Program Files\PHP
+   > cacls ext
 
 6) Restart Apache and verify that the PHP module and the Ice extension
    have been loaded successfully. After reloading the phpinfo.php page
@@ -321,8 +334,8 @@ appropriate changes as you follow the instructions.
 7) Apache's executable has a relatively small default stack size. You
    can determine its current stack size with the following commands:
 
-   cd \Program Files\Apache Software Foundation\Apache2.2\bin
-   dumpbin /all httpd.exe | find "stack"
+   > cd \Program Files\Apache Software Foundation\Apache2.2\bin
+   > dumpbin /all httpd.exe | find "stack"
 
    The relevant output line is shown below:
 
@@ -333,14 +346,15 @@ appropriate changes as you follow the instructions.
    trivial Slice file causes Apache to fail during startup with a
    stack overflow error.
 
-   To increase the stack size, use the editbin utility. Note that the
-   new stack size is given in decimal:
+   To increase the stack size, make sure that the Apache service is
+   not running and use the editbin utility to modify the executable.
+   Note that the new stack size is given in decimal:
 
-   editbin /stack:1048576 httpd.exe
+   > editbin /stack:1048576 httpd.exe
 
    Now execute dumpbin again to verify that the change was made:
 
-   dumpbin /all httpd.exe | find "stack"
+   > dumpbin /all httpd.exe | find "stack"
 
    The new output line is shown below:
 
