@@ -17,7 +17,9 @@
 #include <Slice/FileTracker.h>
 
 #include <limits>
+
 #include <sys/stat.h>
+#include <string.h> 
 
 using namespace std;
 using namespace Slice;

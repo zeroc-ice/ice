@@ -22,6 +22,7 @@
 #include <Slice/Checksum.h>
 #include <Slice/DotNetNames.h>
 #include <Slice/FileTracker.h>
+#include <string.h>
 
 using namespace std;
 using namespace Slice;

@@ -29,6 +29,8 @@
 #  include <iterator>
 #endif
 
+#include <string.h>
+
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;

@@ -28,6 +28,8 @@
 #include <unistd.h>
 #endif
 
+#include <string.h>
+
 using namespace std;
 using namespace Slice;
 using namespace Slice::Ruby;
