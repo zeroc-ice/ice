@@ -126,7 +126,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
         args.push_back("-C");
     }
     args.push_back("-e");
-    args.push_back("utf8");
+    args.push_back("en_us.utf8");
     args.push_back(_fileName);
 
     const char** argv = new const char*[args.size() + 1];
@@ -230,7 +230,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     vector<string> args = _args;
     args.push_back("-M");
     args.push_back("-e");
-    args.push_back("utf8");
+    args.push_back("en_us.utf8");
     args.push_back(_fileName);
 
     const char** argv = new const char*[args.size() + 1];

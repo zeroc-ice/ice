@@ -26,7 +26,7 @@ Bzip2Ver = '1.0.5'
 STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
 DBVer = '4.6.21'
-MCPPVer = '2.7'
+MCPPVer = '2.7.2'
 
 timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
 
