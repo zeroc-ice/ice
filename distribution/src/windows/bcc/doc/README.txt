@@ -72,12 +72,14 @@ and build it yourself.
 NMAKE and Message Compiler (MC.EXE)
 -----------------------------------
 
-In order to build Ice demos, you will need the Microsoft NMAKE and Message
-Compiler utilities. These are included in all full Microsoft C++
-compiler distributions. 
-You can download them as part of the Windows Platform SDK:
+In order to build Ice demos, you will need the Microsoft NMAKE and
+Message Compiler utilities. These are included in all full Microsoft
+C++ compiler distributions. 
+
+You can also download them as part of the Windows Platform SDK:
 
   http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
+
 
 Building and running the C++ demos
 ----------------------------------
