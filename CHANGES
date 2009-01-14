@@ -35,6 +35,8 @@ General Changes
   print an error message if the retry failed and if Ice.RetryIntervals
   was configured with non-zero time intervals.
 
+- All error output from the slice compilers now goes to stderr.
+
 
 C++ Changes
 ===========

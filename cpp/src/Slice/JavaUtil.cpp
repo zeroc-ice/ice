@@ -3426,7 +3426,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 
                 if(!ok)
                 {
-                    cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                    cerr << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
                 }
             }
             _history.insert(s);
@@ -3482,7 +3482,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
         if(!cl->isLocal())
         {
-            cout << p->definitionContext()->filename() << ":" << p->line()
+            cerr << p->definitionContext()->filename() << ":" << p->line()
                  << ": warning: metadata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local" << endl;
@@ -3498,7 +3498,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("java:type:", 0) == 0)
                 {
-                    cout << p->definitionContext()->filename() << ":" << p->line()
+                    cerr << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;
                     break;
                 }
@@ -3597,7 +3597,7 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
                     continue;
                 }
 
-                cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                cerr << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
 
             _history.insert(s);
@@ -3630,7 +3630,7 @@ Slice::JavaGenerator::MetaDataVisitor::validateType(const SyntaxTreeBasePtr& p, 
                 assert(b);
                 str = b->typeId();
             }
-            cout << file << ":" << line << ": warning: invalid metadata for " << str << endl;
+            cerr << file << ":" << line << ": warning: invalid metadata for " << str << endl;
         }
     }
 }
@@ -3660,7 +3660,7 @@ Slice::JavaGenerator::MetaDataVisitor::validateGetSet(const SyntaxTreeBasePtr& p
                 assert(b);
                 str = b->typeId();
             }
-            cout << file << ":" << line << ": warning: invalid metadata for " << str << endl;
+            cerr << file << ":" << line << ": warning: invalid metadata for " << str << endl;
         }
     }
 }

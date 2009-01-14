@@ -5651,7 +5651,7 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
                 {
                     continue;
                 }
-                cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                cerr << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }
@@ -5722,7 +5722,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     {
         if(!cl->isLocal())
         {
-            cout << p->definitionContext()->filename() << ":" << p->line()
+            cerr << p->definitionContext()->filename() << ":" << p->line()
                  << ": warning: metadata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local" << endl;
@@ -5741,7 +5741,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
-                    cout << p->definitionContext()->filename() << ":" << p->line()
+                    cerr << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;
                     break;
                 }
@@ -5834,7 +5834,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     continue;
                 }
 
-                cout << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                cerr << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }

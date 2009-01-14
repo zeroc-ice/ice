@@ -4714,7 +4714,7 @@ Slice::Operation::attributes() const
         }
         if(i == 2)
         {
-            cout << definitionContext()->filename() << ":" << line()
+            cerr << definitionContext()->filename() << ":" << line()
                  << ": warning: invalid freeze metadata for operation" << endl;
         }
         else
@@ -4736,7 +4736,7 @@ Slice::Operation::attributes() const
                 {
                     if(result != 0 && (i == int(Supports) || i == int(Never)))
                     {
-                        cout << definitionContext()->filename() << ":" << line()
+                        cerr << definitionContext()->filename() << ":" << line()
                              << ": warning: invalid freeze metadata for operation" << endl;
                     }
                     else
@@ -4751,7 +4751,7 @@ Slice::Operation::attributes() const
             
             if(i == 4)
             {
-                cout << definitionContext()->filename() << ":" << line()
+                cerr << definitionContext()->filename() << ":" << line()
                      << ": warning: invalid freeze metadata for operation" << endl;
 
                 //
@@ -5170,9 +5170,9 @@ Slice::Unit::error(const char* s)
     string file = currentFile();
     if(!file.empty())
     {
-        cout << file << ':' << _currentLine << ": ";
+        cerr << file << ':' << _currentLine << ": ";
     }
-    cout << s << endl;
+    cerr << s << endl;
     _errors++;
 }
 
@@ -5188,9 +5188,9 @@ Slice::Unit::warning(const char* s) const
     string file = currentFile();
     if(!file.empty())
     {
-        cout << file << ':' << _currentLine << ": ";
+        cerr << file << ':' << _currentLine << ": ";
     }
-    cout << "warning: " << s << endl;
+    cerr << "warning: " << s << endl;
 }
 
 void
