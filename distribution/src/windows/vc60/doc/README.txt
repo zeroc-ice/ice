@@ -208,27 +208,27 @@ from any of the other language mappings can be used. A README file is
 provided in each of the example directories.
 
 Note that you must modify the php.ini files in each demo directory to
-match your PHP installation and ensure that the Ice extension is
-loaded properly.
+match your PHP installation and ensure that the Ice extension for PHP
+is loaded properly.
 
 
 Using IcePHP with Apache
 ------------------------
 
-The binary distribution of PHP5 for Windows includes loadable modules
-for Apache 1, Apache 2.0, and Apache 2.2. The Ice extension can be
-used with all Apache versions.
+The binary distribution of PHP for Windows includes loadable modules
+for Apache 1, Apache 2.0, and Apache 2.2. The Ice extension for PHP
+can be used with all Apache versions.
 
 The PHP documentation describes how to configure the Apache servers
-for PHP5, and the PHP installer may have already performed the
+for PHP, and the PHP installer may have already performed the
 necessary steps. We provide instructions below for configuring PHP
 to use the Ice extension. These instructions make several assumptions:
 
-  * Apache is already configured to load PHP
-  * PHP is installed in C:\PHP5
+  * Apache 2.2 is installed and configured to load PHP
+  * PHP is installed in C:\Program Files\PHP
   * Ice is installed in C:\Ice
 
-If you have chosen different directories, you will need to make the
+If you have a different installation, you will need to make the
 appropriate changes as you follow the instructions.
 
 1) With Apache running, verify that PHP has been loaded successfully
@@ -241,12 +241,11 @@ appropriate changes as you follow the instructions.
 
    http://127.0.0.1/phpinfo.php
 
-   If you have configured PHP correctly, you should see a very long
-   page of PHP configuration information. If you do not see this page,
-   or an error occurs, check Apache's error log as well as the Windows
-   event log for more information. Also note that you may need to
-   restart Apache if the server was running at the time you installed
-   PHP.
+   If you have configured PHP correctly, you should see a long page of
+   PHP configuration information. If you do not see this page, or an
+   error occurs, check Apache's error log as well as the Windows event
+   log for more information. Also note that you may need to restart
+   Apache if it was running at the time you installed PHP.
 
 2) Review the settings on the browser page for an entry titled
    "Loaded Configuration File". It will have a value such as
@@ -257,32 +256,30 @@ appropriate changes as you follow the instructions.
 
    extension = php_ice.dll
 
-   The file php_ice.dll contains the Ice extension.
+   The file php_ice.dll contains the Ice extension for PHP.
 
-   Next, look for the line that defines PHP's extension directory. It
-   typically has the following definition:
+3) Look for the "extension_dir" setting in the browser page or in
+   PHP's configuration file. It typically has the following value by
+   default:
 
    extension_dir = "./"
 
    If the extension_dir setting contains a relative path such as the
    one shown above, it is resolved relative to the working directory
    of the Apache process. Normally Apache's working directory is its
-   installation directory. Rather than cluttering up this directory
-   with PHP-related files, we recommend setting extension_dir to a
-   different directory, such as
+   installation directory. Therefore, unless you change the value of
+   extension_dir, the DLL for the Ice extension must be copied to the
+   Apache installation directory:
 
-   extension_dir = "\Program Files\PHP\ext"
+   > copy C:\Ice\bin\php_ice.dll \
+        "C:\Program Files\Apache Software Foundation\Apache2.2"
 
-   If necessary, create the extension directory.
+4) Verify that Apache can load the dependent libraries for the Ice
+   extension. Regardless of the location of PHP's extension directory,
+   the Ice extension's dependent libraries must be located in Apache's
+   executable search path.
 
-3) Copy the Ice extension to PHP's extension directory.
-
-   The file php_ice.dll is located in the bin subdirectory of your Ice
-   installation (e.g., C:\Ice\bin). Copy this file to PHP's extension
-   directory.
-
-4) Review the location of dependent libraries. The Ice extension
-   requires the following DLLs:
+   The Ice extension depends on the following libraries:
 
    bzip2.dll
    ice@libver@.dll
@@ -293,33 +290,37 @@ appropriate changes as you follow the instructions.
    stlport_vc646.dll
 
    All of these files can be found in the bin subdirectory of your Ice
-   installation (e.g., C:\Ice\bin). Apache must be able to load these
-   DLLs during startup; if it cannot load them, Apache may still start
-   but will not have loaded PHP.
-
-   There are several alternatives for the dependent libraries:
-
-   * Copy the dependent libraries to PHP's extension directory. This
-     is the option that we recommend.
+   installation (e.g., C:\Ice\bin). Apache must be able to locate
+   these DLLs during startup, and several alternatives are available:
 
    * Add the Ice installation directory to the System PATH. Using the
      System control panel, change the System PATH to include
      C:\Ice\bin. Note that Windows must be restarted for this change
      to take effect.
 
+   * Copy the dependent libraries to Apache's installation directory.
+
    * Copy the dependent libraries to the Windows system directory
      (\WINDOWS\system32). We do not recommend this option.
 
-5) Review the access rights on PHP's extension directory, the Ice
-   extension, and its dependent libraries. When running as a Windows
-   service, Apache runs in the "Local System" account (also known as
-   "NT Authority\SYSTEM"). You can use the "cacls" utility in a
-   command window to view and modify access rights. For example, run
-   the following commands to review the current access rights of PHP's
-   extension directory:
+   If Apache cannot find or access a DLL, the PHP module will usually
+   ignore the Ice extension and continue its initialization, therefore
+   a successful Apache startup does not necessarily mean that the Ice
+   extension has been loaded. Unfortunately, the message reported by
+   PHP in Apache's error log is not very helpful; the error implies
+   that it cannot find php_ice.dll when in fact it was able to open
+   php_ice.dll but a dependent DLL was missing.
 
-   > cd \Program Files\PHP
-   > cacls ext
+5) Review the access rights on PHP's extension directory, the Ice
+   extension DLL, and its dependent libraries. When running as a
+   Windows service, Apache runs in the "Local System" account (also
+   known as "NT Authority\SYSTEM"). You can use the "cacls" utility in
+   a command window to view and modify access rights. For example, run
+   the following commands to review the current access rights of the
+   Ice extension:
+
+   > cd \Program Files\Apache Software Foundation\Apache2.2
+   > cacls php_ice.dll
 
 6) Restart Apache and verify that the PHP module and the Ice extension
    have been loaded successfully. After reloading the phpinfo.php page

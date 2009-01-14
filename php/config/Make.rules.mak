@@ -47,7 +47,7 @@ PHP_BIN_HOME		= C:\Program Files\PHP
 # STLPort is required if using MSVC++ 6.0. Change if STLPort
 # is located in a different location.
 #
-!if "$(CPP_COMPILER)" == "VC60"
+!if "$(CPP_COMPILER)" == "VC60" && "$(STLPORT_HOME)" == ""
 !if "$(THIRDPARTY_HOME)" != ""
 STLPORT_HOME            = $(THIRDPARTY_HOME)
 !else
@@ -83,6 +83,17 @@ install_bindir		= $(prefix)\bin
 
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 
+!if "$(ice_src_dist)" != ""
+!if "$(STLPORT_HOME)" != ""
+CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
+LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib" $(LDFLAGS)
+!endif
+!else
+!if "$(CPP_COMPILER)" == "VC60"
+CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
+!endif
+!endif
+
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
 !endif
@@ -92,10 +103,6 @@ ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 !if "$(ice_src_dist)" != ""
 ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"
 ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib"
-!if "$(STLPORT_HOME)" != ""
-ICE_CPPFLAGS		= -I"$(STLPORT_HOME)\include\stlport" $(ICE_CPPFLAGS)
-ICE_LDFLAGS		= /LIBPATH:"$(STLPORT_HOME)\lib" $(ICE_LDFLAGS)
-!endif
 !else
 ICE_CPPFLAGS		= -I"$(ice_dir)\include"
 ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib"

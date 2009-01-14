@@ -30,22 +30,27 @@ class Thread_opVoid(threading.Thread):
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
         self.opVoidThread = None
+        self.opVoidThreadLock = threading.Lock()
 
     def shutdown_async(self, cb, current=None):
+        self.opVoidThreadLock.acquire()
         if self.opVoidThread:
             self.opVoidThread.join()
             self.opVoidThread = None
+        self.opVoidThreadLock.release()
 
         current.adapter.getCommunicator().shutdown()
         cb.ice_response()
 
     def opVoid_async(self, cb, current=None):
+        self.opVoidThreadLock.acquire()
         if self.opVoidThread:
             self.opVoidThread.join()
             self.opVoidThread = None
 
         self.opVoidThread = Thread_opVoid(cb)
         self.opVoidThread.start()
+        self.opVoidThreadLock.release()
 
     def opByte_async(self, cb, p1, p2, current=None):
         cb.ice_response(p1, p1 ^ p2)
