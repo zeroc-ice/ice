@@ -17,9 +17,7 @@ using namespace std;
 Freeze::EvictorPtr Filesystem::NodeI::_evictor;
 
 Filesystem::NodeI::NodeI()
-#ifdef __SUNPRO_CC
   : _id(Ice::Identity())
-#endif
 {
 }
 
