@@ -39,7 +39,7 @@ for file in files:
     else:
         command = slice2cpp + " -I. " + os.path.join(os.getcwd(), file);
     stdin, stdout, stderr = os.popen3(command)
-    lines1 = stdout.readlines()
+    lines1 = stderr.readlines()
     lines2 = open(os.path.join(os.getcwd(), regex1.sub(".err", file)), "r").readlines()
     if len(lines1) != len(lines2):
         print "failed!"

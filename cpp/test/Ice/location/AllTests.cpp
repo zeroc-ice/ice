@@ -288,6 +288,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "ok" << endl;
 
     cout << "testing proxy from server... " << flush;
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("test@TestAdapter"));
     HelloPrx hello = obj->getHello();
     test(hello->ice_getAdapterId() == "TestAdapter");
     hello->sayHello();
@@ -296,7 +297,56 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     hello->sayHello();
     cout << "ok" << endl;
 
+    cout << "testing locator request queuing... " << flush;
+    hello = obj->getReplicatedHello()->ice_locatorCacheTimeout(0)->ice_connectionCached(false);
+    count = locator->getRequestCount();
+    hello->ice_ping();
+    test(++count == locator->getRequestCount());
+    for(int i = 0; i < 1000; i++)
+    {
+        class AMICallback : public Test::AMI_Hello_sayHello
+        {
+        public:
+            virtual void
+            ice_exception(const Ice::Exception&)
+            {
+                test(false);
+            }
+
+            virtual void
+            ice_response()
+            {
+            }
+        };
+        hello->sayHello_async(new AMICallback());
+    }
+    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 100);
+    count = locator->getRequestCount();
+    hello = hello->ice_adapterId("unknown");
+    for(int i = 0; i < 1000; i++)
+    {
+        class AMICallback : public Test::AMI_Hello_sayHello
+        {
+        public:
+            virtual void
+            ice_exception(const Ice::Exception& ex)
+            {
+                test(dynamic_cast<const Ice::NotRegisteredException*>(&ex));
+            }
+
+            virtual void
+            ice_response()
+            {
+                test(false);
+            }
+        };
+        hello->sayHello_async(new AMICallback());
+    }
+    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 100);
+    cout << "ok" << endl;
+
     cout << "testing proxy from server after shutdown... " << flush;
+    hello = obj->getReplicatedHello();
     obj->shutdown();
     manager->startServer();
     hello->sayHello();

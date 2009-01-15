@@ -292,8 +292,56 @@ public class AllTests
         hello.sayHello();
         System.out.println("ok");
 
+        System.out.print("testing locator request queuing... ");
+        System.out.flush();
+        hello = (HelloPrx)obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
+        count = locator.getRequestCount();
+        hello.ice_ping();
+        test(++count == locator.getRequestCount());
+        for(int i = 0; i < 1000; i++)
+        {
+            class AMICallback extends Test.AMI_Hello_sayHello
+            {
+                public void
+                ice_exception(Ice.LocalException ex)
+                {
+                    test(false);
+                }
+
+                public void
+                ice_response()
+                {
+                }
+            };
+            hello.sayHello_async(new AMICallback());
+        }
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 100);
+        count = locator.getRequestCount();
+        hello = (HelloPrx)hello.ice_adapterId("unknown");
+        for(int i = 0; i < 1000; i++)
+        {
+            class AMICallback extends Test.AMI_Hello_sayHello
+            {
+                public void
+                ice_exception(Ice.LocalException ex)
+                {
+                    test(ex instanceof Ice.NotRegisteredException);
+                }
+
+                public void
+                ice_response()
+                {
+                    test(false);
+                }
+            };
+            hello.sayHello_async(new AMICallback());
+        }
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 100);
+        System.out.println("ok");
+
         System.out.print("testing proxy from server after shutdown... ");
         System.out.flush();
+        hello = obj.getReplicatedHello();
         obj.shutdown();
         manager.startServer();
         hello.sayHello();

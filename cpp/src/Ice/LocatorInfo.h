@@ -12,6 +12,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>
@@ -71,6 +72,44 @@ class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
+    class RequestCallback : virtual public IceUtil::Shared
+    {
+    public:
+
+        virtual void response(const LocatorInfoPtr&, const Ice::ObjectPrx&) = 0;
+        virtual void exception(const LocatorInfoPtr&, const Ice::Exception&) = 0;
+    };
+    typedef IceUtil::Handle<RequestCallback> RequestCallbackPtr;
+
+    class Request : virtual public IceUtil::Shared
+    {
+    public:
+
+        void addCallback(const RequestCallbackPtr&);
+        Ice::ObjectPrx getProxy();
+
+    protected:
+
+        Request(const LocatorInfoPtr&);
+
+        void response(const Ice::ObjectPrx&);
+        void exception(const Ice::Exception&);
+
+        virtual void send() = 0;
+
+        const LocatorInfoPtr _locatorInfo;
+
+    private:
+
+        IceUtil::Monitor<IceUtil::Mutex> _monitor;
+        std::vector<RequestCallbackPtr> _callbacks;
+        bool _sent;
+        bool _response;
+        Ice::ObjectPrx _proxy;
+        std::auto_ptr<Ice::Exception> _exception;
+    };
+    typedef IceUtil::Handle<Request> RequestPtr;
+
     class GetEndpointsCallback : virtual public IceUtil::Shared
     {
     public:
@@ -105,13 +144,25 @@ public:
     void getEndpointsException(const ReferencePtr&, const Ice::Exception&, const GetEndpointsCallbackPtr&);
     void getEndpointsTrace(const ReferencePtr&, const std::vector<EndpointIPtr>&, bool);
 
+    const LocatorTablePtr& getTable() { return _table; }
+
+    RequestPtr getAdapterRequest(const std::string&);
+    void removeAdapterRequest(const std::string&);
+
+    RequestPtr getObjectRequest(const Ice::Identity&);
+    void removeObjectRequest(const Ice::Identity&);
+
 private:
+
 
     void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointIPtr>&);
 
     const Ice::LocatorPrx _locator;
     Ice::LocatorRegistryPrx _locatorRegistry;
     const LocatorTablePtr _table;
+
+    std::map<std::string, RequestPtr> _adapterRequests;
+    std::map<Ice::Identity, RequestPtr> _objectRequests;
 };
 
 }

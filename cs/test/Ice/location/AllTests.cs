@@ -20,6 +20,35 @@ public class AllTests
         }
     }
     
+    class AMICallbackResponse : Test.AMI_Hello_sayHello
+    {
+        override public void
+        ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        override public void
+        ice_response()
+        {
+        }
+    }
+
+    class AMICallbackException : Test.AMI_Hello_sayHello
+    {
+        override public void
+        ice_exception(Ice.Exception ex)
+        {
+            test(ex is Ice.NotRegisteredException);
+        }
+        
+        override public void
+        ice_response()
+        {
+            test(false);
+        }
+    }
+
     public static void allTests(Ice.Communicator communicator)
     {
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
@@ -283,6 +312,26 @@ public class AllTests
         obj.shutdown();
         manager.startServer();
         hello.sayHello();
+        Console.Out.WriteLine("ok");
+
+        Console.Out.Write("testing locator request queuing... ");
+        Console.Out.Flush();
+        hello = (HelloPrx)obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
+        count = locator.getRequestCount();
+        hello.ice_ping();
+        test(++count == locator.getRequestCount());
+        for(int i = 0; i < 1000; i++)
+        {
+            hello.sayHello_async(new AMICallbackResponse());
+        }
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 100);
+        count = locator.getRequestCount();
+        hello = (HelloPrx)hello.ice_adapterId("unknown");
+        for(int i = 0; i < 1000; i++)
+        {
+            hello.sayHello_async(new AMICallbackException());
+        }
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 100);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing object migration... ");

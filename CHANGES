@@ -23,6 +23,10 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- Optimized the Ice client runtime to minimize locator requests when
+  multiple concurrent or AMI requests need to resolve the endpoints of
+  a same well-known object, object adapter or replica group.
+
 - Fixed a bug in IceGrid that would cause it to generate incorrect
   config files for servers whose ice-version was set to a version
   previous to Ice 3.3.0.
