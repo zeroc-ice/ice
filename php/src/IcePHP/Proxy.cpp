@@ -1821,20 +1821,20 @@ lookupClass(const string& id, Slice::ClassDefPtr& def TSRMLS_DC)
 
     try
     {
-        Slice::TypeList l;
+        Slice::TypePtr type;
         Profile* profile = static_cast<Profile*>(ICE_G(profile));
         if(profile)
         {
-            l = profile->unit->lookupType(id, false);
+            type = profile->lookupType(id);
         }
 
-        if(l.empty())
+        if(!type)
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "no Slice definition found for type %s", id.c_str());
             return false;
         }
 
-        Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(l.front());
+        Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
         if(b && b->kind() != Slice::Builtin::KindObject && b->kind() != Slice::Builtin::KindObjectProxy)
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id.c_str());
@@ -1847,7 +1847,6 @@ lookupClass(const string& id, Slice::ClassDefPtr& def TSRMLS_DC)
             // Allow the use of "::Type" (ClassDecl) or "::Type*" (Proxy).
             //
             Slice::ClassDeclPtr decl;
-            Slice::TypePtr type = l.front();
             Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(type);
             if(proxy)
             {
