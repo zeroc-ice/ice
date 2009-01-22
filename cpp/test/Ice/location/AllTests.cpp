@@ -34,6 +34,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     TestLocatorPrx locator = TestLocatorPrx::uncheckedCast(communicator->getDefaultLocator());
     test(manager);
 
+    TestLocatorRegistryPrx registry = TestLocatorRegistryPrx::checkedCast(locator->getRegistry());
+    test(registry);
+
     cout << "testing stringToProxy... " << flush;
     Ice::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
     Ice::ObjectPrx base2 = communicator->stringToProxy("test @ TestAdapter");
@@ -302,7 +305,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     count = locator->getRequestCount();
     hello->ice_ping();
     test(++count == locator->getRequestCount());
-    for(int i = 0; i < 1000; i++)
+    int i;
+    for(i = 0; i < 1000; i++)
     {
         class AMICallback : public Test::AMI_Hello_sayHello
         {
@@ -320,10 +324,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         };
         hello->sayHello_async(new AMICallback());
     }
-    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 100);
+    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 500);
     count = locator->getRequestCount();
     hello = hello->ice_adapterId("unknown");
-    for(int i = 0; i < 1000; i++)
+    for(i = 0; i < 1000; i++)
     {
         class AMICallback : public Test::AMI_Hello_sayHello
         {
@@ -342,7 +346,201 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         };
         hello->sayHello_async(new AMICallback());
     }
-    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 100);
+    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 500);
+    cout << "ok" << endl;
+
+    cout << "testing adapter locator cache... " << flush;
+
+    try
+    {
+        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NotRegisteredException& ex)
+    {
+        test(ex.kindOfObject == "object adapter");
+        test(ex.id == "TestAdapter3");
+    }
+    registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
+    try
+    {
+        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+        registry->setAdapterDirectProxy("TestAdapter3", communicator->stringToProxy("dummy:tcp"));
+        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
+    }
+    
+    try
+    {
+        communicator->stringToProxy("test@TestAdapter3")->ice_locatorCacheTimeout(0)->ice_ping();
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    try
+    {
+        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {   
+    }
+    registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
+    try
+    {
+        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
+    }
+    cout << "ok" <<endl;
+
+    cout << "testing well-known object locator cache... " << flush;
+
+    registry->addObject(communicator->stringToProxy("test3@TestUnknown"));
+    try
+    {
+        communicator->stringToProxy("test3")->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NotRegisteredException& ex)
+    {
+        test(ex.kindOfObject == "object adapter");
+        test(ex.id == "TestUnknown");
+    }
+    registry->addObject(communicator->stringToProxy("test3@TestAdapter4")); // Update
+    registry->setAdapterDirectProxy("TestAdapter4", communicator->stringToProxy("dummy:tcp"));
+    try
+    {
+        communicator->stringToProxy("test3")->ice_ping();
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    registry->setAdapterDirectProxy("TestAdapter4", locator->findAdapterById("TestAdapter"));
+    try
+    {
+        communicator->stringToProxy("test3")->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
+    }
+
+    registry->setAdapterDirectProxy("TestAdapter4", communicator->stringToProxy("dummy:tcp"));
+    try
+    {
+        communicator->stringToProxy("test3")->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
+    }
+
+    try
+    {
+        communicator->stringToProxy("test@TestAdapter4")->ice_locatorCacheTimeout(0)->ice_ping();
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    try
+    {
+        communicator->stringToProxy("test@TestAdapter4")->ice_ping();
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {   
+    }
+    try
+    {
+        communicator->stringToProxy("test3")->ice_ping();
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    registry->addObject(communicator->stringToProxy("test3@TestAdapter"));
+    try
+    {
+        communicator->stringToProxy("test3")->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+        test(false);
+    }
+    
+    registry->addObject(communicator->stringToProxy("test4"));
+    try
+    {
+        communicator->stringToProxy("test4")->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NoEndpointException&)
+    {
+    }
+    cout << "ok" << endl;
+
+    cout << "testing locator cache background updates... " << flush;
+    {
+        Ice::InitializationData initData;
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
+        Ice::CommunicatorPtr ic = Ice::initialize(initData);
+
+        registry->setAdapterDirectProxy("TestAdapter5", locator->findAdapterById("TestAdapter"));
+        registry->addObject(communicator->stringToProxy("test3@TestAdapter"));
+
+        int count = locator->getRequestCount();
+        ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+        count += 3;
+        test(count == locator->getRequestCount());
+        registry->setAdapterDirectProxy("TestAdapter5", 0);
+        registry->addObject(communicator->stringToProxy("test3:tcp"));
+        ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+        test(count == locator->getRequestCount());
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
+
+        // The following requets should trigger the background updates but still use the cached endpoints
+        // and therefore succeed.
+        ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+
+        try
+        {
+            while(true)
+            {
+                ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+            }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Expected to fail once they endpoints have been updated in the background.
+        }
+        try
+        {
+            while(true)
+            {
+                ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+            }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Expected to fail once they endpoints have been updated in the background.
+        }
+        ic->destroy();
+    }
     cout << "ok" << endl;
 
     cout << "testing proxy from server after shutdown... " << flush;
@@ -402,9 +600,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
     adapter->setLocator(locator);
 
-    TestLocatorRegistryPrx registry = TestLocatorRegistryPrx::checkedCast(locator->getRegistry());
-    test(registry);
-    
     Ice::Identity id;
     id.name = IceUtil::generateUUID();
     registry->addObject(adapter->add(new HelloI, id));

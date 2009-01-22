@@ -18,6 +18,7 @@
 #include <Ice/LocatorF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/PropertiesF.h>
 
 namespace IceInternal
 {
@@ -26,7 +27,7 @@ class LocatorManager : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    LocatorManager();
+    LocatorManager(const Ice::PropertiesPtr&);
 
     void destroy();
 
@@ -37,6 +38,8 @@ public:
     LocatorInfoPtr get(const Ice::LocatorPrx&);
 
 private:
+
+    const bool _background;
 
     std::map<Ice::LocatorPrx, LocatorInfoPtr> _table;
     std::map<Ice::LocatorPrx, LocatorInfoPtr>::iterator _tableHint;
@@ -56,59 +59,21 @@ public:
     void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointIPtr>&);
     ::std::vector<EndpointIPtr> removeAdapterEndpoints(const std::string&);
 
-    bool getProxy(const Ice::Identity&, int, Ice::ObjectPrx&);
-    void addProxy(const Ice::Identity&, const Ice::ObjectPrx&);
-    Ice::ObjectPrx removeProxy(const Ice::Identity&);
+    bool getObjectReference(const Ice::Identity&, int, ReferencePtr&);
+    void addObjectReference(const Ice::Identity&, const ReferencePtr&);
+    ReferencePtr removeObjectReference(const Ice::Identity&);
     
 private:
 
     bool checkTTL(const IceUtil::Time&, int) const;
 
     std::map<std::string, std::pair<IceUtil::Time, std::vector<EndpointIPtr> > > _adapterEndpointsMap;
-    std::map<Ice::Identity, std::pair<IceUtil::Time, Ice::ObjectPrx> > _objectMap;
+    std::map<Ice::Identity, std::pair<IceUtil::Time, ReferencePtr> > _objectMap;
 };
 
 class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
-
-    class RequestCallback : virtual public IceUtil::Shared
-    {
-    public:
-
-        virtual void response(const LocatorInfoPtr&, const Ice::ObjectPrx&) = 0;
-        virtual void exception(const LocatorInfoPtr&, const Ice::Exception&) = 0;
-    };
-    typedef IceUtil::Handle<RequestCallback> RequestCallbackPtr;
-
-    class Request : virtual public IceUtil::Shared
-    {
-    public:
-
-        void addCallback(const RequestCallbackPtr&);
-        Ice::ObjectPrx getProxy();
-
-    protected:
-
-        Request(const LocatorInfoPtr&);
-
-        void response(const Ice::ObjectPrx&);
-        void exception(const Ice::Exception&);
-
-        virtual void send() = 0;
-
-        const LocatorInfoPtr _locatorInfo;
-
-    private:
-
-        IceUtil::Monitor<IceUtil::Mutex> _monitor;
-        std::vector<RequestCallbackPtr> _callbacks;
-        bool _sent;
-        bool _response;
-        Ice::ObjectPrx _proxy;
-        std::auto_ptr<Ice::Exception> _exception;
-    };
-    typedef IceUtil::Handle<Request> RequestPtr;
 
     class GetEndpointsCallback : virtual public IceUtil::Shared
     {
@@ -119,7 +84,55 @@ public:
     };
     typedef IceUtil::Handle<GetEndpointsCallback> GetEndpointsCallbackPtr;
 
-    LocatorInfo(const Ice::LocatorPrx&, const LocatorTablePtr&);
+    class RequestCallback : virtual public IceUtil::Shared
+    {
+    public:
+
+        RequestCallback(const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+
+        void response(const LocatorInfoPtr&, const Ice::ObjectPrx&);
+        void exception(const LocatorInfoPtr&, const Ice::Exception&);
+
+    private:
+
+        const ReferencePtr _ref;
+        const int _ttl;
+        const GetEndpointsCallbackPtr _callback;
+    };
+    typedef IceUtil::Handle<RequestCallback> RequestCallbackPtr;
+
+    class Request : virtual public IceUtil::Shared
+    {
+    public:
+
+        void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+        std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
+
+    protected:
+
+        Request(const LocatorInfoPtr&, const ReferencePtr&);
+
+        void response(const Ice::ObjectPrx&);
+        void exception(const Ice::Exception&);
+
+        virtual void send(bool) = 0;
+
+        const LocatorInfoPtr _locatorInfo;
+        const ReferencePtr _ref;
+
+    private:
+
+        IceUtil::Monitor<IceUtil::Mutex> _monitor;
+        std::vector<RequestCallbackPtr> _callbacks;
+        std::vector<ReferencePtr> _wellKnownRefs;
+        bool _sent;
+        bool _response;
+        Ice::ObjectPrx _proxy;
+        std::auto_ptr<Ice::Exception> _exception;
+    };
+    typedef IceUtil::Handle<Request> RequestPtr;
+
+    LocatorInfo(const Ice::LocatorPrx&, const LocatorTablePtr&, bool);
 
     void destroy();
 
@@ -130,36 +143,36 @@ public:
     Ice::LocatorPrx getLocator() const;
     Ice::LocatorRegistryPrx getLocatorRegistry();
 
-    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, int, bool&);
-    void getEndpoints(const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr& ref, int ttl, bool& cached)
+    {
+        return getEndpoints(ref, 0, ttl, cached);
+    }
+    void getEndpoints(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
+    {
+        getEndpoints(ref, 0, ttl, cb);
+    }
+    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
+    void getEndpoints(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+
     void clearCache(const ReferencePtr&);
-    void clearObjectCache(const ReferencePtr&);
-
-    //
-    // The following methods need to be public for access by AMI callbacks.
-    //
-    void getEndpointsException(const ReferencePtr&, const Ice::Exception&);
-    void getWellKnownObjectEndpoints(const ReferencePtr&, const Ice::ObjectPrx&, int, bool, 
-                                     const GetEndpointsCallbackPtr&);
-    void getEndpointsException(const ReferencePtr&, const Ice::Exception&, const GetEndpointsCallbackPtr&);
-    void getEndpointsTrace(const ReferencePtr&, const std::vector<EndpointIPtr>&, bool);
-
-    const LocatorTablePtr& getTable() { return _table; }
-
-    RequestPtr getAdapterRequest(const std::string&);
-    void removeAdapterRequest(const std::string&);
-
-    RequestPtr getObjectRequest(const Ice::Identity&);
-    void removeObjectRequest(const Ice::Identity&);
 
 private:
 
-
+    void getEndpointsException(const ReferencePtr&, const Ice::Exception&);
+    void getEndpointsTrace(const ReferencePtr&, const std::vector<EndpointIPtr>&, bool);
     void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointIPtr>&);
+
+    RequestPtr getAdapterRequest(const ReferencePtr&);
+    RequestPtr getObjectRequest(const ReferencePtr&);
+
+    void finishRequest(const ReferencePtr&, const std::vector<ReferencePtr>&, const Ice::ObjectPrx&, bool);
+    friend class Request;
+    friend class RequestCallback;
 
     const Ice::LocatorPrx _locator;
     Ice::LocatorRegistryPrx _locatorRegistry;
     const LocatorTablePtr _table;
+    const bool _background;
 
     std::map<std::string, RequestPtr> _adapterRequests;
     std::map<Ice::Identity, RequestPtr> _objectRequests;

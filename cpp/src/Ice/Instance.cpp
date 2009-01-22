@@ -966,7 +966,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _routerManager = new RouterManager;
 
-        _locatorManager = new LocatorManager;
+        _locatorManager = new LocatorManager(_initData.properties);
 
         _referenceFactory = new ReferenceFactory(this, communicator);
 

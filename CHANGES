@@ -23,6 +23,19 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- Added support for updating locator cache endpoints in the background
+  if the new Ice.BackgroundLocatorCacheUpdates property is set to 1.
+
+  Locator cache updates are triggered if the proxy locator cache
+  timeout is configured and the cached endpoints are older than the
+  configured timeout.
+
+  By default, locator cache updates are performed before making an
+  invocation, delaying the invocation until the new endpoints are
+  retrieved from the locator. With this feature enabled, the locator
+  cache updates are performed in the background and the invocation
+  that triggered the update uses the previously cached endpoints.
+
 - Optimized the Ice client run time to minimize locator requests when
   multiple concurrent or AMI requests need to resolve the endpoints of
   the same well-known object, object adapter, or replica group.

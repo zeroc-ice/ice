@@ -125,7 +125,11 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
             // We retry ObjectNotExistException if the reference is
             // indirect.
             //
-            li->clearObjectCache(ref);
+
+            if(ref->isWellKnown())
+            {
+                li->clearCache(ref);
+            }
         }
         else if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
         {
