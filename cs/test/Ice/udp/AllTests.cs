@@ -134,13 +134,20 @@ public class AllTests
 
         replyI.reset();
         obj.ping(reply);
-        ret = replyI.waitReply(5, 5000);
-        test(ret == true);
+        if(!replyI.waitReply(5, 5000))
+        {
+            Console.Out.WriteLine("failed (is a firewall enabled?)");
+            return obj;
+        }
 
         replyI.reset();
         obj.ping(reply);
-        ret = replyI.waitReply(5, 5000);
-        test(ret == true);
+        if(!replyI.waitReply(5, 5000))
+        {
+            Console.Out.WriteLine("failed (is a firewall enabled?)");
+            return obj;
+        }
+
         Console.Out.WriteLine("ok");
 
         return obj;

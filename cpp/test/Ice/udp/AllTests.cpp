@@ -128,13 +128,20 @@ allTests(const CommunicatorPtr& communicator)
 
     replyI->reset();
     obj->ping(reply);
-    ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
-    test(ret == true);
+    if(!replyI->waitReply(5, IceUtil::Time::seconds(2)))
+    {
+        cout << "failed (is a firewall enabled?)" << endl;
+        return obj;
+    }
 
     replyI->reset();
     obj->ping(reply);
-    ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
-    test(ret == true);
+    if(!replyI->waitReply(5, IceUtil::Time::seconds(2)))
+    {
+        cout << "failed (is a firewall enabled?)" << endl;
+        return obj;
+    }
+
     cout << "ok" << endl;
 
     return obj;

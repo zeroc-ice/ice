@@ -132,13 +132,21 @@ public class AllTests
 
         replyI.reset();
         obj.ping(reply);
-        ret = replyI.waitReply(5, 2000);
-        test(ret == true);
+        if(!replyI.waitReply(5, 2000))
+        {
+            System.out.println("failed (is a firewall enabled?)");
+            return obj;
+        }
 
         replyI.reset();
         obj.ping(reply);
         ret = replyI.waitReply(5, 2000);
-        test(ret == true);
+        if(!replyI.waitReply(5, 2000))
+        {
+            System.out.println("failed (is a firewall enabled?)");
+            return obj;
+        }
+
         System.out.println("ok");
 
         return obj;
