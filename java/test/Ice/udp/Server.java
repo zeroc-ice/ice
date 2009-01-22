@@ -48,7 +48,13 @@ public class Server
         try
         {
             Ice.StringSeqHolder argHolder = new Ice.StringSeqHolder(args);
-            communicator = Ice.Util.initialize(argHolder);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argHolder);
+        
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
+
+            communicator = Ice.Util.initialize(argHolder, initData);
             status = run(argHolder.value, communicator);
         }
         catch(Exception ex)

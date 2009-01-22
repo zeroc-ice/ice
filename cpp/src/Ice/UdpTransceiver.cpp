@@ -65,7 +65,6 @@ IceInternal::UdpTransceiver::write(Buffer& buf)
         //
         // We don't log a warning here because the client gets an exception anyway.
         //
-        cerr << packetSize << " " << _maxPacketSize << " " << _sndSize << endl;
         throw DatagramLimitException(__FILE__, __LINE__);
     }
 

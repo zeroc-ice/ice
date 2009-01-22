@@ -84,6 +84,38 @@ public class AllTests
         obj.ping(reply);
         bool ret = replyI.waitReply(3, 2000);
         test(ret == true);
+
+        byte[] seq = null;
+        try
+        {
+            seq = new byte[1024];
+            while(true)
+            {
+                seq = new byte[seq.Length * 2 + 10];
+                replyI.reset();
+                obj.sendByteSeq(seq, reply);
+                replyI.waitReply(1, 10000);
+            }
+        }
+        catch(Ice.DatagramLimitException)
+        {
+            test(seq.Length > 16384);
+        }
+
+        communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
+        seq = new byte[50000];
+        try
+        {
+            replyI.reset();
+            obj.sendByteSeq(seq, reply);
+            test(!replyI.waitReply(1, 500));
+        }
+        catch(Ice.LocalException ex)
+        {
+            Console.Out.WriteLine(ex);
+            test(false);
+        }
+
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing udp multicast... ");

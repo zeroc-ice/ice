@@ -1988,6 +1988,7 @@ namespace Ice
                     }
 
                     Debug.Assert(_transceiver != null);
+                    bool parseHeader = _stream.isEmpty() || _stream.pos() < IceInternal.Protocol.headerSize;
 
                     //
                     // Complete an asynchronous read operation if necessary. This may raise a SocketException
@@ -2042,7 +2043,7 @@ namespace Ice
                         // When we've read enough to fill out the header, we need to validate it. The stream
                         // will be enlarged if necessary to contain the entire message.
                         //
-                        if(pos == IceInternal.Protocol.headerSize)
+                        if(parseHeader && pos >= IceInternal.Protocol.headerSize)
                         {
                             validateHeader(_stream);
 
@@ -2058,8 +2059,6 @@ namespace Ice
                                     _logger.warning("DatagramLimitException: maximum size of " + _stream.pos() + 
                                                     " exceeded");
                                 }
-                                _stream.pos(0);
-                                _stream.resize(0, true);
                                 throw new Ice.DatagramLimitException();
                             }
                         }
@@ -2141,6 +2140,8 @@ namespace Ice
                 //
                 // Expected. Restart the read.
                 //
+                _stream.pos(0);
+                _stream.resize(IceInternal.Protocol.headerSize, true); // Make room for the next header.
                 readAsync(null);
             }
             catch(IceInternal.ReadAbortedException)
@@ -2167,6 +2168,8 @@ namespace Ice
                     //
                     // Restart the read.
                     //
+                    _stream.pos(0);
+                    _stream.resize(IceInternal.Protocol.headerSize, true); // Make room for the next header.
                     readAsync(null);
                 }
                 else

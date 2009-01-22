@@ -79,6 +79,38 @@ allTests(const CommunicatorPtr& communicator)
     obj->ping(reply);
     bool ret = replyI->waitReply(3, IceUtil::Time::seconds(2));
     test(ret == true);
+
+    Test::ByteSeq seq;
+    try
+    {
+        seq.resize(1024);
+        while(true)
+        {
+            seq.resize(seq.size() * 2 + 10);
+            replyI->reset();
+            obj->sendByteSeq(seq, reply);
+            replyI->waitReply(1, IceUtil::Time::seconds(10));
+        }
+    }
+    catch(const DatagramLimitException&)
+    {
+        test(seq.size() > 16384);
+    }
+
+    communicator->getProperties()->setProperty("Ice.UDP.SndSize", "64000");
+    seq.resize(50000);
+    try
+    {
+        replyI->reset();
+        obj->sendByteSeq(seq, reply);
+        test(!replyI->waitReply(1, IceUtil::Time::milliSeconds(500)));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+
     cout << "ok" << endl;
 
     cout << "testing udp multicast... " << flush;

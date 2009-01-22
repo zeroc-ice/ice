@@ -13,7 +13,18 @@ public sealed class TestIntfI : Test.TestIntfDisp_
 {
     public override void ping(Test.PingReplyPrx reply, Ice.Current current)
     {
-        System.Console.WriteLine("ping");
+        try
+        {
+            reply.reply();
+        }
+        catch(Ice.LocalException)
+        {
+            Debug.Assert(false);
+        }
+    }
+
+    public override void sendByteSeq(byte[] seq, Test.PingReplyPrx reply, Ice.Current current)
+    {
         try
         {
             reply.reply();

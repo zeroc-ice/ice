@@ -27,7 +27,14 @@ public class Client
 
         try
         {
-            communicator = Ice.Util.initialize(args);
+            Ice.StringSeqHolder argHolder = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argHolder);
+        
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            initData.properties.setProperty("Ice.UDP.SndSize", "16384");
+
+            communicator = Ice.Util.initialize(argHolder, initData);
             status = run(args, communicator);
         }
         catch(Exception ex)
