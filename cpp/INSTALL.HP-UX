@@ -1,4 +1,11 @@
 ======================================================================
+Unsupported Platform
+======================================================================
+
+Ice is no longer supported on HP-UX. The following instructions are 
+believed to be correct, but are provided without any guarantee.
+
+======================================================================
 Requirements
 ======================================================================
 
