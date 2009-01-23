@@ -36,7 +36,7 @@ pageinfo = [[1205537659,8792],
 	[1205537645,6714],
 	[1171661397,7623],
 	[1205530147,5266],
-	[1232747853,6396],
+	[1232748869,6395],
 	[1205528283,6459]];
 pagedata = [ ["./adapter.htm","Adapter","An adapter represents an Ice object adapter described in the IceGrid registry that resides in a server or an IceBox service. Note that direct obje...",""],
 ["./application.htm","Application","IceGrid definitions are organized in \"applications\", with typically one or a few applications deployed on a given IceGrid instance. An Application...",""],
