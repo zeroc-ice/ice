@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,7 +32,7 @@ namespace IceSSL
             //
             // Register the endpoint factory. We have to do this now, rather than
             // in initialize, because the communicator may need to interpret
-            // proxies before the plugin is fully initialized.
+            // proxies before the plug-in is fully initialized.
             //
             _facade.addEndpointFactory(new EndpointFactoryI(this));
         }
@@ -261,7 +261,7 @@ namespace IceSSL
             if(_initialized)
             {
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: plugin is already initialized";
+                e.reason = "IceSSL: plug-in is already initialized";
                 throw e;
             }
 

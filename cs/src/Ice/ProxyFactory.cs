@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,21 +13,6 @@ namespace IceInternal
 {
     public sealed class ProxyFactory
     {
-        private sealed class RetryTask : TimerTask
-        {
-            internal RetryTask(OutgoingAsync outAsync)
-            {
-                _outAsync = outAsync;
-            }
-            
-            public void runTimerTask()
-            {
-                _outAsync.send__();
-            }
-
-            private OutgoingAsync _outAsync;
-        }
-
         public Ice.ObjectPrx stringToProxy(string str)
         {
             Reference r = instance_.referenceFactory().create(str, null);
@@ -121,7 +106,11 @@ namespace IceInternal
                     // We retry ObjectNotExistException if the reference is
                     // indirect.
                     //
-                    li.clearObjectCache(@ref);
+
+                    if(@ref.isWellKnown())
+                    {
+                        li.clearCache(@ref);
+                    }
                 }
                 else if(@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
                 {
@@ -209,26 +198,16 @@ namespace IceInternal
                 logger.trace(traceLevels.retryCat, s);
             }
 
-            if(interval > 0)
+            if(outAsync != null)
             {
-                if(outAsync != null)
-                {
-                    instance_.timer().schedule(new RetryTask(outAsync), interval);
-                }
-                else
-                {
-                    //
-                    // Sleep before retrying.
-                    //
-                    System.Threading.Thread.Sleep(interval);
-                }
+                outAsync.retry__(interval);
             }
-            else
+            else if(interval > 0)
             {
-                if(outAsync != null)
-                {
-                    outAsync.send__();
-                }
+                //
+                // Sleep before retrying.
+                //
+                System.Threading.Thread.Sleep(interval);
             }
         }
 

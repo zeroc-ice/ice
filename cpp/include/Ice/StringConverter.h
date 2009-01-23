@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -107,7 +107,7 @@ private:
 
 
 //
-// A special plugin that sets stringConverter and wstringConverter during
+// A special plug-in that sets stringConverter and wstringConverter during
 // construction (when the provided stringConverter resp. wstringConverter
 // are not null). Both initialize and destroy are no-op. See Ice::InitializationData.
 //

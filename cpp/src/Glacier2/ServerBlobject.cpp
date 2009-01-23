@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,8 +14,7 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::ServerBlobject::ServerBlobject(const InstancePtr& instance, const ConnectionPtr& connection) :
-    Glacier2::Blobject(instance, true, Ice::Context()),
-    _connection(connection)
+    Glacier2::Blobject(instance, connection, Ice::Context())
 {
 }
 
@@ -28,7 +27,7 @@ Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
                                            const std::pair<const Byte*, const Byte*>& inParams,
                                            const Current& current)
 {
-    ObjectPrx proxy = _connection->createProxy(current.id);
+    ObjectPrx proxy = _reverseConnection->createProxy(current.id);
     assert(proxy);
 
     invoke(proxy, amdCB, inParams, current);

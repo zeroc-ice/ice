@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -746,8 +746,12 @@ NodeEntry::__decRef()
 void
 NodeEntry::checkSession() const
 { 
-    if(_session && !_session->isDestroyed())
+    if(_session)
     {
+        if(_session->isDestroyed())
+        {
+            throw NodeUnreachableException(_name, "the node is not active");
+        }
         return;
     }
     else if(!_proxy && !_registering)
@@ -781,10 +785,13 @@ NodeEntry::checkSession() const
 
     while(_registering)
     {
-        wait();
+        if(!timedWait(IceUtil::Time::seconds(5)))
+        {
+            break; // Consider the node down if it doesn't respond promptly.
+        }
     }
     
-    if(!_session)
+    if(!_session || _session->isDestroyed())
     {
         throw NodeUnreachableException(_name, "the node is not active");
     }
@@ -969,6 +976,26 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     // descriptor.
     //
     forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo(), iceVersion))(info.descriptor);
+
+    //
+    // For Ice servers > 3.3.0 escape the properties.
+    //
+    if(iceVersion == 0 || iceVersion >= 30300)
+    {
+        PropertyDescriptorSeq newProps;
+        for(PropertyDescriptorSeq::const_iterator p = props.begin(); p != props.end(); ++p)
+        {
+            if(p->value.empty() && p->name.find('#') == 0)
+            {
+                newProps.push_back(createProperty(p->name));
+            }
+            else
+            {
+                newProps.push_back(createProperty(escapeProperty(p->name), escapeProperty(p->value)));
+            }
+        }
+        server->properties["config"] = newProps;
+    }
 
     return server;
 }

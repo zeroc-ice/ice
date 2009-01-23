@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
-#include <Slice/SignalHandler.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 #include <cstring>
 
@@ -22,28 +22,11 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-//
-// Callback for Crtl-C signal handling
-//
-static Gen* _gen = 0;
-
-static void closeCallback()
-{
-    if(_gen != 0)
-    {
-        _gen->closeOutput();
-    }
-}
-
-Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool chapter,
-                bool noIndex, bool sortFields) :
+Slice::Gen::Gen(const string& file, bool standAlone, bool chapter, bool noIndex, bool sortFields) :
     _standAlone(standAlone),
     _noIndex(noIndex),
     _sortFields(sortFields)
 {
-    _gen = this;
-    SignalHandler::setCallback(closeCallback);
-
     if(chapter)
     {
         _chapter = "chapter";
@@ -56,20 +39,14 @@ Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool ch
     O.open(file.c_str());
     if(!O)
     {
-        cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << file << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
 }
 
 Slice::Gen::~Gen()
 {
-    SignalHandler::setCallback(0);
-}
-
-bool
-Slice::Gen::operator!() const
-{
-    return !O;
 }
 
 void
@@ -892,7 +869,7 @@ Slice::Gen::printHeader()
 "<!--\n"
 " **********************************************************************\n"
 "\n"
-" Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n"
+" Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.\n"
 "\n"
 " This copy of Ice is licensed to you under the terms described in the\n"
 " ICE_LICENSE file included in this distribution.\n"
@@ -932,7 +909,7 @@ Slice::Gen::getComment(const ContainedPtr& contained, const ContainerPtr& contai
             }
             comment += toString(literal, container);
         }
-        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
+        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
         {
             comment += '.';
             break;

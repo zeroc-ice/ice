@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -316,7 +316,7 @@ static const char* _coreTypes =
 // Parse the Slice files that define the types and operations available to a PHP script.
 //
 static bool
-parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TSRMLS_DC)
+parseSlice(const string& argStr, vector<Slice::UnitPtr>& units, bool& suppressWarnings TSRMLS_DC)
 {
     vector<string> args;
     try
@@ -397,36 +397,34 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TS
 
     bool ignoreRedefs = false;
     bool all = true;
-    unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
-    bool status = true;
 
     for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
     {
+        Slice::UnitPtr unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
         Slice::Preprocessor icecpp("icecpp", *p, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
 
         if(cppHandle == 0)
         {
-            status = false;
-            break;
+            return false;
         }
 
         int parseStatus = unit->parse(*p, cppHandle, debug);
 
         if(!icecpp.close())
         {
-            status = false;
-            break;
+            return false;
         }
 
         if(parseStatus == EXIT_FAILURE)
         {
-            status = false;
-            break;
+            return false;
         }
+
+        units.push_back(unit);
     }
 
-    return status;
+    return true;
 }
 
 static bool
@@ -476,98 +474,100 @@ createProfile(const string& name, const string& config, const string& options, c
         properties->parseCommandLineOptions("", args);
     }
 
-    Slice::UnitPtr unit;
+    //
+    // We create a Unit for each Slice file.
+    //
+    vector<Slice::UnitPtr> units;
+
+    //
+    // Even if the profile specifies no Slice files, we still need to obtain builtin
+    // types as well as create types such as Ice::Identity.
+    //
+    {
+        Slice::UnitPtr unit = Slice::Unit::createUnit(false, false, true, false);
+
+        //
+        // Create the Slice definition for Ice::Identity if it doesn't exist. The PHP class will
+        // be created automatically by CodeVisitor.
+        //
+        string scoped = "::Ice::Identity";
+        Slice::TypeList l = unit->lookupTypeNoBuiltin(scoped, false);
+        if(l.empty())
+        {
+            Slice::ContainedList c = unit->lookupContained("Ice", false);
+            Slice::ModulePtr module;
+            if(c.empty())
+            {
+                module = unit->createModule("Ice");
+            }
+            else
+            {
+                module = Slice::ModulePtr::dynamicCast(c.front());
+                if(!module)
+                {
+                    php_error_docref(0 TSRMLS_CC, E_ERROR,
+                                     "the symbol `::Ice' is defined in Slice but is not a module");
+                    return false;
+                }
+            }
+            Slice::StructPtr identity = module->createStruct("Identity", false);
+            Slice::TypePtr str = unit->builtin(Slice::Builtin::KindString);
+            identity->createDataMember("category", str);
+            identity->createDataMember("name", str);
+        }
+
+        //
+        // Create the Slice definition for Ice::EndpointSelectionType if it doesn't exist. The PHP class will
+        // be created automatically by CodeVisitor.
+        //
+        scoped = "::Ice::EndpointSelectionType";
+        l = unit->lookupTypeNoBuiltin(scoped, false);
+        if(l.empty())
+        {
+            Slice::ContainedList c = unit->lookupContained("Ice", false);
+            Slice::ModulePtr module;
+            if(c.empty())
+            {
+                module = unit->createModule("Ice");
+            }
+            else
+            {
+                module = Slice::ModulePtr::dynamicCast(c.front());
+                if(!module)
+                {
+                    php_error_docref(0 TSRMLS_CC, E_ERROR,
+                                     "the symbol `::Ice' is defined in Slice but is not a module");
+                    return false;
+                }
+            }
+            Slice::EnumPtr en = module->createEnum("EndpointSelectionType", false);
+            Slice::EnumeratorList el;
+            el.push_back(module->createEnumerator("Random"));
+            el.push_back(module->createEnumerator("Ordered"));
+            en->setEnumerators(el);
+        }
+
+        units.push_back(unit);
+    }
+
     bool suppressWarnings = false;
-    if(!slice.empty())
+    if(!slice.empty() && !parseSlice(slice, units, suppressWarnings TSRMLS_CC))
     {
-        if(!parseSlice(slice, unit, suppressWarnings TSRMLS_CC))
-        {
-            return false;
-        }
-    }
-    else
-    {
-        //
-        // We must be allowed to obtain builtin types, as well as create Ice::Identity if necessary.
-        //
-        unit = Slice::Unit::createUnit(false, false, true, false);
+        return false;
     }
 
     //
-    // Create the Slice definition for Ice::Identity if it doesn't exist. The PHP class will
-    // be created automatically by CodeVisitor.
-    //
-    string scoped = "::Ice::Identity";
-    Slice::TypeList l = unit->lookupTypeNoBuiltin(scoped, false);
-    if(l.empty())
-    {
-        Slice::ContainedList c = unit->lookupContained("Ice", false);
-        Slice::ModulePtr module;
-        if(c.empty())
-        {
-            module = unit->createModule("Ice");
-        }
-        else
-        {
-            module = Slice::ModulePtr::dynamicCast(c.front());
-            if(!module)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "the symbol `::Ice' is defined in Slice but is not a module");
-                return false;
-            }
-        }
-        Slice::StructPtr identity = module->createStruct("Identity", false);
-        Slice::TypePtr str = unit->builtin(Slice::Builtin::KindString);
-        identity->createDataMember("category", str);
-        identity->createDataMember("name", str);
-    }
-
-    //
-    // Create the Slice definition for Ice::EndpointSelectionType if it doesn't exist. The PHP class will
-    // be created automatically by CodeVisitor.
-    //
-    scoped = "::Ice::EndpointSelectionType";
-    l = unit->lookupTypeNoBuiltin(scoped, false);
-    if(l.empty())
-    {
-        Slice::ContainedList c = unit->lookupContained("Ice", false);
-        Slice::ModulePtr module;
-        if(c.empty())
-        {
-            module = unit->createModule("Ice");
-        }
-        else
-        {
-            module = Slice::ModulePtr::dynamicCast(c.front());
-            if(!module)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "the symbol `::Ice' is defined in Slice but is not a module");
-                return false;
-            }
-        }
-        Slice::EnumPtr en = module->createEnum("EndpointSelectionType", false);
-        Slice::EnumeratorList el;
-        el.push_back(module->createEnumerator("Random"));
-        el.push_back(module->createEnumerator("Ordered"));
-        en->setEnumerators(el);
-    }
-
-    //
-    // Descend the parse tree to create PHP code.
+    // Descend the parse trees to generate PHP code.
     //
     ostringstream out;
     Profile::ClassMap classes;
-    CodeVisitor visitor(out, classes, suppressWarnings TSRMLS_CC);
-    unit->visit(&visitor, false);
+    for(vector<Slice::UnitPtr>::const_iterator q = units.begin(); q != units.end(); ++ q)
+    {
+        CodeVisitor visitor(out, classes, suppressWarnings TSRMLS_CC);
+        (*q)->visit(&visitor, false);
+    }
 
-    Profile* profile = new Profile;
-    profile->name = name;
-    profile->unit = unit;
-    profile->code = out.str();
-    profile->classes = classes;
-    profile->properties = properties;
-
-    _profiles[name] = profile;
+    _profiles[name] = new Profile(name, units, out.str(), classes, properties);
 
     return true;
 }
@@ -722,9 +722,83 @@ IcePHP::profileShutdown(TSRMLS_D)
 {
     for(map<string, Profile*>::iterator p = _profiles.begin(); p != _profiles.end(); ++p)
     {
+        p->second->destroy(TSRMLS_C);
+        delete p->second;
+    }
+
+    _profiles.clear();
+
+    return true;
+}
+
+IcePHP::Profile::Profile(const string& name, const vector<Slice::UnitPtr>& units, const string& code,
+                         const ClassMap& classes, const Ice::PropertiesPtr& properties) :
+    _name(name), _units(units), _code(code), _classes(classes), _properties(properties)
+{
+}
+
+string
+IcePHP::Profile::name() const
+{
+    return _name;
+}
+
+string
+IcePHP::Profile::code() const
+{
+    return _code;
+}
+
+const IcePHP::Profile::ClassMap&
+IcePHP::Profile::classes() const
+{
+    return _classes;
+}
+
+Ice::PropertiesPtr
+IcePHP::Profile::properties() const
+{
+    return _properties;
+}
+
+Slice::TypePtr
+IcePHP::Profile::lookupType(const string& id) const
+{
+    for(vector<Slice::UnitPtr>::const_iterator p = _units.begin(); p != _units.end(); ++p)
+    {
+        Slice::TypeList l = (*p)->lookupType(id, false);
+        if(!l.empty())
+        {
+            return l.front();
+        }
+    }
+
+    return 0;
+}
+
+Slice::ExceptionPtr
+IcePHP::Profile::lookupException(const string& id) const
+{
+    for(vector<Slice::UnitPtr>::const_iterator p = _units.begin(); p != _units.end(); ++p)
+    {
+        Slice::ExceptionPtr ex = (*p)->lookupException(id, false);
+        if(ex)
+        {
+            return ex;
+        }
+    }
+
+    return 0;
+}
+
+void
+IcePHP::Profile::destroy(TSRMLS_D)
+{
+    for(vector<Slice::UnitPtr>::iterator p = _units.begin(); p != _units.end(); ++p)
+    {
         try
         {
-            p->second->unit->destroy();
+            (*p)->destroy();
         }
         catch(const IceUtil::Exception& ex)
         {
@@ -733,13 +807,7 @@ IcePHP::profileShutdown(TSRMLS_D)
             php_error_docref(0 TSRMLS_CC, E_ERROR, "error while destroying Slice parse tree:\n%s\n",
                              ostr.str().c_str());
         }
-
-        delete p->second;
     }
-
-    _profiles.clear();
-
-    return true;
 }
 
 static bool
@@ -814,9 +882,9 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     //
     // Compile the user-defined types.
     //
-    if(zend_eval_string(const_cast<char*>(profile->code.c_str()), 0, "__slice" TSRMLS_CC) == FAILURE)
+    if(zend_eval_string(const_cast<char*>(profile->code().c_str()), 0, "__slice" TSRMLS_CC) == FAILURE)
     {
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create Slice types:\n%s\n", profile->code.c_str());
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create Slice types:\n%s\n", profile->code().c_str());
         return false;
     }
 
@@ -824,7 +892,7 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     // Make a copy of the profile's properties, and include any command-line arguments.
     //
     Ice::PropertiesPtr properties = Ice::createProperties();
-    properties->parseCommandLineOptions("", profile->properties->getCommandLineOptions());
+    properties->parseCommandLineOptions("", profile->properties()->getCommandLineOptions());
     properties->parseCommandLineOptions("", args);
     ICE_G(properties) = new Ice::PropertiesPtr(properties);
 
@@ -923,7 +991,7 @@ ZEND_FUNCTION(Ice_dumpProfile)
     }
 
     ostringstream out;
-    out << "Ice profile: " << profile->name << endl;
+    out << "Ice profile: " << profile->name() << endl;
 
     Ice::PropertyDict props = (*properties)->getPropertiesForPrefix("");
     if(!props.empty())
@@ -939,10 +1007,11 @@ ZEND_FUNCTION(Ice_dumpProfile)
         out << endl << "Ice configuration properties: <none>" << endl;
     }
 
-    if(!profile->code.empty())
+    string code = profile->code();
+    if(!code.empty())
     {
         out << endl << "PHP code for Slice types:" << endl << endl;
-        out << profile->code;
+        out << code;
     }
     else
     {
@@ -986,6 +1055,8 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 
     if(p->isInterface())
     {
+        _out << "if(!interface_exists(\"" << flat << "\"))" << endl;
+        _out << "{" << endl;
         _out << "interface " << flat;
         if(!bases.empty())
         {
@@ -1006,6 +1077,8 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
     }
     else
     {
+        _out << "if(!class_exists(\"" << flat << "\"))" << endl;
+        _out << "{" << endl;
         if(p->isAbstract())
         {
             _out << "abstract ";
@@ -1097,6 +1170,7 @@ void
 IcePHP::CodeVisitor::visitClassDefEnd(const Slice::ClassDefPtr& p)
 {
     _out << '}' << endl;
+    _out << '}' << endl; // interface_exists/class_exists
 }
 
 bool
@@ -1105,6 +1179,8 @@ IcePHP::CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     string flat = flatten(p->scoped());
     Slice::ExceptionPtr base = p->base();
 
+    _out << "if(!class_exists(\"" << flat << "\"))" << endl;
+    _out << "{" << endl;
     _out << "class " << flat << " extends ";
     string baseName;
     if(!base)
@@ -1169,6 +1245,7 @@ void
 IcePHP::CodeVisitor::visitExceptionEnd(const Slice::ExceptionPtr& p)
 {
     _out << '}' << endl;
+    _out << '}' << endl; // class_exists
 }
 
 bool
@@ -1176,6 +1253,8 @@ IcePHP::CodeVisitor::visitStructStart(const Slice::StructPtr& p)
 {
     string flat = flatten(p->scoped());
 
+    _out << "if(!class_exists(\"" << flat << "\"))" << endl;
+    _out << "{" << endl;
     _out << "class " << flatten(p->scoped()) << endl;
     _out << '{' << endl;
 
@@ -1208,6 +1287,7 @@ void
 IcePHP::CodeVisitor::visitStructEnd(const Slice::StructPtr& p)
 {
     _out << '}' << endl;
+    _out << '}' << endl; // class_exists
 }
 
 void
@@ -1283,6 +1363,8 @@ IcePHP::CodeVisitor::visitEnum(const Slice::EnumPtr& p)
 {
     string flat = flatten(p->scoped());
 
+    _out << "if(!class_exists(\"" << flat << "\"))" << endl;
+    _out << "{" << endl;
     _out << "class " << flat << endl;
     _out << '{' << endl;
 
@@ -1299,6 +1381,7 @@ IcePHP::CodeVisitor::visitEnum(const Slice::EnumPtr& p)
     }
 
     _out << '}' << endl;
+    _out << '}' << endl; // class_exists
 }
 
 void
@@ -1308,9 +1391,12 @@ IcePHP::CodeVisitor::visitConst(const Slice::ConstPtr& p)
     Slice::TypePtr type = p->type();
     string value = p->value();
 
+    _out << "if(!defined(\"" << flat << "\"))" << endl;
+    _out << "{" << endl;
     _out << "define(\"" << flat << "\", ";
 
     Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
     if(b)
     {
         switch(b->kind())
@@ -1400,13 +1486,8 @@ IcePHP::CodeVisitor::visitConst(const Slice::ConstPtr& p)
         case Slice::Builtin::KindLocalObject:
             assert(false);
         }
-
-        _out << ");" << endl;
-        return;
     }
-
-    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
-    if(en)
+    else if(en)
     {
         string::size_type colon = value.rfind(':');
         if(colon != string::npos)
@@ -1419,12 +1500,14 @@ IcePHP::CodeVisitor::visitConst(const Slice::ConstPtr& p)
         {
             if((*q)->name() == value)
             {
-                _out << flatten(en->scoped()) << "::" << fixIdent(value) << ");" << endl;
-                return;
+                _out << flatten(en->scoped()) << "::" << fixIdent(value);
+                break;
             }
         }
-        assert(false); // No match found.
     }
+
+    _out << ");" << endl;
+    _out << "}" << endl; // defined
 }
 
 string

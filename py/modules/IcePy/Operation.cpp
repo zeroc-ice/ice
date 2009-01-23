@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1127,8 +1127,15 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args)
                 else
                 {
                     PyObject* ret = PyTuple_GET_ITEM(results.get(), 0);
-                    Py_INCREF(ret);
-                    return ret;
+                    if(!ret)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        Py_INCREF(ret);
+                        return ret;
+                    }
                 }
             }
         }

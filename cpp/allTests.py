@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -12,13 +12,13 @@ import os, sys, re, getopt
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.abspath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "scripts", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
+sys.path.append(os.path.join(toplevel))
+from scripts import *
 
 #
 # List of all basic tests.
@@ -55,6 +55,7 @@ tests = [
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core"]),
     ("Ice/stringConverter", ["core"]),
+    ("Ice/udp", ["core"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
@@ -79,6 +80,7 @@ tests = [
     ("IceGrid/replication", ["service"]),
     ("IceGrid/allocation", ["service"]),
     ("IceGrid/distribution", ["service"]),
+    ("IceGrid/admin", ["service"]),
     ("Glacier2/router", ["service"]),
     ("Glacier2/attack", ["service"]),
     ("Glacier2/sessionControl", ["service"]),

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,8 +8,10 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
-#include <Slice/SignalHandler.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 #ifdef __BCPLUSPLUS__
@@ -18,6 +20,17 @@
 
 using namespace std;
 using namespace Slice;
+
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
+
+void
+interruptedCallback(int signal)
+{
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
+}
 
 void
 usage(const char* n)
@@ -88,7 +101,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        cerr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -174,14 +187,18 @@ main(int argc, char* argv[])
 
     ChecksumMap checksums;
 
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(interruptedCallback);
+
     for(i = args.begin(); i != args.end(); ++i)
     {
-        SignalHandler sigHandler;
-
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::Java, includePaths);
+            if(!icecpp.printMakefileDependencies(Preprocessor::Java, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
         }
         else
         {
@@ -218,49 +235,84 @@ main(int argc, char* argv[])
                     p->destroy();
                     return EXIT_FAILURE;
                 }           
-                
+
                 if(parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;
                 }
                 else
                 {
-                    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
-                    if(!gen)
+                    try
                     {
+                        Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
+                        if(!gen)
+                        {
+                            p->destroy();
+                            return EXIT_FAILURE;
+                        }
+                        gen.generate(p, stream);
+                        if(tie)
+                        {
+                            gen.generateTie(p);
+                        }
+                        if(impl)
+                        {
+                            gen.generateImpl(p);
+                        }
+                        if(implTie)
+                        {
+                            gen.generateImplTie(p);
+                        }
+                        if(!checksumClass.empty())
+                        {
+                            //
+                            // Calculate checksums for the Slice definitions in the unit.
+                            //
+                            ChecksumMap m = createChecksums(p);
+                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                        }
+                    }
+                    catch(const Slice::FileException& ex)
+                    {
+                        // If a file could not be created, then
+                        // cleanup any created files.
+                        FileTracker::instance()->cleanup();
                         p->destroy();
+                        cerr << argv[0] << ": " << ex.reason() << endl;
                         return EXIT_FAILURE;
-                    }
-                    gen.generate(p, stream);
-                    if(tie)
-                    {
-                        gen.generateTie(p);
-                    }
-                    if(impl)
-                    {
-                        gen.generateImpl(p);
-                    }
-                    if(implTie)
-                    {
-                        gen.generateImplTie(p);
-                    }
-                    if(!checksumClass.empty())
-                    {
-                        //
-                        // Calculate checksums for the Slice definitions in the unit.
-                        //
-                        ChecksumMap m = createChecksums(p);
-                        copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                     }
                 }
                 p->destroy();
+            }
+        }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                // If the translator was interrupted, then cleanup any
+                // created files.
+                FileTracker::instance()->cleanup();
+                return EXIT_FAILURE;
             }
         }
     }
 
     if(!checksumClass.empty())
     {
-        Gen::writeChecksumClass(checksumClass, output, checksums, java2);
+        try
+        {
+            Gen::writeChecksumClass(checksumClass, output, checksums, java2);
+        }
+        catch(const Slice::FileException& ex)
+        {
+            // If a file could not be created, then
+            // cleanup any created files.
+            FileTracker::instance()->cleanup();
+            cerr << argv[0] << ": " << ex.reason() << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     return status;

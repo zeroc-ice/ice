@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,11 +12,6 @@ using System.Net.Sockets;
 
 internal class Acceptor : IceInternal.Acceptor
 {
-    public Socket fd()
-    {
-        return _acceptor.fd();
-    }
-
     public void close()
     {
         _acceptor.close();

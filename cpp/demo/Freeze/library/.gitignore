@@ -9,6 +9,3 @@ Library.h
 db/*
 LibraryTypes.h
 LibraryTypes.cpp
-Grammar.cpp
-Grammar.h
-Scanner.cpp

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,7 +25,6 @@ IceInternal::SelectorThread::SelectorThread(const InstancePtr& instance) :
     _selector(instance),
     _timer(_instance->timer())
 {
-
     __setNoDelete(true);
     try
     {
@@ -38,11 +37,17 @@ IceInternal::SelectorThread::SelectorThread(const InstancePtr& instance) :
             Error out(_instance->initializationData().logger);
             out << "cannot create thread for selector thread:\n" << ex;
         }
+        _thread = 0;
         __setNoDelete(false);
         throw;
     }
     catch(...)
     {
+        {
+            Error out(_instance->initializationData().logger);
+            out << "cannot create thread for selector thread";
+        }
+        _thread = 0;
         __setNoDelete(false);
         throw;
     }

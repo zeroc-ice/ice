@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -112,7 +112,11 @@ public final class ProxyFactory
                 // We retry ObjectNotExistException if the reference is
                 // indirect.
                 //
-                li.clearObjectCache(ref);
+
+                if(ref.isWellKnown())
+                {
+                    li.clearCache(ref);
+                }
             }
             else if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
             {
@@ -132,7 +136,7 @@ public final class ProxyFactory
 
                 if(out != null)
                 {
-                    out.__send(cnt);
+                    out.__retry(cnt, 0);
                 }
                 return cnt; // We must always retry, so we don't look at the retry count.
             }
@@ -205,42 +209,23 @@ public final class ProxyFactory
             logger.trace(traceLevels.retryCat, s);
         }
 
-        if(interval > 0)
+        if(out != null)
         {
-            if(out != null)
+            out.__retry(cnt, interval);
+        }
+        else if(interval > 0)
+        {
+            //
+            // Sleep before retrying.
+            //
+            try
             {
-                final int count = cnt;
-                _instance.timer().schedule(new TimerTask()
-                                           {
-                                               public void
-                                               runTimerTask()
-                                               {
-                                                   out.__send(count);
-                                               }
-                                           }, interval);
+                Thread.currentThread().sleep(interval);
             }
-            else
+            catch(InterruptedException ex1)
             {
-                //
-                // Sleep before retrying.
-                //
-                try
-                {
-                    Thread.currentThread().sleep(interval);
-                }
-                catch(InterruptedException ex1)
-                {
-                }
             }
         }
-        else
-        {
-            if(out != null)
-            {
-                out.__send(cnt);
-            }
-        }
-
         return cnt;
     }
 

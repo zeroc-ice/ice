@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ public class LoggerI implements Logger
             _prefix = prefix + ": ";
         }
 
-        _lineSeparator = System.getProperties().getProperty("line.separator");
+        _lineSeparator = System.getProperty("line.separator");
         _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
         _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
     }

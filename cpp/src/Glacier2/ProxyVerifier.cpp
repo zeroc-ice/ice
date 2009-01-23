@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -47,9 +47,7 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
         int value;
         if(!(istr >> value))
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "expected number";
-            throw ex;
+            throw string("expected number");
         }
         ws(istr);
         if(!istr.eof())
@@ -68,15 +66,11 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
                     ws(istr);
                     if(istr.eof())
                     {
-                        InitializationException ex(__FILE__, __LINE__);
-                        ex.reason = "Unterminated range";
-                        throw ex;
+                        throw string("Unterminated range");
                     }
                     if(!(istr >> value))
                     {
-                        InitializationException ex(__FILE__, __LINE__);
-                        ex.reason = "expected number";
-                        throw ex;
+                        throw string("expected number");
                     }
                     r.end = value;
                     ws(istr);
@@ -85,18 +79,14 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
                         istr >> c;
                         if(c != ',')
                         {
-                            InitializationException ex(__FILE__, __LINE__);
-                            ex.reason = "expected comma separator";
-                            throw ex;
+                            throw string("expected comma separator");
                         }
                     }
                     ranges.push_back(r);
                 }
                 else if(!istr.eof())
                 {
-                    InitializationException ex(__FILE__, __LINE__);
-                    ex.reason = "unexpected trailing character";
-                    throw ex;
+                    throw string("unexpected trailing character");
                 }
             }
         }
@@ -573,26 +563,34 @@ public:
             {
                 return false;
             }
+
             string::size_type pos = 0;
-            if(!_portMatcher || _portMatcher->match(port, pos))
+            if(_portMatcher && !_portMatcher->match(port, pos))
             {
-                pos = 0;
-                for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
+                if(_traceLevel >= 3)
                 {
-                    if(!(*i)->match(host, pos))
-                    {
-                        if(_traceLevel >= 3)
-                        {
-                            Trace out(_communicator->getLogger(), "Glacier2");
-                            out << (*i)->toString() << " failed to match " << host << " at pos=" << pos << "\n";
-                        }
-                        return false;
-                    }
+                    Trace out(_communicator->getLogger(), "Glacier2");
+                    out << _portMatcher->toString() << " failed to match " << port << " at pos=" << pos << "\n";
+                }
+                return false;
+            }
+
+            pos = 0;
+            for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
+            {
+                if(!(*i)->match(host, pos))
+                {
                     if(_traceLevel >= 3)
                     {
                         Trace out(_communicator->getLogger(), "Glacier2");
-                        out << (*i)->toString() << " matched " << host << " at pos=" << pos << "\n";
+                        out << (*i)->toString() << " failed to match " << host << " at pos=" << pos << "\n";
                     }
+                    return false;
+                }
+                if(_traceLevel >= 3)
+                {
+                    Trace out(_communicator->getLogger(), "Glacier2");
+                    out << (*i)->toString() << " matched " << host << " at pos=" << pos << "\n";
                 }
             }
         }
@@ -680,9 +678,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     string::size_type closeBracket = port.find(']', openBracket);
                     if(closeBracket == string::npos)
                     {
-                        InitializationException ex(__FILE__, __LINE__);
-                        ex.reason = "unclosed group";
-                        throw ex;
+                        throw string("unclosed group");
                     }
                     port = port.substr(openBracket, closeBracket-openBracket);
                 }
@@ -704,17 +700,15 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 
             if(current == addr.size())
             {
-                InitializationException ex(__FILE__, __LINE__);
-                ex.reason = "expected address information before ':'";
-                throw ex;
+                throw string("expected address information before ':'");
             }
 
             //
             // TODO: assuming that there is no leading or trailing whitespace. This
             // should probably be confirmed.
             //
-            assert(!isspace(parameter[current]));
-            assert(!isspace(addr[addr.size() -1]));
+            assert(!isspace(static_cast<unsigned char>(parameter[current])));
+            assert(!isspace(static_cast<unsigned char>(addr[addr.size() -1])));
 
             if(current != 0)
             {
@@ -740,9 +734,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     {
                         if(inGroup)
                         {
-                            InitializationException ex(__FILE__, __LINE__);
-                            ex.reason = "wildcards not permitted in groups";
-                            throw ex;
+                            throw string("wildcards not permitted in groups");
                         }
                         //
                         // current == mark when the wildcard is at the head of a
@@ -770,16 +762,12 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     {
                         if(!inGroup)
                         {
-                            InitializationException ex(__FILE__, __LINE__);
-                            ex.reason = "group close without group start";
-                            throw ex;
+                            throw string("group close without group start");
                         }
                         inGroup = false;
                         if(mark == current)
                         {
-                            InitializationException ex(__FILE__, __LINE__);
-                            ex.reason = "empty group";
-                            throw ex;
+                            throw string("empty group");
                         }
                         string group = addr.substr(mark, current - mark);
                         vector<int> numbers;
@@ -794,9 +782,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 
                 if(inGroup)
                 {
-                    InitializationException ex(__FILE__, __LINE__);
-                    ex.reason = "unclosed group";
-                    throw ex;
+                    throw string("unclosed group");
                 }
                 if(mark != current)
                 {
@@ -847,15 +833,11 @@ public:
         istringstream s(count);
         if(!(s >> _count) || !s.eof())
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "Error parsing ProxySizeMax property";
-            throw ex;
+            throw string("Error parsing ProxySizeMax property");
         }
         if(_count <= 0)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "ProxySizeMax must be greater than 1";
-            throw ex;
+            throw string("ProxySizeMax must be greater than 1");
         }
     }
 
@@ -881,7 +863,7 @@ private:
 
 } // End proxy rule implementations.
 
-Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, const char* ruleSet):
+Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
     _communicator(communicator),
     _traceLevel(communicator->getProperties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
@@ -892,19 +874,47 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
     string s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Accept");
     if(s != "")
     {
-        Glacier2::parseProperty(communicator, s, _acceptRules, _traceLevel);
+        try
+        {
+            Glacier2::parseProperty(communicator, s, _acceptRules, _traceLevel);
+        }
+        catch(const string& msg)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "invalid `Glacier2.Filter.Address.Accept' property:\n" + msg;
+            throw ex;
+        }
     }
 
     s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Reject");
     if(s != "")
     {
-        Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
+        try
+        {
+            Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
+        }
+        catch(const string& msg)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "invalid `Glacier2.Filter.Address.Reject' property:\n" + msg;
+            throw ex;
+        }
     }
 
     s = communicator->getProperties()->getProperty("Glacier2.Filter.ProxySizeMax");
     if(s != "")
     {
-        _rejectRules.push_back(new ProxyLengthRule(communicator, s, _traceLevel));
+        try
+        {
+            _rejectRules.push_back(new ProxyLengthRule(communicator, s, _traceLevel));
+
+        }
+        catch(const string& msg)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "invalid `Glacier2.Filter.ProxySizeMax' property:\n" + msg;
+            throw ex;
+        }
     }
 }
 

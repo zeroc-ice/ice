@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -49,11 +49,6 @@ $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(DUMP_OBJS) $(COMMON_OBJS) -lSlice $(EXPAT_RPATH_LINK) -lIceXML $(DB_RPATH_LINK) -lFreeze $(LIBS) $(DB_LIBS)
-
-
-clean::
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
 
 install:: all
 	$(call installprogram,$(TRANSFORMDB),$(install_bindir))

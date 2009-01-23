@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -10,29 +10,27 @@
 
 import os, sys, re, shutil
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
-    raise "can't find toplevel directory!"
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
+    raise "can't find toplevel os.getcwd()!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-directory = os.path.dirname(os.path.abspath(__file__))
 transformdb = os.path.join(TestUtil.getCppBinDir(), "transformdb")
 
-dbdir = os.path.join(directory, "db")
+dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
-check_dbdir = os.path.join(directory, "db_check")
+check_dbdir = os.path.join(os.getcwd(), "db_check")
 if os.path.exists(check_dbdir):
     shutil.rmtree(check_dbdir)
 os.mkdir(check_dbdir)
 
-tmp_dbdir = os.path.join(directory, "db_tmp")
+tmp_dbdir = os.path.join(os.getcwd(), "db_tmp")
 if os.path.exists(tmp_dbdir):
     shutil.rmtree(tmp_dbdir)
 os.mkdir(tmp_dbdir)
@@ -40,49 +38,30 @@ os.mkdir(tmp_dbdir)
 print "creating test database...",
 sys.stdout.flush()
 
-makedb = os.path.join(directory, "makedb") + " " + directory
-if TestUtil.debug:
-    print "(" + makedb + ")",
-if os.system(makedb) != 0:
-    sys.exit(1)
-
+makedb = os.path.join(os.getcwd(), "makedb") + " " + os.getcwd()
+proc = TestUtil.spawn(makedb)
+proc.waitTestSuccess()
 print "ok"
 
-testold = os.path.join(directory, "TestOld.ice")
-testnew = os.path.join(directory, "TestNew.ice")
-transformxml = os.path.join(directory, "transform.xml")
-checkxml = os.path.join(directory, "check.xml")
+testold = os.path.join(os.getcwd(), "TestOld.ice")
+testnew = os.path.join(os.getcwd(), "TestNew.ice")
+transformxml = os.path.join(os.getcwd(), "transform.xml")
+checkxml = os.path.join(os.getcwd(), "check.xml")
 
 print "executing evictor transformations...",
 sys.stdout.flush()
 
 command = transformdb + " -e -p --old " + testold + " --new " + testnew + " -f " + transformxml + " " + dbdir + \
     " evictor.db " + check_dbdir
-if TestUtil.debug:
-    print "(" + command + ")",
-#stdin, stdout, stderr = os.popen3(command)
-#stderr.readlines()
-
-pipe = os.popen(command + " 2>&1")
+proc = TestUtil.spawn(command)
+proc.waitTestSuccess()
 print "ok"
-
-#TestUtil.printOutputFromPipe(pipe)
-
-clientStatus = TestUtil.closePipe(pipe)
-if clientStatus:
-    print "failed!"
-    sys.exit(1)
 
 print "validating database...",
 sys.stdout.flush()
 
 command = transformdb + " -e --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + \
     " evictor.db " + tmp_dbdir
-if TestUtil.debug:
-    print "(" + command + ")",
-if os.system(command) != 0:
-    sys.exit(1)
-
+proc = TestUtil.spawn(command)
+proc.waitTestSuccess()
 print "ok"
-
-sys.exit(0)

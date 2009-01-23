@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -23,22 +23,11 @@ from demoscript import *
 from demoscript.IceBox import hello
 
 if Util.defaultHost:
-    args = ' --IceBox.UseSharedCommunicator.IceStorm=1'
+    args = ' --IceBox.Service.Hello="helloservice.dll:HelloIceBox.HelloIceBoxS+HelloServiceI --Ice.Config=config.service %s"' % Util.defaultHost
 else:
     args = ''
 
-iceboxnet = "iceboxnet.exe"
-prefix = [ "../../../../cs", "/usr" ]
-if os.environ.has_key("ICE_HOME"):
-    prefix.append(os.environ["ICE_HOME"])
-for p in prefix:
-    path = os.path.join(p, "bin", iceboxnet)
-    if os.path.exists(path):
-        iceboxnet = path
-        break
-
-# TODO: This doesn't setup LD_LIBRARY_PATH
-server = Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (iceboxnet, args))
+server = Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (Util.getIceBox("cs"), args))
 server.expect('.* ready')
 client = Util.spawn('client.exe')
 client.expect('.*==>')

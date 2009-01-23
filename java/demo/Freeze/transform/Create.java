@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -81,6 +81,6 @@ class Create extends Ice.Application
     main(String[] args)
     {
         Create app = new Create();
-        app.main("test.Freeze.transform.Create", args);
+        app.main("demo.Freeze.transform.Create", args);
     }
 }

@@ -1,6 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>
 TITLE
 	</title>
@@ -30,17 +31,13 @@ TITLE
                 font-style: italic;
             }
 	    .HeaderFooter {
-                position: relative;
                 width: 100%;
-            }
-	    .LogoTable {
-                position: absolute;
-                right: 0;
-                top: 0;
             }
 	    .Logo {
                 border-style: none;
             }
+	    .LogoTable {
+	    }
 	    .Button {
                 border-style: none;
             }
@@ -48,12 +45,6 @@ TITLE
                 border-style: none;
                 cursor: default;
             }
-	    .SearchTable {
-		position: absolute;
-		top: 0px;
-		margin-left: auto;
-		margin-right: auto;
-	    }
         </style>
     </head>
     <body>

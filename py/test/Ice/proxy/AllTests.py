@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -15,6 +15,15 @@ def test(b):
 
 def allTests(communicator, collocated):
     print "testing stringToProxy...",
+
+    #
+    # Test nil proxies.
+    #
+    p = communicator.stringToProxy('')
+    test(p == None)
+    p = communicator.propertyToProxy('bogus')
+    test(p == None)
+
     ref = "test:default -p 12010 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)

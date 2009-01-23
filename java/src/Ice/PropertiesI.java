@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,7 +36,14 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key, "");
+            try
+            {
+                result = System.getProperty(key, "");
+            }
+            catch(java.lang.SecurityException ex)
+            {
+                result = "";
+            }
         }
         else
         {
@@ -53,7 +60,14 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key, value);
+            try
+            {
+                result = System.getProperty(key, value);
+            }
+            catch(java.lang.SecurityException ex)
+            {
+                result = value;
+            }
         }
         else
         {
@@ -76,7 +90,13 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key);
+            try
+            {
+                result = System.getProperty(key);
+            }
+            catch(java.lang.SecurityException ex)
+            {
+            }
         }
         else
         {
@@ -118,7 +138,13 @@ public final class PropertiesI implements Properties
         PropertyValue pv = _properties.get(key);
         if(pv == null)
         {
-            result = System.getProperty(key);
+            try
+            {
+                result = System.getProperty(key);
+            }
+            catch(java.lang.SecurityException ex)
+            {
+            }
             if(result == null)
             {
                 return value;
@@ -621,9 +647,8 @@ public final class PropertiesI implements Properties
                     value = "";
                 }
             }
-            catch(SecurityException ex)
+            catch(java.lang.SecurityException ex)
             {
-                Ice.Util.getProcessLogger().warning("unable to access ICE_CONFIG environment variable");
                 value = "";
             }
         }

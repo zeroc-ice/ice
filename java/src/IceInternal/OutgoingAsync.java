@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -270,14 +270,22 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
     }
 
     public final void
-    __send(int cnt)
+    __retry(int cnt, int interval)
     {
         //
         // This method is called by the proxy to retry an invocation. It's safe to update
         // the count here without synchronization, no other threads can access this object.
         //
         _cnt = cnt;
-        __send();
+        if(interval > 0)
+        {                
+            assert(__os != null);
+            __os.instance().retryQueue().add(this, interval);
+        }
+        else
+        {
+            __send();
+        }
     }
 
     public final boolean
@@ -292,11 +300,11 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         }
         catch(LocalExceptionWrapper ex)
         {
-            handleException(ex);
+            handleException(ex); // Might call __send() again upon retry and assign _sentSynchronously
         }
         catch(Ice.LocalException ex)
         {
-            handleException(ex);
+            handleException(ex); // Might call __send() again upon retry and assign _sentSynchronously
         }
         return _sentSynchronously;
     }
@@ -310,6 +318,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
         _delegate = null;
         _cnt = 0;
         _mode = mode;
+        _sentSynchronously = false;
 
         //
         // Can't call async via a batch proxy.

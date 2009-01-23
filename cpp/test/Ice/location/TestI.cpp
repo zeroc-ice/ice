@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -60,6 +60,7 @@ ServerManagerI::startServer(const Ice::Current& current)
     Ice::ObjectPtr object = new TestI(adapter, adapter2, _registry);
     _registry->addObject(adapter->add(object, serverCommunicator->stringToIdentity("test")));
     _registry->addObject(adapter->add(object, serverCommunicator->stringToIdentity("test2")));
+    adapter->add(object, serverCommunicator->stringToIdentity("test3"));
 
     adapter->activate();
     adapter2->activate();

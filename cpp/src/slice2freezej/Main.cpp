@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,9 +8,12 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Slice/JavaUtil.h>
-#include <Slice/SignalHandler.h>
 
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
@@ -20,6 +23,17 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
+
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
+
+void
+interruptedCallback(int signal)
+{
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
+}
 
 struct DictIndex
 {
@@ -60,15 +74,15 @@ public:
     FreezeGenerator(const string&, const string&);
     virtual ~FreezeGenerator();
 
-    bool generate(UnitPtr&, const Dict&);
+    void generate(UnitPtr&, const Dict&);
 
-    bool generate(UnitPtr&, const Index&);
+    void generate(UnitPtr&, const Index&);
 
 private:
     string varToObject(const TypePtr&, const string&);
     string objectToVar(const TypePtr&, const string&);
 
-    string _prog;
+    const string _prog;
 };
 
 FreezeGenerator::FreezeGenerator(const string& prog, const string& dir)
@@ -191,7 +205,7 @@ FreezeGenerator::objectToVar(const TypePtr& type, const string& param)
     return result;
 }
 
-bool
+void
 FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 {
     static const char* builtinTable[] =
@@ -223,16 +237,18 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     TypeList keyTypes = u->lookupType(dict.key, false);
     if(keyTypes.empty())
     {
-        cerr << _prog << ": `" << dict.key << "' is not a valid type" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << dict.key << "' is not a valid type" << endl;
+        throw os.str();
     }
     TypePtr keyType = keyTypes.front();
     
     TypeList valueTypes = u->lookupType(dict.value, false);
     if(valueTypes.empty())
     {
-        cerr << _prog << ": `" << dict.value << "' is not a valid type" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << dict.value << "' is not a valid type" << endl;
+        throw os.str();
     }
     TypePtr valueType = valueTypes.front();
 
@@ -250,15 +266,17 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         {
             if(dict.indices.size() > 1)
             {
-                cerr << _prog << ": bad index for dictionary `" << dict.name << "'" << endl;
-                return false;
+                ostringstream os;
+                os << "bad index for dictionary `" << dict.name << "'" << endl;
+                throw os.str();
             }
 
             bool containsSequence = false;
             if(!Dictionary::legalKeyType(valueType, containsSequence))
             {
-                cerr << _prog << ": `" << dict.value << "' is not a valid index type" << endl;
-                return false; 
+                ostringstream os;
+                os << "`" << dict.value << "' is not a valid index type" << endl;
+                throw os.str();
             }
             if(containsSequence)
             {
@@ -275,8 +293,9 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 
                 if(builtInType == 0 || builtInType->kind() != Builtin::KindString)
                 {
-                    cerr << _prog << ": VALUE is a `" << dict.value << "', not a string " << endl;
-                    return false; 
+                    ostringstream os;
+                    os << "VALUE is a `" << dict.value << "', not a string " << endl;
+                    throw os.str();
                 }
             }
             indexTypes.push_back(valueType);
@@ -298,8 +317,9 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 StructPtr structDecl = StructPtr::dynamicCast(valueType);
                 if(structDecl == 0)
                 {
-                    cerr << _prog << ": `" << dict.value << "' is neither a class nor a struct." << endl;
-                    return false;
+                    ostringstream os;
+                    os << "`" << dict.value << "' is neither a class nor a struct." << endl;
+                    throw os.str();
                 }
                 dataMembers = structDecl->dataMembers();
             }
@@ -318,9 +338,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             
             if(dataMember == 0)
             {
-                cerr << _prog << ": The value of `" << dict.name 
-                     << "' has no data member named `" << index.member << "'" << endl;
-                return false;
+                ostringstream os;
+                os << "The value of `" << dict.name 
+                   << "' has no data member named `" << index.member << "'" << endl;
+                throw os.str();
             }
             
             TypePtr dataMemberType = dataMember->type();
@@ -328,8 +349,9 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             bool containsSequence = false;
             if(!Dictionary::legalKeyType(dataMemberType, containsSequence))
             {
-                cerr << _prog << ": `" << index.member << "' cannot be used as an index" << endl;
-                return false; 
+                ostringstream os;
+                os << "`" << index.member << "' cannot be used as an index" << endl;
+                throw os.str();
             }
             if(containsSequence)
             {
@@ -344,25 +366,21 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMemberType);
                 if(memberType == 0 || memberType->kind() != Builtin::KindString)
                 {
-                    cerr << _prog << ": `" << index.member << "' is not a string " << endl;
-                    return false;
+                    ostringstream os;
+                    os << "`" << index.member << "' is not a string " << endl;
+                    throw os.str();
                 }
             }
             indexTypes.push_back(dataMemberType);
 
             string capitalizedMember = member;
-            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMember[0] = toupper(static_cast<unsigned char>(capitalizedMember[0]));
             capitalizedMembers.push_back(capitalizedMember);
             indexNames.push_back(member);
         }
     }
 
-
-    if(!open(dict.name))
-    {
-        cerr << _prog << ": unable to open class " << dict.name << endl;
-        return false;
-    }
+    open(dict.name);
 
     Output& out = output();
 
@@ -926,13 +944,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 
     out << eb;
 
-
     close();
-
-    return true;
 }
 
-bool
+void
 FreezeGenerator::generate(UnitPtr& u, const Index& index)
 {
     string name;
@@ -949,16 +964,18 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     TypeList types = u->lookupType(index.type, false);
     if(types.empty())
     {
-        cerr << _prog << ": `" << index.type << "' is not a valid type" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << index.type << "' is not a valid type" << endl;
+        throw os.str();
     }
     TypePtr type = types.front();
 
     ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
     if(classDecl == 0)
     {
-        cerr << _prog << ": `" << index.type << "' is not a class" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << index.type << "' is not a class" << endl;
+        throw os.str();
     }
 
     DataMemberList dataMembers = classDecl->definition()->allDataMembers();
@@ -978,8 +995,9 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
 
     if(dataMember == 0)
     {
-        cerr << _prog << ": `" << index.type << "' has no data member named `" << index.member << "'" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << index.type << "' has no data member named `" << index.member << "'" << endl;
+        throw os.str();
     }
     
     if(index.caseSensitive == false)
@@ -990,18 +1008,15 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
         BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMember->type());
         if(memberType == 0 || memberType->kind() != Builtin::KindString)
         {
-            cerr << _prog << ": `" << index.member << "'is not a string " << endl;
-            return false; 
+            ostringstream os;
+            os << "`" << index.member << "'is not a string " << endl;
+            throw os.str();
         }
     }
 
     string memberTypeString = typeToString(dataMember->type(), TypeModeIn);
     
-    if(!open(index.name))
-    {
-        cerr << _prog << ": unable to open class " << index.name << endl;
-        return false;
-    }
+    open(index.name);
 
     Output& out = output();
 
@@ -1083,10 +1098,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     out << eb;
 
     close();
-
-    return true;
 }
-
 
 void
 usage(const char* n)
@@ -1171,7 +1183,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        cerr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -1203,8 +1215,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("dict");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Dict dict;
 
@@ -1251,8 +1262,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Index index;
 
@@ -1320,8 +1330,7 @@ main(int argc, char* argv[])
         vector<string> optargs = opts.argVec("dict-index");
         for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
         {
-            string s = *i;
-            s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+            string s = IceUtilInternal::removeWhitespace(*i);
             
             string dictName;
             DictIndex index;
@@ -1423,14 +1432,18 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    SignalHandler sigHandler;
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(interruptedCallback);
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
         if(depend)
         {
             Preprocessor icecpp(argv[0], args[idx], cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::Java, includePaths);
+            if(!icecpp.printMakefileDependencies(Preprocessor::Java, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
         }
         else
         {
@@ -1466,6 +1479,15 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }       
         }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                return EXIT_FAILURE;
+            }
+        }
     }
 
     if(depend)
@@ -1487,14 +1509,29 @@ main(int argc, char* argv[])
         {
             try
             {
-                if(!gen.generate(u, *p))
-                {
-                    u->destroy();
-                    return EXIT_FAILURE;
-                }
+                gen.generate(u, *p);
+            }
+            catch(const string& ex)
+            {
+                // If a file could not be created, then cleanup any
+                // created files.
+                FileTracker::instance()->cleanup();
+                u->destroy();
+                cerr << argv[0] << ": " << ex << endl;
+                return EXIT_FAILURE;
+            }
+            catch(const Slice::FileException& ex)
+            {
+                // If a file could not be created, then cleanup any
+                // created files.
+                FileTracker::instance()->cleanup();
+                u->destroy();
+                cerr << ex.reason() << endl;
+                return EXIT_FAILURE;
             }
             catch(...)
             {
+                FileTracker::instance()->cleanup();
                 cerr << argv[0] << ": unknown exception" << endl;
                 u->destroy();
                 return EXIT_FAILURE;
@@ -1505,15 +1542,30 @@ main(int argc, char* argv[])
         {
             try
             {
-                if(!gen.generate(u, *q))
-                {
-                    u->destroy();
-                    return EXIT_FAILURE;
-                }
+                gen.generate(u, *q);
+            }
+            catch(const string& ex)
+            {
+                // If a file could not be created, then cleanup any
+                // created files.
+                FileTracker::instance()->cleanup();
+                u->destroy();
+                cerr << argv[0] << ": " << ex << endl;
+                return EXIT_FAILURE;
+            }
+            catch(const Slice::FileException& ex)
+            {
+                // If a file could not be created, then cleanup any
+                // created files.
+                FileTracker::instance()->cleanup();
+                u->destroy();
+                cerr << argv[0] << ": " << ex.reason() << endl;
+                return EXIT_FAILURE;
             }
             catch(...)
             {
                 cerr << argv[0] << ": unknown exception" << endl;
+                FileTracker::instance()->cleanup();
                 u->destroy();
                 return EXIT_FAILURE;
             }
@@ -1522,6 +1574,16 @@ main(int argc, char* argv[])
     }
     
     u->destroy();
+
+    {
+        IceUtil::StaticMutex::Lock lock(_mutex);
+
+        if(_interrupted)
+        {
+            FileTracker::instance()->cleanup();
+            return EXIT_FAILURE;
+        }
+    }
 
     return status;
 }

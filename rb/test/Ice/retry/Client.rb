@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -10,10 +10,6 @@
 
 require 'pathname'
 require 'Ice'
-# The tests shouldn't use ICE_HOME unless USE_BIN_DIST=yes is set.
-if ENV::has_key?("ICE_HOME") and ENV["USE_BIN_DIST"] != "yes"
-    ENV.delete("ICE_HOME")
-end
 slice_dir = Ice.getSliceDir
 if not slice_dir:
     fail "Slice directory not found"

@@ -1,40 +1,30 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <Slice/Checksum.h>
-#include <Slice/SignalHandler.h>
+#include <Slice/FileTracker.h>
 
 #include <limits>
+
 #include <sys/stat.h>
+#include <string.h> 
 
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
-
-//
-// Callback for Crtl-C signal handling
-//
-static Gen* _gen = 0;
-
-static void closeCallback()
-{
-    if(_gen != 0)
-    {
-        _gen->closeOutput();
-    }
-}
 
 static string
 getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
@@ -48,8 +38,8 @@ getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
     return deprecateSymbol;
 }
 
-Slice::Gen::Gen(const string& name, const string& base, const string& headerExtension,
-                const string& sourceExtension, const vector<string>& extraHeaders, const string& include,
+Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
+                const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
                 bool imp, bool checksum, bool stream, bool ice) :
     _base(base),
@@ -64,9 +54,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     _stream(stream),
     _ice(ice)
 {
-    _gen = this;
-    SignalHandler::setCallback(closeCallback);
-
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
         *p = fullPath(*p);
@@ -87,34 +74,38 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
             fileImplH = dir + '/' + fileImplH;
             fileImplC = dir + '/' + fileImplC;
         }
-        SignalHandler::addFile(fileImplH);
-        SignalHandler::addFile(fileImplC);
 
         struct stat st;
         if(stat(fileImplH.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImplH << "' already exists - will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImplH << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
         if(stat(fileImplC.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImplC << "' already exists - will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImplC << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
 
         implH.open(fileImplH.c_str());
         if(!implH)
         {
-            cerr << name << ": can't open `" << fileImplH << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << "cannot open `" << fileImplH << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+        FileTracker::instance()->addFile(fileImplH);
 
         implC.open(fileImplC.c_str());
         if(!implC)
         {
-            cerr << name << ": can't open `" << fileImplC << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << "cannot open `" << fileImplC << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+        FileTracker::instance()->addFile(fileImplC);
 
         string s = fileImplH;
         if(_include.size())
@@ -134,22 +125,24 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
         fileH = dir + '/' + fileH;
         fileC = dir + '/' + fileC;
     }
-    SignalHandler::addFile(fileH);
-    SignalHandler::addFile(fileC);
 
     H.open(fileH.c_str());
     if(!H)
     {
-        cerr << name << ": can't open `" << fileH << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << fileH << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(fileH);
 
     C.open(fileC.c_str());
     if(!C)
     {
-        cerr << name << ": can't open `" << fileC << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << fileC << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(fileC);
 
     printHeader(H);
     printHeader(C);
@@ -177,22 +170,6 @@ Slice::Gen::~Gen()
         implH << "\n\n#endif\n";
         implC << '\n';
     }
-
-    SignalHandler::setCallback(0);
-}
-
-bool
-Slice::Gen::operator!() const
-{
-    if(!H || !C)
-    {
-        return true;
-    }
-    if(_impl && (!implH || !implC))
-    {
-        return true;
-    }
-    return false;
 }
 
 void
@@ -2647,6 +2624,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
 
     C << nl << "bool __ok = __og.invoke();";
+    writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     if(!p->returnsData())
     {
         C << nl << "if(!__og.is()->b.empty())";
@@ -2710,7 +2688,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
 
-    writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     for(ParamDeclList::const_iterator opi = outParams.begin(); opi != outParams.end(); ++opi)
     {
         StructPtr st = StructPtr::dynamicCast((*opi)->type());
@@ -2720,7 +2697,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         }
     }
 
-    if(p->returnsData())
+    if(ret || !outParams.empty())
     {
         C << nl << "::IceInternal::BasicStream* __is = __og.is();";
         C << nl << "__is->startReadEncaps();";
@@ -5301,7 +5278,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(p->returnsData())
         {
-            C << nl << "__prx->__checkTwowayOnly(\"" << p->name() <<  "\");";
+            C << nl << "__prx->__checkTwowayOnly(" << flatName <<  ");";
         }
         C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
         writeMarshalCode(C, inParams, 0, StringList(), true);
@@ -5357,7 +5334,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << nl << "return;";
         C << eb;
 
-        if(p->returnsData())
+        if(ret || !outParams.empty())
         {
             C << nl << "__is->startReadEncaps();";
             writeUnmarshalCode(C, outParams, 0, StringList(), true);
@@ -5676,7 +5653,7 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
                 {
                     continue;
                 }
-                cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                cerr << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }
@@ -5747,7 +5724,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     {
         if(!cl->isLocal())
         {
-            cout << p->definitionContext()->filename() << ":" << p->line()
+            cerr << p->definitionContext()->filename() << ":" << p->line()
                  << ": warning: metadata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local" << endl;
@@ -5766,7 +5743,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
-                    cout << p->definitionContext()->filename() << ":" << p->line()
+                    cerr << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;
                     break;
                 }
@@ -5859,7 +5836,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     continue;
                 }
 
-                cout << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                cerr << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }

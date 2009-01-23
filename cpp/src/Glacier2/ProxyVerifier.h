@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,6 +23,7 @@ namespace Glacier2
 class ProxyRule
 {
 public:
+
     virtual ~ProxyRule() {}
 
     //
@@ -31,10 +32,11 @@ public:
     virtual bool check(const Ice::ObjectPrx&) const = 0;
 };
 
-class ProxyVerifier
+class ProxyVerifier : public IceUtil::Shared
 {
 public:
-    ProxyVerifier(const Ice::CommunicatorPtr&, const char*);
+
+    ProxyVerifier(const Ice::CommunicatorPtr&);
     ~ProxyVerifier();
 
     //
@@ -44,13 +46,14 @@ public:
     bool verify(const Ice::ObjectPrx&);
 
 private:
-    const Ice::CommunicatorPtr _communicator;
 
+    const Ice::CommunicatorPtr _communicator;
     const int _traceLevel;
 
     std::vector<ProxyRule*> _acceptRules;
     std::vector<ProxyRule*> _rejectRules;
 };
+typedef IceUtil::Handle<ProxyVerifier> ProxyVerifierPtr;
 
 }
 #endif

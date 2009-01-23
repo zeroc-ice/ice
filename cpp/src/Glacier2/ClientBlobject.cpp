@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,8 +20,8 @@ Glacier2::ClientBlobject::ClientBlobject(const InstancePtr& instance,
                                          const FilterManagerPtr& filters,
                                          const Ice::Context& sslContext):
                                          
-    Glacier2::Blobject(instance, false, sslContext),
-    _routingTable(new RoutingTable(_instance->communicator())),
+    Glacier2::Blobject(instance, 0, sslContext),
+    _routingTable(new RoutingTable(_instance->communicator(), _instance->proxyVerifier())),
     _filters(filters),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {

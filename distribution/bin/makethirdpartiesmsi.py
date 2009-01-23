@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "s
 sys.path.append(resources)
 import components
 
-iceVersion = '3.3.0'
+iceVersion = '3.3.1'
 
 #
 # Current default third party library versions.
@@ -26,7 +26,7 @@ Bzip2Ver = '1.0.5'
 STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
 DBVer = '4.6.21'
-MCPPVer = '2.7'
+MCPPVer = '2.7.2'
 
 timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
 

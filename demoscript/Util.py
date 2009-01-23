@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -14,12 +14,26 @@ import re
 import os
 import signal
 import time
-import Expect
+
+# Locate the top level directory of the demo dist (or the top of the
+# source tree for a source dist).
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
+toplevel = path[0]
+if os.path.isdir(os.path.join(toplevel, "cpp")):
+    sourcedist = True
+else:
+    sourcedist = False
+
+from scripts import Expect
 
 keepGoing = False
 iceHome = None
 x64 = False
-toplevel = None
+preferIPv4 = False
 demoErrors = []
 
 #
@@ -32,18 +46,6 @@ host = "127.0.0.1"
 #
 debug = False
 
-# Locate the top level directory of the demo dist (or the top of the
-# source tree for a source dist).
-path = [ ".", "..", "../..", "../../..", "../../../.." ]
-head, tail = os.path.split(sys.argv[0])
-if len(head) > 0:
-    path = [os.path.join(head, p) for p in path]
-path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
-toplevel = path[0]
-if os.path.isdir(os.path.join(toplevel, "cpp")):
-    sourcedist = True
-else:
-    sourcedist = False
 
 origenv = {}
 def dumpenv():
@@ -318,9 +320,11 @@ def run(demos, root = False):
         --continue              Keep running when a demo fails."
         --ice-home=<path>       Use the binary distribution from the given path."
         --x64                   Binary distribution is 64-bit."
+        --preferIPv4            Prefer IPv4 stack (java only)."
         --fast                  Run an abbreviated version of the demos."
         --script                Generate a script to run the demos.
-        --env                   Dump the environment.""" % (sys.argv[0])
+        --env                   Dump the environment."
+        --noenv                 Do not automatically modify environment.""" % (sys.argv[0])
         sys.exit(2)
 
     global keepGoing 
@@ -328,7 +332,7 @@ def run(demos, root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "env", "script"])
+                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script"])
     except getopt.GetoptError:
         usage()
 
@@ -338,7 +342,6 @@ def run(demos, root = False):
 
     start = 0
     loop = False
-    env = False
     arg = ""
     filters = []
     script = False
@@ -349,8 +352,11 @@ def run(demos, root = False):
             global x64
             x64 = True
             arg += " " + o
-        elif o == "--env":
-            env = True
+        elif o == "--preferIPv4":
+            global preferIPv4
+            preferIPv4 = True
+            arg += " " + o
+        elif o in ("--env", "--noenv"):
             arg += " " + o
         elif o in ("-c", "--continue"):
             keepGoing = True
@@ -408,29 +414,28 @@ def guessBuildModeForDir(cwd):
     return None
 
 def guessBuildMode():
-    m = guessBuildModeForDir(".")
-    if m is None and not iceHome and sourcedist:
+    if not iceHome and sourcedist:
         m = guessBuildModeForDir(os.path.join(toplevel, "cpp", "bin"))
+    else:
+	m = guessBuildModeForDir(".")
     if m is None:
         raise "cannot guess debug or release mode"
     return m
 
-def getBuild():
+def isDebugBuild():
     global buildmode
     # Guess the mode, if not set on the command line.
+    if not isWin32():
+	return False
     if buildmode is None:
 	buildmode = guessBuildMode()
 	print "(guessed build mode %s)" % buildmode
-    return buildmode
+    return buildmode == "debug"
         
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
-        if isWin32():
-	    mode = getBuild()
-            if mode == 'release':
-                return "icebox"
-            else:
-                return "iceboxd"
+        if isWin32() and isDebugBuild():
+	    return "iceboxd"
         return "icebox"
     elif mapping == "cs":
         if isMono(): # Mono cannot locate icebox in the PATH.
@@ -464,6 +469,8 @@ def spawn(command, cwd = None):
     elif mapping == "vb":
         command = "./" + command
     elif mapping == "java":
+        if preferIPv4:
+            command = command.replace("java", "java -Djava.net.preferIPv4Stack=true")
         if isSolaris() and x64:
             command = command.replace("java", "java -d64")
 
@@ -512,10 +519,10 @@ def addLdPath(libpath):
 
 def processCmdLine():
     def usage():
-	print "usage: " + sys.argv[0] + " --x64 --env --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
+	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
 	sys.exit(2)
     try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "x64", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
     except getopt.GetoptError:
 	usage()
 
@@ -524,6 +531,7 @@ def processCmdLine():
     global tracefile
     global buildmode
     global x64
+    global preferIPv4
     global debug
     global host
     global iceHome
@@ -534,6 +542,7 @@ def processCmdLine():
     x64 = False
     tracefile = None
     env = False
+    noenv = False
 
     for o, a in opts:
 	if o == "--debug":
@@ -547,10 +556,14 @@ def processCmdLine():
 	    host = a
 	if o == "--env":
 	    env = True
+	if o == "--noenv":
+	    noenv = True
 	if o == "--fast":
 	    fast = True
 	if o == "--x64":
 	    x64 = True
+	if o == "--preferIPv4":
+	    preferIPv4 = True
         if o == "--ice-home":
             iceHome = a
 	if o == "--mode":
@@ -564,7 +577,7 @@ def processCmdLine():
 	defaultHost = None
 
     if not iceHome and os.environ.get("USE_BIN_DIST", "no") == "yes" or os.environ.get("ICE_HOME", "") != "":
-        if not os.environ.get("ICE_HOME", None):
+        if os.environ.get("ICE_HOME", "") != "":
             iceHome = os.environ["ICE_HOME"]
         elif isLinux():
             iceHome = "/usr"
@@ -572,7 +585,8 @@ def processCmdLine():
     if not x64:
         x64 = isWin32() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
 
-    configurePaths()
+    if not noenv:
+        configurePaths()
     if env:
         dumpenv()
 

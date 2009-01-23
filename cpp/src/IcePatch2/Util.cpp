@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -280,7 +280,8 @@ IcePatch2::simplify(const string& path)
     }
 
     if(result == "/." ||
-       (result.size() == 4 && isalpha(result[0]) && result[1] == ':' && result[2] == '/' && result[3] == '.'))
+       (result.size() == 4 && isalpha(static_cast<unsigned char>(result[0])) && result[1] == ':' && 
+        result[2] == '/' && result[3] == '.'))
     {
        return result.substr(0, result.size() - 1);
     }
@@ -290,7 +291,8 @@ IcePatch2::simplify(const string& path)
         result.erase(result.size() - 2, 2);
     }
 
-    if(result == "/" || (result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/'))
+    if(result == "/" || (result.size() == 3 && isalpha(static_cast<unsigned char>(result[0])) && result[1] == ':' &&
+       result[2] == '/'))
     {
         return result;
     }
@@ -313,7 +315,8 @@ IcePatch2::isRoot(const string& pa)
 {
     string path = simplify(pa);
 #ifdef _WIN32
-    return path == "/" || path.size() == 3 && isalpha(path[0]) && path[1] == ':' && path[2] == '/';
+    return path == "/" || path.size() == 3 && isalpha(static_cast<unsigned char>(path[0])) && path[1] == ':' && 
+           path[2] == '/';
 #else
     return path == "/";
 #endif

@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -98,12 +98,6 @@ USE_READLINE		?= no
 # Generate position independent code unless GENPIC is set to no
 #
 #GENPIC                     ?= yes
-
-#
-# Support for creating static libraries is currently provided only for
-# building the Ice-E translators.
-#
-#STATICLIBS		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

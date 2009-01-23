@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,26 +11,20 @@
 import os, sys
 import time
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
-
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-name = os.path.join("IceStorm", "federation")
-testdir = os.path.dirname(os.path.abspath(__file__))
-
-import IceStormUtil
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
 def doTest(icestorm, batch):
 
-    publisher = os.path.join(testdir, "publisher")
-    subscriber = os.path.join(testdir, "subscriber")
+    publisher = os.path.join(os.getcwd(), "publisher")
+    subscriber = os.path.join(os.getcwd(), "subscriber")
 
     if batch:
         name = "batch subscriber"
@@ -39,25 +33,18 @@ def doTest(icestorm, batch):
         name = "subscriber"
         batchOptions = ""
 
-    subscriberPipe = TestUtil.startServer(subscriber, batchOptions + icestorm.reference() + " 2>&1")
-    TestUtil.getServerPid(subscriberPipe)
-    TestUtil.getAdapterReady(subscriberPipe)
+    subscriberProc = TestUtil.startServer(subscriber, batchOptions + icestorm.reference())
 
     #
     # Start the publisher. This should publish events which eventually
     # causes subscriber to terminate.
     #
-    publisherPipe = TestUtil.startClient(publisher, icestorm.reference() + " 2>&1")
-
-    TestUtil.printOutputFromPipe(publisherPipe)
-
-    subscriberStatus = TestUtil.specificServerStatus(subscriberPipe, 30)
-    publisherStatus = TestUtil.closePipe(publisherPipe)
-
-    return subscriberStatus or publisherStatus
+    publisherProc = TestUtil.startClient(publisher, icestorm.reference())
+    subscriberProc.waitTestSuccess()
+    publisherProc.waitTestSuccess()
 
 def runtest(type, **args):
-    icestorm = IceStormUtil.init(toplevel, testdir, type, **args)
+    icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), type, **args)
 
     icestorm.start()
 
@@ -71,7 +58,7 @@ def runtest(type, **args):
     #
     print "testing oneway subscribers...",
     sys.stdout.flush()
-    onewayStatus = doTest(icestorm, 0)
+    doTest(icestorm, 0)
     print "ok"
 
     #
@@ -79,7 +66,7 @@ def runtest(type, **args):
     #
     print "testing batch subscribers...",
     sys.stdout.flush()
-    batchStatus = doTest(icestorm, 1)
+    doTest(icestorm, 1)
     print "ok"
 
     #
@@ -94,13 +81,7 @@ def runtest(type, **args):
     #
     icestorm.stop()
 
-    if TestUtil.serverStatus() or onewayStatus or batchStatus:
-	TestUtil.killServers()
-	sys.exit(1)
-
 runtest("persistent")
 runtest("transient")
 runtest("replicated", replicatedPublisher = False)
 runtest("replicated", replicatedPublisher = True)
-
-sys.exit(0)

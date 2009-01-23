@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -51,7 +51,7 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, SSL*, SOCKET, bool, bool, const std::string& = "");
+    TransceiverI(const InstancePtr&, SSL*, SOCKET, const std::string&, bool, bool, const std::string& = "");
     virtual ~TransceiverI();
     friend class ConnectorI;
     friend class AcceptorI;
@@ -65,8 +65,10 @@ private:
 
     SOCKET _fd;
 
-    const std::string _adapterName;
+    const std::string _host;
+
     const bool _incoming;
+    const std::string _adapterName;
 
     State _state;
     std::string _desc;

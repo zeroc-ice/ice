@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1242,7 +1242,7 @@ IceInternal::doFinishConnect(SOCKET fd)
     struct sockaddr_storage localAddr;
     fdToLocalAddress(fd, localAddr);
     struct sockaddr_storage remoteAddr;
-    if(fdToRemoteAddress(fd, remoteAddr) && compareAddress(remoteAddr, localAddr) == 0)
+    if(!fdToRemoteAddress(fd, remoteAddr) && compareAddress(remoteAddr, localAddr) == 0)
     {
         ConnectionRefusedException ex(__FILE__, __LINE__);
         ex.error = 0; // No appropriate errno

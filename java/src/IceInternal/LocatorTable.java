@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,18 +23,21 @@ final class LocatorTable
     }
 
     synchronized IceInternal.EndpointI[]
-    getAdapterEndpoints(String adapter, int ttl)
+    getAdapterEndpoints(String adapter, int ttl, Ice.BooleanHolder cached)
     {
         if(ttl == 0) // Locator cache disabled.
         {
+            cached.value = false;
             return null;
         }
 
         EndpointTableEntry entry = _adapterEndpointsTable.get(adapter);
-        if(entry != null && checkTTL(entry.time, ttl))
+        if(entry != null)
         {
+            cached.value = checkTTL(entry.time, ttl);
             return entry.endpoints;
         }
+        cached.value = false;
         return null;
     }
 
@@ -52,33 +55,36 @@ final class LocatorTable
         return entry != null ? entry.endpoints : null;
     }
 
-    synchronized Ice.ObjectPrx
-    getProxy(Ice.Identity id, int ttl)
+    synchronized Reference
+    getObjectReference(Ice.Identity id, int ttl, Ice.BooleanHolder cached)
     {
         if(ttl == 0) // Locator cache disabled.
         {
+            cached.value = false;
             return null;
         }
 
-        ProxyTableEntry entry = _objectTable.get(id);
-        if(entry != null && checkTTL(entry.time, ttl))
+        ReferenceTableEntry entry = _objectTable.get(id);
+        if(entry != null)
         {
-            return entry.proxy;
+            cached.value = checkTTL(entry.time, ttl);
+            return entry.reference;
         }
+        cached.value = false;
         return null;
     }
 
     synchronized void
-    addProxy(Ice.Identity id, Ice.ObjectPrx proxy)
+    addObjectReference(Ice.Identity id, Reference ref)
     {
-        _objectTable.put(id, new ProxyTableEntry(IceInternal.Time.currentMonotonicTimeMillis(), proxy));
+        _objectTable.put(id, new ReferenceTableEntry(IceInternal.Time.currentMonotonicTimeMillis(), ref));
     }
 
-    synchronized Ice.ObjectPrx
-    removeProxy(Ice.Identity id)
+    synchronized Reference
+    removeObjectReference(Ice.Identity id)
     {
-        ProxyTableEntry entry = _objectTable.remove(id);
-        return entry != null ? entry.proxy : null;
+        ReferenceTableEntry entry = _objectTable.remove(id);
+        return entry != null ? entry.reference : null;
     }
 
     private boolean
@@ -107,20 +113,20 @@ final class LocatorTable
         final public IceInternal.EndpointI[] endpoints;
     }
 
-    private static final class ProxyTableEntry
+    private static final class ReferenceTableEntry
     {
-        public ProxyTableEntry(long time, Ice.ObjectPrx proxy)
+        public ReferenceTableEntry(long time, Reference reference)
         {
             this.time = time;
-            this.proxy = proxy;
+            this.reference = reference;
         }
 
         final public long time;
-        final public Ice.ObjectPrx proxy;
+        final public Reference reference;
     }
 
     private java.util.Map<String, EndpointTableEntry> _adapterEndpointsTable =
         new java.util.HashMap<String, EndpointTableEntry>();
-    private java.util.Map<Ice.Identity, ProxyTableEntry> _objectTable =
-        new java.util.HashMap<Ice.Identity, ProxyTableEntry>();
+    private java.util.Map<Ice.Identity, ReferenceTableEntry> _objectTable =
+        new java.util.HashMap<Ice.Identity, ReferenceTableEntry>();
 }

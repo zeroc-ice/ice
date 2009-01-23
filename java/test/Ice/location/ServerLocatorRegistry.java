@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,14 @@ public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
     setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String adapter,
                                 Ice.ObjectPrx object, Ice.Current current)
     {
-        _adapters.put(adapter, object);
+        if(object != null)
+        {
+            _adapters.put(adapter, object);
+        }
+        else
+        {
+            _adapters.remove(adapter);
+        }
         cb.ice_response();
     }
 
@@ -21,8 +28,16 @@ public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
     setReplicatedAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, String adapter, 
                                           String replica, Ice.ObjectPrx object, Ice.Current current)
     {
-        _adapters.put(adapter, object);
-        _adapters.put(replica, object);
+        if(object != null)
+        {
+            _adapters.put(adapter, object);
+            _adapters.put(replica, object);
+        }
+        else
+        {
+            _adapters.remove(adapter);
+            _adapters.remove(replica);
+        }
         cb.ice_response();
     }
 

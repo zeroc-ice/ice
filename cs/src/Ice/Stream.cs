@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -166,9 +166,13 @@ namespace Ice
         public abstract void write(OutputStream os);
         public abstract bool usesClasses();
 
-        public override void write__(IceInternal.BasicStream ostr)
+        public override void write__(IceInternal.BasicStream os)
         {
-            OutputStream stream = new OutputStreamI(communicator_, ostr);
+            OutputStream stream = (OutputStream)os.closure();
+            if(stream == null)
+            {
+                stream = new OutputStreamI(communicator_, os);
+            }
             write(stream);
         }
 

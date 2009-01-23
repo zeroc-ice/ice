@@ -19,30 +19,122 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 Changes since version 3.3.0
 ======================================================================
 
+
+General Changes
+===============
+
+- Added support for updating locator cache endpoints in the background
+  if the new Ice.BackgroundLocatorCacheUpdates property is set to 1.
+
+  Locator cache updates are triggered if the proxy locator cache
+  timeout is configured and the cached endpoints are older than the
+  configured timeout.
+
+  By default, locator cache updates are performed before making an
+  invocation, delaying the invocation until the new endpoints are
+  retrieved from the locator. With this feature enabled, the locator
+  cache updates are performed in the background and the invocation
+  that triggered the update uses the previously cached endpoints.
+
+- Optimized the Ice client run time to minimize locator requests when
+  multiple concurrent or AMI requests need to resolve the endpoints of
+  the same well-known object, object adapter, or replica group.
+
+- Fixed a bug in IceGrid that would cause it to generate incorrect
+  config files for servers whose ice-version was set to a version
+  previous to Ice 3.3.0.
+
+- Fixed a bug in the Slice translators that prevented them from being
+  run from a directory without write permissions, even if no output 
+  files were being written to the directory.
+
+- Fixed a bug where retried AMI calls could cause the timer thread to
+  print an error message if the retry failed and if Ice.RetryIntervals
+  was configured with non-zero time intervals.
+
+- All error output from the slice compilers now goes to stderr.
+
+
 C++ Changes
 ===========
+
+- Fixed a bug in IceSSL where the IceSSL.CheckCertName property did
+  not have any effect.
+
+- Fixed a bug in the IceGrid locator implementation that could cause
+  the registry to crash when resolving the endpoints of a replica
+  group and if some servers were activating.
+
+- Fixed icegridadmin `service list' command crash.
 
 - Fixed a bug where slice2cpp would generate absolute include paths
   if the command line option "-I." was used.
 
-- Fixed Freeze transactional evictor bug which could cause the
+- Fixed a Freeze transactional evictor bug that could cause the
   transaction of an asynchronous method dispatch to be rolled back if
   rollback on user exception was enabled.
 
-- Fixed a bug which could cause the first invocation on a proxy to
+- Fixed a bug that could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
+
+
+Java Changes
+============
+
+- Added methods to the IceSSL plug-in to allow keystores, truststores,
+  and RNG seeds to be specified using input streams.
+
+- Fixed the IceSSL.ConnectionInfo type so that the "incoming" and
+  "adapterName" members are public.
+
+- Added applet demo.
+
+
+C# Changes
+==========
+
+- Changed the Ice runtime to not rely anymore on .NET worker threads
+  to start asynchronous IO operations.
+
+- Fixed a bug in slice2cs that caused a core dump if a dictionary
+  had a value type of Object.
+
 
 Python Changes
 ==============
 
+- Fixed bugs in getImplicitContext related to using it when an
+  implicit context had not been set.
+
+- Fixed bugs in stringToProxy and propertyToProxy related to null
+  proxies.
+
 - Ice.getSliceDir() now only searches for the slice directory in
   a standard Ice installation.
+
 
 Ruby Changes
 ============
 
 - Added helper Ice.getSliceDir, which locates the slice directory
   in a standard Ice installation.
+
+
+PHP Changes
+===========
+
+- It is now possible to specify multiple Slice files in your profile
+  configuration that have common include files. For example, if A.ice
+  and B.ice both include Common.ice, you can now do the following:
+  
+  ice.slice=-I. A.ice B.ice
+
+  In previous releases this would have caused a redefinition error,
+  which you could work around by creating a single Slice file that
+  included both A.ice and B.ice. This workaround is no longer
+  necessary.
+
+- Fixed bugs in the ice_router and ice_locator proxy methods.
 
 
 ======================================================================
@@ -379,7 +471,7 @@ noted.
 
 - The ability to install a logger via the Ice.LoggerPlugin property
   has been removed. The new mechanism requires that you create an
-  instance of the Ice::LoggerPlugin class in your plugin factory.
+  instance of the Ice::LoggerPlugin class in your plug-in factory.
   Please see the manual for more details.
 
 - It is no longer possible to provide input files on the command line
@@ -416,7 +508,7 @@ C++ Changes
   custom string converter and/or wstring converter during communicator
   initialization.
 
-- The Ice shared library now provides a string converter plugin
+- The Ice shared library now provides a string converter plug-in
   factory: createStringConverter. See the Ice manual for details.
 
 - IceUtil::stringToWstring and IceUtil::wstringToString now take
@@ -709,7 +801,7 @@ Python Changes
   8-bit strings.
 
 - Added new Ice/converter demo to illustrate how to use the new Ice
-  for C++ string converter plugin. This demo is very similar to the
+  for C++ string converter plug-in. This demo is very similar to the
   C++ demo.
 
 - Fixed a deadlock bug that could occur when a multithreaded client

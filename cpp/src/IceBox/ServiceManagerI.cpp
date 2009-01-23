@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -961,7 +961,7 @@ IceBox::ServiceManagerI::createCommunicator(const string& service, Ice::StringSe
 
     //
     // Remaining command line options are passed to the communicator. This is 
-    // necessary for Ice plugin properties (e.g.: IceSSL).
+    // necessary for Ice plug-in properties (e.g.: IceSSL).
     //
     InitializationData initData;
     initData.properties = properties;

@@ -2,7 +2,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -291,15 +291,15 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 		case 'x':
 		{
 		    IceUtil::Int64 ull = 0;
-		    while(isxdigit(next = static_cast<char>(yyinput())))
+		    while(isxdigit(static_cast<unsigned char>(next = static_cast<char>(yyinput()))))
 		    {
                         str->literal += next;
 			ull *= 16;
-			if(isdigit(next))
+			if(isdigit(static_cast<unsigned char>(next)))
 			{
 			    ull += next - '0';
 			}
-			else if(islower(next))
+			else if(islower(static_cast<unsigned char>(next)))
 			{
 			    ull += next - 'a' + 10;
 			}

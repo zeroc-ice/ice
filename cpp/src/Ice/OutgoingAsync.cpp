@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,6 +24,7 @@
 #include <Ice/ReplyStatus.h>
 #include <Ice/ImplicitContextI.h>
 #include <Ice/ThreadPool.h>
+#include <Ice/RetryQueue.h>
 
 using namespace std;
 using namespace Ice;
@@ -174,7 +175,7 @@ IceInternal::OutgoingAsyncMessageCallback::__warning(const std::exception& exc) 
 {
     if(__os) // Don't print anything if release() was already called.
     {
-        __warning(__os->instance());
+        __warning(__os->instance(), exc);
     }
 }
 
@@ -187,7 +188,7 @@ IceInternal::OutgoingAsyncMessageCallback::__warning(const InstancePtr& instance
         const Exception* ex = dynamic_cast<const Exception*>(&exc);
         if(ex)
         {
-            out << "Ice::Exception raised by AMI callback:\n" << ex;
+            out << "Ice::Exception raised by AMI callback:\n" << *ex;
         }
         else
         {
@@ -434,7 +435,7 @@ IceInternal::OutgoingAsync::__finished(const Ice::LocalException& exc)
 }
 
 void
-IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& ex)
+IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& exc)
 {
     assert(__os && !_sent);
     
@@ -446,11 +447,29 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& ex)
 
     try
     {
-        handleException(ex); // This will throw if the invocation can't be retried.
+        handleException(exc); // This will throw if the invocation can't be retried.
     }
     catch(const Ice::LocalException& ex)
     {
         __exception(ex);
+    }
+}
+
+void
+IceInternal::OutgoingAsync::__retry(int interval)
+{
+    //
+    // This method is called by the proxy to retry an invocation, no
+    // other threads can access this object.
+    //
+    if(interval > 0)
+    {
+        assert(__os);
+        __os->instance()->retryQueue()->add(this, interval);
+    }
+    else
+    {
+        __send();
     }
 }
 
@@ -466,11 +485,11 @@ IceInternal::OutgoingAsync::__send()
     }
     catch(const LocalExceptionWrapper& ex)
     {
-        handleException(ex);
+        handleException(ex); // Might call __send() again upon retry and assign _sentSynchronously
     }
     catch(const Ice::LocalException& ex)
     {
-        handleException(ex);
+        handleException(ex); // Might call __send() again upon retry and assign _sentSynchronously
     }
     return _sentSynchronously;
 }
@@ -483,6 +502,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
     _delegate = 0;
     _cnt = 0;
     _mode = mode;
+    _sentSynchronously = false;
 
     //
     // Can't call async via a batch proxy.

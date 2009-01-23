@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -74,7 +74,7 @@ namespace IceInternal
             }
         }
 
-        protected void releaseCallback__(Ice.LocalException ex)
+        public void releaseCallback__(Ice.LocalException ex)
         {
             Debug.Assert(os__ != null);
             
@@ -99,7 +99,7 @@ namespace IceInternal
             }
         }
 
-        protected  void releaseCallback__()
+        protected void releaseCallback__()
         {
             lock(monitor__)
             {
@@ -380,6 +380,23 @@ namespace IceInternal
             }
         }
 
+        public void retry__(int interval)
+        {
+            //
+            // This method is called by the proxy to retry an
+            // invocation. No other threads can access this object.
+            //
+            if(interval > 0)
+            {                
+                Debug.Assert(os__ != null);
+                os__.instance().retryQueue().add(this, interval);
+            }
+            else
+            {
+                send__();
+            }
+        }
+
         public bool send__()
         {
             try
@@ -409,7 +426,8 @@ namespace IceInternal
             _delegate = null;
             _cnt = 0;
             _mode = mode;
-            
+            _sentSynchronously = false;
+
             //
             // Can't call async via a batch proxy.
             //

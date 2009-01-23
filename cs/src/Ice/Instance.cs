@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -198,6 +198,25 @@ namespace IceInternal
             }
         }
 
+        public AsyncIOThread
+        asyncIOThread()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }        
+                
+                if(_asyncIOThread == null) // Lazy initialization.
+                {
+                    _asyncIOThread = new AsyncIOThread(this);
+                }
+            
+                return _asyncIOThread;
+            }
+        }
+
         public EndpointHostResolver endpointHostResolver()
         {
             lock(this)
@@ -213,6 +232,20 @@ namespace IceInternal
                 }
 
                 return _endpointHostResolver;
+            }
+        }
+
+        public RetryQueue
+        retryQueue()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                return _retryQueue;
             }
         }
 
@@ -584,7 +617,7 @@ namespace IceInternal
         setLogger(Ice.Logger logger)
         {
             //
-            // No locking, as it can only be called during plugin loading
+            // No locking, as it can only be called during plug-in loading
             //
             _initData.logger = logger;
         }
@@ -703,7 +736,7 @@ namespace IceInternal
 
                 _routerManager = new RouterManager();
                 
-                _locatorManager = new LocatorManager();
+                _locatorManager = new LocatorManager(_initData.properties);
                 
                 _referenceFactory = new ReferenceFactory(this, communicator);
                 
@@ -742,7 +775,9 @@ namespace IceInternal
                 _servantFactoryManager = new ObjectFactoryManager();
                 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
-
+                
+                _retryQueue = new RetryQueue(this);
+                
                 string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
                 if(facetFilter.Length > 0)
                 {
@@ -807,7 +842,9 @@ namespace IceInternal
             }
 
             //
-            // Start connection monitor if necessary.
+            // Start connection monitor if necessary. Set the check interval to
+            // 1/10 of the ACM timeout with a minmal value of 1 second and a
+            // maximum value of 5 minutes.
             //
             int interval = 0;
             if(_clientACM > 0 && _serverACM > 0)
@@ -828,6 +865,10 @@ namespace IceInternal
             else if(_serverACM > 0)
             {
                 interval = _serverACM;
+            }
+            if(interval > 0)
+            {
+                interval = System.Math.Min(300, System.Math.Max(1, (int)interval / 10));
             }
             interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
             if(interval > 0)
@@ -886,16 +927,22 @@ namespace IceInternal
                 _outgoingConnectionFactory.waitUntilFinished();
             }
             
+            if(_retryQueue != null)
+            {
+                _retryQueue.destroy();
+            }
+
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;
+            AsyncIOThread asyncIOThread = null;
             EndpointHostResolver endpointHostResolver = null;
 
             lock(this)
             {
                 _objectAdapterFactory = null;
-                
                 _outgoingConnectionFactory = null;
-                
+                _retryQueue = null;
+
                 if(_connectionMonitor != null)
                 {
                     _connectionMonitor.destroy();
@@ -914,6 +961,13 @@ namespace IceInternal
                     _clientThreadPool.destroy();
                     clientThreadPool = _clientThreadPool;
                     _clientThreadPool = null;
+                }
+
+                if(_asyncIOThread != null)
+                {
+                    _asyncIOThread.destroy();
+                    asyncIOThread = _asyncIOThread;
+                    _asyncIOThread = null;
                 }
 
                 if(_endpointHostResolver != null)
@@ -986,6 +1040,10 @@ namespace IceInternal
             {
                 serverThreadPool.joinWithAllThreads();
             }
+            if(asyncIOThread != null)
+            {
+                asyncIOThread.joinWithThread();
+            }
             if(endpointHostResolver != null)
             {
                 endpointHostResolver.joinWithThread();
@@ -1030,8 +1088,10 @@ namespace IceInternal
         private int _protocolSupport;
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
+        private AsyncIOThread _asyncIOThread;
         private EndpointHostResolver _endpointHostResolver;
         private Timer _timer;
+        private RetryQueue _retryQueue;
         private bool _background;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;

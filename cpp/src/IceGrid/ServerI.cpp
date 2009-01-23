@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -320,7 +320,7 @@ struct EnvironmentEval : std::unary_function<string, string>
             else
             {
                 end = beg + 1;
-                while((isalnum(v[end]) || v[end] == '_')  && end < v.size())
+                while((isalnum(static_cast<unsigned char>(v[end])) || v[end] == '_')  && end < v.size())
                 {
                     ++end;
                 }
@@ -357,7 +357,14 @@ void
 TimedServerCommand::startTimer()
 {
     _timerTask = new CommandTimeoutTimerTask(this);
-    _timer->schedule(_timerTask, IceUtil::Time::seconds(_timeout));
+    try
+    {
+        _timer->schedule(_timerTask, IceUtil::Time::seconds(_timeout));
+    }
+    catch(const IceUtil::Exception&)
+    {
+        // Ignore, timer is destroyed because node is shutting down.
+    }
 }
 
 void
@@ -907,7 +914,8 @@ ServerI::isAdapterActivatable(const string& id) const
     }
     else if(_state < Destroying)
     {
-        return true; // The server is being deactivated.
+        return _node->getActivator()->isActive(); // The server is being deactivated and the
+                                                  // node isn't shutting down yet.
     }
     else
     {
@@ -1686,6 +1694,14 @@ ServerI::terminated(const string& msg, int status)
 }
 
 void
+ServerI::shutdown()
+{
+    Lock sync(*this);
+    assert(_state == ServerI::Inactive);
+    _timerTask = 0;
+}
+
+void
 ServerI::update()
 {
     ServerCommandPtr command;
@@ -2119,6 +2135,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     // Create the configuration files, remove the old ones.
     //
     {
+        //
+        // We do not want to esapce the properties if the Ice version is 
+        // previous to Ice 3.3.
+        //
         Ice::StringSeq knownFiles;
         for(PropertyDescriptorSeqDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
         {
@@ -2139,7 +2159,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                 }
                 else
                 {
-                    configfile << escapeProperty(r->name) << "=" << escapeProperty(r->value) << endl;
+                    configfile << r->name << "=" << r->value << endl;
                 }
             }
             configfile.close();
@@ -2514,7 +2534,14 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         if(_activation == Always)
         {
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+            try
+            {
+                _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+            }
+            catch(const IceUtil::Exception&)
+            {
+                // Ignore, timer is destroyed because node is shutting down.
+            }
         }
         else if(_activation == Disabled && _disableOnFailure > 0 && _failureTime != IceUtil::Time())
         {
@@ -2526,8 +2553,16 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             // callback is executed.  
             //
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, 
-                                        IceUtil::Time::seconds(_disableOnFailure) + IceUtil::Time::milliSeconds(500));
+            try
+            {
+                _node->getTimer()->schedule(_timerTask, 
+                                            IceUtil::Time::seconds(_disableOnFailure) + 
+                                            IceUtil::Time::milliSeconds(500));
+            }
+            catch(const IceUtil::Exception&)
+            {
+                // Ignore, timer is destroyed because node is shutting down.
+            }
         }
     }
 

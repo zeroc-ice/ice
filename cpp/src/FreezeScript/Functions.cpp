@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,6 +10,7 @@
 #include <FreezeScript/Functions.h>
 #include <FreezeScript/Util.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/StringUtil.h>
 
 using namespace std;
 
@@ -177,8 +178,7 @@ FreezeScript::invokeGlobalFunction(const Ice::CommunicatorPtr& communicator, con
         {
             errorReporter->error("lowercase() requires a string argument");
         }
-        string val = str->stringValue();
-        transform(val.begin(), val.end(), val.begin(), ::tolower);
+        string val = IceUtilInternal::toLower(str->stringValue());
         result = factory->createString(val, false);
         return true;
     }

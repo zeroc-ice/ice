@@ -1,0 +1,52 @@
+This demo presents an unsigned applet that shows how to make
+asynchronous Ice invocations in a graphical application. It also
+demonstrates how to configure IceSSL using a resource file as the
+keystore.
+
+The demo includes a start page (hello.html) that you will need to
+publish on a web server. This page assumes that the demo applet is
+stored in a fully self-contained archive named Hello.jar. In order to
+create this fully self-contained JAR file, you must build the applet
+with ProGuard in your CLASSPATH. After a successful build, copy
+Hello.jar from this subdirectory to the same directory as hello.html
+on your web server.
+
+NOTE: We recommend using ProGuard 4.3 or later.
+
+If you did not build the applet with ProGuard in your CLASSPATH, the
+Hello.jar archive contains only the applet classes. In this case you
+must modify the start page to add Ice.jar to the applet's ARCHIVE
+parameter:
+
+  <param name = "archive" value = "Ice.jar, Hello.jar">
+
+Alternatively, you can add ProGuard to your CLASSPATH and rebuild the
+applet with the following commands:
+
+  ant clean
+  ant
+
+To run the demo, you must start a "hello" server on the web server
+host. You can use the hello server from the ../hello directory or
+a hello server from any other Ice language mapping. Note that you may
+need to temporarily relax the firewall restrictions on your web server
+host to allow the applet to establish connections to the hello server.
+Next, start a web browser and open the hello.html page on your web
+server.
+
+Once the applet has started, verify that the name of your web server
+host is correct in the "Hostname" field and press the "Hello World!"
+button. You will notice that the server prints a "Hello World!"
+message to the console for each invocation. To make other types of Ice
+invocations, select a different mode from the combobox.
+
+The two sliders allow you to experiment with various timeout settings.
+The "Timeout" slider determines how long the Ice run time will wait
+for an invocation to complete, while the "Delay" slider forces the
+server to delay its response. The value of each slider is shown in
+seconds. To force a timeout, select a non-zero timeout and set the
+delay to be larger than the timeout. The server prints two "Hello
+World!" messages in this case because the Slice operation sayHello is
+marked as idempotent, meaning that Ice does not need to follow the
+at-most-once retry semantics. See the manual for more information
+about retry behavior.

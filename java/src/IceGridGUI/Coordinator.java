@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1396,7 +1396,7 @@ public class Coordinator
                 {
                     JOptionPane.showMessageDialog(
                         parent,
-                        "This version of IceGrid Admin requires an IceGrid Registry version 3.2 or higher",
+                        "This version of IceGrid Admin requires an IceGrid Registry version 3.3",
                         "Version Mismatch",
                         JOptionPane.ERROR_MESSAGE);
                     return null;
@@ -1625,6 +1625,11 @@ public class Coordinator
     public Ice.ObjectPrx addCallback(Ice.Object servant, String name, String facet)
     {
         return _sessionKeeper.addCallback(servant, name, facet);
+    }
+
+    public Ice.ObjectPrx retrieveCallback(String name, String facet)
+    {
+        return _sessionKeeper.retrieveCallback(name, facet);
     }
 
     public Ice.Object removeCallback(String name, String facet)
@@ -2477,7 +2482,7 @@ public class Coordinator
     {
         String text = "IceGrid Admin version " 
             + Ice.Util.stringVersion() + "\n"
-            + "Copyright \u00A9 2005-2008 ZeroC, Inc. All rights reserved.\n";
+            + "Copyright \u00A9 2005-2009 ZeroC, Inc. All rights reserved.\n";
             
         JOptionPane.showMessageDialog(
             _mainFrame,

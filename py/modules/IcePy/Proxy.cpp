@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -2152,6 +2152,8 @@ IcePy::initProxy(PyObject* module)
 PyObject*
 IcePy::createProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
 {
+    assert(proxy);
+
     if(!type)
     {
         PyTypeObject* proxyType = &ProxyType; // Necessary to prevent GCC's strict-alias warnings.

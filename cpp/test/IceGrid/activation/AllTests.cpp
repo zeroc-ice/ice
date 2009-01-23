@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -480,6 +480,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         threads.resize(0);
 
+
+        try
+        {
+            admin->startServer("invalid-pwd-no-oa");
+            test(false);
+        }
+        catch(const IceGrid::ServerStartException& ex)
+        {
+            test(!ex.reason.empty());
+        }
+
+        try
+        {
+            admin->startServer("invalid-exe-no-oa");
+            test(false);
+        }
+        catch(const IceGrid::ServerStartException& ex)
+        {
+            test(!ex.reason.empty());
+        }
     }
     catch(const Ice::LocalException& ex)
     {

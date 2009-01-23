@@ -34,6 +34,7 @@ Table of Contents
   5. Upgrading your application
      - Migrating IceStorm databases
      - Migrating IceGrid databases
+     - Migrating Freeze databases
      - Removed APIs
      - Deprecated APIs
   6. Platform specific notes
@@ -469,7 +470,7 @@ distribution.
 
   hello = (HelloPrx)hello.ice_oneway();
 
-* The IceSSL plugins for Java and .NET now support a password callback
+* The IceSSL plug-ins for Java and .NET now support a password callback
   interface. You can also specify the class name of a certificate
   verifier or password callback via configuration properties.
 
@@ -504,7 +505,7 @@ distribution.
 * It is now possible to use UNC paths on Windows in the configuration
   of Ice services.
 
-* A string converter plugin has been added to Ice for C++, which is
+* A string converter plug-in has been added to Ice for C++, which is
   particularly useful for the scripting language extensions.
 
 * Ice for Python now accepts Unicode objects as arguments to remote
@@ -676,6 +677,51 @@ Next, you can connect to the master registry with icegridadmin or the
 IceGrid administrative GUI to ensure that the database is correct. If
 everything looks fine, you can shutdown and restart the master
 registry without the --readonly option.
+
+Migrating Freeze Databases
+--------------------------
+
+There is no special Freeze procedure or Freeze tool to perform this 
+upgrade. Freeze is still storing exactly the same data, in the same format.
+
+However, we upgraded the version of Berkeley DB, and as a result when 
+upgrading from Ice 3.2 to Ice 3.3, you have to upgrade your database 
+from the "Berkeley DB 4.5" format to the new "Berkeley DB 4.6" format. 
+
+This is fortunately straightforward, since the only relevant format change 
+for Freeze was the log format change.
+
+From the Berkeley DB Upgrade Process:
+
+ http://www.oracle.com/technology/documentation/berkeley-db/db/ref/upgrade/process.html
+
+If the application has a Berkeley DB transactional environment, and the
+log files need upgrading but the databases do not, the application may be 
+installed in the field using the following steps:
+
+ 1. Shut down the old version of the application.
+
+ 2. Still using the old version of Berkeley DB, run recovery on the database
+    environment using the DB_ENV->open method or the db_recover utility.
+
+ 3. If you used the DB_ENV->open method to run recovery, make sure that the
+    Berkeley DB environment is removed using the DB_ENV->remove method or 
+    an appropriate system utility.
+
+ 4. Archive the database environment for catastrophic recovery.
+    See Archival procedures for more information.
+
+ 5. Recompile and install the new version of the application.
+
+ 6. Force a checkpoint using the DB_ENV->txn_checkpoint method or
+    the db_checkpoint utility. If you use the db_checkpoint utility, make sure
+    to use the new version of the utility; that is, the version that came with
+    the release of Berkeley DB to which you are upgrading.
+
+ 7. Restart the application. 
+
+Is recommend to use the db_ utilities, and not write your own upgrade program!
+
 
 
 Removed APIs

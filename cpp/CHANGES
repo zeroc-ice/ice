@@ -66,8 +66,8 @@ Changes since version 3.2.0
                base64 encoding.
 
   This syntax is useful if, for example, a client that has the SSL
-  plugin configured sends a proxy with an SSL endpoint to a server
-  without the SSL plugin. Prior to this version, the server would
+  plug-in configured sends a proxy with an SSL endpoint to a server
+  without the SSL plug-in. Prior to this version, the server would
   drop the unknown SSL endpoint when it stringified the proxy.
   As of this version, the server preserves the endpoint and, when the server
   stringifies a proxy containing an unknown endpoint, it uses the above opaque syntax.
@@ -677,7 +677,7 @@ Changes since version 3.0.1
 - Added "always" and "session" activation modes to IceGrid. See the
   Ice manual for more information.
 
-- Changed the entry point of the IceSSL plugin to be 
+- Changed the entry point of the IceSSL plug-in to be 
   IceSSL:createIceSSL.
 
 - Changed the entry point of the IceStorm service to be 
@@ -816,11 +816,11 @@ Changes since version 3.0.1
   proxies. Upgrading your clients to 3.1 is highly recommended to avoid
   large routing table sizes in Glacier2.
 
-- Replaced the IceSSL plugin. The new plugin no longer uses an XML
+- Replaced the IceSSL plug-in. The new plug-in no longer uses an XML
   configuration file but rather relies solely on properties. A Python
   script is provided in config/convertssl.py to convert old XML files
   to the new properties. See the Ice manual for more information on
-  the plugin.
+  the plug-in.
 
 - Added support for new Slice metadata ("cpp:type:wstring") that
   generates code to use std::wstring instead of std::string. See the

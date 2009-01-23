@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,11 +9,14 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
+#include <Slice/FileTracker.h>
 #include <IceUtil/OutputUtil.h>
-#include <Slice/SignalHandler.h>
+#include <IceUtil/StringUtil.h>
 #include <cstring>
 
 using namespace std;
@@ -21,16 +24,15 @@ using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace Slice;
 
-static ::IceUtilInternal::Output _H;
-static ::IceUtilInternal::Output _CPP;
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
 
-//
-// Callback for Crtl-C signal handling
-//
-static void closeCallback()
+void
+interruptedCallback(int signal)
 {
-    _H.close();
-    _CPP.close();
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
 }
 
 static string ICE_ENCODING_COMPARE = "Freeze::IceEncodingCompare";
@@ -218,25 +220,25 @@ usage(const char* n)
     // Note: --case-sensitive is intentionally not shown here!
 }
 
-bool
-checkIdentifier(string n, string t, string s)
+void
+checkIdentifier(string t, string s)
 {
-    if(s.empty() || (!isalpha(s[0]) && s[0] != '_'))
+    if(s.empty() || (!isalpha(static_cast<unsigned char>(s[0])) && s[0] != '_'))
     {
-        cerr << n << ": `" << t << "' is not a valid type name" << endl;
-        return false;
+        ostringstream os;
+        os << t << "' is not a valid type name";
+        throw os.str();
     }
     
     for(unsigned int i = 1; i < s.size(); ++i)
     {
-        if(!isalnum(s[i]) && s[i] != '_')
+        if(!isalnum(static_cast<unsigned char>(s[i])) && s[i] != '_')
         {
-            cerr << n << ": `" << t << "' is not a valid type name" << endl;
-            return false;
+            ostringstream os;
+            os << t << "' is not a valid type name";
+            throw os.str();
         }
     }
-
-    return true;
 }
 
 void
@@ -409,7 +411,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
         if(!member.empty())
         {
             string capitalizedMember = member;
-            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMember[0] = toupper(static_cast<unsigned char>(capitalizedMember[0]));
             capitalizedMembers.push_back(capitalizedMember);
         }
         else
@@ -604,7 +606,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
         if(!member.empty())
         {
             string capitalizedMember = member;
-            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMember[0] = toupper(static_cast<unsigned char>(capitalizedMember[0]));
             capitalizedMembers.push_back(capitalizedMember);
         }
         else
@@ -923,9 +925,8 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     }
 }
 
-
-bool
-writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, const string& dllExport)
+void
+writeDict(const string& n, const UnitPtr& u, const Dict& dict, Output& H, Output& C, const string& dllExport)
 {
     string absolute = dict.name;
     if(absolute.find("::") == 0)
@@ -940,32 +941,28 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
         string s = name.substr(0, pos);
         name.erase(0, pos + 2);
         
-        if(!checkIdentifier(n, absolute, s))
-        {
-            return false;
-        }
+        checkIdentifier(absolute, s);
         
         scope.push_back(s);
     }
     
-    if(!checkIdentifier(n, absolute, name))
-    {
-        return false;
-    }
+    checkIdentifier(absolute, name);
 
     TypeList keyTypes = u->lookupType(dict.key, false);
     if(keyTypes.empty())
     {
-        cerr << n << ": `" << dict.key << "' is not a valid type" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << dict.key << "' is not a valid type";
+        throw os.str();
     }
     TypePtr keyType = keyTypes.front();
     
     TypeList valueTypes = u->lookupType(dict.value, false);
     if(valueTypes.empty())
     {
-        cerr << n << ": `" << dict.value << "' is not a valid type" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << dict.value << "' is not a valid type";
+        throw os.str();
     }
     TypePtr valueType = valueTypes.front();
     
@@ -1001,19 +998,21 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
             {
                 if(dict.indices.size() > 1)
                 {
-                    cerr << n << ": bad index for dictionary `" << dict.name << "'" << endl;
-                    return false;
+                    ostringstream os;
+                    os << "bad index for dictionary `" << dict.name << "'";
+                    throw os.str();
                 }
                 
                 bool containsSequence = false;
                 if(!Dictionary::legalKeyType(valueType, containsSequence))
                 {
-                    cerr << n << ": `" << dict.value << "' is not a valid index type" << endl;
-                    return false; 
+                    ostringstream os;
+                    os << "`" << dict.value << "' is not a valid index type";
+                    throw os.str();
                 }
                 if(containsSequence)
                 {
-                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated" << endl;
+                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated";
                 }
 
 
@@ -1027,8 +1026,9 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                     
                     if(builtInType == 0 || builtInType->kind() != Builtin::KindString)
                     {
-                        cerr << n << ": VALUE is a `" << dict.value << "', not a string" << endl;
-                        return false; 
+                        ostringstream os;
+                        os << "VALUE is a `" << dict.value << "', not a string";
+                        throw os.str();
                     }
                 }
                 IndexType iType;
@@ -1051,8 +1051,9 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                     StructPtr structDecl = StructPtr::dynamicCast(valueType);
                     if(structDecl == 0)
                     {
-                        cerr << n << ": `" << dict.value << "' is neither a class nor a struct." << endl;
-                        return false;
+                        ostringstream os;
+                        os << "`" << dict.value << "' is neither a class nor a struct.";
+                        throw os.str();
                     }
                     dataMembers = structDecl->dataMembers();
                 }
@@ -1071,9 +1072,10 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                 
                 if(dataMember == 0)
                 {
-                    cerr << n << ": The value of `" << dict.name 
-                         << "' has no data member named `" << index.member << "'" << endl;
-                    return false;
+                    ostringstream os;
+                    os << "The value of `" << dict.name 
+                       << "' has no data member named `" << index.member << "'";
+                    throw os.str();
                 }
                 
                 TypePtr dataMemberType = dataMember->type();
@@ -1081,12 +1083,13 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                 bool containsSequence = false;
                 if(!Dictionary::legalKeyType(dataMemberType, containsSequence))
                 {
-                    cerr << n << ": `" << index.member << "' cannot be used as an index" << endl;
-                    return false; 
+                    ostringstream os;
+                    os << "`" << index.member << "' cannot be used as an index";
+                    throw os.str();
                 }
                 if(containsSequence)
                 {
-                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated" << endl;
+                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated";
                 }
 
 
@@ -1098,8 +1101,9 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
                     BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMemberType);
                     if(memberType == 0 || memberType->kind() != Builtin::KindString)
                     {
-                        cerr << n << ": `" << index.member << "' is not a string " << endl;
-                        return false;
+                        ostringstream os;
+                        os << "`" << index.member << "' is not a string ";
+                        throw os.str();
                     }
                 }
                 IndexType iType;
@@ -1127,10 +1131,7 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
         writeDictWithIndicesC(name, absolute, dict, indexTypes, keyType, dict.keyMetaData, valueType,
                               dict.valueMetaData, C);
     }
-
-    return true;
 }
-
 
 void
 writeIndexH(const string& memberTypeString, const string& name, Output& H, const string& dllExport)
@@ -1250,8 +1251,8 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
     C << eb;
 }
 
-bool
-writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C, const string& dllExport)
+void
+writeIndex(const string& n, const UnitPtr& u, const Index& index, Output& H, Output& C, const string& dllExport)
 {
     string absolute = index.name;
     if(absolute.find("::") == 0)
@@ -1266,32 +1267,28 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
         string s = name.substr(0, pos);
         name.erase(0, pos + 2);
         
-        if(!checkIdentifier(n, absolute, s))
-        {
-            return false;
-        }
+        checkIdentifier(absolute, s);
         
         scope.push_back(s);
     }
     
-    if(!checkIdentifier(n, absolute, name))
-    {
-        return false;
-    }
+    checkIdentifier(absolute, name);
 
     TypeList types = u->lookupType(index.type, false);
     if(types.empty())
     {
-        cerr << n << ": `" << index.type << "' is not a valid type" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << index.type << "' is not a valid type";
+        throw os.str();
     }
     TypePtr type = types.front();
     
     ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
     if(classDecl == 0)
     {
-        cerr << n << ": `" << index.type << "' is not a class" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << index.type << "' is not a class";
+        throw os.str();
     }
 
     DataMemberList dataMembers = classDecl->definition()->allDataMembers();
@@ -1311,8 +1308,9 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
 
     if(dataMember == 0)
     {
-        cerr << n << ": `" << index.type << "' has no data member named `" << index.member << "'" << endl;
-        return false;
+        ostringstream os;
+        os << "`" << index.type << "' has no data member named `" << index.member << "'";
+        throw os.str();
     }
     
     if(index.caseSensitive == false)
@@ -1323,8 +1321,9 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
         BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMember->type());
         if(memberType == 0 || memberType->kind() != Builtin::KindString)
         {
-            cerr << n << ": `" << index.member << "'is not a string " << endl;
-            return false; 
+            ostringstream os;
+            os << "`" << index.member << "'is not a string";
+            throw os.str();
         }
     }
    
@@ -1345,7 +1344,140 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
     }
 
     writeIndexC(type, dataMember->type(), index.member, index.caseSensitive, absolute, name, C);
-    return true;
+}
+
+void
+gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, const vector<string>& extraHeaders,
+    const vector<Dict>& dicts, const vector<Index>& indices, const string& include, const string& headerExtension,
+    const string& sourceExtension, string dllExport, const StringList& includes, const vector<string>& args,
+    const string& output)
+{
+    string fileH = args[0];
+    fileH += "." + headerExtension;
+    string includeH = fileH;
+    string fileC = args[0];
+    fileC += "." + sourceExtension;
+
+    if(!output.empty())
+    {
+        fileH = output + '/' + fileH;
+        fileC = output + '/' + fileC;
+    }
+
+    u->mergeModules();
+    u->sort();
+
+    IceUtilInternal::Output H;
+    H.open(fileH.c_str());
+    if(!H)
+    {
+        ostringstream os;
+        os << "cannot open `" << fileH << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
+    }
+
+    FileTracker::instance()->addFile(fileH);
+
+    printHeader(H);
+    printFreezeTypes(H, dicts, indices);
+
+    IceUtilInternal::Output CPP;
+    CPP.open(fileC.c_str());
+    if(!CPP)
+    {
+        ostringstream os;
+        os << "cannot open `" << fileC << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
+    }
+    FileTracker::instance()->addFile(fileC);
+
+    printHeader(CPP);
+    printFreezeTypes(CPP, dicts, indices);
+
+    for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)
+    {
+        string hdr = *i;
+        string guard;
+        string::size_type pos = hdr.rfind(',');
+        if(pos != string::npos)
+        {
+            hdr = i->substr(0, pos);
+            guard = i->substr(pos + 1);
+        }
+        if(!guard.empty())
+        {
+            CPP << "\n#ifndef " << guard;
+            CPP << "\n#define " << guard;
+        }
+        CPP << "\n#include <";
+        if(!include.empty())
+        {
+            CPP << include << '/';
+        }
+        CPP << hdr << '>';
+        if(!guard.empty())
+        {
+            CPP << "\n#endif";
+        }
+    }
+
+    string s = fileH;
+    transform(s.begin(), s.end(), s.begin(), ToIfdef());
+    H << "\n#ifndef __" << s << "__";
+    H << "\n#define __" << s << "__";
+    H << '\n';
+
+    if(dicts.size() > 0)
+    {
+        H << "\n#include <Freeze/Map.h>";
+    }
+
+    if(indices.size() > 0)
+    {
+        H << "\n#include <Freeze/Index.h>";
+    }
+
+    {
+        for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
+        {
+            H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
+        }
+    }
+
+    CPP << "\n#include <Ice/BasicStream.h>";
+    CPP << "\n#include <";
+    if(include.size())
+    {
+        CPP << include << '/';
+    }
+    CPP << includeH << '>';
+
+    printVersionCheck(H);
+    printVersionCheck(CPP);
+
+    printDllExportStuff(H, dllExport);
+    if(dllExport.size())
+    {
+        dllExport += " ";
+    }
+
+    {
+        for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
+        {
+            writeDict(name, u, *p, H, CPP, dllExport);
+        } 
+
+        for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
+        {
+            writeIndex(name, u, *q, H, CPP, dllExport);
+        }
+    }
+
+    H << "\n\n#endif\n";
+    CPP << '\n';
+
+    H.close();
+    CPP.close();
 }
 
 int
@@ -1391,7 +1523,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        cerr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -1419,6 +1551,14 @@ main(int argc, char* argv[])
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
 
+    // Convert include paths to full paths.
+    {
+        for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+        {
+            *p = fullPath(*p);
+        }
+    }
+
     bool preprocess= opts.isSet("E");
 
     string include = opts.optArg("include-dir");
@@ -1429,8 +1569,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("dict");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Dict dict;
 
@@ -1562,8 +1701,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         Index index;
 
@@ -1629,8 +1767,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("dict-index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        string s = *i;
-        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        string s = IceUtilInternal::removeWhitespace(*i);
         
         string dictName;
         DictIndex index;
@@ -1777,24 +1914,14 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    string fileH = args[0];
-    fileH += "." + headerExtension;
-    string includeH = fileH;
-    string fileC = args[0];
-    fileC += "." + sourceExtension;
-    if(!output.empty())
-    {
-        fileH = output + '/' + fileH;
-        fileC = output + '/' + fileC;
-    }
-
     UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive);
 
     StringList includes;
 
     int status = EXIT_SUCCESS;
 
-    SignalHandler sigHandler;
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(interruptedCallback);
 
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
@@ -1839,159 +1966,63 @@ main(int argc, char* argv[])
             u->destroy();
             return EXIT_FAILURE;            
         }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                return EXIT_FAILURE;
+            }
+        }
     }
+
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
-        u->mergeModules();
-        u->sort();
-
+        try
         {
-            for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
-            {
-                *p = fullPath(*p);
-            }
+            gen(argv[0], u, includePaths, extraHeaders, dicts, indices, include, headerExtension,
+                sourceExtension, dllExport, includes, args, output);
         }
-
-        SignalHandler::addFile(fileH);
-        SignalHandler::addFile(fileC);
-
-        SignalHandler::setCallback(closeCallback);
-
-        _H.open(fileH.c_str());
-        if(!_H)
+        catch(const string& ex)
         {
-            cerr << argv[0] << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
+            // If a file could not be created, then cleanup any
+            // created files.
+            FileTracker::instance()->cleanup();
+            u->destroy();
+            cerr << argv[0] << ": " << ex << endl;
+            return EXIT_FAILURE;
+        }
+        catch(const Slice::FileException& ex)
+        {
+            // If a file could not be created, then cleanup any
+            // created files.
+            FileTracker::instance()->cleanup();
+            u->destroy();
+            cerr << argv[0] << ": " << ex.reason() << endl;
+            return EXIT_FAILURE;
+        }
+        catch(...)
+        {
+            cerr << argv[0] << ": unknown exception" << endl;
+            FileTracker::instance()->cleanup();
             u->destroy();
             return EXIT_FAILURE;
         }
-        printHeader(_H);
-        printFreezeTypes(_H, dicts, indices);
-
-        _CPP.open(fileC.c_str());
-        if(!_CPP)
-        {
-            cerr << argv[0] << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
-            u->destroy();
-            return EXIT_FAILURE;
-        }
-        printHeader(_CPP);
-        printFreezeTypes(_CPP, dicts, indices);
-
-        for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)
-        {
-            string hdr = *i;
-            string guard;
-            string::size_type pos = hdr.rfind(',');
-            if(pos != string::npos)
-            {
-                hdr = i->substr(0, pos);
-                guard = i->substr(pos + 1);
-            }
-            if(!guard.empty())
-            {
-                _CPP << "\n#ifndef " << guard;
-                _CPP << "\n#define " << guard;
-            }
-            _CPP << "\n#include <";
-            if(!include.empty())
-            {
-                _CPP << include << '/';
-            }
-            _CPP << hdr << '>';
-            if(!guard.empty())
-            {
-                _CPP << "\n#endif";
-            }
-        }
-
-        string s = fileH;
-        transform(s.begin(), s.end(), s.begin(), ToIfdef());
-        _H << "\n#ifndef __" << s << "__";
-        _H << "\n#define __" << s << "__";
-        _H << '\n';
-        
-        if(dicts.size() > 0)
-        {
-            _H << "\n#include <Freeze/Map.h>";
-        }
-
-        if(indices.size() > 0)
-        {
-            _H << "\n#include <Freeze/Index.h>";
-        }
-
-        
-        {
-            for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
-            {
-                _H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
-            }
-        }
-
-        _CPP << "\n#include <Ice/BasicStream.h>";
-        _CPP << "\n#include <";
-        if(include.size())
-        {
-            _CPP << include << '/';
-        }
-        _CPP << includeH << '>';
-
-        printVersionCheck(_H);
-        printVersionCheck(_CPP);
-
-        printDllExportStuff(_H, dllExport);
-        if(dllExport.size())
-        {
-            dllExport += " ";
-        }
-
-        {
-            for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
-            {
-                try
-                {
-                    if(!writeDict(argv[0], u, *p, _H, _CPP, dllExport))
-                    {
-                        u->destroy();
-                        return EXIT_FAILURE;
-                    }
-                }
-                catch(...)
-                {
-                    cerr << argv[0] << ": unknown exception" << endl;
-                    u->destroy();
-                    return EXIT_FAILURE;
-                }
-            } 
-
-
-            for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
-            {
-                try
-                {
-                    if(!writeIndex(argv[0], u, *q, _H, _CPP, dllExport))
-                    {
-                        u->destroy();
-                        return EXIT_FAILURE;
-                    }
-                }
-                catch(...)
-                {
-                    cerr << argv[0] << ": unknown exception" << endl;
-                    u->destroy();
-                    return EXIT_FAILURE;
-                }
-            }
-
-        }
-
-        _H << "\n\n#endif\n";
-        _CPP << '\n';
-
     }
     
     u->destroy();
+
+    {
+        IceUtil::StaticMutex::Lock lock(_mutex);
+
+        if(_interrupted)
+        {
+            FileTracker::instance()->cleanup();
+            return EXIT_FAILURE;
+        }
+    }
 
     return status;
 }

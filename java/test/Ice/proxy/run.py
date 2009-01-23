@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -10,33 +10,24 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
-
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-name = os.path.join("Ice", "proxy")
-testdir = os.path.dirname(os.path.abspath(__file__))
-nameAMD = os.path.join("Ice", "proxyAMD")
-testdirAMD = testdir + "AMD" 
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
 print "tests with regular server."
-classpath = os.getenv("CLASSPATH", "")
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + classpath
-TestUtil.clientServerTest(name)
+TestUtil.clientServerTest()
 
 print "tests with AMD server."
-TestUtil.clientServerTestWithClasspath(name,\
-    os.path.join(testdirAMD, "classes") + os.pathsep + classpath,\
-    os.path.join(testdir, "classes") + os.pathsep + classpath)
+import copy
+amdenv = copy.deepcopy(os.environ)
+TestUtil.addClasspath(os.path.join(os.getcwd(), "..", "proxyAMD", "classes"), amdenv)
+TestUtil.clientServerTest(serverenv = amdenv)
 
 print "tests with collocated server."
-TestUtil.collocatedTest(name)
-
-sys.exit(0)
+TestUtil.collocatedTest()

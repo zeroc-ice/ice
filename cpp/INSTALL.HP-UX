@@ -1,4 +1,11 @@
 ======================================================================
+Unsupported Platform
+======================================================================
+
+Ice is no longer supported on HP-UX. The following instructions are 
+believed to be correct, but are provided without any guarantee.
+
+======================================================================
 Requirements
 ======================================================================
 
@@ -35,7 +42,7 @@ Ice has dependencies on a number of third-party libraries:
 - expat 1.95.7 or 2.0.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
-- mcpp 2.7 with patch
+- mcpp 2.7.2
 
 We recommend downloading the Ice third-party source archive from
 
@@ -156,3 +163,10 @@ location of the <prefix>/lib directory with the -L option.
 If you built in 64-bit mode, the libraries are installed in
 <prefix>/lib/pa20_64 and the binaries are installed in 
 <prefix>/bin/pa20_64. No other changes are necessary.
+
+======================================================================
+Usage
+======================================================================
+
+Ice is built with _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED defined;
+therefore all Ice-based programs need to be linked with -lxnet.

@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -157,8 +157,6 @@ clean::
 	-rm -f V32FormatDB.h V32FormatDB.cpp
 	-rm -f V31FormatDB.h V31FormatDB.cpp
 	-rm -f LLUMap.h LLUMap.cpp
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

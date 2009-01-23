@@ -53,8 +53,8 @@ Changes since version 3.2.0
                encapsulation) in base64 encoding.
 
   This syntax is useful if, for example, a client that has the SSL
-  plugin configured sends a proxy with an SSL endpoint to a server
-  without the SSL plugin. Prior to this version, the server would
+  plug-in configured sends a proxy with an SSL endpoint to a server
+  without the SSL plug-in. Prior to this version, the server would
   drop the unknown SSL endpoint when it stringified the proxy.
   As of this version, the server preserves the endpoint and, when the
   server stringifies a proxy containing an unknown endpoint, it uses
@@ -277,7 +277,7 @@ Changes since version 3.0.1
 - Added identityToString and stringToIdentity to the Communicator
   interface.
 
-- Added an SSL plugin for Java5 that supports the thread pool
+- Added an SSL plug-in for Java5 that supports the thread pool
   concurrency model.
 
 - Added support for specifying an alternate abstract type in

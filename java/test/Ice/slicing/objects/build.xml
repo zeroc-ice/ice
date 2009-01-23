@@ -1,7 +1,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is licensed to you under the terms described in the
  ICE_LICENSE file included in this distribution.
@@ -17,9 +17,9 @@
     <!-- import common definitions -->
     <import file="${top.dir}/config/common.xml"/>
 
-    <property name="cclass.dir" value="cclasses"/>
+    <property name="cclass.dir" value="classes"/>
     <property name="sclass.dir" value="sclasses"/>
-    <property name="cgen.dir" value="cgenerated"/>
+    <property name="cgen.dir" value="generated"/>
     <property name="sgen.dir" value="sgenerated"/>
     <property name="csrc.dir" value="csrc"/>
     <property name="ssrc.dir" value="ssrc"/>

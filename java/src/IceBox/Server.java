@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,7 +29,7 @@ public final class Server extends Ice.Application
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
         Server server = new Server();
-        server.main("IceBox.Server", args, initData);
+        System.exit(server.main("IceBox.Server", args, initData));
     }
 
     public int

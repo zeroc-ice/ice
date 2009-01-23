@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,13 +9,8 @@
 
 import Demo.*;
 
-class TestApp extends Ice.Application
+class Client extends Ice.Application
 {
-    TestApp(String envName)
-    {
-        _envName = envName;
-    }
-
     void
     IntIntMapTest(Freeze.Map m, boolean fast)
     {
@@ -594,18 +589,20 @@ class TestApp extends Ice.Application
         }
     }
 
+    Client(String envName)
+    {
+        _envName = envName;
+    }
+
+    static public void
+    main(String[] args)
+    {
+        Client app = new Client("db");
+        app.main("demo.Freeze.bench.Client", args);
+    }
+
     private Freeze.Connection _connection;
     private int _repetitions = 10000;
     private StopWatch _watch = new StopWatch();
     private String _envName;
-}
-
-public class Client
-{
-    static public void
-    main(String[] args)
-    {
-        TestApp app = new TestApp("db");
-        app.main("test.Freeze.bench.Client", args);
-    }
 }

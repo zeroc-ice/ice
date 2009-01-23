@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,9 +9,11 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Slice/RubyUtil.h>
-#include <Slice/SignalHandler.h>
 
 #include <fstream>
 
@@ -26,18 +28,21 @@
 #include <unistd.h>
 #endif
 
+#include <string.h>
+
 using namespace std;
 using namespace Slice;
 using namespace Slice::Ruby;
 
-//
-// Callback for Crtl-C signal handling
-//
-static IceUtilInternal::Output _out;
+static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool _interrupted = false;
 
-static void closeCallback()
+void
+interruptedCallback(int signal)
 {
-    _out.close();
+    IceUtil::StaticMutex::Lock lock(_mutex);
+
+    _interrupted = true;
 }
 
 void
@@ -99,7 +104,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        cerr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -146,9 +151,11 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
+    IceUtil::CtrlCHandler ctrlCHandler;
+    ctrlCHandler.setCallback(interruptedCallback);
+
     for(i = args.begin(); i != args.end(); ++i)
     {
-        SignalHandler sigHandler;
 
         Preprocessor icecpp(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
@@ -202,31 +209,51 @@ main(int argc, char* argv[])
                 {
                     file = output + '/' + file;
                 }
-                SignalHandler::addFile(file);
 
-                SignalHandler::setCallback(closeCallback);
-
-                _out.open(file.c_str());
-                if(!_out)
+                try
                 {
-                    cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
+                    IceUtilInternal::Output out;
+                    out.open(file.c_str());
+                    if(!out)
+                    {
+                        ostringstream os;
+                        os << "cannot open`" << file << "': " << strerror(errno);
+                        throw FileException(__FILE__, __LINE__, os.str());
+                    }
+                    FileTracker::instance()->addFile(file);
+
+                    printHeader(out);
+                    out << "\n# Generated from file `" << base << ".ice'\n";
+
+                    //
+                    // Generate the Ruby mapping.
+                    //
+                    generate(u, all, checksum, includePaths, out);
+
+                    out.close();
+                }
+                catch(const Slice::FileException& ex)
+                {
+                    // If a file could not be created, then cleanup
+                    // any created files.
+                    FileTracker::instance()->cleanup();
                     u->destroy();
+                    cerr << argv[0] << ": " << ex.reason() << endl;
                     return EXIT_FAILURE;
                 }
-
-                printHeader(_out);
-                _out << "\n# Generated from file `" << base << ".ice'\n";
-
-                //
-                // Generate the Ruby mapping.
-                //
-                generate(u, all, checksum, includePaths, _out);
-
-                _out.close();
-                SignalHandler::setCallback(0);
             }
 
             u->destroy();
+        }
+
+        {
+            IceUtil::StaticMutex::Lock lock(_mutex);
+
+            if(_interrupted)
+            {
+                FileTracker::instance()->cleanup();
+                return EXIT_FAILURE;
+            }
         }
     }
 

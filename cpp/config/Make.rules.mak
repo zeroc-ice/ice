@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -18,12 +18,6 @@ prefix			= C:\Ice-$(VERSION)
 # optimization. Otherwise Ice is build with debug information.
 #
 #OPTIMIZE		= yes
-
-#
-# Define if you want to build the Ice-E/Ice-SL slice compilers with
-# static libraries.
-#
-#STATICLIBS             = yes
 
 #
 # Define if you want pdb files to be generated for optimized/release

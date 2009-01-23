@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -252,6 +252,16 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
     {
 	if(_deactivateController.deactivate())
 	{
+            synchronized(this)
+            {
+                //
+                // Set the evictor size to zero, meaning that we will evict
+                // everything possible.
+                //
+                _evictorSize = 0;
+                evict();
+            }
+
 	    try
 	    {
 		closeDbEnv();

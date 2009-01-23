@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -65,7 +65,6 @@ IceInternal::UdpTransceiver::write(Buffer& buf)
         //
         // We don't log a warning here because the client gets an exception anyway.
         //
-        cerr << packetSize << " " << _maxPacketSize << " " << _sndSize << endl;
         throw DatagramLimitException(__FILE__, __LINE__);
     }
 

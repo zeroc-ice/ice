@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -506,7 +506,11 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
                 
             if(autoDelete)
             {
-                _env->set_flags(DB_LOG_AUTOREMOVE, 1);
+                #ifdef DB_LOG_AUTO_REMOVE //This is the new name for the property from DB 4.7
+                    _env->set_flags(DB_LOG_AUTO_REMOVE, 1);
+                #else
+                    _env->set_flags(DB_LOG_AUTOREMOVE, 1);
+                #endif
             }
             
             //
@@ -604,7 +608,9 @@ Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& check
     _kbyte(kbyte),
     _trace(trace)
 {
+    __setNoDelete(true);
     start();
+    __setNoDelete(false);
 }
 
 void

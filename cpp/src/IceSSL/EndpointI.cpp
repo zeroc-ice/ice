@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -474,7 +474,7 @@ IceSSL::EndpointI::connectors(const vector<struct sockaddr_storage>& addresses) 
     vector<IceInternal::ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new ConnectorI(_instance, addresses[i], _timeout, _connectionId));
+        connectors.push_back(new ConnectorI(_instance, _host, addresses[i], _timeout, _connectionId));
     }
     return connectors;
 }

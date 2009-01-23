@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -71,7 +71,7 @@ printGCStats(const IceInternal::GCStats& stats)
 void
 Ice::CommunicatorI::destroy()
 {
-    if(_instance->destroy())
+    if(_instance && _instance->destroy())
     {
         IceUtil::StaticMutex::Lock sync(gcMutex);
 
@@ -289,15 +289,7 @@ Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
         // destructor is invoked.
         //
         const_cast<DynamicLibraryListPtr&>(_dynamicLibraryList) = _instance->dynamicLibraryList();
-    }
-    catch(...)
-    {
-        __setNoDelete(false);
-        throw;
-    }
-    __setNoDelete(false);
 
-    {
         //
         // If this is the first communicator that is created, use that communicator's
         // property settings to determine whether to start the garbage collector.
@@ -316,13 +308,25 @@ Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
         }
         if(++communicatorCount == 1)
         {
-            theCollector = new IceInternal::GC(gcInterval, printGCStats);
+            IceUtil::Handle<IceInternal::GC> collector  = new IceInternal::GC(gcInterval, printGCStats);
             if(gcInterval > 0)
             {
-                theCollector->start();
+                collector->start();
             }
+
+            //
+            // Assign only if start() succeeds, if it fails this makes sure stop isn't called in destroy().
+            //
+            theCollector = collector; 
         }
     }
+    catch(...)
+    {
+        destroy();
+        __setNoDelete(false);
+        throw;
+    }
+    __setNoDelete(false);
 }
 
 Ice::CommunicatorI::~CommunicatorI()
@@ -343,7 +347,7 @@ Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
     }
     catch(...)
     {
-        _instance->destroy();
+        destroy();
         throw;
     }
 }

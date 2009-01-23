@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -10,16 +10,15 @@
 
 import os, sys, time, socket
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
-
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
 hostname = socket.gethostname()
 fqdn = socket.getfqdn()
@@ -159,13 +158,13 @@ testcases = [
 if not limitedTests:
     testcases.extend([
             ('testing reject all',
-                (r'', r'*', r'', '', '', ''),
+                ('', '*', '', '', '', ''),
                 [(False, 'helloA:tcp -h %s -p 12010' % fqdn),
                 (False, 'helloB:tcp -h %s -p 12010' % hostname),
                 (False, 'helloC:tcp -h 127.0.0.1 -p 12010'),
                 (True, 'bar @ foo')], []),
             ('testing loopback only rule',
-                (r'127.0.0.1 localhost', r'', r'', '', '', ''),
+                ('127.0.0.1 localhost', '', '', '', '', ''),
                 [(False, 'hello:tcp -h %s -p 12010' % fqdn),
                 (False, 'hello:tcp -h %s -p 12010' % hostname),
                 (False, '127.0.0.1:tcp -h %s -p 12010' % hostname),
@@ -173,23 +172,44 @@ if not limitedTests:
                 (False, 'localhost/127.0.0.1:tcp -h %s -p 12010' % hostname),
                 (True, 'localhost:tcp -h 127.0.0.1 -p 12010'),
                 (True, 'localhost/127.0.0.1:tcp -h localhost -p 12010'),
-                (True, r'hello:tcp -h 127.0.0.1 -p 12010'),
-                (True, r'hello/somecat:tcp -h localhost -p 12010')], []),
+                (True, 'hello:tcp -h 127.0.0.1 -p 12010'),
+                (True, 'hello/somecat:tcp -h localhost -p 12010')], []),
+            ('testing port filter rule',
+                ('127.0.0.1:12010 localhost:12010', '', '', '', '', ''),
+                [(False, 'hello1:tcp -h 127.0.0.1 -p 12011'),
+                 (False, 'hello2:tcp -h localhost -p 12011'),
+                 (False, 'hello5:tcp -h %s -p 12010' % hostname),
+                 (True, 'hello3:tcp -h 127.0.0.1 -p 12010'),
+                 (True, 'hello4:tcp -h localhost -p 12010')], []),
+            ('testing reject port filter rule',
+                ('', '127.0.0.1:[0-12009,12011-65535] localhost:[0-12009,12011-65535]', '', '', '', ''),
+                [(False, 'hello1:tcp -h 127.0.0.1 -p 12011'),
+                 (False, 'hello2:tcp -h localhost -p 12011'),
+                 (True, 'hello5:tcp -h %s -p 12010' % hostname),
+                 (True, 'hello3:tcp -h 127.0.0.1 -p 12010'),
+                 (True, 'hello4:tcp -h localhost -p 12010')], []),
+            ('testing port filter rule with wildcard address rule',
+                ('*:12010', '', '', '', '', ''),
+                [(False, 'hello1:tcp -h 127.0.0.1 -p 12011'),
+                 (False, 'hello2:tcp -h localhost -p 12011'),
+                 (True, 'hello5:tcp -h %s -p 12010' % hostname),
+                 (True, 'hello3:tcp -h 127.0.0.1 -p 12010'),
+                 (True, 'hello4:tcp -h localhost -p 12010')], []),
             ('testing domain filter rule (accept)',
-                ("*" + domainname, r'', r'', '', '', ''),
+                ("*" + domainname, '', '', '', '', ''),
                 [(True, 'hello:tcp -h %s -p 12010' % fqdn),
                 (False, 'hello:tcp -h %s -p 12010' % hostname)], []),
             ('testing domain filter rule (reject)',
-                (r'', "*" + domainname, r'', '', '', ''),
+                ('', "*" + domainname, '', '', '', ''),
                 [(False, 'hello:tcp -h %s -p 12010' % fqdn),
                 (True, 'hello:tcp -h %s -p 12010' % hostname),
                 (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
             ('testing domain filter rule (mixed)',
-                ("127.0.0.1", fqdn, r'', '', '', ''),
+                ("127.0.0.1", fqdn, '', '', '', ''),
                 [(False, 'hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010' % fqdn),
                 (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
             ('testing maximum proxy length rule',
-                (r'', r'', r'40', '', '', ''),
+                ('', '', '40', '', '', ''),
                 [(True, 'hello:tcp -h 127.0.0.1 -p 12010'),
                 (False, '012345678901234567890123456789012345678901234567890123456789:tcp -h 127.0.0.1 -p 12010')], []),
             ])
@@ -212,13 +232,12 @@ def pingProgress():
 for testcase in testcases:
     description, args, attacks, xtraConfig = testcase
     acceptFilter, rejectFilter, maxEndpoints, categoryFilter, idFilter, adapterFilter = args
-    testdir = os.path.dirname(os.path.abspath(__file__))
     #
     # The test client performs multiple tests during one 'run'. We could
     # use command line arguments to pass the test cases in, but a
     # configuration file is easier.
     #
-    attackcfg = file(os.path.join(testdir, 'attack.cfg'), 'w')
+    attackcfg = file(os.path.join(os.getcwd(), 'attack.cfg'), 'w')
     accepts=0
     rejects=0
     sys.stdout.write(description)
@@ -238,30 +257,28 @@ for testcase in testcases:
     hostArg = ""
     if limitedTests:
         hostArg = " --Ice.Default.Host=127.0.0.1" 
-
-
     #
     # This test causes connections to be terminated which will cause
     # warnings if we use the default test flags. So we need to define
     # our own.
     #
-    commonClientOptions = " --Ice.NullHandleAbort=1 --Ice.PrintProcessId=1 --Ice.Warn.Connections=0 " + hostArg
-    commonServerOptions = r' --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort=1' + \
-            r' --Ice.ServerIdleTime=600 --Ice.ThreadPool.Server.Size=2 --Ice.ThreadPool.Server.SizeMax=10' + \
-            r' --Glacier2.RoutingTable.MaxSize=10 --Ice.Warn.Connections=0 ' + hostArg
+    commonClientOptions = " --Ice.NullHandleAbort=1 --Ice.Warn.Connections=0 " + hostArg
+    commonServerOptions = ' --Ice.PrintAdapterReady --Ice.NullHandleAbort=1' + \
+            ' --Ice.ServerIdleTime=600 --Ice.ThreadPool.Server.Size=2 --Ice.ThreadPool.Server.SizeMax=10' + \
+            ' --Glacier2.RoutingTable.MaxSize=10 --Ice.Warn.Connections=0 ' + hostArg
 
     # 
     # We cannot use the TestUtil options because they use localhost as the default host which doesn't really work for
     # these tests.
     #
 
-    routerArgs = " --Ice.Config=" + os.path.join(testdir, "router.cfg") + \
-          r' --Glacier2.Client.Endpoints="default -p 12347 -t 60000"' + \
-          r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 60000"' + \
-          r' --Ice.Admin.InstanceName=Glacier2' + \
-          r' --Glacier2.CryptPasswords="'  + os.path.dirname(os.path.abspath(__file__)) + r'/passwords"' 
+    routerArgs = " --Ice.Config=" + os.path.join(os.getcwd(), "router.cfg") + \
+          ' --Glacier2.Client.Endpoints="default -p 12347 -t 60000"' + \
+          ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 60000"' + \
+          ' --Ice.Admin.InstanceName=Glacier2' + \
+          ' --Glacier2.CryptPasswords="'  + os.path.join(os.getcwd(), "passwords") + '"'
 
-    routerConfig = file(os.path.join(testdir, "router.cfg"), "w")
+    routerConfig = file(os.path.join(os.getcwd(), "router.cfg"), "w")
 
     routerConfig.write("Ice.Default.Locator=locator:tcp -h %s -p 12010\n" % hostname)
     routerConfig.write("Glacier2.Client.Trace.Reject=0\n")
@@ -299,27 +316,23 @@ for testcase in testcases:
         routerDriver.host = None
     routerDriver.overrides = commonServerOptions + routerArgs
     
-    starterPipe = TestUtil.startServer(router, " 2>&1", routerDriver)
-    TestUtil.getServerPid(starterPipe)
-    TestUtil.getAdapterReady(starterPipe, True, 2)
+    starterProc = TestUtil.startServer(router, config=routerDriver, count=2)
     pingProgress()
 
     if TestUtil.protocol != "ssl":
-        serverConfig = file(os.path.join(testdir, "server.cfg"), "w")
-        serverOptions = ' --Ice.Config=' + os.path.join(testdir, "server.cfg") + " " 
+        serverConfig = file(os.path.join(os.getcwd(), "server.cfg"), "w")
+        serverOptions = ' --Ice.Config=' + os.path.join(os.getcwd(), "server.cfg") + " " 
         serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010 -t 20000\n")
         serverConfig.close()
     else:
         serverOptions = ""
 
-    serverCmd = os.path.join(testdir, 'server')
+    serverCmd = os.path.join(os.getcwd(), 'server')
     serverDriver = TestUtil.DriverConfig("server")
     if serverDriver.host == "127.0.0.1":
         serverDriver.host = None
     serverDriver.overrides = commonServerOptions
-    serverPipe = TestUtil.startServer(serverCmd, serverOptions + "  2>&1", serverDriver)
-    TestUtil.getServerPid(serverPipe)
-    TestUtil.getAdapterReady(serverPipe)
+    serverProc = TestUtil.startServer(serverCmd, serverOptions, serverDriver)
     pingProgress()
 
     sys.stdout.write(' ')
@@ -329,22 +342,13 @@ for testcase in testcases:
     # The client is responsible for reporting success or failure. A test
     # failure will result in an assertion and the test will abort.
     #
-    clientCmd = os.path.join(testdir, 'client')
+    clientCmd = os.path.join(os.getcwd(), 'client')
     clientDriver = TestUtil.DriverConfig("client")
     if clientDriver.host == "127.0.0.1":
         clientDriver.host = None
     clientDriver.host = commonClientOptions
-    clientArgs = " --Ice.Config=" + os.path.join(testdir, 'attack.cfg') + " "
-    clientPipe = TestUtil.startClient(clientCmd, clientArgs + " 2>&1", clientDriver)
-    TestUtil.ignorePid(clientPipe)
-
-    TestUtil.printOutputFromPipe(clientPipe)
-
-    clientStatus = TestUtil.closePipe(clientPipe)
-    if clientStatus:
-        TestUtil.killServers()
-
-    if clientStatus or TestUtil.serverStatus():
-        sys.exit(1)
-    
-sys.exit(0)
+    clientArgs = " --Ice.Config=" + os.path.join(os.getcwd(), 'attack.cfg') + " "
+    clientProc = TestUtil.startClient(clientCmd, clientArgs, clientDriver)
+    clientProc.waitTestSuccess()
+    serverProc.waitTestSuccess()
+    starterProc.waitTestSuccess()

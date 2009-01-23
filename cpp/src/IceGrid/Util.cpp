@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -100,14 +100,23 @@ IceGrid::createProperty(const string& name, const string& value)
 string
 IceGrid::escapeProperty(const string& s)
 {
+    size_t firstChar = s.find_first_not_of(' ');
+    size_t lastChar = s.find_last_not_of(' ');
     string result;
     for(unsigned int i = 0; i < s.size(); ++i)
     {
         char c = s[i];
         switch(c)
         {
-          case '\\':
           case ' ':
+            if(i < firstChar || i > lastChar)
+            {
+                result.push_back('\\');
+            }
+            result.push_back(c);
+            break;
+
+          case '\\':
           case '#':
           case '=':
             result.push_back('\\');

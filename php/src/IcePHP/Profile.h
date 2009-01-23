@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -41,15 +41,32 @@ bool profileShutdown(TSRMLS_D);
 // Profile contains information about an Ice configuration. A pointer to a Profile instance
 // is stored in the PHP globals (see php_ice.h) when a script invokes Ice_loadProfile().
 //
-struct Profile
+class Profile
 {
+public:
+
     typedef std::map<std::string, Slice::ClassDefPtr> ClassMap;
 
-    std::string name;              // The profile name
-    Slice::UnitPtr unit;           // The parsed Slice code
-    std::string code;              // PHP code generated from Slice types
-    ClassMap classes;              // Associates flattened type ids to their ClassDefs
-    Ice::PropertiesPtr properties; // Configuration properties
+    Profile(const std::string&, const std::vector<Slice::UnitPtr>&, const std::string&, const ClassMap&,
+            const Ice::PropertiesPtr&);
+
+    std::string name() const;
+    std::string code() const;
+    const ClassMap& classes() const;
+    Ice::PropertiesPtr properties() const;
+
+    Slice::TypePtr lookupType(const std::string&) const;
+    Slice::ExceptionPtr lookupException(const std::string&) const;
+
+    void destroy(TSRMLS_D);
+
+private:
+
+    std::string _name;                  // The profile name
+    std::vector<Slice::UnitPtr> _units; // The parsed Slice files
+    std::string _code;                  // PHP code generated from Slice types
+    ClassMap _classes;                  // Associates flattened type ids to their ClassDefs
+    Ice::PropertiesPtr _properties;     // Configuration properties
 };
 
 } // End of namespace IcePHP

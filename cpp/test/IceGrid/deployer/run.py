@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -10,31 +10,18 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-import IceGridAdmin
-
-name = os.path.join("IceGrid", "deployer")
-testdir = os.path.dirname(os.path.abspath(__file__))
-
-TestUtil.addLdPath(testdir)
-
-iceBox = TestUtil.getIceBox(testdir)
-
-IceGridAdmin.iceGridTest(testdir, name, "application.xml", "--TestDir=\"" + testdir + "\"", \
-                         '"icebox.exe=' + TestUtil.getIceBox(testdir) + '"')
+IceGridAdmin.iceGridTest("application.xml", '--TestDir="%s"' % os.getcwd(), '"icebox.exe=%s"' % TestUtil.getIceBox())
 
 # Tests with targets
-IceGridAdmin.iceGridTest(testdir, name, "application.xml", "-t --TestDir=\"" + testdir + "\"", \
-                         "icebox.exe=" + TestUtil.getIceBox(testdir) + \
-                         " moreservers moreservices moreproperties")
-
-sys.exit(0)
+IceGridAdmin.iceGridTest("application.xml", '-t --TestDir="%s"' % os.getcwd(),
+                         "icebox.exe=%s moreservers moreservices moreproperties" % TestUtil.getIceBox())

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -25,6 +25,7 @@ includeSubDirs = [ \
     "vb", \
     "rb", \
     "config", \
+    "scripts", \
     "certs", \
     "slice", \
     "distribution", \
@@ -225,6 +226,7 @@ for d in ["", "cpp", "java", "cs"]:
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules.cs"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(demoDir, "config"), False)
+copy(os.path.join(srcDir, "scripts"), os.path.join(demoscriptDir, "scripts"))
 
 # Consolidate demoscript and demo distribution with files from each language mapping
 for d in os.listdir('.'):

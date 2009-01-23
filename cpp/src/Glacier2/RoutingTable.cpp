@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,11 +13,11 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator) :
+Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator, const ProxyVerifierPtr& verifier) :
     _communicator(communicator),
     _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
     _maxSize(_communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.RoutingTable.MaxSize", 1000)),
-    _verifier(communicator, "")
+    _verifier(verifier)
 {
 }
 
@@ -40,7 +40,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Ice::Current
             continue;
         }
 
-        if(!_verifier.verify(*prx))
+        if(!_verifier->verify(*prx))
         {
             current.con->close(true);
             throw ObjectNotExistException(__FILE__, __LINE__);

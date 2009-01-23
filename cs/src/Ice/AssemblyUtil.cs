@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -131,7 +131,7 @@ namespace IceInternal
         //
         // Make sure that all assemblies that are referenced by this process
         // are actually loaded. This is necessary so we can use reflection
-        // on any type in any assembly (because the type we are after will
+        // on any type in any assembly because the type we are after will
         // most likely not be in the current assembly and, worse, may be
         // in an assembly that has not been loaded yet. (Type.GetType()
         // is no good because it looks only in the calling object's assembly
@@ -164,9 +164,16 @@ namespace IceInternal
             {
                 if(!_loadedAssemblies.Contains(name.FullName))
                 {
-                    Assembly ra = Assembly.Load(name);
-                    _loadedAssemblies[ra.FullName] = ra;
-                    loadReferencedAssemblies(ra);
+		    try
+		    {
+			Assembly ra = Assembly.Load(name);
+			_loadedAssemblies[ra.FullName] = ra;
+			loadReferencedAssemblies(ra);
+		    }
+		    catch(System.Exception)
+		    {
+		        // Ignore assemblies that cannot be loaded.
+		    }
                 }
             }
         }

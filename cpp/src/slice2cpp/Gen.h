@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,6 @@ public:
     Gen(const std::string&,
         const std::string&,
         const std::string&,
-        const std::string&,
         const std::vector<std::string>&,
         const std::string&,
         const std::vector<std::string>&,
@@ -34,8 +33,6 @@ public:
         bool,
         bool);
     ~Gen();
-
-    bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
     void closeOutput();

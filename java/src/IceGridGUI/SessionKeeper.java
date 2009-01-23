@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -99,6 +99,17 @@ class SessionKeeper
                 _serverAdminCategory = _admin.getServerAdminCategory();
 
             }
+            catch(Ice.OperationNotExistException e)
+            {
+                logout(true);
+                JOptionPane.showMessageDialog(
+                    parent,
+                    "This version of IceGrid Admin requires an IceGrid Registry version 3.3",
+                    "Login failed: Version Mismatch",
+                    JOptionPane.ERROR_MESSAGE);
+                throw e;
+
+            }
             catch(Ice.LocalException e)
             {
                 logout(true);
@@ -188,6 +199,27 @@ class SessionKeeper
                 return _adapter.addFacet(servant, new Ice.Identity(name, _adminCallbackCategory), facet);
             }
         }
+
+        Ice.ObjectPrx retrieveCallback(String name, String facet)
+        {
+            if(_adminCallbackCategory == null)
+            {
+                return null;
+            }
+            else
+            {
+                Ice.Identity ident = new Ice.Identity(name, _adminCallbackCategory);
+                if(_adapter.findFacet(ident, facet) == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _adapter.createProxy(ident).ice_facet(facet);
+                }
+            }
+        }
+        
 
         Ice.Object removeCallback(String name, String facet)
         {
@@ -1388,6 +1420,12 @@ class SessionKeeper
     {
         return _session == null ? null : _session.addCallback(servant, name, facet);
     }
+    
+    Ice.ObjectPrx retrieveCallback(String name, String facet)
+    {
+        return _session == null ? null : _session.retrieveCallback(name, facet);
+    }
+
 
     Ice.Object removeCallback(String name, String facet)
     {

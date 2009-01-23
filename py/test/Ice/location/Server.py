@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -19,17 +19,25 @@ if not slice_dir:
 Ice.loadSlice('-I' + slice_dir + ' Test.ice')
 import Test
 
-class ServerLocatorRegistry(Ice.LocatorRegistry):
+class ServerLocatorRegistry(Test.TestLocatorRegistry):
     def __init__(self):
         self._adapters = {}
         self._objects = {}
 
     def setAdapterDirectProxy_async(self, cb, adapter, obj, current=None):
-        self._adapters[adapter] = obj
+        if obj:
+            self._adapters[adapter] = obj
+        else:
+            self._adapters.pop(adapter)
         cb.ice_response()
 
     def setReplicatedAdapterDirectProxy_async(self, cb, adapter, replica, obj, current=None):
-        self._adapters[adapter] = obj
+        if obj:
+            self._adapters[adapter] = obj
+            self._adapters[replica] = obj
+        else:
+            self._adapters.pop(adapter)
+            self._adapters.pop(replica)
         cb.ice_response()
 
     def setServerProcessProxy_async(self, id, proxy, current=None):
@@ -48,20 +56,26 @@ class ServerLocatorRegistry(Ice.LocatorRegistry):
             raise Ice.ObjectNotFoundException()
         return self._objects[id]
 
-class ServerLocator(Ice.Locator):
+class ServerLocator(Test.TestLocator):
 
     def __init__(self, registry, registryPrx):
         self._registry = registry
         self._registryPrx = registryPrx
+        self._requestCount = 0
 
     def findObjectById_async(self, response, id, current=None):
+        self._requestCount += 1
         response.ice_response(self._registry.getObject(id))
 
     def findAdapterById_async(self, response, id, current=None):
+        self._requestCount += 1
         response.ice_response(self._registry.getAdapter(id))
 
     def getRegistry(self, current=None):
         return self._registryPrx
+
+    def getRequestCount(self, current=None):
+        return self._requestCount
 
 class ServerManagerI(Test.ServerManager):
     def __init__(self, adapter, registry, initData):
@@ -71,6 +85,7 @@ class ServerManagerI(Test.ServerManager):
         self._initData = initData
         self._initData.properties.setProperty("TestAdapter.Endpoints", "default")
         self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
+        self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
         self._initData.properties.setProperty("TestAdapter2.Endpoints", "default")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
 
@@ -97,6 +112,7 @@ class ServerManagerI(Test.ServerManager):
         object = TestI(adapter, adapter2, self._registry)
         self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test")))
         self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test2")))
+        adapter.add(object, communicator.stringToIdentity("test3"))
 
         adapter.activate()
         adapter2.activate()
@@ -121,6 +137,9 @@ class TestI(Test.TestIntf):
         self._adapter1.getCommunicator().shutdown()
 
     def getHello(self, current=None):
+        return Test.HelloPrx.uncheckedCast(self._adapter1.createIndirectProxy(communicator.stringToIdentity("hello")))
+
+    def getReplicatedHello(self, current=None):
         return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(communicator.stringToIdentity("hello")))
 
     def migrateHello(self, current=None):

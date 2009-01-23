@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -92,6 +92,6 @@ class ReadNew extends Ice.Application
     main(String[] args)
     {
         ReadNew app = new ReadNew();
-        app.main("test.Freeze.transform.ReadNew", args);
+        app.main("demo.Freeze.transform.ReadNew", args);
     }
 }

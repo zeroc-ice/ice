@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -35,7 +35,7 @@
 %endif
 
 Name: ice
-Version: 3.3.0
+Version: 3.3.1
 Summary: Files common to all Ice packages 
 Release: 1%{?dist}
 License: GPL with exceptions
@@ -48,7 +48,7 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 33
-%define dotnetversion 3.3.0
+%define dotnetversion 3.3..1.1.1.1.1.1
 %define dotnetpolicyversion 3.3
 
 %define formsversion 1.2.0
@@ -58,7 +58,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: db46-devel >= 4.6.21, db46-java >= 4.6.21
 BuildRequires: jpackage-utils
-BuildRequires: mcpp-devel >= 2.7
+BuildRequires: mcpp-devel >= 2.7.2
 
 #
 # We also need a recent version of ant, %{_javadir}/jgoodies-forms-%{formsversion}.jar,

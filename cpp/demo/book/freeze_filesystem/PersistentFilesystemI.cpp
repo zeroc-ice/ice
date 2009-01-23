@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,9 +17,7 @@ using namespace std;
 Freeze::EvictorPtr Filesystem::NodeI::_evictor;
 
 Filesystem::NodeI::NodeI()
-#ifdef __SUNPRO_CC
   : _id(Ice::Identity())
-#endif
 {
 }
 
@@ -242,11 +240,11 @@ Filesystem::DirectoryI::DirectoryI(const Ice::Identity& id) :
 Ice::ObjectPtr
 Filesystem::NodeFactory::create(const string& type)
 {
-    if(type == "::Filesystem::PersistentFile")
+    if(type == PersistentFile::ice_staticId())
     {
         return new FileI;
     }
-    else if(type == "::Filesystem::PersistentDirectory")
+    else if(type == PersistentDirectory::ice_staticId())
     {
         return new DirectoryI;
     }

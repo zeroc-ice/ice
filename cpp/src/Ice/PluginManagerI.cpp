@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,12 +29,12 @@ Ice::PluginManagerI::initializePlugins()
     if(_initialized)
     {
         InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "plugins already initialized";
+        ex.reason = "plug-ins already initialized";
         throw ex;
     }
 
     //
-    // Invoke initialize() on the plugins, in the order they were loaded.
+    // Invoke initialize() on the plug-ins, in the order they were loaded.
     //
     vector<PluginPtr> initializedPlugins;
     try
@@ -48,7 +48,7 @@ Ice::PluginManagerI::initializePlugins()
     catch(...)
     {
         //
-        // Destroy the plugins that have been successfully initialized, in the
+        // Destroy the plug-ins that have been successfully initialized, in the
         // reverse order.
         //
         for(vector<PluginPtr>::reverse_iterator p = initializedPlugins.rbegin(); p != initializedPlugins.rend(); ++p)
@@ -118,11 +118,40 @@ Ice::PluginManagerI::destroy()
 
     if(_communicator)
     {
-        map<string, PluginPtr>::iterator r;
-        for(r = _plugins.begin(); r != _plugins.end(); ++r)
+        if(_initialized)
         {
-            r->second->destroy();
-            r->second = 0;
+            map<string, PluginPtr>::iterator r;
+            for(r = _plugins.begin(); r != _plugins.end(); ++r)
+            {
+                try
+                {
+                    r->second->destroy();
+                    r->second = 0;
+                }
+                catch(const std::exception& ex)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
+                    out << "exception: " << ex.what();
+                }
+                catch(const std::string& str)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
+                    out << "exception: " << str;
+                }
+                catch(const char* msg)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
+                    out << "exception: " << msg;
+                }
+                catch(...)
+                {
+                    Warning out(getProcessLogger());
+                    out << "unexpected exception raised by plug-in '"    << r->first << "' destruction.";
+                }
+            }
         }
         
         _communicator = 0;
@@ -153,8 +182,8 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     // Ice.Plugin.name[.<language>]=entry_point [args]
     //
     // If the Ice.PluginLoadOrder property is defined, load the
-    // specified plugins in the specified order, then load any
-    // remaining plugins.
+    // specified plug-ins in the specified order, then load any
+    // remaining plug-ins.
     //
     const string prefix = "Ice.Plugin.";
     PropertiesPtr properties = _communicator->getProperties();
@@ -168,7 +197,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
         if(_plugins.find(name) != _plugins.end())
         {
             PluginInitializationException ex(__FILE__, __LINE__);
-            ex.reason = "plugin `" + name + "' already loaded";
+            ex.reason = "plug-in `" + name + "' already loaded";
             throw ex;
         }
 
@@ -190,13 +219,13 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
         else
         {
             PluginInitializationException ex(__FILE__, __LINE__);
-            ex.reason = "plugin `" + name + "' not defined";
+            ex.reason = "plug-in `" + name + "' not defined";
             throw ex;
         }
     }
 
     //
-    // Load any remaining plugins that weren't specified in PluginLoadOrder.
+    // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
     //
    
     while(!plugins.empty())
@@ -255,7 +284,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     //
     // An application can set Ice.InitPlugins=0 if it wants to postpone
     // initialization until after it has interacted directly with the
-    // plugins.
+    // plug-ins.
     //
     if(properties->getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
     {

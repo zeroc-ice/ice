@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,7 +36,7 @@ public:
     // printHeader() and then emits a "package" statement if
     // necessary.
     //
-    bool openClass(const std::string&, const std::string& = std::string());
+    void openClass(const std::string&, const std::string& = std::string());
 
     virtual void printHeader();
 };
@@ -64,7 +64,7 @@ protected:
     // Given the fully-scoped Java class name, create any intermediate
     // package directories and open the class file
     //
-    bool open(const std::string&);
+    void open(const std::string&);
 
     ::IceUtilInternal::Output& output() const;
 

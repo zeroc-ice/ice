@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ commentre = re.compile("^#")
 
 for top_srcdir in [".", "..", "../..", "../../..", "../../../.."]:
     top_srcdir = os.path.normpath(top_srcdir)
-    if os.path.exists(os.path.join(top_srcdir, "..", "config", "TestUtil.py")):
+    if os.path.exists(os.path.join(top_srcdir, "..", "config", "makedepend.py")):
         break
 else:
     raise "can't find top level source directory!"

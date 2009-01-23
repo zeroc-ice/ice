@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -62,6 +62,24 @@ class PluginI implements Plugin
     getPasswordCallback()
     {
         return _instance.getPasswordCallback();
+    }
+
+    public void
+    setKeystoreStream(java.io.InputStream stream)
+    {
+        _instance.setKeystoreStream(stream);
+    }
+
+    public void
+    setTruststoreStream(java.io.InputStream stream)
+    {
+        _instance.setTruststoreStream(stream);
+    }
+
+    public void
+    addSeedStream(java.io.InputStream stream)
+    {
+        _instance.addSeedStream(stream);
     }
 
     private Instance _instance;

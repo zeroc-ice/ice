@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,14 @@ ServerLocatorRegistry::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistr
                                                    const std::string& adapter, const ::Ice::ObjectPrx& object, 
                                                    const ::Ice::Current&)
 {
-    _adapters[adapter] = object;
+    if(!object)
+    {
+        _adapters.erase(adapter);
+    }
+    else
+    {
+        _adapters[adapter] = object;
+    }
     cb->ice_response();
 }
 
@@ -32,8 +39,16 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxy_async(
     const std::string& adapter, const ::std::string& replicaGroup, const ::Ice::ObjectPrx& object, 
     const ::Ice::Current&)
 {
-    _adapters[adapter] = object;
-    _adapters[replicaGroup] = object;
+    if(!object)
+    {
+        _adapters.erase(adapter);
+        _adapters.erase(replicaGroup);
+    }
+    else
+    {
+        _adapters[adapter] = object;
+        _adapters[replicaGroup] = object;
+    }
     cb->ice_response();
 }
 

@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-class PhoneBookServer extends Ice.Application
+class Server extends Ice.Application
 {
     public int
     run(String[] args)
@@ -82,20 +82,17 @@ class PhoneBookServer extends Ice.Application
         return 0;
     }
 
-    PhoneBookServer(String envName)
+    Server(String envName)
     {
         _envName = envName;
     }
 
-    private String _envName;
-}
-
-public class Server
-{
     static public void
     main(String[] args)
     {
-        PhoneBookServer app = new PhoneBookServer("db");
+        Server app = new Server("db");
         app.main("demo.Freeze.phonebook.Server", args, "config.server");
     }
+
+    private String _envName;
 }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,6 +30,7 @@
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
+#include <Ice/RetryQueueF.h>
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
 #include <Ice/Initialize.h>
@@ -71,6 +72,7 @@ public:
     ThreadPoolPtr serverThreadPool();
     SelectorThreadPtr selectorThread();
     EndpointHostResolverPtr endpointHostResolver();
+    RetryQueuePtr retryQueue();
     IceUtil::TimerPtr timer();
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
@@ -134,6 +136,7 @@ private:
     ThreadPoolPtr _serverThreadPool;
     SelectorThreadPtr _selectorThread;
     EndpointHostResolverPtr _endpointHostResolver;
+    RetryQueuePtr _retryQueue;
     IceUtil::TimerPtr _timer;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;

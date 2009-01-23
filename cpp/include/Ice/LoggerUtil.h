@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -150,7 +150,7 @@ template<class Y>
 ICE_API Trace& operator<<(Trace&, std::ios_base& (*)(std::ios_base&));
 
 //
-// A special plugin that installs a logger during a communicator's initialization.
+// A special plug-in that installs a logger during a communicator's initialization.
 // Both initialize and destroy are no-op. See Ice::InitializationData.
 //
 

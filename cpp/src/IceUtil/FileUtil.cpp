@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,7 +21,7 @@ IceUtilInternal::isAbsolutePath(const string& path)
     size_t size = path.size();
 
     // Skip whitespace
-    while(i < size && isspace(path[i]))
+    while(i < size && isspace(static_cast<unsigned char>(path[i])))
     {
         ++i;
     }

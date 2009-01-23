@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -65,6 +65,18 @@ ICE_UTIL_API std::string errorToString(int, LPCVOID = NULL);
 #else
 ICE_UTIL_API std::string errorToString(int);
 #endif
+
+//
+// Functions to convert to to all lower/upper case
+//
+ICE_UTIL_API std::string toLower(const std::string&);
+ICE_UTIL_API std::string toUpper(const std::string&);
+
+//
+// Remove all whitespace from a string
+//
+ICE_UTIL_API std::string removeWhitespace(const std::string&);
+
 }
 
 #endif

@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@
 #
 
 #
-# We require Python to be built as a Framework for the IcePy plugin.
+# We require Python to be built as a Framework for the IcePy plug-in.
 #
 ifneq ($(PYTHON_HOME),)
     ifeq ($(shell test ! -f $(PYTHON_HOME)/Python && echo 0),0)

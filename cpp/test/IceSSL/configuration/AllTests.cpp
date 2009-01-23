@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -499,6 +499,39 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         }
         fact->destroyServer(server);
         comm->destroy();
+
+        //
+        // Test IceSSL.CheckCertName. The test certificate for the server contains "server"
+        // and "127.0.0.1" in its subjectAltName, so we only perform this test when the
+        // default host is "127.0.0.1".
+        //
+        if(defaultHost == "127.0.0.1")
+        {
+            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+            initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+            initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            comm = initialize(initData);
+
+            fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            test(fact);
+            d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+            d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+            server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const LocalException&)
+            {
+                test(false);
+            }
+            fact->destroyServer(server);
+            comm->destroy();
+        }
     }
     cout << "ok" << endl;
 

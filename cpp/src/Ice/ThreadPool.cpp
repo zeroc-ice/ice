@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -480,6 +480,8 @@ IceInternal::ThreadPool::run()
                     }
                     catch(const DatagramLimitException&) // Expected.
                     {
+                        handler->_stream.resize(0);
+                        handler->_stream.i = stream.b.begin();
                         continue;
                     }
                     catch(const SocketException& ex)
@@ -496,6 +498,8 @@ IceInternal::ThreadPool::run()
                                 Warning out(_instance->initializationData().logger);
                                 out << "datagram connection exception:\n" << ex << '\n' << handler->toString();
                             }
+                            handler->_stream.resize(0);
+                            handler->_stream.i = stream.b.begin();
                         }
                         else
                         {
@@ -632,7 +636,17 @@ bool
 IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 {
     BasicStream& stream = handler->_stream;
-    
+
+    if(stream.i - stream.b.begin() >= headerSize)
+    {
+        if(!handler->read(stream))
+        {
+            return false;
+        }
+        assert(stream.i == stream.b.end());
+        return true;
+    }
+
     if(stream.b.size() == 0)
     {
         stream.b.resize(headerSize);
@@ -656,6 +670,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
         //
         throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
+
     stream.i = stream.b.begin();
     const Byte* m;
     stream.readBlob(m, static_cast<Int>(sizeof(magic)));
@@ -721,8 +736,6 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
             {
                 Warning out(_instance->initializationData().logger);
                 out << "DatagramLimitException: maximum size of " << pos << " exceeded";
-                stream.resize(0);
-                stream.i = stream.b.begin();
             }
             throw DatagramLimitException(__FILE__, __LINE__);
         }

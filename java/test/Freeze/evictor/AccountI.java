@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -81,7 +81,6 @@ public class AccountI extends Test.Account
                 notify();
             }
 
-
             public synchronized void run()
             {
                 if(_response == false && _exception == null)
@@ -129,8 +128,7 @@ public class AccountI extends Test.Account
 
         ResponseThread thread = new ResponseThread();
         thread.setDaemon(true);
-        thread.start();
-
+  
         test(_evictor.getCurrentTransaction() != null);
 
         try
@@ -140,6 +138,9 @@ public class AccountI extends Test.Account
         }
         catch(Ice.UserException e)
         {
+            thread.start();
+            Thread.yield();
+
             //
             // Need to rollback here -- "rollback on user exception" does not work
             // when the dispatch commits before it gets any response!
@@ -150,6 +151,8 @@ public class AccountI extends Test.Account
             return;
         }
 
+        thread.start();
+        Thread.yield();
         thread.response();
     }
 

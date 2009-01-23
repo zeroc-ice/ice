@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,7 +21,8 @@
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/DotNetNames.h>
-#include <Slice/SignalHandler.h>
+#include <Slice/FileTracker.h>
+#include <string.h>
 
 using namespace std;
 using namespace Slice;
@@ -38,19 +39,6 @@ using IceUtilInternal::sb;
 using IceUtilInternal::eb;
 using IceUtilInternal::spar;
 using IceUtilInternal::epar;
-
-//
-// Callback for Crtl-C signal handling
-//
-static Gen* _gen = 0;
-
-static void closeCallback()
-{
-    if(_gen != 0)
-    {
-        _gen->closeOutput();
-    }
-}
 
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(Operation::Mode opMode)
@@ -1067,14 +1055,11 @@ Slice::CsVisitor::writeValue(const TypePtr& type)
 }
 
 
-Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir,
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir,
                 bool impl, bool implTie, bool stream)
     : _includePaths(includePaths),
       _stream(stream)
 {
-    _gen = this;
-    SignalHandler::setCallback(closeCallback);
-
     string fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
     if(pos != string::npos)
@@ -1089,15 +1074,15 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
         file = dir + '/' + file;
         fileImpl = dir + '/' + fileImpl;
     }
-    SignalHandler::addFile(file);
-    SignalHandler::addFile(fileImpl);
 
     _out.open(file.c_str());
     if(!_out)
     {
-        cerr << name << ": can't open `" << file << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << file << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(file);
     printHeader();
 
     _out << nl << "// Generated from file `" << fileBase << ".ice'";
@@ -1124,15 +1109,20 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
         struct stat st;
         if(stat(fileImpl.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImpl << "' already exists--will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImpl << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+
         _impl.open(fileImpl.c_str());
         if(!_impl)
         {
-            cerr << name << ": can't open `" << fileImpl << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << ": cannot open `" << fileImpl << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+
+        FileTracker::instance()->addFile(fileImpl);
     }
 }
 
@@ -1146,20 +1136,11 @@ Slice::Gen::~Gen()
     {
         _impl << '\n';
     }
-
-    SignalHandler::setCallback(0);
-}
-
-bool
-Slice::Gen::operator!() const
-{
-    return !_out;
 }
 
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-
     CsGenerator::validateMetaData(p);
 
     UnitVisitor unitVisitor(_out, _stream);
@@ -1223,7 +1204,7 @@ Slice::Gen::generateChecksums(const UnitPtr& u)
         string className = "X" + IceUtil::generateUUID();
         for(string::size_type pos = 1; pos < className.size(); ++pos)
         {
-            if(!isalnum(className[pos]))
+            if(!isalnum(static_cast<unsigned char>(className[pos])))
             {
                 className[pos] = '_';
             }
@@ -1270,7 +1251,7 @@ Slice::Gen::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// This copy of Ice is licensed to you under the terms described in the\n"
 "// ICE_LICENSE file included in this distribution.\n"
@@ -3655,7 +3636,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-        string expectedType = ContainedPtr::dynamicCast(value)->scoped();
         _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << valueS << ">";
         _out << sb;
         _out << sp << nl << "internal Patcher__(string type, " << name << " m, " << keyS << " key) : base(type)";
@@ -3693,7 +3673,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     {
         if(isValueType(key))
         {
-            _out << nl << "v__ = new " << typeToString(key) << "();";
+            _out << nl << "k__ = new " << typeToString(key) << "();";
         }
         else
         {
@@ -3767,7 +3747,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         {
             if(isValueType(key))
             {
-                _out << nl << "v__ = new " << typeToString(key) << "();";
+                _out << nl << "k__ = new " << typeToString(key) << "();";
             }
             else
             {
@@ -4025,7 +4005,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "throw new Ice.UnknownUserException(ex.ice_name(), ex);";
         _out << eb;
         _out << eb;
-        if(op->returnsData())
+        if(ret || !outParams.empty())
         {
             _out << nl << "IceInternal.BasicStream is__ = og__.istr();";
             _out << nl << "is__.startReadEncaps();";
@@ -4625,7 +4605,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << eb;
         _out << "return;";
         _out << eb;
-        if(p->returnsData())
+        if(ret || !outParams.empty())
         {
             _out << nl << "is__.startReadEncaps();";
             for(q = outParams.begin(); q != outParams.end(); ++q)

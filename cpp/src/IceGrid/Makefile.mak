@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -184,8 +184,6 @@ clean::
 	-del /q $(NODE_SERVER:.exe=.*)
 	-del /q $(REGISTRY_SERVER:.exe=.*)
 	-del /q IceGridAdmin.res IceGridNode.res IceGridRegistry.res
-	-del /q Grammar.cpp Grammar.h
-	-del /q Scanner.cpp
 
 install:: all
 	copy $(ADMIN) $(install_bindir)

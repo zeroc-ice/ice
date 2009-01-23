@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -10,41 +10,39 @@
 
 import os, sys, re, shutil
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
-        break
-else:
+path = [ ".", "..", "../..", "../../..", "../../../.." ]
+head = os.path.dirname(sys.argv[0])
+if len(head) > 0:
+    path = [os.path.join(head, p) for p in path]
+path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
+if len(path) == 0:
     raise "can't find toplevel directory!"
+sys.path.append(os.path.join(path[0]))
+from scripts import *
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-TestUtil.processCmdLine()
-
-directory = os.path.dirname(os.path.abspath(__file__))
 transformdb = os.path.join(TestUtil.getCppBinDir(), "transformdb")
 
-dbdir = os.path.join(directory, "db")
+dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
-init_dbdir = os.path.join(directory, "db_init")
+init_dbdir = os.path.join(os.getcwd(), "db_init")
 if os.path.exists(init_dbdir):
     shutil.rmtree(init_dbdir)
 os.mkdir(init_dbdir)
 
-check_dbdir = os.path.join(directory, "db_check")
+check_dbdir = os.path.join(os.getcwd(), "db_check")
 if os.path.exists(check_dbdir):
     shutil.rmtree(check_dbdir)
 os.mkdir(check_dbdir)
 
-tmp_dbdir = os.path.join(directory, "db_tmp")
+tmp_dbdir = os.path.join(os.getcwd(), "db_tmp")
 if os.path.exists(tmp_dbdir):
     shutil.rmtree(tmp_dbdir)
 os.mkdir(tmp_dbdir)
 
 regex1 = re.compile(r"_old\.ice$", re.IGNORECASE)
 files = []
-for file in os.listdir(os.path.join(directory, "fail")):
+for file in os.listdir(os.path.join(os.getcwd(), "fail")):
     if(regex1.search(file)):
         files.append(file)
 
@@ -65,15 +63,15 @@ for oldfile in files:
     else:
         value = "int"
 
-    command = transformdb + " --old " + os.path.join(directory, "fail", oldfile) + " --new " + \
-        os.path.join(directory, "fail", newfile) + " -o tmp.xml --key string --value " + value
+    command = transformdb + " --old " + os.path.join(os.getcwd(), "fail", oldfile) + " --new " + \
+        os.path.join(os.getcwd(), "fail", newfile) + " -o tmp.xml --key string --value " + value
 
     if TestUtil.debug:
         print command
 
     stdin, stdout, stderr = os.popen3(command)
     lines1 = stderr.readlines()
-    lines2 = open(os.path.join(directory, "fail", oldfile.replace("_old.ice", ".err")), "r").readlines()
+    lines2 = open(os.path.join(os.getcwd(), "fail", oldfile.replace("_old.ice", ".err")), "r").readlines()
     if len(lines1) != len(lines2):
         print "failed! (1)"
         sys.exit(1)
@@ -94,18 +92,15 @@ print "ok"
 print "creating test database...",
 sys.stdout.flush()
 
-makedb = os.path.join(directory, "makedb") + " " + directory
-if TestUtil.debug:
-    print "(" + makedb + ")",
-if os.system(makedb) != 0:
-    sys.exit(1)
-
+makedb = os.path.join(os.getcwd(), "makedb") + " " + os.getcwd()
+proc = TestUtil.spawn(makedb)
+proc.waitTestSuccess()
 print "ok"
 
-testold = os.path.join(directory, "TestOld.ice")
-testnew = os.path.join(directory, "TestNew.ice")
-initxml = os.path.join(directory, "init.xml")
-checkxml = os.path.join(directory, "check.xml")
+testold = os.path.join(os.getcwd(), "TestOld.ice")
+testnew = os.path.join(os.getcwd(), "TestNew.ice")
+initxml = os.path.join(os.getcwd(), "init.xml")
+checkxml = os.path.join(os.getcwd(), "check.xml")
 
 print "initializing test database...",
 sys.stdout.flush()
@@ -142,5 +137,3 @@ if os.system(command) != 0:
     sys.exit(1)
 
 print "ok"
-
-sys.exit(0)

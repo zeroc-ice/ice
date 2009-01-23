@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +20,14 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
     public override void setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, string adapter,
                 Ice.ObjectPrx obj, Ice.Current current)
     {
-        _adapters[adapter] = obj;
+        if(obj != null)
+        {
+            _adapters[adapter] = obj;
+        }
+        else
+        {
+            _adapters.Remove(adapter);
+        }
         cb.ice_response();
     }
   
@@ -28,8 +35,16 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, 
         string adapter, string replica, Ice.ObjectPrx obj, Ice.Current current)
     {
-        _adapters[adapter] = obj;
-        _adapters[replica] = obj;
+        if(obj != null)
+        {
+            _adapters[adapter] = obj;
+            _adapters[replica] = obj;
+        }
+        else
+        {
+            _adapters.Remove(adapter);
+            _adapters.Remove(replica);
+        }
         cb.ice_response();
     }
   

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,41 +34,14 @@ class LocatorI : public Locator, public IceUtil::Mutex
 {
 public:
 
-    class Request : public IceUtil::Mutex, public IceUtil::Shared
+    class Request : public IceUtil::Shared
     {
     public:
 
-        Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool, bool,
-                const LocatorAdapterInfoSeq&, int);
-
-        void execute();
-        void response(const std::string&, const Ice::ObjectPrx&);
-        void activate(const std::string&);
-        void exception(const std::string&, const Ice::Exception&); 
-
-        virtual bool
-        operator<(const Request& r) const
-        {
-            return this < &r;
-        }
-
-    private:
-
-        void requestAdapter(const LocatorAdapterInfo&);
-        void sendResponse();
-
-        const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
-        const LocatorIPtr _locator;
-        const std::string _id;
-        const bool _replicaGroup;
-        const bool _roundRobin;
-        LocatorAdapterInfoSeq _adapters;
-        const TraceLevelsPtr _traceLevels;
-        unsigned int _count;
-        LocatorAdapterInfoSeq::const_iterator _lastAdapter;
-        std::map<std::string, Ice::ObjectPrx> _proxies;
-        std::auto_ptr<Ice::Exception> _exception;
-        std::set<std::string> _activating;
+        virtual void execute() = 0;
+        virtual void activating(const std::string&) = 0;
+        virtual void response(const std::string&, const Ice::ObjectPrx&) = 0;
+        virtual void exception(const std::string&, const Ice::Exception&) = 0; 
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
@@ -88,14 +61,11 @@ public:
     const Ice::CommunicatorPtr& getCommunicator() const;
     const TraceLevelsPtr& getTraceLevels() const;
 
-    void activate(const LocatorAdapterInfo&, const RequestPtr&);
-    void cancelActivate(const std::string&, const RequestPtr&);
+    bool getDirectProxy(const LocatorAdapterInfo&, const RequestPtr&);
+    void getDirectProxyResponse(const LocatorAdapterInfo&, const Ice::ObjectPrx&);
+    void getDirectProxyException(const LocatorAdapterInfo&, const Ice::Exception&);
 
-    void activateFinished(const std::string&, const Ice::ObjectPrx&);
-    void activateException(const std::string&, const Ice::Exception&);
-
-    bool addPendingResolve(const std::string&, const Ice::AMD_Locator_findAdapterByIdPtr&);
-    void removePendingResolve(const std::string&, int);
+    void getAdapterInfo(const std::string&, LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
 
 protected:
 
@@ -105,12 +75,10 @@ protected:
     const RegistryPrx _localRegistry;
     const QueryPrx _localQuery;
 
-    typedef std::set<RequestPtr> PendingRequests;
+    typedef std::vector<RequestPtr> PendingRequests;
     typedef std::map<std::string, PendingRequests> PendingRequestsMap;
-
     PendingRequestsMap _pendingRequests;
-
-    std::map<std::string, std::deque<Ice::AMD_Locator_findAdapterByIdPtr> > _resolves;
+    std::set<std::string> _activating;
 };
 
 }

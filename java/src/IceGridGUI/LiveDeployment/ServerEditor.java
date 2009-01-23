@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -95,6 +95,9 @@ class ServerEditor extends CommunicatorEditor
 
     void show(Server server)
     {
+
+        Server previousServer = _target;
+
         _target = server;
 
         ServerState state = server.getState();
@@ -108,6 +111,7 @@ class ServerEditor extends CommunicatorEditor
             _currentPid.setText("");
             _buildId.setText("Unknown");
             _properties.clear();
+            _propertiesRetrieved = false;
             _refreshButton.setEnabled(false);
         }
         else
@@ -128,19 +132,29 @@ class ServerEditor extends CommunicatorEditor
             int iceIntVersion = server.getIceVersion();
             if(state == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
             {
-                _buildId.setText("Retrieving...");
-                _properties.clear();
+                if(!_propertiesRetrieved || previousServer != server)
+                {
+                    _buildId.setText("Retrieving...");
+                    _properties.clear();
                 
+                    //
+                    // Retrieve all properties in background
+                    //
+                    _target.showRuntimeProperties();
+                    _propertiesRetrieved = true; // set to true immediately to avoid 'spinning'
+                }
+
                 //
-                // Retrieve all properties in background
+                // Otherwise, use current value
                 //
-                _target.showRuntimeProperties();
                 _refreshButton.setEnabled(true);
+               
             }
             else
             {
                 _buildId.setText("");
                 _properties.clear();
+                _propertiesRetrieved = false;
                 _refreshButton.setEnabled(false);
             }
         }
@@ -215,7 +229,8 @@ class ServerEditor extends CommunicatorEditor
         if(server == _target)
         {
             _properties.setSortedMap(map);
-            
+            _propertiesRetrieved = true;
+
             String buildString = (String)map.get("BuildId");
             if(buildString == null)
             {
@@ -370,6 +385,7 @@ class ServerEditor extends CommunicatorEditor
     private JTextField _buildId = new JTextField(20);
     private JButton _refreshButton;
     private TableField _properties = new TableField("Name", "Value");
+    private boolean _propertiesRetrieved = false;
 
     private JTextField _application = new JTextField(20);
     private JButton _gotoApplication;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,10 +21,8 @@ class Gen : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    Gen(const std::string&, const std::string&, bool, bool, bool, bool);
+    Gen(const std::string&, bool, bool, bool, bool);
     virtual ~Gen();
-
-    bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
     void closeOutput();

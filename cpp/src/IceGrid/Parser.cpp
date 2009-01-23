@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1546,7 +1546,6 @@ Parser::listServices(const list<string>& args)
     }
 
     string server = args.front();
-    string service = *(++args.begin());
     try
     {
         ServerInfo info = _admin->getServerInfo(server);
@@ -1991,7 +1990,7 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2008 ZeroC, Inc." << endl;
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2009 ZeroC, Inc." << endl;
 }
 
 void

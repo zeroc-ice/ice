@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-class CasinoServer extends Ice.Application
+class Server extends Ice.Application
 {
     static class ObjectFactory implements Ice.ObjectFactory
     {
@@ -223,9 +223,16 @@ class CasinoServer extends Ice.Application
        return 0;
     }
 
-    CasinoServer(String envName)
+    Server(String envName)
     {
         _envName = envName;
+    }
+
+    static public void
+    main(String[] args)
+    {
+        Server app = new Server("db");
+        app.main("demo.Freeze.casino.Server", args, "config.server");
     }
 
     private String _envName;
@@ -236,14 +243,4 @@ class CasinoServer extends Ice.Application
     private Freeze.TransactionalEvictor _betEvictor;
     private BetResolver _betResolver; 
     private int _bankEdge;
-}
-
-public class Server
-{
-    static public void
-    main(String[] args)
-    {
-        CasinoServer app = new CasinoServer("db");
-        app.main("demo.Freeze.casino.Server", args, "config.server");
-    }
 }

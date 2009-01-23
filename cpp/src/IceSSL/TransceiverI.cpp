@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -461,7 +461,7 @@ IceSSL::TransceiverI::initialize()
         }
         while(!SSL_is_init_finished(_ssl));
     
-        _instance->verifyPeer(_ssl, _fd, "", _adapterName, _incoming);
+        _instance->verifyPeer(_ssl, _fd, _host, _adapterName, _incoming);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -513,15 +513,16 @@ IceSSL::TransceiverI::getConnectionInfo() const
     return populateConnectionInfo(_ssl, _fd, _adapterName, _incoming);
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SSL* ssl, SOCKET fd, bool connected,
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SSL* ssl, SOCKET fd, const string& host, bool connected,
                                    bool incoming, const string& adapterName) :
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
     _stats(instance->communicator()->getStats()),
     _ssl(ssl),
     _fd(fd),
-    _adapterName(adapterName),
+    _host(host),
     _incoming(incoming),
+    _adapterName(adapterName),
     _state(connected ? StateConnected : StateNeedConnect),
     _desc(IceInternal::fdToString(fd))
 {

@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -8,8 +8,16 @@
 # **********************************************************************
 
 #
-# This file is included by Make.rules when uname is HP-UX..
+# This file is included by Make.rules when uname is HP-UX.
 #
+
+$(warning ===================================================================)
+$(warning HP-UX is currently an unsupported platform. The Ice team )
+$(warning no longer maintains HP-UX specific portions of the source code or )
+$(warning build system. Contact sales@zeroc.com if you wish to sponsor )
+$(warning official support.)
+$(warning ===================================================================)
+
 
 CXX			= aCC
 

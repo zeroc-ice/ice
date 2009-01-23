@@ -25,6 +25,3 @@ V31FormatDB.h
 V31FormatDB.cpp
 LLUMap.h
 LLUMap.cpp
-Grammar.cpp
-Grammar.h
-Scanner.cpp

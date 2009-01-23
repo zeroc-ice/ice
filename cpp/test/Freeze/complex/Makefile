@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -38,8 +38,6 @@ ComplexDict.h ComplexDict.cpp: Complex.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 
 clean::
 	-rm -f ComplexDict.h ComplexDict.cpp
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
 	-rm -f db/*
 
 include .depend

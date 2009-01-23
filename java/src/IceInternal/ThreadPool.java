@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -524,6 +524,8 @@ public final class ThreadPool
                             }
                             catch(Ice.DatagramLimitException ex) // Expected.
                             {
+                                handler._stream.pos(0);
+                                handler._stream.resize(0, true);
                                 continue;
                             }
                             catch(Ice.SocketException ex)
@@ -548,6 +550,8 @@ public final class ThreadPool
                                         _instance.initializationData().logger.warning(
                                             "datagram connection exception:\n" + ex + "\n" + handler.toString());
                                     }
+                                    handler._stream.pos(0);
+                                    handler._stream.resize(0, true);
                                 }
                                 else
                                 {
@@ -718,6 +722,16 @@ public final class ThreadPool
     {
         BasicStream stream = handler._stream;
 
+        if(stream.pos() >= Protocol.headerSize)
+        {
+            if(!handler.read(stream))
+            {
+                return false;
+            }
+            assert(stream.pos() == stream.size());
+            return true;
+        }
+
         if(stream.size() == 0)
         {
             stream.resize(Protocol.headerSize, true);
@@ -805,8 +819,6 @@ public final class ThreadPool
                     _instance.initializationData().logger.warning("DatagramLimitException: maximum size of "
                                                                   + stream.pos() + " exceeded");
                 }
-                stream.pos(0);
-                stream.resize(0, true);
                 throw new Ice.DatagramLimitException();
             }
             else

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1621,9 +1621,8 @@ namespace IceInternal
                                 warning(ex);
                             }
                         }
-
-                        bool b = System.Threading.ThreadPool.QueueUserWorkItem(acceptAsync);
-                        Debug.Assert(b);
+                        
+                        _instance.asyncIOThread().queue(acceptAsync);
                     }
                 }
                 catch(Ice.SocketException ex)
@@ -1636,8 +1635,7 @@ namespace IceInternal
                     //
                     // Ignore socket exceptions and start another accept.
                     //
-                    bool b = System.Threading.ThreadPool.QueueUserWorkItem(acceptAsync);
-                    Debug.Assert(b);
+                    _instance.asyncIOThread().queue(acceptAsync);
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -1652,8 +1650,7 @@ namespace IceInternal
                     //
                     // Start another accept.
                     //
-                    bool b = System.Threading.ThreadPool.QueueUserWorkItem(acceptAsync);
-                    Debug.Assert(b);
+                    _instance.asyncIOThread().queue(acceptAsync);
                 }
             }
 
@@ -1690,8 +1687,7 @@ namespace IceInternal
                         if(!_accepting)
                         {
                             _accepting = true;
-                            bool b = System.Threading.ThreadPool.QueueUserWorkItem(acceptAsync);
-                            Debug.Assert(b);
+                            _instance.asyncIOThread().queue(acceptAsync);
                         }
                     }
 

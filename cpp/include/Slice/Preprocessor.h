@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -40,7 +40,7 @@ public:
 
     enum Language { CPlusPlus, Java, CSharp, VisualBasic };
 
-    void printMakefileDependencies(Language, const std::vector<std::string>&);
+    bool printMakefileDependencies(Language, const std::vector<std::string>&);
     
     std::string getBaseName();
 
@@ -54,7 +54,11 @@ private:
     const std::string _path;
     const std::string _fileName;
     const std::vector<std::string> _args;
+#ifdef _WIN32
+    std::wstring _cppFile;
+#else
     std::string _cppFile;
+#endif
     FILE* _cppHandle;
 };
 

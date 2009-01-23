@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -104,7 +104,7 @@ if sys.argv[script] == "import":
         # script ../lib). For development purposes we also check ".".
         #
         checkLocations = [".", os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
-                          "/usr/share/Ice-3.3.0"]
+                          "/usr/share/Ice-3.3.1"]
         for bindir in checkLocations:
             bindir = os.path.normpath(bindir)
             if os.path.exists(os.path.join(bindir, "ImportKey.class")):
@@ -315,10 +315,10 @@ if sys.argv[script] == "init":
     # Construct the DN for the CA certificate.
     DNelements = { \
 	'C':['countryName', "Country name", "", 'match'], \
-	'ST':['stateOfProviceName', "State or province name", "", 'match'], \
+	'ST':['stateOrProvinceName', "State or province name", "", 'match'], \
 	'L':['localityName', "Locality", "", 'match'], \
 	'O':['organizationName', "Organization name", "GridCA-" + socket.gethostname(), 'match'], \
-	'OU':['organizationUnitName', "Organization unit name", "", 'optional'], \
+	'OU':['organizationalUnitName', "Organizational unit name", "", 'optional'], \
 	'CN':['commonName', "Common name", "Grid CA", 'supplied'] \
     }
 
@@ -355,7 +355,7 @@ if sys.argv[script] == "init":
 "ca.cnf":"\
 # **********************************************************************\n\
 #\n\
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n\
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.\n\
 #\n\
 # This copy of Ice is licensed to you under the terms described in the\n\
 # ICE_LICENSE file included in this distribution.\n\
@@ -397,7 +397,7 @@ authorityKeyIdentifier = keyid:always,issuer:always\n\
 "sign.cnf":"\
 # **********************************************************************\n\
 #\n\
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n\
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.\n\
 #\n\
 # This copy of Ice is licensed to you under the terms described in the\n\
 # ICE_LICENSE file included in this distribution.\n\
@@ -438,7 +438,7 @@ authorityKeyIdentifier = keyid:always,issuer:always\n\
 "req.cnf":"\
 # **********************************************************************\n\
 #\n\
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.\n\
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.\n\
 #\n\
 # This copy of Ice is licensed to you under the terms described in the\n\
 # ICE_LICENSE file included in this distribution.\n\

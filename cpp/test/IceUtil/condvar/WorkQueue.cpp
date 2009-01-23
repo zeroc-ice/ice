@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -81,14 +81,7 @@ public:
     {
         Monitor<Mutex>::Lock lock(*this);
         _terminate = true;
-        if(_broadcast)
-        {
-            notifyAll();
-        }
-        else
-        {
-            notify();
-        }
+	notifyAll();
     }
 
     bool
@@ -113,8 +106,39 @@ public:
 
         assert(!_q.empty());
         ret = _q.front();
+	if(ret % 100 == 0)
+	{
+	    cout << "." << flush;
+	}
         _q.pop_front();
         return true;
+    }
+
+    int
+    get()
+    {
+        Monitor<Mutex>::Lock lock(*this);
+        while(_q.empty() && !_terminate)
+        {
+            wait();
+        }
+
+        // We only report the termination sentinel when the queue is
+        // empty.
+        if(_q.empty())
+        {
+	    assert(_terminate);
+            return -1;
+        }
+
+        assert(!_q.empty());
+        int ret = _q.front();
+	if(ret % 100 == 0)
+	{
+	    cout << "." << flush;
+	}
+        _q.pop_front();
+        return ret;
     }
 
 private:
@@ -124,91 +148,12 @@ private:
 };
 typedef Handle<Queue> QueuePtr;
 
-static IceUtil::StaticMutex coutMutex = ICE_STATIC_MUTEX_INITIALIZER;
-
-class WatchDog : public Thread, public Monitor<Mutex>
-{
-public:
-
-    WatchDog(bool verbose) :
-        _verbose(verbose), _terminate(false), _touches(0), _timeout(0), _overallTouches(0), _overallTimeout(0)
-    {
-    }
-
-
-    virtual void
-    run()
-    {
-        Monitor<Mutex>::Lock sync(*this);
-
-        while(true)
-        {
-            timedWait(Time::milliSeconds(1000));
-            if(!_terminate && _touches == 0)
-            {
-		cout << _overallTouches << "/" << _overallTimeout
-		     << ": DEADLOCK DETECTED" << endl;
-                abort();
-            }
-
-            IceUtil::StaticMutex::Lock outputMutex(coutMutex);
-            if(_verbose)
-            {
-                cout << _touches << "(" << _timeout << ") " << flush;
-            }
-            _overallTouches += _touches;
-            _overallTimeout += _timeout;
-            _touches = 0;
-            _timeout = 0;
-            if(_terminate)
-            {
-                return;
-            }
-        }
-    }
-
-    void
-    touch(bool timeout)
-    {
-        Monitor<Mutex>::Lock sync(*this);
-        _touches++;
-        if(timeout)
-        {
-            _timeout++;
-        }
-    }
-
-    void
-    terminate()
-    {
-        Monitor<Mutex>::Lock sync(*this);
-        _terminate = true;
-        notify();
-    }
-
-    void
-    dump()
-    {
-        cout << _overallTouches << "/" << _overallTimeout;
-    }
-
-private:
-
-    bool _verbose;
-    bool _terminate;
-    int _touches;
-    int _timeout;
-    long _overallTouches;
-    long _overallTimeout;
-};
-typedef Handle<WatchDog> WatchDogPtr;
-
 class TestThread : public Thread
 {
 public:
 
-    TestThread(const CountDownPtr& cd, const WatchDogPtr& dog, const QueuePtr& q) :
-        _cd(cd), _dog(dog), _q(q)
+    TestThread(const CountDownPtr& cd, const QueuePtr& q, bool poll) :
+        _cd(cd), _q(q), _poll(poll)
     {
     }
     virtual void
@@ -218,9 +163,14 @@ public:
         while(true)
         {
             int res = 0;
-            // This is a poll.
-            bool tout = _q->timedGet(res, Time::milliSeconds(1));
-            _dog->touch(!tout);
+	    if(_poll)
+	    {
+		_q->timedGet(res, Time::milliSeconds(10));
+	    }
+	    else
+	    {
+		res = _q->get();
+	    }
             if(res == -1)
             {
                 return;
@@ -230,8 +180,8 @@ public:
 
 private:
     const CountDownPtr _cd;
-    const WatchDogPtr _dog;
     const QueuePtr _q;
+    const bool _poll;
 };
 typedef Handle<TestThread> TestThreadPtr;
 
@@ -253,9 +203,9 @@ public:
         {
             while(true)
             {
-                _q->put(_v);
+                _q->put(_v++);
+		ThreadControl::yield();
             }
-            ThreadControl::yield();
         }
         else
         {
@@ -300,14 +250,11 @@ main(int argc, char** argv)
     // thread.
     //
     int n = atoi(opts.optArg("n").c_str());
-    bool verbose = opts.isSet("v");
 
-    cout << "running signal/broadcast timeout test... " << flush;
+    cout << "running signal/broadcast timeout test" << flush;
     QueuePtr signalQ = new Queue(false);
-    WatchDogPtr signalDog = new WatchDog(verbose);
 
     QueuePtr broadcastQ = new Queue(true);
-    WatchDogPtr broadcastDog = new WatchDog(verbose);
 
     CountDownPtr cd = new CountDown(210);
     list<TestThreadPtr> testThreads;
@@ -316,7 +263,7 @@ main(int argc, char** argv)
 
     for(i = 0; i < 100; i++)
     {
-        TestThreadPtr p = new TestThread(cd, signalDog, signalQ);
+        TestThreadPtr p = new TestThread(cd, signalQ, i % 2);
         p->start();
         testThreads.push_back(p);
     }
@@ -329,7 +276,7 @@ main(int argc, char** argv)
 
     for(i = 0; i < 100; i++)
     {
-        TestThreadPtr p = new TestThread(cd, broadcastDog, broadcastQ);
+        TestThreadPtr p = new TestThread(cd, broadcastQ, i % 2);
         p->start();
         testThreads.push_back(p);
     }
@@ -340,9 +287,6 @@ main(int argc, char** argv)
         enqThreads.push_back(p);
     }
     cd->waitZero();
-
-    signalDog->start();
-    broadcastDog->start();
 
     while(!enqThreads.empty())
     {
@@ -361,22 +305,7 @@ main(int argc, char** argv)
         p->getThreadControl().join();
     }
 
-    if(verbose)
-    {
-        cout << endl;
-    }
-    broadcastDog->terminate();
-    broadcastDog->getThreadControl().join();
-
-    signalDog->terminate();
-    signalDog->getThreadControl().join();
-
-    cout << "broadcast (";
-    broadcastDog->dump();
-
-    cout << ") signal (";
-    signalDog->dump();
-    cout << ") ok" << endl;
+    cout << " ok" << endl;
 
     return 0;
 }

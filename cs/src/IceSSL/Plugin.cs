@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ namespace IceSSL
     }
 
     //
-    // A password callback is an alternate way of supplying the plugin with
+    // A password callback is an alternate way of supplying the plug-in with
     // passwords that avoids using plaintext configuration properties.
     //
     public interface PasswordCallback
@@ -53,13 +53,13 @@ namespace IceSSL
 
         //
         // Specify the certificates to use for SSL connections. This
-        // must be done before the plugin is initialized, therefore
+        // must be done before the plug-in is initialized, therefore
         // the application must define the property Ice.InitPlugins=0,
         // set the certificates, and finally invoke initializePlugins
         // on the PluginManager.
         //
         // When the application supplies its own certificates, the
-        // plugin skips its normal property-based configuration.
+        // plug-in skips its normal property-based configuration.
         //
         abstract public void setCertificates(X509Certificate2Collection certs);
 
@@ -77,7 +77,7 @@ namespace IceSSL
 
         //
         // Establish the password callback object. This should be
-        // done before the plugin is initialized.
+        // done before the plug-in is initialized.
         //
         abstract public void setPasswordCallback(PasswordCallback callback);
 

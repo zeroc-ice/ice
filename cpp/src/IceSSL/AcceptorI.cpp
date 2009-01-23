@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -67,12 +67,12 @@ IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept()
 {
     //
-    // The plugin may not be initialized.
+    // The plug-in may not be initialized.
     //
     if(!_instance->context())
     {
         PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: plugin is not initialized";
+        ex.reason = "IceSSL: plug-in is not initialized";
         throw ex;
     }
 
@@ -109,7 +109,7 @@ IceSSL::AcceptorI::accept()
     // SSL handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
     //
-    return new TransceiverI(_instance, ssl, fd, true, true, _adapterName);
+    return new TransceiverI(_instance, ssl, fd, "", true, true, _adapterName);
 }
 
 string

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -711,6 +711,21 @@ class Server extends ListArrayTreeNode
         }
     }
 
+    void updateServices()
+    {
+        for(Service service: _services)
+        {
+            if(_startedServices.contains(service.getId()))
+            {
+                service.started();
+            }
+            else
+            {
+                service.stopped();
+            }
+        }
+    }
+
     void rebuild(Server server)
     {   
         _resolver = server._resolver;
@@ -722,6 +737,10 @@ class Server extends ListArrayTreeNode
         _dbEnvs = server._dbEnvs;
         _services = server._services;
         
+        _childrenArray[0] = _adapters;
+        _childrenArray[1] = _dbEnvs;
+        _childrenArray[2] = _services;
+
         //
         // Need to re-parent all the children
         //
@@ -740,9 +759,7 @@ class Server extends ListArrayTreeNode
             service.reparent(this);
         }
 
-        _childrenArray[0] = _adapters;
-        _childrenArray[1] = _dbEnvs;
-        _childrenArray[2] = _services;
+        updateServices();
 
         getRoot().getTreeModel().nodeStructureChanged(this);
     }
@@ -777,6 +794,7 @@ class Server extends ListArrayTreeNode
             _services.clear();
             _servicePropertySets.clear();
             createServices();
+            updateServices();
             
             getRoot().getTreeModel().nodeStructureChanged(this);
         }
@@ -785,6 +803,8 @@ class Server extends ListArrayTreeNode
             _services.clear();
             _servicePropertySets.clear();
             createServices();
+            updateServices();
+
             getRoot().getTreeModel().nodeStructureChanged(this);
         }
     }
@@ -813,63 +833,77 @@ class Server extends ListArrayTreeNode
                 {
                     if(_serviceObserver == null)
                     {
-                        IceBox.ServiceObserver servant = new IceBox._ServiceObserverDisp()
-                            {
-                                public void servicesStarted(final String[] services, Ice.Current current)
-                                {
-                                    final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
-                                    
-                                    SwingUtilities.invokeLater(new Runnable() 
-                                        {
-                                            public void run() 
-                                            {
-                                                for(Service service: _services)
-                                                {
-                                                    if(serviceSet.contains(service.getId()))
-                                                    {
-                                                        service.started();
-                                                    }
-                                                }
-                                                getCoordinator().getLiveDeploymentPane().refresh();
-                                            }
-                                        });
-                                }
-                                
-                                public void servicesStopped(final String[] services, Ice.Current current)
-                                {
-                                    final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
-                                    
-                                    SwingUtilities.invokeLater(new Runnable() 
-                                        {
-                                            public void run() 
-                                            {
-                                                for(Service service: _services)
-                                                {
-                                                    if(serviceSet.contains(service.getId()))
-                                                    {
-                                                        service.stopped();
-                                                    }
-                                                }
-                                                getCoordinator().getLiveDeploymentPane().refresh();
-                                            }
-                                        });
-                                }
-                                
-                            };
-                        
                         _serviceObserver = IceBox.ServiceObserverPrxHelper.uncheckedCast(
-                            getCoordinator().addCallback(servant, _id, "IceBox.ServiceManager")); 
+                            getCoordinator().retrieveCallback(_id, "IceBox.ServiceManager"));
 
                         if(_serviceObserver == null)
                         {
-                            // TODO: log/report condition (observer not available, e.g. adapter not configured)
-                        }
-                    }
+                            IceBox.ServiceObserver servant = new IceBox._ServiceObserverDisp()
+                                {
+                                    public void servicesStarted(final String[] services, Ice.Current current)
+                                    {
+                                        final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
 
+                                        SwingUtilities.invokeLater(new Runnable() 
+                                            {
+                                                public void run() 
+                                                {
+                                                    for(Service service: _services)
+                                                    {
+                                                        if(serviceSet.contains(service.getId()))
+                                                        {
+                                                            service.started();
+                                                        }
+                                                    }
+                                                    _startedServices.addAll(serviceSet);
+                                                    getCoordinator().getLiveDeploymentPane().refresh();
+                                                }
+                                            });
+                                    }
+                                    
+                                    public void servicesStopped(final String[] services, Ice.Current current)
+                                    {
+                                        final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
+
+                                        SwingUtilities.invokeLater(new Runnable() 
+                                            {
+                                                public void run() 
+                                                {
+                                                    for(Service service: _services)
+                                                    {
+                                                        if(serviceSet.contains(service.getId()))
+                                                        {
+                                                            service.stopped();
+                                                        }
+                                                    }
+                                                    _startedServices.removeAll(serviceSet);
+                                                    getCoordinator().getLiveDeploymentPane().refresh();
+                                                }
+                                            });
+                                    }
+                                    
+                                };
+                        
+                            _serviceObserver = IceBox.ServiceObserverPrxHelper.uncheckedCast(
+                                getCoordinator().addCallback(servant, _id, "IceBox.ServiceManager")); 
+
+                            if(_serviceObserver == null)
+                            {
+                                JOptionPane.showMessageDialog(
+                                    getCoordinator().getMainFrame(),
+                                    "Could not create servant for service-manager observer",
+                                    "Observer creation error",
+                                    JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        
+                    }
+                     
                     if(_serviceObserver != null)
                     {
                         //
                         // Add observer to service manager using AMI call
+                        // Note that duplicate registrations are ignored
                         //
                         
                         IceBox.AMI_ServiceManager_addObserver cb = new IceBox.AMI_ServiceManager_addObserver()
@@ -881,7 +915,11 @@ class Server extends ListArrayTreeNode
                                 
                                 public void ice_exception(Ice.LocalException e)
                                 {
-                                    // TODO: log/report exception
+                                    JOptionPane.showMessageDialog(
+                                        getCoordinator().getMainFrame(),
+                                        "Failed to register service-manager observer: " + e.toString(),
+                                        "Observer registration error",
+                                        JOptionPane.ERROR_MESSAGE);
                                 }
                             };
                         
@@ -897,20 +935,24 @@ class Server extends ListArrayTreeNode
                             }
                             catch(Ice.LocalException ex)
                             {
-                                // TODO: log/report exception
+                                JOptionPane.showMessageDialog(
+                                    getCoordinator().getMainFrame(),
+                                    "Failed to contact service-manager: " + ex.toString(),
+                                    "Observer communication error",
+                                    JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
                 }
-                else if(_state == null || _state == ServerState.Inactive)
+            }
+            else if(_state == null || _state == ServerState.Inactive)
+            {
+                for(Service service: _services)
                 {
-                    for(Service service: _services)
-                    {
-                        service.stopped(); 
-                    }
+                    service.stopped(); 
                 }
             }
-
+            
             if(fireEvent)
             {
                 getRoot().getTreeModel().nodeChanged(this);
@@ -1156,6 +1198,8 @@ class Server extends ListArrayTreeNode
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<Adapter>();
     private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<DbEnv>();
     private java.util.List<Service> _services = new java.util.LinkedList<Service>();
+
+    private java.util.Set<String> _startedServices = new java.util.HashSet<String>();
 
     private ServerState _state;
     private boolean _enabled;

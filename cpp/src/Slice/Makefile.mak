@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -26,9 +26,9 @@ OBJS		= Scanner.obj \
 		  DotNetNames.obj \
 		  RubyUtil.obj \
 		  Util.obj \
+		  FileTracker.obj \
 		  MD5.obj \
-		  MD5I.obj \
-		  SignalHandler.obj
+		  MD5I.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
@@ -81,8 +81,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	-del /q Grammar.cpp Grammar.h
-	-del /q Scanner.cpp
 	-del /q Slice.res
 
 install:: all

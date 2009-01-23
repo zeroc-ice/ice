@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,7 +25,7 @@ class RoutingTable : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    RoutingTable(const Ice::CommunicatorPtr&);
+    RoutingTable(const Ice::CommunicatorPtr&, const ProxyVerifierPtr&);
 
     Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&); // Returns evicted proxies.
     Ice::ObjectPrx get(const Ice::Identity&); // Returns null if no proxy can be found.
@@ -35,6 +35,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const int _traceLevel;
     const int _maxSize;
+    const ProxyVerifierPtr _verifier; 
 
     struct EvictorEntry;
     typedef IceUtil::Handle<EvictorEntry> EvictorEntryPtr;
@@ -51,8 +52,6 @@ private:
 
     EvictorMap _map;
     EvictorQueue _queue;
-
-    ProxyVerifier _verifier; 
 };
 
 }

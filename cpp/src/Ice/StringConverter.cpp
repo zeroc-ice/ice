@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -221,7 +221,7 @@ StringConverterPlugin::destroy()
 }
 
 //
-// The entry point for the "string converter" plugin built-in the Ice library
+// The entry point for the "string converter" plug-in built-in the Ice library
 //
 extern "C"
 {

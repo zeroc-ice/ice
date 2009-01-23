@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/Util.h>
-#include <Slice/SignalHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
@@ -27,20 +26,6 @@
 
 using namespace std;
 using namespace Slice;
-
-//
-// Callback for Crtl-C signal handling
-//
-static Preprocessor* _preprocess = 0;
-
-static void closeCallback()
-{
-    if(_preprocess != 0)
-    {
-        _preprocess->close();
-    }
-}
-
 
 //
 // mcpp defines
@@ -65,15 +50,10 @@ Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, co
     _args(args),
     _cppHandle(0)
 {
-    _preprocess = this;
-    SignalHandler::setCallback(closeCallback);
 }
 
 Slice::Preprocessor::~Preprocessor()
 {
-    _preprocess = 0;
-    SignalHandler::setCallback(0);
-
     close();
 }
 
@@ -115,7 +95,8 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
         result.replace(pos, 2, "/");
     }
 
-    if(result == "/" || (result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/'))
+    if(result == "/" || (result.size() == 3 && isalpha(static_cast<unsigned char>(result[0])) && result[1] == ':' &&
+       result[2] == '/'))
     {
 	return result;
     }
@@ -144,6 +125,8 @@ Slice::Preprocessor::preprocess(bool keepComments)
     {
         args.push_back("-C");
     }
+    args.push_back("-e");
+    args.push_back("en_us.utf8");
     args.push_back(_fileName);
 
     const char** argv = new const char*[args.size() + 1];
@@ -176,18 +159,53 @@ Slice::Preprocessor::preprocess(bool keepComments)
         //
         char* buf = mcpp_get_mem_buffer(Out);
 
-        _cppFile = ".preprocess." + IceUtil::generateUUID();
-        SignalHandler::addFile(_cppFile);
+        //
+        // First try to open temporay file in tmp directory.
+        //
 #ifdef _WIN32
-        _cppHandle = ::_wfopen(IceUtil::stringToWstring(_cppFile).c_str(), IceUtil::stringToWstring("w+").c_str());
-#else
-        _cppHandle = ::fopen(_cppFile.c_str(), "w+");
-#endif
-        if(buf)
+        wchar_t* name = _wtempnam(NULL, L".preprocess");
+        if(name)
         {
-            ::fwrite(buf, strlen(buf), 1, _cppHandle);
+            _cppFile = wstring(name);
+            free(name);
+            _cppHandle = ::_wfopen(_cppFile.c_str(), L"w+");
         }
-        ::rewind(_cppHandle);
+#else
+        _cppHandle = tmpfile();
+#endif
+        
+        //
+        // If that fails try to open file in current directory.
+        //
+        if(_cppHandle == 0)
+        {
+#ifdef _WIN32
+            _cppFile = L".preprocess." + IceUtil::stringToWstring(IceUtil::generateUUID());
+            _cppHandle = ::_wfopen(_cppFile.c_str(), L"w+");
+#else
+            _cppFile = ".preprocess." + IceUtil::generateUUID();
+            _cppHandle = ::fopen(_cppFile.c_str(), "w+");
+#endif
+        }
+
+        if(_cppHandle != 0)
+        {
+            if(buf)
+            {
+                ::fwrite(buf, strlen(buf), 1, _cppHandle);
+            }
+            ::rewind(_cppHandle);
+        }
+        else
+        {
+            cerr << "Could not open temporary file: ";
+#ifdef _WIN32
+            cerr << IceUtil::wstringToString(_cppFile);
+#else
+            cerr << _cppFile;
+#endif
+            cerr << endl;
+        }
     }
 
     //
@@ -198,12 +216,12 @@ Slice::Preprocessor::preprocess(bool keepComments)
     return _cppHandle;
 }
 
-void
+bool
 Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths)
 {
     if(!checkInputFile())
     {
-        return;
+        return false;
     }
 
     //
@@ -211,6 +229,8 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     vector<string> args = _args;
     args.push_back("-M");
+    args.push_back("-e");
+    args.push_back("en_us.utf8");
     args.push_back(_fileName);
 
     const char** argv = new const char*[args.size() + 1];
@@ -241,7 +261,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         // Calling this again causes the memory buffers to be freed.
         //
         mcpp_use_mem_buffers(1);
-        return;
+        return false;
     }
 
     //
@@ -449,6 +469,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     // Output result
     //
     fputs(result.c_str(), stdout);
+    return true;
 }
 
 bool
@@ -459,16 +480,19 @@ Slice::Preprocessor::close()
         int status = fclose(_cppHandle);
         _cppHandle = 0;
 
+        if(_cppFile.size() != 0)
+        {
+#ifdef _WIN32
+            _wunlink(_cppFile.c_str());
+#else
+            unlink(_cppFile.c_str());
+#endif
+        }
+
         if(status != 0)
         {
             return false;
         }
-
-#ifdef _WIN32
-        _unlink(_cppFile.c_str());
-#else
-        unlink(_cppFile.c_str());
-#endif
     }
     
     return true;
@@ -482,8 +506,7 @@ Slice::Preprocessor::checkInputFile()
     string::size_type pos = base.rfind('.');
     if(pos != string::npos)
     {
-        suffix = base.substr(pos);
-        transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
+        suffix = IceUtilInternal::toLower(base.substr(pos));
     }
     if(suffix != ".ice")
     {
@@ -494,7 +517,7 @@ Slice::Preprocessor::checkInputFile()
     ifstream test(_fileName.c_str());
     if(!test)
     {
-        cerr << _path << ": can't open `" << _fileName << "' for reading" << endl;
+        cerr << _path << ": cannot open `" << _fileName << "' for reading" << endl;
         return false;
     }
     test.close();

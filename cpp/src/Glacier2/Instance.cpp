@@ -1,12 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
+#include <Glacier2/SessionRouterI.h>
 #include <Glacier2/Instance.h>
 
 using namespace std;
@@ -38,6 +39,8 @@ Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice
         const_cast<RequestQueueThreadPtr&>(_clientRequestQueueThread) = new RequestQueueThread(sleepTime);
         _clientRequestQueueThread->start();
     }
+
+    const_cast<ProxyVerifierPtr&>(_proxyVerifier) = new ProxyVerifier(communicator);
 }
 
 Glacier2::Instance::~Instance()
@@ -56,4 +59,12 @@ Glacier2::Instance::destroy()
     {
         _serverRequestQueueThread->destroy();
     }
+
+    const_cast<SessionRouterIPtr&>(_sessionRouter) = 0;
+}
+
+void
+Glacier2::Instance::setSessionRouter(const SessionRouterIPtr& sessionRouter)
+{
+    const_cast<SessionRouterIPtr&>(_sessionRouter) = sessionRouter;
 }

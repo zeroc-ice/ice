@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,7 +30,7 @@ public class ThrowerI : ThrowerDisp_
 
     public override void supportsAssertException_async(AMD_Thrower_supportsAssertException cb, Ice.Current current)
     {
-        cb.ice_response(true);
+        cb.ice_response(false);
     }
 
     public override void throwAasA_async(AMD_Thrower_throwAasA cb, int a, Ice.Current current)

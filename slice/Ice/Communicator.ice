@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -475,7 +475,7 @@ local interface Communicator
      * Get a proxy to the main facet of the Admin object. When Ice.Admin.DelayCreation
      * is greater than 0, it is necessary to call getAdmin() after the communicator is 
      * initialized to create the Admin object. Otherwise, the Admin object is created
-     * automatically after all the plugins are initialized.
+     * automatically after all the plug-ins are initialized.
      *
      * @return The main ("") facet of the Admin object; a null proxy if no
      * Admin object is configured.

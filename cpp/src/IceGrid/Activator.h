@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -51,6 +51,7 @@ public:
     virtual void shutdown();
     virtual void destroy();
     
+    bool isActive();
     
     void sendSignal(const std::string&, int);
     void runTerminationListener();
@@ -60,6 +61,10 @@ private:
     void terminationListener();
     void clearInterrupt();
     void setInterrupt();
+    
+#ifndef _WIN32
+    int waitPid(pid_t);
+#endif
 
     struct Process
     {

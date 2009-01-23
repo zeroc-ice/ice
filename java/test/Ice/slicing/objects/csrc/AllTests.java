@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1471,8 +1471,8 @@ public class AllTests
         System.out.print("return value identity for input params known first... ");
         System.out.flush();
         {
-            try
-            {
+            //try
+            //{
                 D1 d1 = new D1();
                 d1.sb = "D1.sb";
                 d1.sd1 = "D1.sd1";
@@ -1512,11 +1512,11 @@ public class AllTests
                 test(b1 != d3);
                 test(b2 != d1);
                 test(b2 != d3);
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
+            //}
+            //catch(Exception ex)
+            //{
+                //test(false);
+            //}
         }
         System.out.println("ok");
 

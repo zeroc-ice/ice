@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,12 +25,12 @@ IceInternal::TransceiverPtr
 IceSSL::ConnectorI::connect()
 {
     //
-    // The plugin may not be initialized.
+    // The plug-in may not be initialized.
     //
     if(!_instance->context())
     {
         PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: plugin is not initialized";
+        ex.reason = "IceSSL: plug-in is not initialized";
         throw ex;
     }
 
@@ -71,7 +71,7 @@ IceSSL::ConnectorI::connect()
         // SSL handshaking is performed in TransceiverI::initialize, since
         // connect must not block.
         //
-        return new TransceiverI(_instance, ssl, fd, connected, false);
+        return new TransceiverI(_instance, ssl, fd, _host, connected, false);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -159,10 +159,11 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
     return IceInternal::compareAddress(_addr, p->_addr) == -1;
 }
 
-IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const struct sockaddr_storage& addr, Ice::Int timeout,
-                               const string& connectionId) :
+IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const string& host, const struct sockaddr_storage& addr,
+                               Ice::Int timeout, const string& connectionId) :
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
+    _host(host),
     _addr(addr),
     _timeout(timeout),
     _connectionId(connectionId)

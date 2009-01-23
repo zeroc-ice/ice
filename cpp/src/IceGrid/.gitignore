@@ -9,6 +9,3 @@ IdentityObjectInfoDict.h
 IdentityObjectInfoDict.cpp
 StringAdapterInfoDict.h
 StringAdapterInfoDict.cpp
-Grammar.cpp
-Grammar.h
-Scanner.cpp

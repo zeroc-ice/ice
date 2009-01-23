@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,12 +22,12 @@ namespace IceSSL
         public IceInternal.Transceiver connect()
         {
             //
-            // The plugin may not be fully initialized.
+            // The plug-in may not be fully initialized.
             //
             if(!_instance.initialized())
             {
                 Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
-                ex.reason = "IceSSL: plugin is not initialized";
+                ex.reason = "IceSSL: plug-in is not initialized";
                 throw ex;
             }
 

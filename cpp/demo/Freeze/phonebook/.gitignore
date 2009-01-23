@@ -8,7 +8,4 @@ PhoneBook.cpp
 PhoneBook.h
 NameIndex.h
 NameIndex.cpp
-Grammar.cpp
-Grammar.h
-Scanner.cpp
 db/*

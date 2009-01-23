@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -90,8 +90,6 @@ clean::
 
 clean::
 	-del /q NameIndex.h NameIndex.cpp
-	-del /q Grammar.cpp Grammar.h
-	-del /q Scanner.cpp
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -58,7 +58,7 @@ strToInt64Impl(const char* s, char** endptr, int base)
     //
     // Skip leading whitespace
     //
-    while(*s && isspace(*s))
+    while(*s && isspace(static_cast<unsigned char>(*s)))
     {
         ++s;
     }
@@ -127,12 +127,12 @@ strToInt64Impl(const char* s, char** endptr, int base)
     bool overflow = false;
     bool digitFound = false;
     const string validDigits(allDigits.begin(), allDigits.begin() + base);
-    while(*s && validDigits.find_first_of(toupper(*s)) != validDigits.npos)
+    while(*s && validDigits.find_first_of(toupper(static_cast<unsigned char>(*s))) != validDigits.npos)
     {   
         digitFound = true;
         if(!overflow)
         {
-            int digit = digitVal[toupper(*s) - '0'];
+            int digit = digitVal[toupper(static_cast<unsigned char>(*s)) - '0'];
             assert(digit != 100);
             if(result < _I64_MAX / base)
             {

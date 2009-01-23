@@ -21,26 +21,23 @@ for x in sys.argv[1:]:
 
 ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 
+FixUtil.replaceAllCopyrights(ice_dir, False, False)
+for dir in ["slice", "cpp", "java", "cs", "vb", "php", "py", "rb", "demoscript", "distribution", "config", "certs",\
+            "scripts"]:
+    home = os.path.join(ice_dir, dir)
+    if home:
+       FixUtil.replaceAllCopyrights(home, False, True)
+
 # **********************************************************************
 #
-# Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-FixUtil.replaceAllCopyrights(ice_dir, False, False)
-for dir in ["slice", "cpp", "java", "cs", "vb", "php", "py", "rb", "demoscript", "distribution", "config", "certs"]:
-    home = os.path.join(ice_dir, dir)
-    if home:
-       FixUtil.replaceAllCopyrights(home, False, True)
-
-#
-# Fix various other files that have copyright info in them that
-# are not taken care of above.
-#
 cpatMatch = "20[0-9][0-9]-(20[0-9][0-9]) ZeroC"
-copyright = "2008"
+copyright = "2009"
 
 files = FixUtil.find(ice_dir, "*.rc")
 files += FixUtil.find(ice_dir, "*LICENSE")
@@ -60,6 +57,7 @@ files += FixUtil.find(os.path.join(ice_dir), "AssemblyInfo.cs")
 files += FixUtil.find(os.path.join(ice_dir, "distribution", "src", "rpm"), "*")
 files += FixUtil.find(os.path.join(ice_dir, "php"), "*.php")
 files += [os.path.join(ice_dir, "cpp", "test", "Slice", "errorDetection", "IllegalIdentifier.ice")]
+files += [os.path.join(ice_dir, "distribution", "src", "rpm", "mcpp-devel.spec")]
 
 for f in files:
     FixUtil.fileMatchAndReplace(f, [(cpatMatch, copyright)])

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -2121,20 +2121,21 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
         Profile* profile = static_cast<Profile*>(ICE_G(profile));
         assert(profile);
         zend_class_entry* cls = ce;
-        Profile::ClassMap::iterator p = profile->classes.find(cls->name);
-        while(p == profile->classes.end())
+        const Profile::ClassMap& classes = profile->classes();
+        Profile::ClassMap::const_iterator p = classes.find(cls->name);
+        while(p == classes.end())
         {
             if(cls->parent)
             {
-                p = profile->classes.find(cls->parent->name);
+                p = classes.find(cls->parent->name);
             }
-            for(zend_uint i = 0; i < cls->num_interfaces && p == profile->classes.end(); ++i)
+            for(zend_uint i = 0; i < cls->num_interfaces && p == classes.end(); ++i)
             {
-                p = profile->classes.find(cls->interfaces[i]->name);
+                p = classes.find(cls->interfaces[i]->name);
             }
             cls = cls->parent;
         }
-        assert(p != profile->classes.end());
+        assert(p != classes.end());
 
         writer = new ObjectWriter(zv, p->second, m TSRMLS_CC);
         m.insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
@@ -2196,9 +2197,10 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
     //
     // We can only unmarshal an object if we have the definition of its Slice type.
     //
-    Profile::ClassMap::iterator p = profile->classes.find(flatten(scoped));
+    const Profile::ClassMap& classes = profile->classes();
+    Profile::ClassMap::const_iterator p = classes.find(flatten(scoped));
     Slice::ClassDefPtr def;
-    if(p != profile->classes.end())
+    if(p != classes.end())
     {
         def = p->second;
     }

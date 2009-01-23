@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,9 @@
 // **********************************************************************
 
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace IceInternal
 {
@@ -20,10 +22,322 @@ namespace IceInternal
             void setException(Ice.LocalException ex);
         }
 
-        internal LocatorInfo(Ice.LocatorPrx locator, LocatorTable table)
+        private class RequestCallback
+        {
+            public void 
+            response(LocatorInfo locatorInfo, Ice.ObjectPrx proxy)
+            {
+                EndpointI[] endpoints = null;
+                if(proxy != null)
+                {
+                    Reference r = ((Ice.ObjectPrxHelperBase)proxy).reference__();
+                    if(!r.isIndirect())
+                    {
+                        endpoints = r.getEndpoints();
+                    }
+                    else if(_ref.isWellKnown() && !r.isWellKnown())
+                    {
+                        //
+                        // We're resolving the endpoints of a well-known object and the proxy returned
+                        // by the locator is an indirect proxy. We now need to resolve the endpoints 
+                        // of this indirect proxy.
+                        //
+                        locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
+                        return;
+                    }
+                }
+
+                if(_ref.getInstance().traceLevels().location >= 1)
+                {
+                    locatorInfo.getEndpointsTrace(_ref, endpoints, false);
+                }
+                if(_callback != null)
+                {
+                    _callback.setEndpoints(endpoints == null ? new EndpointI[0] : endpoints, false);
+                }
+            }
+
+            public void 
+            exception(LocatorInfo locatorInfo, Ice.Exception exc)
+            {
+                try
+                {
+                    locatorInfo.getEndpointsException(_ref, exc); // This throws.
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if(_callback != null)
+                    {
+                        _callback.setException(ex);
+                    }
+                }
+            }
+
+            public 
+            RequestCallback(Reference @ref, int ttl, GetEndpointsCallback cb)
+            {
+                _ref = @ref;
+                _ttl = ttl;
+                _callback = cb;
+            }
+            
+            readonly Reference _ref;
+            readonly int _ttl;
+            readonly GetEndpointsCallback _callback;
+        };
+
+        private abstract class Request
+        {
+            public void 
+            addCallback(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
+            {
+                lock(this)
+                {
+                    RequestCallback callback = new RequestCallback(@ref, ttl, cb);
+                    if(_response)
+                    {
+                        callback.response(_locatorInfo, _proxy);
+                    }
+                    else if(_exception != null)
+                    {
+                        callback.exception(_locatorInfo, _exception);
+                    }
+                    else
+                    {
+                        _callbacks.Add(callback);
+                        if(wellKnownRef != null) 
+                        {
+                            // This request is to resolve the endpoints of a cached well-known object ref
+                            _wellKnownRefs.Add(wellKnownRef);
+                        }
+                        if(!_sent)
+                        {
+                            _sent = true;
+                            send(true);
+                        }
+                    }
+                }
+            }
+        
+            public EndpointI[]
+            getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, out bool cached)
+            {
+                lock(this)
+                {
+                    if(!_response || _exception == null)
+                    {
+                        if(wellKnownRef != null)
+                        {
+                            // This request is to resolve the endpoints of a cached well-known object ref
+                            _wellKnownRefs.Add(wellKnownRef);
+                        }
+                        if(!_sent)
+                        {
+                            _sent = true;
+                            send(true);
+                        }
+                
+                        while(!_response && _exception == null)
+                        {
+                            Monitor.Wait(this);
+                        }
+                    }
+            
+                    if(_exception != null)
+                    {
+                        _locatorInfo.getEndpointsException(@ref, _exception); // This throws.
+                    }
+            
+                    Debug.Assert(_response);
+                    EndpointI[] endpoints = null;
+                    if(_proxy != null)
+                    {
+                        Reference r = ((Ice.ObjectPrxHelperBase)_proxy).reference__();
+                        if(!r.isIndirect())
+                        {
+                            endpoints = r.getEndpoints();
+                        }
+                        else if(@ref.isWellKnown() && !r.isWellKnown())
+                        {
+                            //
+                            // We're resolving the endpoints of a well-known object and the proxy returned
+                            // by the locator is an indirect proxy. We now need to resolve the endpoints 
+                            // of this indirect proxy.
+                            //
+                            return _locatorInfo.getEndpoints(r, @ref, ttl, out cached);
+                        }
+                    }
+            
+                    cached = false;
+                    if(_ref.getInstance().traceLevels().location >= 1)
+                    {
+                        _locatorInfo.getEndpointsTrace(@ref, endpoints, false);
+                    }
+                    return endpoints == null ? new EndpointI[0] : endpoints;
+                }
+            }
+        
+            public Request(LocatorInfo locatorInfo, Reference @ref)
+            {
+                _locatorInfo = locatorInfo;
+                _ref = @ref; 
+                _sent = false; 
+                _response = false;
+            }
+
+            public void 
+            response(Ice.ObjectPrx proxy)
+            {
+                lock(this)
+                {
+                    _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
+                    _response = true;
+                    _proxy = proxy;
+                    foreach(RequestCallback callback in _callbacks)
+                    {
+                        callback.response(_locatorInfo, proxy);
+                    }
+                    Monitor.PulseAll(this);
+                }
+            }
+            
+            public void 
+            exception(Ice.Exception ex)
+            {
+                if(ex is Ice.CollocationOptimizationException)
+                {
+                    send(false); // Use synchronous collocation optimized locator request instead.
+                    return;
+                }
+                
+                lock(this)
+                {
+                    _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex is Ice.UserException);
+                    _exception = ex;
+                    foreach(RequestCallback callback in _callbacks)
+                    {
+                        callback.exception(_locatorInfo, ex);
+                    }
+                    Monitor.PulseAll(this);
+                }
+            }
+
+            protected abstract void send(bool async);
+
+            readonly protected LocatorInfo _locatorInfo;
+            readonly protected Reference _ref;
+
+            private List<RequestCallback> _callbacks = new List<RequestCallback>();
+            private List<Reference> _wellKnownRefs = new List<Reference>();
+            private bool _sent;
+            private bool _response;
+            private Ice.ObjectPrx _proxy;
+            private Ice.Exception _exception;
+        };
+
+        private class ObjectRequest : Request
+        {
+            private class AMICallback : Ice.AMI_Locator_findObjectById
+            {
+                public AMICallback(Request request)
+                {
+                    _request = request;
+                }
+
+                override public void
+                ice_response(Ice.ObjectPrx proxy)
+                {
+                    _request.response(proxy);
+                }
+
+                override public void
+                ice_exception(Ice.Exception ex)
+                {
+                    _request.exception(ex);
+                }
+
+                private readonly Request _request;
+            }
+
+            public ObjectRequest(LocatorInfo locatorInfo, Reference @ref) : base(locatorInfo, @ref)
+            {
+            }
+
+            override protected void 
+            send(bool async)
+            {
+                try
+                {
+                    if(async)
+                    {
+                        _locatorInfo.getLocator().findObjectById_async(new AMICallback(this), _ref.getIdentity());
+                    }
+                    else
+                    {
+                        response(_locatorInfo.getLocator().findObjectById(_ref.getIdentity()));
+                    }
+                }
+                catch(Ice.Exception ex)
+                {
+                    exception(ex);
+                }
+            }
+        }
+
+        private class AdapterRequest : Request
+        {
+            private class AMICallback : Ice.AMI_Locator_findAdapterById
+            {
+                public AMICallback(Request request)
+                {
+                    _request = request;
+                }
+
+                override public void
+                ice_response(Ice.ObjectPrx proxy)
+                {
+                    _request.response(proxy);
+                }
+
+                override public void
+                ice_exception(Ice.Exception ex)
+                {
+                    _request.exception(ex);
+                }
+
+                private readonly Request _request;
+            }
+
+            public AdapterRequest(LocatorInfo locatorInfo, Reference @ref) : base(locatorInfo, @ref)
+            {
+            }
+
+            override protected void
+            send(bool async)
+            {
+                try
+                {
+                    if(async)
+                    {
+                        _locatorInfo.getLocator().findAdapterById_async(new AMICallback(this), _ref.getAdapterId());
+                    }
+                    else
+                    {
+                        response(_locatorInfo.getLocator().findAdapterById(_ref.getAdapterId()));
+                    }
+                }
+                catch(Ice.Exception ex)
+                {
+                    exception(ex);
+                }
+            }
+        }
+
+        internal LocatorInfo(Ice.LocatorPrx locator, LocatorTable table, bool background)
         {
             _locator = locator;
             _table = table;
+            _background = background;
         }
         
         public void destroy()
@@ -77,295 +391,133 @@ namespace IceInternal
             }
         }
 
-        public EndpointI[] getEndpoints(Reference @ref, int ttl, out bool cached)
+        public EndpointI[]
+        getEndpoints(Reference @ref, int ttl, out bool cached)
+        {
+            return getEndpoints(@ref, null, ttl, out cached);
+        }
+        
+        public EndpointI[]
+        getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, out bool cached)
         {
             Debug.Assert(@ref.isIndirect());
-
             EndpointI[] endpoints = null;
-            Ice.ObjectPrx obj = null;
-            cached = true;
-            string adapterId = @ref.getAdapterId();
-            Ice.Identity identity = @ref.getIdentity();
-            
-            try
-            {
-                if(!@ref.isWellKnown())
-                {
-                    endpoints = _table.getAdapterEndpoints(adapterId, ttl);
-                    if(endpoints == null)
-                    {
-                        cached = false;
-                        
-                        if(@ref.getInstance().traceLevels().location >= 1)
-                        {
-                            System.Text.StringBuilder s = new System.Text.StringBuilder();
-                            s.Append("searching for adapter by id\n");
-                            s.Append("adapter = " + adapterId);
-                            @ref.getInstance().initializationData().logger.trace(
-                                @ref.getInstance().traceLevels().locationCat, s.ToString());
-                        }
-
-                        //
-                        // Search the adapter in the location service if we didn't
-                        // find it in the cache.
-                        //
-                        obj = _locator.findAdapterById(adapterId);
-                        if(obj != null)
-                        {
-                            endpoints = ((Ice.ObjectPrxHelperBase)obj).reference__().getEndpoints();
-                            
-                            if(endpoints != null && endpoints.Length > 0)
-                            {
-                                _table.addAdapterEndpoints(adapterId, endpoints);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    bool objectCached = true;
-                    obj = _table.getProxy(identity, ttl);
-                    if(obj == null)
-                    {
-                        objectCached = false;
-                    
-                        if(@ref.getInstance().traceLevels().location >= 1)
-                        {
-                            System.Text.StringBuilder s = new System.Text.StringBuilder();
-                            s.Append("searching for object by id\n");
-                            s.Append("object = " + @ref.getInstance().identityToString(identity));
-                            @ref.getInstance().initializationData().logger.trace(
-                                @ref.getInstance().traceLevels().locationCat, s.ToString());
-                        }
-
-                        obj = _locator.findObjectById(identity);
-                    }
-                    
-                    bool endpointsCached = true;
-                    if(obj != null)
-                    {
-                        Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
-                        if(!r.isIndirect())
-                        {
-                            endpointsCached = false;
-                            endpoints = r.getEndpoints();
-                        }
-                        else if(!r.isWellKnown())
-                        {
-                            endpoints = getEndpoints(r, ttl, out endpointsCached);
-                        }
-                    }
-                    
-                    if(!objectCached && endpoints != null && endpoints.Length > 0)
-                    {
-                        _table.addProxy(identity, obj);
-                    }
-
-                    cached = objectCached || endpointsCached;
-                }
-            }
-            catch(System.Exception ex)
-            {
-                getEndpointsException(@ref, ex);
-            }
-
-            if(@ref.getInstance().traceLevels().location >= 1)
-            {
-                getEndpointsTrace(@ref, endpoints, cached);
-            }       
-
-            return endpoints == null ? new EndpointI[0] : endpoints;
-        }
-
-        private class AdapterCallback : Ice.AMI_Locator_findAdapterById
-        {
-            internal AdapterCallback(LocatorInfo info, Reference @ref, int ttl, GetEndpointsCallback callback)
-            {
-                _info = info;
-                _ref = @ref;
-                _ttl = ttl;
-                _callback = callback;
-            }
-
-            public override void ice_response(Ice.ObjectPrx obj)
-            {
-                EndpointI[] endpoints = null;
-                if(obj != null)
-                {
-                    endpoints = ((Ice.ObjectPrxHelperBase)obj).reference__().getEndpoints();
-                    if(endpoints.Length > 0)
-                    {
-                        _info._table.addAdapterEndpoints(_ref.getAdapterId(), endpoints);
-                    }
-                }
-
-                if(_ref.getInstance().traceLevels().location >= 1)
-                {
-                    _info.getEndpointsTrace(_ref, endpoints, false);
-                }
-
-                if(endpoints == null)
-                {
-                    _callback.setEndpoints(new EndpointI[0], false);
-                }
-                else
-                {
-                    _callback.setEndpoints(endpoints, false);
-                }
-            }
-
-            public override void ice_exception(Ice.Exception ex)
-            {
-                if(ex is Ice.CollocationOptimizationException)
-                {
-                    try
-                    {
-                        bool cached;
-                        _callback.setEndpoints(_info.getEndpoints(_ref, _ttl, out cached), cached);
-                    }
-                    catch(Ice.LocalException e)
-                    {
-                        _callback.setException(e);
-                    }
-                }
-                else
-                {
-                    _info.getEndpointsException(_ref, ex, _callback);
-                }
-            }
-
-            private LocatorInfo _info;
-            private Reference _ref;
-            private int _ttl;
-            private GetEndpointsCallback _callback;
-        }
-
-        private class ObjectCallback : Ice.AMI_Locator_findObjectById
-        {
-            internal ObjectCallback(LocatorInfo info, Reference @ref, int ttl, GetEndpointsCallback callback)
-            {
-                _info = info;
-                _ref = @ref;
-                _ttl = ttl;
-                _callback = callback;
-            }
-
-            public override void ice_response(Ice.ObjectPrx obj)
-            {
-                _info.getWellKnownObjectEndpoints(_ref, obj, _ttl, false, _callback);
-            }
-
-            public override void ice_exception(Ice.Exception ex)
-            {
-                if(ex is Ice.CollocationOptimizationException)
-                {
-                    try
-                    {
-                        bool cached;
-                        _callback.setEndpoints(_info.getEndpoints(_ref, _ttl, out cached), cached);
-                    }
-                    catch(Ice.LocalException e)
-                    {
-                        _callback.setException(e);
-                    }
-                }
-                else
-                {
-                    _info.getEndpointsException(_ref, ex, _callback);
-                }
-            }
-
-            private LocatorInfo _info;
-            private Reference _ref;
-            private int _ttl;
-            private GetEndpointsCallback _callback;
-        }
-
-        public void getEndpoints(Reference @ref, int ttl, GetEndpointsCallback callback)
-        {
-            Debug.Assert(@ref.isIndirect());
-
-            string adapterId = @ref.getAdapterId();
-            Ice.Identity identity = @ref.getIdentity();
-            Instance instance = @ref.getInstance();
+            cached = false;
             if(!@ref.isWellKnown())
             {
-                EndpointI[] endpoints = _table.getAdapterEndpoints(adapterId, ttl);
-                if(endpoints == null)
+                endpoints = _table.getAdapterEndpoints(@ref.getAdapterId(), ttl, out cached);
+                if(!cached)
                 {
-                    if(instance.traceLevels().location >= 1)
+                    if(_background && endpoints != null)
                     {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("searching for adapter by id\n");
-                        s.Append("adapter = " + adapterId);
-                        instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
+                        getAdapterRequest(@ref).addCallback(@ref, wellKnownRef, ttl, null);
                     }
-
-                    //
-                    // Search the adapter in the location service if we didn't
-                    // find it in the cache.
-                    //
-                    _locator.findAdapterById_async(new AdapterCallback(this, @ref, ttl, callback), adapterId);
-                    return;
-                }
-                else
-                {
-                    if(instance.traceLevels().location >= 1)
+                    else
                     {
-                        getEndpointsTrace(@ref, endpoints, true);
+                        return getAdapterRequest(@ref).getEndpoints(@ref, wellKnownRef, ttl, out cached);
                     }
-                    callback.setEndpoints(endpoints, true);
-                    return;
                 }
             }
             else
             {
-                Ice.ObjectPrx obj = _table.getProxy(identity, ttl);
-                if(obj == null)
+                Reference r = _table.getObjectReference(@ref.getIdentity(), ttl, out cached);
+                if(!cached)
                 {
-                    if(instance.traceLevels().location >= 1)
+                    if(_background && r != null)
                     {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("searching for object by id\n");
-                        s.Append("object = " + instance.identityToString(identity));
-                        instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
+                        getObjectRequest(@ref).addCallback(@ref, null, ttl, null);
                     }
-
-                    _locator.findObjectById_async(new ObjectCallback(this, @ref, ttl, callback), identity);
-                    return;
+                    else
+                    {
+                        return getObjectRequest(@ref).getEndpoints(@ref, null, ttl, out cached);
+                    }
                 }
-                else
+            
+                if(!r.isIndirect())
                 {
-                    getWellKnownObjectEndpoints(@ref, obj, ttl, true, callback);
-                    return;
+                    endpoints = r.getEndpoints();
+                }
+                else if(!r.isWellKnown())
+                {
+                    return getEndpoints(r, @ref, ttl, out cached);
                 }
             }
+        
+            Debug.Assert(endpoints != null);
+            cached = true;
+            if(@ref.getInstance().traceLevels().location >= 1)
+            {
+                getEndpointsTrace(@ref, endpoints, true);
+            }
+            return endpoints;
         }
 
-        public void clearObjectCache(Reference rf)
+        public void
+        getEndpoints(Reference @ref, int ttl, GetEndpointsCallback callback)
         {
-            Debug.Assert(rf.isIndirect());
-            if(rf.getAdapterId().Length == 0)
-            {
-                Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
-                if(obj != null)
-                {
-                    Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
-                    if(!r.isIndirect())
-                    {
-                        if(rf.getInstance().traceLevels().location >= 2)
-                        {
-                            trace("removed endpoints from locator table", rf, r.getEndpoints());
-                        }
-                    }
-                    else if(!r.isWellKnown())
-                    {
-                        clearCache(r);
-                    }
-                }
-            }
+            getEndpoints(@ref, null, ttl, callback);
         }
         
+        public void
+        getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback callback)
+        {
+            Debug.Assert(@ref.isIndirect());
+            EndpointI[] endpoints = null;
+            bool cached = false;
+            if(!@ref.isWellKnown())
+            {
+                endpoints = _table.getAdapterEndpoints(@ref.getAdapterId(), ttl, out cached);
+                if(!cached)
+                {
+                    if(_background && endpoints != null)
+                    {
+                        getAdapterRequest(@ref).addCallback(@ref, wellKnownRef, ttl, null);
+                    }
+                    else
+                    {
+                        getAdapterRequest(@ref).addCallback(@ref, wellKnownRef, ttl, callback);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                Reference r = _table.getObjectReference(@ref.getIdentity(), ttl, out cached);
+                if(!cached)
+                {
+                    if(_background && r != null)
+                    {
+                        getObjectRequest(@ref).addCallback(@ref, null, ttl, null);
+                    }
+                    else
+                    {
+                        getObjectRequest(@ref).addCallback(@ref, null, ttl, callback);
+                        return;
+                    }
+                }
+                
+                if(!r.isIndirect())
+                {
+                    endpoints = r.getEndpoints();
+                }
+                else if(!r.isWellKnown())
+                {
+                    getEndpoints(r, @ref, ttl, callback);
+                    return;
+                }
+            }
+            
+            Debug.Assert(endpoints != null);
+            if(@ref.getInstance().traceLevels().location >= 1)
+            {
+                getEndpointsTrace(@ref, endpoints, true);
+            }
+            if(callback != null)
+            {
+                callback.setEndpoints(endpoints, true);
+            }
+        }
+
         public void clearCache(Reference rf)
         {
             Debug.Assert(rf.isIndirect());
@@ -380,10 +532,9 @@ namespace IceInternal
             }
             else
             {
-                Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
-                if(obj != null)
+                Reference r = _table.removeObjectReference(rf.getIdentity());
+                if(r != null)
                 {
-                    Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
                     if(!r.isIndirect())
                     {
                         if(rf.getInstance().traceLevels().location >= 2)
@@ -494,100 +645,6 @@ namespace IceInternal
             }
         }
 
-        private void getEndpointsException(Reference @ref, System.Exception exc, GetEndpointsCallback callback)
-        {
-            try
-            {
-                getEndpointsException(@ref, exc);
-            }
-            catch(Ice.LocalException ex)
-            {
-                callback.setException(ex);
-            }
-            catch(System.Exception)
-            {
-                Debug.Assert(false);
-            }
-        }
-
-        private class GetWellKnownObjectEndpointsCallback : GetEndpointsCallback
-        {
-            internal GetWellKnownObjectEndpointsCallback(LocatorInfo info, Reference @ref, Ice.ObjectPrx obj,
-                                                         bool objectCached, GetEndpointsCallback callback)
-            {
-                _info = info;
-                _ref = @ref;
-                _obj = obj;
-                _objectCached = objectCached;
-                _callback = callback;
-            }
-
-            public void setEndpoints(EndpointI[] endpoints, bool endpointsCached)
-            {
-                if(!_objectCached && endpoints != null && endpoints.Length > 0)
-                {
-                    _info._table.addProxy(_ref.getIdentity(), _obj);
-                }
-
-                if(_ref.getInstance().traceLevels().location >= 1)
-                {
-                    _info.getEndpointsTrace(_ref, endpoints, _objectCached || endpointsCached);
-                }
-
-                _callback.setEndpoints(endpoints, _objectCached || endpointsCached);
-            }
-
-            public void setException(Ice.LocalException ex)
-            {
-                _callback.setException(ex);
-            }
-
-            private LocatorInfo _info;
-            private Reference _ref;
-            private Ice.ObjectPrx _obj;
-            private bool _objectCached;
-            private GetEndpointsCallback _callback;
-        }
-
-        private void getWellKnownObjectEndpoints(Reference @ref, Ice.ObjectPrx obj, int ttl,
-                                                 bool objectCached, GetEndpointsCallback callback)
-        {
-            EndpointI[] endpoints = null;
-            if(obj != null)
-            {
-                Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
-                if(!r.isIndirect())
-                {
-                    endpoints = r.getEndpoints();
-                }
-                else if(!r.isWellKnown())
-                {
-                    getEndpoints(r, ttl,
-                                 new GetWellKnownObjectEndpointsCallback(this, @ref, obj, objectCached, callback));
-                    return;
-                }
-            }
-            
-            if(!objectCached && endpoints != null && endpoints.Length > 0)
-            {
-                _table.addProxy(@ref.getIdentity(), obj);
-            }
-
-            if(@ref.getInstance().traceLevels().location >= 1)
-            {
-                getEndpointsTrace(@ref, endpoints, objectCached);
-            }
-
-            if(endpoints == null)
-            {
-                callback.setEndpoints(new EndpointI[0], false);
-            }
-            else
-            {
-                callback.setEndpoints(endpoints, objectCached);
-            }
-        }
-
         private void getEndpointsTrace(Reference @ref, EndpointI[] endpoints, bool cached)
         {
             if(endpoints != null && endpoints.Length > 0)
@@ -620,17 +677,128 @@ namespace IceInternal
             }
         }
 
+        private Request
+        getAdapterRequest(Reference @ref)
+        {
+            if(@ref.getInstance().traceLevels().location >= 1)
+            {
+                Instance instance = @ref.getInstance();
+                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                s.Append("searching for adapter by id\nadapter = ");
+                s.Append(@ref.getAdapterId());
+                instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
+            }
+
+            lock(this)
+            {
+                Request request;
+                if(_adapterRequests.TryGetValue(@ref.getAdapterId(), out request))
+                {
+                    return request;
+                }
+                
+                request = new AdapterRequest(this, @ref);
+                _adapterRequests.Add(@ref.getAdapterId(), request);
+                return request;
+            }
+        }
+
+        private Request
+        getObjectRequest(Reference @ref)
+        {
+            if(@ref.getInstance().traceLevels().location >= 1)
+            {
+                Instance instance = @ref.getInstance();
+                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                s.Append("searching for object by id\nobject = ");
+                s.Append(instance.identityToString(@ref.getIdentity()));
+                instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
+            }
+
+            lock(this)
+            {
+                Request request;
+                if(_objectRequests.TryGetValue(@ref.getIdentity(), out request))
+                {
+                    return request;
+                }
+                
+                request = new ObjectRequest(this, @ref);
+                _objectRequests.Add(@ref.getIdentity(), request);
+                return request;
+            }
+        }
+
+        private void
+        finishRequest(Reference @ref, List<Reference> wellKnownRefs, Ice.ObjectPrx proxy, bool notRegistered)
+        {
+            if(proxy == null || ((Ice.ObjectPrxHelperBase)proxy).reference__().isIndirect())
+            {
+                //
+                // Remove the cached references of well-known objects for which we tried
+                // to resolved the endpoints if these endpoints are empty.
+                //
+                foreach(Reference r in wellKnownRefs)
+                {
+                    _table.removeObjectReference(r.getIdentity());
+                }
+            }
+    
+            if(!@ref.isWellKnown())
+            {
+                if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).reference__().isIndirect())
+                {
+                    // Cache the adapter endpoints.
+                    _table.addAdapterEndpoints(@ref.getAdapterId(), 
+                                               ((Ice.ObjectPrxHelperBase)proxy).reference__().getEndpoints());
+                }
+                else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
+                {
+                    _table.removeAdapterEndpoints(@ref.getAdapterId());
+                }
+            
+                lock(this)
+                {
+                    Debug.Assert(_adapterRequests.ContainsKey(@ref.getAdapterId()));
+                    _adapterRequests.Remove(@ref.getAdapterId());
+                }
+            }
+            else
+            {
+                if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).reference__().isWellKnown()) 
+                {
+                    // Cache the well-known object reference.
+                    _table.addObjectReference(@ref.getIdentity(), ((Ice.ObjectPrxHelperBase)proxy).reference__());
+                }
+                else if(notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
+                {
+                    _table.removeObjectReference(@ref.getIdentity());
+                }
+
+                lock(this)
+                {
+                    Debug.Assert(_objectRequests.ContainsKey(@ref.getIdentity()));
+                    _objectRequests.Remove(@ref.getIdentity());
+                }
+            }
+        }
+
         private readonly Ice.LocatorPrx _locator;
         private Ice.LocatorRegistryPrx _locatorRegistry;
         private readonly LocatorTable _table;
+        private readonly bool _background;
+        
+        private Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
+        private Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();
     }
 
     public sealed class LocatorManager
     {
-        internal LocatorManager()
+        internal LocatorManager(Ice.Properties properties)
         {
             _table = new Hashtable();
             _locatorTables = new Hashtable();
+            _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         }
         
         internal void destroy()
@@ -683,7 +851,7 @@ namespace IceInternal
                         _locatorTables[locator.ice_getIdentity()] = table;
                     }
                     
-                    info = new LocatorInfo(locator, table);
+                    info = new LocatorInfo(locator, table, _background);
                     _table[locator] = info;
                 }
                 
@@ -693,6 +861,7 @@ namespace IceInternal
         
         private Hashtable _table;
         private Hashtable _locatorTables;
+        private readonly bool _background;
     }
 
     sealed class LocatorTable
@@ -712,20 +881,23 @@ namespace IceInternal
             }
         }
         
-        internal IceInternal.EndpointI[] getAdapterEndpoints(string adapter, int ttl)
+        internal IceInternal.EndpointI[] getAdapterEndpoints(string adapter, int ttl, out bool cached)
         {
             if(ttl == 0) // Locator cache disabled.
             {
+                cached = false;
                 return null;
             }
 
             lock(this)
             {
                 EndpointTableEntry entry = (EndpointTableEntry)_adapterEndpointsTable[adapter];
-                if(entry != null && checkTTL(entry.time, ttl))
+                if(entry != null)
                 {
+                    cached = checkTTL(entry.time, ttl);
                     return entry.endpoints;
                 }
+                cached = false;
                 return null;
             }
         }
@@ -749,39 +921,42 @@ namespace IceInternal
             }
         }
         
-        internal Ice.ObjectPrx getProxy(Ice.Identity id, int ttl)
+        internal Reference getObjectReference(Ice.Identity id, int ttl, out bool cached)
         {
             if(ttl == 0) // Locator cache disabled.
             {
+                cached = false;
                 return null;
             }
 
             lock(this)
             {
-                ProxyTableEntry entry = (ProxyTableEntry)_objectTable[id];
-                if(entry != null && checkTTL(entry.time, ttl))
+                ReferenceTableEntry entry = (ReferenceTableEntry)_objectTable[id];
+                if(entry != null)
                 {
-                    return entry.proxy;
+                    cached = checkTTL(entry.time, ttl);
+                    return entry.reference;
                 }
+                cached = false;
                 return null;
             }
         }
         
-        internal void addProxy(Ice.Identity id, Ice.ObjectPrx proxy)
+        internal void addObjectReference(Ice.Identity id, Reference reference)
         {
             lock(this)
             {
-                _objectTable[id] = new ProxyTableEntry(Time.currentMonotonicTimeMillis(), proxy);
+                _objectTable[id] = new ReferenceTableEntry(Time.currentMonotonicTimeMillis(), reference);
             }
         }
         
-        internal Ice.ObjectPrx removeProxy(Ice.Identity id)
+        internal Reference removeObjectReference(Ice.Identity id)
         {
             lock(this)
             {
-                ProxyTableEntry entry = (ProxyTableEntry)_objectTable[id];
+                ReferenceTableEntry entry = (ReferenceTableEntry)_objectTable[id];
                 _objectTable.Remove(id);
-                return entry != null ? entry.proxy : null;
+                return entry != null ? entry.reference : null;
             }
         }
         
@@ -810,16 +985,16 @@ namespace IceInternal
             public IceInternal.EndpointI[] endpoints;
         }
 
-        sealed private class ProxyTableEntry
+        sealed private class ReferenceTableEntry
         {
-            public ProxyTableEntry(long time, Ice.ObjectPrx proxy)
+            public ReferenceTableEntry(long time, Reference reference)
             {
                 this.time = time;
-                this.proxy = proxy;
+                this.reference = reference;
             }
 
             public long time;
-            public Ice.ObjectPrx proxy;
+            public Reference reference;
         }
 
         private Hashtable _adapterEndpointsTable;

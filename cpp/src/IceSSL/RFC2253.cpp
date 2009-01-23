@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -253,10 +253,10 @@ parseAttributeType(const string& data, size_t& pos)
     // 
     // First the OID case.
     //
-    if(isdigit(data[pos]) ||
+    if(isdigit(static_cast<unsigned char>(data[pos])) ||
        (data.size() - pos >= 4 && (data.substr(pos, 4) == "oid." || data.substr(pos, 4) == "OID.")))
     {
-        if(!isdigit(data[pos]))
+        if(!isdigit(static_cast<unsigned char>(data[pos])))
         {
             result += data.substr(pos, 4);
             pos += 4;
@@ -265,7 +265,7 @@ parseAttributeType(const string& data, size_t& pos)
         while(true)
         {
             // 1*DIGIT
-            while(pos < data.size() && isdigit(data[pos]))
+            while(pos < data.size() && isdigit(static_cast<unsigned char>(data[pos])))
             {
                 result += data[pos];
                 ++pos;
@@ -276,7 +276,7 @@ parseAttributeType(const string& data, size_t& pos)
                 result += data[pos];
                 ++pos;
                 // 1*DIGIT must follow "."
-                if(pos < data.size() && !isdigit(data[pos]))
+                if(pos < data.size() && !isdigit(static_cast<unsigned char>(data[pos])))
                 {
                     throw ParseException(__FILE__, __LINE__, "invalid attribute type (expected end of data)");
                 }
@@ -287,7 +287,7 @@ parseAttributeType(const string& data, size_t& pos)
             }
         }
     }
-    else if(isalpha(data[pos]))
+    else if(isalpha(static_cast<unsigned char>(data[pos])))
     {
         //
         // The grammar is wrong in this case. It should be ALPHA
@@ -297,7 +297,8 @@ parseAttributeType(const string& data, size_t& pos)
         result += data[pos];
         ++pos;
         // 1* KEYCHAR
-        while(pos < data.size() && (isalpha(data[pos]) || isdigit(data[pos]) || data[pos] == '-'))
+        while(pos < data.size() && (isalpha(static_cast<unsigned char>(data[pos])) || 
+              isdigit(static_cast<unsigned char>(data[pos])) || data[pos] == '-'))
         {
             result += data[pos];
             ++pos;
