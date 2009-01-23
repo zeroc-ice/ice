@@ -437,6 +437,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>&lt;ISProjectFolder&gt;\install\mcpp\devdebug</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>MCPPDevKit.5C4D6558_0459_45A7_AFBF_A0310F1F4D68</td><td>&lt;ISProjectFolder&gt;\install\mcpp\devx64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
