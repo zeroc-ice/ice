@@ -38,3 +38,19 @@ stderr.txt and stdout.txt. You can view these files using the
 icegridadmin `registry show' or `node show' commands or with the
 IceGrid Admin GUI. The standard error files contain the registry and
 node traces.
+
+
+Vista Note
+----------
+
+On Vista-derived operating systems, the IceGrid node may emit the
+following warning:
+
+  warning: Unable to lookup the performance counter name:
+  Unable to connect to the specified computer or the computer is
+  offline. This usually occurs when you do not have sufficient
+  privileges.
+
+This issue can be resolved by granting appropriate permissions to the
+node's user account. Please refer to the Troubleshooting section of
+Appendix H in the Ice manual for more information.
