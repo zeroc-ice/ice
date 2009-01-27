@@ -10,6 +10,8 @@
 #ifndef ICE_ROUTER_ICE
 #define ICE_ROUTER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/BuiltinSequences.ice>
 
 module Ice

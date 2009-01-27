@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>BerkeleyDBDev.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>&lt;ISProjectFolder&gt;\install\berkeley\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BerkeleyDBDev.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>&lt;ISProjectFolder&gt;\install\berkeley\devdebug</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>BerkeleyDBDev.0BE3949E_16A8_4CA3_A6E1_F6C4C5F72C10</td><td>&lt;ISProjectFolder&gt;\install\berkeley\devx64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 

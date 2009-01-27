@@ -10,6 +10,8 @@
 #ifndef GLACIER2_SESSION_ICE
 #define GLACIER2_SESSION_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 #include <Glacier2/SSLInfo.ice>

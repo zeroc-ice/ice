@@ -10,6 +10,8 @@
 #ifndef ICE_COMMUNICATOR_ICE
 #define ICE_COMMUNICATOR_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/LoggerF.ice>
 #include <Ice/StatsF.ice>
 #include <Ice/ObjectAdapterF.ice>

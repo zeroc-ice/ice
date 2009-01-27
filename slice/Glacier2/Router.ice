@@ -10,6 +10,8 @@
 #ifndef GLACIER2_ROUTER_ICE
 #define GLACIER2_ROUTER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Router.ice>
 #include <Glacier2/Session.ice>
 

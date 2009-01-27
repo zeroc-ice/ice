@@ -10,6 +10,8 @@
 #ifndef ICE_SERVANT_LOCATOR_ICE
 #define ICE_SERVANT_LOCATOR_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Current.ice>
 

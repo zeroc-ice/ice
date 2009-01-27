@@ -21,6 +21,18 @@ public final class TestIntfI extends Test._TestIntfDisp
         }
     }
 
+    public void sendByteSeq(byte[] seq, Test.PingReplyPrx reply, Ice.Current current)
+    {
+        try
+        {
+            reply.reply();
+        }
+        catch(Ice.LocalException ex)
+        {
+            assert(false);
+        }
+    }
+
     public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

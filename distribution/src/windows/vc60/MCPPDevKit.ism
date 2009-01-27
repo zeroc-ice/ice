@@ -358,8 +358,6 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
-		<row><td>mcpp.lib.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>mcpp.lib</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev\lib\mcpp.lib</td><td>1</td><td/></row>
-		<row><td>mcppd.lib.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>mcppd.lib</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev\lib\mcppd.lib</td><td>1</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -438,6 +436,8 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>&lt;ISProjectFolder&gt;\install\mcpp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>&lt;ISProjectFolder&gt;\install\mcpp\devdebug</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">

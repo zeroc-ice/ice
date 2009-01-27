@@ -23,7 +23,6 @@ public:
     Gen(const std::string&,
         const std::string&,
         const std::string&,
-        const std::string&,
         const std::vector<std::string>&,
         const std::string&,
         const std::vector<std::string>&,
@@ -35,8 +34,6 @@ public:
         bool);
     ~Gen();
 
-    bool operator!() const; // Returns true if there was a constructor error
-
     void generate(const UnitPtr&);
     void closeOutput();
     
@@ -47,6 +44,20 @@ private:
 
     void writeExtraHeaders(::IceUtilInternal::Output&);
 
+
+    //
+    // Get the header extension defined in the global metadata for a given file
+    // if there isn't defined returns a empty string
+    //
+    std::string getHeaderExt(const std::string& file, const ModuleList& modules);
+
+    //
+    // Get the header extension defined in the global metadata for the current 
+    // compiling file.
+    // if there isn't defined returns a empty string
+    //
+    std::string getHeaderExt(const ModuleList& modules);
+
     ::IceUtilInternal::Output H;
     ::IceUtilInternal::Output C;
 
@@ -55,11 +66,13 @@ private:
 
     std::string _base;
     std::string _headerExtension;
+    std::string _implHeaderExtension;
     std::string _sourceExtension;
     std::vector<std::string> _extraHeaders;
     std::string _include;
     std::vector<std::string> _includePaths;
     std::string _dllExport;
+    std::string _dir;
     bool _impl;
     bool _checksum;
     bool _stream;

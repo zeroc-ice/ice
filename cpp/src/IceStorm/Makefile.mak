@@ -194,10 +194,6 @@ clean::
 	-del /q $(MIGRATE:.exe=.*)
 	-del /q IceStormAdmin.res IceStormMigrate.res IceStorm.res IceStormService.res
 
-clean::
-	del /q Grammar.cpp Grammar.h
-	del /q Scanner.cpp
-
 install:: all
 	copy $(LIBNAME) $(install_libdir)
 	copy $(DLLNAME) $(install_bindir)

@@ -7,15 +7,22 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <Slice/Checksum.h>
+#include <Slice/FileTracker.h>
+#include <Slice/Preprocessor.h>
 
 #include <limits>
+
 #include <sys/stat.h>
+#include <string.h>
+
+#include <iostream> //TODO
 
 using namespace std;
 using namespace Slice;
@@ -34,17 +41,19 @@ getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
     return deprecateSymbol;
 }
 
-Slice::Gen::Gen(const string& name, const string& base, const string& headerExtension,
-                const string& sourceExtension, const vector<string>& extraHeaders, const string& include,
+Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
+                const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
                 bool imp, bool checksum, bool stream, bool ice) :
     _base(base),
     _headerExtension(headerExtension),
+    _implHeaderExtension(headerExtension),
     _sourceExtension(sourceExtension),
     _extraHeaders(extraHeaders),
     _include(include),
     _includePaths(includePaths),
     _dllExport(dllExport),
+    _dir(dir),
     _impl(imp),
     _checksum(checksum),
     _stream(stream),
@@ -60,42 +69,74 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     {
         _base.erase(0, pos + 1);
     }
+}
+
+Slice::Gen::~Gen()
+{
+    H << "\n\n#endif\n";
+    C << '\n';
 
     if(_impl)
     {
-        string fileImplH = _base + "I." + _headerExtension;
+        implH << "\n\n#endif\n";
+        implC << '\n';
+    }
+}
+
+void
+Slice::Gen::generate(const UnitPtr& p)
+{
+
+    //
+    // Check the header-ext global meta data if is not empty we override _headerExtension
+    //
+    string headerExtension = getHeaderExt(p->modules());
+    if(!headerExtension.empty())
+    {
+        _headerExtension = headerExtension;
+    }
+
+    if(_impl)
+    {
+        string fileImplH = _base + "I." + _implHeaderExtension;
         string fileImplC = _base + "I." + _sourceExtension;
-        if(!dir.empty())
+        if(!_dir.empty())
         {
-            fileImplH = dir + '/' + fileImplH;
-            fileImplC = dir + '/' + fileImplC;
+            fileImplH = _dir + '/' + fileImplH;
+            fileImplC = _dir + '/' + fileImplC;
         }
 
         struct stat st;
         if(stat(fileImplH.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImplH << "' already exists - will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImplH << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
         if(stat(fileImplC.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImplC << "' already exists - will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImplC << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
 
         implH.open(fileImplH.c_str());
         if(!implH)
         {
-            cerr << name << ": can't open `" << fileImplH << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << "cannot open `" << fileImplH << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+        FileTracker::instance()->addFile(fileImplH);
 
         implC.open(fileImplC.c_str());
         if(!implC)
         {
-            cerr << name << ": can't open `" << fileImplC << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << "cannot open `" << fileImplC << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+        FileTracker::instance()->addFile(fileImplC);
 
         string s = fileImplH;
         if(_include.size())
@@ -110,25 +151,29 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
 
     string fileH = _base + "." + _headerExtension;
     string fileC = _base + "." + _sourceExtension;
-    if(!dir.empty())
+    if(!_dir.empty())
     {
-        fileH = dir + '/' + fileH;
-        fileC = dir + '/' + fileC;
+        fileH = _dir + '/' + fileH;
+        fileC = _dir + '/' + fileC;
     }
 
     H.open(fileH.c_str());
     if(!H)
     {
-        cerr << name << ": can't open `" << fileH << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << fileH << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(fileH);
 
     C.open(fileC.c_str());
     if(!C)
     {
-        cerr << name << ": can't open `" << fileC << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << fileC << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(fileC);
 
     printHeader(H);
     printHeader(C);
@@ -144,37 +189,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     H << "\n#ifndef __" << s << "__";
     H << "\n#define __" << s << "__";
     H << '\n';
-}
 
-Slice::Gen::~Gen()
-{
-    H << "\n\n#endif\n";
-    C << '\n';
-
-    if(_impl)
-    {
-        implH << "\n\n#endif\n";
-        implC << '\n';
-    }
-}
-
-bool
-Slice::Gen::operator!() const
-{
-    if(!H || !C)
-    {
-        return true;
-    }
-    if(_impl && (!implH || !implC))
-    {
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::generate(const UnitPtr& p)
-{
     validateMetaData(p);
 
     writeExtraHeaders(C);
@@ -192,6 +207,7 @@ Slice::Gen::generate(const UnitPtr& p)
         C << _include << '/';
     }
     C << _base << "." << _headerExtension << ">";
+
 
     H << "\n#include <Ice/LocalObjectF.h>";
     H << "\n#include <Ice/ProxyF.h>";
@@ -224,6 +240,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
     else if(p->hasNonLocalClassDecls())
     {
+
         H << "\n#include <Ice/Object.h>";
     }
 
@@ -274,7 +291,12 @@ Slice::Gen::generate(const UnitPtr& p)
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
-        H << "\n#include <" << changeInclude(*q, _includePaths) << "." << _headerExtension << ">";
+        string extension = getHeaderExt((*q), p->modules());
+        if(extension.empty())
+        {
+            extension = _headerExtension;
+        }
+        H << "\n#include <" << changeInclude(*q, _includePaths) << "." << extension << ">";
     }
 
     H << "\n#include <Ice/UndefSysMacros.h>";
@@ -339,7 +361,7 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             implH << _include << '/';
         }
-        implH << _base << ".h>";
+        implH << _base << "." << _headerExtension << ">";
 
         writeExtraHeaders(implC);
 
@@ -348,7 +370,7 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             implC << _include << '/';
         }
-        implC << _base << "I.h>";
+        implC << _base << "I." << _implHeaderExtension << ">";
 
         ImplVisitor implVisitor(implH, implC, _dllExport);
         p->visit(&implVisitor, false);
@@ -3835,7 +3857,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << sp << nl << scoped << " _init;";
         H << eb << ';';
         _doneStaticSymbol = true;
-        H << sp << nl << "static " << scoped << "__staticInit _" << p->name() << "_init;";
+        H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
     }
 
     if(p->isLocal())
@@ -5641,6 +5663,8 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
     StringList globalMetaData = dc->getMetaData();
     string file = dc->filename();
     static const string prefix = "cpp:";
+
+    int headerExtension = 0;
     for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
     {
         string s = *q;
@@ -5653,7 +5677,15 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
                 {
                     continue;
                 }
-                cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                else if(ss.find("header-ext:") == 0)
+                {
+                    headerExtension++;
+                    if(headerExtension == 1)
+                    {
+                        continue;
+                    }
+                }
+                cerr << file << ": warning: ignoring invalid global metadata `" << s << "', the cpp:header-ext global metadata can only appear once per file." << endl;
             }
             _history.insert(s);
         }
@@ -5724,7 +5756,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     {
         if(!cl->isLocal())
         {
-            cout << p->definitionContext()->filename() << ":" << p->line()
+            cerr << p->definitionContext()->filename() << ":" << p->line()
                  << ": warning: metadata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local" << endl;
@@ -5743,7 +5775,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
-                    cout << p->definitionContext()->filename() << ":" << p->line()
+                    cerr << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;
                     break;
                 }
@@ -5836,7 +5868,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     continue;
                 }
 
-                cout << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                cerr << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }
@@ -5865,4 +5897,48 @@ Slice::Gen::resetUseWstring(list<bool>& hist)
     bool use = hist.back();
     hist.pop_back();
     return use;
+}
+
+string
+Slice::Gen::getHeaderExt(const string& file, const ModuleList& modules)
+{
+    string ext = "";
+    if(!modules.empty()) // Just in case the Slice file has no definitions
+    {
+        for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
+        {
+            if((*i)->definitionContext()->filename() == file)
+            {
+                string meta = (*i)->definitionContext()->findMetaData("cpp:header-ext");
+                string::size_type index = meta.find_last_of(":");
+                if(index != string::npos && index + 1 < meta.size())
+                {
+                    ext = meta.substr(index + 1, meta.size() - index - 1);
+                }
+            }
+        }
+    }
+    return ext;
+}
+
+string
+Slice::Gen::getHeaderExt(const ModuleList& modules)
+{
+    string ext = "";
+    if(!modules.empty()) // Just in case the Slice file has no definitions
+    {
+        for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
+        {
+            if((*i)->definitionContext()->includeLevel() == 0)
+            {
+                string meta = (*i)->definitionContext()->findMetaData("cpp:header-ext");
+                string::size_type index = meta.find_last_of(":");
+                if(index != string::npos && index + 1 < meta.size())
+                {
+                    ext = meta.substr(index + 1, meta.size() - index - 1);
+                }
+            }
+        }
+    }
+    return ext;
 }

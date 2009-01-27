@@ -21,7 +21,20 @@ TestIntfI::ping(const Test::PingReplyPrx& reply, const Current& current)
     {
         reply->reply();
     }
-    catch(const Ice::Exception ex)
+    catch(const Ice::Exception&)
+    {
+        assert(false);
+    }
+}
+
+void
+TestIntfI::sendByteSeq(const Test::ByteSeq&, const Test::PingReplyPrx& reply, const Current& current)
+{
+    try
+    {
+        reply->reply();
+    }
+    catch(const Ice::Exception&)
     {
         assert(false);
     }

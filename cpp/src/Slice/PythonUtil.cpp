@@ -2035,7 +2035,7 @@ Slice::Python::MetaDataVisitor::validateGlobal(const DefinitionContextPtr& dc)
                 static const string packagePrefix = "python:package:";
                 if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
                 {
-                    cout << dc->filename() << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                    cerr << dc->filename() << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
                 }
             }
             _history.insert(s);
@@ -2067,7 +2067,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const DefinitionContextPtr& dc,
                     }
                 }
             }
-            cout << dc->filename() << ":" << line << ": warning: ignoring metadata `" << s << "'" << endl;
+            cerr << dc->filename() << ":" << line << ": warning: ignoring metadata `" << s << "'" << endl;
         }
     }
 }
@@ -2085,7 +2085,7 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
         {
             DefinitionContextPtr dc = cont->definitionContext();
             assert(dc);
-            cout << dc->filename() << ":" << cont->line() << ": warning: ignoring metadata `" << *p << "'" << endl;
+            cerr << dc->filename() << ":" << cont->line() << ": warning: ignoring metadata `" << *p << "'" << endl;
         }
     }
 }

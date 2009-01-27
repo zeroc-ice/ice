@@ -10,6 +10,8 @@
 #ifndef GLACIER2_ROUTER_F_ICE
 #define GLACIER2_ROUTER_F_ICE
 
+[["cpp:header-ext:h"]]
+
 module Glacier2
 {
 

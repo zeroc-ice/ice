@@ -5,6 +5,3 @@ client
 server
 Filesystem.cpp
 Filesystem.h
-Grammar.cpp
-Grammar.h
-Scanner.cpp

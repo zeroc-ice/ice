@@ -14,6 +14,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Slice/PythonUtil.h>
 #include <cstring>
 
@@ -72,7 +73,7 @@ class PackageVisitor : public ParserVisitor
 {
 public:
 
-    PackageVisitor(const string&, const string&, const string&);
+    PackageVisitor(const string&, const string&);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -84,15 +85,14 @@ private:
     static const char* _moduleTag;
     static const char* _submoduleTag;
 
-    bool createDirectory(const string&);
+    void createDirectory(const string&);
 
-    bool addModule(const string&, const string&);
-    bool addSubmodule(const string&, const string&);
+    void addModule(const string&, const string&);
+    void addSubmodule(const string&, const string&);
 
-    bool readInit(const string&, StringList&, StringList&);
-    bool writeInit(const string&, const StringList&, const StringList&);
+    void readInit(const string&, StringList&, StringList&);
+    void writeInit(const string&, const StringList&, const StringList&);
 
-    string _name;
     string _module;
     StringList _pathStack;
 };
@@ -100,8 +100,8 @@ private:
 const char* PackageVisitor::_moduleTag = "# Modules:";
 const char* PackageVisitor::_submoduleTag = "# Submodules:";
 
-PackageVisitor::PackageVisitor(const string& name, const string& module, const string& dir) :
-    _name(name), _module(module)
+PackageVisitor::PackageVisitor(const string& module, const string& dir) :
+    _module(module)
 {
     if(dir.empty())
     {
@@ -138,27 +138,18 @@ PackageVisitor::visitModuleStart(const ModulePtr& p)
             }
             for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
             {
-                if(q != v.begin() && !addSubmodule(path, fixIdent(*q)))
+                if(q != v.begin())
                 {
-                    return false;
+                    addSubmodule(path, fixIdent(*q));
                 }
                     
                 path += "/" + *q;
-                if(!createDirectory(path))
-                {
-                    return false;
-                }
+                createDirectory(path);
 
-                if(!addModule(path, _module))
-                {
-                    return false;
-                }
+                addModule(path, _module);
             }
 
-            if(!addSubmodule(path, name))
-            {
-                return false;
-            }
+            addSubmodule(path, name);
         }
 
         path += "/" + name;
@@ -171,26 +162,20 @@ PackageVisitor::visitModuleStart(const ModulePtr& p)
     string parentPath = _pathStack.front();
     _pathStack.push_front(path);
 
-    if(!createDirectory(path))
-    {
-        return false;
-    }
+    createDirectory(path);
 
     //
     // If necessary, add this module to the set of imported modules in __init__.py.
     //
-    if(!addModule(path, _module))
-    {
-        return false;
-    }
+    addModule(path, _module);
 
     //
     // If this is a submodule, then modify the parent's __init__.py to import us.
     //
     ModulePtr mod = ModulePtr::dynamicCast(p->container());
-    if(mod && !addSubmodule(parentPath, name))
+    if(mod)
     {
-        return false;
+        addSubmodule(parentPath, name);
     }
 
     return true;
@@ -203,75 +188,72 @@ PackageVisitor::visitModuleEnd(const ModulePtr& p)
     _pathStack.pop_front();
 }
 
-bool
+void
 PackageVisitor::createDirectory(const string& dir)
 {
     struct stat st;
     int result;
     result = stat(dir.c_str(), &st);
-    if(result != 0)
+    if(result == 0)
     {
+        if(!(st.st_mode & S_IFDIR))
+        {
+            ostringstream os;
+            os << "failed to create package directory `" << dir
+               << "': file already exists and is not a directory";
+            throw FileException(__FILE__, __LINE__, os.str());
+        }
+        return;
+    }
 #ifdef _WIN32
-        result = _mkdir(dir.c_str());
+    result = _mkdir(dir.c_str());
 #else       
-        result = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+    result = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
 
-        if(result != 0)
-        {
-            cerr << _name << ": unable to create `" << dir << "': " << strerror(errno) << endl;
-            return false;
-        }
+    if(result != 0)
+    {
+        ostringstream os;
+        os << "cannot create directory `" << dir << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
 
-    return true;
+    FileTracker::instance()->addDirectory(dir);
 }
 
-bool
+void
 PackageVisitor::addModule(const string& dir, const string& name)
 {
     //
     // Add a module to the set of imported modules in __init__.py.
     //
     StringList modules, submodules;
-    if(readInit(dir, modules, submodules))
+    readInit(dir, modules, submodules);
+    StringList::iterator p = find(modules.begin(), modules.end(), name);
+    if(p == modules.end())
     {
-        StringList::iterator p = find(modules.begin(), modules.end(), name);
-        if(p == modules.end())
-        {
-            modules.push_back(name);
-            return writeInit(dir, modules, submodules);
-        }
-
-        return true;
+        modules.push_back(name);
+        writeInit(dir, modules, submodules);
     }
-
-    return false;
 }
 
-bool
+void
 PackageVisitor::addSubmodule(const string& dir, const string& name)
 {
     //
     // Add a submodule to the set of imported modules in __init__.py.
     //
     StringList modules, submodules;
-    if(readInit(dir, modules, submodules))
+    readInit(dir, modules, submodules);
+    StringList::iterator p = find(submodules.begin(), submodules.end(), name);
+    if(p == submodules.end())
     {
-        StringList::iterator p = find(submodules.begin(), submodules.end(), name);
-        if(p == submodules.end())
-        {
-            submodules.push_back(name);
-            return writeInit(dir, modules, submodules);
-        }
-
-        return true;
+        submodules.push_back(name);
+        writeInit(dir, modules, submodules);
     }
-
-    return false;
 }
 
-bool
+void
 PackageVisitor::readInit(const string& dir, StringList& modules, StringList& submodules)
 {
     string initPath = dir + "/__init__.py";
@@ -282,8 +264,9 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
         ifstream in(initPath.c_str());
         if(!in)
         {
-            cerr << _name << ": unable to open `" << initPath << "': " << strerror(errno) << endl;
-            return false;
+            ostringstream os;
+            os << "cannot open file `" << initPath << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
 
         ReadState state = PreModules;
@@ -316,8 +299,9 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
 
                 if(s.size() < 8)
                 {
-                    cerr << _name << ": invalid line `" << s << "' in `" << initPath << "'" << endl;
-                    return false;
+                    ostringstream os;
+                    os << "invalid line `" << s << "' in `" << initPath << "'";
+                    throw os.str();
                 }
 
                 string name = s.substr(7);
@@ -334,15 +318,14 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
 
         if(state != InSubmodules)
         {
-            cerr << _name << ": invalid format in `" << initPath << "'" << endl;
-            return false;
+            ostringstream os;
+            os << "invalid format in `" << initPath << "'" << endl;
+            throw os.str();
         }
     }
-
-    return true;
 }
 
-bool
+void
 PackageVisitor::writeInit(const string& dir, const StringList& modules, const StringList& submodules)
 {
     string initPath = dir + "/__init__.py";
@@ -350,8 +333,11 @@ PackageVisitor::writeInit(const string& dir, const StringList& modules, const St
     ofstream os(initPath.c_str());
     if(!os)
     {
-        return false;
+        ostringstream os;
+        os << "cannot open file `" << initPath << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(initPath);
 
     StringList::const_iterator p;
 
@@ -369,8 +355,6 @@ PackageVisitor::writeInit(const string& dir, const StringList& modules, const St
     {
         os << "import " << *p << endl;
     }
-
-    return true;
 }
 
 void
@@ -436,7 +420,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        cerr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -490,6 +474,7 @@ main(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
+    
     for(i = args.begin(); i != args.end(); ++i)
     {
         Preprocessor icecpp(argv[0], *i, cppArgs);
@@ -551,34 +536,52 @@ main(int argc, char* argv[])
                     file = output + '/' + file;
                 }
 
-                IceUtilInternal::Output out;
-                out.open(file.c_str());
-                if(!out)
+                try
                 {
-                    cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
+                    IceUtilInternal::Output out;
+                    out.open(file.c_str());
+                    if(!out)
+                    {
+                        ostringstream os;
+                        os << "cannot open`" << file << "': " << strerror(errno);
+                        throw FileException(__FILE__, __LINE__, os.str());
+                    }
+                    FileTracker::instance()->addFile(file);
+
+                    printHeader(out);
+                    out << "\n# Generated from file `" << base << ".ice'\n";
+
+                    //
+                    // Generate the Python mapping.
+                    //
+                    generate(u, all, checksum, includePaths, out);
+
+                    out.close();
+
+                    //
+                    // Create or update the Python package hierarchy.
+                    //
+                    if(!noPackage)
+                    {
+                        PackageVisitor visitor(prefix + base + "_ice", output);
+                        u->visit(&visitor, false);
+                    }
+                }
+                catch(const Slice::FileException& ex)
+                {
+                    // If a file could not be created, then cleanup any
+                    // created files.
+                    FileTracker::instance()->cleanup();
                     u->destroy();
+                    cerr << argv[0] << ": " << ex.reason() << endl;
                     return EXIT_FAILURE;
                 }
-
-                printHeader(out);
-                out << "\n# Generated from file `" << base << ".ice'\n";
-
-                //
-                // Generate the Python mapping.
-                //
-                generate(u, all, checksum, includePaths, out);
-
-                out.close();
-
-                //
-                // Create or update the Python package hierarchy.
-                //
-                if(!noPackage)
+                catch(const string& err)
                 {
-                    PackageVisitor visitor(argv[0], prefix + base + "_ice", output);
-                    u->visit(&visitor, false);
+                    FileTracker::instance()->cleanup();
+                    cerr << argv[0] << ": " << err << endl;
+                    status = EXIT_FAILURE;
                 }
-
             }
 
             u->destroy();
@@ -589,6 +592,7 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
+                FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }

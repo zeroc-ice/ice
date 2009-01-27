@@ -47,15 +47,12 @@ class Gen : private ::IceUtil::noncopyable
 public:
 
     Gen(const std::string&,
-        const std::string&,
         const std::vector<std::string>&,
         const std::string&,
         bool,
         bool,
         bool);
     ~Gen();
-
-    bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
     void generateTie(const UnitPtr&);

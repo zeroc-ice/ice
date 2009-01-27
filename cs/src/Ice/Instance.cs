@@ -729,7 +729,7 @@ namespace IceInternal
                 _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
                 _routerManager = new RouterManager();
                 
-                _locatorManager = new LocatorManager();
+                _locatorManager = new LocatorManager(_initData.properties);
                 
                 _referenceFactory = new ReferenceFactory(this, communicator);
                 

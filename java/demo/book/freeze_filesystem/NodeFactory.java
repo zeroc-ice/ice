@@ -14,11 +14,11 @@ public class NodeFactory implements Ice.ObjectFactory
     public Ice.Object
     create(String type)
     {
-        if(type.equals("::Filesystem::PersistentFile"))
+        if(type.equals(PersistentFile.ice_staticId()))
         {
             return new FileI();
         }
-        else if(type.equals("::Filesystem::PersistentDirectory"))
+        else if(type.equals(PersistentDirectory.ice_staticId()))
         {
             return new DirectoryI();
         }

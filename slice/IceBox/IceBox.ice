@@ -10,6 +10,8 @@
 #ifndef ICE_BOX_ICE_BOX_ICE
 #define ICE_BOX_ICE_BOX_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>
 #include <Ice/PropertiesF.ice>

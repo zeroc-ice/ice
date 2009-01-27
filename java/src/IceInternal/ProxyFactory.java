@@ -112,7 +112,11 @@ public final class ProxyFactory
                 // We retry ObjectNotExistException if the reference is
                 // indirect.
                 //
-                li.clearObjectCache(ref);
+
+                if(ref.isWellKnown())
+                {
+                    li.clearCache(ref);
+                }
             }
             else if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
             {

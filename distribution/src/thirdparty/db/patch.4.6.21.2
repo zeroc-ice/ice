@@ -1,0 +1,27 @@
+*** mp/mp_region.c	2007-05-18 03:18:01.000000000 +1000
+--- mp/mp_region.c	2008-06-24 13:15:56.000000000 +1000
+***************
+*** 249,256 ****
+  		mtx_base = htab[0].mtx_hash;
+  	}
+  
+  	if (mtx_base != MUTEX_INVALID)
+! 		mtx_base += reginfo_off * htab_buckets;
+  
+  	/* Allocate hash table space and initialize it. */
+  	if ((ret = __env_alloc(infop,
+--- 249,262 ----
+  		mtx_base = htab[0].mtx_hash;
+  	}
+  
++ 	/*
++ 	 * We preallocated all of the mutexes in a block, so for regions after
++ 	 * the first, we skip mutexes in use in earlier regions.  Each region
++ 	 * has the same number of buckets and there are two mutexes per hash
++ 	 * bucket (the bucket mutex and the I/O mutex).
++ 	 */
+  	if (mtx_base != MUTEX_INVALID)
+! 		mtx_base += reginfo_off * htab_buckets * 2;
+  
+  	/* Allocate hash table space and initialize it. */
+  	if ((ret = __env_alloc(infop,

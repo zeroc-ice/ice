@@ -10,6 +10,8 @@
 #ifndef FREEZE_BACKGROUND_SAVE_EVICTOR_ICE
 #define FREEZE_BACKGROUND_SAVE_EVICTOR_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Freeze/Evictor.ice>
 
 module Freeze

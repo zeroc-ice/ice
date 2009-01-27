@@ -11,8 +11,9 @@ package IceInternal;
 
 public final class LocatorManager
 {
-    LocatorManager()
+    LocatorManager(Ice.Properties properties)
     {
+        _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
     }
 
     synchronized void
@@ -66,13 +67,15 @@ public final class LocatorManager
                     _locatorTables.put(locator.ice_getIdentity(), table);
                 }
 
-                info = new LocatorInfo(locator, table);
+                info = new LocatorInfo(locator, table, _background);
                 _table.put(locator, info);
             }
 
             return info;
         }
     }
+
+    final private boolean _background;
 
     private java.util.HashMap<Ice.LocatorPrx, LocatorInfo> _table =
         new java.util.HashMap<Ice.LocatorPrx, LocatorInfo>();

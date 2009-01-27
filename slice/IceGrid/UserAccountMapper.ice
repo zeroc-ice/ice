@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_USERACCOUNTMAPPER_ICE
 #define ICE_GRID_USERACCOUNTMAPPER_ICE
 
+[["cpp:header-ext:h"]]
+
 module IceGrid
 {
 

@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_DESCRIPTOR_ICE
 #define ICE_GRID_DESCRIPTOR_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 

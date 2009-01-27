@@ -193,7 +193,7 @@ class NodeUp : public NodeI::Update, public AMI_NodeObserver_nodeUp
 public:
 
     NodeUp(const NodeIPtr& node, const NodeObserverPrx& observer, NodeDynamicInfo info) : 
-        Update(node, observer), _info(info)
+        NodeI::Update(node, observer), _info(info)
     {
     }
 

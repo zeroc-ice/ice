@@ -7,11 +7,15 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Slice/JavaUtil.h>
+#include <Slice/FileTracker.h>
 #include <IceUtil/Functional.h>
+#include <IceUtil/DisableWarnings.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -40,7 +44,7 @@ Slice::JavaOutput::JavaOutput(const char* s) :
 {
 }
 
-bool
+void
 Slice::JavaOutput::openClass(const string& cls, const string& prefix)
 {
     string package;
@@ -81,6 +85,13 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
             result = stat(path.c_str(), &st);
             if(result == 0)
             {
+                if(!(st.st_mode & S_IFDIR))
+                {
+                    ostringstream os;
+                    os << "failed to create package directory `" << path
+                       << "': file already exists and is not a directory";
+                    throw FileException(__FILE__, __LINE__, os.str());
+                }
                 continue;
             }
 #ifdef _WIN32
@@ -90,8 +101,11 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
 #endif
             if(result != 0)
             {
-                return false;
+                ostringstream os;
+                os << "cannot create directory `" << path << "': " << strerror(errno);
+                throw FileException(__FILE__, __LINE__, os.str());
             }
+            FileTracker::instance()->addDirectory(path);
         }
         while(pos != string::npos);
     }
@@ -113,6 +127,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
     open(path.c_str());
     if(isOpen())
     {
+        FileTracker::instance()->addFile(path);
         printHeader();
 
         if(!package.empty())
@@ -123,11 +138,13 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
             print(package.c_str());
             print(";");
         }
-
-        return true;
     }
-
-    return false;
+    else
+    {
+        ostringstream os;
+        os << "cannot open file `" << path << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
+    }
 }
 
 void
@@ -169,25 +186,31 @@ Slice::JavaGenerator::JavaGenerator(const string& dir, Slice::FeatureProfile pro
 
 Slice::JavaGenerator::~JavaGenerator()
 {
+    // If open throws an exception other generators could be left open
+    // during the stack unwind.
+    if(_out != 0)
+    {
+        close();
+    }
     assert(_out == 0);
 }
 
-bool
+void
 Slice::JavaGenerator::open(const string& absolute)
 {
     assert(_out == 0);
 
     JavaOutput* out = createOutput();
-    if(out->openClass(absolute, _dir))
+    try
     {
-        _out = out;
+        out->openClass(absolute, _dir);
     }
-    else
+    catch(const FileException&)
     {
         delete out;
+        throw;
     }
-
-    return _out != 0;
+    _out = out;
 }
 
 void
@@ -3403,7 +3426,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 
                 if(!ok)
                 {
-                    cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                    cerr << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
                 }
             }
             _history.insert(s);
@@ -3459,7 +3482,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
         if(!cl->isLocal())
         {
-            cout << p->definitionContext()->filename() << ":" << p->line()
+            cerr << p->definitionContext()->filename() << ":" << p->line()
                  << ": warning: metadata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local" << endl;
@@ -3475,7 +3498,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("java:type:", 0) == 0)
                 {
-                    cout << p->definitionContext()->filename() << ":" << p->line()
+                    cerr << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;
                     break;
                 }
@@ -3574,7 +3597,7 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
                     continue;
                 }
 
-                cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                cerr << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
 
             _history.insert(s);
@@ -3607,7 +3630,7 @@ Slice::JavaGenerator::MetaDataVisitor::validateType(const SyntaxTreeBasePtr& p, 
                 assert(b);
                 str = b->typeId();
             }
-            cout << file << ":" << line << ": warning: invalid metadata for " << str << endl;
+            cerr << file << ":" << line << ": warning: invalid metadata for " << str << endl;
         }
     }
 }
@@ -3637,7 +3660,7 @@ Slice::JavaGenerator::MetaDataVisitor::validateGetSet(const SyntaxTreeBasePtr& p
                 assert(b);
                 str = b->typeId();
             }
-            cout << file << ":" << line << ": warning: invalid metadata for " << str << endl;
+            cerr << file << ":" << line << ": warning: invalid metadata for " << str << endl;
         }
     }
 }

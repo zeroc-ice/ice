@@ -10,6 +10,8 @@
 #ifndef GLACIER2_PERMISSIONS_VERIFIER_F_ICE
 #define GLACIER2_PERMISSIONS_VERIFIER_F_ICE
 
+[["cpp:header-ext:h"]]
+
 module Glacier2
 {
 

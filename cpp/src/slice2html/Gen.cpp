@@ -7,8 +7,13 @@
 //
 // **********************************************************************
 
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+#    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated
+#endif
+
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 #include <sys/types.h>
@@ -23,6 +28,8 @@
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif
+
+#include <string.h>
 
 using namespace std;
 using namespace Slice;
@@ -1244,9 +1251,11 @@ Slice::GeneratorBase::openStream(const string& path)
     _out.open(path.c_str());
     if(!_out.isOpen())
     {
-        string err = "cannot open `" + path + "' for writing";
-        throw err;
+        ostringstream os;
+        os << "cannot open file `" << path << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(path);
 }
 
 void
@@ -1447,18 +1456,28 @@ Slice::GeneratorBase::makeDir(const string& dir)
     int rc = stat(dir.c_str(), &st);
     if(rc == 0)
     {
+        if(!(st.st_mode & S_IFDIR))
+        {
+            ostringstream os;
+            os << "failed to create package directory `" << dir
+               << "': file already exists and is not a directory";
+            throw FileException(__FILE__, __LINE__, os.str());
+        }
         return;
     }
+
 #ifdef _WIN32
-    rc = mkdir(dir.c_str());
+    rc = _mkdir(dir.c_str());
 #else
     rc = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
     if(rc != 0)
     {
-        string err = "cannot create directory `" + dir + "'";
-        throw err;
+        ostringstream os;
+        os << "cannot create directory `" << dir << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addDirectory(dir);
 }
 
 string
@@ -1467,8 +1486,9 @@ Slice::GeneratorBase::readFile(const string& file)
     ifstream in(file.c_str());
     if(!in)
     {
-        string err = "cannot open `" + file + "' for reading";
-        throw err;
+        ostringstream os;
+        os << "cannot open file `" << file << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
 
     ostringstream result;
@@ -1540,8 +1560,9 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
     ifstream in(file.c_str());
     if(!in)
     {
-        string err = "cannot open `" + file + "' for reading";
-        throw err;
+        ostringstream os;
+        os << "cannot open file `" << file << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
 
     string line;

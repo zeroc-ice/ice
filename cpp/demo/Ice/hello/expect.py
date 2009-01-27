@@ -22,9 +22,9 @@ sys.path.append(path[0])
 from demoscript import *
 from demoscript.Ice import hello
 
-server = Util.spawn('./server --Ice.PrintAdapterReady')
+server = Util.spawn('./server --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server.expect('.* ready')
-client = Util.spawn('./client')
+client = Util.spawn('./client --Ice.Warn.Connections=0')
 client.expect('.*==>')
 
 hello.run(client, server)

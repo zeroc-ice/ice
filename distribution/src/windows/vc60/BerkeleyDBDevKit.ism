@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>BerkeleyDBDev.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>&lt;ISProjectFolder&gt;\install\berkeley\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BerkeleyDBDev.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>&lt;ISProjectFolder&gt;\install\berkeley\devdebug</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">

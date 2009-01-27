@@ -63,7 +63,5 @@ Grammar.cpp Grammar.h: Grammar.y
 
 clean::
 	-del /q Filesystem.cpp Filesystem.h
-        -del /q Scanner.cpp Scanner.h
-        -del /q Grammar.cpp Grammar.h
 
 !include .depend

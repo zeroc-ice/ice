@@ -10,6 +10,8 @@
 #ifndef ICE_IDENTITY_ICE
 #define ICE_IDENTITY_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

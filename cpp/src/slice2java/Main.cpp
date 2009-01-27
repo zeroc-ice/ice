@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 #ifdef __BCPLUSPLUS__
@@ -100,7 +101,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        cerr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -194,7 +195,10 @@ main(int argc, char* argv[])
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::Java, includePaths);
+            if(!icecpp.printMakefileDependencies(Preprocessor::Java, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
         }
         else
         {
@@ -231,39 +235,51 @@ main(int argc, char* argv[])
                     p->destroy();
                     return EXIT_FAILURE;
                 }           
-                
+
                 if(parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;
                 }
                 else
                 {
-                    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
-                    if(!gen)
+                    try
                     {
+                        Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
+                        if(!gen)
+                        {
+                            p->destroy();
+                            return EXIT_FAILURE;
+                        }
+                        gen.generate(p, stream);
+                        if(tie)
+                        {
+                            gen.generateTie(p);
+                        }
+                        if(impl)
+                        {
+                            gen.generateImpl(p);
+                        }
+                        if(implTie)
+                        {
+                            gen.generateImplTie(p);
+                        }
+                        if(!checksumClass.empty())
+                        {
+                            //
+                            // Calculate checksums for the Slice definitions in the unit.
+                            //
+                            ChecksumMap m = createChecksums(p);
+                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                        }
+                    }
+                    catch(const Slice::FileException& ex)
+                    {
+                        // If a file could not be created, then
+                        // cleanup any created files.
+                        FileTracker::instance()->cleanup();
                         p->destroy();
+                        cerr << argv[0] << ": " << ex.reason() << endl;
                         return EXIT_FAILURE;
-                    }
-                    gen.generate(p, stream);
-                    if(tie)
-                    {
-                        gen.generateTie(p);
-                    }
-                    if(impl)
-                    {
-                        gen.generateImpl(p);
-                    }
-                    if(implTie)
-                    {
-                        gen.generateImplTie(p);
-                    }
-                    if(!checksumClass.empty())
-                    {
-                        //
-                        // Calculate checksums for the Slice definitions in the unit.
-                        //
-                        ChecksumMap m = createChecksums(p);
-                        copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                     }
                 }
                 p->destroy();
@@ -275,6 +291,9 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
+                // If the translator was interrupted, then cleanup any
+                // created files.
+                FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }
@@ -282,7 +301,18 @@ main(int argc, char* argv[])
 
     if(!checksumClass.empty())
     {
-        Gen::writeChecksumClass(checksumClass, output, checksums, java2);
+        try
+        {
+            Gen::writeChecksumClass(checksumClass, output, checksums, java2);
+        }
+        catch(const Slice::FileException& ex)
+        {
+            // If a file could not be created, then
+            // cleanup any created files.
+            FileTracker::instance()->cleanup();
+            cerr << argv[0] << ": " << ex.reason() << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     return status;

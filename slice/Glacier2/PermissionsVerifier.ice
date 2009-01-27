@@ -10,6 +10,8 @@
 #ifndef GLACIER2_PERMISSIONS_VERIFIER_ICE
 #define GLACIER2_PERMISSIONS_VERIFIER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Glacier2/SSLInfo.ice>
 
 module Glacier2

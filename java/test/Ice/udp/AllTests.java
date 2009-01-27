@@ -82,6 +82,45 @@ public class AllTests
         obj.ping(reply);
         boolean ret = replyI.waitReply(3, 2000);
         test(ret == true);
+
+        if(communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
+        {
+            //
+            // Only run this test if compression is disabled, the test expect fixed message size
+            // to be sent over the wire.
+            //
+            byte[] seq = null;
+            try
+            {
+                seq = new byte[1024];
+                while(true)
+                {
+                    seq = new byte[seq.length * 2 + 10];
+                    replyI.reset();
+                    obj.sendByteSeq(seq, reply);
+                    replyI.waitReply(1, 10000);
+                }
+            }
+            catch(Ice.DatagramLimitException ex)
+            {
+                test(seq.length > 16384);
+            }
+            
+            communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
+            seq = new byte[50000];
+            try
+            {
+                replyI.reset();
+                obj.sendByteSeq(seq, reply);
+                test(!replyI.waitReply(1, 500));
+            }
+            catch(Ice.LocalException ex)
+            {
+                System.err.println(ex);
+                test(false);
+            }
+        }
+
         System.out.println("ok");
 
         System.out.print("testing udp multicast... ");
@@ -100,13 +139,21 @@ public class AllTests
 
         replyI.reset();
         obj.ping(reply);
-        ret = replyI.waitReply(5, 2000);
-        test(ret == true);
+        if(!replyI.waitReply(5, 2000))
+        {
+            System.out.println("failed (is a firewall enabled?)");
+            return obj;
+        }
 
         replyI.reset();
         obj.ping(reply);
         ret = replyI.waitReply(5, 2000);
-        test(ret == true);
+        if(!replyI.waitReply(5, 2000))
+        {
+            System.out.println("failed (is a firewall enabled?)");
+            return obj;
+        }
+
         System.out.println("ok");
 
         return obj;

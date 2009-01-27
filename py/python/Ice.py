@@ -13,20 +13,6 @@ Ice module
 
 import sys, exceptions, string, imp, os, threading, warnings, datetime
 
-try:
-    import dl
-    #
-    # This is necessary for proper operation of Ice plug-ins.
-    # Without it, RTTI problems can occur.
-    #
-    sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
-except ImportError:
-    # If the dl module is not available and we're running on a linux
-    # platform, use the hard coded value of RTLD_NOW|RTLD_GLOBAL.
-    if sys.platform.startswith("linux"):
-        sys.setdlopenflags(258)
-    pass
-
 #
 # Import the Python extension.
 #

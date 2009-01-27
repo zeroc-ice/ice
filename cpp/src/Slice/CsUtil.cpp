@@ -1119,7 +1119,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         call += "_tmp";
                     }
-                    call += " == null ? new " + typeS + "() : " + param;
+                    call += "[ix__] == null ? new " + typeS + "() : " + param;
                     if(isStack)
                     {
                         call += "_tmp";
@@ -1528,7 +1528,7 @@ Slice::CsGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
                     static const string attributePrefix = "cs:attribute:";
                     if(s.find(attributePrefix) != 0 || s.size() == attributePrefix.size())
                     {
-                        cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                        cerr << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
                     }
                 }
                 _history.insert(s);
@@ -1595,7 +1595,7 @@ Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
         if(!cl->isLocal())
         {
-            cout << p->definitionContext()->filename() << ":" << p->line()
+            cerr << p->definitionContext()->filename() << ":" << p->line()
                  << ": warning: metdata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local" << endl;
@@ -1720,7 +1720,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         }
                     }
                 }
-                cout << file << ":" << cont->line() << ": warning: " << msg << " `" << s << "'" << endl;
+                cerr << file << ":" << cont->line() << ": warning: " << msg << " `" << s << "'" << endl;
             }
             _history.insert(s);
         }
@@ -1734,7 +1734,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 {
                     continue;
                 }
-                cout << file << ":" << cont->line() << ": warning: " << msg << " `" << s << "'" << endl;
+                cerr << file << ":" << cont->line() << ": warning: " << msg << " `" << s << "'" << endl;
             }
             _history.insert(s);
         }

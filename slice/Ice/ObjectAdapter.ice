@@ -10,6 +10,8 @@
 #ifndef ICE_OBJECT_ADAPTER_ICE
 #define ICE_OBJECT_ADAPTER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
 #include <Ice/LocatorF.ice>
@@ -105,7 +107,9 @@ local interface ObjectAdapter
      * otherwise. Attempts to use a deactivated object adapter raise
      * [ObjectAdapterDeactivatedException]; however, attempts to
      * [deactivate] an already deactivated object adapter are ignored
-     * and do nothing.
+     * and do nothing. Once deactivated, it is possible to destroy the
+     * adapter to clean up resources and then create and activate a
+     * new adapter with the same name.
      *
      * <p class="Note"> After [deactivate] returns, no new requests are
      * processed by the object adapter. However, requests that have
@@ -150,11 +154,11 @@ local interface ObjectAdapter
     /**
      *
      * Destroys the object adapter and cleans up all resources
-     * held by the object adapter. If object adapter has not yet
+     * held by the object adapter. If the object adapter has not yet
      * been deactivated, [destroy] implicitly initiates the
-     * deactivation and waits for it to finish. Once [destroy] has
-     * returned it is possible to recreate an object adapter with
-     * the same name. Subsequent calls to [destroy] are ignored.
+     * deactivation and waits for it to finish. Subsequent calls to
+     * [destroy] are ignored. Once [destroy] has returned, it is
+     * possible to create another object adapter with the same name.
      * 
      * @see deactivate
      * @see waitForDeactivate

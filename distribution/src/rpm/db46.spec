@@ -12,8 +12,12 @@
 Summary: The Berkeley DB database library (version 4.6) for C and C++
 Name: db46
 Version: 4.6.21
-Release: 2ice%{?dist}
+Release: 3ice%{?dist}
 Source0: http://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gz
+Patch1: http://www.oracle.com/technology/products/berkeley-db/db/update/4.6.21/patch.4.6.21.1
+Patch2: http://www.oracle.com/technology/products/berkeley-db/db/update/4.6.21/patch.4.6.21.2
+Patch3: http://www.oracle.com/technology/products/berkeley-db/db/update/4.6.21/patch.4.6.21.3
+Patch4: patch.4.6.21.15663
 URL: http://www.oracle.com/database/berkeley-db/
 License: Berkeley DB open-source license
 Group: System Environment/Libraries
@@ -75,6 +79,10 @@ for building programs which use the Berkeley DB in Java.
 %prep
 
 %setup -q -n db-%{version}.NC
+%patch1 -p0 -b .4.6.21.1
+%patch2 -p0 -b .4.6.21.2
+%patch3 -p0 -b .4.6.21.3
+%patch4 -p0 -b .4.6.21.15663
 
 # Remove tags files which we don't need.
 find . -name tags | xargs rm -f
@@ -193,6 +201,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %endif
 
 %changelog
+
+* Mon Jan 26 2009 Bernard Normier <bernard@zeroc.com> 4.6.21-3ice
+- Applied DB patches
 
 * Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 4.6.21-2ice
 - Moved db.jar to a jpackage-compliant location

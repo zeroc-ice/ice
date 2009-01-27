@@ -10,6 +10,8 @@
 #ifndef ICE_ENDPOINT_ICE
 #define ICE_ENDPOINT_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

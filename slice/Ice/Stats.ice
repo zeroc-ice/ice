@@ -10,6 +10,8 @@
 #ifndef ICE_STATS_ICE
 #define ICE_STATS_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

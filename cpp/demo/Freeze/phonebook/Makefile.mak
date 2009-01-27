@@ -90,8 +90,6 @@ clean::
 
 clean::
 	-del /q NameIndex.h NameIndex.cpp
-	-del /q Grammar.cpp Grammar.h
-	-del /q Scanner.cpp
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend

@@ -44,10 +44,11 @@ extern "C" int   mcpp_lib_main(int argc, char** argv);
 extern "C" void  mcpp_use_mem_buffers(int tf);
 extern "C" char* mcpp_get_mem_buffer(Outdest od);
 
-Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args) :
+Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args, const string& cppSourceExt) :
     _path(path),
     _fileName(fileName),
     _args(args),
+    _cppSourceExt(cppSourceExt),
     _cppHandle(0)
 {
 }
@@ -125,6 +126,8 @@ Slice::Preprocessor::preprocess(bool keepComments)
     {
         args.push_back("-C");
     }
+    args.push_back("-e");
+    args.push_back("en_us.utf8");
     args.push_back(_fileName);
 
     const char** argv = new const char*[args.size() + 1];
@@ -214,12 +217,12 @@ Slice::Preprocessor::preprocess(bool keepComments)
     return _cppHandle;
 }
 
-void
+bool
 Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths)
 {
     if(!checkInputFile())
     {
-        return;
+        return false;
     }
 
     //
@@ -227,6 +230,8 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     vector<string> args = _args;
     args.push_back("-M");
+    args.push_back("-e");
+    args.push_back("en_us.utf8");
     args.push_back(_fileName);
 
     const char** argv = new const char*[args.size() + 1];
@@ -257,7 +262,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         // Calling this again causes the memory buffers to be freed.
         //
         mcpp_use_mem_buffers(1);
-        return;
+        return false;
     }
 
     //
@@ -386,12 +391,12 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         case CPlusPlus:
         {
             //
-            // Change .o[bj] suffix to .cpp suffix.
+            // Change .o[bj] suffix to the cpp source extension suffix.
             //
             string::size_type pos;
             while((pos = result.find(suffix)) != string::npos)
             {
-                result.replace(pos, suffix.size() - 1, ".cpp");
+                result.replace(pos, suffix.size() - 1, "." + _cppSourceExt);
             }
             break;
         }
@@ -465,6 +470,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     // Output result
     //
     fputs(result.c_str(), stdout);
+    return true;
 }
 
 bool
@@ -512,7 +518,7 @@ Slice::Preprocessor::checkInputFile()
     ifstream test(_fileName.c_str());
     if(!test)
     {
-        cerr << _path << ": can't open `" << _fileName << "' for reading" << endl;
+        cerr << _path << ": cannot open `" << _fileName << "' for reading" << endl;
         return false;
     }
     test.close();

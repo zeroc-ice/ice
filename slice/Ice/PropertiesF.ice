@@ -10,6 +10,8 @@
 #ifndef ICE_PROPERTIES_F_ICE
 #define ICE_PROPERTIES_F_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

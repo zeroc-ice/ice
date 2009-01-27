@@ -10,6 +10,8 @@
 #ifndef ICE_IMPLICIT_CONTEXT_F_ICE
 #define ICE_IMPLICIT_CONTEXT_F_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

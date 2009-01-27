@@ -18,9 +18,12 @@ interface PingReply
     void reply();
 };
 
+sequence<byte> ByteSeq;
+
 interface TestIntf
 {
     void ping(PingReply* reply);
+    void sendByteSeq(ByteSeq seq, PingReply* reply);
     void shutdown();
 };
 

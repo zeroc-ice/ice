@@ -67,8 +67,6 @@ NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 
 clean::
 	-rm -f NameIndex.h NameIndex.cpp
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
 	-rm -f db/*
 
 include .depend

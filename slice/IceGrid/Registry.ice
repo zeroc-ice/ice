@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_REGISTRY_ICE
 #define ICE_GRID_REGISTRY_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Session.ice>
 #include <IceGrid/Admin.ice>

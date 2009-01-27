@@ -5,8 +5,10 @@
 <!-- Redirect browser to frame page if page is not in the content frame. -->
 <script type="text/javascript">
 <!--
-if(top.frames.length==0) { top.location.href="index.html?login.htm"; }
-else { parent.lazysync('login.htm'); }
+if (top.location.search.lastIndexOf("toc=0")<=0) {
+  if (top.frames.length==0) { top.location.href="index.html?login.htm"; }
+  else { parent.lazysync('login.htm'); }
+}
 //-->
 </script>
 <script type="text/javascript" src="highlight.js"></script>
@@ -140,7 +142,7 @@ else { parent.lazysync('login.htm'); }
 
 <!--ZOOMSTOP-->
 <p>&nbsp;</p><hr size="1"><p class="fsmall">Page url: 
-<a href="http://www.zeroc.com/doc/Ice-3.3.0/IceGridAdmin/index.html?login.htm" target="_top">http://www.zeroc.com/doc/Ice-3.3.0/IceGridAdmin/index.html?login.htm</a>
+<a href="http://www.zeroc.com/doc/Ice-3.3.1/IceGridAdmin/index.html?login.htm" target="_top">http://www.zeroc.com/doc/Ice-3.3.1/IceGridAdmin/index.html?login.htm</a>
 </p>
 </div></div>
 <script type="text/javascript"> 

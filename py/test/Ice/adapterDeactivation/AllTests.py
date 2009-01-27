@@ -29,15 +29,15 @@ def allTests(communicator):
 
     print "creating/destroying/recreating object adapter... ",
     sys.stdout.flush()
-    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999")
+    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default")
     try:
-        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998")
+        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default")
         test(False)
     except Ice.LocalException:
         pass
     adapter.destroy()
 
-    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998")
+    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default")
     adapter.destroy()
     print "ok"
 

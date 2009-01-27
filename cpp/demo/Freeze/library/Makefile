@@ -68,7 +68,5 @@ LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-rm -f db/*
 	-rm -f LibraryTypes.h LibraryTypes.cpp
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
 
 include .depend

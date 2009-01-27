@@ -457,8 +457,11 @@ public:
     // invoke initializePlugins on the PluginManager.
     //
     // When the application supplies its own OpenSSL context, the
-    // plug-in skips its normal property-based configuration.
+    // plug-in ignores configuration properties related to certificates,
+    // keys, and passwords.
     // 
+    // Note that the plugin assumes ownership of the given context.
+    //
     virtual void setContext(SSL_CTX*) = 0;
 
     //

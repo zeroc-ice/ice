@@ -44,7 +44,5 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 clean::
 	-rm -f db/*
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
 
 include .depend

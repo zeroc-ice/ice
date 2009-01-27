@@ -10,6 +10,8 @@
 #ifndef ICE_PROCESS_ICE
 #define ICE_PROCESS_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

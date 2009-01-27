@@ -70,6 +70,7 @@ private:
     IceInternal::ProtocolPluginFacadePtr _facade;
     int _securityTraceLevel;
     std::string _securityTraceCategory;
+    bool _initialized;
     SSL_CTX* _ctx;
     std::string _defaultDir;
     bool _checkCertName;

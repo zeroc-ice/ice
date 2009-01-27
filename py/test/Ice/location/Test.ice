@@ -23,6 +23,14 @@ interface TestLocatorRegistry extends ::Ice::LocatorRegistry
     void addObject(Object* obj);
 };
 
+interface TestLocator extends ::Ice::Locator
+{
+    //
+    // Returns the number of request on the locator interface.
+    //
+    ["cpp:const"] idempotent int getRequestCount();
+};
+
 interface ServerManager
 {
     void startServer();
@@ -39,6 +47,8 @@ interface TestIntf
     void shutdown();
 
     Hello* getHello();
+
+    Hello* getReplicatedHello();
 
     void migrateHello();
 };

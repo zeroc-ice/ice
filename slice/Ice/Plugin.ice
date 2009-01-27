@@ -10,6 +10,8 @@
 #ifndef ICE_PLUGIN_ICE
 #define ICE_PLUGIN_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/LoggerF.ice>
 
 module Ice

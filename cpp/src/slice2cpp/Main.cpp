@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
+#include <Slice/FileTracker.h>
 #include <Gen.h>
 
 using namespace std;
@@ -100,7 +101,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        cerr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -168,12 +169,15 @@ main(int argc, char* argv[])
     {
         if(depend)
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs);
-            icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths);
+            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
+            if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
         }
         else
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs);
+            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
             FILE* cppHandle = icecpp.preprocess(false);
 
             if(cppHandle == 0)
@@ -213,14 +217,21 @@ main(int argc, char* argv[])
                 }
                 else
                 {
-                    Gen gen(argv[0], icecpp.getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
-                            includePaths, dllExport, output, impl, checksum, stream, ice);
-                    if(!gen)
+                    try
                     {
+                        Gen gen(icecpp.getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
+                                includePaths, dllExport, output, impl, checksum, stream, ice);
+                        gen.generate(u);
+                    }
+                    catch(const Slice::FileException& ex)
+                    {
+                        // If a file could not be created, then
+                        // cleanup any created files.
+                        FileTracker::instance()->cleanup();
                         u->destroy();
+                        cerr << argv[0] << ": " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
-                    gen.generate(u);
                 }
 
                 u->destroy();
@@ -232,6 +243,7 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
+                FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }

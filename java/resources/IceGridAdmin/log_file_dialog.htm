@@ -5,8 +5,10 @@
 <!-- Redirect browser to frame page if page is not in the content frame. -->
 <script type="text/javascript">
 <!--
-if(top.frames.length==0) { top.location.href="index.html?log_file_dialog.htm"; }
-else { parent.lazysync('log_file_dialog.htm'); }
+if (top.location.search.lastIndexOf("toc=0")<=0) {
+  if (top.frames.length==0) { top.location.href="index.html?log_file_dialog.htm"; }
+  else { parent.lazysync('log_file_dialog.htm'); }
+}
 //-->
 </script>
 <script type="text/javascript" src="highlight.js"></script>
@@ -114,13 +116,13 @@ else { parent.lazysync('log_file_dialog.htm'); }
 <p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Initial tail</span></p>
 <p class="p_IndentList3"><span class="f_IndentList3">When a new dialog is opened, or when restarting a stopped dialog, the dialog retrieves and displays </span><span class="f_T_Entry">Initial tail</span><span class="f_IndentList3"> lines.</span></p>
 <p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Max bytes read per request</span></p>
-<p class="p_IndentList3"><span class="f_IndentList3">The maximum number of bytes retrieve by each request. Pick a value that is low enough to make the dialog appear responsive and big enough to avoid many round-trips when lots of data are logged.&nbsp; IceGrid Admin requires a value between 100 and</span><span class="f_T_Code"> Ice.MessageSizeMax</span><span class="f_IndentList3"> - 512.</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The maximum number of bytes retrieve by each request. Pick a value that is low enough to make the dialog appear responsive and big enough to avoid many round-trips when lots of data are logged. &nbsp;IceGrid Admin requires a value between 100 and</span><span class="f_T_Code"> Ice.MessageSizeMax</span><span class="f_IndentList3"> - 512.</span></p>
 <p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Poll period</span></p>
 <p class="p_IndentList3"><span class="f_IndentList3">When in the running state, the dialog attempts to retrieve new lines from the log file (through IceGrid) every </span><span class="f_T_Entry">Poll period</span><span class="f_IndentList3"> seconds.</span></p>
 
 <!--ZOOMSTOP-->
 <p>&nbsp;</p><hr size="1"><p class="fsmall">Page url: 
-<a href="http://www.zeroc.com/doc/Ice-3.3.0/IceGridAdmin/index.html?log_file_dialog.htm" target="_top">http://www.zeroc.com/doc/Ice-3.3.0/IceGridAdmin/index.html?log_file_dialog.htm</a>
+<a href="http://www.zeroc.com/doc/Ice-3.3.1/IceGridAdmin/index.html?log_file_dialog.htm" target="_top">http://www.zeroc.com/doc/Ice-3.3.1/IceGridAdmin/index.html?log_file_dialog.htm</a>
 </p>
 </div></div>
 <script type="text/javascript"> 

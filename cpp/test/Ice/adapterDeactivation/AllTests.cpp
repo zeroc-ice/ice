@@ -32,10 +32,10 @@ allTests(const CommunicatorPtr& communicator)
     {
         cout << "creating/destroying/recreating object adapter... " << flush;
         ObjectAdapterPtr adapter = 
-            communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+            communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
         try
         {
-            communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
+            communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
             test(false);
         }
         catch(const AlreadyRegisteredException&)
@@ -46,7 +46,7 @@ allTests(const CommunicatorPtr& communicator)
         //
         // Use a different port than the first adapter to avoid an "address already in use" error.
         //
-        adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
+        adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
         adapter->destroy();
         cout << "ok" << endl;
     }

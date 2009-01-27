@@ -10,6 +10,8 @@
 #ifndef ICE_PATCH2_FILE_SERVER_ICE
 #define ICE_PATCH2_FILE_SERVER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <IcePatch2/FileInfo.ice>
 
 /**

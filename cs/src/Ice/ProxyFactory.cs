@@ -106,7 +106,11 @@ namespace IceInternal
                     // We retry ObjectNotExistException if the reference is
                     // indirect.
                     //
-                    li.clearObjectCache(@ref);
+
+                    if(@ref.isWellKnown())
+                    {
+                        li.clearCache(@ref);
+                    }
                 }
                 else if(@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
                 {

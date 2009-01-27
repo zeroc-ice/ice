@@ -10,6 +10,8 @@
 #ifndef FREEZE_EVICTOR_ICE
 #define FREEZE_EVICTOR_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ServantLocator.ice>
 #include <Ice/Identity.ice>

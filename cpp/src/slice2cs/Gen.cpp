@@ -21,6 +21,8 @@
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/DotNetNames.h>
+#include <Slice/FileTracker.h>
+#include <string.h>
 
 using namespace std;
 using namespace Slice;
@@ -1053,7 +1055,7 @@ Slice::CsVisitor::writeValue(const TypePtr& type)
 }
 
 
-Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir,
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir,
                 bool impl, bool implTie, bool stream)
     : _includePaths(includePaths),
       _stream(stream)
@@ -1076,9 +1078,11 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
     _out.open(file.c_str());
     if(!_out)
     {
-        cerr << name << ": can't open `" << file << "' for writing" << endl;
-        return;
+        ostringstream os;
+        os << "cannot open `" << file << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
     }
+    FileTracker::instance()->addFile(file);
     printHeader();
 
     _out << nl << "// Generated from file `" << fileBase << ".ice'";
@@ -1105,16 +1109,20 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
         struct stat st;
         if(stat(fileImpl.c_str(), &st) == 0)
         {
-            cerr << name << ": `" << fileImpl << "' already exists--will not overwrite" << endl;
-            return;
+            ostringstream os;
+            os << fileImpl << "' already exists - will not overwrite";
+            throw FileException(__FILE__, __LINE__, os.str());
         }
 
         _impl.open(fileImpl.c_str());
         if(!_impl)
         {
-            cerr << name << ": can't open `" << fileImpl << "' for writing" << endl;
-            return;
+            ostringstream os;
+            os << ": cannot open `" << fileImpl << "': " << strerror(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
         }
+
+        FileTracker::instance()->addFile(fileImpl);
     }
 }
 
@@ -1130,16 +1138,9 @@ Slice::Gen::~Gen()
     }
 }
 
-bool
-Slice::Gen::operator!() const
-{
-    return !_out;
-}
-
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-
     CsGenerator::validateMetaData(p);
 
     UnitVisitor unitVisitor(_out, _stream);

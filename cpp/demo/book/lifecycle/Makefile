@@ -43,8 +43,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) $(LIBS)
 
-clean::
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
-
 include .depend

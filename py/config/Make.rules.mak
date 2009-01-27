@@ -41,7 +41,11 @@ PYTHON_HOME		= C:\Python25
 # is located in a different location.
 #
 !if "$(CPP_COMPILER)" == "VC60" && "$(STLPORT_HOME)" == ""
+!if "$(THIRDPARTY_HOME)" != ""
+STLPORT_HOME            = $(THIRDPARTY_HOME)
+!else
 STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
+!endif
 !endif
 
 #

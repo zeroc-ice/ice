@@ -26,6 +26,7 @@ OBJS		= Scanner.obj \
 		  DotNetNames.obj \
 		  RubyUtil.obj \
 		  Util.obj \
+		  FileTracker.obj \
 		  MD5.obj \
 		  MD5I.obj
 
@@ -80,8 +81,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	-del /q Grammar.cpp Grammar.h
-	-del /q Scanner.cpp
 	-del /q Slice.res
 
 install:: all

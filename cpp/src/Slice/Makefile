@@ -27,6 +27,7 @@ OBJS		= Scanner.o \
 		  DotNetNames.o \
 		  RubyUtil.o \
 		  Util.o \
+		  FileTracker.o \
 		  MD5.o \
 		  MD5I.o
 
@@ -55,10 +56,6 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 endif
-
-clean::
-	-rm -f Grammar.cpp Grammar.h
-	-rm -f Scanner.cpp
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

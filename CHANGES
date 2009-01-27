@@ -31,6 +31,23 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- Added support for updating locator cache endpoints in the background
+  if the new Ice.BackgroundLocatorCacheUpdates property is set to 1.
+
+  Locator cache updates are triggered if the proxy locator cache
+  timeout is configured and the cached endpoints are older than the
+  configured timeout.
+
+  By default, locator cache updates are performed before making an
+  invocation, delaying the invocation until the new endpoints are
+  retrieved from the locator. With this feature enabled, the locator
+  cache updates are performed in the background and the invocation
+  that triggered the update uses the previously cached endpoints.
+
+- Optimized the Ice client run time to minimize locator requests when
+  multiple concurrent or AMI requests need to resolve the endpoints of
+  the same well-known object, object adapter, or replica group.
+
 - Fixed a bug in IceGrid that would cause it to generate incorrect
   config files for servers whose ice-version was set to a version
   previous to Ice 3.3.0.
@@ -43,9 +60,14 @@ General Changes
   print an error message if the retry failed and if Ice.RetryIntervals
   was configured with non-zero time intervals.
 
+- All error output from the slice compilers now goes to stderr.
+
 
 C++ Changes
 ===========
+
+- Fixed bug in slice2cpp that caused bad code to be generated for classes
+  whose name was a C++ keyword.
 
 - Fixed a bug in IceSSL where the IceSSL.CheckCertName property did
   not have any effect.
@@ -139,6 +161,17 @@ Ruby Changes
 
 PHP Changes
 ===========
+
+- It is now possible to specify multiple Slice files in your profile
+  configuration that have common include files. For example, if A.ice
+  and B.ice both include Common.ice, you can now do the following:
+  
+  ice.slice=-I. A.ice B.ice
+
+  In previous releases this would have caused a redefinition error,
+  which you could work around by creating a single Slice file that
+  included both A.ice and B.ice. This workaround is no longer
+  necessary.
 
 - Fixed bugs in the ice_router and ice_locator proxy methods.
 

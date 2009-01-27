@@ -54,19 +54,6 @@ top-level directory and apply the patch as shown below:
   > patch -p0 bzlib.h < ..\bzlib.patch
 
 
-mcpp
-----
-
-The file mcpp-2.7.patch in this archive contains several important
-fixes required by Ice. We expect that all these fixes will be
-included in mcpp 2.7.1.
-
-After extracting the mcpp source distribution, change to the top-level
-directory and apply the patch as shown below:
-
-  > patch -p0 < mcpp-2.7.patch
-
-
 ======================================================================
 Packages
 ======================================================================
@@ -147,19 +134,20 @@ This will build the release and debug versions of the bzip2 DLLs.
 mcpp
 ----
 
-If you have not already applied the patch for mcpp, please read the
-"Patches" section above before continuing.
-
 Follow these instructions for building mcpp:
 
 - Change to the mcpp src directory:
 
-  > cd mcpp-2.7\src
+  > cd mcpp-2.7.2\src
 
 - Apply the patch for noconfig.H appropriate for your compiler from
   the noconfig directory. For example, for VS2005 you would run:
 
   > patch -p0 < ..\noconfig\vc2005.dif
+
+  and for C++Builder 2007 you would run:
+
+  > patch -p0 < ..\noconfig\bc59.dif
 
 - Microsoft Visual C++: 
  
