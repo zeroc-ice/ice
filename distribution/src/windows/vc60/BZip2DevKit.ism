@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>BZip2DevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>&lt;ISProjectFolder&gt;\install\bzip2\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BZip2DevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>&lt;ISProjectFolder&gt;\install\bzip2\devdebug</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
