@@ -436,6 +436,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>BZip2DevKit.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>&lt;ISProjectFolder&gt;\install\bzip2\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BZip2DevKit.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>&lt;ISProjectFolder&gt;\install\bzip2\devdebug</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>BZip2DevKit.36384CD5_04D9_476C_86E1_8E063A5B9ED7</td><td>&lt;ISProjectFolder&gt;\install\bzip2\devx64</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
