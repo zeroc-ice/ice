@@ -10,6 +10,8 @@
 #ifndef FREEZE_EVICTOR_F_ICE
 #define FREEZE_EVICTOR_F_ICE
 
+[["cpp:header-ext:h"]]
+
 module Freeze
 {
 

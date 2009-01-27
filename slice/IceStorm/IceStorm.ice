@@ -10,6 +10,8 @@
 #ifndef ICE_STORM_ICE
 #define ICE_STORM_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/SliceChecksumDict.ice>
 #include <Ice/Identity.ice>
 

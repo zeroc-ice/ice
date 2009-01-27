@@ -10,6 +10,8 @@
 #ifndef FREEZE_DB_ICE
 #define FREEZE_DB_ICE
 
+[["cpp:header-ext:h"]]
+
 /**
  *
  * Freeze provides automatic persistence for Ice servants.

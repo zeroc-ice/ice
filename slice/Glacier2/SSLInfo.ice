@@ -10,6 +10,8 @@
 #ifndef GLACIER2_SSL_INFO_ICE
 #define GLACIER2_SSL_INFO_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/BuiltinSequences.ice>
 
 module Glacier2

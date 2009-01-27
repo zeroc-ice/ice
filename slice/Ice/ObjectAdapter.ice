@@ -10,6 +10,8 @@
 #ifndef ICE_OBJECT_ADAPTER_ICE
 #define ICE_OBJECT_ADAPTER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
 #include <Ice/LocatorF.ice>

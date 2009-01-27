@@ -44,10 +44,11 @@ extern "C" int   mcpp_lib_main(int argc, char** argv);
 extern "C" void  mcpp_use_mem_buffers(int tf);
 extern "C" char* mcpp_get_mem_buffer(Outdest od);
 
-Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args) :
+Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args, const string& cppSourceExt) :
     _path(path),
     _fileName(fileName),
     _args(args),
+    _cppSourceExt(cppSourceExt),
     _cppHandle(0)
 {
 }
@@ -390,12 +391,12 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
         case CPlusPlus:
         {
             //
-            // Change .o[bj] suffix to .cpp suffix.
+            // Change .o[bj] suffix to the cpp source extension suffix.
             //
             string::size_type pos;
             while((pos = result.find(suffix)) != string::npos)
             {
-                result.replace(pos, suffix.size() - 1, ".cpp");
+                result.replace(pos, suffix.size() - 1, "." + _cppSourceExt);
             }
             break;
         }

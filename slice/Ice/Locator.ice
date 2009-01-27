@@ -10,6 +10,8 @@
 #ifndef ICE_LOCATOR_ICE
 #define ICE_LOCATOR_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Identity.ice>
 #include <Ice/ProcessF.ice>
 

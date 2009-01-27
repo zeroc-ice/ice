@@ -10,6 +10,8 @@
 #ifndef SUBSCRIBER_RECORD_ICE
 #define SUBSCRIBER_RECORD_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Identity.ice>
 #include <IceStorm/IceStorm.ice>
 

@@ -10,6 +10,8 @@
 #ifndef ICE_BUILTIN_SEQUENCES_ICE
 #define ICE_BUILTIN_SEQUENCES_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

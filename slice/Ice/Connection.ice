@@ -10,6 +10,8 @@
 #ifndef ICE_CONNECTION_ICE
 #define ICE_CONNECTION_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
 

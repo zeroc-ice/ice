@@ -10,6 +10,8 @@
 #ifndef ELECTION_ICE
 #define ELECTION_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <IceStorm/SubscriberRecord.ice>

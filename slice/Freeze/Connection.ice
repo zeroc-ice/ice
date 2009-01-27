@@ -13,6 +13,8 @@
 #include <Freeze/Transaction.ice>
 #include <Ice/CommunicatorF.ice>
 
+[["cpp:header-ext:h"]]
+
 module Freeze
 {
 

@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_SESSION_ICE
 #define ICE_GRID_SESSION_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 

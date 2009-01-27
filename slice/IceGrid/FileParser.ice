@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_FILE_PARSER_ICE
 #define ICE_GRID_FILE_PARSER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <IceGrid/Admin.ice>
 
 module IceGrid

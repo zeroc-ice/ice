@@ -10,6 +10,8 @@
 #ifndef FREEZE_CONNECTION_F_ICE
 #define FREEZE_CONNECTION_F_ICE
 
+[["cpp:header-ext:h"]]
+
 module Freeze
 {
 

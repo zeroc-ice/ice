@@ -32,7 +32,7 @@ class SLICE_API Preprocessor
 {
 public:
 
-    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
+    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&, const std::string& = "cpp");
     ~Preprocessor();
     
     FILE* preprocess(bool);
@@ -54,6 +54,7 @@ private:
     const std::string _path;
     const std::string _fileName;
     const std::vector<std::string> _args;
+    const std::string _cppSourceExt;
 #ifdef _WIN32
     std::wstring _cppFile;
 #else

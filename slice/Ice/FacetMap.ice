@@ -10,6 +10,8 @@
 #ifndef ICE_FACET_MAP_ICE
 #define ICE_FACET_MAP_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

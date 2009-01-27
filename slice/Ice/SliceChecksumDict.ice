@@ -10,6 +10,8 @@
 #ifndef ICE_SLICE_CHECKSUM_DICT_ICE
 #define ICE_SLICE_CHECKSUM_DICT_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

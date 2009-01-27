@@ -10,6 +10,8 @@
 #ifndef ICE_PROPERTIES_ICE
 #define ICE_PROPERTIES_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/BuiltinSequences.ice>
 
 module Ice

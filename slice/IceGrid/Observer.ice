@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_OBSERVER_ICE
 #define ICE_GRID_OBSERVER_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>

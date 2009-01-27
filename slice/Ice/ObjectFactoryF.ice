@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVANT_FACTORY_F_ICE
-#define ICE_SERVANT_FACTORY_F_ICE
+#ifndef ICE_OBJECT_FACTORY_F_ICE
+#define ICE_OBJECT_FACTORY_F_ICE
+
+[["cpp:header-ext:h"]]
 
 module Ice
 {

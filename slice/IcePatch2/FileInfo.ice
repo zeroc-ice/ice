@@ -10,6 +10,8 @@
 #ifndef ICE_PATCH2_FILE_INFO_ICE
 #define ICE_PATCH2_FILE_INFO_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/BuiltinSequences.ice>
 
 module IcePatch2

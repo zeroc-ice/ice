@@ -10,6 +10,8 @@
 #ifndef V31_FORMAT_ICE
 #define V31_FORMAT_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <IceStorm/LinkRecord.ice>
 
 module IceStorm

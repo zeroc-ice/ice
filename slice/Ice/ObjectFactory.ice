@@ -10,6 +10,8 @@
 #ifndef ICE_OBJECT_FACTORY_ICE
 #define ICE_OBJECT_FACTORY_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

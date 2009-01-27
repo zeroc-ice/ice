@@ -10,6 +10,8 @@
 #ifndef FREEZE_EVICTOR_STORAGE_ICE
 #define FREEZE_EVICTOR_STORAGE_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Identity.ice>
 
 module Freeze

@@ -10,6 +10,8 @@
 #ifndef LINK_RECORD_ICE
 #define LINK_RECORD_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Identity.ice>
 #include <IceStorm/IceStormInternal.ice>
 

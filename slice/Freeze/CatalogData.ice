@@ -10,6 +10,8 @@
 #ifndef FREEZE_CATALOG_DATA_ICE
 #define FREEZE_CATALOG_DATA_ICE
 
+[["cpp:header-ext:h"]]
+
 module Freeze
 {
 

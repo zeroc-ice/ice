@@ -10,6 +10,8 @@
 #ifndef ICE_LOCAL_EXCEPTION_ICE
 #define ICE_LOCAL_EXCEPTION_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 

@@ -10,6 +10,8 @@
 #ifndef ICE_STORM_INTERNAL_ICE
 #define ICE_STORM_INTERNAL_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>
 #include <Ice/Current.ice>

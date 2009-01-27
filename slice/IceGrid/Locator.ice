@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_LOCATOR_ICE
 #define ICE_GRID_LOCATOR_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/Locator.ice>
 
 module IceGrid

@@ -10,6 +10,8 @@
 #ifndef ICE_SERVANT_LOCATOR_F_ICE
 #define ICE_SERVANT_LOCATOR_F_ICE
 
+[["cpp:header-ext:h"]]
+
 module Ice
 {
 

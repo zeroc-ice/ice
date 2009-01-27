@@ -169,7 +169,7 @@ main(int argc, char* argv[])
     {
         if(depend)
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs);
+            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
             if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths))
             {
                 return EXIT_FAILURE;
@@ -177,7 +177,7 @@ main(int argc, char* argv[])
         }
         else
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs);
+            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
             FILE* cppHandle = icecpp.preprocess(false);
 
             if(cppHandle == 0)

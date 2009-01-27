@@ -10,6 +10,8 @@
 #ifndef FREEZE_EXCEPTION_ICE
 #define FREEZE_EXCEPTION_ICE
 
+[["cpp:header-ext:h"]]
+
 module Freeze
 {
 

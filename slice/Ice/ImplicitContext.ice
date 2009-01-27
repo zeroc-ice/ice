@@ -10,6 +10,8 @@
 #ifndef ICE_IMPLICIT_CONTEXT_ICE
 #define ICE_IMPLICIT_CONTEXT_ICE
 
+[["cpp:header-ext:h"]]
+
 #include <Ice/LocalException.ice>
 #include <Ice/Current.ice>
 
