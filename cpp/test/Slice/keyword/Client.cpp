@@ -31,7 +31,7 @@ public:
     }
 };
 
-class complI: public _cpp_and::_cpp_compl
+class switchI: public _cpp_and::_cpp_switch
 {
 public:
     virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
@@ -58,15 +58,15 @@ class friendI : public _cpp_and::_cpp_friend
 public:
     virtual _cpp_and::_cpp_auto
     _cpp_goto(_cpp_and::_cpp_continue, const _cpp_and::_cpp_auto&, const _cpp_and::deletePtr&,
-              const _cpp_and::complPtr&, const _cpp_and::doPtr&, const _cpp_and::breakPrx&,
-              const _cpp_and::charPrx&, const _cpp_and::complPrx&, const _cpp_and::doPrx&,
+              const _cpp_and::switchPtr&, const _cpp_and::doPtr&, const _cpp_and::breakPrx&,
+              const _cpp_and::charPrx&, const _cpp_and::switchPrx&, const _cpp_and::doPrx&,
               ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int)
     {
         return _cpp_and::_cpp_auto();
     }
 };
 
-class fooI : public _cpp_and::AMI_compl_foo
+class fooI : public _cpp_and::AMI_switch_foo
 {
 public:
 
@@ -99,9 +99,9 @@ testtypes()
     e->_cpp_explicit();
     _cpp_and::charPtr e1 = new charI();
 
-    _cpp_and::complPrx f;
+    _cpp_and::switchPrx f;
     f->foo_async(new fooI(), e);
-    _cpp_and::complPtr f1 = new complI();
+    _cpp_and::switchPtr f1 = new switchI();
 
     _cpp_and::doPrx g;
     g->_cpp_case(0, d2);

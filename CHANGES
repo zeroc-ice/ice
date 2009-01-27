@@ -58,6 +58,9 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed bug in slice2cpp that caused bad code to be generated for classes
+  whose name was a C++ keyword.
+
 - Fixed a bug in IceSSL where the IceSSL.CheckCertName property did
   not have any effect.
 

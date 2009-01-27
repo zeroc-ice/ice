@@ -3857,7 +3857,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << sp << nl << scoped << " _init;";
         H << eb << ';';
         _doneStaticSymbol = true;
-        H << sp << nl << "static " << scoped << "__staticInit _" << p->name() << "_init;";
+        H << sp << nl << "static " << p->name() << "__staticInit _" << p->name() << "_init;";
     }
 
     if(p->isLocal())
