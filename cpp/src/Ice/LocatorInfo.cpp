@@ -34,7 +34,7 @@ class ObjectRequest : public LocatorInfo::Request, public Ice::AMI_Locator_findO
 {
 public:
     
-    ObjectRequest(const LocatorInfoPtr& locatorInfo, const ReferencePtr& ref) : Request(locatorInfo, ref)
+    ObjectRequest(const LocatorInfoPtr& locatorInfo, const ReferencePtr& ref) : LocatorInfo::Request(locatorInfo, ref)
     {
         assert(ref->isWellKnown());
     }
@@ -73,7 +73,7 @@ class AdapterRequest : public LocatorInfo::Request, public Ice::AMI_Locator_find
 {
 public:
     
-    AdapterRequest(const LocatorInfoPtr& locatorInfo, const ReferencePtr& ref) : Request(locatorInfo, ref)
+    AdapterRequest(const LocatorInfoPtr& locatorInfo, const ReferencePtr& ref) : LocatorInfo::Request(locatorInfo, ref)
     {
         assert(ref->isIndirect() && !ref->isWellKnown());
     }

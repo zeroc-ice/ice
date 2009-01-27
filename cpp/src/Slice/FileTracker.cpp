@@ -16,7 +16,7 @@
 using namespace std;
 
 Slice::FileException::FileException(const char* file, int line, const string& r) :
-    Exception(file, line),
+    IceUtil::Exception(file, line),
     _reason(r)
 {
 }
@@ -36,7 +36,7 @@ Slice::FileException::ice_name() const
 void
 Slice::FileException::ice_print(ostream& out) const
 {
-    Exception::ice_print(out);
+    IceUtil::Exception::ice_print(out);
     out << ": " << _reason;
 }
 
