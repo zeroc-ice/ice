@@ -80,35 +80,43 @@ allTests(const CommunicatorPtr& communicator)
     bool ret = replyI->waitReply(3, IceUtil::Time::seconds(2));
     test(ret == true);
 
-    Test::ByteSeq seq;
-    try
+    if(communicator->getProperties()->getPropertyAsInt("Ice.Override.Compress") == 0)
     {
-        seq.resize(1024);
-        while(true)
+        //
+        // Only run this test if compression is disabled, the test expect fixed message size
+        // to be sent over the wire.
+        //
+
+        Test::ByteSeq seq;
+        try
         {
-            seq.resize(seq.size() * 2 + 10);
+            seq.resize(1024);
+            while(true)
+            {
+                seq.resize(seq.size() * 2 + 10);
+                replyI->reset();
+                obj->sendByteSeq(seq, reply);
+                replyI->waitReply(1, IceUtil::Time::seconds(10));
+            }
+        }
+        catch(const DatagramLimitException&)
+        {
+            test(seq.size() > 16384);
+        }
+        
+        communicator->getProperties()->setProperty("Ice.UDP.SndSize", "64000");
+        seq.resize(50000);
+        try
+        {
             replyI->reset();
             obj->sendByteSeq(seq, reply);
-            replyI->waitReply(1, IceUtil::Time::seconds(10));
+            test(!replyI->waitReply(1, IceUtil::Time::milliSeconds(500)));
         }
-    }
-    catch(const DatagramLimitException&)
-    {
-        test(seq.size() > 16384);
-    }
-
-    communicator->getProperties()->setProperty("Ice.UDP.SndSize", "64000");
-    seq.resize(50000);
-    try
-    {
-        replyI->reset();
-        obj->sendByteSeq(seq, reply);
-        test(!replyI->waitReply(1, IceUtil::Time::milliSeconds(500)));
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        cerr << ex << endl;
-        test(false);
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
     }
 
     cout << "ok" << endl;

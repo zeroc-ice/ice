@@ -85,35 +85,42 @@ public class AllTests
         bool ret = replyI.waitReply(3, 2000);
         test(ret == true);
 
-        byte[] seq = null;
-        try
+        if(communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
         {
-            seq = new byte[1024];
-            while(true)
+            //
+            // Only run this test if compression is disabled, the test expect fixed message size
+            // to be sent over the wire.
+            //
+            byte[] seq = null;
+            try
             {
-                seq = new byte[seq.Length * 2 + 10];
+                seq = new byte[1024];
+                while(true)
+                {
+                    seq = new byte[seq.Length * 2 + 10];
+                    replyI.reset();
+                    obj.sendByteSeq(seq, reply);
+                    replyI.waitReply(1, 10000);
+                }
+            }
+            catch(Ice.DatagramLimitException)
+            {
+                test(seq.Length > 16384);
+            }
+            
+            communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
+            seq = new byte[50000];
+            try
+            {
                 replyI.reset();
                 obj.sendByteSeq(seq, reply);
-                replyI.waitReply(1, 10000);
+                test(!replyI.waitReply(1, 500));
             }
-        }
-        catch(Ice.DatagramLimitException)
-        {
-            test(seq.Length > 16384);
-        }
-
-        communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
-        seq = new byte[50000];
-        try
-        {
-            replyI.reset();
-            obj.sendByteSeq(seq, reply);
-            test(!replyI.waitReply(1, 500));
-        }
-        catch(Ice.LocalException ex)
-        {
-            Console.Out.WriteLine(ex);
-            test(false);
+            catch(Ice.LocalException ex)
+            {
+                Console.Out.WriteLine(ex);
+                test(false);
+            }
         }
 
         Console.Out.WriteLine("ok");
