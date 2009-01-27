@@ -39,6 +39,7 @@ module and
     };
     class echo
     {
+	int if;
         void else(die* elseif, out int empty);
     };
     class enddeclare extends echo implements die, function

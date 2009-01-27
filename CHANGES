@@ -59,7 +59,7 @@ C++ Changes
 ===========
 
 - Fixed bug in slice2cpp that caused bad code to be generated for classes
-  whose name was a C++ keyword.
+  and modules whose name was a C++ keyword.
 
 - Fixed a bug in IceSSL where the IceSSL.CheckCertName property did
   not have any effect.
@@ -83,6 +83,9 @@ C++ Changes
 
 Java Changes
 ============
+
+- Fixed bug in slice2java that caused bad code to be generated for a class
+  whose name was a Java keyword if the class contained data members.
 
 - Added methods to the IceSSL plug-in to allow keystores, truststores,
   and RNG seeds to be specified using input streams.

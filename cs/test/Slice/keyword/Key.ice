@@ -32,6 +32,7 @@ interface decimal
 
 class delegate
 {
+    int if;
     ["ami"] void foo(case* else, out int event);
 };
 

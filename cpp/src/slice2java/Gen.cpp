@@ -1837,7 +1837,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Constructors.
         //
         out << sp;
-        out << nl << "public " << name << "()";
+        out << nl << "public " << fixKwd(name) << "()";
         out << sb;
         if(baseClass)
         {
@@ -1845,7 +1845,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "public " << name << spar;
+        out << sp << nl << "public " << fixKwd(name) << spar;
         vector<string> paramDecl;
         for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
         {

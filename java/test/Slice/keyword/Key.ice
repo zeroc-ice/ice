@@ -32,6 +32,7 @@ interface default
 
 class else
 {
+    int if;
     ["ami"] void foo(default* equals, out int final);
 };
 

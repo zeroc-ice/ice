@@ -4460,7 +4460,8 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
     if(!allDataMembers.empty())
     {
-        C << sp << nl << p->scoped().substr(2) << "::" << fixKwd(p->name()) << spar << allParamDecls << epar << " :";
+        C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name())
+	  << spar << allParamDecls << epar << " :";
         C.inc();
 
         DataMemberList dataMembers = p->dataMembers();
