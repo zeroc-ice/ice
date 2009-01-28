@@ -44,10 +44,10 @@ public class AllTests
         {
             lock(this)
             {
-                long end = System.DateTime.Now.Ticks / 1000 + timeout;
+                long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
                 while(_replies < expectedReplies)
                 {
-                    int delay = (int)(end - System.DateTime.Now.Ticks / 1000);
+                    int delay = (int)(end - IceInternal.Time.currentMonotonicTimeMillis());
                     if(delay > 0)
                     {
                         Monitor.Wait(this, delay);
