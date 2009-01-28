@@ -153,6 +153,11 @@ private:
     };
     typedef list<MemberInfo> MemberInfoList;
 
+    //
+    // Write a member assignment statement for a constructor.
+    //
+    void writeAssign(const MemberInfo&);
+
     void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
     void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
@@ -476,7 +481,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(!q->inherited)
             {
-                _out << nl << "self." << q->fixedName << " = " << q->fixedName;;
+                writeAssign(*q);
             }
         }
     }
@@ -982,7 +987,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if(!q->inherited)
             {
-                _out << nl << "self." << q->fixedName << " = " << q->fixedName;;
+                writeAssign(*q);
             }
         }
     }
@@ -1101,7 +1106,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-        _out << nl << "self." << r->fixedName << " = " << r->fixedName;
+        writeAssign(*r);
     }
     _out.dec();
 
@@ -1629,7 +1634,13 @@ Slice::Python::CodeVisitor::writeDefaultValue(const TypePtr& p)
     StructPtr st = StructPtr::dynamicCast(p);
     if(st)
     {
-        _out << getSymbol(st) << "()";
+        //
+        // We cannot emit a call to the struct's constructor here because Python
+        // only evaluates this expression once (see bug 3676). Instead, we emit
+        // a marker that allows us to determine whether the application has
+        // supplied a value.
+        //
+        _out << "Ice._struct_marker";
         return;
     }
 
@@ -1699,6 +1710,30 @@ Slice::Python::CodeVisitor::writeMetaData(const StringList& meta)
         _out << ',';
     }
     _out << ')';
+}
+
+void
+Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
+{
+    //
+    // Structures are treated differently (see bug 3676).
+    //
+    StructPtr st = StructPtr::dynamicCast(info.type);
+    if(st)
+    {
+        _out << nl << "if " << info.fixedName << " is Ice._struct_marker:";
+        _out.inc();
+        _out << nl << "self." << info.fixedName << " = " << getSymbol(st) << "()";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "self." << info.fixedName << " = " << info.fixedName;
+        _out.dec();
+    }
+    else
+    {
+        _out << nl << "self." << info.fixedName << " = " << info.fixedName;
+    }
 }
 
 string

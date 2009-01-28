@@ -109,6 +109,26 @@ C# Changes
 Python Changes
 ==============
 
+- Fixed a bug in the constructors of user-defined types that have
+  structures as data members. Consider this example:
+
+  // Slice
+  struct Point {
+      int x;
+      int y;
+  };
+  struct Event {
+      Point location;
+      ...
+  };
+
+  The Event constructor supplied a default instance of the Point
+  member if the caller did not supply one. However, this default
+  instance was unintentionally shared by all Event objects that
+  omitted a value for the Point member during construction. The
+  generated code now ensures that each instance of Event assigns a
+  new instance of Point.
+
 - Fixed bugs in getImplicitContext related to using it when an
   implicit context had not been set.
 
