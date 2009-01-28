@@ -1988,7 +1988,7 @@ namespace Ice
                     }
 
                     Debug.Assert(_transceiver != null);
-                    bool parseHeader = _stream.isEmpty() || _stream.pos() < IceInternal.Protocol.headerSize;
+                    bool parseHeader = _stream.isEmpty() || _stream.pos() <= IceInternal.Protocol.headerSize;
 
                     //
                     // Complete an asynchronous read operation if necessary. This may raise a SocketException
