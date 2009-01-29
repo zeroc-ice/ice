@@ -1747,8 +1747,9 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     {
         if(index == 0)
         {
-            // No need to call the patch function--the pointer is default-initialized to null anyway.
-            // patchFunc(patchAddr, v); // Null Ptr.
+	    // Calling the patch function for null instances is necessary for correct functioning of Ice for
+	    // Python and Ruby.
+            patchFunc(patchAddr, v); // Null Ptr.
             return;
         }
 

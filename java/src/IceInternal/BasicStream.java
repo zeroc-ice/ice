@@ -1381,8 +1381,7 @@ public class BasicStream
         {
             if(index == 0)
             {
-                // No need to call the patch function--the reference is default-initialized to null anyway.
-                // patcher.patch(null);
+                patcher.patch(null);
                 return;
             }
 
