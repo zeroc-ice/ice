@@ -112,6 +112,9 @@ C# Changes
 Python Changes
 ==============
 
+- It is now possible to pass a sequence of 64-bit integer values
+  using an object that supports the buffer protocol.
+
 - Fixed a bug in the constructors of user-defined types that have
   structures as data members. Consider this example:
 

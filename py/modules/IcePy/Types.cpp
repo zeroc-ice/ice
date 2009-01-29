@@ -1063,8 +1063,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
         }
         case PrimitiveInfo::KindLong:
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("expected sequence value"));
-            throw AbortMarshaling();
+            os->writeLongSeq(reinterpret_cast<const Ice::Long*>(b), reinterpret_cast<const Ice::Long*>(b + sz));
+            break;
         }
         case PrimitiveInfo::KindFloat:
         {
