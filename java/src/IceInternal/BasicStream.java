@@ -1377,33 +1377,41 @@ public class BasicStream
 
         int index = readInt();
 
-        if(index == 0)
+        if(patcher != null)
         {
-            patcher.patch(null);
-            return;
-        }
-
-        if(index < 0 && patcher != null)
-        {
-            Integer i = new Integer(-index);
-            java.util.LinkedList<Patcher> patchlist = _readEncapsStack.patchMap.get(i);
-            if(patchlist == null)
+            if(index == 0)
             {
-                //
-                // We have no outstanding instances to be patched for
-                // this index, so make a new entry in the patch map.
-                //
-                patchlist = new java.util.LinkedList<Patcher>();
-                _readEncapsStack.patchMap.put(i, patchlist);
+                // No need to call the patch function--the reference is default-initialized to null anyway.
+                // patcher.patch(null);
+                return;
             }
-            //
-            // Append a patcher for this instance and see if we can
-            // patch the instance. (The instance may have been
-            // unmarshaled previously.)
-            //
-            patchlist.add(patcher);
-            patchReferences(null, i);
-            return;
+
+            if(index < 0)
+            {
+                Integer i = new Integer(-index);
+                java.util.LinkedList<Patcher> patchlist = _readEncapsStack.patchMap.get(i);
+                if(patchlist == null)
+                {
+                    //
+                    // We have no outstanding instances to be patched for
+                    // this index, so make a new entry in the patch map.
+                    //
+                    patchlist = new java.util.LinkedList<Patcher>();
+                    _readEncapsStack.patchMap.put(i, patchlist);
+                }
+                //
+                // Append a patcher for this instance and see if we can
+                // patch the instance. (The instance may have been
+                // unmarshaled previously.)
+                //
+                patchlist.add(patcher);
+                patchReferences(null, i);
+                return;
+            }
+        }
+        if(index < 0)
+        {
+            throw new Ice.MarshalException("Invalid class instance index");
         }
 
         String mostDerivedId = readTypeId();
@@ -1635,6 +1643,15 @@ public class BasicStream
             }
         }
         while(num > 0);
+
+        if(_readEncapsStack != null && _readEncapsStack.patchMap != null && _readEncapsStack.patchMap.size() != 0)
+        {
+            //
+            // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+            // to supply the object.
+            //
+            throw new Ice.MarshalException("Index for class received, but no instance");
+        }
 
         //
         // Iterate over unmarshaledMap and invoke ice_postUnmarshal on

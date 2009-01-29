@@ -54,6 +54,9 @@ General Changes
 
 - All error output from the slice compilers now goes to stderr.
 
+- Made unmarshaling code robust against messages containing invalid
+  indexes for class instances.
+
 
 C++ Changes
 ===========

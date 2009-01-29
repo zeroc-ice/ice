@@ -1743,34 +1743,41 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     Int index;
     read(index);
 
-    if(index == 0)
+    if(patchAddr)
     {
-        patchFunc(patchAddr, v); // Null Ptr.
-        return;
-    }
-
-    if(index < 0 && patchAddr)
-    {
-        PatchMap::iterator p = _currentReadEncaps->patchMap->find(-index);
-        if(p == _currentReadEncaps->patchMap->end())
+        if(index == 0)
         {
-            //
-            // We have no outstanding instances to be patched for this
-            // index, so make a new entry in the patch map.
-            //
-            p = _currentReadEncaps->patchMap->insert(make_pair(-index, PatchList())).first;
+            // No need to call the patch function--the pointer is default-initialized to null anyway.
+            // patchFunc(patchAddr, v); // Null Ptr.
+            return;
         }
-        //
-        // Append a patch entry for this instance.
-        //
-        PatchEntry e;
-        e.patchFunc = patchFunc;
-        e.patchAddr = patchAddr;
-        p->second.push_back(e);
-        patchPointers(-index, _currentReadEncaps->unmarshaledMap->end(), p);
-        return;
+
+        if(index < 0)
+        {
+            PatchMap::iterator p = _currentReadEncaps->patchMap->find(-index);
+            if(p == _currentReadEncaps->patchMap->end())
+            {
+                //
+                // We have no outstanding instances to be patched for this
+                // index, so make a new entry in the patch map.
+                //
+                p = _currentReadEncaps->patchMap->insert(make_pair(-index, PatchList())).first;
+            }
+            //
+            // Append a patch entry for this instance.
+            //
+            PatchEntry e;
+            e.patchFunc = patchFunc;
+            e.patchAddr = patchAddr;
+            p->second.push_back(e);
+            patchPointers(-index, _currentReadEncaps->unmarshaledMap->end(), p);
+            return;
+        }
     }
-    assert(index > 0);
+    if(index <= 0)
+    {
+        throw MarshalException(__FILE__, __LINE__, "Invalid class instance index");
+    }
 
     string mostDerivedId;
     readTypeId(mostDerivedId);
@@ -2003,6 +2010,15 @@ IceInternal::BasicStream::readPendingObjects()
         }
     }
     while(num);
+
+    if(_currentReadEncaps && _currentReadEncaps->patchMap && _currentReadEncaps->patchMap->size() != 0)
+    {
+        //
+        // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+        // to supply the object.
+        //
+        throw MarshalException(__FILE__, __LINE__, "Index for class received, but no instance");
+    }
 
     //
     // Iterate over the object list and invoke ice_postUnmarshal on
