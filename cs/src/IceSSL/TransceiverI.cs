@@ -143,9 +143,16 @@ namespace IceSSL
         public IAsyncResult beginRead(IceInternal.Buffer buf, AsyncCallback callback, object state)
         {
             Debug.Assert(_fd != null);
+
+            int packetSize = buf.b.remaining();
+            if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
+            {
+                packetSize = _maxReceivePacketSize;
+            }
+
             try
             {
-                return _stream.BeginRead(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), callback, state);
+                return _stream.BeginRead(buf.b.rawBytes(), buf.b.position(), packetSize, callback, state);
             }
             catch(IOException ex)
             {
@@ -242,9 +249,9 @@ namespace IceSSL
             // on a fixed packet size.
             //
             int packetSize = buf.b.remaining();
-            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
+            if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
             {
-                packetSize = _maxPacketSize;
+                packetSize = _maxSendPacketSize;
             }
 
             try
@@ -369,10 +376,16 @@ namespace IceSSL
             _desc = connected ? IceInternal.Network.fdToString(_fd) : "<not connected>";
             _state = connected ? StateNeedBeginAuthenticate : StateNeedBeginConnect;
 
-            _maxPacketSize = IceInternal.Network.getSendBufferSize(fd);
-            if(_maxPacketSize < 512)
+            _maxSendPacketSize = IceInternal.Network.getSendBufferSize(fd);
+            if(_maxSendPacketSize < 512)
             {
-                _maxPacketSize = 0;
+                _maxSendPacketSize = 0;
+            }
+
+            _maxReceivePacketSize = IceInternal.Network.getRecvBufferSize(fd);
+            if(_maxReceivePacketSize < 512)
+            {
+                _maxReceivePacketSize = 0;
             }
 
             if(_adapterName != null)
@@ -694,7 +707,8 @@ namespace IceSSL
         private Ice.Stats _stats;
         private string _desc;
         private int _verifyPeer;
-        private int _maxPacketSize;
+        private int _maxSendPacketSize;
+        private int _maxReceivePacketSize;
         private int _lastWriteSent;
         private int _state;
         private IAsyncResult _initializeResult;

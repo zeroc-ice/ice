@@ -109,9 +109,9 @@ namespace IceInternal
                 // poor throughput performances when transfering large amount of
                 // data. See Microsoft KB article KB823764.
                 //
-                if(_maxPacketSize > 0 && packetSize > _maxPacketSize / 2)
+                if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
                 {
-                    packetSize = _maxPacketSize / 2;
+                    packetSize = _maxSendPacketSize / 2;
                 }
             }
 
@@ -250,10 +250,16 @@ namespace IceInternal
         {
             Debug.Assert(_fd != null);
 
+            int packetSize = buf.b.remaining();
+            if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
+            {
+                packetSize = _maxReceivePacketSize;
+            }
+
             try
             {
-                return _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), SocketFlags.None,
-                                        callback, state);
+                return _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None, callback, 
+                                        state);
             }
             catch(Win32Exception ex)
             {
@@ -322,9 +328,9 @@ namespace IceInternal
             // on a fixed packet size.
             //
             int packetSize = buf.b.remaining();
-            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
+            if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
             {
-                packetSize = _maxPacketSize;
+                packetSize = _maxSendPacketSize;
             }
 
             try
@@ -419,11 +425,19 @@ namespace IceInternal
             _state = connected ? StateConnected : StateNeedBeginConnect;
             _desc = connected ? Network.fdToString(_fd) : "<not connected>";
 
-            _maxPacketSize = Network.getSendBufferSize(fd);
-            if(_maxPacketSize < 512)
+            _maxSendPacketSize = Network.getSendBufferSize(fd);
+            if(_maxSendPacketSize < 512)
             {
-                _maxPacketSize = 0;
+                _maxSendPacketSize = 0;
             }
+
+            _maxReceivePacketSize = Network.getRecvBufferSize(fd);
+            if(_maxReceivePacketSize < 512)
+            {
+                _maxReceivePacketSize = 0;
+            }
+
+            System.Console.WriteLine("Size: " + _maxSendPacketSize + " " + _maxReceivePacketSize);
         }
 
         private Socket _fd;
@@ -433,7 +447,8 @@ namespace IceInternal
         private Ice.Stats _stats;
         private string _desc;
         private int _state;
-        private int _maxPacketSize;
+        private int _maxSendPacketSize;
+        private int _maxReceivePacketSize;
         private IAsyncResult _result;
 
         private const int StateNeedBeginConnect = 0;
