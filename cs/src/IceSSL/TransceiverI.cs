@@ -237,9 +237,23 @@ namespace IceSSL
         {
             Debug.Assert(_fd != null);
 
+            //
+            // We limit the packet size for beingWrite to ensure connection timeouts are based
+            // on a fixed packet size.
+            //
+            int packetSize = buf.b.remaining();
+            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
+            {
+                packetSize = _maxPacketSize;
+            }
+
             try
             {
-                return _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), buf.b.remaining(), callback, state);
+                IAsyncResult result = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, callback, 
+                                                         state);
+                _lastWriteSent = packetSize;
+                buf.b.position(buf.b.position() + packetSize);
+                return result;
             }
             catch(IOException ex)
             {
@@ -275,20 +289,18 @@ namespace IceSSL
             {
                 _stream.EndWrite(result);
 
-                int rem = buf.b.remaining();
-
                 if(_instance.networkTraceLevel() >= 3)
                 {
-                    string s = "sent " + rem + " of " + rem + " bytes via ssl\n" + ToString();
+                    string s = "sent " + _lastWriteSent + " of " + (buf.b.remaining() + _lastWriteSent) +
+                        " bytes via ssl\n" + ToString();
                     _logger.trace(_instance.networkTraceCategory(), s);
                 }
 
                 if(_stats != null)
                 {
-                    _stats.bytesSent(type(), rem);
+                    _stats.bytesSent(type(), _lastWriteSent);
                 }
-
-                buf.b.position(buf.b.position() + rem);
+                _lastWriteSent = 0;
             }
             catch(IOException ex)
             {
@@ -357,19 +369,10 @@ namespace IceSSL
             _desc = connected ? IceInternal.Network.fdToString(_fd) : "<not connected>";
             _state = connected ? StateNeedBeginAuthenticate : StateNeedBeginConnect;
 
-            _maxPacketSize = 0;
-            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            _maxPacketSize = IceInternal.Network.getSendBufferSize(fd);
+            if(_maxPacketSize < 512)
             {
-                //
-                // On Windows, limiting the buffer size is important to prevent
-                // poor throughput performance when transferring large amounts of
-                // data. See Microsoft KB article KB823764.
-                //
-                _maxPacketSize = IceInternal.Network.getSendBufferSize(fd) / 2;
-                if(_maxPacketSize < 512)
-                {
-                    _maxPacketSize = 0;
-                }
+                _maxPacketSize = 0;
             }
 
             if(_adapterName != null)
@@ -692,6 +695,7 @@ namespace IceSSL
         private string _desc;
         private int _verifyPeer;
         private int _maxPacketSize;
+        private int _lastWriteSent;
         private int _state;
         private IAsyncResult _initializeResult;
         private X509Certificate2[] _chain;

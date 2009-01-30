@@ -524,7 +524,6 @@ public final class ThreadPool
                             }
                             catch(Ice.DatagramLimitException ex) // Expected.
                             {
-                                handler._stream.pos(0);
                                 handler._stream.resize(0, true);
                                 continue;
                             }
@@ -550,7 +549,6 @@ public final class ThreadPool
                                         _instance.initializationData().logger.warning(
                                             "datagram connection exception:\n" + ex + "\n" + handler.toString());
                                     }
-                                    handler._stream.pos(0);
                                     handler._stream.resize(0, true);
                                 }
                                 else

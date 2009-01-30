@@ -74,25 +74,22 @@ namespace IceInternal
 
         public void close()
         {
-            lock(this)
+            if(_traceLevels.network >= 1)
             {
-                if(_traceLevels.network >= 1)
+                string s = "closing udp connection\n" + ToString();
+                _logger.trace(_traceLevels.networkCat, s);
+            }
+            
+            if(_fd != null)
+            {
+                try
                 {
-                    string s = "closing udp connection\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    _fd.Close();
                 }
-
-                if(_fd != null)
+                catch(System.IO.IOException)
                 {
-                    try
-                    {
-                        _fd.Close();
-                    }
-                    catch(System.IO.IOException)
-                    {
-                    }
-                    _fd = null;
                 }
+                _fd = null;
             }
         }
 
