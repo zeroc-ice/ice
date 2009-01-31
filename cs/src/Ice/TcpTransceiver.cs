@@ -106,7 +106,7 @@ namespace IceInternal
             {
                 //
                 // On Windows, limiting the buffer size is important to prevent
-                // poor throughput performances when transfering large amount of
+                // poor throughput performance when transferring large amounts of
                 // data. See Microsoft KB article KB823764.
                 //
                 if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
@@ -338,7 +338,7 @@ namespace IceInternal
                 IAsyncResult result = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
                                                     callback, state);
                 buf.b.position(buf.b.position() + packetSize);
-                return  result;
+                return result;
             }
             catch(Win32Exception ex)
             {
@@ -436,8 +436,6 @@ namespace IceInternal
             {
                 _maxReceivePacketSize = 0;
             }
-
-            System.Console.WriteLine("Size: " + _maxSendPacketSize + " " + _maxReceivePacketSize);
         }
 
         private Socket _fd;
