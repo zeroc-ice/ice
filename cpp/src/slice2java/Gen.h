@@ -74,8 +74,6 @@ public:
         const std::string&);
     ~Gen();
 
-    bool operator!() const; // Returns true if there was a constructor error
-
     void generate(const UnitPtr&, bool);
     void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);

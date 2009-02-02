@@ -5686,7 +5686,10 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
                         continue;
                     }
                 }
-                cerr << file << ": warning: ignoring invalid global metadata `" << s << "', the cpp:header-ext global metadata can only appear once per file." << endl;
+                ostringstream ostr;
+                ostr << "ignoring invalid global metadata `" << s
+                     << "', the cpp:header-ext global metadata can only appear once per file.";
+                emitWarning(file, -1, ostr.str());
             }
             _history.insert(s);
         }
@@ -5757,10 +5760,11 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     {
         if(!cl->isLocal())
         {
-            cerr << p->definitionContext()->filename() << ":" << p->line()
-                 << ": warning: metadata directive `UserException' applies only to local operations "
+            ostringstream ostr;
+            ostr << "metadata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
-                 << "' is not local" << endl;
+                 << "' is not local";
+            emitWarning(p->definitionContext()->filename(), p->line(), ostr.str());
         }
     }
 
@@ -5776,8 +5780,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
-                    cerr << p->definitionContext()->filename() << ":" << p->line()
-                         << ": warning: invalid metadata for operation" << endl;
+                    emitWarning(p->definitionContext()->filename(), p->line(), "invalid metadata for operation");
                     break;
                 }
             }
@@ -5869,7 +5872,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     continue;
                 }
 
-                cerr << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
             }
             _history.insert(s);
         }

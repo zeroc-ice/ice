@@ -12,9 +12,9 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
-#include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <cstring>
@@ -1012,9 +1012,8 @@ writeDict(const string& n, const UnitPtr& u, const Dict& dict, Output& H, Output
                 }
                 if(containsSequence)
                 {
-                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated";
+                    getErrorStream() << n << ": warning: use of sequences in dictionary keys has been deprecated";
                 }
-
 
                 if(index.caseSensitive == false)
                 {
@@ -1089,9 +1088,8 @@ writeDict(const string& n, const UnitPtr& u, const Dict& dict, Output& H, Output
                 }
                 if(containsSequence)
                 {
-                    cerr << n << ": warning: use of sequences in dictionary keys has been deprecated";
+                    getErrorStream() << n << ": warning: use of sequences in dictionary keys has been deprecated";
                 }
-
 
                 if(index.caseSensitive == false)
                 {
@@ -1510,7 +1508,7 @@ main(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
+        cerr << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -1650,8 +1648,8 @@ main(int argc, char* argv[])
             {
                 if(s != "sort")
                 {
-                    cerr << argv[0] << ": " << *i 
-                         << ": nothing or ',sort' expected after value-type" << endl;
+                    getErrorStream() << argv[0] << ": error: " << *i << ": nothing or ',sort' expected after value-type"
+                                     << endl;
                     usage(argv[0]);
                     return EXIT_FAILURE;
                 }
@@ -1663,8 +1661,8 @@ main(int argc, char* argv[])
                 s.erase(0, pos + 1);
                 if(sort != "sort")
                 {
-                    cerr << argv[0] << ": " << *i 
-                         << ": nothing or ',sort' expected after value-type" << endl;
+                    getErrorStream() << argv[0] << ": error: " << *i << ": nothing or ',sort' expected after value-type"
+                                     << endl;
                     usage(argv[0]);
                     return EXIT_FAILURE;
                 }
@@ -1675,21 +1673,21 @@ main(int argc, char* argv[])
 
         if(dict.name.empty())
         {
-            cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": no name specified" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
 
         if(dict.key.empty())
         {
-            cerr << argv[0] << ": " << *i << ": no key specified" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": no key specified" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
 
         if(dict.value.empty())
         {
-            cerr << argv[0] << ": " << *i << ": no value specified" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": no value specified" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
@@ -1734,28 +1732,29 @@ main(int argc, char* argv[])
 
         if(index.name.empty())
         {
-            cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": no name specified" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
 
         if(index.type.empty())
         {
-            cerr << argv[0] << ": " << *i << ": no type specified" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": no type specified" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
 
         if(index.member.empty())
         {
-            cerr << argv[0] << ": " << *i << ": no member specified" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": no member specified" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
         
         if(caseString != "case-sensitive" && caseString != "case-insensitive")
         {
-            cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": the case can be `case-sensitive' or "
+                             << "`case-insensitive'" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
@@ -1815,7 +1814,7 @@ main(int argc, char* argv[])
                     }
                     else
                     {
-                        cerr << argv[0] << ": " << *i << ": syntax error" << endl;
+                        getErrorStream() << argv[0] << ": error: " << *i << ": syntax error" << endl;
                         usage(argv[0]);
                         return EXIT_FAILURE;
                     }
@@ -1853,7 +1852,7 @@ main(int argc, char* argv[])
                     }
                     else
                     {
-                        cerr << argv[0] << ": " << *i << ": syntax error" << endl;
+                        getErrorStream() << argv[0] << ": error: " << *i << ": syntax error" << endl;
                         usage(argv[0]);
                         return EXIT_FAILURE;
                     }
@@ -1863,7 +1862,7 @@ main(int argc, char* argv[])
             
         if(dictName.empty())
         {
-            cerr << argv[0] << ": " << *i << ": no dictionary specified" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": no dictionary specified" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
@@ -1875,7 +1874,7 @@ main(int argc, char* argv[])
             {
                 if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
                 {
-                    cerr << argv[0] << ": --dict-index " << *i 
+                    getErrorStream() << argv[0] << ": error: --dict-index " << *i 
                          << ": this dict-index is defined twice" << endl;
                     return EXIT_FAILURE;
                 }
@@ -1886,7 +1885,7 @@ main(int argc, char* argv[])
         }
         if(!found)
         {
-            cerr << argv[0] << ": " << *i << ": unknown dictionary" << endl;
+            getErrorStream() << argv[0] << ": error: " << *i << ": unknown dictionary" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
@@ -1902,14 +1901,14 @@ main(int argc, char* argv[])
 
     if(dicts.empty() && indices.empty())
     {
-        cerr << argv[0] << ": no Freeze types specified" << endl;
+        getErrorStream() << argv[0] << ": error: no Freeze types specified" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if(args.empty())
     {
-        cerr << argv[0] << ": no file name base specified" << endl;
+        getErrorStream() << argv[0] << ": error: no file name base specified" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -1991,7 +1990,7 @@ main(int argc, char* argv[])
             // created files.
             FileTracker::instance()->cleanup();
             u->destroy();
-            cerr << argv[0] << ": " << ex << endl;
+            getErrorStream() << argv[0] << ": error: " << ex << endl;
             return EXIT_FAILURE;
         }
         catch(const Slice::FileException& ex)
@@ -2000,12 +1999,12 @@ main(int argc, char* argv[])
             // created files.
             FileTracker::instance()->cleanup();
             u->destroy();
-            cerr << argv[0] << ": " << ex.reason() << endl;
+            getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
             return EXIT_FAILURE;
         }
         catch(...)
         {
-            cerr << argv[0] << ": unknown exception" << endl;
+            getErrorStream() << argv[0] << ": error: unknown exception" << endl;
             FileTracker::instance()->cleanup();
             u->destroy();
             return EXIT_FAILURE;

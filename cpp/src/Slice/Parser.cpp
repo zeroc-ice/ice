@@ -4714,8 +4714,7 @@ Slice::Operation::attributes() const
         }
         if(i == 2)
         {
-            cerr << definitionContext()->filename() << ":" << line()
-                 << ": warning: invalid freeze metadata for operation" << endl;
+            emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
         }
         else
         {
@@ -4736,8 +4735,7 @@ Slice::Operation::attributes() const
                 {
                     if(result != 0 && (i == int(Supports) || i == int(Never)))
                     {
-                        cerr << definitionContext()->filename() << ":" << line()
-                             << ": warning: invalid freeze metadata for operation" << endl;
+                        emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
                     }
                     else
                     {
@@ -4751,8 +4749,7 @@ Slice::Operation::attributes() const
             
             if(i == 4)
             {
-                cerr << definitionContext()->filename() << ":" << line()
-                     << ": warning: invalid freeze metadata for operation" << endl;
+                emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
 
                 //
                 // Set default
@@ -5167,36 +5164,27 @@ Slice::Unit::setSeenDefinition()
 void
 Slice::Unit::error(const char* s)
 {
-    string file = currentFile();
-    if(!file.empty())
-    {
-        cerr << file << ':' << _currentLine << ": ";
-    }
-    cerr << s << endl;
+    emitError(currentFile(), _currentLine, s);
     _errors++;
 }
 
 void
 Slice::Unit::error(const string& s)
 {
-    error(s.c_str());
+    emitError(currentFile(), _currentLine, s);
+    _errors++;
 }
 
 void
 Slice::Unit::warning(const char* s) const
 {
-    string file = currentFile();
-    if(!file.empty())
-    {
-        cerr << file << ':' << _currentLine << ": ";
-    }
-    cerr << "warning: " << s << endl;
+    emitWarning(currentFile(), _currentLine, s);
 }
 
 void
 Slice::Unit::warning(const string& s) const
 {
-    warning(s.c_str());
+    emitWarning(currentFile(), _currentLine, s);
 }
 
 ContainerPtr

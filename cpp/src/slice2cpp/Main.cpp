@@ -12,6 +12,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <Gen.h>
 
 using namespace std;
@@ -155,7 +156,7 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        cerr << argv[0] << ": no input file" << endl;
+        getErrorStream() << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -229,7 +230,7 @@ main(int argc, char* argv[])
                         // cleanup any created files.
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        cerr << argv[0] << ": " << ex.reason() << endl;
+                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
                 }

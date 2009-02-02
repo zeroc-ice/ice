@@ -145,12 +145,12 @@ Slice::Preprocessor::preprocess(bool keepComments)
     delete[] argv;
 
     //
-    // Print errors to stderr.
+    // Display any errors.
     //
     char* err = mcpp_get_mem_buffer(Err);
     if(err)
     {
-        ::fputs(err, stderr);
+        emitRaw(err);
     }
 
     if(status == 0)
@@ -199,13 +199,14 @@ Slice::Preprocessor::preprocess(bool keepComments)
         }
         else
         {
-            cerr << "Could not open temporary file: ";
+            ostream& os = getErrorStream();
+            os << _path << ": error: could not open temporary file: ";
 #ifdef _WIN32
-            cerr << IceUtil::wstringToString(_cppFile);
+            os << IceUtil::wstringToString(_cppFile);
 #else
-            cerr << _cppFile;
+            os << _cppFile;
 #endif
-            cerr << endl;
+            os << endl;
         }
     }
 
@@ -253,7 +254,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     char* err = mcpp_get_mem_buffer(Err);
     if(err)
     {
-        ::fputs(err, stderr);
+        emitRaw(err);
     }
 
     if(status != 0)
@@ -299,7 +300,11 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
      string suffix = ".o:";
 #endif
     pos = unprocessed.find(suffix) + suffix.size();
-    string result = unprocessed.substr(0, pos);
+    string result;
+    if(lang != JavaXML)
+    {
+        result = unprocessed.substr(0, pos);
+    }
 
     vector<string> fullIncludePaths;
     vector<string>::const_iterator p;
@@ -345,26 +350,47 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             }
         }
 
-        //
-        // Escape spaces in the file name.
-        //
-        string::size_type space = 0;
-        while((space = file.find(" ", space)) != string::npos)
+        if(lang == JavaXML)
         {
-            file.replace(space, 1, "\\ ");
-            space += 2;
+            if(result.size() == 0)
+            {
+                result = "  <source name=\"" + file + "\">";
+            }
+            else
+            {
+                result += "\n    <dependsOn name=\"" + file + "\"/>";
+            }
         }
+        else
+        {
+            //
+            // Escape spaces in the file name.
+            //
+            string::size_type space = 0;
+            while((space = file.find(" ", space)) != string::npos)
+            {
+                file.replace(space, 1, "\\ ");
+                space += 2;
+            }
 
-        //
-        // Add to result
-        //
-        result += " \\\n " + file;
+            //
+            // Add to result
+            //
+            result += " \\\n " + file;
+        }
         pos = end;
     }
-    result += "\n";
+    if(lang == JavaXML)
+    {
+        result += "\n  </source>\n";
+    }
+    else
+    {
+        result += "\n";
+    }
 
     /*
-     * icecpp emits dependencies in any of the following formats, depending on the
+     * Emit dependencies in any of the following formats, depending on the
      * length of the filenames:
      *
      * x.o[bj]: /path/x.ice /path/y.ice
@@ -400,6 +426,8 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             }
             break;
         }
+        case JavaXML:
+            break;
         case Java:
         {
             //
@@ -511,14 +539,14 @@ Slice::Preprocessor::checkInputFile()
     }
     if(suffix != ".ice")
     {
-        cerr << _path << ": input files must end with `.ice'" << endl;
+        getErrorStream() << _path << ": error: input files must end with `.ice'" << endl;
         return false;
     }
     
     ifstream test(_fileName.c_str());
     if(!test)
     {
-        cerr << _path << ": cannot open `" << _fileName << "' for reading" << endl;
+        getErrorStream() << _path << ": error: cannot open `" << _fileName << "' for reading" << endl;
         return false;
     }
     test.close();

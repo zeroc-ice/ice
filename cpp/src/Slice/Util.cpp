@@ -172,3 +172,82 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     return result;
 }
 
+static ostream* errorStream = &cerr;
+
+void
+Slice::setErrorStream(ostream& stream)
+{
+    errorStream = &stream;
+}
+
+ostream&
+Slice::getErrorStream()
+{
+    return *errorStream;
+}
+
+void
+Slice::emitError(const string& file, int line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(line != -1)
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << message << endl;
+}
+
+void
+Slice::emitWarning(const string& file, int line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(line != -1)
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << "warning: " << message << endl;
+}
+
+void
+Slice::emitError(const string& file, const std::string& line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(!line.empty())
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << message << endl;
+}
+
+void
+Slice::emitWarning(const string& file, const std::string& line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(!line.empty())
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << "warning: " << message << endl;
+}
+
+void
+Slice::emitRaw(const char* message)
+{
+    *errorStream << message << flush;
+}

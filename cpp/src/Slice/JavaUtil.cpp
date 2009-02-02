@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/DisableWarnings.h>
 
@@ -3426,7 +3427,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 
                 if(!ok)
                 {
-                    cerr << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                    emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
                 }
             }
             _history.insert(s);
@@ -3482,10 +3483,11 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
         if(!cl->isLocal())
         {
-            cerr << p->definitionContext()->filename() << ":" << p->line()
-                 << ": warning: metadata directive `UserException' applies only to local operations "
-                 << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
-                 << "' is not local" << endl;
+            ostringstream os;
+            os << "metadata directive `UserException' applies only to local operations "
+               << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
+               << "' is not local";
+            emitWarning(p->definitionContext()->filename(), p->line(), os.str());
         }
     }
     StringList metaData = getMetaData(p);
@@ -3498,8 +3500,8 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("java:type:", 0) == 0)
                 {
-                    cerr << p->definitionContext()->filename() << ":" << p->line()
-                         << ": warning: invalid metadata for operation" << endl;
+                    emitWarning(p->definitionContext()->filename(), p->line(),
+                                "invalid metadata for operation");
                     break;
                 }
             }
@@ -3597,7 +3599,7 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
                     continue;
                 }
 
-                cerr << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                emitWarning(file, cont->line(), "ignoring invalid metadata `" + s + "'");
             }
 
             _history.insert(s);
@@ -3630,7 +3632,7 @@ Slice::JavaGenerator::MetaDataVisitor::validateType(const SyntaxTreeBasePtr& p, 
                 assert(b);
                 str = b->typeId();
             }
-            cerr << file << ":" << line << ": warning: invalid metadata for " << str << endl;
+            emitWarning(file, line, "invalid metadata for " + str);
         }
     }
 }
@@ -3660,7 +3662,7 @@ Slice::JavaGenerator::MetaDataVisitor::validateGetSet(const SyntaxTreeBasePtr& p
                 assert(b);
                 str = b->typeId();
             }
-            cerr << file << ":" << line << ": warning: invalid metadata for " << str << endl;
+            emitWarning(file, line, "invalid metadata for " + str);
         }
     }
 }

@@ -17,6 +17,13 @@ namespace Slice
 
 SLICE_API std::string fullPath(const std::string&);
 SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
+SLICE_API void setErrorStream(std::ostream&);
+SLICE_API std::ostream& getErrorStream();
+SLICE_API void emitError(const std::string&, int, const std::string&);
+SLICE_API void emitWarning(const std::string&, int, const std::string&);
+SLICE_API void emitError(const std::string&, const std::string&, const std::string&);
+SLICE_API void emitWarning(const std::string&, const std::string&, const std::string&);
+SLICE_API void emitRaw(const char*);
 
 }
 

@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <Slice/Checksum.h>
+#include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <cstring>
@@ -1204,12 +1205,6 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
 
 Slice::Gen::~Gen()
 {
-}
-
-bool
-Slice::Gen::operator!() const
-{
-    return false;
 }
 
 void
@@ -3134,8 +3129,9 @@ Slice::Gen::TypesVisitor::validateGetterSetter(const OperationList& ops, const s
             int numParams = static_cast<int>((*i)->parameters().size());
             if(numArgs >= numParams && numArgs - numParams <= 1)
             {
-                cerr << file << ":" << line
-                     << ": error: operation `" << name << "' conflicts with getter/setter method" << endl;
+                ostringstream ostr;
+                ostr << "operation `" << name << "' conflicts with getter/setter method";
+                emitError(file, line, ostr.str());
                 return false;
             }
             break;

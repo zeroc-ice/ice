@@ -38,7 +38,7 @@ public:
     FILE* preprocess(bool);
     bool close();
 
-    enum Language { CPlusPlus, Java, CSharp, VisualBasic };
+    enum Language { CPlusPlus, Java, JavaXML, CSharp, VisualBasic };
 
     bool printMakefileDependencies(Language, const std::vector<std::string>&);
     
