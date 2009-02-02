@@ -38,6 +38,7 @@ includeSubDirs = [ \
 filesToRemove = [ \
     "fixCopyright.py", \
     "fixVersion.py", \
+    "FixUtil.py", \
     "makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
