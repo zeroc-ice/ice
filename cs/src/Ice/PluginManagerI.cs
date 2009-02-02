@@ -121,13 +121,14 @@ namespace Ice
                         {
                             try
                             {
-                                Plugin plugin = (Plugin) entry.Value;
+                                Plugin plugin = (Plugin)entry.Value;
                                 plugin.destroy();
                             }
                             catch(System.Exception ex)
                             {
-                                Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in '" + entry.Key.ToString() + "' destruction.\n");
-                                Ice.Util.getProcessLogger().warning("exception: " + ex.ToString());
+                                Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in `" + 
+                                                                    entry.Key.ToString() + "' destruction:\n" + 
+                                                                    ex.ToString());
                             }
                         }
                     }

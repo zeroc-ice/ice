@@ -327,11 +327,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         _fd = INVALID_SOCKET;
         throw;
     }
-
-#ifdef _WIN32
-    FD_ZERO(&_rFdSet);
-    FD_ZERO(&_wFdSet);
-#endif
 }
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
@@ -406,11 +401,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         _fd = INVALID_SOCKET;
         throw;
     }
-
-#ifdef _WIN32
-    FD_ZERO(&_rFdSet);
-    FD_ZERO(&_wFdSet);
-#endif
 }
 
 IceInternal::UdpTransceiver::~UdpTransceiver()

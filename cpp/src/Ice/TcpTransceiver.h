@@ -54,8 +54,6 @@ private:
     const Ice::StatsPtr _stats;
     
     SOCKET _fd;
-    fd_set _rFdSet;
-    fd_set _wFdSet;
     State _state;
     std::string _desc;
 #ifdef _WIN32
