@@ -1904,6 +1904,8 @@ IceInternal::BasicStream::throwException()
 
     string id;
     read(id, false);
+    const string origId = id;
+
     for(;;)
     {
         //
@@ -1946,8 +1948,22 @@ IceInternal::BasicStream::throwException()
             {
                 traceSlicing("exception", id, _slicingCat, _instance->initializationData().logger);
             }
+
             skipSlice(); // Slice off what we don't understand.
-            read(id, false); // Read type id for next slice.
+
+            try
+            {
+                read(id, false); // Read type id for next slice.
+            }
+            catch(UnmarshalOutOfBoundsException& ex)
+            {
+                //
+                // When read() raises this exception it means we've seen the last slice,
+                // so we set the reason member to a more helpful message.
+                //
+                ex.reason = "unknown exception type `" + origId + "'";
+                throw;
+            }
         }
     }
 

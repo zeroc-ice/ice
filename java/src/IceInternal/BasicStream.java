@@ -1530,6 +1530,7 @@ public class BasicStream
         boolean usesClasses = readBool();
 
         String id = readString();
+        final String origId = id;
 
         for(;;)
         {
@@ -1574,8 +1575,24 @@ public class BasicStream
                 {
                     TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.initializationData().logger);
                 }
+
                 skipSlice(); // Slice off what we don't understand.
-                id = readString(); // Read type id for next slice.
+
+                try
+                {
+                    id = readString(); // Read type id for next slice.
+                }
+                catch(Ice.UnmarshalOutOfBoundsException ex)
+                {
+                    //
+                    // When readString raises this exception it means we've seen the last slice,
+                    // so we set the reason member to a more helpful message.
+                    //
+                    Ice.UnmarshalOutOfBoundsException e = new Ice.UnmarshalOutOfBoundsException();
+                    e.reason = "unknown exception type `" + origId + "'";
+                    e.initCause(ex);
+                    throw e;
+                }
             }
         }
 

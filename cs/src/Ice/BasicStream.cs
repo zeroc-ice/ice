@@ -2156,6 +2156,7 @@ namespace IceInternal
             bool usesClasses = readBool();
 
             string id = readString();
+            string origId = id;
 
             for(;;)
             {
@@ -2200,8 +2201,22 @@ namespace IceInternal
                     {
                         TraceUtil.traceSlicing("exception", id, _slicingCat, instance_.initializationData().logger);
                     }
+
                     skipSlice(); // Slice off what we don't understand.
-                    id = readString(); // Read type id for next slice.
+
+                    try
+                    {
+                        id = readString(); // Read type id for next slice.
+                    }
+                    catch(Ice.UnmarshalOutOfBoundsException ex)
+                    {
+                        //
+                        // When readString raises this exception it means we've seen the last slice,
+                        // so we set the reason member to a more helpful message.
+                        //
+                        ex.reason = "unknown exception type `" + origId + "'";
+                        throw ex;
+                    }
                 }
             }
 

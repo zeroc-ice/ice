@@ -11,8 +11,11 @@
 #include <Proxy.h>
 #include <Types.h>
 #include <Util.h>
+#include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
+#include <Ice/Logger.h>
+#include <Ice/Properties.h>
 #include <Ice/Proxy.h>
 #include <Slice/RubyUtil.h>
 
@@ -403,11 +406,15 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 VALUE
 IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
 {
+    int traceSlicing = -1;
+
     Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
 
     is->readBool(); // usesClasses
 
     string id = is->readString();
+    const string origId = id;
+
     while(!id.empty())
     {
         ExceptionInfoPtr info = lookupExceptionInfo(id);
@@ -435,8 +442,31 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
         }
         else
         {
-            is->skipSlice();
-            id = is->readString();
+            if(traceSlicing == -1)
+            {
+                traceSlicing = communicator->getProperties()->getPropertyAsInt("Ice.Trace.Slicing") > 0;
+            }
+
+            if(traceSlicing > 0)
+            {
+                communicator->getLogger()->trace("Slicing", "unknown exception type `" + id + "'");
+            }
+
+            is->skipSlice(); // Slice off what we don't understand.
+
+            try
+            {
+                id = is->readString(); // Read type id for next slice.
+            }
+            catch(Ice::UnmarshalOutOfBoundsException& ex)
+            {
+                //
+                // When readString raises this exception it means we've seen the last slice,
+                // so we set the reason member to a more helpful message.
+                //
+                ex.reason = "unknown exception type `" + origId + "'";
+                throw;
+            }
         }
     }
 
@@ -446,7 +476,7 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
     // have a factory for. This means that sender and receiver disagree
     // about the Slice definitions they use.
     //
-    throw Ice::UnknownUserException(__FILE__, __LINE__);
+    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception type `" + origId + "'");
 }
 
 bool

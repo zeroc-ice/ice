@@ -2418,6 +2418,8 @@ IcePHP::Operation::throwUserException(Ice::InputStreamPtr& is TSRMLS_DC)
     is->readBool(); // usesClasses
 
     string id = is->readString();
+    const string origId = id;
+
     while(!id.empty())
     {
         //
@@ -2455,13 +2457,26 @@ IcePHP::Operation::throwUserException(Ice::InputStreamPtr& is TSRMLS_DC)
         else
         {
             is->skipSlice();
-            id = is->readString();
+
+            try
+            {
+                id = is->readString();
+            }
+            catch(Ice::UnmarshalOutOfBoundsException& ex)
+            {
+                //
+                // When readString raises this exception it means we've reached the last slice,
+                // so we set the reason member to a more helpful value.
+                //
+                ex.reason = "unknown exception type `" + origId + "'";
+                throw;
+            }
         }
     }
     //
     // Getting here should be impossible: we can get here only if the
     // sender has marshaled a sequence of type IDs, none of which we
-    // have factory for. This means that sender and receiver disagree
+    // have a factory for. This means that sender and receiver disagree
     // about the Slice definitions they use.
     //
     throw Ice::UnknownUserException(__FILE__, __LINE__);
