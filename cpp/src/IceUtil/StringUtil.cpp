@@ -691,7 +691,8 @@ string
 IceUtilInternal::toLower(const std::string& s)
 {
     string result;
-    for(unsigned int i = 0; i < s.length(); ++ i)
+    result.reserve(s.size());
+    for(unsigned int i = 0; i < s.length(); ++i)
     {
          result += tolower(static_cast<unsigned char>(s[i]));
     }
@@ -702,7 +703,8 @@ string
 IceUtilInternal::toUpper(const std::string& s)
 {
     string result;
-    for(unsigned int i = 0; i < s.length(); ++ i)
+    result.reserve(s.size());
+    for(unsigned int i = 0; i < s.length(); ++i)
     {
          result += toupper(static_cast<unsigned char>(s[i]));
     }
