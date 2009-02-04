@@ -33,7 +33,11 @@
 	    <compilerarg value="${javac.lint}"/>
 	</javac>
 	<javac srcdir="." destdir="${class.dir}"
-	    classpathref="ice.classpath" excludes="generated/**" debug="${debug}">
+	    excludes="generated/**" debug="${debug}">
+            <classpath>
+                <path refid="ice.classpath"/>
+                <path refid="db.classpath"/>
+            </classpath>
 	    <compilerarg value="${javac.lint}"/>
 	</javac>
     </target>

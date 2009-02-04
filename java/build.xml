@@ -177,7 +177,8 @@
             source="1.5" debug="${debug}"
             excludes="IceGridGUI/**"
             includes="**"
-            deprecation="on">
+            deprecation="on"
+            classpathref="db.classpath">
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>

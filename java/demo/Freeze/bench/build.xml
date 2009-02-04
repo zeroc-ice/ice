@@ -57,7 +57,10 @@
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}"
 	    debug="${debug}">
-            <classpath refid="ice.classpath"/>
+            <classpath>
+                <path refid="ice.classpath"/>
+                <path refid="db.classpath"/>
+            </classpath>
 	    <compilerarg value="${javac.lint}"/>
         </javac>
 	<javac srcdir="." destdir="${class.dir}"
