@@ -108,6 +108,9 @@ C# Changes
 - Fixed a bug in slice2cs that caused a core dump if a dictionary
   had a value type of Object.
 
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  if an operation had a parameter named "ex".
+
 
 Python Changes
 ==============

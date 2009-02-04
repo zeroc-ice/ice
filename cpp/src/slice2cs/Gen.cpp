@@ -425,9 +425,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 for(t = throws.begin(); t != throws.end(); ++t)
                 {
                     string exS = fixId((*t)->scoped());
-                    _out << nl << "catch(" << exS << " ex)";
+                    _out << nl << "catch(" << exS << " ex__)";
                     _out << sb;
-                    _out << nl << "os__.writeUserException(ex);";
+                    _out << nl << "os__.writeUserException(ex__);";
                     _out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                     _out << eb;
                 }
@@ -4000,9 +4000,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "throw;";
             _out << eb;
         }
-        _out << nl << "catch(Ice.UserException ex)";
+        _out << nl << "catch(Ice.UserException ex__)";
         _out << sb;
-        _out << nl << "throw new Ice.UnknownUserException(ex.ice_name(), ex);";
+        _out << nl << "throw new Ice.UnknownUserException(ex__.ice_name(), ex__);";
         _out << eb;
         _out << eb;
         if(ret || !outParams.empty())
