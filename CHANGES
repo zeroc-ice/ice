@@ -111,6 +111,9 @@ C# Changes
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   if an operation had a parameter named "ex".
 
+- Fixed a bug in marshaling code that caused a trailing zero byte
+  to be marshaled for user exceptions without class data members.
+  
 
 Python Changes
 ==============

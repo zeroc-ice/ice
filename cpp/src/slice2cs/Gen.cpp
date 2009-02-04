@@ -2137,7 +2137,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
         }
 
-        if(!base || (base && !base->usesClasses()))
+        if((!base || (base && !base->usesClasses())) && p->usesClasses())
         {
             _out << sp << nl << "public override bool usesClasses__()";
             _out << sb;
