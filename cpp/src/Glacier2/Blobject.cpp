@@ -168,7 +168,7 @@ Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& r
                                                    _instance->clientRequestQueueThread();
     if(t)
     {
-        const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t, _instance);
+        const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t, _instance, _reverseConnection);
     }
 }
 
@@ -347,8 +347,8 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
         bool override;
         try
         {
-            override = _requestQueue->addRequest(
-                new Request(proxy, inParams, current, _forwardContext, _sslContext, amdCB, _reverseConnection));
+            override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, _sslContext, 
+                                                             amdCB));
         }
         catch(const ObjectNotExistException& ex)
         {

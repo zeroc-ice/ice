@@ -133,6 +133,21 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
             }
             copy(communicatorProps.begin(), communicatorProps.end(), back_inserter(props));
         }
+
+        //
+        // For Ice servers > 3.3.0 escape the properties.
+        //
+        if(_iceVersion == 0 || _iceVersion >= 30300)
+        {
+            for(PropertyDescriptorSeq::iterator p = props.begin(); p != props.end(); ++p)
+            {
+                if(p->name.find('#') != 0 || !p->value.empty())
+                {
+                    p->name = escapeProperty(p->name);
+                    p->value = escapeProperty(p->value);
+                }
+            }
+        }
     }
 
     PropertyDescriptor
@@ -976,26 +991,5 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     // descriptor.
     //
     forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo(), iceVersion))(info.descriptor);
-
-    //
-    // For Ice servers > 3.3.0 escape the properties.
-    //
-    if(iceVersion == 0 || iceVersion >= 30300)
-    {
-        PropertyDescriptorSeq newProps;
-        for(PropertyDescriptorSeq::const_iterator p = props.begin(); p != props.end(); ++p)
-        {
-            if(p->value.empty() && p->name.find('#') == 0)
-            {
-                newProps.push_back(createProperty(p->name));
-            }
-            else
-            {
-                newProps.push_back(createProperty(escapeProperty(p->name), escapeProperty(p->value)));
-            }
-        }
-        server->properties["config"] = newProps;
-    }
-
     return server;
 }

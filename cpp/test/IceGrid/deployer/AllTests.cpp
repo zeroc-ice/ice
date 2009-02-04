@@ -544,6 +544,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("TestServer1Identity") == "Server1");
     test(obj->getProperty("LogFilePath") == "test-Server1.log");
     test(obj->getProperty("LogFilePath-Server1") == "test.log");
+    test(obj->getProperty("PropertyWithSpaces") == "   test   ");
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
@@ -553,6 +554,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("TestService1Identity") == "IceBox1-Service1");
     test(obj->getProperty("LogFilePath") == "test-Service1.log");
     test(obj->getProperty("LogFilePath-Service1") == "test.log");
+    test(obj->getProperty("PropertyWithSpaces") == "   test   ");
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("Service2.Type") == "freeze");

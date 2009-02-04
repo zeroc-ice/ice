@@ -18,6 +18,8 @@
       <property name="${name}.Type" value="standard"/>
       <property name="${name}.ServiceName" value="${name}"/>
 
+      <property name="PropertyWithSpaces" value="   test   "/>
+
       <include file="varproperties.xml"/>
 
       <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
