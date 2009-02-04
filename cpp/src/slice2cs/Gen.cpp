@@ -534,9 +534,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             }
             _out << "current__" << epar << ';';
             _out << eb;
-            _out << nl << "catch(_System.Exception ex)";
+            _out << nl << "catch(_System.Exception ex__)";
             _out << sb;
-            _out << nl << "cb__.ice_exception(ex);";
+            _out << nl << "cb__.ice_exception(ex__);";
             _out << eb;
             _out << nl << "return Ice.DispatchStatus.DispatchAsync;";
 
