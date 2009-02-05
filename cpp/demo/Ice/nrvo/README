@@ -38,11 +38,10 @@ If you call an operation the client and server should print a message
 many "MyStringSeq copy ctor" messages as copies are made.
 
 In the server side we show one case when NRVO works, that is a
-function that has a single return path implemented and is
-implementation is NrvoI::op1, and two case where  NRVO don't work, a
-function that return a data member of the servant the implementation
-is in  NrvoI::op2 and a function with multiple returns path
-implemented in NrvoI::op3.
+function that has a single return path implemented  in NrvoI::op1, and two
+cases where  NRVO doesn't works, a function that return a data member of the
+servant the implementation is in NrvoI::op2 and a function with multiple
+returns path the implementation is in NrvoI::op3.
 
 So if you press option 1 you will see that NRVO is apply in both
 client and server sides, and if you call 2 or 3 the optimization only
