@@ -1021,6 +1021,17 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "end";
 
     //
+    // eql?
+    //
+    // This method is used to determine the equality of keys in a Hash object.
+    //
+    _out << sp << nl << "def eql?(other)";
+    _out.inc();
+    _out << nl << "return other.class == self.class && other == self";
+    _out.dec();
+    _out << nl << "end";
+
+    //
     // inspect
     //
     _out << sp << nl << "def inspect";
