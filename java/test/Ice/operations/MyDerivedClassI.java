@@ -284,6 +284,18 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
+    public java.util.Map<Test.MyStruct, Test.MyEnum>
+    opMyStructMyEnumD(java.util.Map p1, java.util.Map p2,
+                    Test.MyStructMyEnumDHolder p3,
+                    Ice.Current current)
+    {
+        p3.value = p1;
+        java.util.Map<Test.MyStruct, Test.MyEnum> r = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
     public int[]
     opIntS(int[] s, Ice.Current current)
     {

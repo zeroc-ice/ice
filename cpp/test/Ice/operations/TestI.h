@@ -144,6 +144,10 @@ public:
                                                 Test::StringMyEnumD&,
                                                 const Ice::Current&);
 
+    virtual Test::MyStructMyEnumD opMyStructMyEnumD(const Test::MyStructMyEnumD&, const Test::MyStructMyEnumD&,
+                                                    Test::MyStructMyEnumD&,
+                                                    const Ice::Current&);
+
     virtual Test::IntS opIntS(const Test::IntS&, const Ice::Current&);
 
     virtual void opByteSOneway(const Test::ByteS&, const Ice::Current&);

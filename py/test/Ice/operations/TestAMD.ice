@@ -58,11 +58,18 @@ sequence<MyClassS> MyClassSS;
 
 sequence<StringSS> StringSSS;
 
+struct MyStruct
+{
+    int i;
+    int j;
+};
+
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
+dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
 ["ami", "amd"] class MyClass
 {
@@ -140,6 +147,9 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
                                   out StringMyEnumD p3);
+
+    MyStructMyEnumD opMyStructMyEnumD(MyStructMyEnumD p1, MyStructMyEnumD p2,
+                                      out MyStructMyEnumD p3);
 
     IntS opIntS(IntS s);
 

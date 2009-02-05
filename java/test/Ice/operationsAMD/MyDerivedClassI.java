@@ -322,6 +322,18 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public void
+    opMyStructMyEnumD_async(Test.AMD_MyClass_opMyStructMyEnumD cb,
+                            java.util.Map p1, java.util.Map p2,
+                            Ice.Current current)
+    {
+        java.util.Map<Test.MyStruct, Test.MyEnum> p3 = p1;
+        java.util.Map<Test.MyStruct, Test.MyEnum> r = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    public void
     opIntS_async(Test.AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
     {
         int[] r = new int[s.length];

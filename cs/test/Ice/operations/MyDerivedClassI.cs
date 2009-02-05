@@ -265,6 +265,25 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         }
         return r;
     }
+
+    public override Dictionary<Test.MyStruct, Test.MyEnum> opMyStructMyEnumD(
+                                                Dictionary<Test.MyStruct, Test.MyEnum> p1,
+                                                Dictionary<Test.MyStruct, Test.MyEnum> p2,
+                                                out Dictionary<Test.MyStruct, Test.MyEnum> p3,
+                                                Ice.Current current)
+    {
+        p3 = (Dictionary<Test.MyStruct, Test.MyEnum>)p1;
+        Dictionary<Test.MyStruct, Test.MyEnum> r = new Dictionary<Test.MyStruct, Test.MyEnum>();
+        foreach(KeyValuePair<Test.MyStruct, Test.MyEnum> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<Test.MyStruct, Test.MyEnum> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        return r;
+    }
     
     public override Test.IntS opIntS(Test.IntS s, Ice.Current current)
     {
