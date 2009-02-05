@@ -160,6 +160,8 @@ Python Changes
 Ruby Changes
 ============
 
+- The translator now generates an eql? method for Slice structures.
+
 - Implemented the Ice.Trace.Slicing property for user exceptions.
 
 - Added helper Ice.getSliceDir, which locates the "slice" directory
