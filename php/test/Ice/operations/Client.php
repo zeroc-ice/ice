@@ -399,6 +399,33 @@ function twoways($communicator, $p)
     }
 
     {
+        $s11 = new Test_MyStruct;
+        $s11->i = 1;
+        $s11->j = 1;
+        $s12 = new Test_MyStruct;
+        $s12->i = 1;
+        $s12->j = 2;
+        $s22 = new Test_MyStruct;
+        $s22->i = 2;
+        $s22->j = 2;
+        $s23 = new Test_MyStruct;
+        $s23->i = 2;
+        $s23->j = 3;
+        $di1 = array(s11 => Test_MyEnum::enum1, s12 => Test_MyEnum::enum2);
+        $di2 = array(s11 => Test_MyEnum::enum1, s22 => Test_MyEnum::enum3, s23 => Test_MyEnum::enum2);
+        $ro = $p->opMyStructMyEnumD($di1, $di2, $_do);
+        test(count($_do) == 2);
+        test($_do[s11] == $di1[s11]);
+        test($_do[s12] == $di1[s12);
+        test(count($ro) == 4);
+        test($ro[s11] == Test_MyEnum::enum1);
+        test($ro[s12] == Test_MyEnum::enum2);
+        test($ro[s22] == Test_MyEnum::enum3);
+        test($ro[s23] == Test_MyEnum::enum2);
+    }
+
+
+    {
         $lengths = array(0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000);
         foreach($lengths as $l)
         {

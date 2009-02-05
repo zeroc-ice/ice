@@ -757,6 +757,40 @@ public:
 
 typedef IceUtil::Handle<AMI_MyClass_opStringMyEnumDI> AMI_MyClass_opStringMyEnumDIPtr;
 
+class AMI_MyClass_opMyStructMyEnumDI : public Test::AMI_MyClass_opMyStructMyEnumD, public CallbackBase
+{
+public:
+
+    virtual void ice_response(const ::Test::MyStructMyEnumD& ro, const ::Test::MyStructMyEnumD& _do)
+    {
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStructMyEnumD di1;
+        di1[s11] = Test::enum1;
+        di1[s12] = Test::enum2;
+        test(_do == di1);
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+        test(ro.size() == 4);
+        test(ro.find(s11) != ro.end());
+        test(ro.find(s11)->second == Test::enum1);
+        test(ro.find(s12) != ro.end());
+        test(ro.find(s12)->second == Test::enum2);
+        test(ro.find(s22) != ro.end());
+        test(ro.find(s22)->second == Test::enum3);
+        test(ro.find(s23) != ro.end());
+        test(ro.find(s23)->second == Test::enum2);
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opMyStructMyEnumDI> AMI_MyClass_opMyStructMyEnumDIPtr;
+
 class AMI_MyClass_opIntSI : public Test::AMI_MyClass_opIntS, public CallbackBase
 {
 public:
@@ -1207,6 +1241,25 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
         AMI_MyClass_opStringMyEnumDIPtr cb = new AMI_MyClass_opStringMyEnumDI;
         p->opStringMyEnumD_async(cb, di1, di2);
+        test(cb->check());
+    }
+
+    {
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStructMyEnumD di1;
+        di1[s11] = Test::enum1;
+        di1[s12] = Test::enum2;
+
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStructMyEnumD di2;
+        di2[s11] = Test::enum1;
+        di2[s22] = Test::enum3;
+        di2[s23] = Test::enum2;
+
+        AMI_MyClass_opMyStructMyEnumDIPtr cb = new AMI_MyClass_opMyStructMyEnumDI;
+        p->opMyStructMyEnumD_async(cb, di1, di2);
         test(cb->check());
     }
 

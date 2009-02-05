@@ -308,6 +308,23 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         }
         cb.ice_response(r, p3);
     }
+
+    public override void opMyStructMyEnumD_async(Test.AMD_MyClass_opMyStructMyEnumD cb,
+                                                 Dictionary<Test.MyStruct, Test.MyEnum> p1,
+                                                 Dictionary<Test.MyStruct, Test.MyEnum> p2, Ice.Current current)
+    {
+        Dictionary<Test.MyStruct, Test.MyEnum> p3 = (Dictionary<Test.MyStruct, Test.MyEnum>)p1;
+        Dictionary<Test.MyStruct, Test.MyEnum> r = new Dictionary<Test.MyStruct, Test.MyEnum>();
+        foreach(KeyValuePair<Test.MyStruct, Test.MyEnum> e in p1)
+        {
+            r[e.Key] = e.Value;
+        }
+        foreach(KeyValuePair<Test.MyStruct, Test.MyEnum> e in p2)
+        {
+            r[e.Key] = e.Value;
+        }
+        cb.ice_response(r, p3);
+    }
     
     public override void opIntS_async(Test.AMD_MyClass_opIntS cb, Test.IntS s, Ice.Current current)
     {

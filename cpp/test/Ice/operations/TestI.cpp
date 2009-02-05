@@ -336,6 +336,18 @@ MyDerivedClassI::opStringMyEnumD(const Test::StringMyEnumD& p1,
     return r;
 }
 
+Test::MyStructMyEnumD
+MyDerivedClassI::opMyStructMyEnumD(const Test::MyStructMyEnumD& p1,
+                                   const Test::MyStructMyEnumD& p2,
+                                   Test::MyStructMyEnumD& p3,
+                                   const Ice::Current&)
+{
+    p3 = p1;
+    Test::MyStructMyEnumD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    return r;
+}
+
 Test::IntS
 MyDerivedClassI::opIntS(const Test::IntS& s, const Ice::Current&)
 {
