@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>{3D01F691-AD1F-407C-8137-051D4AF73926}</td><td>LIB.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>MCPPDevKit.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>{3D01F691-AD1F-407C-8137-051D4AF73926}</td><td>INSTALLDIR.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>8</td><td/><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
