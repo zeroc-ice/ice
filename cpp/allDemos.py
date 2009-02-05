@@ -38,6 +38,7 @@ demos = [
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
+    "Ice/nrvo",
     "IceBox/hello",
     "IceStorm/clock",
     "IceStorm/counter",
