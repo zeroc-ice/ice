@@ -21,6 +21,8 @@ public interface InputStream
     byte readByte();
     byte[] readByteSeq();
 
+    java.io.Serializable readSerializable();
+
     short readShort();
     short[] readShortSeq();
 

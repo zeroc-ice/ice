@@ -54,6 +54,11 @@ namespace Ice
             return _is.readByteSeq();
         }
 
+        public object readSerializable()
+        {
+            return _is.readSerializable();
+        }
+
         public short readShort()
         {
             return _is.readShort();
@@ -248,6 +253,11 @@ namespace Ice
         public void writeByteSeq(byte[] v)
         {
             _os.writeByteSeq(v);
+        }
+
+        public void writeSerializable(object v)
+        {
+            _os.writeSerializable(v);
         }
 
         public void writeShort(short v)

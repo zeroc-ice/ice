@@ -27,6 +27,8 @@
         <ant dir="proxyAMD"/>
         <ant dir="operations"/>
         <ant dir="operationsAMD"/>
+        <ant dir="seqMapping"/>
+        <ant dir="seqMappingAMD"/>
         <ant dir="slicing"/>
         <ant dir="custom"/>
         <ant dir="translator"/>
@@ -57,6 +59,8 @@
         <ant dir="proxyAMD" target="clean"/>
         <ant dir="operations" target="clean"/>
         <ant dir="operationsAMD" target="clean"/>
+        <ant dir="seqMapping" target="clean"/>
+        <ant dir="seqMappingAMD" target="clean"/>
         <ant dir="slicing" target="clean"/>
         <ant dir="custom" target="clean"/>
         <ant dir="translator" target="clean"/>

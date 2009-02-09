@@ -33,6 +33,7 @@ demos = [
     "Ice/minimal",
     "Ice/multicast",
     "Ice/nested",
+    "Ice/serialize",
     "Ice/session",
     "Ice/throughput",
     "Ice/value",

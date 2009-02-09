@@ -3185,6 +3185,23 @@ Slice::Gen::HolderVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::HolderVisitor::visitSequence(const SequencePtr& p)
 {
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    if(builtin && builtin->kind() == Builtin::KindByte)
+    {
+        string prefix = "java:serializable:";
+        string meta;
+        if(p->findMetaData(prefix, meta))
+        {
+            return; // No holders for serializable types.
+        }
+        prefix = "java:protobuf:";
+        if(p->findMetaData(prefix, meta))
+        {
+            return; // No holders for protobuf types.
+
+        }
+    }
+    
     writeHolder(p);
 }
 

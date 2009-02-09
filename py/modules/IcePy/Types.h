@@ -249,6 +249,32 @@ private:
 typedef IceUtil::Handle<SequenceInfo> SequenceInfoPtr;
 
 //
+// Custom information.
+//
+class CustomInfo : public TypeInfo
+{
+public:
+
+    virtual std::string getId() const;
+
+    virtual bool validate(PyObject*);
+
+    virtual bool usesClasses();
+
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, const Ice::StringSeq* = 0);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*,
+                           const Ice::StringSeq* = 0);
+
+    virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
+
+    virtual void destroy();
+
+    std::string id;
+    PyObjectHandle pythonType;
+};
+typedef IceUtil::Handle<CustomInfo> CustomInfoPtr;
+
+//
 // Dictionary information.
 //
 class DictionaryInfo : public TypeInfo
@@ -448,6 +474,7 @@ ExceptionInfoPtr getException(PyObject*);
 extern "C" PyObject* IcePy_defineEnum(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineStruct(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineSequence(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineCustom(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineDictionary(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_declareProxy(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineProxy(PyObject*, PyObject*);

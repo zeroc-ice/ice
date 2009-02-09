@@ -61,6 +61,12 @@ public class InputStreamI implements InputStream
         return _is.readByteSeq();
     }
 
+    public java.io.Serializable
+    readSerializable()
+    {
+        return _is.readSerializable();
+    }
+
     public short
     readShort()
     {

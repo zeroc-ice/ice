@@ -1204,17 +1204,46 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
+    static const string protobuf = "python:protobuf:";
+    StringList metaData = p->getMetaData();
+    bool isCustom = false;
+    string customType;
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(protobuf) == 0)
+        {
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            if(!builtin || builtin->kind() != Builtin::KindByte)
+            {
+                continue;
+            }
+            isCustom = true;
+            customType = q->substr(protobuf.size());
+            break;
+        }
+    }
+
     //
     // Emit the type information.
     //
     string scoped = p->scoped();
     _out << sp << nl << "if not " << getDictLookup(p, "_t_") << ':';
     _out.inc();
-    _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
-    writeMetaData(p->getMetaData());
-    _out << ", ";
-    writeType(p->type());
-    _out << ")";
+    if(isCustom)
+    {
+        string package = customType.substr(0, customType.find('.'));
+        _out << nl << "import " << package;
+        _out << nl << "_M_" << getAbsolute(p, "_t_")
+             << " = IcePy.defineCustom('" << scoped << "', " << customType << ")";
+    }
+    else
+    {
+        _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
+        writeMetaData(metaData);
+        _out << ", ";
+        writeType(p->type());
+        _out << ")";
+    }
     _out.dec();
 }
 
@@ -2032,7 +2061,30 @@ Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    validateSequence(p->definitionContext(), p->line(), p, p->getMetaData());
+    static const string protobuf = "python:protobuf:";
+    StringList metaData = p->getMetaData();
+    const string file = p->definitionContext()->filename();
+    const string line = p->line();
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
+    {
+        string s = *q++;
+        if(s.find(protobuf) == 0)
+        {
+            //
+            // Remove from list so validateSequence does not try to handle as well.
+            //
+            metaData.remove(s);
+
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            if(!builtin || builtin->kind() != Builtin::KindByte)
+            {
+                emitWarning(file, line, "ignoring invalid metadata `" + s + ":\n" +
+                            "`protobuf' encoding must be a byte sequence");
+            }
+        }
+    }
+
+    validateSequence(p->definitionContext(), line, p, metaData);
 }
 
 void

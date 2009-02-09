@@ -325,6 +325,19 @@ public class Client
         }
 
         {
+            Serialize.Small small = new Serialize.Small();
+            small.i = 99;
+            out = Ice.Util.createOutputStream(communicator);
+            out.writeSerializable(small);
+            byte[] data = out.finished();
+            in = Ice.Util.createInputStream(communicator, data);
+            Serialize.Small small2 = (Serialize.Small)in.readSerializable();
+            test(small2.i == 99);
+            out.destroy();
+            in.destroy();
+        }
+
+        {
             final short[] arr =
             {
                 (short)0x01,

@@ -16,6 +16,8 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
 
     public class BasicStream
@@ -778,6 +780,26 @@ namespace IceInternal
             }
         }
 
+        public virtual void writeSerializable(object o)
+        {
+            if(o == null)
+            {
+                writeSize(0);
+                return;
+            }
+            try
+            {
+                StreamWrapper w = new StreamWrapper(this);
+                IFormatter f = new BinaryFormatter();
+                f.Serialize(w, o);
+                w.Close();
+            }
+            catch(System.Exception ex)
+            {
+                throw new Ice.MarshalException("cannot serialize object:", ex);
+            }
+        }
+
         public virtual byte readByte()
         {
             try
@@ -857,6 +879,26 @@ namespace IceInternal
             for(int i = array.Length - 1; i >= 0; --i)
             {
                 l.Push(array[i]);
+            }
+        }
+
+        public virtual object readSerializable()
+        {
+            int sz = readSize();
+            if(sz == 0)
+            {
+                return null;
+            }
+            checkFixedSeq(sz, 1);
+            try
+            {
+                StreamWrapper w = new StreamWrapper(sz, this);
+                IFormatter f = new BinaryFormatter();
+                return f.Deserialize(w);
+            }
+            catch(System.Exception ex)
+            {
+                throw new Ice.MarshalException("cannot deserialize object:", ex);
             }
         }
 
@@ -2622,7 +2664,7 @@ namespace IceInternal
             return _buf.empty();
         }
 
-        private void expand(int n)
+        public void expand(int n)
         {
             if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
             {   

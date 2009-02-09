@@ -19,6 +19,8 @@ public interface OutputStream
     void writeByte(byte v);
     void writeByteSeq(byte[] v);
 
+    void writeSerializable(java.io.Serializable o);
+
     void writeShort(short v);
     void writeShortSeq(short[] v);
 

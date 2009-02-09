@@ -551,6 +551,22 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
             }
             else
             {
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                if(builtin && builtin->kind() == Builtin::KindByte)
+                {
+                    string prefix = "java:serializable:";
+                    string meta;
+                    if(seq->findMetaData(prefix, meta))
+                    {
+                        return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
+                    }
+                    prefix = "java:protobuf:";
+                    if(seq->findMetaData(prefix, meta))
+                    {
+                        return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
+                    }
+                }
+
                 //
                 // Only use the type's generated holder if the instance and
                 // formal types match.
@@ -595,6 +611,22 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+            if(builtin && builtin->kind() == Builtin::KindByte)
+            {
+                string prefix = "java:serializable:";
+                string meta;
+                if(seq->findMetaData(prefix, meta))
+                {
+                    return meta.substr(prefix.size());
+                }
+                prefix = "java:protobuf:";
+                if(seq->findMetaData(prefix, meta))
+                {
+                    return meta.substr(prefix.size());
+                }
+            }
+
             string instanceType, formalType;
             getSequenceTypes(seq, package, metaData, instanceType, formalType);
             return formal ? formalType : instanceType;
@@ -1241,15 +1273,64 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 {
     string stream = marshal ? "__os" : "__is";
     string v = param;
+    bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
-    bool java2 = false;
+    //
+    // If the sequence is a byte sequence, check if there's the serializable or protobuf metadata to
+    // get rid of these two easy cases first.
+    //
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    if(builtin && builtin->kind() == Builtin::KindByte)
+    {
+        string meta;
+        static const string protobuf = "java:protobuf:";
+        static const string serializable = "java:serializable:";
+        if(seq->findMetaData(serializable, meta))
+        {
+            if(marshal)
+            {
+                out << nl << stream << ".writeSerializable(" << v << ");";
+            }
+            else
+            {
+                string type = typeToString(seq, TypeModeIn, package);
+                out << nl << v << " = (" << type << ")" << stream << ".readSerializable();";
+            }
+            return;
+        }
+        else if(seq->findMetaData(protobuf, meta))
+        {
+            if(marshal)
+            {
+                out << nl << "if(!" << v << ".isInitialized())";
+                out << sb;
+                out << nl << "throw new Ice.MarshalException(\"type not fully initialized\");";
+                out << eb;
+                out << nl << stream << ".writeByteSeq(" << v << ".toByteArray());";
+            }
+            else
+            {
+                string type = typeToString(seq, TypeModeIn, package);
+                out << nl << "try";
+                out << sb;
+                out << nl << v << " = " << type << ".parseFrom(" << stream << ".readByteSeq());";
+                out << eb;
+                out << nl << "catch(com.google.protobuf.InvalidProtocolBufferException __ex)";
+                out << sb;
+                out << nl << "Ice.MarshalException __mex = new Ice.MarshalException();";
+                out << nl << "__mex.initCause(__ex);";
+                out << nl << "throw __mex;";
+                out << eb;
+            }
+            return;
+        }
+    }
+
     bool customType = false;
     string instanceType;
 
     if(_featureProfile != Slice::IceE)
     {
-        java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-
         //
         // We have to determine whether it's possible to use the
         // type's generated helper class for this marshal/unmarshal
@@ -1300,7 +1381,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     while(s)
     {
         //
-        // Stop if the inner sequence type has a custom type.
+        // Stop if the inner sequence type has a custom, serializable or protobuf type.
         //
         if(hasTypeMetaData(s) && _featureProfile != Slice::IceE)
         {
@@ -2496,8 +2577,58 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
 {
     string stream = marshal ? "__outS" : "__inS";
     string v = param;
-
     bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
+
+    //
+    // If the sequence is a byte sequence, check if there's the serializable or protobuf metadata to
+    // get rid of these two easy cases first.
+    //
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    if(builtin && builtin->kind() == Builtin::KindByte)
+    {
+        string meta;
+        static const string protobuf = "java:protobuf:";
+        static const string serializable = "java:serializable:";
+        if(seq->findMetaData(serializable, meta))
+        {
+            if(marshal)
+            {
+                out << nl << stream << ".writeSerializable(" << v << ");";
+            }
+            else
+            {
+                string type = typeToString(seq, TypeModeIn, package);
+                out << nl << v << " = (" << type << ")" << stream << ".readSerializable();";
+            }
+            return;
+        }
+        else if(seq->findMetaData(protobuf, meta))
+        {
+            if(marshal)
+            {
+                out << nl << "if(!" << v << ".isInitialized())";
+                out << sb;
+                out << nl << "throw new Ice.MarshalException(\"type not fully initialized\");";
+                out << eb;
+                out << nl << stream << ".writeByteSeq(" << v << ".toByteArray());";
+            }
+            else
+            {
+                string type = meta.substr(protobuf.size());
+                out << nl << "try";
+                out << sb;
+                out << nl << v << " = " << type << ".parseFrom(" << stream << ".readByteSeq());";
+                out << eb;
+                out << nl << "catch(com.google.protobuf.InvalidProtocolBufferException __ex)";
+                out << sb;
+                out << nl << "Ice.MarshalException __mex = new Ice.MarshalException();";
+                out << nl << "__mex.initCause(__ex);";
+                out << nl << "throw __mex;";
+                out << eb;
+            }
+            return;
+        }
+    }
 
     //
     // We have to determine whether it's possible to use the
@@ -2548,7 +2679,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     while(s)
     {
         //
-        // Stop if the inner sequence type has a custom type.
+        // Stop if the inner sequence type has a custom, serializable or protobuf type.
         //
         if(hasTypeMetaData(s))
         {
@@ -3145,6 +3276,18 @@ Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& loc
             {
                 return true;
             }
+            else if(str.find("java:protobuf:") == 0 || str.find("java:serializable:") == 0)
+            {
+                SequencePtr seq = SequencePtr::dynamicCast(cont);
+                if(seq)
+                {
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                    if(builtin && builtin->kind() == Builtin::KindByte)
+                    {
+                            return true;
+                    }
+                }
+            }
         }
     }
 
@@ -3533,9 +3676,33 @@ Slice::JavaGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
+    static const string protobuf = "java:protobuf:";
+    static const string serializable = "java:serializable:";
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    const string file =  p->definitionContext()->filename();
+    const string line = p->line();
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
+    {
+        string s = *q++;
+        if(s.find(protobuf) == 0 || s.find(serializable) == 0)
+        {
+            //
+            // Remove from list so validateType does not try to handle as well.
+            //
+            metaData.remove(s);
+
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            if(!builtin || builtin->kind() != Builtin::KindByte)
+            {
+                _history.insert(s);
+                emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n" +
+                            "this metadata can only be used with a byte sequence");
+            }
+        }
+    }
+
+    validateType(p, metaData, file, line);
+    validateGetSet(p, metaData, file, line);
 }
 
 void
@@ -3598,6 +3765,16 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
                     result.push_back(s);
                     continue;
                 }
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "serializable")
+                {
+                    result.push_back(s);
+                    continue;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "protobuf")
+                {
+                    result.push_back(s);
+                    continue;
+                }
 
                 emitWarning(file, cont->line(), "ignoring invalid metadata `" + s + "'");
             }
@@ -3633,6 +3810,13 @@ Slice::JavaGenerator::MetaDataVisitor::validateType(const SyntaxTreeBasePtr& p, 
                 str = b->typeId();
             }
             emitWarning(file, line, "invalid metadata for " + str);
+        }
+        else if(i->find("java:protobuf:") == 0 || i->find("java:serializable:") == 0)
+        {
+            //
+            // Only valid in sequence defintion which is checked in visitSequence
+            //
+            emitWarning(file, line, "ignoring invalid metadata `" + *i + "'");
         }
     }
 }

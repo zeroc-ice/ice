@@ -56,6 +56,12 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
+    writeSerializable(java.io.Serializable v)
+    {
+        _os.writeSerializable(v);
+    }
+
+    public void
     writeShort(short v)
     {
         _os.writeShort(v);
