@@ -251,3 +251,53 @@ Slice::emitRaw(const char* message)
 {
     *errorStream << message << flush;
 }
+
+vector<string>
+Slice::filterMcppWarnings(const string& message)
+{
+    static const int messagesSize = 2;
+    static const char* messages[messagesSize] = {"Converted [CR+LF] to [LF]", "End of input with no newline, supplemented newline"};
+
+    static const string delimiters = "\n";
+
+    // Skip delimiters at beginning.
+    string::size_type lastPos = message.find_first_not_of(delimiters, 0);
+    // Find first "non-delimiter".
+    string::size_type pos     = message.find_first_of(delimiters, lastPos);
+
+    vector<string> tokens;
+    bool skiped;
+    while (string::npos != pos || string::npos != lastPos)
+    {
+        skiped = false;
+        string token = message.substr(lastPos, pos - lastPos);
+        static const string warningPrefix = "warning:";
+        if(token.find_first_of(warningPrefix) != string::npos)
+        {
+            for(int j = 0; j < messagesSize; ++j)
+            {
+                if(token.find_first_of(messages[j]) != string::npos)
+                {
+                    skiped = true;
+                    //Skip Next token.
+
+                    // Skip delimiters.  Note the "not_of"
+                    lastPos = message.find_first_not_of(delimiters, pos);
+                    // Find next "non-delimiter"
+                    pos = message.find_first_of(delimiters, lastPos);
+                    break;
+                }
+            }
+        }
+
+        if(!skiped)
+        {
+            tokens.push_back(token);
+        }
+        // Skip delimiters.  Note the "not_of"
+        lastPos = message.find_first_not_of(delimiters, pos);
+        // Find next "non-delimiter"
+        pos = message.find_first_of(delimiters, lastPos);
+    }
+    return tokens;
+}

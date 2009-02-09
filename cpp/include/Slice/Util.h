@@ -24,7 +24,7 @@ SLICE_API void emitWarning(const std::string&, int, const std::string&);
 SLICE_API void emitError(const std::string&, const std::string&, const std::string&);
 SLICE_API void emitWarning(const std::string&, const std::string&, const std::string&);
 SLICE_API void emitRaw(const char*);
-
+SLICE_API std::vector<std::string> filterMcppWarnings(const std::string&);
 }
 
 #endif
