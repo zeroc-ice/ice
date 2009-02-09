@@ -136,6 +136,11 @@ public class OutputStreamI implements OutputStream
     public void
     writeSize(int sz)
     {
+        if(sz < 0)
+        {
+            throw new NegativeSizeException();
+        }
+
         _os.writeSize(sz);
     }
 
@@ -184,7 +189,7 @@ public class OutputStreamI implements OutputStream
     public void
     endEncapsulation()
     {
-        _os.endWriteEncaps();
+        _os.endWriteEncapsChecked();
     }
 
     public void

@@ -414,6 +414,16 @@ namespace IceInternal
             _writeEncapsCache.reset();
         }
 
+        public virtual void endWriteEncapsChecked()
+        {
+            if(_writeEncapsStack == null)
+            {
+                throw new Ice.EncapsulationException("not in an encapsulation");
+            }
+
+            endWriteEncaps();
+        }
+
         public virtual void startReadEncaps()
         {
             {
@@ -522,6 +532,16 @@ namespace IceInternal
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
+        }
+
+        public virtual void endReadEncapsChecked()
+        {
+            if(_readEncapsStack == null)
+            {
+                throw new Ice.EncapsulationException("not in an encapsulation");
+            }
+
+            endReadEncaps();
         }
 
         public virtual int getReadEncapsSize()
@@ -636,6 +656,11 @@ namespace IceInternal
 
         public virtual void writeTypeId(string id)
         {
+            if(_writeEncapsStack == null || _writeEncapsStack.typeIdMap == null)
+            {
+                throw new Ice.MarshalException("type ids require an encapsulation");
+            }
+
             object o = _writeEncapsStack.typeIdMap[id];
             if(o != null)
             {
@@ -653,6 +678,11 @@ namespace IceInternal
 
         public virtual string readTypeId()
         {
+            if(_readEncapsStack == null || _readEncapsStack.typeIdMap == null)
+            {
+                throw new Ice.MarshalException("type ids require an encapsulation");
+            }
+
             string id;
             int index;
             bool isIndex = readBool();

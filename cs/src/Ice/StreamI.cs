@@ -181,7 +181,7 @@ namespace Ice
 
         public void endEncapsulation()
         {
-            _is.endReadEncaps();
+            _is.endReadEncapsChecked();
         }
 
         public void skipEncapsulation()
@@ -322,6 +322,11 @@ namespace Ice
 
         public void writeSize(int sz)
         {
+            if(sz < 0)
+            {
+                throw new NegativeSizeException();
+            }
+
             _os.writeSize(sz);
         }
 
@@ -362,7 +367,7 @@ namespace Ice
 
         public void endEncapsulation()
         {
-            _os.endWriteEncaps();
+            _os.endWriteEncapsChecked();
         }
 
         public void writeBlob(byte[] data)

@@ -291,6 +291,26 @@ IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
     std::swap(previous, other.previous);
 }
 
+void
+IceInternal::BasicStream::endWriteEncapsChecked()
+{
+    if(!_currentWriteEncaps)
+    {
+        throw EncapsulationException(__FILE__, __LINE__, "not in an encapsulation");
+    }
+    endWriteEncaps();
+}
+
+void
+IceInternal::BasicStream::endReadEncapsChecked()
+{
+    if(!_currentReadEncaps)
+    {
+        throw EncapsulationException(__FILE__, __LINE__, "not in an encapsulation");
+    }
+    endReadEncaps();
+}
+
 Int
 IceInternal::BasicStream::getReadEncapsSize()
 {
@@ -377,6 +397,14 @@ IceInternal::BasicStream::skipSlice()
 void
 IceInternal::BasicStream::writeTypeId(const string& id)
 {
+    if(!_currentWriteEncaps || !_currentWriteEncaps->typeIdMap)
+    {
+        //
+        // write(ObjectPtr) must be called first.
+        //
+        throw MarshalException(__FILE__, __LINE__, "type ids require an encapsulation");
+    }
+
     TypeIdWriteMap::const_iterator k = _currentWriteEncaps->typeIdMap->find(id);
     if(k != _currentWriteEncaps->typeIdMap->end())
     {
@@ -394,6 +422,14 @@ IceInternal::BasicStream::writeTypeId(const string& id)
 void
 IceInternal::BasicStream::readTypeId(string& id)
 {
+    if(!_currentReadEncaps || !_currentReadEncaps->typeIdMap)
+    {
+        //
+        // read(PatchFunc, void*) must be called first.
+        //
+        throw MarshalException(__FILE__, __LINE__, "type ids require an encapsulation");
+    }
+
     bool isIndex;
     read(isIndex);
     if(isIndex)

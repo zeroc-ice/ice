@@ -225,7 +225,7 @@ public class InputStreamI implements InputStream
     public void
     endEncapsulation()
     {
-        _is.endReadEncaps();
+        _is.endReadEncapsChecked();
     }
 
     public void

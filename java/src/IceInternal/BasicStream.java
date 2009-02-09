@@ -367,6 +367,17 @@ public class BasicStream
     }
 
     public void
+    endWriteEncapsChecked() // Used by public stream API.
+    {
+        if(_writeEncapsStack == null)
+        {
+            throw new Ice.EncapsulationException("not in an encapsulation");
+        }
+
+        endWriteEncaps();
+    }
+
+    public void
     startReadEncaps()
     {
         {
@@ -476,6 +487,17 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+    }
+
+    public void
+    endReadEncapsChecked() // Used by public stream API.
+    {
+        if(_readEncapsStack == null)
+        {
+            throw new Ice.EncapsulationException("not in an encapsulation");
+        }
+
+        endReadEncaps();
     }
 
     public int
@@ -592,6 +614,14 @@ public class BasicStream
     public void
     writeTypeId(String id)
     {
+        if(_writeEncapsStack == null || _writeEncapsStack.typeIdMap == null)
+        {
+            //
+            // writeObject() must be called first.
+            //
+            throw new Ice.MarshalException("type ids require an encapsulation");
+        }
+
         Integer index = _writeEncapsStack.typeIdMap.get(id);
         if(index != null)
         {
@@ -610,6 +640,14 @@ public class BasicStream
     public String
     readTypeId()
     {
+        if(_readEncapsStack == null || _readEncapsStack.typeIdMap == null)
+        {
+            //
+            // readObject() must be called first.
+            //
+            throw new Ice.MarshalException("type ids require an encapsulation");
+        }
+
         String id;
         Integer index;
         final boolean isIndex = readBool();
