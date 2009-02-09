@@ -1,6 +1,8 @@
 
-This patch solve a memory leak in db-4.6.21
+To apply the patchs on top of db 4.6.21
 
-To apply the patch on top of db 4.6.21
+patch -p0 < db-4.6.21.1
+patch -p0 < db-4.6.21.2
+patch -p0 < db-4.6.21.3
+patch -p0 < db-4.6.21.15663
 
-patch -p0 < db-4.6.21.patch
