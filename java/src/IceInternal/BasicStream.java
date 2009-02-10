@@ -2403,7 +2403,7 @@ public class BasicStream
             throw new Ice.MarshalException();
         }
 
-        StringBuffer buf = new StringBuffer(id.length());
+        StringBuilder buf = new StringBuilder(id.length());
 
         int start = 2;
         boolean done = false;

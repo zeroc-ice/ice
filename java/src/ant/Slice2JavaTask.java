@@ -175,7 +175,7 @@ public class Slice2JavaTask extends SliceTask
                 translator = _translator.toString();
             }
 
-            StringBuffer cmd = new StringBuffer();
+            StringBuilder cmd = new StringBuilder(256);
 
             //
             // Add --output-dir
@@ -197,7 +197,9 @@ public class Slice2JavaTask extends SliceTask
                     cmd.append(" -I");
                     if(dirs[i].indexOf(' ') != -1)
                     {
-                        cmd.append('"' + dirs[i] + '"');
+                        cmd.append('"');
+                        cmd.append(dirs[i]);
+                        cmd.append('"');
                     }
                     else
                     {
@@ -239,7 +241,8 @@ public class Slice2JavaTask extends SliceTask
             //
             if(_checksum != null && _checksum.length() > 0)
             {
-                cmd.append(" --checksum " + _checksum);
+                cmd.append(" --checksum ");
+                cmd.append(_checksum);
             }
 
             //
@@ -259,7 +262,8 @@ public class Slice2JavaTask extends SliceTask
                 while(i.hasNext())
                 {
                     SliceMeta m = (SliceMeta)i.next();
-                    cmd.append(" --meta " + m.getValue());
+                    cmd.append(" --meta ");
+                    cmd.append(m.getValue());
                 }
             }
 
@@ -289,7 +293,9 @@ public class Slice2JavaTask extends SliceTask
                 String s = f.toString();
                 if(s.indexOf(' ') != -1)
                 {
-                    cmd.append('"' + s + '"');
+                    cmd.append('"');
+                    cmd.append(s);
+                    cmd.append('"');
                 }
                 else
                 {
@@ -312,7 +318,8 @@ public class Slice2JavaTask extends SliceTask
             //
             // Update the dependencies.
             //
-            cmd = new StringBuffer("--depend");
+            cmd = new StringBuilder(256);
+            cmd.append("--depend");
 
             //
             // Add include directives
@@ -325,7 +332,9 @@ public class Slice2JavaTask extends SliceTask
                     cmd.append(" -I");
                     if(dirs[i].indexOf(' ') != -1)
                     {
-                        cmd.append('"' + dirs[i] + '"');
+                        cmd.append('"');
+                        cmd.append(dirs[i]);
+                        cmd.append('"');
                     }
                     else
                     {
@@ -344,7 +353,9 @@ public class Slice2JavaTask extends SliceTask
                 String s = f.toString();
                 if(s.indexOf(' ') != -1)
                 {
-                    cmd.append('"' + s + '"');
+                    cmd.append('"');
+                    cmd.append(s);
+                    cmd.append('"');
                 }
                 else
                 {

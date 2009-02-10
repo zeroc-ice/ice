@@ -1219,8 +1219,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 if(_instance.traceLevels().location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't update object adapter `");
+                    s.append(_id);
+                    s.append("' endpoints with the locator registry:\n");
                     s.append("the object adapter is not known to the locator registry");
                     _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
                 }
@@ -1234,9 +1236,13 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 if(_instance.traceLevels().location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
-                    s.append("the replica group `" + _replicaGroupId + "' is not known to the locator registry");
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't update object adapter `");
+                    s.append(_id);
+                    s.append("' endpoints with the locator registry:\n");
+                    s.append("the replica group `");
+                    s.append(_replicaGroupId);
+                    s.append("' is not known to the locator registry");
                     _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
                 }
 
@@ -1249,8 +1255,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 if(_instance.traceLevels().location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n");
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't update object adapter `");
+                    s.append(_id);
+                    s.append("' endpoints with the locator registry:\n");
                     s.append("the object adapter endpoints are already set");
                     _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
                 }
@@ -1263,8 +1271,11 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 if(_instance.traceLevels().location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n" + e);
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't update object adapter `");
+                    s.append(_id);
+                    s.append("' endpoints with the locator registry:\n");
+                    s.append(e.toString());
                     _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
                 }
                 throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
@@ -1272,8 +1283,10 @@ public final class ObjectAdapterI implements ObjectAdapter
 
             if(_instance.traceLevels().location >= 1)
             {
-                StringBuffer s = new StringBuffer();
-                s.append("updated object adapter `" + _id + "' endpoints with the locator registry\n");
+                StringBuilder s = new StringBuilder(128);
+                s.append("updated object adapter `");
+                s.append(_id);
+                s.append("' endpoints with the locator registry\n");
                 s.append("endpoints = ");
                 if(proxy != null)
                 {
@@ -1311,8 +1324,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 if(_instance.traceLevels().location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't register server `");
+                    s.append(serverId);
+                    s.append("' with the locator registry:\n");
                     s.append("the server is not known to the locator registry");
                     _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
                 }
@@ -1326,17 +1341,22 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 if(_instance.traceLevels().location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("couldn't register server `");
+                    s.append(serverId);
+                    s.append("' with the locator registry:\n");
+                    s.append(ex.toString());
                     _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
                 }
-                throw ex; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                throw ex; // TODO: Shall we raise a special exception instead of a non-obvious local exception?
             }
 
             if(_instance.traceLevels().location >= 1)
             {
-                StringBuffer s = new StringBuffer();
-                s.append("registered server `" + serverId + "' with the locator registry");
+                StringBuilder s = new StringBuilder(128);
+                s.append("registered server `");
+                s.append(serverId);
+                s.append("' with the locator registry");
                 _instance.initializationData().logger.trace(_instance.traceLevels().locationCat, s.toString());
             }
         }

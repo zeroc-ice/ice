@@ -174,7 +174,7 @@ public class ProtocTask extends org.apache.tools.ant.Task
                 translator = _translator.toString();
             }
 
-            StringBuffer cmd = new StringBuffer();
+            StringBuilder cmd = new StringBuilder(128);
 
             //
             // Add --java_out.

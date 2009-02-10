@@ -174,7 +174,7 @@ public class ProtocTask extends org.apache.tools.ant.Task
                 translator = _translator.toString();
             }
 
-            StringBuffer cmd = new StringBuffer();
+            StringBuilder cmd = new StringBuilder(128);
 
             //
             // Add --java_out.
@@ -204,7 +204,9 @@ public class ProtocTask extends org.apache.tools.ant.Task
                 String s = stripDriveLetter(f.toString());
                 if(s.indexOf(' ') != -1)
                 {
-                    cmd.append('"' + s + '"');
+                    cmd.append('"');
+                    cmd.append(s);
+                    cmd.append('"');
                 }
                 else
                 {

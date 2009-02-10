@@ -545,15 +545,20 @@ public final class LocatorInfo
     {
         assert(ref.isIndirect());
 
-        StringBuffer s = new StringBuffer();
-        s.append(msg + "\n");
+        StringBuilder s = new StringBuilder(128);
+        s.append(msg);
+        s.append("\n");
         if(!ref.isWellKnown())
         {
-            s.append("adapter = " + ref.getAdapterId() + "\n");
+            s.append("adapter = ");
+            s.append(ref.getAdapterId());
+            s.append("\n");
         }
         else
         {
-            s.append("object = " + ref.getInstance().identityToString(ref.getIdentity()) + "\n");
+            s.append("object = ");
+            s.append(ref.getInstance().identityToString(ref.getIdentity()));
+            s.append("\n");
         }
 
         s.append("endpoints = ");
@@ -584,9 +589,10 @@ public final class LocatorInfo
             final Instance instance = ref.getInstance();
             if(instance.traceLevels().location >= 1)
             {
-                StringBuffer s = new StringBuffer();
+                StringBuilder s = new StringBuilder(128);
                 s.append("adapter not found\n");
-                s.append("adapter = " + ref.getAdapterId());
+                s.append("adapter = ");
+                s.append(ref.getAdapterId());
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
             }
 
@@ -600,9 +606,10 @@ public final class LocatorInfo
             final Instance instance = ref.getInstance();
             if(instance.traceLevels().location >= 1)
             {
-                StringBuffer s = new StringBuffer();
+                StringBuilder s = new StringBuilder(128);
                 s.append("object not found\n");
-                s.append("object = " + instance.identityToString(ref.getIdentity()));
+                s.append("object = ");
+                s.append(instance.identityToString(ref.getIdentity()));
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
             }
 
@@ -620,15 +627,19 @@ public final class LocatorInfo
             final Instance instance = ref.getInstance();
             if(instance.traceLevels().location >= 1)
             {
-                StringBuffer s = new StringBuffer();
+                StringBuilder s = new StringBuilder(128);
                 s.append("couldn't contact the locator to retrieve adapter endpoints\n");
                 if(ref.getAdapterId().length() > 0)
                 {
-                    s.append("adapter = " + ref.getAdapterId() + "\n");
+                    s.append("adapter = ");
+                    s.append(ref.getAdapterId());
+                    s.append("\n");
                 }
                 else
                 {
-                    s.append("object = " + instance.identityToString(ref.getIdentity()) + "\n");
+                    s.append("object = ");
+                    s.append(instance.identityToString(ref.getIdentity()));
+                    s.append("\n");
                 }
                 s.append("reason = " + ex);
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
@@ -658,17 +669,21 @@ public final class LocatorInfo
         else
         {
             final Instance instance = ref.getInstance();
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder(128);
             s.append("no endpoints configured for ");
             if(ref.getAdapterId().length() > 0)
             {
                 s.append("adapter\n");
-                s.append("adapter = " + ref.getAdapterId() + "\n");
+                s.append("adapter = ");
+                s.append(ref.getAdapterId());
+                s.append("\n");
             }
             else
             {
                 s.append("object\n");
-                s.append("object = " + instance.identityToString(ref.getIdentity()) + "\n");
+                s.append("object = ");
+                s.append(instance.identityToString(ref.getIdentity()));
+                s.append("\n");
             }
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
         }
@@ -680,8 +695,9 @@ public final class LocatorInfo
         if(ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = ref.getInstance();
-            StringBuffer s = new StringBuffer();
-            s.append("searching for adapter by id\nadapter=");
+            StringBuilder s = new StringBuilder(128);
+            s.append("searching for adapter by id\n");
+            s.append("adapter = ");
             s.append(ref.getAdapterId());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
         }
@@ -702,8 +718,9 @@ public final class LocatorInfo
         if(ref.getInstance().traceLevels().location >= 1)
         {
             Instance instance = ref.getInstance();
-            StringBuffer s = new StringBuffer();
-            s.append("searching for object by id\nobject = ");
+            StringBuilder s = new StringBuilder(128);
+            s.append("searching for object by id\n");
+            s.append("object = ");
             s.append(instance.identityToString(ref.getIdentity()));
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
         }

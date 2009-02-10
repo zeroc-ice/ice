@@ -155,7 +155,7 @@ class Scanner
             return null;
         }
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder(128);
 
         if(c == ';' || c == '\n')
         {

@@ -280,7 +280,7 @@ public class RoutableReference extends Reference
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder(128);
         s.append(super.toString());
         if(_endpoints.length > 0)
         {

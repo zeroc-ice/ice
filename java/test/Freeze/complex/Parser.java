@@ -128,7 +128,7 @@ public class Parser
             return;
         }
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder(128);
         
         //
         // Get the next character

@@ -33,7 +33,8 @@ public class LoggerI implements Logger
     public void
     trace(String category, String message)
     {
-        StringBuffer s = new StringBuffer("[ ");
+        StringBuilder s = new StringBuilder(256);
+        s.append("[ ");
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
@@ -48,35 +49,40 @@ public class LoggerI implements Logger
             s.insert(idx + 1, "  ");
             ++idx;
         }
-        System.err.print(s.toString() + _lineSeparator);
+        s.append(_lineSeparator);
+        System.err.print(s.toString());
     }
 
     public void
     warning(String message)
     {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder(256);
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
         s.append(_prefix);
         s.append("warning: ");
-        s.append(Thread.currentThread().getName() + ": ");
+        s.append(Thread.currentThread().getName());
+        s.append(": ");
         s.append(message);
-        System.err.print(s.toString() + _lineSeparator);
+        s.append(_lineSeparator);
+        System.err.print(s.toString());
     }
 
     public void
     error(String message)
     {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder(256);
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
         s.append(_prefix);
         s.append("error: ");
-        s.append(Thread.currentThread().getName() + ": ");
+        s.append(Thread.currentThread().getName());
+        s.append(": ");
         s.append(message);
-        System.err.print(s.toString() + _lineSeparator);
+        s.append(_lineSeparator);
+        System.err.print(s.toString());
     }
 
     String _prefix = "";
