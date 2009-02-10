@@ -51,11 +51,9 @@ public:
         //
         if(_connection)
         {
-            try
-            {
-                ex.ice_throw();
-            }
-            catch(const Ice::ConnectionLostException&)
+            if(dynamic_cast<const Ice::SocketException*>(&ex) ||
+               dynamic_cast<const Ice::TimeoutException*>(&ex) ||
+               dynamic_cast<const Ice::ProtocolException*>(&ex))
             {
                 try
                 {
@@ -64,9 +62,6 @@ public:
                 catch(const Exception&)
                 {
                 }
-            }
-            catch(const Exception&)
-            {
             }
         }
      
