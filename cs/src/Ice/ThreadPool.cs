@@ -241,7 +241,7 @@ namespace IceInternal
                         return;
                     }
 
-                    if(_sizeMax > 1)
+                    if(_sizeMax > _size)
                     {
                         Debug.Assert(_inUse >= 0);
                         ++_inUse;
@@ -309,7 +309,7 @@ namespace IceInternal
                     }
                 }
                 
-                if(_sizeMax > 1)
+                if(_sizeMax > _size)
                 {
                     lock(this)
                     {
