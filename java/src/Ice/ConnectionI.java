@@ -1984,10 +1984,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 }
             }
         }
-        catch(SocketException ex)
-        {
-            setState(StateClosed, ex);
-        }
         catch(LocalException ex)
         {
             if(_endpoint.datagram())

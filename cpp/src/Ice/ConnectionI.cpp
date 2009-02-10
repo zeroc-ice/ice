@@ -2380,10 +2380,6 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
             }
         }
     }
-    catch(const SocketException& ex)
-    {
-        exception(ex);
-    }
     catch(const LocalException& ex)
     {
         if(_endpoint->datagram())
