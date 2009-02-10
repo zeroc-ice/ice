@@ -147,13 +147,13 @@ install-common::
 !if "$(install_slicedir)" != ""
 	@if not exist $(install_slicedir) \
 	    @echo "Creating $(install_slicedir)..." && \
-	    mkdir $(install_slicedir)
-	@echo "Copying slice files..." && \
-	cmd /c "xcopy /s /y $(top_srcdir)\..\slice $(install_slicedir)" || exit 1
+	    mkdir $(install_slicedir) && \
+	    @echo "Copying slice files..." && \
+	    cmd /c "xcopy /s /y $(top_srcdir)\..\slice $(install_slicedir)" || exit 1
 !endif
 
-	@if exist $(top_srcdir)\..\ICE_LICENSE \
-	    @copy ..\ICE_LICENSE $(prefix)
-	@if exist $(top_srcdir)\..\LICENSE \
-	    @copy ..\LICENSE $(prefix)
+	@if not exist $(prefix)\ICE_LICENSE \
+	    @copy $(top_srcdir)\..\ICE_LICENSE $(prefix)
+	@if not exist $(prefix)\LICENSE \
+	    @copy $(top_srcdir)\..\LICENSE $(prefix)
 
