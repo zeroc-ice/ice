@@ -255,8 +255,7 @@ Slice::emitRaw(const char* message)
 vector<string>
 Slice::filterMcppWarnings(const string& message)
 {
-    static const int messagesSize = 2;
-    static const char* messages[messagesSize] = {"Converted [CR+LF] to [LF]", "End of input with no newline, supplemented newline"};
+    static const char* messages[] = {"Converted [CR+LF] to [LF]", "End of input with no newline, supplemented newline", 0};
 
     static const string delimiters = "\n";
 
@@ -274,7 +273,7 @@ Slice::filterMcppWarnings(const string& message)
         static const string warningPrefix = "warning:";
         if(token.find_first_of(warningPrefix) != string::npos)
         {
-            for(int j = 0; j < messagesSize; ++j)
+            for(int j = 0; messages[j] != 0; ++j)
             {
                 if(token.find_first_of(messages[j]) != string::npos)
                 {
