@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Diagnostics;
 
 namespace IceBox
 {
@@ -311,18 +312,18 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
-            // Load and start the services defined in the property set
-            // with the prefix "Service.". These properties should
-            // have the following format:
+            // Parse the property set with the prefix "IceBox.Service.". These
+            // properties should have the following format:
             //
-            // Service.Foo=Package.Foo [args]
+            // IceBox.Service.Foo=Package.Foo [args]
             //
-            // We load the services specified in LoadOrder first,
-            // then load any remaining services.
+            // We parse the service properties specified in IceBox.LoadOrder 
+            // first, then the ones from remaining services.
             //
             string prefix = "IceBox.Service.";
             Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
             string[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
+            List<StartServiceInfo> servicesInfo = new List<StartServiceInfo>();
             for(int i = 0; i < loadOrder.Length; ++i)
             {
                 if(loadOrder[i].Length > 0)
@@ -335,16 +336,74 @@ class ServiceManagerI : ServiceManagerDisp_
                         ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
                         throw ex;
                     }
-                    load(loadOrder[i], value);
+                    servicesInfo.Add(new StartServiceInfo(loadOrder[i], value, _argv));
                     services.Remove(key);
                 }
             }
-
             foreach(KeyValuePair<string, string> entry in services)
             {
                 string name = entry.Key.Substring(prefix.Length);
                 string value = entry.Value;
-                load(name, value);
+                servicesInfo.Add(new StartServiceInfo(name, value, _argv));
+            }
+
+            //
+            // Check if some services are using the shared communicator in which
+            // case we create the shared communicator now with a property set which
+            // is the union of all the service properties (services which are using
+            // the shared communicator).
+            //
+            if(properties.getPropertiesForPrefix("IceBox.UseSharedCommunicator.").Count > 0)
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = createServiceProperties("SharedCommunicator");
+                foreach(StartServiceInfo service in servicesInfo)
+                {
+                    if(properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service.name) <= 0)
+                    {
+                        continue;
+                    }
+
+                    //
+                    // Load the service properties using the shared communicator properties as
+                    // the default properties.
+                    //
+                    Ice.Properties svcProperties = Ice.Util.createProperties(ref service.args, initData.properties);
+
+                    //
+                    // Erase properties from the shared communicator which don't exist in the
+                    // service properties (which include the shared communicator properties
+                    // overriden by the service properties).
+                    //
+                    Dictionary<string, string> allProps = initData.properties.getPropertiesForPrefix("");
+                    foreach(string key in allProps.Keys)
+                    {
+                        if(svcProperties.getProperty(key).Length == 0)
+                        {
+                            initData.properties.setProperty(key, "");
+                        }
+                    }
+                    
+                    //
+                    // Add the service properties to the shared communicator properties.
+                    //
+                    foreach(KeyValuePair<string, string> entry in svcProperties.getPropertiesForPrefix(""))
+                    {
+                        initData.properties.setProperty(entry.Key, entry.Value);
+                    }
+
+                    //
+                    // Parse <service>.* command line options (the Ice command line options 
+                    // were parsed by the createProperties above)
+                    //
+                    service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
+                }
+                _sharedCommunicator = Ice.Util.initialize(initData);
+            }
+
+            foreach(StartServiceInfo s in servicesInfo)
+            {
+                startService(s.name, s.entryPoint, s.args);
             }
 
             //
@@ -448,86 +507,24 @@ class ServiceManagerI : ServiceManagerDisp_
     }
 
     private void
-    load(string name, string value)
-    {
-        //
-        // Separate the entry point from the arguments.
-        //
-        string entryPoint = value;
-        string[] args = new string[0];
-        int start = value.IndexOf(':');
-        if(start != -1)
-        {
-            //
-            // Find the whitespace.
-            //
-            int pos = value.IndexOf(' ', start);
-            if(pos == -1)
-            {
-                pos = value.IndexOf('\t', start);
-            }
-            if(pos == -1)
-            {
-                pos = value.IndexOf('\n', start);
-            }
-            if(pos != -1)
-            {
-                entryPoint = value.Substring(0, pos);
-                try
-                {
-                    args = IceUtilInternal.Options.split(value.Substring(pos));
-                }
-                catch(IceUtilInternal.Options.BadQuote ex)
-                {
-                    FailureException e = new FailureException();
-                    e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.ToString();
-                    throw e;
-                }
-            }
-        }
-        
-        startService(name, entryPoint, args);
-    }
-
-    private void
     startService(string service, string entryPoint, string[] args)
     {
         lock(this)
         {
-            //
-            // Create the service property set from the service arguments
-            // and the server arguments. The service property set will be
-            // used to create a new communicator, or will be added to the
-            // shared communicator, depending on the value of the
-            // UseSharedCommunicator property.
-            //
-            ArrayList l = new ArrayList();
-            for(int j = 0; j < args.Length; j++)
-            {
-                l.Add(args[j]);
-            }
-            for(int j = 0; j < _argv.Length; j++)
-            {
-                if(_argv[j].StartsWith("--" + service + "."))
-                {
-                    l.Add(_argv[j]);
-                }
-            }
-
             //
             // Instantiate the class.
             //
             ServiceInfo info = new ServiceInfo();
             info.name = service;
             info.status = ServiceStatus.Stopped;
-            info.args = (string[])l.ToArray(typeof(string));
+            info.args = args;
 
             //
             // Retrieve the assembly name and the type.
             //
             string err = "ServiceManager: unable to load service '" + entryPoint + "': ";
             int sepPos = entryPoint.IndexOf(':');
-            if (sepPos == -1)
+            if(sepPos == -1)
             {
                 FailureException e = new FailureException();
                 e.reason = err + "invalid entry point format: " + entryPoint;
@@ -611,45 +608,37 @@ class ServiceManagerI : ServiceManagerDisp_
                 if(Ice.Application.communicator().getProperties().getPropertyAsInt(
                        "IceBox.UseSharedCommunicator." + service) > 0)
                 {
-                    if(_sharedCommunicator == null)
-                    {
-                        string[] a = new string[0];
-                        _sharedCommunicator = createCommunicator("", ref a);
-                    }
+                    Debug.Assert(_sharedCommunicator != null);
                     communicator = _sharedCommunicator;
-                    
-                    Ice.Properties properties = _sharedCommunicator.getProperties();
-                    Ice.Properties svcProperties = Ice.Util.createProperties(ref info.args, properties);
-
-                    //
-                    // Erase properties in 'properties'
-                    //
-                    Dictionary<string, string> allProps = properties.getPropertiesForPrefix("");
-                    foreach(string key in allProps.Keys)
-                    {
-                        if(svcProperties.getProperty(key).Length == 0)
-                        {
-                            properties.setProperty(key, "");
-                        }
-                    }
-                
-                    //
-                    // Add the service properties to the shared communicator properties.
-                    //
-                    foreach(KeyValuePair<string, string> entry in svcProperties.getPropertiesForPrefix(""))
-                    {
-                        properties.setProperty(entry.Key, entry.Value);
-                    }
-                
-                    //
-                    // Parse <service>.* command line options
-                    // (the Ice command line options were parse by the createProperties above)
-                    //
-                    info.args = properties.parseCommandLineOptions(service, info.args);
                 }
                 else
                 {
-                    info.communicator = createCommunicator(service, ref info.args);
+                    //
+                    // Create the service properties. We use the communicator properties as the default
+                    // properties if IceBox.InheritProperties is set.
+                    //
+                    Ice.InitializationData initData = new Ice.InitializationData();
+                    initData.properties = createServiceProperties(service);
+                    if(info.args.Length > 0)
+                    {
+                        //
+                        // Create the service properties with the given service arguments. This should
+                        // read the service config file if it's specified with --Ice.Config.
+                        //
+                        initData.properties = Ice.Util.createProperties(ref info.args, initData.properties);
+
+                        //
+                        // Next, parse the service "<service>.*" command line options (the Ice command 
+                        // line options were parsed by the createProperties above)
+                        //
+                        info.args = initData.properties.parseCommandLineOptions(service, info.args);
+                    }
+            
+                    //
+                    // Remaining command line options are passed to the communicator. This is 
+                    // necessary for Ice plug-in properties (e.g.: IceSSL).
+                    //
+                    info.communicator = Ice.Util.initialize(ref info.args, initData);
                     communicator = info.communicator;
                 }
 
@@ -889,6 +878,70 @@ class ServiceManagerI : ServiceManagerDisp_
         public string[] args;
     }
 
+    class StartServiceInfo
+    {
+        public StartServiceInfo(string service, string value, string[] serverArgs)
+        {
+            //
+            // Separate the entry point from the arguments.
+            //
+            name = service;
+            entryPoint = value;
+            args = new string[0];
+            int start = value.IndexOf(':');
+            if(start != -1)
+            {
+                //
+                // Find the whitespace.
+                //
+                int pos = value.IndexOf(' ', start);
+                if(pos == -1)
+                {
+                    pos = value.IndexOf('\t', start);
+                }
+                if(pos == -1)
+                {
+                    pos = value.IndexOf('\n', start);
+                }
+                if(pos != -1)
+                {
+                    entryPoint = value.Substring(0, pos);
+                    try
+                    {
+                        args = IceUtilInternal.Options.split(value.Substring(pos));
+                    }
+                    catch(IceUtilInternal.Options.BadQuote ex)
+                    {
+                        FailureException e = new FailureException();
+                        e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.ToString();
+                        throw e;
+                    }
+                }
+            }
+
+            if(serverArgs.Length > 0)
+            {
+                ArrayList l = new ArrayList();
+                for(int j = 0; j < args.Length; j++)
+                {
+                    l.Add(args[j]);
+                }
+                for(int j = 0; j < serverArgs.Length; j++)
+                {
+                    if(serverArgs[j].StartsWith("--" + service + "."))
+                    {
+                        l.Add(serverArgs[j]);
+                    }
+                }
+                args = (string[])l.ToArray(typeof(string));
+            }
+        }
+
+        public string name;
+        public string entryPoint;
+        public string[] args;
+    }
+
     class PropertiesAdminI : Ice.PropertiesAdminDisp_
     {
         public PropertiesAdminI(Ice.Properties properties)
@@ -911,16 +964,11 @@ class ServiceManagerI : ServiceManagerDisp_
         private Ice.Properties _properties;
     }
 
-    private Ice.Communicator
-    createCommunicator(String service, ref string[] args)
+    private Ice.Properties
+    createServiceProperties(String service)
     {
-        Ice.Properties communicatorProperties = Ice.Application.communicator().getProperties();
-
-        //
-        // Create the service properties. We use the communicator properties as the default
-        // properties if IceBox.InheritProperties is set.
-        //
         Ice.Properties properties;
+        Ice.Properties communicatorProperties = Ice.Application.communicator().getProperties();
         if(communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
         {
             properties = communicatorProperties.ice_clone_();
@@ -931,60 +979,16 @@ class ServiceManagerI : ServiceManagerDisp_
             properties = Ice.Util.createProperties();
         }
 
-        //
-        // Set the default program name for the service properties. By default it's 
-        // the IceBox program name + "-" + the service name, or just the IceBox 
-        // program name if we're creating the shared communicator (service == "").
-        //
         String programName = communicatorProperties.getProperty("Ice.ProgramName");
-        if(service.Length == 0)
+        if(programName.Length == 0)
         {
-            if(programName.Length == 0)
-            {
-                properties.setProperty("Ice.ProgramName", "SharedCommunicator");
-            }
-            else
-            {
-                properties.setProperty("Ice.ProgramName", programName + "-SharedCommunicator");
-            }
+            properties.setProperty("Ice.ProgramName", service);
         }
         else
         {
-            if(programName.Length == 0)
-            {
-                properties.setProperty("Ice.ProgramName", service);
-            }
-            else
-            {
-                properties.setProperty("Ice.ProgramName", programName + "-" + service);
-            }
+            properties.setProperty("Ice.ProgramName", programName + "-" + service);
         }
-
-        if(args.Length > 0)
-        {
-            //
-            // Create the service properties with the given service arguments. This should
-            // read the service config file if it's specified with --Ice.Config.
-            //
-            properties = Ice.Util.createProperties(ref args, properties);
-        
-            if(service.Length > 0)
-            {
-                //
-                // Next, parse the service "<service>.*" command line options (the Ice command 
-                // line options were parsed by the createProperties above)
-                //
-                args = properties.parseCommandLineOptions(service, args);
-            }
-        }
-
-        //
-        // Remaining command line options are passed to the communicator. This is 
-        // necessary for Ice plug-in properties (e.g.: IceSSL).
-        //
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = properties;
-        return Ice.Util.initialize(ref args, initData);
+        return properties;
     }
 
     private Ice.Communicator _sharedCommunicator;

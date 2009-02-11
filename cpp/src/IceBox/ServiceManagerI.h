@@ -63,7 +63,6 @@ private:
         Ice::StringSeq args;
     };
 
-    void load(const std::string&, const std::string&);
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stopAll();
 
@@ -71,7 +70,7 @@ private:
     void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrx>&);
     void observerRemoved(const ServiceObserverPrx&, const std::exception&);
 
-    Ice::CommunicatorPtr createCommunicator(const std::string&, Ice::StringSeq&);
+    Ice::PropertiesPtr createServiceProperties(const std::string&);
     
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::CommunicatorPtr _sharedCommunicator;

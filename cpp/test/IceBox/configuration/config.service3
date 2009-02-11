@@ -5,4 +5,4 @@ Service=3
 Prop=2
 Service3.Prop=1
 
-Ice.Trace.Network=2
+Ice.Trace.Slicing=2

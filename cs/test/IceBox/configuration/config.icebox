@@ -8,6 +8,6 @@ IceBox.Service.Service2=testservice.dll:TestServiceI --Ice.Config=config.service
 IceBox.UseSharedCommunicator.Service3=1
 IceBox.Service.Service3=testservice.dll:TestServiceI --Ice.Config=config.service3
 IceBox.UseSharedCommunicator.Service4=1
-IceBox.Service.Service4=testservice.dll:TestServiceI --Ice.Config=config.service4 --Service3.Prop=2 --Ice.Trace.Network=3
+IceBox.Service.Service4=testservice.dll:TestServiceI --Ice.Config=config.service4 --Service3.Prop=2 --Ice.Trace.Slicing=3
 
 IceBox.LoadOrder=Service1 Service2 Service3 Service4
