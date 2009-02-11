@@ -52,7 +52,7 @@ public class Client
                 Console.Error.WriteLine("ok");
             }
             
-            long tv1 = (System.DateTime.Now.Ticks - 621355968000000000) / 10000;
+            DateTime tv1 = DateTime.Now;
             int repetitions = 100000;
             Console.Out.WriteLine("pinging server " + repetitions + " times (this may take a while)");
             for (int i = 0; i < repetitions; i++)
@@ -60,8 +60,7 @@ public class Client
                 ping.ice_ping();
             }
             
-            long tv2 = (System.DateTime.Now.Ticks - 621355968000000000) / 10000;
-            double total = (double)(tv2 - tv1);
+            double total = (double)(DateTime.Now - tv1).TotalMilliseconds;
             double perPing = total / repetitions;
             
             Console.Out.WriteLine("time for " + repetitions + " pings: " + total + "ms");
