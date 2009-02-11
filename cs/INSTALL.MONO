@@ -54,6 +54,19 @@ an Ice for C++ installation. (The makefiles look there for a bin
 directory that contains slice2cs.)
 
 
+Managed Code
+------------
+
+By default Ice for .NET does not use one hundred percent managed code.
+Unmanaged code is used for protocol compression as well as the handling
+of signals in the Ice::Application class on Windows.
+
+If you require managed code and do not need the features mentioned above
+then you can compile Ice for .NET as managed by editting
+config/Make.rules.cs and uncommenting the MANAGED=yes line before
+you build.
+
+
 Configuring the bzip library
 ----------------------------
 

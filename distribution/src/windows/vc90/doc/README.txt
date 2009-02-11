@@ -64,6 +64,20 @@ relevant for your system:
   http://support.microsoft.com/?id=895980
 
 
+Managed code in Ice for .NET
+----------------------------
+
+The main Ice for .NET assembly (Ice.dll) included in this distribution
+uses unmanaged code. If you require only managed code then you can
+download the Ice source distribution and build Ice for .NET as managed.
+
+When built as managed, Ice for .NET does not support protocol compression
+or signal handling in the Ice::Application class. You can download the
+source distribution at
+
+    http://www.zeroc.com/download.html
+
+
 Running IceGrid and Glacier2 components as services
 ---------------------------------------------------
 

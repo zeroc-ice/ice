@@ -27,7 +27,6 @@ prefix			?= /opt/Ice-$(VERSION)
 #
 # - Protocol compression
 # - Signal processing in the Ice.Application class (Windows only)
-# - Monotonic time (Windows only)
 #
 # Enable MANAGED below if you do not require these features and prefer that
 # the Ice run time use only managed code.

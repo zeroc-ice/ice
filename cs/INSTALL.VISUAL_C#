@@ -47,6 +47,19 @@ the source code of a sample program, you can rebuild it using nmake,
 or you can open the Visual Studio solution located in demo\demo.sln.
 
 
+Managed Code
+------------
+
+By default Ice for .NET does not use one hundred percent managed code.
+Unmanaged code is used for protocol compression as well as the handling
+of signals in the Ice::Application class. 
+
+If you require managed code and do not need the features mentioned above
+then you can compile Ice for .NET as managed by editting 
+config/Make.rules.mak.cs and uncommenting the MANAGED=yes line before
+you build.
+
+
 SSL Notes
 ---------
 
