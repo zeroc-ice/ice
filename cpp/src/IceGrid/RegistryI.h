@@ -52,6 +52,7 @@ public:
     ~RegistryI();
 
     bool start();
+    bool startImpl();
     void stop();
 
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);

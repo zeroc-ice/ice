@@ -322,19 +322,29 @@ NodeSessionManager::destroy()
     NodeSessionMap sessions;
     {
         Lock sync(*this);
+        if(_destroyed)
+        {
+            return;
+        }
         _destroyed = true;
         _sessions.swap(sessions);
         notifyAll();
     }
 
-    _thread->terminate();
+    if(_thread)
+    {
+        _thread->terminate();
+    }
     NodeSessionMap::const_iterator p;
     for(p = sessions.begin(); p != sessions.end(); ++p)
     {
         p->second->terminate();
     }
 
-    _thread->getThreadControl().join();
+    if(_thread)
+    {
+        _thread->getThreadControl().join();
+    }
     for(p = sessions.begin(); p != sessions.end(); ++p)
     {
         p->second->getThreadControl().join();
