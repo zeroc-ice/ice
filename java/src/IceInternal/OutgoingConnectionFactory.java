@@ -853,7 +853,7 @@ public final class OutgoingConnectionFactory
         TraceLevels traceLevels = _instance.traceLevels();
         if(traceLevels.retry >= 2)
         {
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder(128);
             s.append("connection to endpoint failed");
             if(ex instanceof Ice.CommunicatorDestroyedException)
             {
@@ -913,7 +913,7 @@ public final class OutgoingConnectionFactory
         TraceLevels traceLevels = _instance.traceLevels();
         if(traceLevels.retry >= 2)
         {
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder(128);
             s.append("couldn't resolve endpoint host");
             if(ex instanceof Ice.CommunicatorDestroyedException)
             {

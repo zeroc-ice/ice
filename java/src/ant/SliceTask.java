@@ -213,7 +213,7 @@ public class SliceTask extends org.apache.tools.ant.Task
         try
         {
             BufferedReader in = new BufferedReader(new StringReader(allDependencies));
-            StringBuffer depline = new StringBuffer();
+            StringBuilder depline = new StringBuilder(1024);
             String line;
 
             while((line = in.readLine()) != null)
@@ -261,7 +261,7 @@ public class SliceTask extends org.apache.tools.ant.Task
                     // (e.g., "C\:/Program\ Files/...").
                     //
                     java.util.ArrayList l = new java.util.ArrayList();
-                    StringBuffer file = new StringBuffer();
+                    StringBuilder file = new StringBuilder(128);
                     pos = 0;
                     while(pos < chars.length)
                     {
@@ -270,7 +270,7 @@ public class SliceTask extends org.apache.tools.ant.Task
                             if(file.length() > 0)
                             {
                                 l.add(file.toString());
-                                file = new StringBuffer();
+                                file = new StringBuilder(128);
                             }
                         }
                         else if(chars[pos] != '\\') // Skip backslash of an escaped character.
@@ -301,7 +301,7 @@ public class SliceTask extends org.apache.tools.ant.Task
                     }
                     dependencies.add(depend);
 
-                    depline = new StringBuffer();
+                    depline = new StringBuilder(1024);
                 }
             }
         }

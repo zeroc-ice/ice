@@ -367,6 +367,17 @@ public class BasicStream
     }
 
     public void
+    endWriteEncapsChecked() // Used by public stream API.
+    {
+        if(_writeEncapsStack == null)
+        {
+            throw new Ice.EncapsulationException("not in an encapsulation");
+        }
+
+        endWriteEncaps();
+    }
+
+    public void
     startReadEncaps()
     {
         {
@@ -476,6 +487,17 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+    }
+
+    public void
+    endReadEncapsChecked() // Used by public stream API.
+    {
+        if(_readEncapsStack == null)
+        {
+            throw new Ice.EncapsulationException("not in an encapsulation");
+        }
+
+        endReadEncaps();
     }
 
     public int
@@ -592,6 +614,14 @@ public class BasicStream
     public void
     writeTypeId(String id)
     {
+        if(_writeEncapsStack == null || _writeEncapsStack.typeIdMap == null)
+        {
+            //
+            // writeObject() must be called first.
+            //
+            throw new Ice.MarshalException("type ids require an encapsulation");
+        }
+
         Integer index = _writeEncapsStack.typeIdMap.get(id);
         if(index != null)
         {
@@ -610,6 +640,14 @@ public class BasicStream
     public String
     readTypeId()
     {
+        if(_readEncapsStack == null || _readEncapsStack.typeIdMap == null)
+        {
+            //
+            // readObject() must be called first.
+            //
+            throw new Ice.MarshalException("type ids require an encapsulation");
+        }
+
         String id;
         Integer index;
         final boolean isIndex = readBool();
@@ -692,6 +730,28 @@ public class BasicStream
         }
     }
 
+    public void
+    writeSerializable(java.io.Serializable o)
+    {
+        if(o == null)
+        {
+            writeSize(0);
+            return;
+        }
+        try
+        {
+            OutputStreamWrapper w = new OutputStreamWrapper(this);
+            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(w);
+            out.writeObject(o);
+            out.close();
+            w.close();
+        }
+        catch(java.lang.Exception ex)
+        {
+            throw new Ice.MarshalException("cannot serialize object: " + ex);
+        }
+    }
+
     public byte
     readByte()
     {
@@ -730,6 +790,27 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public java.io.Serializable
+    readSerializable()
+    {
+        int sz = readSize();
+        if (sz == 0)
+        {
+            return null;
+        }
+        checkFixedSeq(sz, 1);
+        try
+        {
+            InputStreamWrapper w = new InputStreamWrapper(sz, this);
+            java.io.ObjectInputStream in = new java.io.ObjectInputStream(w);
+            return (java.io.Serializable)in.readObject();
+        }
+        catch(java.lang.Exception ex)
+        {
+            throw new Ice.MarshalException("cannot deserialize object: " + ex);
         }
     }
 
@@ -2056,7 +2137,7 @@ public class BasicStream
         return ucStream;
     }
 
-    private void
+    public void
     expand(int n)
     {
         if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
@@ -2322,7 +2403,7 @@ public class BasicStream
             throw new Ice.MarshalException();
         }
 
-        StringBuffer buf = new StringBuffer(id.length());
+        StringBuilder buf = new StringBuilder(id.length());
 
         int start = 2;
         boolean done = false;

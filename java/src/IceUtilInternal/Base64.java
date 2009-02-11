@@ -20,12 +20,11 @@ encode(byte[] plainSeq)
         return "";
     }
 
-    StringBuffer retval = new StringBuffer();
     int base64Bytes = (((plainSeq.length * 4) / 3) + 1);
     int newlineBytes = (((base64Bytes * 2) / 76) + 1);
     int totalBytes = base64Bytes + newlineBytes;
 
-    retval.ensureCapacity(totalBytes);
+    StringBuilder retval = new StringBuilder(totalBytes);
  
     int by1;
     int by2;
@@ -78,8 +77,7 @@ encode(byte[] plainSeq)
         }
     }
 
-    StringBuffer outString = new StringBuffer();
-    outString.ensureCapacity(totalBytes);
+    StringBuilder outString = new StringBuilder(totalBytes);
     int iter = 0;
 
     while((retval.length() - iter) > 76)
@@ -97,9 +95,7 @@ encode(byte[] plainSeq)
 public static byte[]
 decode(String str)
 {
-    StringBuffer newStr = new StringBuffer();
-
-    newStr.ensureCapacity(str.length());
+    StringBuilder newStr = new StringBuilder(str.length());
 
     for(int j = 0; j < str.length(); j++)
     {

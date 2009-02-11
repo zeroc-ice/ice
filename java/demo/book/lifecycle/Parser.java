@@ -50,7 +50,7 @@ class Parser
     void
     list(Filesystem.DirectoryPrx dir, boolean recursive, int depth)
     {
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         for(int i = 0; i < depth; ++i)
         {
             b.append('\t');

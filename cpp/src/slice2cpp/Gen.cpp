@@ -1151,14 +1151,20 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     TypePtr type = p->type();
     string s = typeToString(type, _useWstring, p->typeMetaData());
     StringList metaData = p->getMetaData();
-    string seqType = findMetaData(metaData, false);
-    if(!seqType.empty())
+
+    bool protobuf;
+    string seqType = findMetaData(p, metaData, false, protobuf);
+    H << sp;
+    if(!protobuf)
     {
-        H << sp << nl << "typedef " << seqType << ' ' << name << ';';
-    }
-    else
-    {
-        H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
+        if(!seqType.empty())
+        {
+            H << nl << "typedef " << seqType << ' ' << name << ';';
+        }
+        else
+        {
+            H << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
+        }
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1167,100 +1173,163 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         string scoped = fixKwd(p->scoped());
         string scope = fixKwd(p->scope());
 
-        if(!seqType.empty())
+        if(protobuf || !seqType.empty())
         {
-            H << nl << _dllExport << "void __write" << name << "(::IceInternal::BasicStream*, const " << name << "&);";
-            H << nl << _dllExport << "void __read" << name << "(::IceInternal::BasicStream*, " << name << "&);";
+            string typeName = name;
+            string scopedName = scoped;
+            if(protobuf && !seqType.empty())
+            {
+                typeName = seqType;
+                scopedName = seqType;
+            }
+            H << nl << _dllExport << "void __write" << name << "(::IceInternal::BasicStream*, const "
+              << typeName << "&);";
+            H << nl << _dllExport << "void __read" << name << "(::IceInternal::BasicStream*, "
+              << typeName << "&);";
 
             if(_stream)
             {
                 H << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
-                  << name << "&);";
-                H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name
+                  << typeName << "&);";
+                H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << typeName
                   << "&);";
             }
 
             C << sp << nl << "void" << nl << scope.substr(2) << "__write" << name <<
-                "(::IceInternal::BasicStream* __os, const " << scoped << "& v)";
+                "(::IceInternal::BasicStream* __os, const " << scopedName << "& v)";
             C << sb;
-            C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(v.size());";
-            C << nl << "__os->writeSize(size);";
-            C << nl << "for(" << name << "::const_iterator p = v.begin(); p != v.end(); ++p)";
-            C << sb;
-            writeMarshalUnmarshalCode(C, type, "(*p)", true);
-            C << eb;
-            C << eb;
-
-            C << sp << nl << "void" << nl << scope.substr(2) << "__read" << name
-              << "(::IceInternal::BasicStream* __is, " << scoped << "& v)";
-            C << sb;
-            C << nl << "::Ice::Int sz;";
-            C << nl << "__is->readSize(sz);";
-            C << nl << name << "(sz).swap(v);";
-            if(type->isVariableLength())
+            if(protobuf)
             {
-                // Protect against bogus sequence sizes.
-                C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
+                C << nl << "std::vector< ::Ice::Byte> data(v.ByteSize());";
+                C << nl << "if(!v.IsInitialized())";
+                C << sb;
+                C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"type not fully initialized: \" + v.InitializationErrorString());";
+                C << eb;
+                C << nl << "if(!v.SerializeToArray(&data[0], data.size()))";
+                C << sb;
+                C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"SerializeToArray failed\");";
+                C << eb;
+                C << nl << "__os->write(&data[0], &data[0] + data.size());";
             }
             else
             {
-                C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
-            }
-            C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
-            C << sb;
-            writeMarshalUnmarshalCode(C, type, "(*p)", false);
-
-            //
-            // After unmarshaling each element, check that there are still enough bytes left in the stream
-            // to unmarshal the remainder of the sequence, and decrement the count of elements
-            // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-            // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-            // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-            // (For fixed-length sequences, we don't need to do this because the prediction of how many
-            // bytes will be taken up by the sequence is accurate.)
-            //
-            if(type->isVariableLength())
-            {
-                if(!SequencePtr::dynamicCast(type))
-                {
-                    //
-                    // No need to check for directly nested sequences because, at the start of each
-                    // sequence, we check anyway.
-                    //
-                    C << nl << "__is->checkSeq();";
-                }
-                C << nl << "__is->endElement();";
+                C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(v.size());";
+                C << nl << "__os->writeSize(size);";
+                C << nl << "for(" << name << "::const_iterator p = v.begin(); p != v.end(); ++p)";
+                C << sb;
+                writeMarshalUnmarshalCode(C, type, "(*p)", true);
+                C << eb;
             }
             C << eb;
-            if(type->isVariableLength())
+
+            C << sp << nl << "void" << nl << scope.substr(2) << "__read" << name
+              << "(::IceInternal::BasicStream* __is, " << scopedName << "& v)";
+            C << sb;
+            if(protobuf)
             {
-                C << nl << "__is->endSeq(sz);";
+                C << nl << "::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> data;";
+                C << nl << "__is->read(data);";
+                C << nl << "if(!v.ParseFromArray(data.first, data.second - data.first))";
+                C << sb;
+                C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"ParseFromArray failed\");";
+                C << eb;
+            }
+            else
+            {
+                C << nl << "::Ice::Int sz;";
+                C << nl << "__is->readSize(sz);";
+                C << nl << name << "(sz).swap(v);";
+                if(type->isVariableLength())
+                {
+                    // Protect against bogus sequence sizes.
+                    C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
+                }
+                else
+                {
+                    C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
+                }
+                C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
+                C << sb;
+                writeMarshalUnmarshalCode(C, type, "(*p)", false);
+
+                //
+                // After unmarshaling each element, check that there are still enough bytes left in the stream
+                // to unmarshal the remainder of the sequence, and decrement the count of elements
+                // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+                // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+                // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+                // (For fixed-length sequences, we don't need to do this because the prediction of how many
+                // bytes will be taken up by the sequence is accurate.)
+                //
+                if(type->isVariableLength())
+                {
+                    if(!SequencePtr::dynamicCast(type))
+                    {
+                        //
+                        // No need to check for directly nested sequences because, at the start of each
+                        // sequence, we check anyway.
+                        //
+                        C << nl << "__is->checkSeq();";
+                    }
+                    C << nl << "__is->endElement();";
+                }
+                C << eb;
+                if(type->isVariableLength())
+                {
+                    C << nl << "__is->endSeq(sz);";
+                }
             }
             C << eb;
 
             if(_stream)
             {
                 C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-                  << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
+                  << "(const ::Ice::OutputStreamPtr& __outS, const " << scopedName << "& v)";
                 C << sb;
-                C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
-                C << nl << scoped << "::const_iterator p;";
-                C << nl << "for(p = v.begin(); p != v.end(); ++p)";
-                C << sb;
-                writeStreamMarshalUnmarshalCode(C, type, "(*p)", true, "", _useWstring);
-                C << eb;
+                if(protobuf)
+                {
+                    C << nl << "std::vector< ::Ice::Byte> data(v.ByteSize());";
+                    C << nl << "if(!v.IsInitialized())";
+                    C << sb;
+                    C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"type not fully initialized: \" + v.InitializationErrorString());";
+                    C << eb;
+                    C << nl << "v.SerializeToArray(&data[0], data.size());";
+
+                    C << nl << "__outS->writeByteSeq(data);";
+                }
+                else
+                {
+                    C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
+                    C << nl << scopedName << "::const_iterator p;";
+                    C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+                    C << sb;
+                    writeStreamMarshalUnmarshalCode(C, type, "(*p)", true, "", _useWstring);
+                    C << eb;
+                }
                 C << eb;
 
                 C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-                  << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
+                  << "(const ::Ice::InputStreamPtr& __inS, " << scopedName << "& v)";
                 C << sb;
-                C << nl << "::Ice::Int sz = __inS->readSize();";
-                C << nl << scoped << "(sz).swap(v);";
-                C << nl << scoped << "::iterator p;";
-                C << nl << "for(p = v.begin(); p != v.end(); ++p)";
-                C << sb;
-                writeStreamMarshalUnmarshalCode(C, type, "(*p)", false, "", _useWstring);
-                C << eb;
+                if(protobuf)
+                {
+                    C << nl << "std::pair<const ::Ice::Byte*, const ::Ice::Byte*> data;";
+                    C << nl << "__inS->readByteSeq(data);";
+                    C << nl << "if(!v.ParseFromArray(data.first, data.second - data.first))";
+                    C << sb;
+                    C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"ParseFromArray failed\");";
+                    C << eb;
+                }
+                else
+                {
+                    C << nl << "::Ice::Int sz = __inS->readSize();";
+                    C << nl << scopedName << "(sz).swap(v);";
+                    C << nl << scopedName << "::iterator p;";
+                    C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+                    C << sb;
+                    writeStreamMarshalUnmarshalCode(C, type, "(*p)", false, "", _useWstring);
+                    C << eb;
+                }
                 C << eb;
             }
         }
@@ -5749,6 +5818,7 @@ Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
+
     bool ami = false;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
     if(cl->hasMetaData("ami") || p->hasMetaData("ami") || cl->hasMetaData("amd") || p->hasMetaData("amd"))
@@ -5814,7 +5884,31 @@ Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    StringList metaData = p->getMetaData();
+    const string file = p->definitionContext()->filename();
+    const string line = p->line();
+    static const string prefix = "cpp:protobuf";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
+    {
+        string s = *q++;
+        if(s.find(prefix) == 0)
+        {
+            //
+            // Remove from list so validate does not try to handle as well.
+            //
+            metaData.remove(s);
+
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            if(!builtin || builtin->kind() != Builtin::KindByte)
+            {
+                _history.insert(s);
+                emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n"+
+                            "`protobuf' encoding must be a byte sequence.");
+            }
+        }
+    }
+
+    validate(p, metaData, file, line);
 }
 
 void
@@ -5871,7 +5965,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 {
                     continue;
                 }
-
                 emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
             }
             _history.insert(s);

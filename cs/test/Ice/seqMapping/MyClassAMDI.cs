@@ -443,4 +443,25 @@ public sealed class MyClassI : MyClass
     {
         cb.ice_response(i, i);
     }
+
+    public override void opSerialSmallCSharp_async(AMD_MyClass_opSerialSmallCSharp cb,
+                                                   Serialize.Small i,
+                                                   Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opSerialLargeCSharp_async(AMD_MyClass_opSerialLargeCSharp cb,
+                                                   Serialize.Large i,
+                                                   Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opSerialStructCSharp_async(AMD_MyClass_opSerialStructCSharp cb,
+                                                    Serialize.Struct i,
+                                                    Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
 }

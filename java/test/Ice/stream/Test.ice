@@ -22,6 +22,8 @@ enum MyEnum
 
 class MyClass;
 
+["java:serializable:Serialize.Small"] sequence<byte> SerialSmall;
+
 struct SmallStruct
 {
     bool bo;
@@ -34,6 +36,7 @@ struct SmallStruct
     string str;
     MyEnum e;
     MyClass* p;
+    SerialSmall ss;
 };
 
 sequence<bool> BoolS;

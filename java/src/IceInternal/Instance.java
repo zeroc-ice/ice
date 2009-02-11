@@ -453,8 +453,10 @@ public final class Instance
                 {
                     if(_traceLevels.location >= 1)
                     {
-                        StringBuffer s = new StringBuffer();
-                        s.append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                        StringBuilder s = new StringBuilder(128);
+                        s.append("couldn't register server `");
+                        s.append(serverId);
+                        s.append("' with the locator registry:\n");
                         s.append("the server is not known to the locator registry");
                         _initData.logger.trace(_traceLevels.locationCat, s.toString());
                     }
@@ -465,8 +467,11 @@ public final class Instance
                 {
                     if(_traceLevels.location >= 1)
                     {
-                        StringBuffer s = new StringBuffer();
-                        s.append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                        StringBuilder s = new StringBuilder(128);
+                        s.append("couldn't register server `");
+                        s.append(serverId);
+                        s.append("' with the locator registry:\n");
+                        s.append(ex.toString());
                         _initData.logger.trace(_traceLevels.locationCat, s.toString());
                     }
                     throw ex;
@@ -474,8 +479,10 @@ public final class Instance
 
                 if(_traceLevels.location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("registered server `" + serverId + "' with the locator registry");
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("registered server `");
+                    s.append(serverId);
+                    s.append("' with the locator registry");
                     _initData.logger.trace(_traceLevels.locationCat, s.toString());
                 }
             }

@@ -1666,6 +1666,15 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         return;
     }
 
+    //
+    // No need to generate anything for serializable sequences.
+    //
+    prefix = "clr:serializable:";
+    if(p->findMetaData(prefix, meta))
+    {
+        return;
+    }
+
     string name = fixId(p->name());
     string s = typeToString(p->type());
 
@@ -2732,9 +2741,10 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
         SequencePtr seq = SequencePtr::dynamicCast(memberType);
         if(seq)
         {
-            string genericType;
-            bool isGeneric = seq->findMetaData("clr:generic:", genericType);
-            bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
+            string meta;
+            bool isSerializable = seq->findMetaData("clr:serializable", meta);
+            bool isGeneric = seq->findMetaData("clr:generic:", meta);
+            bool isArray = !isSerializable && !isGeneric && !seq->hasMetaData("clr:collection");
             if(isArray)
             {
                 //
@@ -2811,9 +2821,10 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
             SequencePtr seq = SequencePtr::dynamicCast(memberType);
             if(seq)
             {
-                string genericType;
-                bool isGeneric = seq->findMetaData("clr:generic:", genericType);
-                bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
+                string meta;
+                bool isSerializable = seq->findMetaData("clr:serializable:", meta);
+                bool isGeneric = seq->findMetaData("clr:generic:", meta);
+                bool isArray = !isSerializable && !isGeneric && !seq->hasMetaData("clr:collection");
                 if(isArray)
                 {
                     //

@@ -17,6 +17,7 @@
 *.opt
 *.user
 .gdb_history
+.DS_Store
 core
 /*/dist
 generated

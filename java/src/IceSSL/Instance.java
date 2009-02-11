@@ -710,11 +710,12 @@ class Instance
 
         if(_securityTraceLevel >= 1)
         {
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder(128);
             s.append("enabling SSL ciphersuites:");
             for(int i = 0; i < cipherSuites.length; ++i)
             {
-                s.append("\n  " + cipherSuites[i]);
+                s.append("\n  ");
+                s.append(cipherSuites[i]);
             }
             _logger.trace(_securityTraceCategory, s.toString());
         }
@@ -927,14 +928,15 @@ class Instance
                     //
                     if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
                     {
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder(128);
                         sb.append("IceSSL: ");
                         if(!_checkCertName)
                         {
                             sb.append("ignoring ");
                         }
-                        sb.append("certificate validation failure:\npeer certificate does not contain `" +
-                                  address + "' in its subjectAltName extension");
+                        sb.append("certificate validation failure:\npeer certificate does not contain `");
+                        sb.append(address);
+                        sb.append("' in its subjectAltName extension");
                         if(!dnsNames.isEmpty())
                         {
                             sb.append("\nDNS names found in certificate: ");

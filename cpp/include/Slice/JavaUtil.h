@@ -181,8 +181,7 @@ protected:
     //
     bool getDictionaryTypes(const DictionaryPtr&, const std::string&, const StringList&,
                             std::string&, std::string&) const;
-    bool getSequenceTypes(const SequencePtr&, const std::string&, const StringList&,
-                          std::string&, std::string&) const;
+    bool getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&) const;
 
     virtual JavaOutput* createOutput();
 

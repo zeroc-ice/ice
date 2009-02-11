@@ -28,6 +28,7 @@ tests = [
     ("IceUtil/inputUtil", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
+    ("Ice/seqMapping", ["core"]),
     ("Ice/exceptions", ["core"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),

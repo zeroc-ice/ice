@@ -1668,6 +1668,117 @@ IcePy::SequenceInfo::SequenceMapping::setItem(PyObject* cont, int i, PyObject* v
 }
 
 //
+// CustomInfo implementation.
+//
+string
+IcePy::CustomInfo::getId() const
+{
+    return id;
+}
+
+bool
+IcePy::CustomInfo::validate(PyObject* val)
+{
+    return PyObject_IsInstance(val, pythonType.get()) == 1;
+}
+
+bool
+IcePy::CustomInfo::usesClasses()
+{
+    return false;
+}
+
+void
+IcePy::CustomInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap,
+                           const Ice::StringSeq* metaData)
+{
+    assert(PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
+
+    PyObjectHandle obj = PyObject_CallMethod(p, STRCAST("IsInitialized"), 0);
+    if(!obj.get())
+    {
+        throwPythonException();
+    }
+    if(!PyObject_IsTrue(obj.get()))
+    {
+        setPythonException(Ice::MarshalException(__FILE__, __LINE__, "type not fully initialized"));
+        throw AbortMarshaling();
+    }
+
+    obj = PyObject_CallMethod(p, STRCAST("SerializeToString"), 0);
+    if(!obj.get())
+    {
+        throw AbortMarshaling();
+    }
+
+    assert(PyString_Check(obj.get()));
+    const char* str = PyString_AS_STRING(obj.get());
+    Py_ssize_t sz = PyString_GET_SIZE(obj.get());
+    os->writeByteSeq(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
+}
+
+void
+IcePy::CustomInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
+                             void* closure, const Ice::StringSeq* metaData)
+{
+    // Unmarshal the raw byte sequence.
+    pair<const Ice::Byte*, const Ice::Byte*> seq;
+    is->readByteSeq(seq);
+    int sz = static_cast<int>(seq.second - seq.first);
+
+    // Create a new instance of the protobuf type.
+    PyObjectHandle args = PyTuple_New(0);
+    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType.get());
+    PyObjectHandle p = type->tp_new(type, args.get(), 0);
+    if(!p.get())
+    {
+        throw AbortMarshaling();
+    }
+
+    // Initialize the object.
+    PyObjectHandle obj = PyObject_CallMethod(p.get(), STRCAST("__init__"), 0, 0);
+    if(!obj.get())
+    {
+        throw AbortMarshaling();
+    }
+
+    // Convert the seq to a string.
+    obj = PyString_FromStringAndSize(reinterpret_cast<const char*>(seq.first), sz);
+
+    // Parse the string.
+    obj = PyObject_CallMethod(p.get(), STRCAST("ParseFromString"), STRCAST("O"), obj.get(), 0);
+    if(!obj.get())
+    {
+        throw AbortMarshaling();
+    }
+
+    cb->unmarshaled(p.get(), target, closure);
+}
+
+void
+IcePy::CustomInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+{
+    if(!validate(value))
+    {
+        out << "<invalid value - expected " << id << ">";
+        return;
+    }
+
+    if(value == Py_None)
+    {
+        out << "{}";
+    }
+    else
+    {
+    }
+}
+
+void
+IcePy::CustomInfo::destroy()
+{
+}
+
+//
 // DictionaryInfo implementation.
 //
 string
@@ -2879,6 +2990,26 @@ IcePy_defineSequence(PyObject*, PyObject* args)
     info->id = id;
     info->mapping = new SequenceInfo::SequenceMapping(metaData);
     info->elementType = getType(elementType);
+
+    return createType(info);
+}
+
+extern "C"
+PyObject*
+IcePy_defineCustom(PyObject*, PyObject* args)
+{
+    char* id;
+    PyObject* type;
+    if(!PyArg_ParseTuple(args, STRCAST("sO"), &id, &type))
+    {
+        return 0;
+    }
+
+    assert(PyType_Check(type));
+
+    CustomInfoPtr info = new CustomInfo;
+    info->id = id;
+    info->pythonType = type;
 
     return createType(info);
 }

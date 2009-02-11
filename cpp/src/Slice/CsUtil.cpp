@@ -214,6 +214,13 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
             }
         }
 
+        prefix = "clr:serializable:";
+        if(seq->findMetaData(prefix, meta))
+        {
+            string type = meta.substr(prefix.size());
+            return global() + type;
+        }
+
         return typeToString(seq->type()) + "[]";
     }
 
@@ -888,6 +895,21 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             default:
             {
+                string prefix = "clr:serializable:";
+                string meta;
+                if(seq->findMetaData(prefix, meta))
+                {
+                    if(marshal)
+                    {
+                        out << nl << stream << ".writeSerializable(" << param << ");";
+                    }
+                    else
+                    {
+                        out << nl << param << " = (" << typeToString(seq) << ")" << stream << ".readSerializable();";
+                    }
+                    break;
+                }
+
                 typeS[0] = toupper(static_cast<unsigned char>(typeS[0]));
                 if(marshal)
                 {
@@ -1686,6 +1708,22 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         else if(!type.empty())
                         {
                             continue; // Custom type or List<T>
+                        }
+                    }
+                    if(s.substr(prefix.size(), 13) == "serializable:")
+                    {
+                        string meta;
+                        if(cont->findMetaData(prefix + "collection", meta)
+                           || cont->findMetaData(prefix + "generic:", meta))
+                        {
+                            emitWarning(file, cont->line(), msg + " `" + meta + "':\n" +
+                                        "serialization can only be used with the array mapping for byte sequences");
+                        }
+                        string type = s.substr(prefix.size() + 13);
+                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                        if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
+                        {
+                            continue;
                         }
                     }
                 }

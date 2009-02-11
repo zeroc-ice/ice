@@ -142,6 +142,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceStorm.clock.publisher", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceStorm.clock.subscriber", "IceStorm\clock\IceStorm.clock.subscriber.csproj", "{FC6800FD-F1B4-4ADC-850C-6D53FFC26D81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "serializeC", "Ice\serialize\serializeC.csproj", "{228B2AFC-57DC-4E1F-8335-D0CABCDA987B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8D371651-BFA4-43C9-B143-77FABCD2B310} = {8D371651-BFA4-43C9-B143-77FABCD2B310}
+		{0B41ADFF-7802-4A36-8374-C32DE33BABCD} = {0B41ADFF-7802-4A36-8374-C32DE33BABCD}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "serializeDll", "Ice\serialize\serializeDll.csproj", "{8D371651-BFA4-43C9-B143-77FABCD2B310}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "serializeS", "Ice\serialize\serializeS.csproj", "{0B41ADFF-7802-4A36-8374-C32DE33BABCD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8D371651-BFA4-43C9-B143-77FABCD2B310} = {8D371651-BFA4-43C9-B143-77FABCD2B310}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

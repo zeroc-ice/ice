@@ -702,8 +702,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
             else
             {
                 C << nl << typeToString(indexTypes[i].type, false, indexTypes[i].metaData) 
-                  << " __lowerCaseIndex = __index;";
-                C << nl << "std::transform(__lowerCaseIndex.begin(), __lowerCaseIndex.end(), __lowerCaseIndex.begin(), tolower);";
+                  << " __lowerCaseIndex = IceUtilInternal::toLower(__index);";
                 valueS = "__lowerCaseIndex";
             }
             
@@ -1235,8 +1234,7 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
     }
     else
     {
-        C << nl << typeToString(memberType, false) << " __lowerCaseIndex = __index;";
-        C << nl << "std::transform(__lowerCaseIndex.begin(), __lowerCaseIndex.end(), __lowerCaseIndex.begin(), tolower);";
+        C << nl << typeToString(memberType, false) << " __lowerCaseIndex = IceUtilInternal::toLower(__index);";
         valueS = "__lowerCaseIndex";
     }
 
@@ -1443,6 +1441,7 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
     }
 
     CPP << "\n#include <Ice/BasicStream.h>";
+    CPP << "\n#include <IceUtil/StringUtil.h>";
     CPP << "\n#include <";
     if(include.size())
     {

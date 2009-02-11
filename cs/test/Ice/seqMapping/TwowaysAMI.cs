@@ -2541,6 +2541,138 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+    private class AMI_MyClass_opSerialSmallCSharpNull : Test.AMI_MyClass_opSerialSmallCSharp
+    {
+        public AMI_MyClass_opSerialSmallCSharpNull()
+        {
+        }
+
+        public override void ice_response(Serialize.Small r, Serialize.Small o)
+        {
+            test(o == null);
+            test(r == null);
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opSerialSmallCSharp : Test.AMI_MyClass_opSerialSmallCSharp
+    {
+        public AMI_MyClass_opSerialSmallCSharp()
+        {
+        }
+
+        public override void ice_response(Serialize.Small r, Serialize.Small o)
+        {
+            test(o.i == 99);
+            test(r.i == 99);
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opSerialLargeCSharp : Test.AMI_MyClass_opSerialLargeCSharp
+    {
+        public AMI_MyClass_opSerialLargeCSharp()
+        {
+        }
+
+        public override void ice_response(Serialize.Large r, Serialize.Large o)
+        {
+            test(o.d1 == 1.0);
+            test(o.d2 == 2.0);
+            test(o.d3 == 3.0);
+            test(o.d4 == 4.0);
+            test(o.d5 == 5.0);
+            test(o.d6 == 6.0);
+            test(o.d7 == 7.0);
+            test(o.d8 == 8.0);
+            test(o.d9 == 9.0);
+            test(o.d10 == 10.0);
+            test(r.d1 == 1.0);
+            test(r.d2 == 2.0);
+            test(r.d3 == 3.0);
+            test(r.d4 == 4.0);
+            test(r.d5 == 5.0);
+            test(r.d6 == 6.0);
+            test(r.d7 == 7.0);
+            test(r.d8 == 8.0);
+            test(r.d9 == 9.0);
+            test(r.d10 == 10.0);
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opSerialStructCSharp : Test.AMI_MyClass_opSerialStructCSharp
+    {
+        public AMI_MyClass_opSerialStructCSharp()
+        {
+        }
+
+        public override void ice_response(Serialize.Struct r, Serialize.Struct o)
+        {
+            test(o.o == null);
+            test(o.o2 != null);
+            test(((Serialize.Struct)(o.o2)).o == null);
+            test(((Serialize.Struct)(o.o2)).o2 == o.o2);
+            test(o.s == null);
+            test(o.s2.Equals("Hello"));
+            test(r.o == null);
+            test(r.o2 != null);
+            test(((Serialize.Struct)(r.o2)).o == null);
+            test(((Serialize.Struct)(r.o2)).o2 == r.o2);
+            test(r.s == null);
+            test(r.s2.Equals("Hello"));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
 
     static int _length = 100;
 
@@ -3573,6 +3705,53 @@ public class TwowaysAMI
 
             AMI_MyClass_opCustomCVSSI cb = new AMI_MyClass_opCustomCVSSI(i);
             p.opCustomCVSS_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Serialize.Small i = null;
+
+            AMI_MyClass_opSerialSmallCSharpNull cb = new AMI_MyClass_opSerialSmallCSharpNull();
+            p.opSerialSmallCSharp_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Serialize.Small i = new Serialize.Small();
+            i.i = 99;
+
+            AMI_MyClass_opSerialSmallCSharp cb = new AMI_MyClass_opSerialSmallCSharp();
+            p.opSerialSmallCSharp_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Serialize.Large i = new Serialize.Large();
+            i.d1 = 1.0;
+            i.d2 = 2.0;
+            i.d3 = 3.0;
+            i.d4 = 4.0;
+            i.d5 = 5.0;
+            i.d6 = 6.0;
+            i.d7 = 7.0;
+            i.d8 = 8.0;
+            i.d9 = 9.0;
+            i.d10 = 10.0;
+
+            AMI_MyClass_opSerialLargeCSharp cb = new AMI_MyClass_opSerialLargeCSharp();
+            p.opSerialLargeCSharp_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Serialize.Struct i = new Serialize.Struct();
+            i.o = null;
+            i.o2 = i;
+            i.s = null;
+            i.s2 = "Hello";
+
+            AMI_MyClass_opSerialStructCSharp cb = new AMI_MyClass_opSerialStructCSharp();
+            p.opSerialStructCSharp_async(cb, i);
             test(cb.check());
         }
     }
