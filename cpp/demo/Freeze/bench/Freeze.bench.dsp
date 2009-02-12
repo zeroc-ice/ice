@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="Freeze.bench" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Freeze.bench." - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Freeze.bench - Win32 Debug
+CFG=Freeze.bench. - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,12 @@ CFG=Freeze.bench - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Freeze.bench.mak" CFG="Freeze.bench - Win32 Debug"
+!MESSAGE NMAKE /f "Freeze.bench.mak" CFG="Freeze.bench. - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Freeze.bench - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Freeze.bench - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.bench. - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.bench. - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=Freeze.bench - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Freeze.bench - Win32 Release"
+!IF  "$(CFG)" == "Freeze.bench. - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug
 
-!ELSEIF  "$(CFG)" == "Freeze.bench - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.bench. - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Freeze.bench - Win32 Release"
-# Name "Freeze.bench - Win32 Debug"
+# Name "Freeze.bench. - Win32 Release"
+# Name "Freeze.bench. - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -121,7 +121,7 @@ SOURCE=.\Test.h
 
 SOURCE=.\Test.ice
 
-!IF  "$(CFG)" == "Freeze.bench - Win32 Release"
+!IF  "$(CFG)" == "Freeze.bench. - Win32 Release"
 
 USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
@@ -145,7 +145,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Freeze.bench - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.bench. - Win32 Debug"
 
 USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build

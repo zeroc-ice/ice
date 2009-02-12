@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="Freeze.library.collocated" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Freeze.library.collocated." - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Freeze.library.collocated - Win32 Debug
+CFG=Freeze.library.collocated. - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,12 @@ CFG=Freeze.library.collocated - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Freeze.library.collocated.mak" CFG="Freeze.library.collocated - Win32 Debug"
+!MESSAGE NMAKE /f "Freeze.library.collocated.mak" CFG="Freeze.library.collocated. - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Freeze.library.collocated - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Freeze.library.collocated - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.library.collocated. - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.library.collocated. - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=Freeze.library.collocated - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Freeze.library.collocated - Win32 Release"
+!IF  "$(CFG)" == "Freeze.library.collocated. - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 IceXML.lib Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"collocated.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "Freeze.library.collocated - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.library.collocated. - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Freeze.library.collocated - Win32 Release"
-# Name "Freeze.library.collocated - Win32 Debug"
+# Name "Freeze.library.collocated. - Win32 Release"
+# Name "Freeze.library.collocated. - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -161,7 +161,7 @@ SOURCE=.\Parser.h
 
 SOURCE=.\Grammar.y
 
-!IF  "$(CFG)" == "Freeze.library.collocated - Win32 Release"
+!IF  "$(CFG)" == "Freeze.library.collocated. - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -179,7 +179,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Freeze.library.collocated - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.library.collocated. - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -204,7 +204,7 @@ BuildCmds= \
 
 SOURCE=.\Library.ice
 
-!IF  "$(CFG)" == "Freeze.library.collocated - Win32 Release"
+!IF  "$(CFG)" == "Freeze.library.collocated. - Win32 Release"
 
 USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -229,7 +229,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Freeze.library.collocated - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.library.collocated. - Win32 Debug"
 
 USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
@@ -261,7 +261,7 @@ BuildCmds= \
 
 SOURCE=.\Scanner.l
 
-!IF  "$(CFG)" == "Freeze.library.collocated - Win32 Release"
+!IF  "$(CFG)" == "Freeze.library.collocated. - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
@@ -273,7 +273,7 @@ InputPath=.\Scanner.l
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Freeze.library.collocated - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.library.collocated. - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
