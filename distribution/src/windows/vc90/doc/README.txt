@@ -69,11 +69,12 @@ Managed code in Ice for .NET
 
 The main Ice for .NET assembly (Ice.dll) included in this distribution
 uses unmanaged code. If you require only managed code then you can
-download the Ice source distribution and build Ice for .NET as managed.
+download the Ice source distribution and build Ice for .NET in a
+purely managed version. Note that the managed version of Ice for .NET
+omits support for protocol compression and for signal handling in the
+Ice.Application class.
 
-When built as managed, Ice for .NET does not support protocol compression
-or signal handling in the Ice::Application class. You can download the
-source distribution at
+You can download the source distribution at the link below:
 
     http://www.zeroc.com/download.html
 

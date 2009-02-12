@@ -50,14 +50,11 @@ or you can open the Visual Studio solution located in demo\demo.sln.
 Managed Code
 ------------
 
-By default Ice for .NET does not use one hundred percent managed code.
-Unmanaged code is used for protocol compression as well as the handling
-of signals in the Ice::Application class. 
-
-If you require managed code and do not need the features mentioned above
-then you can compile Ice for .NET as managed by editing 
-config/Make.rules.mak.cs and uncommenting the MANAGED=yes line before
-you build.
+By default, Ice for .NET uses unmanaged code for performing protocol
+compression and for handling signals in the Ice.Application class.
+You can build a managed version of Ice for .NET that lacks the
+aforementioned features by editing config/Make.rules.mak.cs and
+uncommenting the MANAGED=yes line before you build.
 
 
 SSL Notes
