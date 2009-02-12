@@ -149,7 +149,7 @@ ServiceI::start(
             _instance = 0;
 
             ostringstream s;
-            s << "ServiceManager: exception while starting service " << name << ":\n";
+            s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
             IceBox::FailureException e(__FILE__, __LINE__);
@@ -175,7 +175,7 @@ ServiceI::start(
             _instance = 0;
 
             ostringstream s;
-            s << "ServiceManager: exception while starting service " << name << ":\n";
+            s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
             IceBox::FailureException e(__FILE__, __LINE__);
@@ -362,7 +362,7 @@ ServiceI::start(
             _instance = 0;
 
             ostringstream s;
-            s << "ServiceManager: exception while starting service " << name << ":\n";
+            s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
             IceBox::FailureException e(__FILE__, __LINE__);
@@ -403,12 +403,12 @@ ServiceI::start(const CommunicatorPtr& communicator,
     {
         _instance = 0;
         ostringstream s;
-        s << "ServiceManager: exception while starting service " << name << ":\n";
+        s << "exception while starting IceStorm service " << name << ":\n";
         s << ex;
 
         IceBox::FailureException e(__FILE__, __LINE__);
         e.reason = s.str();
-        throw e;;
+        throw e;
     }
 }
 
