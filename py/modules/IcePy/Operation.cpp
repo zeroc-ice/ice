@@ -903,6 +903,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, bool async, vector<Ice::B
         }
         catch(const AbortMarshaling&)
         {
+            assert(PyErr_Occurred());
             return false;
         }
         catch(const Ice::Exception& ex)
@@ -1171,6 +1172,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args)
     }
     catch(const AbortMarshaling&)
     {
+        assert(PyErr_Occurred());
         return 0;
     }
     catch(const Ice::Exception& ex)

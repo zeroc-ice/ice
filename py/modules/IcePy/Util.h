@@ -200,9 +200,8 @@ void setPythonException(const Ice::Exception&);
 void setPythonException(PyObject*);
 
 //
-// Converts a Python exception into an Ice exception and throws it.
-// If no exception is provided, the interpreter's current exception
-// is obtained. The second argument is an optional traceback object.
+// Converts the interpreter's current exception into an Ice exception
+// and throws it.
 //
 void throwPythonException();
 
