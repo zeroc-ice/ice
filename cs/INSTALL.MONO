@@ -62,7 +62,7 @@ Unmanaged code is used for protocol compression as well as the handling
 of signals in the Ice::Application class on Windows.
 
 If you require managed code and do not need the features mentioned above
-then you can compile Ice for .NET as managed by editting
+then you can compile Ice for .NET as managed by editing
 config/Make.rules.cs and uncommenting the MANAGED=yes line before
 you build.
 

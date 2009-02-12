@@ -43,6 +43,21 @@ Table of Contents
 This section discusses the significant enhancements offered in this
 release.
 
+Protobuf
+--------
+
+This release integrates the ZeroC labs release for Google protocol buffers.
+support. This feature allow you to serialize and deserialize data
+to and from protocol buffers and transmit these via Ice operation
+invocations with Ice for C++, Java, and Python.
+
+Java and .NET serialization
+---------------------------
+
+This release adds support for Java and .NET serializable classes. You
+can now enable the serialization, transmission, and deserialization
+of Java and .NET classes with a simple metadata directive.
+
 
 ======================================================================
 2. Fixes and improvements

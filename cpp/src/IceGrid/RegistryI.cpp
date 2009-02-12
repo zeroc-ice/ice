@@ -167,6 +167,25 @@ RegistryI::~RegistryI()
 bool
 RegistryI::start()
 {
+    try
+    {
+        if(!startImpl())
+        {
+            stop();
+            return false;
+        }
+    }
+    catch(...)
+    {
+        stop();
+        throw;
+    }
+    return true;
+}
+
+bool
+RegistryI::startImpl()
+{
     assert(_communicator);
     PropertiesPtr properties = _communicator->getProperties();
 
@@ -687,7 +706,10 @@ RegistryI::stop()
     // ensure that there will be no more invocations on IceStorm once
     // it's shutdown.
     //
-    _database->destroyTopics();
+    if(_database)
+    {
+        _database->destroyTopics();
+    }
 
     try
     {

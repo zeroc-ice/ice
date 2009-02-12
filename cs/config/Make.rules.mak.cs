@@ -156,7 +156,7 @@ $(bindir)/$(POLICY_TARGET):
 	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
-	del tmp.pub tmp.publicKeyToken && \
+	del tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak policy"
 !endif
 !endif
@@ -217,7 +217,7 @@ $(TARGETS_CONFIG):
 	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
-	del /q tmp.pub tmp.publicKeyToken && \
+	del /q tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak config"
 !endif
 
