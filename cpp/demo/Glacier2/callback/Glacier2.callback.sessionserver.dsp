@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="Glacier2.callback.sessionserver." - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Glacier2.callback.sessionserver.exe" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Glacier2.callback.sessionserver. - Win32 Debug
+CFG=Glacier2.callback.sessionserver.exe - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,12 @@ CFG=Glacier2.callback.sessionserver. - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Glacier2.callback.sessionserver.mak" CFG="Glacier2.callback.sessionserver. - Win32 Debug"
+!MESSAGE NMAKE /f "Glacier2.callback.sessionserver.mak" CFG="Glacier2.callback.sessionserver.exe - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Glacier2.callback.sessionserver. - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Glacier2.callback.sessionserver. - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "Glacier2.callback.sessionserver.exe - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "Glacier2.callback.sessionserver.exe - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=Glacier2.callback.sessionserver. - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Glacier2.callback.sessionserver. - Win32 Release"
+!IF  "$(CFG)" == "Glacier2.callback.sessionserver.exe - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 Glacier2.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"sessionserver.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "Glacier2.callback.sessionserver. - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Glacier2.callback.sessionserver.exe - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Glacier2.callback.sessionserver. - Win32 Release"
-# Name "Glacier2.callback.sessionserver. - Win32 Debug"
+# Name "Glacier2.callback.sessionserver.exe - Win32 Release"
+# Name "Glacier2.callback.sessionserver.exe - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
