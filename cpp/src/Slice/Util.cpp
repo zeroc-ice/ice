@@ -271,11 +271,11 @@ Slice::filterMcppWarnings(const string& message)
         skiped = false;
         string token = message.substr(lastPos, pos - lastPos);
         static const string warningPrefix = "warning:";
-        if(token.find_first_of(warningPrefix) != string::npos)
+        if(token.find(warningPrefix) != string::npos)
         {
             for(int j = 0; messages[j] != 0; ++j)
             {
-                if(token.find_first_of(messages[j]) != string::npos)
+                if(token.find(messages[j]) != string::npos)
                 {
                     skiped = true;
                     //Skip Next token.
@@ -291,7 +291,7 @@ Slice::filterMcppWarnings(const string& message)
 
         if(!skiped)
         {
-            tokens.push_back(token);
+            tokens.push_back(token + "\n");
         }
         // Skip delimiters.  Note the "not_of"
         lastPos = message.find_first_not_of(delimiters, pos);
