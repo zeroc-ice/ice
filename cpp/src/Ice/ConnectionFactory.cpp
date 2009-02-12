@@ -1280,8 +1280,10 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
         {
             if(noMoreFds(ex.error))
             {
-                Error out(_instance->initializationData().logger);
-                out << "fatal error: can't accept more connections:\n" << ex << '\n' << _acceptor->toString();
+                {
+                    Error out(_instance->initializationData().logger);
+                    out << "fatal error: can't accept more connections:\n" << ex << '\n' << _acceptor->toString();
+                }
                 abort();
             }
 
