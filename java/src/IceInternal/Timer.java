@@ -248,7 +248,7 @@ public final class Timer extends Thread
         }
     }
 
-    static private class Token implements Comparable
+    static private class Token implements Comparable<Token>
     {
         public
         Token(long scheduledTime, int id, long delay, TimerTask task)
@@ -260,12 +260,11 @@ public final class Timer extends Thread
         }
 
         public int
-        compareTo(Object o)
+        compareTo(Token r)
         {
             //
             // Token are sorted by scheduled time and token id.
             //
-            Token r = (Token)o;
             if(scheduledTime < r.scheduledTime)
             {
                 return -1;

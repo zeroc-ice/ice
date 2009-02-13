@@ -49,3 +49,5 @@ obj
 *.RES
 ClientBin
 vcproj
+# VIM swap file
+*.swp

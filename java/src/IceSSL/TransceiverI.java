@@ -515,11 +515,6 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    private void
-    shutdown()
-    {
-    }
-
     private IceInternal.SocketStatus
     writeNonBlocking(ByteBuffer buf)
     {

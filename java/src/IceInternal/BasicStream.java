@@ -2149,7 +2149,7 @@ public class BasicStream
 
     private static final class DynamicObjectFactory implements Ice.ObjectFactory
     {
-        DynamicObjectFactory(Class c)
+        DynamicObjectFactory(Class<?> c)
         {
             _class = c;
         }
@@ -2174,7 +2174,7 @@ public class BasicStream
         {
         }
 
-        private Class _class;
+        private Class<?> _class;
     }
 
     private Ice.ObjectFactory
@@ -2184,7 +2184,7 @@ public class BasicStream
 
         try
         {
-            Class c = findClass(id);
+            Class<?> c = findClass(id);
             if(c != null)
             {
                 Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
@@ -2229,7 +2229,7 @@ public class BasicStream
     private static final class DynamicUserExceptionFactory
         implements UserExceptionFactory
     {
-        DynamicUserExceptionFactory(Class c)
+        DynamicUserExceptionFactory(Class<?> c)
         {
             _class = c;
         }
@@ -2259,7 +2259,7 @@ public class BasicStream
         {
         }
 
-        private Class _class;
+        private Class<?> _class;
     }
 
     private UserExceptionFactory
@@ -2276,7 +2276,7 @@ public class BasicStream
         {
             try
             {
-                Class c = findClass(id);
+                Class<?> c = findClass(id);
                 if(c != null)
                 {
                     factory = new DynamicUserExceptionFactory(c);
@@ -2301,11 +2301,11 @@ public class BasicStream
         return factory;
     }
 
-    private Class
+    private Class<?>
     findClass(String id)
         throws LinkageError
     {
-        Class c = null;
+        Class<?> c = null;
 
         //
         // To convert a Slice type id into a Java class, we do the following:
@@ -2345,13 +2345,13 @@ public class BasicStream
         return c;
     }
 
-    private Class
+    private Class<?>
     getConcreteClass(String className)
         throws LinkageError
     {
         try
         {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
             //
             // Ensure the class is instantiable. The constants are
             // defined in the JVM specification (0x200 = interface,
@@ -2531,8 +2531,8 @@ public class BasicStream
         return _bzInputStreamCtor != null && _bzOutputStreamCtor != null;
     }
 
-    private static java.lang.reflect.Constructor _bzInputStreamCtor;
-    private static java.lang.reflect.Constructor _bzOutputStreamCtor;
+    private static java.lang.reflect.Constructor<?> _bzInputStreamCtor;
+    private static java.lang.reflect.Constructor<?> _bzOutputStreamCtor;
     static
     {
         try

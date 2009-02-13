@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class UdpConnector implements Connector, java.lang.Comparable
+final class UdpConnector implements Connector
 {
     public Transceiver
     connect()
@@ -49,8 +49,6 @@ final class UdpConnector implements Connector, java.lang.Comparable
                  byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor, String connectionId)
     {
         _instance = instance;
-        _traceLevels = instance.traceLevels();
-        _logger = instance.initializationData().logger;
         _addr = addr;
         _mcastInterface = mcastInterface;
         _mcastTtl = mcastTtl;
@@ -67,17 +65,8 @@ final class UdpConnector implements Connector, java.lang.Comparable
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
     }
 
-    //
-    // Compare connectors for sorting purposes
-    //
     public boolean
     equals(java.lang.Object obj)
-    {
-        return compareTo(obj) == 0;
-    }
-
-    public int
-    compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
         UdpConnector p = null;
 
@@ -87,84 +76,53 @@ final class UdpConnector implements Connector, java.lang.Comparable
         }
         catch(ClassCastException ex)
         {
-            try
-            {
-                Connector c = (Connector)obj;
-                return type() < c.type() ? -1 : 1;
-            }
-            catch(ClassCastException ee)
-            {
-                assert(false);
-            }
+            return false;
         }
 
         if(this == p)
         {
-            return 0;
+            return false;
         }
 
         if(!_connectionId.equals(p._connectionId))
         {
-            return _connectionId.compareTo(p._connectionId);
+            return false;
         }
 
-        if(_protocolMajor < p._protocolMajor)
+        if(_protocolMajor != p._protocolMajor)
         {
-            return -1;
-        }
-        else if(p._protocolMajor < _protocolMajor)
-        {
-            return 1;
+            return false;
         }
 
-        if(_protocolMinor < p._protocolMinor)
+        if(_protocolMinor != p._protocolMinor)
         {
-            return -1;
-        }
-        else if(p._protocolMinor < _protocolMinor)
-        {
-            return 1;
+            return false;
         }
 
-        if(_encodingMajor < p._encodingMajor)
+        if(_encodingMajor != p._encodingMajor)
         {
-            return -1;
-        }
-        else if(p._encodingMajor < _encodingMajor)
-        {
-            return 1;
+            return false;
         }
 
-        if(_encodingMinor < p._encodingMinor)
+        if(_encodingMinor != p._encodingMinor)
         {
-            return -1;
-        }
-        else if(p._encodingMinor < _encodingMinor)
-        {
-            return 1;
+            return false;
         }
 
-        if(_mcastTtl < p._mcastTtl)
+        if(_mcastTtl != p._mcastTtl)
         {
-            return -1;
-        }
-        else if(p._mcastTtl < _mcastTtl)
-        {
-            return 1;
+            return false;
         }
 
-        int rc = _mcastInterface.compareTo(p._mcastInterface);
-        if(rc != 0)
+        if(_mcastInterface.compareTo(p._mcastInterface) != 0)
         {
-            return rc;
+            return false;
         }
 
-        return Network.compareAddress(_addr, p._addr);
+        return Network.compareAddress(_addr, p._addr) == 0;
     } 
 
     private Instance _instance;
-    private TraceLevels _traceLevels;
-    private Ice.Logger _logger;
     private java.net.InetSocketAddress _addr;
     private String _mcastInterface;
     private int _mcastTtl;

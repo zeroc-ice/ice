@@ -93,7 +93,6 @@ public final class RouterInfo
             return;
         }
         
-        final RouterInfo self = this;
         _router.getClientProxy_async(new Ice.AMI_Router_getClientProxy()
             {
                 public void

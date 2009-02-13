@@ -482,8 +482,7 @@ public final class Network
                         {
                             try
                             {
-                                java.nio.channels.SelectionKey key =
-                                    fd.register(selector, java.nio.channels.SelectionKey.OP_ACCEPT);
+                                fd.register(selector, java.nio.channels.SelectionKey.OP_ACCEPT);
                                 int n;
                                 if(timeout > 0)
                                 {

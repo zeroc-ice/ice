@@ -31,7 +31,7 @@ public final class SysLoggerI implements Logger
             _socket = new DatagramSocket();
             _socket.connect(_host, _port);
         }
-        catch(java.io.IOException ex)
+        catch(IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -84,7 +84,7 @@ public final class SysLoggerI implements Logger
             DatagramPacket p = new DatagramPacket(buf, buf.length, _host, _port);
             _socket.send(p);
         } 
-        catch(java.io.IOException ex) 
+        catch(IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);

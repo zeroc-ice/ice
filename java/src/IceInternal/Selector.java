@@ -302,7 +302,7 @@ public final class Selector
                 //
                 try
                 {
-                    Thread.currentThread().sleep(1);
+                    Thread.sleep(1);
                 }
                 catch(java.lang.InterruptedException ex)
                 {

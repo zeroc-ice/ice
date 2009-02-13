@@ -306,7 +306,7 @@ public final class PluginManagerI implements PluginManager
         PluginFactory pluginFactory = null;
         try
         {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
             java.lang.Object obj = c.newInstance();
             try
             {

@@ -158,10 +158,10 @@ public class IncomingAsync extends IncomingBase
         {
             if(_interceptorAsyncCallbackList != null)
             {
-                java.util.Iterator p = _interceptorAsyncCallbackList.iterator();
+                java.util.Iterator<Ice.DispatchInterceptorAsyncCallback> p = _interceptorAsyncCallbackList.iterator();
                 while(p.hasNext())
                 {
-                    Ice.DispatchInterceptorAsyncCallback cb = (Ice.DispatchInterceptorAsyncCallback)p.next();
+                    Ice.DispatchInterceptorAsyncCallback cb = p.next();
                     if(cb.response(ok) == false)
                     {
                         return false;

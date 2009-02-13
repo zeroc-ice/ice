@@ -12,7 +12,7 @@ package IceInternal;
 public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
 {
     public
-    SequencePatcher(java.lang.Object[] seq, Class cls, String type, int index)
+    SequencePatcher(java.lang.Object[] seq, Class<?> cls, String type, int index)
     {
         _seq = seq;
         _cls = cls;
@@ -51,7 +51,7 @@ public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
     }
 
     private java.lang.Object[] _seq;
-    private Class _cls;
+    private Class<?> _cls;
     private String _type;
     private int _index;
 }

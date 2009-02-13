@@ -13,8 +13,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import Ice.Logger;
-
 class Instance
 {
     Instance(Ice.Communicator communicator)
@@ -108,7 +106,7 @@ class Instance
                 throw e;
             }
 
-            Class cls = null;
+            Class<?> cls = null;
             try
             {
                 cls = Class.forName(certVerifierClass);
@@ -147,7 +145,7 @@ class Instance
                 throw e;
             }
 
-            Class cls = null;
+            Class<?> cls = null;
             try
             {
                 cls = Class.forName(passwordCallbackClass);

@@ -130,5 +130,4 @@ class TcpAcceptor implements Acceptor
     private java.nio.channels.ServerSocketChannel _fd;
     private int _backlog;
     private java.net.InetSocketAddress _addr;
-    private java.nio.channels.Selector _selector;
 }

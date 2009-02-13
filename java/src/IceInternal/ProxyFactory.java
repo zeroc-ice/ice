@@ -220,7 +220,7 @@ public final class ProxyFactory
             //
             try
             {
-                Thread.currentThread().sleep(interval);
+                Thread.sleep(interval);
             }
             catch(InterruptedException ex1)
             {

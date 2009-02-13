@@ -1630,7 +1630,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     throw new ConnectionNotValidatedException();
                 }
-                byte compress = is.readByte(); // Ignore compression status for validate connection.
+                is.readByte(); // Ignore compression status for validate connection.
                 int size = is.readInt();
                 if(size != IceInternal.Protocol.headerSize)
                 {
@@ -2096,17 +2096,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         pw.flush();
         String s = msg + ":\n" + _desc + "\n" + sw.toString();
         _logger.warning(s);
-    }
-
-    private void
-    error(String msg, Exception ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        String s = msg + ":\n" + _desc + "\n" + sw.toString();
-        _logger.error(s);
     }
 
     private IceInternal.Incoming
