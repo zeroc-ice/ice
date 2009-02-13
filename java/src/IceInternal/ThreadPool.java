@@ -964,23 +964,13 @@ public final class ThreadPool
             {
                 promote = ThreadPool.this.run(stream);
             }
-            catch(Ice.LocalException ex)
-            {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                String s = "exception in `" + _prefix + "' thread " + getName() + ":\n" + sw.toString();
-                _instance.initializationData().logger.error(s);
-                promote = true;
-            }
             catch(java.lang.Exception ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                String s = "unknown exception in `" + _prefix + "' thread " + getName() + ":\n" + sw.toString();
+                String s = "exception in `" + _prefix + "' thread " + getName() + ":\n" + sw.toString();
                 _instance.initializationData().logger.error(s);
                 promote = true;
             }

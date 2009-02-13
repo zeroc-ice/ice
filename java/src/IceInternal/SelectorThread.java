@@ -203,7 +203,7 @@ public class SelectorThread
                         status = cb.socketReady();
                     }
                 }
-                catch(Ice.LocalException ex)
+                catch(java.lang.Exception ex)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -272,22 +272,13 @@ public class SelectorThread
             {
                 SelectorThread.this.run();
             }
-            catch(Ice.LocalException ex)
-            {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                String s = "exception in selector thread " + getName() + ":\n" + sw.toString();
-                _instance.initializationData().logger.error(s);
-            }
             catch(java.lang.Exception ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                String s = "unknown exception in selector thread " + getName() + ":\n" + sw.toString();
+                String s = "exception in selector thread " + getName() + ":\n" + sw.toString();
                 _instance.initializationData().logger.error(s);
             }
         }

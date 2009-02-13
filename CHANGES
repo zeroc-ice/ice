@@ -96,6 +96,13 @@ C++ Changes
 Java Changes
 ============
 
+- If a servant raises OutOfMemoryError while dispatching an operation,
+  the Ice run time now traps it and treats it as a hard error. This
+  means the Ice run time logs an error and closes the connection on
+  which the request was received.
+
+- The Ice run time now traps OutOfMemoryError when raised by
+
 - Added object serialization that allows native Java objects
   to be sent as operation parameters. See the Slice chapter and the
   Java language mapping chapter in the manual for more info.

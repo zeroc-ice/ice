@@ -2067,6 +2067,17 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             _logger.error(uex.unknown);
             invokeException(uex, invokeNum);
         }
+        catch(java.lang.OutOfMemoryError ex)
+        {
+            UnknownException uex = new UnknownException();
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            uex.unknown = sw.toString();
+            _logger.error(uex.unknown);
+            invokeException(uex, invokeNum);
+        }
         finally
         {
             if(in != null)
