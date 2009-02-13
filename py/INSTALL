@@ -34,7 +34,7 @@ Follow these steps to build the Ice extension for Python:
 
    * Modify the installation prefix (if necessary).
 
-   * Review the comments describing the PYTHON_HOME variable.
+   * Review the comments describing the PYTHON_VERSION variable.
 
 4) Execute 'python -V' to verify that the correct Python interpreter
    is in your executable search path.
