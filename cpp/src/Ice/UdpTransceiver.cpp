@@ -353,18 +353,33 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         if(isMulticast(_addr))
         {
             setReuseAddress(_fd, true);
-            _mcastAddr = _addr;
 
 #ifdef _WIN32
             //
             // Windows does not allow binding to the mcast address itself
             // so we bind to INADDR_ANY (0.0.0.0) instead.
             //
+            _mcastAddr = _addr;
             getAddressForServer("", getPort(_mcastAddr), _addr,
                                 _mcastAddr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
-#endif
-
             doBind(_fd, _addr);
+
+            if(getPort(_mcastAddr) == 0)
+            {
+                int port = getPort(_addr);
+                if(_mcastAddr.ss_family == AF_INET)
+                {
+                    reinterpret_cast<sockaddr_in*>(&_mcastAddr)->sin_port = htons(port);
+                }
+                else
+                {
+                    reinterpret_cast<sockaddr_in6*>(&_mcastAddr)->sin6_port = htons(port);
+                }
+            }
+#else
+            doBind(_fd, _addr);
+            _mcastAddr = _addr;
+#endif
             setMcastGroup(_fd, _mcastAddr, mcastInterface);
         }
         else
