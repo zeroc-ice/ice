@@ -171,28 +171,7 @@ main(int argc, char* argv[])
         if(depend)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
-
-            FILE* cppHandle = icecpp.preprocess(false);
-            if(cppHandle == 0)
-            {
-                return EXIT_FAILURE;
-            }
-
-            UnitPtr u = Unit::createUnit(false, false, ice, caseSensitive);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-            u->destroy();
-
-            if(parseStatus == EXIT_FAILURE)
-            {
-                return EXIT_FAILURE;
-            }
-
             if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths))
-            {
-                return EXIT_FAILURE;
-            }
-
-            if(!icecpp.close())
             {
                 return EXIT_FAILURE;
             }
