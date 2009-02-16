@@ -259,7 +259,7 @@ Slice::filterMcppWarnings(const string& message)
     static const char* messages[] =
     {
         "Converted [CR+LF] to [LF]",
-        "End of input with no newline, supplemented newline",
+        "no newline, supplemented newline",
         0
     };
 
