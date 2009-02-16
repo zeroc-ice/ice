@@ -22,8 +22,6 @@ namespace IceInternal
         Transceiver connect();
 
         short type();
-
-        int CompareTo(object obj);
     }
 
 }
