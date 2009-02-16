@@ -170,15 +170,15 @@ main(int argc, char* argv[])
     {
         if(depend)
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
-            if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths))
+            Preprocessor icecpp(argv[0], *i, cppArgs);
+            if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths, sourceExtension))
             {
                 return EXIT_FAILURE;
             }
         }
         else
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
+            Preprocessor icecpp(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp.preprocess(false);
 
             if(cppHandle == 0)
