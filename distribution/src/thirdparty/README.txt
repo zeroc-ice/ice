@@ -54,6 +54,23 @@ top-level directory and apply the patch as shown below:
   > patch -p0 bzlib.h < ..\bzlib.patch
 
 
+Berkeley DB
+-----------
+
+The files patch.db-4.6.21.1, patch.db-4.6.21.2, patch.db-4.6.21.3 and
+patch.db-4.6.21.15663 in this archive contain several important fixes 
+for Berkeley DB required by Ice. 
+
+After extracting the Berkeley DB 4.6.21 source distribution, change 
+to the top-level directory and apply the patches as shown below:
+
+ > cd db-4.6.21
+ > patch -p0 < patch.db-4.6.21.1
+ > patch -p0 < patch.db-4.6.21.2
+ > patch -p0 < patch.db-4.6.21.3
+ > patch -p0 < patch.db-4.6.21.15663
+
+
 ======================================================================
 Packages
 ======================================================================
