@@ -10,6 +10,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/Unicode.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <climits>
 
 #include <unistd.h> // For readlink()
@@ -255,48 +256,34 @@ Slice::emitRaw(const char* message)
 vector<string>
 Slice::filterMcppWarnings(const string& message)
 {
-    static const char* messages[] = {"Converted [CR+LF] to [LF]", "End of input with no newline, supplemented newline", 0};
-
-    static const string delimiters = "\n";
-
-    // Skip delimiters at beginning.
-    string::size_type lastPos = message.find_first_not_of(delimiters, 0);
-    // Find first "non-delimiter".
-    string::size_type pos     = message.find_first_of(delimiters, lastPos);
-
-    vector<string> tokens;
-    bool skiped;
-    while (string::npos != pos || string::npos != lastPos)
+    static const char* messages[] =
     {
-        skiped = false;
-        string token = message.substr(lastPos, pos - lastPos);
+        "Converted [CR+LF] to [LF]",
+        "End of input with no newline, supplemented newline",
+        0
+    };
+
+    vector<string> in;
+    vector<string> out;
+    IceUtilInternal::splitString(message, "\n", in);
+    for(vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
+    {
         static const string warningPrefix = "warning:";
-        if(token.find(warningPrefix) != string::npos)
+        if(i->find(warningPrefix) != string::npos)
         {
             for(int j = 0; messages[j] != 0; ++j)
             {
-                if(token.find(messages[j]) != string::npos)
+                if(i->find(messages[j]) != string::npos)
                 {
-                    skiped = true;
-                    //Skip Next token.
-
-                    // Skip delimiters.  Note the "not_of"
-                    lastPos = message.find_first_not_of(delimiters, pos);
-                    // Find next "non-delimiter"
-                    pos = message.find_first_of(delimiters, lastPos);
+                    // This line should be skiped it contains the unwanted mcpp warning
+                    // next line should also be skiped it contains the slice line that
+                    // produces the skiped warning
+                    i++;
                     break;
                 }
             }
         }
-
-        if(!skiped)
-        {
-            tokens.push_back(token + "\n");
-        }
-        // Skip delimiters.  Note the "not_of"
-        lastPos = message.find_first_not_of(delimiters, pos);
-        // Find next "non-delimiter"
-        pos = message.find_first_of(delimiters, lastPos);
+        out.push_back(*i + "\n");
     }
-    return tokens;
+    return out;
 }
