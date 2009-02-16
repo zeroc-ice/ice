@@ -320,6 +320,10 @@ final class UdpTransceiver implements Transceiver
                 Network.setReuseAddress(_fd, true);
                 _mcastAddr = _addr;
                 _addr = Network.doBind(_fd, Network.getAddress("0.0.0.0", port, Network.EnableIPv4));
+                if(port == 0)
+                {
+                    _mcastAddr = new java.net.InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
+                }
                 configureMulticast(_mcastAddr, mcastInterface, -1);
             }
             else

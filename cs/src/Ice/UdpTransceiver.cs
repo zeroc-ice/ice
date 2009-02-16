@@ -593,14 +593,18 @@ namespace IceInternal
                 {
                     Network.setReuseAddress(_fd, true);
                     _mcastAddr = _addr;
-                    if(_mcastAddr.AddressFamily == AddressFamily.InterNetwork)
+                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
                     {
                         _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
                     }
                     else
                     {
-                        Debug.Assert(_mcastAddr.AddressFamily == AddressFamily.InterNetworkV6);
+                        Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
                         _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, port));
+                    }
+                    if(port == 0)
+                    {
+                        _mcastAddr.Port = _addr.Port;
                     }
                     Network.setMcastGroup(_fd, _mcastAddr.Address, mcastInterface);
                 }
