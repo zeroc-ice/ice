@@ -266,8 +266,10 @@ Slice::filterMcppWarnings(const string& message)
     vector<string> in;
     vector<string> out;
     IceUtilInternal::splitString(message, "\n", in);
+    bool skiped;
     for(vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
     {
+        skiped = false;
         static const string warningPrefix = "warning:";
         if(i->find(warningPrefix) != string::npos)
         {
@@ -279,11 +281,15 @@ Slice::filterMcppWarnings(const string& message)
                     // next line should also be skiped it contains the slice line that
                     // produces the skiped warning
                     i++;
+                    skiped = true;
                     break;
                 }
             }
         }
-        out.push_back(*i + "\n");
+        if(!skiped)
+        {
+            out.push_back(*i + "\n");
+        }
     }
     return out;
 }
