@@ -263,6 +263,10 @@ Slice::filterMcppWarnings(const string& message)
         0
     };
 
+    static const string warningPrefix = "warning:";
+    static const string fromPrefix = "from";
+    static const string separators = "\n\t ";
+
     vector<string> in;
     vector<string> out;
     IceUtilInternal::splitString(message, "\n", in);
@@ -270,7 +274,7 @@ Slice::filterMcppWarnings(const string& message)
     for(vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
     {
         skiped = false;
-        static const string warningPrefix = "warning:";
+
         if(i->find(warningPrefix) != string::npos)
         {
             for(int j = 0; messages[j] != 0; ++j)
@@ -282,8 +286,37 @@ Slice::filterMcppWarnings(const string& message)
                     // produces the skiped warning
                     i++;
                     skiped = true;
+                    //
+                    // Check if next lines are still the same warning
+                    //
+                    i++;
+                    while(i != in.end())
+                    {
+                        string token = *i;
+                        string::size_type index = token.find_first_not_of(separators);
+                        if(index != string::npos)
+                        {
+                            token = token.substr(index);
+                        }
+                        if(token.find(fromPrefix) != 0)
+                        {
+                            //
+                            // First line not of this warning
+                            //
+                            i--;
+                            break;
+                        }
+                        else
+                        {
+                            i++;
+                        }
+                    }
                     break;
                 }
+            }
+            if(i == in.end())
+            {
+                break;
             }
         }
         if(!skiped)
