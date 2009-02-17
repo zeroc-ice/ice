@@ -139,6 +139,10 @@ C# Changes
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   if an operation had a parameter named "ex".
 
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  if a Slice class used the property mapping and also applied
+  a ["cs:attribute:..."] metadata directive to a data member.
+
 - Fixed a bug in marshaling code that caused a trailing zero byte
   to be marshaled for user exceptions without class data members.
   

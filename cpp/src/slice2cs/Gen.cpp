@@ -2677,8 +2677,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitDeprecate(p, cont, _out, "member");
 
-    emitAttributes(p);
-
     string type = typeToString(p->type());
     string propertyName = fixId(p->name(), baseTypes, isClass);
     string dataMemberName = propertyName;
@@ -2687,18 +2685,19 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         dataMemberName += "_prop";
     }
 
-    _out << nl;
     if(propertyMapping)
     {
-        _out << "private";
+        _out << nl << "private";
     }
     else if(isProtected)
     {
-        _out << "protected";
+        emitAttributes(p);
+        _out << nl << "protected";
     }
     else
     {
-        _out << "public";
+        emitAttributes(p);
+        _out << nl << "public";
     }
     _out << ' ' << type << ' ' << dataMemberName << ';';
 
@@ -2707,6 +2706,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         return;
     }
 
+    emitAttributes(p);
     _out << nl << (isProtected ? "protected" : "public");
     if(!isValue)
     {
