@@ -195,10 +195,8 @@ clean::
 
 !endif
 
-
 install::
-	if not exist $(prefix) mkdir $(prefix)
-	if not exist $(install_bindir) mkdir $(install_bindir)
+
 
 !if "$(TARGETS_CONFIG)" != ""
 

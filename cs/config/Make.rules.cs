@@ -261,4 +261,3 @@ clean::
 endif
 
 install::
-	$(shell [ ! -d $(install_bindir) ] && (mkdir -p $(install_bindir); chmod a+rx $(prefix) $(install_bindir)))

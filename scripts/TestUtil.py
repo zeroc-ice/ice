@@ -916,7 +916,7 @@ def startClient(exe, args = "", config=None, env=None, echo = True):
 
     return spawnClient(cmd, echo = echo)
 
-def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = False):
+def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = True):
     if config == None:
         config = DriverConfig("server")
     cmd = getCommandLine(exe, config, env) + ' ' + args
