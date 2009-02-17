@@ -66,8 +66,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         boolean started = false;
         try
         {
-            info.service.start(name, info.communicator == null ? _communicator : info.communicator,
-                               info.args);
+            info.service.start(name, info.communicator == null ? _sharedCommunicator : info.communicator, info.args);
             started = true;
         }
         catch(java.lang.Exception e)

@@ -23,6 +23,10 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- Fixed a bug in IceBox where services using the shared communicator
+  would be passed the wrong communicator if re-started with the IceBox
+  service manager interface.
+
 - Improved Glacier2 to automatically destroy the client session if the
   forwarding of a request from a back-end server to the client fails
   with an unrecoverable error. This is particularly useful for clients

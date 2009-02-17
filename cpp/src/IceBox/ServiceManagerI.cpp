@@ -182,7 +182,7 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
     bool started = false;
     try
     {
-        info.service->start(name, info.communicator == 0 ? _communicator : info.communicator, info.args);
+        info.service->start(name, info.communicator == 0 ? _sharedCommunicator : info.communicator, info.args);
         started = true;
     }
     catch(const Ice::Exception& ex)

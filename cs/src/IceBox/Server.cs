@@ -42,7 +42,7 @@ public class Server
                 }
             }
 
-            ServiceManagerI serviceManagerImpl = new ServiceManagerI(args);
+            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator(), args);
             return serviceManagerImpl.run();
         }
     }

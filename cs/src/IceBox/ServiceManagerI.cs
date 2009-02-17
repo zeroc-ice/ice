@@ -75,12 +75,12 @@ class ServiceManagerI : ServiceManagerDisp_
         private ServiceObserverPrx _observer;
     }
 
-    public ServiceManagerI(string[] args)
+    public ServiceManagerI(Ice.Communicator communicator, string[] args)
     {
-        _logger = Ice.Application.communicator().getLogger();
+        _communicator = communicator;
+        _logger = _communicator.getLogger();
         _argv = args;
-        _traceServiceObserver = Ice.Application.communicator().getProperties().
-            getPropertyAsInt("IceBox.Trace.ServiceObserver");
+        _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
 
     }
 
@@ -125,8 +125,8 @@ class ServiceManagerI : ServiceManagerDisp_
         bool started = false;
         try
         {
-            info.service.start(info.name, info.communicator == null ? Ice.Application.communicator() 
-                                                                    : info.communicator, info.args);
+            info.service.start(info.name, info.communicator == null ? _sharedCommunicator : info.communicator, 
+                               info.args);
             started = true;
         }
         catch(Exception e)
@@ -261,8 +261,8 @@ class ServiceManagerI : ServiceManagerDisp_
                
                 if(_traceServiceObserver >= 1)
                 {
-                    _logger.trace("IceBox.ServiceObserver",
-                                  "Added service observer " + Ice.Application.communicator().proxyToString(observer));
+                    _logger.trace("IceBox.ServiceObserver", 
+                                  "Added service observer " + _communicator.proxyToString(observer));
                 } 
 
                 foreach(ServiceInfo info in _services)
@@ -285,7 +285,7 @@ class ServiceManagerI : ServiceManagerDisp_
     public override void
     shutdown(Ice.Current current)
     {
-        Ice.Application.communicator().shutdown();
+        _communicator.shutdown();
     }
 
     public int
@@ -293,7 +293,7 @@ class ServiceManagerI : ServiceManagerDisp_
     {
         try
         {
-            Ice.Properties properties = Ice.Application.communicator().getProperties();
+            Ice.Properties properties = _communicator.getProperties();
 
             //
             // Create an object adapter. Services probably should NOT share
@@ -303,7 +303,7 @@ class ServiceManagerI : ServiceManagerDisp_
             Ice.ObjectAdapter adapter = null;
             if(!properties.getProperty("IceBox.ServiceManager.Endpoints").Equals(""))
             {
-                adapter = Ice.Application.communicator().createObjectAdapter("IceBox.ServiceManager");
+                adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
 
                 Ice.Identity identity = new Ice.Identity();
                 identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
@@ -437,7 +437,7 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             try
             {
-                Ice.Application.communicator().addAdminFacet(this, "IceBox.ServiceManager");
+                _communicator.addAdminFacet(this, "IceBox.ServiceManager");
 
                 //
                 // Add a Properties facet for each service
@@ -445,11 +445,11 @@ class ServiceManagerI : ServiceManagerDisp_
                 foreach(ServiceInfo info in _services)
                 {
                     Ice.Communicator communicator = info.communicator != null ? info.communicator : _sharedCommunicator;
-                    Ice.Application.communicator().addAdminFacet(new PropertiesAdminI(communicator.getProperties()),
-                                                                 "IceBox.Service." + info.name + ".Properties");
+                    _communicator.addAdminFacet(new PropertiesAdminI(communicator.getProperties()),
+                                                "IceBox.Service." + info.name + ".Properties");
                 }
 
-                Ice.Application.communicator().getAdmin();
+                _communicator.getAdmin();
             }
             catch(Ice.ObjectAdapterDeactivatedException)
             {
@@ -475,7 +475,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
             }
 
-            Ice.Application.communicator().waitForShutdown();
+            _communicator.waitForShutdown();
             // XXX:
             //Ice.Application.defaultInterrupt();
 
@@ -605,8 +605,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 // commnunicator property set.
                 //
                 Ice.Communicator communicator;
-                if(Ice.Application.communicator().getProperties().getPropertyAsInt(
-                       "IceBox.UseSharedCommunicator." + service) > 0)
+                if(_communicator.getProperties().getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
                 {
                     Debug.Assert(_sharedCommunicator != null);
                     communicator = _sharedCommunicator;
@@ -734,7 +733,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
                 try
                 {
-                    Ice.Application.communicator().removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+                    _communicator.removeAdminFacet("IceBox.Service." + info.name + ".Properties");
                 }
                 catch(Ice.LocalException)
                 {
@@ -855,7 +854,7 @@ class ServiceManagerI : ServiceManagerDisp_
             if(!(ex is Ice.CommunicatorDestroyedException))
             {
                 _logger.trace("IceBox.ServiceObserver",
-                              "Removed service observer " + Ice.Application.communicator().proxyToString(observer)
+                              "Removed service observer " + _communicator.proxyToString(observer)
                               + "\nafter catching " + ex.ToString());
             }
         } 
@@ -968,7 +967,7 @@ class ServiceManagerI : ServiceManagerDisp_
     createServiceProperties(String service)
     {
         Ice.Properties properties;
-        Ice.Properties communicatorProperties = Ice.Application.communicator().getProperties();
+        Ice.Properties communicatorProperties = _communicator.getProperties();
         if(communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0)
         {
             properties = communicatorProperties.ice_clone_();
@@ -991,7 +990,8 @@ class ServiceManagerI : ServiceManagerDisp_
         return properties;
     }
 
-    private Ice.Communicator _sharedCommunicator;
+    private Ice.Communicator _communicator;
+    private Ice.Communicator _sharedCommunicator = null;
     private Ice.Logger _logger;
     private string[] _argv; // Filtered server argument vector
     private List<ServiceInfo> _services = new List<ServiceInfo>();
