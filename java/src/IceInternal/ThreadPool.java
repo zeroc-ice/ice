@@ -697,6 +697,12 @@ public final class ThreadPool
                         --_inUse;
                     }
 
+                    //
+                    // Do not wait to be promoted again to release these objects.
+                    //
+                    handler = null;
+                    workItem = null;
+
                     while(!_promote)
                     {
                         try
