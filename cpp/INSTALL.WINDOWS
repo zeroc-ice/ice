@@ -144,7 +144,13 @@ Compiler utilities. These are included in all full Microsoft C++
 compiler distributions. If you are using C++Builder or Visual C++ 2008
 Express, you can download them as part of the Windows Platform SDK:
  
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
+  http://www.microsoft.com/downloads/details.aspx?familyid=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
+
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE and PATH environment variables. This can be done by executing
+the following script:
+
+  C:\Program Files\Microsoft Platform SDK\SetEnv.Cmd
 
 
 Third-party libraries
