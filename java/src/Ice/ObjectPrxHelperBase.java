@@ -1066,8 +1066,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         String s = in.readUTF();
         try
         {
-            Ice.ObjectInputStream ois = (Ice.ObjectInputStream)in;
-            Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)ois.getCommunicator().stringToProxy(s);
+            Communicator communicator = ((Ice.ObjectInputStream)in).getCommunicator();
+            if(communicator == null)
+            {
+                throw new java.io.IOException("Cannot deserialize proxy: no communicator provided");
+            }
+            ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)communicator.stringToProxy(s);
             _reference = proxy._reference;
             assert(proxy._delegate == null);
         }
