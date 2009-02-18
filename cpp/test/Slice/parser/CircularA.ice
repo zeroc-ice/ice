@@ -7,21 +7,19 @@
 //
 // **********************************************************************
 
-namespace IceInternal
+#ifndef CIRCULARA_ICE
+#define CIRCULARA_ICE
+
+#include <CircularB.ice>
+
+module Test
 {
 
-    using System;
-    using System.Net.Sockets;
+class A
+{
+    void shutdown();
+};
 
-    public interface Connector
-    {
-        //
-        // Create a transceiver without blocking. The transceiver may not be fully connected
-        // until its initialize method is called.
-        //
-        Transceiver connect();
+};
 
-        short type();
-    }
-
-}
+#endif

@@ -625,7 +625,13 @@ IceInternal::ThreadPool::run()
                 assert(_inUse > 0);
                 --_inUse;
             }
-            
+
+            //
+            // Do not wait to be promoted again to release these objects.
+            //
+            handler = 0;
+            workItem = 0;
+
             while(!_promote)
             {
                 wait();

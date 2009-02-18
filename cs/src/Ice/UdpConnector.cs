@@ -14,7 +14,7 @@ namespace IceInternal
     using System.Net;
     using System.Net.Sockets;
 
-    sealed class UdpConnector : Connector, IComparable
+    sealed class UdpConnector : Connector
     {
         public Transceiver connect()
         {
@@ -26,95 +26,10 @@ namespace IceInternal
             return UdpEndpointI.TYPE;
         }
 
-        public int CompareTo(object obj)
-        {
-            UdpConnector p = null;
-
-            try
-            {
-                p = (UdpConnector)obj;
-            }
-            catch(InvalidCastException)
-            {
-                try
-                {
-                    Connector e = (Connector)obj;
-                    return type() < e.type() ? -1 : 1;
-                }
-                catch(InvalidCastException)
-                {
-                    Debug.Assert(false);
-                }
-            }
-
-            if(this == p)
-            {
-                return 0;
-            }
-
-            if(!_connectionId.Equals(p._connectionId))
-            {
-                return _connectionId.CompareTo(p._connectionId);
-            }
-
-            if(_protocolMajor < p._protocolMajor)
-            {
-                return -1;
-            }
-            else if(p._protocolMajor < _protocolMajor)
-            {
-                return 1;
-            }
-
-            if(_protocolMinor < p._protocolMinor)
-            {
-                return -1;
-            }
-            else if(p._protocolMinor < _protocolMinor)
-            {
-                return 1;
-            }
-
-            if(_encodingMajor < p._encodingMajor)
-            {
-                return -1;
-            }
-            else if(p._encodingMajor < _encodingMajor)
-            {
-                return 1;
-            }
-
-            if(_encodingMinor < p._encodingMinor)
-            {
-                return -1;
-            }
-            else if(p._encodingMinor < _encodingMinor)
-            {
-                return 1;
-            }
-
-            int rc = _mcastInterface.CompareTo(p._mcastInterface);
-            if(rc != 0)
-            {
-                return rc;
-            }
-
-            if(_mcastTtl < p._mcastTtl)
-            {
-                return -1;
-            }
-            else if(p._mcastTtl < _mcastTtl)
-            {
-                return 1;
-            }
-
-            return Network.compareAddress(_addr, p._addr);
-        }
-
         //
         // Only for use by TcpEndpoint
         //
-        internal UdpConnector(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl, 
+        internal UdpConnector(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl,
                               byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor,
                               string connectionId)
         {
@@ -136,7 +51,58 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            return CompareTo(obj) == 0;
+            UdpConnector p = null;
+
+            try
+            {
+                p = (UdpConnector)obj;
+            }
+            catch(InvalidCastException)
+            {
+                return false;
+            }
+
+            if(this == p)
+            {
+                return true;
+            }
+
+            if(!_connectionId.Equals(p._connectionId))
+            {
+                return false;
+            }
+
+            if(_protocolMajor != p._protocolMajor)
+            {
+                return false;
+            }
+
+            if(_protocolMinor != p._protocolMinor)
+            {
+                return false;
+            }
+
+            if(_encodingMajor != p._encodingMajor)
+            {
+                return false;
+            }
+
+            if(_encodingMinor != p._encodingMinor)
+            {
+                return false;
+            }
+
+            if(!_mcastInterface.Equals(p._mcastInterface))
+            {
+                return false;
+            }
+
+            if(_mcastTtl != p._mcastTtl)
+            {
+                return false;
+            }
+
+            return Network.compareAddress(_addr, p._addr) == 0;
         }
 
         public override string ToString()

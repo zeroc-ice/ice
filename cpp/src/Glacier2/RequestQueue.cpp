@@ -307,7 +307,14 @@ Glacier2::RequestQueueThread::destroy()
         notify();
     }
 
-    getThreadControl().join();
+    try
+    {
+        getThreadControl().join();
+    }
+    catch(const IceUtil::ThreadNotStartedException&)
+    {
+        // Expected if start() failed.
+    }
 }
 
 void

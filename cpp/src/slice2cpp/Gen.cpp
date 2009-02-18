@@ -2715,6 +2715,11 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
 
     C << nl << "bool __ok = __og.invoke();";
+
+    //
+    // Declare the return __ret variable at the top-level scope to
+    // enable NRVO with GCC (see also bug #3619).
+    //
     writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     if(!p->returnsData())
     {

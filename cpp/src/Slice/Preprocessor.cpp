@@ -44,11 +44,10 @@ extern "C" int   mcpp_lib_main(int argc, char** argv);
 extern "C" void  mcpp_use_mem_buffers(int tf);
 extern "C" char* mcpp_get_mem_buffer(Outdest od);
 
-Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args, const string& cppSourceExt) :
+Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args) :
     _path(path),
     _fileName(fileName),
     _args(args),
-    _cppSourceExt(cppSourceExt),
     _cppHandle(0)
 {
 }
@@ -223,7 +222,8 @@ Slice::Preprocessor::preprocess(bool keepComments)
 }
 
 bool
-Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths)
+Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths,
+                                               const string& cppSourceExt)
 {
     if(!checkInputFile())
     {
@@ -426,7 +426,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             string::size_type pos;
             while((pos = result.find(suffix)) != string::npos)
             {
-                result.replace(pos, suffix.size() - 1, "." + _cppSourceExt);
+                result.replace(pos, suffix.size() - 1, "." + cppSourceExt);
             }
             break;
         }

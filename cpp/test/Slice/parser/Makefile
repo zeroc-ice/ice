@@ -7,16 +7,21 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+TARGETS		= $(OBJS)
+
+OBJS		= CircularA.o \
+		  CircularB.o
+
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= CircularA.ice \
+		  CircularB.ice
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= keyword \
-		  parser
+SLICE2CPPFLAGS	:= -I. $(SLICE2CPPFLAGS)
+CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+include .depend
