@@ -281,7 +281,7 @@ ConnectRequestHandler::getConnection(bool waitInit)
     if(_exception.get())
     {
         _exception->ice_throw();
-        return false; // Keep the compiler happy.
+        return 0; // Keep the compiler happy.
     }
     else
     {
