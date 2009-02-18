@@ -41,6 +41,7 @@
         <ant dir="servantLocatorAMD"/>
         <ant dir="interceptor"/>
         <ant dir="udp"/>
+        <ant dir="serialize"/>
     </target>
 
     <target name="clean">
@@ -73,6 +74,7 @@
         <ant dir="servantLocatorAMD" target="clean"/>
         <ant dir="interceptor" target="clean"/>
         <ant dir="udp" target="clean"/>
+        <ant dir="serialize" target="clean"/>
     </target>
 
 </project>
