@@ -5070,7 +5070,7 @@ Slice::Unit::scanPosition(const char* s)
 
     if(_currentLine == 0)
     {
-        if(currentFile != _topLevelFile)
+        if(_currentIncludeLevel > 0 || currentFile != _topLevelFile)
         {
             type = Push;
             line.erase(idx);

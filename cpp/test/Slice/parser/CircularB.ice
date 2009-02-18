@@ -7,12 +7,19 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
-#include <AI.h>
+#ifndef CIRCULARB_ICE
+#define CIRCULARB_ICE
 
+#include <CircularA.ice>
 
-void
-AI::shutdown(const Ice::Current& c)
+module Test
 {
-    c.adapter->getCommunicator()->shutdown();
-}
+
+class B
+{
+    void shutdown();
+};
+
+};
+
+#endif

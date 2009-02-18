@@ -11,7 +11,8 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= keyword
+SUBDIRS		= keyword \
+		  parser
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
