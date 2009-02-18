@@ -100,10 +100,12 @@ C++ Changes
 Java Changes
 ============
 
+- Slice types now implement java.io.Serializable.
+
 - If a servant raises OutOfMemoryError while dispatching an operation,
-  the Ice run time now traps it and treats it as a hard error. This
-  means the Ice run time logs an error and closes the connection on
-  which the request was received.
+  the Ice run time now traps it and treats it as a hard error, meaning
+  Ice logs an error message and closes the connection on which the
+  request was received.
 
 - The Ice run time now traps OutOfMemoryError when raised by
 
