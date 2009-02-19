@@ -250,6 +250,48 @@ remove the certificate:
    confirm that you want to remove this certificate.
 
 
+Installing the .NET assemblies in the GAC
+-----------------------------------------
+
+You can add the .NET assemblies to the Global Assembly Cache (GAC). To
+do this, open Windows Explorer and navigate to the directory
+C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+.NET assemblies from bin directory into the right-hand pane to install
+them in the cache.
+
+Or you can use gacutil from the command line to achieve the same
+result:
+
+  > gacutil /i <library.dll>
+
+You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
+installation. For example, if you have installed Visual C# 8.0 in
+C:\Program Files, the path to gacutil is
+
+  C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\gacutil.exe
+
+Once installed in the cache, the assemblies will always be located
+correctly without having to set environment variables or copy them
+into the same directory as an executable.
+
+If you want line numbers for stack traces, you must also install the
+PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
+Explorer, so you have to do it from the command line. Open a command
+shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
+(Assuming C:\WINDOWS is your system root.) Doing a directory listing
+there, you will find a directory named @dotnetver@__<UUID>, for
+example:
+
+  @dotnetver@__cdd571ade22f2f16
+
+Change to that directory (making sure that you use the correct version
+number for this release of Ice). In this directory, you will see the
+Ice.dll you installed into the GAC in the preceding step. Now copy the
+Ice.pdb file into this directory:
+
+  > copy <path_to_ice.pdb> .
+
+
 Building and running the Java demos
 -----------------------------------
 

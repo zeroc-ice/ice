@@ -175,17 +175,17 @@ into the same directory as an executable.
 If you want line numbers for stack traces, you must also install the
 PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
-shell window and navigate to C:\WINDOWS\assembly\GAC\Ice. (Assuming
-C:\WINDOWS is your system root.) Doing a directory listing there, you
-will find a directory named @dotnetver@__<UUID>, for example:
+shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
+(Assuming C:\WINDOWS is your system root.) Doing a directory listing
+there, you will find a directory named @dotnetver@__<UUID>, for 
+example:
 
   @dotnetver@__1f998c50fec78381
 
 Change to that directory (making sure that you use the correct version
-number for this release of Ice). In this directory, you will see a
-file called __AssemblyInfo__.ini and the Ice.dll you installed into
-the GAC in the preceding step. Now copy the Ice.pdb file into this
-directory:
+number for this release of Ice). In this directory, you will see the 
+Ice.dll you installed into the GAC in the preceding step. Now copy the
+Ice.pdb file into this directory:
 
   > copy <path_to_ice.pdb> .
 
