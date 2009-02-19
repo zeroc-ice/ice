@@ -23,6 +23,14 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- The frequency at which Ice checks for connections that can be reaped
+  by active connection management (ACM) is now set by default to 10%
+  of the smallest, non-zero ACM setting (Ice.ACM.Client and
+  Ice.ACM.Server), with a minimum value of 5 seconds and a maximum
+  value of 5 minutes. This default can be overriden by setting
+  Ice.MonitorConnections, which is no longer deprecated, and whose
+  value is the check frequency in seconds.
+
 - Fixed a bug in IceBox where services using the shared communicator
   would be passed the wrong communicator if re-started with the IceBox
   service manager interface.

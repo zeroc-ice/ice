@@ -297,7 +297,7 @@ namespace Ice
             }
         }
 
-        public void monitor()
+        public void monitor(long now)
         {
             if(!Monitor.TryEnter(this))
             {
@@ -323,7 +323,7 @@ namespace Ice
                     return;
                 }
 
-                if(IceInternal.Time.currentMonotonicTimeMillis() >= _acmAbsoluteTimeoutMillis)
+                if(now >= _acmAbsoluteTimeoutMillis)
                 {
                     setState(StateClosing, new ConnectionTimeoutException());
                 }

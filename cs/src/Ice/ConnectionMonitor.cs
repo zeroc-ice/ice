@@ -78,11 +78,12 @@ namespace IceInternal
             // so that connections can be added or removed during
             // monitoring.
             //
+            long now = IceInternal.Time.currentMonotonicTimeMillis();
             foreach(Ice.ConnectionI connection in connections)
             {
                 try
                 {
-                    connection.monitor();
+                    connection.monitor(now);
                 }
                 catch(System.Exception ex)
                 {

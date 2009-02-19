@@ -305,7 +305,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     synchronized public void
-    monitor()
+    monitor(long now)
     {
         if(_state != StateActive)
         {
@@ -323,7 +323,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             return;
         }
         
-        if(IceInternal.Time.currentMonotonicTimeMillis() >= _acmAbsoluteTimeoutMillis)
+        if(now >= _acmAbsoluteTimeoutMillis)
         {
             setState(StateClosing, new ConnectionTimeoutException());
         }

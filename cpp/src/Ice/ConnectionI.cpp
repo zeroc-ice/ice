@@ -421,7 +421,7 @@ Ice::ConnectionI::waitUntilFinished()
 }
 
 void
-Ice::ConnectionI::monitor()
+Ice::ConnectionI::monitor(const IceUtil::Time& now)
 {
     IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
     if(!sync.acquired())
@@ -445,7 +445,7 @@ Ice::ConnectionI::monitor()
         return;
     }
 
-    if(IceUtil::Time::now(IceUtil::Time::Monotonic) >= _acmAbsoluteTimeout)
+    if(now >= _acmAbsoluteTimeout)
     {
         setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
     }

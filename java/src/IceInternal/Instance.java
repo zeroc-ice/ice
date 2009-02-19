@@ -836,7 +836,7 @@ public final class Instance
         }
         if(interval > 0)
         {
-            interval = java.lang.Math.min(300, java.lang.Math.max(1, (int)interval / 10));
+            interval = java.lang.Math.min(300, java.lang.Math.max(5, (int)interval / 10));
         }
         interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
         if(interval > 0)

@@ -868,7 +868,7 @@ namespace IceInternal
             }
             if(interval > 0)
             {
-                interval = System.Math.Min(300, System.Math.Max(1, (int)interval / 10));
+                interval = System.Math.Min(300, System.Math.Max(5, (int)interval / 10));
             }
             interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
             if(interval > 0)
