@@ -1085,7 +1085,11 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         stdioFile = OS::fopen(simplify(pathBZ2Temp), "wb");
                         if(!stdioFile)
                         {
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+                            _close(fd);
+#else
                             close(fd);
+#endif
                             throw "cannot open `" + pathBZ2Temp + "' for writing:\n" + IceUtilInternal::lastErrorToString();
                         }
 
@@ -1098,7 +1102,11 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                             ex += string(": ") + IceUtilInternal::lastErrorToString();
                             }
                             fclose(stdioFile);
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+                            _close(fd);
+#else
                             close(fd);
+#endif
                             throw ex;
                         }
                     }
@@ -1108,7 +1116,13 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                     while(bytesLeft > 0)
                     {
                         ByteSeq bytes(min(bytesLeft, 1024u*1024));
-                        if(read(fd, &bytes[0], static_cast<unsigned int>(bytes.size())) == -1)
+                        if(
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+                            _read(fd, &bytes[0], static_cast<unsigned int>(bytes.size()))
+#else
+                            read(fd, &bytes[0], static_cast<unsigned int>(bytes.size()))
+#endif
+                            == -1)
                         {
 #ifndef __BCPLUSPLUS__
                             if(doCompress)
@@ -1116,7 +1130,12 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                                 fclose(stdioFile);
                             }
 #endif
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+                            _close(fd);
+#else
                             close(fd);
+#endif
                             throw "cannot read from `" + path + "':\n" + IceUtilInternal::lastErrorToString();
                         }
                         bytesLeft -= static_cast<unsigned int>(bytes.size());
@@ -1134,7 +1153,11 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                                 }
                                 BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
                                 fclose(stdioFile);
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+                                _close(fd);
+#else
                                 close(fd);
+#endif
                                 throw ex;
                             }
                         }
@@ -1143,7 +1166,11 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         SHA1_Update(&ctx, reinterpret_cast<const void*>(&bytes[0]), bytes.size());
                     }
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+                    _close(fd);
+#else
                     close(fd);
+#endif
 
 #ifndef __BCPLUSPLUS__
                     if(doCompress)

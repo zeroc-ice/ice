@@ -482,7 +482,11 @@ Activator::activate(const string& name,
     //
     // Make a copy of the command line.
     //
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+    char* cmdbuf = _strdup(cmd.c_str());
+#else
     char* cmdbuf = strdup(cmd.c_str());
+#endif
 
     //
     // Create the environment block for the child process. We start with the environment
