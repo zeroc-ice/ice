@@ -46,7 +46,6 @@ NrvoI::op3(int size, const Ice::Current&)
     return seq;
 }
 
-
 void
 NrvoI::shutdown(const Ice::Current& c)
 {

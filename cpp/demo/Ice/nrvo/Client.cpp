@@ -124,7 +124,6 @@ NrvoClient::run(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-
 void
 NrvoClient::menu()
 {
@@ -132,10 +131,10 @@ NrvoClient::menu()
         "usage:\n"
         "\n"
         "Operation to call:\n"
-        "1: return a string sequence.\n"
-        "2: return a string sequence that is a data member of the servant.\n"
-        "3: return a string sequence from an operation with multiple return path.\n"
-        "s: shutdown server.\n"
-        "x: exit.\n"
-        "?: show this menu.\n";
+        "1: return a string sequence\n"
+        "2: return a string sequence that is a data member of the servant\n"
+        "3: return a string sequence from an operation with multiple return paths\n"
+        "s: shutdown server\n"
+        "x: exit\n"
+        "?: show this menu\n";
 }

@@ -4,14 +4,14 @@ compilers.
 
 GCC and Microsoft Visual Studio compilers support this optimization.
 
-  You can read more about Visual Studio NRVO at:
+You can read more about Visual Studio NRVO at:
 
-    * http://msdn.microsoft.com/en-us/library/ms364057(VS.80).aspx
+  * http://msdn.microsoft.com/en-us/library/ms364057(VS.80).aspx
 
-  For GCC NRVO was first introduced in gcc-3.1 see the release
-  changes at:
+For GCC, NRVO was first introduced in version 3.1. See the release
+changes at:
 
-    * http://www.gnu.org/software/gcc/gcc-3.1/changes.html
+  * http://www.gnu.org/software/gcc/gcc-3.1/changes.html
 
 To run the demo, first start the server:
 
@@ -21,28 +21,20 @@ In a separate window, start the client:
 
 $ client
 
-When you start the client it show you a menu with different
-operations, you can invoke each operation pressing the corresponding
-key.
+The client presents a menu of options that you can invoke by pressing
+the corresponding key. All of these operations return a string
+sequence mapped to the custom class MyStringSeq. This class prints
+the message "MyStringSeq copy ctor" each time it is copied so that you
+can see when copies of the returned data are made by the Ice run time.
+To make sure the optimizations are applied, you should compile this
+demo with optimization enabled.
 
-All this operations return a string sequence mapped to a custom class
-MyStringSeq. When a copy of this classs is made the message 
-"MyStringSeq copy ctor" is written to the console. This permits you to
-see when copies of the returned data are made by Ice runtime.
+In the server we show one case when NRVO works: a function that has a
+single return path implemented in NrvoI::op1. There are also two cases
+where NRVO doesn't work: a function that returns a data member of
+the servant (NrvoI::op2) and a function with multiple returns path
+(NrvoI::op3).
 
-To make sure the optimizations are applied you should compile the demo
-with optimization enabled.
-
-If you call an operation the client and server should print a message
-"calling <operation name>" and bellow that message you will see as
-many "MyStringSeq copy ctor" messages as copies are made.
-
-In the server side we show one case when NRVO works, a function that
-has a single return path implemented in NrvoI::op1. There are also two
-cases where NRVO doesn't work, a function that return a data member of
-the servant the implementation is in NrvoI::op2 and a function with 
-multiple returns path the implementation is in NrvoI::op3.
-
-So if you press option 1 you will see that NRVO is applied in both
-client and server sides and if you call 2 or 3 the optimization is
-only applied to client side.
+Invoking op1 demonstrates that NRVO is applied in both the client and
+the server, whereas for op2 and op3 NRVO is only applied in the
+client.
