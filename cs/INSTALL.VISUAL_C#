@@ -217,5 +217,4 @@ Policy assemblies have names of the form policy.<major>.<minor>.<package>.dll.
 For example, the policy assembly for IceBox 3.2 is called policy.3.2.IceBox.dll.
 
 To upgrade an existing application to a new patch release, the policy
-assemblies must be present in your PATH, or they must be
-installed into the GAC as described in the previous section.
+assemblies must be installed into the GAC as described previously.

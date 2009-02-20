@@ -363,6 +363,14 @@ Ice patch releases are binary compatible. For example, Ice version
 built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
 having to recompile or relink this application.
 
+Ice for .NET includes policy assemblies in bin that supply the .NET
+run time with the required compatibility information.  Policy
+assemblies have names of the form policy.<major>.<minor>.<package>.dll.
+
+To upgrade an existing .NET application to a new patch release, the
+policy assemblies must be installed into the GAC along with the new
+Ice for .NET assemblies.
+
 Please refer to the RELEASE_NOTES.txt file included in this
 distribution for detailed upgrade instructions.
 
