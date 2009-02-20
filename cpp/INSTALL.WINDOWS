@@ -77,33 +77,19 @@ The following C++ compilers are supported:
 - CodeGear C++Builder 2007 R2 with December 2007 Update
 
 
-Visual C++ 2005 Express SP1 Setup
+Visual C++ Express/C++Builder Setup
 ---------------------------------
 
-Users of Visual C++ 2005 Express SP1 need to install the Microsoft
-Platform SDK:
+Users of Visual C++ 2005 Express SP1, Visual C++ 2008 Express and
+C++Builder 2007 need to install the Microsoft Platform SDK:
 
-  http://www.microsoft.com/Downloads/details.aspx?FamilyID=484269e2-3b89-47e3-8eb7-1f2be6d7123a&displaylang=en
+  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
 
-Once installed, follow the instructions at the link below:
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE, LIB and PATH environment variables. This can be done by
+executing the following script from within the compiler command prompt:
 
-  http://msdn2.microsoft.com/en-us/express/aa700755.aspx
-
-You also need to add the Platform SDK directories to the INCLUDE, LIB
-and PATH environment variables. For example:
-
-@SET PDK_HOME=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2
-@SET PATH=%PDK_HOME%\bin;%PATH%
-@SET INCLUDE=%PDK_HOME%\include;%INCLUDE%
-@SET LIB=%PDK_HOME%\lib;%LIB%
-
-The PDK_HOME environment variable must be defined in order to build
-the Ice source distribution. Note that PDK_HOME must not contain a
-trailing backslash (\).
-
-You may also need to execute the vsvars32.bat script, located in
-C:\Program Files\Microsoft Visual Studio 8\Common7\Tools, to properly
-configure your build environment.
+  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
 
 
 Visual C++ 6.0 Setup
@@ -134,24 +120,6 @@ variable.
 
 This Platform SDK is only required to compile Ice and is not necessary
 to build applications using Ice.
-
-
-NMAKE and Message Compiler (MC.EXE)
------------------------------------
-
-In order to build Ice, you will need the Microsoft NMAKE and Message
-Compiler utilities. These are included in all full Microsoft C++
-compiler distributions. If you are using C++Builder or Visual C++ 2008
-Express, you can download them as part of the Windows Server 2003 R2
-Platform SDK:
- 
-  http://www.microsoft.com/Downloads/details.aspx?FamilyID=484269e2-3b89-47e3-8eb7-1f2be6d7123a&displaylang=en
-
-Once installed, you need to add the Platform SDK directories to the
-INCLUDE and PATH environment variables. This can be done by executing
-the following script:
-
-  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
 
 
 Third-party libraries
