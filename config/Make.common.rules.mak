@@ -15,6 +15,7 @@ SHELL			= /bin/sh
 VERSION			= 3.3.1
 INTVERSION		= 3.3.1
 SHORT_VERSION           = 3.3
+PATCH_VERSION           = 1
 SOVERSION		= 33
 
 OBJEXT			= .obj

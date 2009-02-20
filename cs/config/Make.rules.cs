@@ -169,21 +169,12 @@ $(bindir)/$(POLICY_TARGET):
       <dependentAssembly> \n \
         <assemblyIdentity name=\"Ice\" publicKeyToken=\"$(publicKeyToken)\" culture=\"\"/> \n \
         <publisherPolicy apply=\"yes\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).2.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).1.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(SHORT_VERSION).2.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).2.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).2.0\" newVersion=\"$(SHORT_VERSION).3.0\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).3.0\" newVersion=\"$(SHORT_VERSION).4.0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).$(PATCH_VERSION).0\"/> \n \
       </dependentAssembly> \n \
     </assemblyBinding> \n \
   </runtime> \n \
 </configuration>" >$(POLICY)
-	$(AL) /link:$(POLICY) /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	$(AL) /link:$(POLICY) /version:$(SHORT_VERSION).$(PATCH_VERSION).0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
 	mv $(POLICY) $(POLICY_TARGET) $(bindir)
