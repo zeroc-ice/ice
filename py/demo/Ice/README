@@ -38,6 +38,10 @@ Demos in this directory:
 
   This demo illustrates a minimal Ice application.
 
+- protobuf
+
+  A demo that shows how to integrate Google Protocol Buffers with Ice.
+
 - session
 
   This demo shows how to use sessions to clean up client-specific

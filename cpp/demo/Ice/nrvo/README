@@ -1,10 +1,10 @@
+A simple demo that shows how Ice takes advantage of NRVO (Named
+Return Value Optimization) which is included in modern C++
+compilers.
 
-A simple demo that show how Ice take advantage of NRVO
-(Named Return Value Optimization) include in modern c++ compilers.
+GCC and Microsoft Visual Studio compilers support this optimization.
 
-GCC and Visual Studio compilers support this optimization
-
-  You could read more about Visual Studio NRVO at:
+  You can read more about Visual Studio NRVO at:
 
     * http://msdn.microsoft.com/en-us/library/ms364057(VS.80).aspx
 
@@ -26,23 +26,23 @@ operations, you can invoke each operation pressing the corresponding
 key.
 
 All this operations return a string sequence mapped to a custom class
-MyStringSeq, when a copy is made the message "MyStringSeq copy ctor"
-is wrote to the console, this permit you see what copies of the
-returned data are made by Ice run time.
+MyStringSeq. When a copy of this classs is made the message 
+"MyStringSeq copy ctor" is written to the console. This permits you to
+see when copies of the returned data are made by Ice runtime.
 
 To make sure the optimizations are applied you should compile the demo
-with optimizations enabled.
+with optimization enabled.
 
 If you call an operation the client and server should print a message
 "calling <operation name>" and bellow that message you will see as
 many "MyStringSeq copy ctor" messages as copies are made.
 
-In the server side we show one case when NRVO works, that is a
-function that has a single return path implemented  in NrvoI::op1, and two
-cases where  NRVO doesn't works, a function that return a data member of the
-servant the implementation is in NrvoI::op2 and a function with multiple
-returns path the implementation is in NrvoI::op3.
+In the server side we show one case when NRVO works, a function that
+has a single return path implemented in NrvoI::op1. There are also two
+cases where NRVO doesn't work, a function that return a data member of
+the servant the implementation is in NrvoI::op2 and a function with 
+multiple returns path the implementation is in NrvoI::op3.
 
-So if you press option 1 you will see that NRVO is apply in both
-client and server sides, and if you call 2 or 3 the optimization only
-apply to client side.
+So if you press option 1 you will see that NRVO is applied in both
+client and server sides and if you call 2 or 3 the optimization is
+only applied to client side.

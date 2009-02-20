@@ -47,7 +47,6 @@ Demos in this directory:
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
 
-
 - serialize
 
   This demo illistrates how to transfer serializable .NET objects 
