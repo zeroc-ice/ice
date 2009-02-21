@@ -82,8 +82,8 @@ General Changes
 C++ Changes
 ===========
 
-- Fixed bug in slice2cpp that caused bad code to be generated for classes
-  and modules whose name was a C++ keyword.
+- Fixed bug in slice2cpp that caused bad code to be generated for
+  classes and modules whose name was a C++ keyword.
 
 - Fixed a bug in IceSSL where the IceSSL.CheckCertName property did
   not have any effect.
@@ -140,12 +140,12 @@ Java Changes
 C# Changes
 ==========
 
-- Added object serialization that allows native C# objects
-  to be sent as operation parameters. See the Slice chapter and the
-  C# language mapping chapter in the manual for more info.
+- Added object serialization that allows native C# objects to be sent
+  as operation parameters. See the Slice chapter and the C# language
+  mapping chapter in the manual for more information.
 
-- Changed the Ice runtime to not rely anymore on .NET worker threads
-  to start asynchronous IO operations.
+- Changed the Ice run time to no longer rely on .NET worker threads
+  to start asynchronous I/O operations.
 
 - Fixed a bug in slice2cs that caused a core dump if a dictionary
   had a value type of Object.

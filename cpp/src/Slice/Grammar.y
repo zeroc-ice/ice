@@ -149,7 +149,6 @@ definitions
     {
 	contained->setMetaData(metaData->v);
     }
-    unit->setSeenDefinition();
 }
 ';' definitions
 | error ';'
@@ -228,6 +227,7 @@ module_def
 // ----------------------------------------------------------------------
 : ICE_MODULE ICE_IDENTIFIER
 {
+    unit->setSeenDefinition();
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);

@@ -81,6 +81,12 @@ protected:
                                   const std::string& = std::string(),
                                   const std::string& = std::string()) const;
 
+
+    //
+    // Returns the package prefix for a give Slice file.
+    //
+    std::string getPackagePrefix(const ContainedPtr&) const;
+
     //
     // Returns the Java package of a Contained entity.
     //
@@ -197,6 +203,7 @@ private:
     {
     public:
 
+        virtual bool visitUnitStart(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -222,6 +229,7 @@ private:
 
     std::string _dir;
     ::IceUtilInternal::Output* _out;
+    mutable std::map<std::string, std::string> _filePackagePrefix;
 };
 
 }

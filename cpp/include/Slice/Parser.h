@@ -418,6 +418,7 @@ public:
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
     ExceptionPtr lookupException(const std::string&, bool = true);
+    UnitPtr unit() const;
     ModuleList modules() const;
     ClassList classes() const;
     ExceptionList exceptions() const;
@@ -938,6 +939,7 @@ public:
     void setComment(const std::string&);
     std::string currentComment(); // Not const, as this function removes the current comment.
     std::string currentFile() const;
+    std::string topLevelFile() const;
     int currentLine() const;
 
     void nextLine();
@@ -945,6 +947,7 @@ public:
     int currentIncludeLevel() const;
 
     void addGlobalMetaData(const StringList&);
+
     void setSeenDefinition();
 
     void error(const char*); // Not const, because error count is increased.
@@ -960,6 +963,7 @@ public:
     DefinitionContextPtr currentDefinitionContext() const;
     void pushDefinitionContext();
     void popDefinitionContext();
+    DefinitionContextPtr findDefinitionContext(const std::string&) const;
 
     void addContent(const ContainedPtr&);
     void removeContent(const ContainedPtr&);
@@ -974,8 +978,16 @@ public:
 
     FeatureProfile profile() const;
 
+    //
+    // Returns the path names of the files included directly by the top-level file.
+    //
     StringList includeFiles() const;
-    
+
+    //
+    // Returns the path names of all files parsed by this unit.
+    //
+    StringList allFiles() const;
+
     int parse(const std::string&, FILE*, bool, FeatureProfile profile = Ice);
 
     virtual void destroy();
@@ -992,20 +1004,20 @@ private:
     bool _all;
     bool _allowIcePrefix;
     bool _caseSensitive;
-    StringList _defaultGlobalMetadata;
+    StringList _defaultGlobalMetaData;
     int _errors;
     std::string _currentComment;
     int _currentLine;
     int _currentIncludeLevel;
     std::string _currentFile;
     std::string _topLevelFile;
-    std::map<std::string, std::string> _fullPaths;
     std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;
     std::map<std::string, ContainedList> _contentMap;
     FeatureProfile _featureProfile;
+    std::map<std::string, DefinitionContextPtr> _definitionContextMap;
 };
 
 extern SLICE_API Unit* unit; // The current parser for bison/flex

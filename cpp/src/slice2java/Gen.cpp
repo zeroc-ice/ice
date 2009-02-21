@@ -1665,30 +1665,19 @@ Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) :
 bool
 Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
 {
-    DefinitionContextPtr dc = p->definitionContext();
-    assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-
-    static const string packagePrefix = "java:package:";
-
-    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    string prefix = getPackagePrefix(p);
+    if(!prefix.empty())
     {
-        string s = *q;
-        if(s.find(packagePrefix) == 0)
-        {
-            string markerClass = s.substr(packagePrefix.size()) + "." + fixKwd(p->name()) + "._Marker";
-
-            open(markerClass);
-
-            Output& out = output();
-            out << sp << nl << "interface _Marker";
-            out << sb;
-            out << eb;
-
-            close();
-        }
+        string markerClass = prefix + "." + fixKwd(p->name()) + "._Marker";
+        open(markerClass);
+    
+        Output& out = output();
+        out << sp << nl << "interface _Marker";
+        out << sb;
+        out << eb;
+    
+        close();
     }
-
     return false;
 }
 
@@ -2653,8 +2642,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if(cls)
         {
             ops = cls->allOperations();
-            DefinitionContextPtr dc = p->definitionContext();
-            file = dc->filename();
+            file = p->file();
             line = p->line();
             if(!validateGetterSetter(ops, "get" + capName, 0, file, line) ||
                !validateGetterSetter(ops, "set" + capName, 1, file, line))
@@ -2795,7 +2783,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << nl << " **/";
     }
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     if(java2)
     {
@@ -3336,7 +3324,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextType = java2 ? "java.util.Map" : "java.util.Map<String, String>";
     string contextParam = contextType + " __ctx";
     string explicitContextParam = "boolean __explicitCtx";
@@ -4000,7 +3988,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << nl << " **/";
     }
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     out << nl << "public " << retS << ' ' << name << spar << params << contextParam << epar;
@@ -4077,7 +4065,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->operations();
@@ -4133,7 +4121,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
@@ -4334,7 +4322,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
@@ -5018,7 +5006,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << nl << "public abstract void ice_exception(Ice.UserException ex);";
         }
         
-        bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+        bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
         string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
         out << sp << nl << "public final boolean" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"

@@ -1119,8 +1119,8 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
 
     if(summary && _warnSummary && summarySize > _warnSummary)
     {
-        cerr << contained->definitionContext()->filename() << ": summary size (" << summarySize << ") exceeds "
-            << _warnSummary << " characters: `" << comment << "'" << endl;
+        cerr << contained->file() << ": summary size (" << summarySize << ") exceeds " << _warnSummary
+             << " characters: `" << comment << "'" << endl;
     }
 
     return comment;
@@ -1713,53 +1713,53 @@ Slice::FileVisitor::visitUnitStart(const UnitPtr& u)
 bool
 Slice::FileVisitor::visitModuleStart(const ModulePtr& m)
 {
-    _files.insert(m->definitionContext()->filename());
+    _files.insert(m->file());
     return true;
 }
 
 bool
 Slice::FileVisitor::visitExceptionStart(const ExceptionPtr& e)
 {
-    _files.insert(e->definitionContext()->filename());
+    _files.insert(e->file());
     return false;
 }
 
 bool
 Slice::FileVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    _files.insert(c->definitionContext()->filename());
+    _files.insert(c->file());
     return false;
 }
 
 void
 Slice::FileVisitor::visitClassDecl(const ClassDeclPtr& c)
 {
-    _files.insert(c->definitionContext()->filename());
+    _files.insert(c->file());
 }
 
 bool
 Slice::FileVisitor::visitStructStart(const StructPtr& s)
 {
-    _files.insert(s->definitionContext()->filename());
+    _files.insert(s->file());
     return false;
 }
 
 void
 Slice::FileVisitor::visitSequence(const SequencePtr& s)
 {
-    _files.insert(s->definitionContext()->filename());
+    _files.insert(s->file());
 }
 
 void
 Slice::FileVisitor::visitDictionary(const DictionaryPtr& d)
 {
-    _files.insert(d->definitionContext()->filename());
+    _files.insert(d->file());
 }
 
 void
 Slice::FileVisitor::visitEnum(const EnumPtr& e)
 {
-    _files.insert(e->definitionContext()->filename());
+    _files.insert(e->file());
 }
 
 Slice::StartPageVisitor::StartPageVisitor(const Files& files)

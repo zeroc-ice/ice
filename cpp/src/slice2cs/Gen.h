@@ -76,14 +76,9 @@ private:
     {
     public:
 
-        UnitVisitor(::IceUtilInternal::Output&, bool);
+        UnitVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-
-    private:
-
-        bool _stream;
-        bool _globalMetaDataDone;
+        virtual bool visitUnitStart(const UnitPtr&);
     };
 
     class TypesVisitor : public CsVisitor

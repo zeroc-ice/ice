@@ -1523,42 +1523,51 @@ Slice::CsGenerator::validateMetaData(const UnitPtr& u)
     u->visit(&visitor, true);
 }
 
-Slice::CsGenerator::MetaDataVisitor::MetaDataVisitor()
-    : _globalMetaDataDone(false)
+bool
+Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 {
+    //
+    // Validate global metadata in the top-level file and all included files.
+    //
+    StringList files = p->allFiles();
+
+    for(StringList::iterator q = files.begin(); q != files.end(); ++q)
+    {
+        string file = *q;
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+
+        static const string csPrefix = "cs:";
+        static const string clrPrefix = "clr:";
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+        {
+            string s = *r;
+            if(_history.count(s) == 0)
+            {
+                if(s.find(csPrefix) == 0)
+                {
+                    static const string csAttributePrefix = "cs:attribute:";
+                    if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
+                    {
+                        continue;
+                    }
+                    emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
+                }
+                else if(s.find(clrPrefix) == 0)
+                {
+                    emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
+                }
+                _history.insert(s);
+            }
+        }
+    }
+    return true;
 }
 
 bool
 Slice::CsGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!_globalMetaDataDone)
-    {
-        //
-        // Validate global metadata.
-        //
-        DefinitionContextPtr dc = p->definitionContext();
-        assert(dc);
-        StringList globalMetaData = dc->getMetaData();
-        string file = dc->filename();
-        static const string prefix = "cs:";
-        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
-        {
-            string s = *q;
-            if(_history.count(s) == 0)
-            {
-                if(s.find(prefix) == 0)
-                {
-                    static const string attributePrefix = "cs:attribute:";
-                    if(s.find(attributePrefix) != 0 || s.size() == attributePrefix.size())
-                    {
-                        emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
-                    }
-                }
-                _history.insert(s);
-            }
-        }
-        _globalMetaDataDone = true;
-    }
     validate(p);
     return true;
 }
@@ -1622,7 +1631,7 @@ Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
             os << "metdata directive `UserException' applies only to local operations "
                << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                << "' is not local";
-            emitWarning(p->definitionContext()->filename(), p->line(), os.str());
+            emitWarning(p->file(), p->line(), os.str());
         }
     }
     validate(p);
@@ -1669,15 +1678,9 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 {
     const string msg = "ignoring invalid metadata";
 
-    DefinitionContextPtr dc = cont->definitionContext();
-    assert(dc);
-    string file = dc->filename();
-
     StringList localMetaData = cont->getMetaData();
 
-    StringList::const_iterator p;
-
-    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
         string s = *p;
 
@@ -1716,7 +1719,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         if(cont->findMetaData(prefix + "collection", meta)
                            || cont->findMetaData(prefix + "generic:", meta))
                         {
-                            emitWarning(file, cont->line(), msg + " `" + meta + "':\n" +
+                            emitWarning(cont->file(), cont->line(), msg + " `" + meta + "':\n" +
                                         "serialization can only be used with the array mapping for byte sequences");
                         }
                         string type = s.substr(prefix.size() + 13);
@@ -1760,9 +1763,9 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         }
                     }
                 }
-                emitWarning(file, cont->line(), msg + " `" + s + "'");
+                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+                _history.insert(s);
             }
-            _history.insert(s);
         }
 
         prefix = "cs:";
@@ -1770,13 +1773,14 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         {
             if(s.find(prefix) == 0)
             {
-                if(s.substr(prefix.size()) == "attribute:")
+                static const string csAttributePrefix = "cs:attribute:";
+                if(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size())
                 {
                     continue;
                 }
-                emitWarning(file, cont->line(), msg + " `" + s + "'");
+                emitWarning(cont->file(), cont->line(), msg + " `" + s + "'");
+                _history.insert(s);
             }
-            _history.insert(s);
         }
     }
 }

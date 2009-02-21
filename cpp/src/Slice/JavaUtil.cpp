@@ -372,25 +372,44 @@ Slice::JavaGenerator::convertScopedName(const string& scoped, const string& pref
 }
 
 string
+Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
+{
+    UnitPtr unit = cont->container()->unit();
+    string file = cont->file();
+    assert(!file.empty());
+
+    map<string, string>::const_iterator p = _filePackagePrefix.find(file);
+    if(p != _filePackagePrefix.end())
+    {
+        return p->second;
+    }
+
+    static const string prefix = "java:package:";
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    string q = dc->findMetaData(prefix);
+    if(!q.empty())
+    {
+        q = q.substr(prefix.size());
+    }
+    _filePackagePrefix[file] = q;
+    return q;
+}
+
+string
 Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
 {
     string scope = convertScopedName(cont->scope());
-
-    DefinitionContextPtr dc = cont->definitionContext();
-    if(dc)
+    string prefix = getPackagePrefix(cont);
+    if(!prefix.empty())
     {
-        static const string prefix = "java:package:";
-        string package = dc->findMetaData(prefix);
-        if(!package.empty())
+        if(!scope.empty())
         {
-            if(!scope.empty())
-            {
-                return package.substr(prefix.size()) + "." + scope;
-            }
-            else
-            {
-                return package.substr(prefix.size());
-            }
+            return prefix + "." + scope;
+        }
+        else
+        {
+            return prefix;
         }
     }
 
@@ -3535,51 +3554,62 @@ Slice::JavaGenerator::validateMetaData(const UnitPtr& u)
 }
 
 bool
-Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+Slice::JavaGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 {
-    //
-    // Validate global metadata.
-    //
-    DefinitionContextPtr dc = p->definitionContext();
-    assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-    string file = dc->filename();
     static const string prefix = "java:";
-    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+
+    //
+    // Validate global metadata in the top-level file and all included files.
+    //
+    StringList files = p->allFiles();
+
+    for(StringList::iterator q = files.begin(); q != files.end(); ++q)
     {
-        string s = *q;
-        if(_history.count(s) == 0)
+        string file = *q;
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
-            if(s.find(prefix) == 0)
+            string s = *r;
+            if(_history.count(s) == 0)
             {
-                bool ok = false;
+                if(s.find(prefix) == 0)
+                {
+                    bool ok = false;
 
-                static const string packagePrefix = "java:package:";
-                if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
-                {
-                    ok = true;
-                }
-                else if(s == _java2MetaData)
-                {
-                    ok = true;
-                }
-                else if(s == _java5MetaData)
-                {
-                    ok = true;
-                }
+                    static const string packagePrefix = "java:package:";
+                    if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
+                    {
+                        ok = true;
+                    }
+                    else if(s == _java2MetaData)
+                    {
+                        ok = true;
+                    }
+                    else if(s == _java5MetaData)
+                    {
+                        ok = true;
+                    }
 
-                if(!ok)
-                {
-                    emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
+                    if(!ok)
+                    {
+                        emitWarning(file, "",  "ignoring invalid global metadata `" + s + "'");
+                    }
                 }
+                _history.insert(s);
             }
-            _history.insert(s);
         }
     }
+    return true;
+}
 
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
     return true;
 }
 
@@ -3587,16 +3617,16 @@ void
 Slice::JavaGenerator::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
 }
 
 bool
 Slice::JavaGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
     return true;
 }
 
@@ -3604,8 +3634,8 @@ bool
 Slice::JavaGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
     return true;
 }
 
@@ -3613,8 +3643,8 @@ bool
 Slice::JavaGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
     return true;
 }
 
@@ -3628,9 +3658,9 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
         {
             ostringstream os;
             os << "metadata directive `UserException' applies only to local operations "
-               << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
+               << "but enclosing " << (cl->isInterface() ? "interface" : "class") << " `" << cl->name()
                << "' is not local";
-            emitWarning(p->definitionContext()->filename(), p->line(), os.str());
+            emitWarning(p->file(), p->line(), os.str());
         }
     }
     StringList metaData = getMetaData(p);
@@ -3643,15 +3673,14 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("java:type:", 0) == 0)
                 {
-                    emitWarning(p->definitionContext()->filename(), p->line(),
-                                "invalid metadata for operation");
+                    emitWarning(p->file(), p->line(), "invalid metadata for operation");
                     break;
                 }
             }
         }
         else
         {
-            validateType(returnType, metaData, p->definitionContext()->filename(), p->line());
+            validateType(returnType, metaData, p->file(), p->line());
         }
     }
 
@@ -3659,18 +3688,18 @@ Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
         metaData = getMetaData(*q);
-        validateType((*q)->type(), metaData, p->definitionContext()->filename(), (*q)->line());
+        validateType((*q)->type(), metaData, p->file(), (*q)->line());
     }
 
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
 }
 
 void
 Slice::JavaGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p->type(), metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p->type(), metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
 }
 
 void
@@ -3679,24 +3708,27 @@ Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
     static const string protobuf = "java:protobuf:";
     static const string serializable = "java:serializable:";
     StringList metaData = getMetaData(p);
-    const string file =  p->definitionContext()->filename();
+    const string file =  p->file();
     const string line = p->line();
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
     {
         string s = *q++;
-        if(s.find(protobuf) == 0 || s.find(serializable) == 0)
+        if(_history.count(s) == 0) // Don't complain about the same metadata more than once.
         {
-            //
-            // Remove from list so validateType does not try to handle as well.
-            //
-            metaData.remove(s);
-
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-            if(!builtin || builtin->kind() != Builtin::KindByte)
+            if(s.find(protobuf) == 0 || s.find(serializable) == 0)
             {
-                _history.insert(s);
-                emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n" +
-                            "this metadata can only be used with a byte sequence");
+                //
+                // Remove from list so validateType does not try to handle as well.
+                //
+                metaData.remove(s);
+
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                if(!builtin || builtin->kind() != Builtin::KindByte)
+                {
+                    _history.insert(s);
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n" +
+                                "this metadata can only be used with a byte sequence");
+                }
             }
         }
     }
@@ -3709,36 +3741,33 @@ void
 Slice::JavaGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
 }
 
 void
 Slice::JavaGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
 }
 
 void
 Slice::JavaGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 {
     StringList metaData = getMetaData(p);
-    validateType(p, metaData, p->definitionContext()->filename(), p->line());
-    validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+    validateType(p, metaData, p->file(), p->line());
+    validateGetSet(p, metaData, p->file(), p->line());
 }
 
 StringList
 Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
 {
-    StringList metaData = cont->getMetaData();
-    DefinitionContextPtr dc = cont->definitionContext();
-    assert(dc);
-    string file = dc->filename();
-
-    StringList result;
     static const string prefix = "java:";
+
+    StringList metaData = cont->getMetaData();
+    StringList result;
 
     for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
     {
@@ -3776,7 +3805,7 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
                     continue;
                 }
 
-                emitWarning(file, cont->line(), "ignoring invalid metadata `" + s + "'");
+                emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
             }
 
             _history.insert(s);

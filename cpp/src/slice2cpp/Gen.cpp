@@ -22,8 +22,6 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#include <iostream> //TODO
-
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
@@ -86,11 +84,12 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
+    string file = p->topLevelFile();
 
     //
-    // Check the header-ext global meta data if is not empty we override _headerExtension
+    // Give precedence to header-ext global metadata.
     //
-    string headerExtension = getHeaderExt(p->modules());
+    string headerExtension = getHeaderExt(file, p);
     if(!headerExtension.empty())
     {
         _headerExtension = headerExtension;
@@ -291,7 +290,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
-        string extension = getHeaderExt((*q), p->modules());
+        string extension = getHeaderExt((*q), p);
         if(extension.empty())
         {
             extension = _headerExtension;
@@ -306,8 +305,24 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <IceUtil/DisableWarnings.h>";
     }
 
-    GlobalIncludeVisitor globalIncludeVisitor(H);
-    p->visit(&globalIncludeVisitor, false);
+    //
+    // Emit #include statements for any cpp:include metadata directives
+    // in the top-level Slice file.
+    //
+    {
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+        {
+            string s = *q;
+            static const string includePrefix = "cpp:include:";
+            if(s.find(includePrefix) == 0 && s.size() > includePrefix.size())
+            {
+                H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
+            }
+        }
+    }
 
     printVersionCheck(H);
     printVersionCheck(C);
@@ -440,36 +455,6 @@ Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
             out << "\n#endif";
         }
     }
-}
-
-Slice::Gen::GlobalIncludeVisitor::GlobalIncludeVisitor(Output& h) :
-    H(h), _finished(false)
-{
-}
-
-bool
-Slice::Gen::GlobalIncludeVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!_finished)
-    {
-        DefinitionContextPtr dc = p->definitionContext();
-        assert(dc);
-        StringList globalMetaData = dc->getMetaData();
-
-        static const string includePrefix = "cpp:include:";
-
-        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
-        {
-            string s = *q;
-            if(s.find(includePrefix) == 0)
-            {
-                H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
-            }
-        }
-        _finished = true;
-    }
-
-    return false;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
@@ -5728,48 +5713,64 @@ Slice::Gen::validateMetaData(const UnitPtr& u)
 }
 
 bool
-Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 {
-    //
-    // Validate global metadata.
-    //
-    DefinitionContextPtr dc = p->definitionContext();
-    assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-    string file = dc->filename();
     static const string prefix = "cpp:";
 
-    int headerExtension = 0;
-    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    //
+    // Validate global metadata in the top-level file and all included files.
+    //
+    StringList files = p->allFiles();
+
+    for(StringList::iterator q = files.begin(); q != files.end(); ++q)
     {
-        string s = *q;
-        if(_history.count(s) == 0)
+        string file = *q;
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+        int headerExtension = 0;
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
-            if(s.find(prefix) == 0)
+            string s = *r;
+            if(_history.count(s) == 0)
             {
-                string ss = s.substr(prefix.size());
-                if(ss.find("include:") == 0)
+                if(s.find(prefix) == 0)
                 {
-                    continue;
-                }
-                else if(ss.find("header-ext:") == 0)
-                {
-                    headerExtension++;
-                    if(headerExtension == 1)
+                    static const string cppIncludePrefix = "cpp:include:";
+                    static const string cppHeaderExtPrefix = "cpp:header-ext:";
+                    if(s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
                     {
                         continue;
                     }
+                    else if(s.find(cppHeaderExtPrefix) == 0 && s.size() > cppHeaderExtPrefix.size())
+                    {
+                        headerExtension++;
+                        if(headerExtension > 1)
+                        {
+                            ostringstream ostr;
+                            ostr << "ignoring invalid global metadata `" << s
+                                << "', the cpp:header-ext global metadata can only appear once per file";
+                            emitWarning(file, -1, ostr.str());
+                            _history.insert(s);
+                        }
+                        continue;
+                    }
+                    ostringstream ostr;
+                    ostr << "ignoring invalid global metadata `" << s << "'";
+                    emitWarning(file, -1, ostr.str());
                 }
-                ostringstream ostr;
-                ostr << "ignoring invalid global metadata `" << s
-                     << "', the cpp:header-ext global metadata can only appear once per file.";
-                emitWarning(file, -1, ostr.str());
+                _history.insert(s);
             }
-            _history.insert(s);
         }
     }
 
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    return true;
+}
+
+bool
+Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5781,13 +5782,13 @@ Slice::Gen::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 bool
 Slice::Gen::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5799,7 +5800,7 @@ Slice::Gen::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
 bool
 Slice::Gen::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5811,7 +5812,7 @@ Slice::Gen::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
 bool
 Slice::Gen::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5839,7 +5840,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             ostr << "metadata directive `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local";
-            emitWarning(p->definitionContext()->filename(), p->line(), ostr.str());
+            emitWarning(p->file(), p->line(), ostr.str());
         }
     }
 
@@ -5855,60 +5856,63 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
-                    emitWarning(p->definitionContext()->filename(), p->line(), "invalid metadata for operation");
+                    emitWarning(p->file(), p->line(), "invalid metadata `" + *q +
+                                "' for operation with void return type");
                     break;
                 }
             }
         }
         else
         {
-            validate(returnType, metaData, p->definitionContext()->filename(), p->line(), ami);
+            validate(returnType, metaData, p->file(), p->line(), ami);
         }
     }
 
     ParamDeclList params = p->parameters();
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
-        validate((*q)->type(), (*q)->getMetaData(), p->definitionContext()->filename(), (*q)->line(),
-                 ami || !(*q)->isOutParam());
+        validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), ami || !(*q)->isOutParam());
     }
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    validate(p->type(), p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p->type(), p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
     StringList metaData = p->getMetaData();
-    const string file = p->definitionContext()->filename();
+    const string file = p->file();
     const string line = p->line();
     static const string prefix = "cpp:protobuf";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
     {
         string s = *q++;
-        if(s.find(prefix) == 0)
+        if(_history.count(s) == 0)
         {
-            //
-            // Remove from list so validate does not try to handle as well.
-            //
-            metaData.remove(s);
-
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-            if(!builtin || builtin->kind() != Builtin::KindByte)
+            if(s.find(prefix) == 0)
             {
-                _history.insert(s);
-                emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n"+
-                            "`protobuf' encoding must be a byte sequence.");
+                //
+                // Remove from list so validate does not try to handle as well.
+                //
+                metaData.remove(s);
+
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                if(!builtin || builtin->kind() != Builtin::KindByte)
+                {
+                    _history.insert(s);
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n"+
+                                "`protobuf' encoding must be a byte sequence.");
+                }
             }
         }
     }
@@ -5919,19 +5923,19 @@ Slice::Gen::MetaDataVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
@@ -6002,45 +6006,16 @@ Slice::Gen::resetUseWstring(list<bool>& hist)
 }
 
 string
-Slice::Gen::getHeaderExt(const string& file, const ModuleList& modules)
+Slice::Gen::getHeaderExt(const string& file, const UnitPtr& unit)
 {
-    string ext = "";
-    if(!modules.empty()) // Just in case the Slice file has no definitions
+    string ext;
+    static const string headerExtPrefix = "cpp:header-ext:";
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    string meta = dc->findMetaData(headerExtPrefix);
+    if(meta.size() > headerExtPrefix.size())
     {
-        for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
-        {
-            if((*i)->definitionContext()->filename() == file)
-            {
-                string meta = (*i)->definitionContext()->findMetaData("cpp:header-ext");
-                string::size_type index = meta.find_last_of(":");
-                if(index != string::npos && index + 1 < meta.size())
-                {
-                    ext = meta.substr(index + 1, meta.size() - index - 1);
-                }
-            }
-        }
-    }
-    return ext;
-}
-
-string
-Slice::Gen::getHeaderExt(const ModuleList& modules)
-{
-    string ext = "";
-    if(!modules.empty()) // Just in case the Slice file has no definitions
-    {
-        for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
-        {
-            if((*i)->definitionContext()->includeLevel() == 0)
-            {
-                string meta = (*i)->definitionContext()->findMetaData("cpp:header-ext");
-                string::size_type index = meta.find_last_of(":");
-                if(index != string::npos && index + 1 < meta.size())
-                {
-                    ext = meta.substr(index + 1, meta.size() - index - 1);
-                }
-            }
-        }
+        ext = meta.substr(headerExtPrefix.size());
     }
     return ext;
 }

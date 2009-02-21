@@ -1143,7 +1143,7 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     CsGenerator::validateMetaData(p);
 
-    UnitVisitor unitVisitor(_out, _stream);
+    UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor, false);
 
     TypesVisitor typesVisitor(_out, _stream);
@@ -1263,35 +1263,34 @@ Slice::Gen::printHeader()
     _out << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out, bool stream)
-    : CsVisitor(out), _stream(stream), _globalMetaDataDone(false)
+Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out)
+    : CsVisitor(out)
 {
 }
 
 bool
-Slice::Gen::UnitVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!_globalMetaDataDone)
+    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+
+    static const string attributePrefix = "cs:attribute:";
+
+    bool sep = false;
+    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
     {
-        DefinitionContextPtr dc = p->definitionContext();
-        StringList globalMetaData = dc->getMetaData();
-
-        static const string attributePrefix = "cs:attribute:";
-
-        if(!globalMetaData.empty())
+        string::size_type pos = q->find(attributePrefix);
+        if(pos == 0 && q->size() > attributePrefix.size())
         {
-            _out << sp;
-        }
-        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
-        {
-            string::size_type pos = q->find(attributePrefix);
-            if(pos == 0)
+            if(!sep)
             {
-                string attrib = q->substr(pos + attributePrefix.size());
-                _out << nl << '[' << attrib << ']';
+                _out << sp;
+                sep = true;
             }
+            string attrib = q->substr(pos + attributePrefix.size());
+            _out << nl << '[' << attrib << ']';
         }
-        _globalMetaDataDone = true; // Do this only once per source file.
     }
     return false;
 }

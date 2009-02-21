@@ -32,6 +32,7 @@ class MetaDataVisitor : public ParserVisitor
 {
 public:
 
+    virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -47,14 +48,9 @@ public:
 private:
 
     //
-    // Validates global metadata.
-    //
-    void validateGlobal(const DefinitionContextPtr&);
-
-    //
     // Validates sequence metadata.
     //
-    void validateSequence(const DefinitionContextPtr&, const string&, const TypePtr&, const StringList&);
+    void validateSequence(const string&, const string&, const TypePtr&, const StringList&);
 
     //
     // Checks a definition that doesn't currently support Python metadata.
@@ -1940,20 +1936,19 @@ Slice::Python::fixIdent(const string& ident)
 string
 Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 {
-    string package;
+    UnitPtr unit = cont->container()->unit();
+    string file = cont->file();
+    assert(!file.empty());
 
-    DefinitionContextPtr dc = cont->definitionContext();
-    if(dc)
+    static const string prefix = "python:package:";
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    string q = dc->findMetaData(prefix);
+    if(!q.empty())
     {
-        static const string prefix = "python:package:";
-        string metadata = dc->findMetaData(prefix);
-        if(!metadata.empty())
-        {
-            package = metadata.substr(prefix.size());
-        }
+        q = q.substr(prefix.size());
     }
-
-    return package;
+    return q;
 }
 
 string
@@ -2003,15 +1998,44 @@ Slice::Python::printHeader(IceUtilInternal::Output& out)
 }
 
 bool
+Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
+{
+    static const string prefix = "python:";
+
+    //
+    // Validate global metadata in the top-level file and all included files.
+    //
+    StringList files = p->allFiles();
+
+    for(StringList::iterator q = files.begin(); q != files.end(); ++q)
+    {
+        string file = *q;
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+        {
+            string s = *r;
+            if(_history.count(s) == 0)
+            {
+                if(s.find(prefix) == 0)
+                {
+                    static const string packagePrefix = "python:package:";
+                    if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
+                    {
+                        emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
+                    }
+                }
+                _history.insert(s);
+            }
+        }
+    }
+    return true;
+}
+
+bool
 Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!ModulePtr::dynamicCast(p->container()))
-    {
-        //
-        // We only need to validate global metadata for top-level modules.
-        //
-        validateGlobal(p->definitionContext());
-    }
     reject(p);
     return true;
 }
@@ -2046,26 +2070,23 @@ Slice::Python::MetaDataVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    DefinitionContextPtr dc = p->definitionContext();
-    assert(dc);
-
     TypePtr ret = p->returnType();
     if(ret)
     {
-        validateSequence(dc, p->line(), ret, p->getMetaData());
+        validateSequence(p->file(), p->line(), ret, p->getMetaData());
     }
 
     ParamDeclList params = p->parameters();
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
-        validateSequence(dc, (*q)->line(), (*q)->type(), (*q)->getMetaData());
+        validateSequence(p->file(), (*q)->line(), (*q)->type(), (*q)->getMetaData());
     }
 }
 
 void
 Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    validateSequence(p->definitionContext(), p->line(), p->type(), p->getMetaData());
+    validateSequence(p->file(), p->line(), p->type(), p->getMetaData());
 }
 
 void
@@ -2073,7 +2094,7 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
     static const string protobuf = "python:protobuf:";
     StringList metaData = p->getMetaData();
-    const string file = p->definitionContext()->filename();
+    const string file = p->file();
     const string line = p->line();
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
     {
@@ -2094,7 +2115,7 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
         }
     }
 
-    validateSequence(p->definitionContext(), line, p, metaData);
+    validateSequence(file, line, p, metaData);
 }
 
 void
@@ -2116,32 +2137,7 @@ Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-Slice::Python::MetaDataVisitor::validateGlobal(const DefinitionContextPtr& dc)
-{
-    StringList globalMetaData = dc->getMetaData();
-
-    static const string prefix = "python:";
-
-    for(StringList::const_iterator p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
-    {
-        string s = *p;
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-                static const string packagePrefix = "python:package:";
-                if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
-                {
-                    emitWarning(dc->filename(), "", "ignoring invalid global metadata `" + s + "'");
-                }
-            }
-            _history.insert(s);
-        }
-    }
-}
-
-void
-Slice::Python::MetaDataVisitor::validateSequence(const DefinitionContextPtr& dc, const string& line,
+Slice::Python::MetaDataVisitor::validateSequence(const string& file, const string& line,
                                                  const TypePtr& type, const StringList& meta)
 {
     static const string prefix = "python:";
@@ -2164,7 +2160,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const DefinitionContextPtr& dc,
                     }
                 }
             }
-            emitWarning(dc->filename(), "", "ignoring metadata `" + s + "'");
+            emitWarning(file, line, "ignoring metadata `" + s + "'");
         }
     }
 }
@@ -2180,9 +2176,7 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
     {
         if(p->find(prefix) == 0)
         {
-            DefinitionContextPtr dc = cont->definitionContext();
-            assert(dc);
-            emitWarning(dc->filename(), "", "ignoring metadata `" + *p + "'");
+            emitWarning(cont->file(), cont->line(), "ignoring metadata `" + *p + "'");
         }
     }
 }
