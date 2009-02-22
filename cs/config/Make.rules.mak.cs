@@ -169,7 +169,7 @@ policy:
   <runtime>
     <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
       <dependentAssembly>
-        <assemblyIdentity name="Ice" publicKeyToken="$(publicKeyToken)" culture=""/>
+        <assemblyIdentity name="$(PKG)" publicKeyToken="$(publicKeyToken)" culture=""/>
         <publisherPolicy apply="yes"/>
         <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).$(PATCH_VERSION).0"/>
       </dependentAssembly>

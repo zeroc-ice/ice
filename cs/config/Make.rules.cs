@@ -167,7 +167,7 @@ $(bindir)/$(POLICY_TARGET):
   <runtime> \n \
     <assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\"> \n \
       <dependentAssembly> \n \
-        <assemblyIdentity name=\"Ice\" publicKeyToken=\"$(publicKeyToken)\" culture=\"\"/> \n \
+        <assemblyIdentity name=\"$(PKG)\" publicKeyToken=\"$(publicKeyToken)\" culture=\"\"/> \n \
         <publisherPolicy apply=\"yes\"/> \n \
         <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).$(PATCH_VERSION).0\"/> \n \
       </dependentAssembly> \n \
