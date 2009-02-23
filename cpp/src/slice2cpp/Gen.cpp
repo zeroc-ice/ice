@@ -1126,7 +1126,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
     TypePtr type = p->type();
-    if(StructPtr::dynamicCast(p->container()) || ExceptionPtr::dynamicCast(p->container()) &&
+    if(p->container() != 0 && (StructPtr::dynamicCast(p->container()) || ExceptionPtr::dynamicCast(p->container())) &&
        SequencePtr::dynamicCast(type))
     {
         SequencePtr s = SequencePtr::dynamicCast(type);
