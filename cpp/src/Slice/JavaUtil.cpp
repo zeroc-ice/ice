@@ -3726,7 +3726,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
                 if(!builtin || builtin->kind() != Builtin::KindByte)
                 {
                     _history.insert(s);
-                    emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n" +
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + "': " +
                                 "this metadata can only be used with a byte sequence");
                 }
             }

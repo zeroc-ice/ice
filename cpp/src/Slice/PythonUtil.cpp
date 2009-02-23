@@ -2109,7 +2109,7 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
             if(!builtin || builtin->kind() != Builtin::KindByte)
             {
-                emitWarning(file, line, "ignoring invalid metadata `" + s + ":\n" +
+                emitWarning(file, line, "ignoring invalid metadata `" + s + ": " +
                             "`protobuf' encoding must be a byte sequence");
             }
         }

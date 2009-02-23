@@ -226,7 +226,7 @@ main(int argc, char* argv[])
             {
                 FileTracker::instance()->setSource(*i, os.str(), true);
                 status = EXIT_FAILURE;
-                continue;
+                break;
             }
 
             if(preprocess)
@@ -265,7 +265,6 @@ main(int argc, char* argv[])
                 {
                     try
                     {
-                        FileTracker::instance()->setSource(*i, os.str(), false);
                         Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
                         gen.generate(p, stream);
                         if(tie)
@@ -288,15 +287,19 @@ main(int argc, char* argv[])
                             ChecksumMap m = createChecksums(p);
                             copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                         }
+                        FileTracker::instance()->setSource(*i, os.str(), false);
                     }
                     catch(const Slice::FileException& ex)
                     {
-                        // If a file could not be created, then
-                        // cleanup any created files.
+                        //
+                        // If a file could not be created then cleanup any files we've already created.
+                        //
                         FileTracker::instance()->cleanup();
                         p->destroy();
-                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
-                        return EXIT_FAILURE;
+                        os << argv[0] << ": error: " << ex.reason() << endl;
+                        FileTracker::instance()->setSource(*i, os.str(), true);
+                        status = EXIT_FAILURE;
+                        break;
                     }
                 }
                 p->destroy();
@@ -308,8 +311,9 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
-                // If the translator was interrupted, then cleanup any
-                // created files.
+                //
+                // If the translator was interrupted then cleanup any files we've already created.
+                //
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
@@ -321,7 +325,7 @@ main(int argc, char* argv[])
         cout << "</dependencies>\n";
     }
 
-    if(!checksumClass.empty())
+    if(status == EXIT_SUCCESS && !checksumClass.empty())
     {
         try
         {
