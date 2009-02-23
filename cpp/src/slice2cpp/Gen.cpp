@@ -1125,6 +1125,26 @@ void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
+    TypePtr type = p->type();
+    if(StructPtr::dynamicCast(p->container()) || ExceptionPtr::dynamicCast(p->container()) &&
+       SequencePtr::dynamicCast(type))
+    {
+        SequencePtr s = SequencePtr::dynamicCast(type);
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
+        if(builtin && builtin->kind() == Builtin::KindByte)
+        {
+            StringList metaData = s->getMetaData();
+            bool protobuf;
+            findMetaData(s, metaData, false, protobuf);
+            if(protobuf)
+            {
+                emitWarning(p->file(), p->line(), string("protobuf cannot be used as a ") + 
+                                                  (StructPtr::dynamicCast(p->container()) ? "struct" : "exception") +
+                                                  " member in C++");
+            }
+        }
+    }
+
     string s = typeToString(p->type(), _useWstring, p->getMetaData());
     H << nl << s << ' ' << name << ';';
 }
@@ -1423,6 +1443,22 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
     TypePtr keyType = p->keyType();
+    if(SequencePtr::dynamicCast(keyType))
+    {
+        SequencePtr s = SequencePtr::dynamicCast(keyType);
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
+        if(builtin && builtin->kind() == Builtin::KindByte)
+        {
+            StringList metaData = s->getMetaData();
+            bool protobuf;
+            findMetaData(s, metaData, false, protobuf);
+            if(protobuf)
+            {
+                emitWarning(p->file(), p->line(), "protobuf cannot be used as a dictionary key in C++");
+            }
+        }
+    }
+
     TypePtr valueType = p->valueType();
     string ks = typeToString(keyType, _useWstring, p->keyMetaData());
     if(ks[0] == ':')
@@ -3870,6 +3906,23 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool prot = p->hasMetaData("protected");
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
+        TypePtr type = (*q)->type();
+        if(SequencePtr::dynamicCast(type))
+        {
+            SequencePtr s = SequencePtr::dynamicCast(type);
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
+            if(builtin && builtin->kind() == Builtin::KindByte)
+            {
+                StringList metaData = s->getMetaData();
+                bool protobuf;
+                findMetaData(s, metaData, false, protobuf);
+                if(protobuf)
+                {
+                    emitWarning((*q)->file(), (*q)->line(), "protobuf cannot be used as a class member in C++");
+                }
+            }
+        }
+
         if(prot || (*q)->hasMetaData("protected"))
         {
             if(!inProtected)
