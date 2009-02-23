@@ -85,11 +85,9 @@
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            adaptable="true"
             class="com.zeroc.slice2javaplugin.properties.ProjectProperties"
             id="Slice2JavaPlugin.properties.samplePropertyPage"
-            name="%page.name.0"
-            objectClass="org.eclipse.core.resources.IProject">
+            name="%page.name.0">
             <enabledWhen>
                 <adapt type="org.eclipse.core.resources.IProject">
                     <test property="org.eclipse.core.resources.projectNature" value="com.zeroc.Slice2JavaPlugin.Slice2JavaNature"/>

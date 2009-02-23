@@ -418,7 +418,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
     }
 
     private void
-    createMarker(BuildState state, IFile source, IPath filename, int line, String error)
+    createMarker(BuildState state, IFile source, IPath filename, int line, String msg)
         throws CoreException
     {
         // Process the error.
@@ -438,23 +438,40 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             }
         }
         
-        // If the error isn't contained in the source file, then identify the
-        // file:line in the error itself.
+        // If the message isn't contained in the source file, then identify the
+        // file:line in the message itself.
         if(file == null)
         {
-            error = filename + ":" + line + ": " + error;
+            if(line != -1)
+            {
+                msg = filename + ":" + line + ": " + msg;
+            }
+            else
+            {
+                msg = filename + ": " + msg;
+            }
         }
         
         IMarker marker = source.createMarker(IMarker.PROBLEM);
-        marker.setAttribute(IMarker.MESSAGE, error);
-        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-        if(file != null && file.equals(source))
+        marker.setAttribute(IMarker.MESSAGE, msg);
+        if(msg.toLowerCase().indexOf("warning:") >= 0)
         {
-            marker.setAttribute(IMarker.LINE_NUMBER, line);
+            marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
         }
         else
         {
-            marker.setAttribute(IMarker.LINE_NUMBER, 1);
+            marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+        }
+        if(line != -1)
+        {
+            if(file != null && file.equals(source))
+            {
+                marker.setAttribute(IMarker.LINE_NUMBER, line);
+            }
+            else
+            {
+                marker.setAttribute(IMarker.LINE_NUMBER, 1);
+            }
         }
     }
     
@@ -468,33 +485,32 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
         }
         
         String[] lines = output.split("\n");
-        
+
         IPath filename = null;
         int line = -1;
-        StringBuffer error = new StringBuffer();
+        StringBuffer msg = new StringBuffer();
         
         boolean continuation = false;
-        
+
         for(int i = 0; i < lines.length; ++i)
         {
             if(continuation)
             {
                 if(lines[i].startsWith(" "))
                 {
-                    // continuation of the previous error
-                    error.append(lines[i]);
-                    //error.append("\n");
+                    // Continuation of the previous message.
+                    msg.append(lines[i]);
                     continue;
                 }
                 else
                 {
-                    // Process the error.
-                    createMarker(state, source, filename, line, error.toString());
+                    // Process the message.
+                    createMarker(state, source, filename, line, msg.toString());
                 }
             }
             
-            // We're on a new error.
-            error.setLength(0);
+            // We're on a new message.
+            msg.setLength(0);
             continuation = false;
             
             // Ignore.
@@ -503,39 +519,44 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
                 continue;
             }
             
-            try
+            //
+            // Parse a line of the form:
+            //
+            // file:[line:] message
+            //
+            int start = 0;
+            int end;
+            // Handle drive letters.
+            if(lines[i].length() > 2 && lines[i].charAt(1) == ':')
             {
-                int start = 0;
-                int end;
-                // Handle drive letters.
-                if(lines[i].length() > 2 && lines[i].charAt(1) == ':')
-                {
-                    end = lines[i].indexOf(':', 2);
-                }
-                else
-                {
-                    end = lines[i].indexOf(':');
-                }
+                end = lines[i].indexOf(':', 2);
+            }
+            else
+            {
+                end = lines[i].indexOf(':');
+            }
+            if(end != -1)
+            {
+                filename = new Path(lines[i].substring(start, end));
+                start = end + 1;
+                end = lines[i].indexOf(':', start);
                 if(end != -1)
                 {
-                    filename = new Path(lines[i].substring(start, end));
-                    start = end+1;
-                    end = lines[i].indexOf(':', start);
-                    if(end != -1)
+                    try
                     {
                         line = Integer.parseInt(lines[i].substring(start, end));
-                        start = end+1;
-                        
-                        error.append(lines[i].substring(start, lines[i].length()));
-    
-                        continuation = true;
-                        continue;
+                        start = end + 1;
                     }
+                    catch(NumberFormatException e)
+                    {
+                        // The message may not have a line number.
+                        line = -1;
+                    }
+                    msg.append(lines[i].substring(start, lines[i].length()));
+
+                    continuation = true;
+                    continue;
                 }
-            }
-            catch(NumberFormatException e)
-            {
-                // Ignore - the error is in some unknown format.
             }
             // Unknown format.
             createMarker(state, source, null, -1, lines[i]);
@@ -543,7 +564,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
 
         if(continuation)
         {
-            createMarker(state, source, filename, line, error.toString());
+            createMarker(state, source, filename, line, msg.toString());
         }
     }
     
