@@ -135,49 +135,6 @@ SOURCE=.\PhoneBook.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Grammar.y
-
-!IF  "$(CFG)" == "Freeze.phonebook.client.exe - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\Grammar.y
-
-BuildCmds= \
-	bison -dvt Grammar.y \
-	move Grammar.tab.c Grammar.cpp \
-	move Grammar.tab.h Grammar.h \
-	
-
-"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Freeze.phonebook.client.exe - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\Grammar.y
-
-BuildCmds= \
-	bison -dvt Grammar.y \
-	move Grammar.tab.c Grammar.cpp \
-	move Grammar.tab.h Grammar.h \
-	
-
-"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\PhoneBook.ice
 
 !IF  "$(CFG)" == "Freeze.phonebook.client.exe - Win32 Release"
@@ -214,37 +171,6 @@ BuildCmds= \
 
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\Scanner.l
-
-!IF  "$(CFG)" == "Freeze.phonebook.client.exe - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\Scanner.l
-
-"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp 
-	type lex.yy.c >> Scanner.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Freeze.phonebook.client.exe - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\Scanner.l
-
-"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp 
-	type lex.yy.c >> Scanner.cpp 
-	
 # End Custom Build
 
 !ENDIF 
