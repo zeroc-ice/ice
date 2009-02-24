@@ -2160,7 +2160,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                     }
                 }
             }
-            emitWarning(file, line, "ignoring metadata `" + s + "'");
+            emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
         }
     }
 }
@@ -2176,7 +2176,7 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
     {
         if(p->find(prefix) == 0)
         {
-            emitWarning(cont->file(), cont->line(), "ignoring metadata `" + *p + "'");
+            emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + *p + "'");
         }
     }
 }

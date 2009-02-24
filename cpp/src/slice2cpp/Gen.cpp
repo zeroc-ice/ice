@@ -5890,7 +5890,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         if(!cl->isLocal())
         {
             ostringstream ostr;
-            ostr << "metadata directive `UserException' applies only to local operations "
+            ostr << "ignoring invalid metadata `UserException' applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local";
             emitWarning(p->file(), p->line(), ostr.str());
@@ -5909,7 +5909,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
-                    emitWarning(p->file(), p->line(), "invalid metadata `" + *q +
+                    emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + *q +
                                 "' for operation with void return type");
                     break;
                 }
