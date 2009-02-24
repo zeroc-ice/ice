@@ -34,6 +34,7 @@ Table of Contents
      - Mono
      - Red Hat Enterprise Linux 5.1
      - Solaris x86
+  5. Known Problems
 
 
 ======================================================================
@@ -572,3 +573,47 @@ available as of this Ice release).
 
 Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
 more information.
+
+======================================================================
+5. Known Problems
+======================================================================
+
+slice2html generates incorrect code for some legal constructs. The
+problem is caused by bug in the mcpp preprocessor. For example:
+
+module M
+{
+    class SomeClass; // Forward declaration. mcpp loses this.
+
+    struct SomeStruct
+    {
+        SomeClass* proxy;
+    };
+};
+
+The mcpp bug causes the forward declaration to be lost, resulting in
+an undefined symbol error for the proxy member. To work around this
+issue, you can move the trailing comment onto a separate line:
+
+module M
+{
+    // Forward declaration. This works.
+    class SomeClass;
+
+    struct SomeStruct
+    {
+        SomeClass* proxy;
+    };
+};
+
+Or you can use a C-style comment:
+
+module M
+{
+    class SomeClass; /* Forward declaration. This works. */
+
+    struct SomeStruct
+    {
+        SomeClass* proxy;
+    };
+};
