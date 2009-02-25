@@ -43,10 +43,6 @@ Client::usage()
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
-        "-DNAME               Define NAME as 1.\n"
-        "-DNAME=DEF           Define NAME as DEF.\n"
-        "-UNAME               Remove any definition for NAME.\n"
-        "-IDIR                Put DIR in the include file search path.\n"
         "-e COMMANDS          Execute COMMANDS.\n"
         "-d, --debug          Print debug messages.\n"
         ;
