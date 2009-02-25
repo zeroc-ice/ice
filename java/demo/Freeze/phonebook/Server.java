@@ -24,7 +24,7 @@ class Server extends Ice.Application
         // Create and install a factory for contacts.
         //
         ContactFactory contactFactory = new ContactFactory();
-        communicator().addObjectFactory(contactFactory, "::Demo::Contact");
+        communicator().addObjectFactory(contactFactory, Demo.Contact.ice_staticId());
 
         //
         // Create an object adapter

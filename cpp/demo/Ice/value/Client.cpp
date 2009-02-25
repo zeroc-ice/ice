@@ -94,7 +94,7 @@ ValueClient::run(int argc, char* argv[])
     cin.getline(c, 2);
 
     Ice::ObjectFactoryPtr factory = new ObjectFactory;
-    communicator()->addObjectFactory(factory, "::Demo::Printer");
+    communicator()->addObjectFactory(factory, Demo::Printer::ice_staticId());
 
     initial->getPrinter(printer, printerProxy);
     cout << "==> " << printer->message << endl;
@@ -127,7 +127,7 @@ ValueClient::run(int argc, char* argv[])
     PrinterPtr derivedAsBase;
     derivedAsBase = initial->getDerivedPrinter();
     cout << "==> The type ID of the received object is \"" << derivedAsBase->ice_id() << "\"" << endl;
-    assert(derivedAsBase->ice_id() == "::Demo::Printer");
+    assert(derivedAsBase->ice_id() == Demo::Printer::ice_staticId());
     
     cout << '\n'
          << "Now we install a factory for the derived class, and try again.\n"
@@ -136,7 +136,7 @@ ValueClient::run(int argc, char* argv[])
          << "[press enter]\n";
     cin.getline(c, 2);
     
-    communicator()->addObjectFactory(factory, "::Demo::DerivedPrinter");
+    communicator()->addObjectFactory(factory, Demo::DerivedPrinter::ice_staticId());
     
     derivedAsBase = initial->getDerivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);

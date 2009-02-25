@@ -62,7 +62,7 @@ Module ValueC
             Console.In.ReadLine()
 
             Dim factory As Ice.ObjectFactory = New ObjectFactory
-            communicator().addObjectFactory(factory, "::Demo::Printer")
+            communicator().addObjectFactory(factory, Demo.Printer.ice_staticId())
 
             initial.getPrinter(printer, printerProxy)
             Console.Out.WriteLine("==> " & printer.message)
@@ -94,7 +94,7 @@ Module ValueC
 
             Dim derivedAsBase As printer = initial.getDerivedPrinter()
             Console.Out.WriteLine("==> The type ID of the received object is """ & derivedAsBase.ice_id() & """")
-            Debug.Assert(derivedAsBase.ice_id().Equals("::Demo::Printer"))
+            Debug.Assert(derivedAsBase.ice_id().Equals(Demo.Printer.ice_staticId()))
 
             Console.Out.WriteLine()
             Console.Out.WriteLine("Now we install a factory for the derived class, and try again.")
@@ -103,7 +103,7 @@ Module ValueC
             Console.Out.WriteLine("[press enter]")
             Console.In.ReadLine()
 
-            communicator().addObjectFactory(factory, "::Demo::DerivedPrinter")
+            communicator().addObjectFactory(factory, Demo.DerivedPrinter.ice_staticId())
 
             derivedAsBase = initial.getDerivedPrinter()
             Dim derived As DerivedPrinter = CType(derivedAsBase, DerivedPrinter)

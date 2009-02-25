@@ -15,10 +15,10 @@ import Demo, Printer
 
 class ObjectFactory(Ice.ObjectFactory):
     def create(self, type):
-        if type == "::Demo::Printer":
+        if type == Demo.Printer.ice_staticId():
             return Printer.PrinterI()
 
-        if type == "::Demo::DerivedPrinter":
+        if type == Demo.DerivedPrinter.ice_staticId():
             return Printer.DerivedPrinterI()
 
         assert(False)
@@ -70,7 +70,7 @@ class Client(Ice.Application):
         raw_input()
 
         factory = ObjectFactory()
-        self.communicator().addObjectFactory(factory, "::Demo::Printer")
+        self.communicator().addObjectFactory(factory, Demo.Printer.ice_staticId())
 
         printer, printerProxy = initial.getPrinter()
         print "==> " + printer.message
@@ -102,7 +102,7 @@ class Client(Ice.Application):
 
         derivedAsBase = initial.getDerivedPrinter()
         print "==> The type ID of the received object is \"" + derivedAsBase.ice_id() + "\""
-        assert(derivedAsBase.ice_id() == "::Demo::Printer")
+        assert(derivedAsBase.ice_id() == Demo.Printer.ice_staticId())
 
         print '\n'\
               "Now we install a factory for the derived class, and try again.\n"\
@@ -111,7 +111,7 @@ class Client(Ice.Application):
               "[press enter]"
         raw_input()
 
-        self.communicator().addObjectFactory(factory, "::Demo::DerivedPrinter")
+        self.communicator().addObjectFactory(factory, Demo.DerivedPrinter.ice_staticId())
 
         derived = initial.getDerivedPrinter()
         print "==> The type ID of the received object is \"" + derived.ice_id() + "\""

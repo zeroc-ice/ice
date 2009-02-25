@@ -79,7 +79,7 @@ LibraryCollocated::run(int argc, char* argv[])
     // Create and install a factory for books.
     //
     Ice::ObjectFactoryPtr bookFactory = new BookFactory(library);
-    communicator()->addObjectFactory(bookFactory, "::Demo::Book");
+    communicator()->addObjectFactory(bookFactory, Demo::Book::ice_staticId());
 
     //
     // Everything ok, let's go.
