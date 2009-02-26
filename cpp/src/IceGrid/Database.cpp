@@ -42,6 +42,30 @@ struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::Ob
     }
 };
 
+bool 
+isServerUpdated(const ServerInfo& lhs, const ServerInfo& rhs)
+{
+    if(lhs.node != rhs.node)
+    {
+        return true;
+    }
+
+    IceBoxDescriptorPtr lhsIceBox = IceBoxDescriptorPtr::dynamicCast(lhs.descriptor);
+    IceBoxDescriptorPtr rhsIceBox = IceBoxDescriptorPtr::dynamicCast(rhs.descriptor);
+    if(lhsIceBox && rhsIceBox)
+    {
+        return IceBoxHelper(lhsIceBox) != IceBoxHelper(rhsIceBox);
+    }
+    else if(!lhsIceBox && !rhsIceBox)
+    {
+        return ServerHelper(lhs.descriptor) != ServerHelper(rhs.descriptor);
+    }
+    else
+    {
+        return true;
+    }
+}
+
 }
 
 Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
@@ -1458,10 +1482,16 @@ Database::reload(const ApplicationHelper& oldApp,
         {
             load.push_back(p->second);
         } 
-        else
+        else if(isServerUpdated(p->second, q->second))
         {
             _serverCache.remove(p->first, false); // Don't destroy the server if it was updated.
             load.push_back(p->second);
+        }
+        else
+        {
+            ServerEntryPtr server = _serverCache.get(p->first);
+            server->update(q->second); // Just update the server revision on the node.
+            entries.push_back(server);
         }
     }
     for(p = oldServers.begin(); p != oldServers.end(); ++p)

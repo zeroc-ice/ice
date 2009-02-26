@@ -23,6 +23,10 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- Fixed IceGrid bug where an application update could trigger the
+  deactivation of all session activated servers even if these servers
+  were not updated.
+
 - The frequency at which Ice checks for connections that can be reaped
   by active connection management (ACM) is now set by default to 10%
   of the smallest, non-zero ACM setting (Ice.ACM.Client and

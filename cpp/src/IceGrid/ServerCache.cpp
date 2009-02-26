@@ -287,7 +287,12 @@ ServerEntry::update(const ServerInfo& info)
 
     _load = descriptor;
     _loaded.reset(0);
-    _allocatable = info.descriptor->allocatable || info.descriptor->activation == "session";
+    _allocatable = info.descriptor->allocatable;
+    if(info.descriptor->activation == "session")
+    {
+        _allocatable = true;
+        _load->sessionId = _session ? _session->getId() : "";
+    }
 }
 
 void
