@@ -5802,7 +5802,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                         {
                             ostringstream ostr;
                             ostr << "ignoring invalid global metadata `" << s
-                                << "', the cpp:header-ext global metadata can only appear once per file";
+                                << "': directive can appear only once per file";
                             emitWarning(file, -1, ostr.str());
                             _history.insert(s);
                         }
@@ -5890,7 +5890,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         if(!cl->isLocal())
         {
             ostringstream ostr;
-            ostr << "ignoring invalid metadata `UserException' applies only to local operations "
+            ostr << "ignoring invalid metadata `UserException': directive applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
                  << "' is not local";
             emitWarning(p->file(), p->line(), ostr.str());
