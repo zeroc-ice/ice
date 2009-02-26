@@ -20,6 +20,10 @@
 
 -keepattributes *Annotation*
 
+# Parse non-public libraries to prevent undefined symbol errors on some platforms.
+
+-dontskipnonpubliclibraryclasses
+
 # Preserve all native method names and the names of their classes.
 
 -keepclasseswithmembernames class * {
