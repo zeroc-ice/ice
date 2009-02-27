@@ -15,9 +15,10 @@
 
 //
 // We include Handle.h here to make sure that the Ice::Handle template
-// is defined before any definition of incRef() or decRef() (see
-// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
-// on why this is necessary.)
+// is defined before any definition of upCast().
+//
+// See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
+// on why this is necessary.
 //
 #include <Ice/Handle.h>
 
@@ -281,7 +282,6 @@ public:
         return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
     }
 };
-
 
 }
 
