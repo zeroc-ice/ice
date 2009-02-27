@@ -109,17 +109,17 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
             {
                 throw new ObjectNotExistException();
             }
-        }
 
-        synchronized(_lcMutex)
-        {
-            reap();
-
-            if(_contents.containsKey(name))
+            synchronized(_lcMutex)
             {
-                throw new NameInUse(name);
+                reap();
+
+                if(_contents.containsKey(name))
+                {
+                    throw new NameInUse(name);
+                }
+                return new FileI(name, this).activate(c.adapter);
             }
-            return new FileI(name, this).activate(c.adapter);
         }
     }
 
@@ -134,17 +134,17 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
             {
                 throw new ObjectNotExistException();
             }
-        }
 
-        synchronized(_lcMutex)
-        {
-            reap();
-
-            if(_contents.containsKey(name))
+            synchronized(_lcMutex)
             {
-                throw new NameInUse(name);
+                reap();
+
+                if(_contents.containsKey(name))
+                {
+                    throw new NameInUse(name);
+                }
+                return new DirectoryI(name, this).activate(c.adapter);
             }
-            return new DirectoryI(name, this).activate(c.adapter);
         }
     }
 
@@ -200,7 +200,6 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
 
         _id.name = parent == null ? "RootDir" : Util.generateUUID();
     }
-
 
     // Add servant to ASM and to parent's _contents map.
 

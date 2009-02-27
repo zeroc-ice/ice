@@ -108,17 +108,17 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-            }
 
-            lock(lcMutex)
-            {
-                reap();
-
-                if(_contents.Contains(name))
+                lock(lcMutex)
                 {
-                    throw new NameInUse(name);
+                    reap();
+
+                    if(_contents.Contains(name))
+                    {
+                        throw new NameInUse(name);
+                    }
+                    return new FileI(c.adapter, name, this).activate(c.adapter);
                 }
-                return new FileI(c.adapter, name, this).activate(c.adapter);
             }
         }
 
@@ -132,17 +132,17 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-            }
 
-            lock(lcMutex)
-            {
-                reap();
-
-                if(_contents.Contains(name))
+                lock(lcMutex)
                 {
-                    throw new NameInUse(name);
+                    reap();
+
+                    if(_contents.Contains(name))
+                    {
+                        throw new NameInUse(name);
+                    }
+                    return new DirectoryI(name, this).activate(c.adapter);
                 }
-                return new DirectoryI(name, this).activate(c.adapter);
             }
         }
 

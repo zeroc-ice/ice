@@ -196,16 +196,14 @@ FilesystemI::DirectoryI::find(const string& name, const Current& c)
 FilePrx
 FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
 {
-    {
-        IceUtil::Mutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
 
-        if(_destroyed)
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-        }
+    if(_destroyed)
+    {
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    IceUtil::StaticMutex::Lock lock(_lcMutex);
+    IceUtil::StaticMutex::Lock lcLock(_lcMutex);
 
     reap();
 
@@ -223,16 +221,14 @@ FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
 DirectoryPrx
 FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
 {
-    {
-        IceUtil::Mutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
 
-        if(_destroyed)
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-        }
+    if(_destroyed)
+    {
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    IceUtil::StaticMutex::Lock lock(_lcMutex);
+    IceUtil::StaticMutex::Lock lcLock(_lcMutex);
 
     reap();
 
@@ -250,7 +246,6 @@ FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
 void
 FilesystemI::DirectoryI::destroy(const Current& c)
 {
-
     if(!_parent)
     {
         throw PermissionDenied("Cannot destroy root directory");
