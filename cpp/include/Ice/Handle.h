@@ -24,7 +24,7 @@
 
 //
 // "Handle" or "smart pointer" template for classes derived from
-// IceUtil::GCShared, IceUtil::Shared, or IceUtil::SimpleShared.
+// IceInternal::GCShared, IceUtil::Shared, or IceUtil::SimpleShared.
 //
 // In constrast to IceUtil::Handle, IceInternal::Handle<T> can be used
 // for a type T that has been declared but not defined. The only
@@ -32,10 +32,10 @@
 //
 // namespace IceInternal
 // {
-//     IceUtil::Shared* upCast(T*);
+//     X* upCast(T*);
 // }
 //
-// Replace "Shared" with "GCShared" or "SimpleShared" if necessary.
+// Where X is (or derives from) IceUtil::Shared or IceUtil::SimpleShared.
 //
 
 namespace IceInternal
