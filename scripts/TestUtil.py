@@ -159,46 +159,50 @@ def configurePaths():
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if not isWin32():
-        os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
+        addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs"), "bin"))
         
     #
     # On Windows x64, set PYTHONPATH to python/x64.
     #
     pythonDir = os.path.join(getIceDir("py"), "python")
     if isWin32() and x64:
-        os.environ["PYTHONPATH"] = os.path.join(pythonDir, "x64") + os.pathsep + os.getenv("PYTHONPATH", "")
+        addPathToEnv("PYTHONPATH", os.path.join(pythonDir, "x64"))
     else:
-        os.environ["PYTHONPATH"] = pythonDir + os.pathsep + os.getenv("PYTHONPATH", "")
+        addPathToEnv("PYTHONPATH", pythonDir)
 
-    rubyDir = os.path.join(getIceDir("rb"), "ruby")
-    os.environ["RUBYLIB"] = rubyDir + os.pathsep + os.getenv("RUBYLIB", "")
+    addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
 
 def addLdPath(libpath, env = None):
     if env is None:
         env = os.environ
     if isWin32():
-        env["PATH"] = libpath + os.pathsep + env.get("PATH", "")
+        addPathToEnv("PATH", libpath, env)
     elif isHpUx():
-        env["SHLIB_PATH"] = libpath + os.pathsep + env.get("SHLIB_PATH", "")
-        env["LD_LIBRARY_PATH"] = libpath + os.pathsep + env.get("LD_LIBRARY_PATH", "")
+        addPathToEnv("SHLIB_PATH", libpath, env)
+        addPathToEnv("LD_LIBRARY_PATH", libpath, env)
     elif isDarwin():
-        env["DYLD_LIBRARY_PATH"] = libpath + os.pathsep + env.get("DYLD_LIBRARY_PATH", "")
+        addPathToEnv("DYLD_LIBRARY_PATH", libpath, env)
     elif isAIX():
-        env["LIBPATH"] = libpath + os.pathsep + env.get("LIBPATH", "")
+        addPathToEnv("LIBPATH", libpath, env)
     else:
-        env["LD_LIBRARY_PATH"] = libpath + os.pathsep + env.get("LD_LIBRARY_PATH", "")
-        env["LD_LIBRARY_PATH_64"] = libpath + os.pathsep + env.get("LD_LIBRARY_PATH_64", "")
+        addPathToEnv("LD_LIBRARY_PATH", libpath, env)
+        addPathToEnv("LD_LIBRARY_PATH_64", libpath, env)
     return env
 
-def addClasspath(dir, env = None):
+def addClasspath(path, env = None):
+    return addPathToEnv("CLASSPATH", path, env)
+
+def addPathToEnv(variable, path, env = None):
     if env is None:
         env = os.environ
-    env["CLASSPATH"] = dir + os.pathsep + env.get("CLASSPATH", "")
+    if not env.has_key(variable):
+        env[variable] = path
+    else:
+        env[variable] = path + os.pathsep + env.get(variable)
     return env
 
 # List of supported cross languages test.
-crossTests = [
-               "Ice/adapterDeactivation",
+crossTests = [ "Ice/adapterDeactivation",
                "Ice/background",
                "Ice/binding",
                "Ice/checksum",
@@ -569,11 +573,6 @@ def getDefaultMapping():
     else:
         raise "cannot determine mapping"
 
-def getTestEnv():
-    env = {}
-    env["certsdir"] = os.path.abspath(os.path.join(toplevel, "certs"))
-    return env 
-
 class DriverConfig:
     lang = None
     protocol = None 
@@ -629,11 +628,8 @@ def argsToDict(argumentString, results):
             results[current] = None
     return results
             
-def getCommandLine(exe, config, env=None):
+def getCommandLine(exe, config):
 
-    if not env:
-        env = getTestEnv()
-        
     #
     # Command lines are built up from the items in the components
     # sequence, which is initialized with command line options common to
@@ -651,8 +647,10 @@ def getCommandLine(exe, config, env=None):
     # configuration.
     #
     if config.protocol == "ssl":
-        components.append(sslConfigTree[config.lang]["plugin"] % env)
-        components.append(sslConfigTree[config.lang][config.type] % env)
+        sslenv = {}
+        sslenv["certsdir"] = os.path.abspath(os.path.join(toplevel, "certs"))
+        components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
+        components.append(sslConfigTree[config.lang][config.type] % sslenv)
 
     if config.compress:
         components.append("--Ice.Override.Compress=1")
@@ -819,11 +817,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
-        serverenv = copy.deepcopy(os.environ)
-        if lang == "cpp":
-            addLdPath(os.path.join(serverdir), serverenv)
-        elif lang == "java":
-            addClasspath(os.path.join(serverdir, "classes"), serverenv)
+        serverenv = getTestEnv(lang, serverdir)
 
     global cross
     if len(cross) == 0:
@@ -850,11 +844,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             client = os.path.join(clientdir, client)
 
         if clientenv is None:
-            clientenv = copy.deepcopy(os.environ)
-            if clientLang == "cpp":
-                addLdPath(os.path.join(clientdir), clientenv)
-            elif clientLang == "java":
-                addClasspath(os.path.join(clientdir, "classes"), clientenv)
+            clientenv = getTestEnv(clientLang, clientdir)
 
         print "starting " + serverDesc + "...",
         serverCfg = DriverConfig("server")
@@ -888,14 +878,8 @@ def collocatedTest(additionalOptions = ""):
     collocated = getDefaultCollocatedFile()
     if lang != "java":
         collocated = os.path.join(testdir, collocated) 
-        if lang == "cpp":
-            env = copy.deepcopy(os.environ)
-            addLdPath(os.path.join(testdir), env)
-        else:
-            env = None
-    else:
-        env = copy.deepcopy(os.environ)
-        addClasspath(os.path.join(testdir, "classes"), env)
+
+    env = getTestEnv(lang, testdir)
 
     print "starting collocated...",
     collocated = getCommandLine(collocated, DriverConfig("colloc")) + ' ' + additionalOptions 
@@ -910,23 +894,28 @@ def cleanDbDir(path):
 def startClient(exe, args = "", config=None, env=None, echo = True):
     if config == None:
         config = DriverConfig("client")
-    cmd = getCommandLine(exe, config, env) + ' ' + args
+    if env == None:
+        env = getTestEnv(getDefaultMapping(), os.getcwd())
+    cmd = getCommandLine(exe, config) + ' ' + args
     if config.lang == "php":
         writePhpIni("php.ini", "tmp.ini")
-
-    return spawnClient(cmd, echo = echo)
+    return spawnClient(cmd, env = env, echo = echo)
 
 def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = True):
     if config == None:
         config = DriverConfig("server")
-    cmd = getCommandLine(exe, config, env) + ' ' + args
-    return spawnServer(cmd, adapter = adapter, count = count, echo = echo)
+    if env == None:
+        env = getTestEnv(getDefaultMapping(), os.getcwd())
+    cmd = getCommandLine(exe, config) + ' ' + args
+    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo)
 
 def startColloc(exe, args, config=None, env=None):
     if config == None:
         config = DriverConfig("colloc")
-    cmd = getCommandLine(exe, config, env) + ' ' + args
-    return spawnClient(cmd)
+    if env == None:
+        env = getTestEnv(lang, testdir)
+    cmd = getCommandLine(exe, config) + ' ' + args
+    return spawnClient(cmd, env = env)
 
 def simpleTest(exe, options = ""):
     print "starting client...",
@@ -948,6 +937,14 @@ def getCppBinDir():
         elif isWin32():
             binDir = os.path.join(binDir, "x64")
     return binDir
+
+def getTestEnv(lang, testdir):
+    env = os.environ.copy()
+    if lang == "cpp":
+        addLdPath(os.path.join(testdir), env)
+    elif lang == "java":
+        addClasspath(os.path.join(testdir, "classes"), env)
+    return env;
 
 def getTestName():
     lang = getDefaultMapping()
