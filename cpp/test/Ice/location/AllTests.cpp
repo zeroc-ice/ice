@@ -324,6 +324,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         };
         hello->sayHello_async(new AMICallback());
     }
+    hello->ice_ping();
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 500);
     count = locator->getRequestCount();
     hello = hello->ice_adapterId("unknown");
@@ -345,6 +346,14 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
             }
         };
         hello->sayHello_async(new AMICallback());
+    }
+    try
+    {
+        hello->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NotRegisteredException&)
+    {
     }
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 500);
     cout << "ok" << endl;

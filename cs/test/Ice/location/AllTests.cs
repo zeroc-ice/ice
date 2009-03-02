@@ -327,12 +327,21 @@ public class AllTests
         {
             hello.sayHello_async(new AMICallbackResponse());
         }
+        hello.ice_ping();
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
         count = locator.getRequestCount();
         hello = (HelloPrx)hello.ice_adapterId("unknown");
         for(int i = 0; i < 1000; i++)
         {
             hello.sayHello_async(new AMICallbackException());
+        }
+        try
+        {
+            hello.ice_ping();
+            test(false);
+        }
+        catch(Ice.NotRegisteredException)
+        {
         }
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
         Console.Out.WriteLine("ok");

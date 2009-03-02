@@ -111,6 +111,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         System.out.println("ok");    
@@ -126,6 +127,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         System.out.println("ok");    
@@ -141,6 +143,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         try
@@ -150,6 +153,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -161,6 +165,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         try
@@ -170,6 +175,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -181,6 +187,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -192,6 +199,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -203,6 +211,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -310,6 +319,7 @@ public class AllTests
                 public void
                 ice_exception(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
 
@@ -320,6 +330,7 @@ public class AllTests
             };
             hello.sayHello_async(new AMICallback());
         }
+        hello.ice_ping();
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
         count = locator.getRequestCount();
         hello = (HelloPrx)hello.ice_adapterId("unknown");
@@ -340,6 +351,14 @@ public class AllTests
                 }
             };
             hello.sayHello_async(new AMICallback());
+        }
+        try
+        {
+            hello.ice_ping();
+            test(false);
+        }
+        catch(Ice.NotRegisteredException ex)
+        {
         }
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
         System.out.println("ok");
@@ -383,6 +402,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
     
@@ -418,6 +438,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         System.out.println("ok");
@@ -471,6 +492,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -490,6 +512,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+        ex.printStackTrace();
             test(false);
         }
 

@@ -16,15 +16,11 @@ using namespace Test;
 ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, 
                                const ServerLocatorRegistryPtr& registry,
                                const Ice::InitializationData& initData) :
-    _adapter(adapter), _registry(registry), _initData(initData)
+    _adapter(adapter), _registry(registry), _initData(initData), _nextPort(12011)
 {
-    _initData.properties->setProperty("TestAdapter.Endpoints", "default");
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
-    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-    
-    _initData.properties->setProperty("TestAdapter2.Endpoints", "default");
+    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");    
     _initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
-
     _initData.properties->setProperty("Ice.PrintAdapterReady", "0");
 }
 
@@ -46,9 +42,23 @@ ServerManagerI::startServer(const Ice::Current& current)
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    
     Ice::CommunicatorPtr serverCommunicator = Ice::initialize(_initData);
     _communicators.push_back(serverCommunicator);
+
+    //
+    // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
+    // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
+    //
+    {
+        std::ostringstream os;
+        os << "default -p " << _nextPort++;
+        serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", os.str());
+    }
+    {
+        std::ostringstream os;
+        os << "default -p " << _nextPort++;
+        serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", os.str());
+    }
 
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
