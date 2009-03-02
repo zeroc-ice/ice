@@ -98,21 +98,8 @@ namespace IceInternal
             if(ex is Ice.ObjectNotExistException)
             {
                 Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;
-
-                LocatorInfo li = @ref.getLocatorInfo();
-                if(li != null && @ref.isIndirect())
-                {
-                    //
-                    // We retry ObjectNotExistException if the reference is
-                    // indirect.
-                    //
-
-                    if(@ref.isWellKnown())
-                    {
-                        li.clearCache(@ref);
-                    }
-                }
-                else if(@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
+                
+                if(@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
                 {
                     //
                     // If we have a router, an ObjectNotExistException with an
@@ -132,6 +119,22 @@ namespace IceInternal
                         outAsync.send__();
                     }
                     return; // We must always retry, so we don't look at the retry count.
+                }
+                else if(@ref.isIndirect())
+                {
+                    //
+                    // We retry ObjectNotExistException if the reference is
+                    // indirect.
+                    //
+
+                    if(@ref.isWellKnown())
+                    {
+                        LocatorInfo li = @ref.getLocatorInfo();
+                        if(li != null)
+                        {
+                            li.clearCache(@ref);
+                        }
+                    }
                 }
                 else
                 {
