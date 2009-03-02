@@ -54,9 +54,9 @@ def run(client, server, sessionserver, glacier2):
     sys.stdout.flush()
     client.sendline('v')
     client.sendline('t')
+    glacier2.expect('_fwd/t, _ovrd/some_value')
     server.expect('initiating callback to')
     client.expect('received callback')
-    glacier2.expect('_fwd/t, _ovrd/some_value')
     print "ok"
 
     print "testing fake category...",
@@ -65,7 +65,6 @@ def run(client, server, sessionserver, glacier2):
     client.sendline('F')
     client.sendline('t')
     server.expect('initiating callback to.*fake.*ObjectNotExistException')
-    glacier2.expect('_fwd/t, _ovrd/some_value')
     try:
         client.expect('received callback', timeout=1)
     except Expect.TIMEOUT:

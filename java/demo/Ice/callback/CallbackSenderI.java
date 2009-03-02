@@ -17,7 +17,7 @@ public final class CallbackSenderI extends _CallbackSenderDisp
         System.out.println("initiating callback");
         try
         {
-            proxy.callback(current.ctx);
+            proxy.callback();
         }
         catch(Ice.LocalException ex)
         {

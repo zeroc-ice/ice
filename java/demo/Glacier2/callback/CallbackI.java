@@ -17,7 +17,7 @@ public final class CallbackI extends _CallbackDisp
         System.out.println("initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy));
         try
         {
-            proxy.callback(current.ctx);
+            proxy.callback();
         }
         catch(Ice.LocalException ex)
         {

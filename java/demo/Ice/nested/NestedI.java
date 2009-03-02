@@ -22,7 +22,7 @@ class NestedI extends _NestedDisp
         System.out.println("" + level);
         if(--level > 0)
         {
-            proxy.nestedCall(level, _self, current.ctx);
+            proxy.nestedCall(level, _self);
         }
     }
 

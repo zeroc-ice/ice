@@ -37,7 +37,7 @@ CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current
     cout << "initiating callback to: " << current.adapter->getCommunicator()->proxyToString(proxy) << endl;
     try
     {
-        proxy->callback(current.ctx);
+        proxy->callback();
     }
     catch(const Ice::Exception& ex)
     {
