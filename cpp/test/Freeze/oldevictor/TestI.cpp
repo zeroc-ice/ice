@@ -122,6 +122,9 @@ Test::ServantI::addFacet(const string& name, const string& data, const Current& 
 
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         _evictor->addFacet(facet, current.id, name);
     }
     catch(const Ice::AlreadyRegisteredException&)
@@ -274,6 +277,9 @@ Test::RemoteEvictorI::createServant(const string& id, Int value, const Current&)
     ServantPtr servant = new ServantI(this, _evictor, value);
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         return ServantPrx::uncheckedCast(_evictor->add(servant, ident));
     }
     catch(const Ice::AlreadyRegisteredException&)

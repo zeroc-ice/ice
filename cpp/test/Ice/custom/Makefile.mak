@@ -57,7 +57,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(CPP_COMPILER)" != "BCC2007"
+!if "$(BCPLUSPLUS)" != "yes"
 CPPFLAGS	= $(CPPFLAGS) -Zm200
 !endif
 

@@ -44,63 +44,52 @@ public abstract class Direct implements Ice.Request
         ServantManager servantManager = adapter.getServantManager();
         assert(servantManager != null);
 
-        try
+        _servant = servantManager.findServant(_current.id, _current.facet);
+        if(_servant == null)
         {
-            _servant = servantManager.findServant(_current.id, _current.facet);
-            if(_servant == null)
+            _locator = servantManager.findServantLocator(_current.id.category);
+            if(_locator == null && _current.id.category.length() > 0)
             {
-                _locator = servantManager.findServantLocator(_current.id.category);
-                if(_locator == null && _current.id.category.length() > 0)
-                {
-                    _locator = servantManager.findServantLocator("");
-                }
-                if(_locator != null)
-                {
-                    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
-                    try
-                    {
-                        _servant = _locator.locate(_current, _cookie);
-                    }
-                    catch(Ice.UserException ex)
-                    {
-                        adapter.decDirectCount();
-                        throw ex;
-                    }
-                }
+                _locator = servantManager.findServantLocator("");
             }
-            if(_servant == null)
+            if(_locator != null)
             {
-                if(servantManager != null && servantManager.hasServant(_current.id))
+                _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
+                try
                 {
-                    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
-                    ex.id = _current.id;
-                    ex.facet = _current.facet;
-                    ex.operation = _current.operation;
+                    _servant = _locator.locate(_current, _cookie);
+                }
+                catch(Ice.UserException ex)
+                {
+                    adapter.decDirectCount();
                     throw ex;
                 }
-                else
+                catch(java.lang.RuntimeException ex)
                 {
-                    Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
-                    ex.id = _current.id;
-                    ex.facet = _current.facet;
-                    ex.operation = _current.operation;
+                    adapter.decDirectCount();
                     throw ex;
                 }
             }
         }
-        catch(RuntimeException ex)
+
+        if(_servant == null)
         {
-            try
+            adapter.decDirectCount();
+            if(servantManager != null && servantManager.hasServant(_current.id))
             {
-                if(_locator != null && _servant != null)
-                {
-                    _locator.finished(_current, _servant, _cookie.value);
-                }
+                Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
+                ex.id = _current.id;
+                ex.facet = _current.facet;
+                ex.operation = _current.operation;
                 throw ex;
             }
-            finally
+            else
             {
-                adapter.decDirectCount();
+                Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
+                ex.id = _current.id;
+                ex.facet = _current.facet;
+                ex.operation = _current.operation;
+                throw ex;
             }
         }
     }

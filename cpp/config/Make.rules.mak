@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS, BCC2007
+# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS, BCC2007, BCC2009
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC80
@@ -38,9 +38,7 @@ CPP_COMPILER		= VC80
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
 #
-!if "$(CPP_COMPILER)" == "BCC2007"
-THIRDPARTY_HOME_EXT 	= BCC
-!elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC80_EXPRESS"
 THIRDPARTY_HOME_EXT	= VC80
 !elseif "$(CPP_COMPILER)" == "VC90_EXPRESS"
 THIRDPARTY_HOME_EXT	= VC90
@@ -103,7 +101,8 @@ SETARGV			= setargv.obj
 #
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(CPP_COMPILER)" == "BCC2007" || "$(CPP_COMPILER)" == "BCC2009"
+BCPLUSPLUS		= yes
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
         "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS" || \

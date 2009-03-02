@@ -171,7 +171,6 @@ checkChar(char c)
 static char
 decodeChar(const string& s, string::size_type start, string::size_type end, string::size_type& nextStart)
 {
-    assert(start >= 0);
     assert(start < end);
     assert(end <= s.size());
 
@@ -282,10 +281,6 @@ static void decodeString(const string& s, string::size_type start, string::size_
 bool
 IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end, string& result)
 {
-    if(start < 0)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "start offset must be >= 0");
-    }
     if(end > s.size())
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "end offset must be <= s.size()");

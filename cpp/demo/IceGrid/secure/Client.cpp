@@ -59,6 +59,9 @@ HelloClient::run(int argc, char* argv[])
     HelloPrx hello;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         hello = HelloPrx::checkedCast(communicator()->stringToProxy("hello"));
     }
     catch(const Ice::NotRegisteredException&)

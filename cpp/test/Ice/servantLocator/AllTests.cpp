@@ -258,6 +258,9 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     obj = TestIntfPrx::checkedCast(base);
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         TestIntfPrx::checkedCast(communicator->stringToProxy("category/unknown:default -p 12010 -t 10000"));
     }
     catch(const ObjectNotExistException&)
@@ -272,6 +275,9 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     obj = TestIntfPrx::checkedCast(base);
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         TestIntfPrx::checkedCast(communicator->stringToProxy("anothercategory/unknown:default -p 12010 -t 10000"));
     }
     catch(const ObjectNotExistException&)
@@ -279,6 +285,9 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     }
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         TestIntfPrx::checkedCast(communicator->stringToProxy("unknown:default -p 12010 -t 10000"));
     }
     catch(const Ice::ObjectNotExistException&)

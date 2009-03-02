@@ -47,7 +47,7 @@ TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
 DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 TRES_FILE        = ,, TransformDB.res
 DRES_FILE        = ,, DumpDB.res
 !else
@@ -91,7 +91,7 @@ install:: all
 	copy $(DUMPDB) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(TRANSFORMDB:.exe=.tds) $(install_bindir)

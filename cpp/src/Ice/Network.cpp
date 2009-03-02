@@ -77,7 +77,7 @@ getLocalAddresses(ProtocolSupport protocol)
             vector<unsigned char> buffer;
             buffer.resize(1024);
             unsigned long len = 0;
-            DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0,
+            int rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0,
                                 &buffer[0], static_cast<DWORD>(buffer.size()),
                                 &len, 0, 0);
             if(rs == SOCKET_ERROR)
@@ -883,7 +883,8 @@ IceInternal::getSendBufferSize(SOCKET fd)
 {
     int sz;
     socklen_t len = sizeof(sz);
-    if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, &len) == SOCKET_ERROR || len != sizeof(sz))
+    if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, &len) == SOCKET_ERROR || 
+       static_cast<unsigned int>(len) != sizeof(sz))
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -910,7 +911,8 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 {
     int sz;
     socklen_t len = sizeof(sz);
-    if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, &len) == SOCKET_ERROR || len != sizeof(sz))
+    if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, &len) == SOCKET_ERROR || 
+       static_cast<unsigned int>(len) != sizeof(sz))
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);

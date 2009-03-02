@@ -58,7 +58,7 @@ IceUtil::ThreadControl::join()
         throw BadThreadControlException(__FILE__, __LINE__);
     }
 
-    int rc = WaitForSingleObject(_handle, INFINITE);
+    DWORD rc = WaitForSingleObject(_handle, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());

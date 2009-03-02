@@ -24,11 +24,10 @@ oneways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& proxy)
 
     {
         Ice::Byte b;
-        Ice::Byte r;
 
         try
         {
-            r = p->opByte(Ice::Byte(0xff), Ice::Byte(0x0f), b);
+            p->opByte(Ice::Byte(0xff), Ice::Byte(0x0f), b);
             test(false);
         }
         catch(const Ice::TwowayOnlyException&)

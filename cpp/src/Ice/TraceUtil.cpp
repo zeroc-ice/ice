@@ -355,12 +355,12 @@ printMessage(ostream& s, BasicStream& stream)
 }
 
 static IceUtil::StaticMutex slicingMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static set<string> slicingIds;
 
 void
 IceInternal::traceSlicing(const char* kind, const string& typeId, const char* slicingCat, const LoggerPtr& logger)
 {
     IceUtil::StaticMutex::Lock lock(slicingMutex);
-    static set<string> slicingIds;
     if(slicingIds.insert(typeId).second)
     {
         string s("unknown ");

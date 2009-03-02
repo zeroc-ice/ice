@@ -17,7 +17,6 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     bool withTarget = false;
-    bool withTemplates = false;
     if(argc > 1)
     {
         int i = 1;
@@ -26,11 +25,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
             if(strcmp(argv[i], "-t") == 0)
             {
                 withTarget = true;
-                break;
-            }
-            else if(strcmp(argv[i], "-e") == 0)
-            {
-                withTemplates = true;
                 break;
             }
             i++;

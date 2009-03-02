@@ -362,6 +362,9 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrx& proxy)
             //
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
                 clientProxy = clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
             }
             catch(const Ice::CollocationOptimizationException&)

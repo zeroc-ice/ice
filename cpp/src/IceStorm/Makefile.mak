@@ -90,7 +90,7 @@ APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 RES_FILE        = ,, IceStorm.res
 SRES_FILE       = ,, IceStormService.res
 ARES_FILE       = ,, IceStormAdmin.res
@@ -203,7 +203,7 @@ install:: all
 	copy $(MIGRATE) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

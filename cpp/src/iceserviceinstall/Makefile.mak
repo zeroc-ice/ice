@@ -33,7 +33,7 @@ EXTRA_MANIFEST  = security.manifest
 PDBFLAGS       = /pdb:$(TOOL:.exe=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 RES_FILE        = ,, IceServiceInstall.res
 !else
 RES_FILE        = IceServiceInstall.res
@@ -52,7 +52,7 @@ install:: all
 	copy $(TOOL) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(TOOL:.exe=.tds) $(install_bindir)

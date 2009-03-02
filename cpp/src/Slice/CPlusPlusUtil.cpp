@@ -59,7 +59,8 @@ Slice::printVersionCheck(Output& out)
 {
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
-    if(ICE_INT_VERSION % 100 > 50)
+    int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++Builder
+    if(iceVersion % 100 > 50)
     {
         //
         // Beta version: exact match required

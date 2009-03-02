@@ -35,7 +35,7 @@ namespace
 {
 
 //
-// Replace / by \
+// Replace "/" by "\"
 //
 inline string
 fixDirSeparator(const string& path)
@@ -807,7 +807,7 @@ IceServiceInstaller::removeSource(const string& source) const
                 {
                     throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
                 }
-                return subkey;
+                return string(subkey);
             }
 
             ++index;
@@ -831,6 +831,8 @@ IceServiceInstaller::removeSource(const string& source) const
     {
         throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
     }
+
+    return ""; // To keep compilers happy.
 }
 
 string
