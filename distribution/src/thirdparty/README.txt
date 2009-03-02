@@ -51,7 +51,7 @@ allows bzip2 to be compiled into a DLL.
 After extracting the bzip2 source distribution, change to the
 top-level directory and apply the patch as shown below:
 
-  > patch -p0 bzlib.h < ..\bzlib.patch
+  > patch -p0 bzlib.h < ..\bzip2\bzlib.patch
 
 
 Berkeley DB
@@ -143,7 +143,7 @@ If you have not already applied the patch for bzip2, please read the
 To build bzip2, change to the source directory and use the replacement
 makefile included in this archive:
 
-  > nmake /f ..\Makefile.bzip2
+  > nmake /f ..\bzip2\Makefile.mak
 
 This will build the release and debug versions of the bzip2 DLLs.
 
