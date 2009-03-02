@@ -105,6 +105,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
     vector<string> args;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
@@ -196,6 +199,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         {
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                IceUtil::DummyBCC dummy;
+#endif
                 obj = communicator()->propertyToProxy(verifierProperty);
             }
             catch(const Ice::ProxyParseException&)
@@ -234,6 +240,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         {
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                IceUtil::DummyBCC dummy;
+#endif
                 verifier = PermissionsVerifierPrx::checkedCast(obj);
                 if(!verifier)
                 {
@@ -302,6 +311,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         ObjectPrx obj;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             obj = communicator()->propertyToProxy(sessionManagerProperty);
         }
         catch(const Ice::Exception& ex)
@@ -313,6 +325,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             sessionManager = SessionManagerPrx::checkedCast(obj);
             if(!sessionManager)
             {
@@ -352,6 +367,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         {
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                IceUtil::DummyBCC dummy;
+#endif
                 obj = communicator()->propertyToProxy(sslVerifierProperty);
             }
             catch(const Ice::ProxyParseException&)
@@ -392,6 +410,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         {
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                IceUtil::DummyBCC dummy;
+#endif
                 sslVerifier = SSLPermissionsVerifierPrx::checkedCast(obj);
                 if(!sslVerifier)
                 {
@@ -424,6 +445,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         ObjectPrx obj;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             obj = communicator()->propertyToProxy(sslSessionManagerProperty);
         }
         catch(const Ice::Exception& ex)
@@ -435,6 +459,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             sslSessionManager = SSLSessionManagerPrx::checkedCast(obj);
             if(!sslSessionManager)
             {
@@ -469,6 +496,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
     //
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         _instance = new Instance(communicator(), clientAdapter, serverAdapter);
     }
     catch(const Ice::InitializationException& ex)

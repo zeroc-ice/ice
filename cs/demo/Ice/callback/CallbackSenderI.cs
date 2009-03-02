@@ -16,7 +16,7 @@ public sealed class CallbackSenderI : CallbackSenderDisp_
         System.Console.Out.WriteLine("initiating callback");
         try
         {
-            proxy.callback(current.ctx);
+            proxy.callback();
         }
         catch(System.Exception ex)
         {

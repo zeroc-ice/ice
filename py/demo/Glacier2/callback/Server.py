@@ -17,7 +17,7 @@ class CallbackI(Demo.Callback):
     def initiateCallback(self, proxy, current=None):
         print "initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy)
         try:
-            proxy.callback(current.ctx)
+            proxy.callback()
         except:
             traceback.print_exc()
 

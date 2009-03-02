@@ -32,7 +32,7 @@ IceUtilInternal::Semaphore::~Semaphore()
 void
 IceUtilInternal::Semaphore::wait() const
 {
-    int rc = WaitForSingleObject(_sem, INFINITE);
+    DWORD rc = WaitForSingleObject(_sem, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -48,7 +48,7 @@ IceUtilInternal::Semaphore::timedWait(const IceUtil::Time& timeout) const
         throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
     } 
 
-    int rc = WaitForSingleObject(_sem, static_cast<DWORD>(msTimeout));
+    DWORD rc = WaitForSingleObject(_sem, static_cast<DWORD>(msTimeout));
     if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
     {
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());

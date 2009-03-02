@@ -2367,6 +2367,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;";
     C << nl << "try";
     C << sb;
+
+    C.zeroIndent();
+    C << nl << "#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600) // C++Builder 2009 compiler bug";
+    C.restoreIndent();
+    C << nl << "IceUtil::DummyBCC dummy;";
+    C.zeroIndent();
+    C << nl << "#endif";
+    C.restoreIndent();
+
     if(p->returnsData())
     {
         C << nl << "__checkTwowayOnly(" << p->flattenedScope() + p->name() + "_name);";

@@ -120,83 +120,76 @@ final public class Incoming extends IncomingBase implements Ice.Request
         // the caller of this operation.
         //
 
-        try
+        if(servantManager != null)
         {
-            try
+            _servant = servantManager.findServant(_current.id, _current.facet);
+            if(_servant == null)
             {
-                if(servantManager != null)
+                _locator = servantManager.findServantLocator(_current.id.category);
+                if(_locator == null && _current.id.category.length() > 0)
                 {
-                    _servant = servantManager.findServant(_current.id, _current.facet);
-                    if(_servant == null)
-                    {
-                        _locator = servantManager.findServantLocator(_current.id.category);
-                        if(_locator == null && _current.id.category.length() > 0)
-                        {
-                            _locator = servantManager.findServantLocator("");
-                        }
-                        if(_locator != null)
-                        {
-                            try
-                            {
-                                _servant = _locator.locate(_current, _cookie);
-                            }
-                            catch(Ice.UserException ex)
-                            {
-                                _os.writeUserException(ex);
-                                replyStatus = ReplyStatus.replyUserException;
-                            }
-                        }
-                    }
+                    _locator = servantManager.findServantLocator("");
                 }
-                if(replyStatus == ReplyStatus.replyOK)
-                {
-                    if(_servant == null)
-                    {
-                        if(servantManager != null && servantManager.hasServant(_current.id))
-                        {
-                            replyStatus = ReplyStatus.replyFacetNotExist;
-                        }
-                        else
-                        {
-                            replyStatus = ReplyStatus.replyObjectNotExist;
-                        }
-                    }
-                    else
-                    {
-                        dispatchStatus = _servant.__dispatch(this, _current);
-                        if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
-                        {
-                            replyStatus = ReplyStatus.replyUserException;
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                if(_locator != null && _servant != null && dispatchStatus != Ice.DispatchStatus.DispatchAsync)
+
+                if(_locator != null)
                 {
                     try
                     {
-                        _locator.finished(_current, _servant, _cookie.value);
+                        _servant = _locator.locate(_current, _cookie);
                     }
                     catch(Ice.UserException ex)
                     {
-                        //
-                        // The operation may have already marshaled a reply; we must overwrite that reply.
-                        //
-                        _os.endWriteEncaps();
-                        _os.resize(Protocol.headerSize + 5, false); // Byte following reply status.
-                        _os.startWriteEncaps();
                         _os.writeUserException(ex);
-                        replyStatus = ReplyStatus.replyUserException; // Code below inserts the reply status.
+                        replyStatus = ReplyStatus.replyUserException;
+                    }
+                    catch(java.lang.Exception ex)
+                    {
+                        __handleException(ex);
+                        return;
                     }
                 }
             }
         }
-        catch(java.lang.Exception ex)
+
+        if(_servant != null)
         {
-            __handleException(ex);
-            return;
+            try
+            {
+                assert(replyStatus == ReplyStatus.replyOK);
+                dispatchStatus = _servant.__dispatch(this, _current);
+                if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                {
+                    replyStatus = ReplyStatus.replyUserException;
+                }        
+                
+                if(dispatchStatus != Ice.DispatchStatus.DispatchAsync)
+                {
+                    if(_locator != null && !__servantLocatorFinished())
+                    {
+                        return;
+                    }
+                }
+            }
+            catch(java.lang.Exception ex)
+            {
+                if(_locator != null && !__servantLocatorFinished())
+                {
+                    return;
+                }
+                __handleException(ex);
+                return;
+            }
+        }
+        else if(replyStatus == ReplyStatus.replyOK)
+        {
+            if(servantManager != null && servantManager.hasServant(_current.id))
+            {
+                replyStatus = ReplyStatus.replyFacetNotExist;
+            }
+            else
+            {
+                replyStatus = ReplyStatus.replyObjectNotExist;
+            }
         }
         
         //

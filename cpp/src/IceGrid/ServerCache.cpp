@@ -291,7 +291,7 @@ ServerEntry::update(const ServerInfo& info)
     if(info.descriptor->activation == "session")
     {
         _allocatable = true;
-        _load->sessionId = _session ? _session->getId() : "";
+        _load->sessionId = _session ? _session->getId() : string("");
     }
 }
 

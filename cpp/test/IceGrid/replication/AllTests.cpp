@@ -427,6 +427,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         {
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                IceUtil::DummyBCC dummy;
+#endif
                 masterRegistry->createSessionFromSecureConnection();
             }
             catch(const PermissionDeniedException&)
@@ -436,6 +439,9 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave1Registry->createSession("dummy", "");
         }
         catch(const PermissionDeniedException&)
@@ -443,6 +449,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave1Registry->createSessionFromSecureConnection();
         }
         catch(const PermissionDeniedException&)
@@ -463,6 +472,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(slave1Mapper->getUserAccount("Dummy User Account2") == "dummy2");
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             masterMapper->getUserAccount("unknown");
             test(false);
         }
@@ -471,6 +483,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave1Mapper->getUserAccount("unknown");
             test(false);
         }
@@ -486,6 +501,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         comm->stringToProxy("TestIceGrid/SSLSessionManager")->ice_locator(replicatedLocator)->ice_ping();
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             comm->stringToProxy("TestIceGrid/SessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
             test(false);
         }
@@ -494,6 +512,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             comm->stringToProxy("TestIceGrid/SSLSessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
             test(false);
         }
@@ -544,6 +565,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave1Admin->addApplication(app);
             test(false);
         }
@@ -697,6 +721,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             masterAdmin->getApplicationInfo("TestApp");
             test(false);
         }
@@ -705,6 +732,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave1Admin->getApplicationInfo("TestApp");
             test(false);
         }
@@ -713,6 +743,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave2Admin->getApplicationInfo("TestApp");
             test(false);
         }
@@ -721,6 +754,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             masterAdmin->getAdapterInfo("TestAdpt");
             test(false);
         }
@@ -729,6 +765,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave1Admin->getAdapterInfo("TestAdpt");
             test(false);
         }
@@ -737,6 +776,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave2Admin->getAdapterInfo("TestAdpt");
             test(false);
         }
@@ -745,6 +787,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             masterAdmin->getObjectInfo(obj.proxy->ice_getIdentity());
             test(false);
         }
@@ -753,6 +798,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave1Admin->getObjectInfo(obj.proxy->ice_getIdentity());
             test(false);
         }
@@ -761,6 +809,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         }
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             slave2Admin->getObjectInfo(obj.proxy->ice_getIdentity());
             test(false);
         }

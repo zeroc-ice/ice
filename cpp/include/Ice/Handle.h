@@ -46,6 +46,17 @@ class Handle : public ::IceUtil::HandleBase<T>
 {
 public:
     
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+    //
+    // C++Builder 2009 does not allow setting Ptr to 0.
+    //
+    Handle(int p)
+    {
+        assert(p == 0);
+        this->_ptr = 0;
+    }
+#endif
+
     Handle(T* p = 0)
     {
         this->_ptr = p;

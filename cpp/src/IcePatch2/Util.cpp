@@ -736,7 +736,7 @@ IcePatch2::decompressFile(const string& pa)
         }
 
         ByteSeq compressedBytes(buf.st_size);
-        if(fread(&compressedBytes[0], buf.st_size, 1, stdioFileBZ2) == -1)
+        if(fread(&compressedBytes[0], buf.st_size, 1, stdioFileBZ2) != 1)
         {
              throw "cannot read from `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
         }

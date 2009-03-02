@@ -654,7 +654,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     {
         const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
-        for(int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for(unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
         {
             Test::IntS s;
             for(int i = 0; i < lengths[l]; ++i)

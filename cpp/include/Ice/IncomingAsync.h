@@ -44,8 +44,6 @@ protected:
 
 private:
 
-    bool __servantLocatorFinished();
-
     //
     // We need a separate InstancePtr, because _is and _os only hold a
     // Instance* for optimization.

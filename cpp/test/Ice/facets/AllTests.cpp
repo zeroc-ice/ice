@@ -50,6 +50,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
         test(false);
     }
@@ -59,6 +62,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
         test(false);
     }
@@ -82,6 +88,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(fm["f2"] == obj2);
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         adapter->removeAllFacets(communicator->stringToIdentity("id1"));
         test(false);
     }

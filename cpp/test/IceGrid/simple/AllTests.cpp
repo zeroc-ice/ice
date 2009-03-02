@@ -162,6 +162,9 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     cout << "testing whether server is still reachable... " << flush;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         obj = TestIntfPrx::checkedCast(base);
         test(false);
     }
@@ -170,6 +173,9 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     }
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         obj2 = TestIntfPrx::checkedCast(base2);
         test(false);
     }

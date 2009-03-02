@@ -91,6 +91,46 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     out << "\noperation: " << _current.operation;
 }
 
+bool
+IceInternal::IncomingBase::__servantLocatorFinished()
+{
+    assert(_locator && _servant);
+    try
+    {
+        _locator->finished(_current, _servant, _cookie);
+        return true;
+    }
+    catch(const UserException& ex)
+    {
+        //
+        // The operation may have already marshaled a reply; we must overwrite that reply.
+        //
+        if(_response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUserException);
+            _os.startWriteEncaps();
+            _os.write(ex);
+            _os.endWriteEncaps();
+            _connection->sendResponse(&_os, _compress);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        __handleException(ex);
+    }
+    catch(...)
+    {
+        __handleException();
+    }
+    return false;
+}
+
 void
 IceInternal::IncomingBase::__handleException(const std::exception& exc)
 {
@@ -400,117 +440,90 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     // the caller of this operation.
     //
 
-    try
+    if(servantManager)
     {
-        bool finishedException = false;
-        try
+        _servant = servantManager->findServant(_current.id, _current.facet);
+        if(!_servant)
         {
-            if(servantManager)
+            _locator = servantManager->findServantLocator(_current.id.category);
+            if(!_locator && !_current.id.category.empty())
             {
-                _servant = servantManager->findServant(_current.id, _current.facet);
-                if(!_servant)
-                {
-                    _locator = servantManager->findServantLocator(_current.id.category);
-                    if(!_locator && !_current.id.category.empty())
-                    {
-                        _locator = servantManager->findServantLocator("");
-                    }
-                    if(_locator)
-                    {
-                        try
-                        {
-                            _servant = _locator->locate(_current, _cookie);
-                        }
-                        catch(const UserException& ex)
-                        {
-                            _os.write(ex);
-                            replyStatus = replyUserException;
-                        }
-                    }
-                }
+                _locator = servantManager->findServantLocator("");
             }
-            if(replyStatus == replyOK)
-            {
-                if(!_servant)
-                {
-                    if(servantManager && servantManager->hasServant(_current.id))
-                    {
-                        replyStatus = replyFacetNotExist;
-                    }
-                    else
-                    {
-                        replyStatus = replyObjectNotExist;
-                    }
-                }
-                else
-                {
-                    dispatchStatus = _servant->__dispatch(*this, _current);
-                    if(dispatchStatus == DispatchUserException)
-                    {
-                        replyStatus = replyUserException;
-                    }
-                }
-            }
-        }
-        catch(...)
-        {
-            if(_locator && _servant && dispatchStatus != DispatchAsync)
+
+            if(_locator)
             {
                 try
                 {
-                    _locator->finished(_current, _servant, _cookie);
+                    _servant = _locator->locate(_current, _cookie);
                 }
                 catch(const UserException& ex)
                 {
-                    //
-                    // The operation may have already marshaled a reply; we must overwrite that reply.
-                    //
-                    _os.endWriteEncaps();
-                    _os.b.resize(headerSize + 5); // Byte following reply status.
-                    _os.startWriteEncaps();
                     _os.write(ex);
-                    replyStatus = replyUserException; // Code below inserts the reply status.
-                    finishedException = true;
+                    replyStatus = replyUserException;
+                }
+                catch(const std::exception& ex)
+                {
+                    __handleException(ex);
+                    return;
                 }
                 catch(...)
                 {
-                    throw;
+                    __handleException();
+                    return;
                 }
             }
-            if(!finishedException)
-            {
-                throw;
-            }
         }
-        
-        if(!finishedException && _locator && _servant && dispatchStatus != DispatchAsync)
+    }
+
+    if(_servant)
+    {
+        try
         {
-            try
+            assert(replyStatus == replyOK);
+            dispatchStatus = _servant->__dispatch(*this, _current);
+            if(dispatchStatus == DispatchUserException)
             {
-                _locator->finished(_current, _servant, _cookie);
+                replyStatus = replyUserException;
             }
-            catch(const UserException& ex)
+
+            if(dispatchStatus != DispatchAsync)
             {
-                //
-                // The operation may have already marshaled a reply; we must overwrite that reply.
-                //
-                _os.endWriteEncaps();
-                _os.b.resize(headerSize + 5); // Byte following reply status.
-                _os.startWriteEncaps();
-                _os.write(ex);
-                replyStatus = replyUserException; // Code below inserts the reply status.
+                if(_locator && !__servantLocatorFinished())
+                {
+                    return;
+                }
             }
         }
+        catch(const std::exception& ex)
+        {
+            if(_locator && !__servantLocatorFinished())
+            {
+                return;
+            }
+            __handleException(ex);
+            return;
+        }
+        catch(...)
+        {
+            if(_locator && !__servantLocatorFinished())
+            {
+                return;
+            }
+            __handleException();
+            return;
+        }
     }
-    catch(const std::exception& ex)
+    else if(replyStatus == replyOK)
     {
-        __handleException(ex);
-        return;
-    }
-    catch(...)
-    {
-        __handleException();
-        return;
+        if(servantManager && servantManager->hasServant(_current.id))
+        {
+            replyStatus = replyFacetNotExist;
+        }
+        else
+        {
+            replyStatus = replyObjectNotExist;
+        }
     }
 
     //

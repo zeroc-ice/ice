@@ -64,7 +64,7 @@ IceInternal::IncomingAsync::__response(bool ok)
 {
     try
     {
-        if(!__servantLocatorFinished())
+        if(_locator && !__servantLocatorFinished())
         {
             return;
         }
@@ -100,7 +100,7 @@ IceInternal::IncomingAsync::__exception(const std::exception& exc)
 {
     try
     {
-        if(!__servantLocatorFinished())
+        if(_locator && !__servantLocatorFinished())
         {
             return;
         }
@@ -118,7 +118,7 @@ IceInternal::IncomingAsync::__exception()
 {
     try
     {
-        if(!__servantLocatorFinished())
+        if(_locator && !__servantLocatorFinished())
         {
             return;
         }
@@ -128,53 +128,6 @@ IceInternal::IncomingAsync::__exception()
     catch(const LocalException& ex)
     {
         _connection->invokeException(ex, 1);  // Fatal invocation exception
-    }
-}
-
-bool
-IceInternal::IncomingAsync::__servantLocatorFinished()
-{
-    try
-    {
-        if(_locator && _servant)
-        {
-            try
-            {
-                _locator->finished(_current, _servant, _cookie);
-            }
-            catch(const UserException& ex)
-            {
-                //
-                // The operation may have already marshaled a reply; we must overwrite that reply.
-                //
-                if(_response)
-                {
-                    _os.endWriteEncaps();
-                    _os.b.resize(headerSize + 4); // Reply status position.
-                    _os.write(replyUserException);
-                    _os.startWriteEncaps();
-                    _os.write(ex);
-                    _os.endWriteEncaps();
-                    _connection->sendResponse(&_os, _compress);
-                }
-                else
-                {
-                    _connection->sendNoResponse();
-                }
-                return false;
-            }
-        }
-        return true;
-    }
-    catch(const std::exception& ex)
-    {
-        __handleException(ex);
-        return false;
-    }
-    catch(...)
-    {
-        __handleException();
-        return false;
     }
 }
 

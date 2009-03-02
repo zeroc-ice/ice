@@ -20,7 +20,7 @@ CallbackSenderI::initiateCallback(const CallbackReceiverPrx& proxy, const Curren
     cout << "initiating callback" << endl;
     try
     {
-        proxy->callback(current.ctx);
+        proxy->callback();
     }
     catch(const Exception& ex)
     {

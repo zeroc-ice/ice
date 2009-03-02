@@ -145,7 +145,12 @@ IceInternal::OutgoingAsyncMessageCallback::__releaseCallback(const Ice::LocalExc
 
     try
     {
-        __os->instance()->clientThreadPool()->execute(new CallException(this, exc));
+        //
+        // COMPILERFIX: The following in done in two separate lines in order to work around
+        //              bug in C++Builder 2009.
+        //
+        ThreadPoolPtr threadPool = __os->instance()->clientThreadPool();
+        threadPool->execute(new CallException(this, exc));
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
