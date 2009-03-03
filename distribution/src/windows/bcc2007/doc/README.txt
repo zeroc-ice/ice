@@ -72,13 +72,20 @@ and build it yourself.
 NMAKE and Message Compiler (MC.EXE)
 -----------------------------------
 
-In order to build Ice demos, you will need the Microsoft NMAKE and
+In order to build the Ice demos, you will need the Microsoft NMAKE and
 Message Compiler utilities. These are included in all full Microsoft
 C++ compiler distributions. 
 
 You can also download them as part of the Windows Platform SDK:
 
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
+  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
+
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE and PATH environment variables. This can be done by executing 
+the following script from within the command prompt before you
+compile:
+
+  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
 
 
 Building and running the C++ demos
@@ -91,12 +98,6 @@ change to the demo directory and run the following command to build
 the demos
 
   > nmake /f Makefile.mak
-
-Note that this requires Microsoft NMAKE. If you do not already have
-NMAKE installed, you can download it as part of the Windows Platform
-SDK:
-
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
