@@ -164,11 +164,11 @@ Visual C++ 2005 Express and SP1 is available for download from:
   http://www.microsoft.com/express/2005/
 
 In addition to the steps listed above for setting up Visual Studio
-2005, users of Visual C++ 2005 Express Edition must also follow the
-instructions at the link below for installing and configuring the
-Platform SDK:
+2005, users of Visual C++ 2005 Express Edition must also install
+the Platform SDK. The Platform SDK is available at the following 
+link:
 
-  http://msdn2.microsoft.com/en-us/express/aa700755.aspx
+  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
 
 
 Building and running the C++ demos
