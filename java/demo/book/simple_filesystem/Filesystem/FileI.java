@@ -23,7 +23,8 @@ public class FileI extends _FileDisp
 
         // Create an identity
         //
-        _id = communicator.stringToIdentity(Ice.Util.generateUUID());
+        _id = new Ice.Identity();
+        _id.name = Ice.Util.generateUUID();
     }
 
     // Slice Node::name() operation

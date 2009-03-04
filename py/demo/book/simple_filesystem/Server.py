@@ -21,10 +21,11 @@ class DirectoryI(Filesystem.Directory):
 
         # Create an identity. The root directory has the fixed identity "RootDir"
         #
+        self._id = Ice.Identity()
         if self._parent:
-            self._id = communicator.stringToIdentity(Ice.generateUUID())
+            self._id.name = Ice.generateUUID()
         else:
-            self._id = communicator.stringToIdentity("RootDir")
+            self._id.name = "RootDir"
 
     # Slice Node::name() operation
 
@@ -59,7 +60,8 @@ class FileI(Filesystem.File):
 
         # Create an identity
         #
-        self._id = communicator.stringToIdentity(Ice.generateUUID())
+        self._id = Ice.Identity()
+        self._id.name = Ice.generateUUID()
 
     # Slice Node::name() operation
 

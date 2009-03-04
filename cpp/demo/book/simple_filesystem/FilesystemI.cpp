@@ -26,22 +26,13 @@ Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr& communicator, const string&
     _name(name), _parent(parent)
 {
     // Create an identity. The root directory has the fixed identity "RootDir"
-    //
-    // COMPILERFIX:
-    //
-    // The line below causes "thread synchronization error" exception on HP-UX (64-bit only):
-    //
-    // _id = communicator->stringToIdentity(parent ? IceUtil::generateUUID() : "RootDir");
-    //
-    // We've rearranged the code to avoid the problem.
-    //
     if(parent)
     {
-        _id = communicator->stringToIdentity(IceUtil::generateUUID());
+        _id.name = IceUtil::generateUUID();
     }
     else
     {
-        _id = communicator->stringToIdentity("RootDir");
+        _id.name = "RootDir";
     }
 }
 

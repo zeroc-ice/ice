@@ -12,11 +12,11 @@ Public Class DirectoryI
         ' Create an identity. The
         ' root directory as the fixed identity "RootDir"
         '
-        Dim myId As Ice.Identity
+        Dim myId As Ice.Identity = New Ice.Identity
         If Not _parent Is Nothing Then
-            myId = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID())
+            myId.name = Ice.Util.generateUUID()
         Else
-            myId = _adapter.getCommunicator().stringToIdentity("RootDir")
+            myId.name = "RootDir"
         End If
 
         ' Add the identity to the object adapter

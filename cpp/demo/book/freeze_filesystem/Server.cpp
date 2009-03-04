@@ -40,7 +40,8 @@ public:
         // Create the Freeze evictor (stored in the NodeI::_evictor static member).
         //
         Freeze::ServantInitializerPtr init = new NodeInitializer;
-        NodeI::_evictor = Freeze::createBackgroundSaveEvictor(adapter, _envName, "evictorfs", init);
+        NodeI::_evictor = Freeze::createTransactionalEvictor(adapter, _envName, "evictorfs",
+                                                             Freeze::FacetTypeMap(), init);
 
         adapter->addServantLocator(NodeI::_evictor, "");
 
