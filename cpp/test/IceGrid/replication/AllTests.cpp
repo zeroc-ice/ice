@@ -981,6 +981,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
         adapter.registerProcess = false;
+        adapter.serverLifetime = true;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";
         property.value = "default";
@@ -997,9 +998,18 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         masterAdmin->addApplication(app);
 
-        comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
-        comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
-        comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        try
+        {
+            comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+            comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+            comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
         masterAdmin->stopServer("Server");
 
         //
@@ -1019,8 +1029,16 @@ allTests(const Ice::CommunicatorPtr& comm)
         server->propertySet.properties.push_back(property);
         masterAdmin->updateApplication(update);
 
-        comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
-        comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        try
+        {
+            comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+            comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
 
         masterAdmin->shutdown();
         waitForServerState(admin, "Master", false);
@@ -1052,7 +1070,15 @@ allTests(const Ice::CommunicatorPtr& comm)
         admin->startServer("Slave2");
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
-        comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        try
+        {
+            comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
 
         //
         // Shutdown Node1 and update the application, then, shutdown
@@ -1087,7 +1113,15 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave1Admin->shutdown();
         waitForServerState(admin, "Slave1", false);
 
-        comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        try
+        {
+            comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
 
         admin->startServer("Slave1");
         slave1Admin = createAdminSession(slave1Locator, "Slave1");
@@ -1100,7 +1134,15 @@ allTests(const Ice::CommunicatorPtr& comm)
         {
         }
 
-        comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        try
+        {
+            comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
         slave2Admin->stopServer("Server");
 
         //
@@ -1128,9 +1170,17 @@ allTests(const Ice::CommunicatorPtr& comm)
         waitForNodeState(slave1Admin, "Node1", true);
         waitForNodeState(slave2Admin, "Node1", true);
 
-        comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
-        comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
-        comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        try
+        {
+            comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+            comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+            comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
 
         slave2Admin->stopServer("Server");
 
@@ -1155,6 +1205,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
+        adapter.serverLifetime = true;
         adapter.registerProcess = false;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";

@@ -810,10 +810,23 @@ Database::removeAdapter(const string& adapterId)
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-AdapterEntryPtr
-Database::getAdapter(const string& id) const
+AdapterPrx
+Database::getAdapterProxy(const string& adapterId, const string& replicaGroupId, bool upToDate)
 {
-    return _adapterCache.get(id);
+    Lock sync(*this); // make sure this isn't call during an update.
+    return _adapterCache.get(adapterId)->getProxy(replicaGroupId, upToDate);
+}
+
+void 
+Database::getLocatorAdapterInfo(const string& id, 
+                                LocatorAdapterInfoSeq& adpts, 
+                                int& count, 
+                                bool& replicaGroup, 
+                                bool& roundRobin,
+                                const set<string>& excludes)
+{
+    Lock sync(*this); // Make sure this isn't call during an update.
+    _adapterCache.get(id)->getLocatorAdapterInfo(adpts, count, replicaGroup, roundRobin, excludes);
 }
 
 AdapterInfoSeq
@@ -826,9 +839,7 @@ Database::getAdapterInfo(const string& id)
     //
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
+        Lock sync(*this); // Make sure this isn't call during an update.
         return _adapterCache.get(id)->getAdapterInfo();
     }
     catch(AdapterNotExistException&)

@@ -704,7 +704,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         int count;
         LocatorAdapterInfoSeq adapters;
         bool roundRobin;
-        _database->getAdapter(id)->getLocatorAdapterInfo(adapters, count, replicaGroup, roundRobin);
+        _database->getLocatorAdapterInfo(id, adapters, count, replicaGroup, roundRobin);
         RequestPtr request;
         if(roundRobin)
         {
@@ -899,5 +899,5 @@ LocatorI::getAdapterInfo(const string& id,
                          bool& roundRobin, 
                          const set<string>& excludes)
 {
-    _database->getAdapter(id)->getLocatorAdapterInfo(adapters, count, replicaGroup, roundRobin, excludes);
+    _database->getLocatorAdapterInfo(id, adapters, count, replicaGroup, roundRobin, excludes);
 }

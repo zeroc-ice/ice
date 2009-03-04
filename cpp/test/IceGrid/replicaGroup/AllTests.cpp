@@ -118,6 +118,7 @@ removeServer(const AdminPrx& admin, const string& id)
 {
     try
     {
+        admin->enableServer(id, false); // Makes sure the server isn't activated on-demand after the stop.
         admin->stopServer(id);
     }
     catch(const ServerStopException&)

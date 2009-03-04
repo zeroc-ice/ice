@@ -243,12 +243,12 @@ LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& ami
             //
             // Get the adapter from the registry and set its direct proxy.
             //
-            ServerAdapterEntryPtr adapter = ServerAdapterEntryPtr::dynamicCast(_database->getAdapter(adapterId));
+            AdapterPrx adapter = _database->getAdapterProxy(adapterId, replicaGroupId, false);
             if(!adapter)
             {
                 throw Ice::AdapterNotFoundException();
             }
-            adapter->getProxy(replicaGroupId, false)->setDirectProxy_async(amiCB, proxy);
+            adapter->setDirectProxy_async(amiCB, proxy);
             return;
         }
         catch(const AdapterNotExistException&)

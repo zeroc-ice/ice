@@ -31,6 +31,7 @@ ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
 
 ServerAdapterI::~ServerAdapterI()
 {
+    assert(_activateCB.empty());
 }
 
 void
@@ -70,7 +71,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
         {
             return;
         }
-        _activateAfterDeactivating = _server->getState() >= Deactivating;
+        _activateAfterDeactivating = _server->getState() >= Deactivating && _server->getState() < Destroying;
     }
 
     //
@@ -94,7 +95,6 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
         // inconsistent if this happens. The best thing to do is to destroy the adapter.
         //
         destroy();
-        activationFailed("server destroyed");
     }
     catch(const Ice::Exception& ex)
     {
@@ -154,7 +154,7 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
     // now. The server is going to be activated again and the adapter
     // activated.
     //
-    if(_server->getState() < Deactivating || !_activateAfterDeactivating)
+    if(_server->getState() < Deactivating || _server->getState() >= Destroying || !_activateAfterDeactivating)
     {
         for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
         {
@@ -194,6 +194,7 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
 void
 ServerAdapterI::destroy()
 {
+    activationFailed("adapter destroyed");
     try
     {
         _node->getAdapter()->remove(_this->ice_getIdentity());
@@ -229,6 +230,29 @@ ServerAdapterI::activationFailed(const std::string& reason)
     for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
     {
         (*p)->ice_response(0);
+    }
+    _activateCB.clear();
+}
+
+void 
+ServerAdapterI::activationCompleted()
+{
+    Lock sync(*this);
+    if(!_proxy)
+    {
+        //
+        // The server activation completed, but the adapter hasn't been activated.
+        //
+        if(_node->getTraceLevels()->adapter > 1)
+        {
+            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
+            out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: server activation completed";
+        }
+    }
+    
+    for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
+    {
+        (*p)->ice_response(_proxy);
     }
     _activateCB.clear();
 }

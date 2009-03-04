@@ -43,6 +43,7 @@
       <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="ReplicatedAdapter" endpoints="default" replica-group="${replicaGroup}" priority="${priority}"/>
         <property name="Identity" value="${replicaGroup}"/>
+        <property name="Ice.Admin.DelayCreation" value="1"/>
       </server>
     </server-template>
 
