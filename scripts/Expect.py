@@ -236,6 +236,56 @@ class reader(threading.Thread):
 	finally:
 	    self.cv.release()
 
+def splitCommand(command_line):
+    arg_list = []
+    arg = ''
+
+    state_basic = 0
+    state_esc = 1
+    state_singlequote = 2
+    state_doublequote = 3
+    state_whitespace = 4
+    state = state_basic
+    pre_esc_state = state_basic
+
+    for c in command_line:
+        if state != state_esc and c == '\\':
+            pre_esc_state = state
+            state = state_esc
+        elif state == state_basic or state == state_whitespace:
+            if c == r"'":
+                state = state_singlequote
+            elif c == r'"':
+                state = state_doublequote
+            elif c.isspace():
+                if state == state_whitespace:
+                    None
+                else:
+                    arg_list.append(arg)
+                    arg = ''
+                    state = state_whitespace
+            else:
+                arg = arg + c
+                state = state_basic
+        elif state == state_esc:
+            arg = arg + c
+            state = pre_esc_state
+        elif state == state_singlequote:
+            if c == r"'":
+                state = state_basic
+            else:
+                arg = arg + c
+        elif state == state_doublequote:
+            if c == r'"':
+                state = state_basic
+            else:
+                arg = arg + c
+
+    if arg != '':
+        arg_list.append(arg)
+
+    return arg_list
+
 class Expect (object):
     def __init__(self, command, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
 	self.buf = "" # The part before the match
@@ -263,8 +313,8 @@ class Expect (object):
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                       creationflags = 512) # CREATE_NEW_PROCESS_GROUP
         else:
-            self.p = subprocess.Popen(command, env = env, cwd = cwd, shell=True, bufsize=0, stdin=subprocess.PIPE,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.p = subprocess.Popen(splitCommand(command), env = env, cwd = cwd, shell=False, bufsize=0,
+                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	self.r = reader(desc, self.p, logfile)
 
 	# The thread is marked as a daemon thread. This is done so that if
