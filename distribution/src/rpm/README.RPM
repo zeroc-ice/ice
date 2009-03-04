@@ -1,68 +1,138 @@
 Creating RPM packages for Ice
 =============================
 
-Source RPM
----------
+This file describes how to create source and binary RPMs for Ice, as a 
+regular (non-root) user on your Linux system.
 
-To create the Ice source RPM on Red Hat Linux, copy all the Ice 
-source distributions (.tar.gz files) to /usr/src/redhat/SOURCES,
-including Ice-rpmbuild-@ver@.tar.gz, and then run:
+Table of Contents
+-----------------
+
+  1. The .rpmmacros file
+  2. The RPM package directory
+  3. Ice Source RPM
+  4. Binary Ice RPMs
+  5. Applying a Patch
+
+1. The .rpmmacros file
+----------------------
+
+Create a .rpmmacros file in your home directory similar to the following:
+
+%_signature gpg
+
+%_gpg_path /home/rpmbuilder/.gnupg
+
+%_gpg_name ZeroC, Inc. (release key) <support@zeroc.com>
+
+%_gpgbin /usr/bin/gpg 
+
+%vendor ZeroC, Inc.
+
+%dist .sles10
+
+The gpg settings are only needed if you want to sign your RPMs.
+
+The %dist value should be one of ".sles10", ".rhel4" or ".rhel5".
+
+2. The RPM package directory
+----------------------------
+
+The RPM package directory is /usr/src/redhat on Red Hat Enterprise Linux, 
+and /usr/src/packages on SuSE Linux Enterprise Server.
+
+You may need to adjust the permissions on all sub-directories of this 
+directory to be able to create RPMs as a non-root user.
+
+3. Ice Source RPM
+-----------------
+
+In order to create a source RPM for Ice, you need three files:
+ - the ice.spec file (the RPM specification file)
+ - the Ice-@ver@.tar.gz file (the main Ice source distribution)
+ - the Ice-rpmbuild-@ver@.tar.gz (additional files for the RPM distribution)
+
+These files can be extracted from an existing Ice source RPM by installing
+it:
+ 
+$ rpm -i ice-@ver@-1.src.rpm
+
+You will find the ice .spec file in the <rpm-package>/SPECS directory, 
+while the .tar.gz files are in the <rpm-package>/SOURCES directory.
+
+To create or recreate the Ice source RPM, copy all desired source files and
+patches into <rpm-package>/SOURCES and then type:
 
 $ rpmbuild -bs --sign ice.spec
 
-Remove the --sign option if you do not want to sign the RPMs,
-or you do not have a GNU PG key setup.
+Remove the --sign option if you do not want to sign the source RPM, or you 
+do not have a GNU PG key setup.
 
-This will create the source Ice RPM in /usr/src/redhat/SRPMS.
+This source RPM is created in <rpm-package>/SRPMS.
 
-You can remove the ".redhat" from its name since the Ice source
-RPM is identical on Red Hat Linux and SuSE Linux.
+You can remove the "%dist" part from the name of the resulting source RPM, 
+since this source RPM is identical on all Linux distributions.
 
-Binary packages on Red Hat Enterprise Linux
--------------------------------------------
+4. Binary Ice RPMs
+------------------
 
 First, install the source RPM:
  
 $ rpm -i ice-@ver@-1.src.rpm 
 
-Then review the build requirements at the top of the ice.spec
-file.
+Then review the build requirements in the ice.spec file (the BuildRequires 
+directives). Note that some requirements are expressed through comments in
+this file, because not all build pre-requisites are readily available as 
+RPM files.
 
-Finally, build the RPMs as a non-root user:
+Finally, build the RPMs as a non-root user.
 
-$ cd /usr/src/redhat/SPECS
+On Red Hat Enterprise Linux:
+
+$ cd <rpm-package>/SPECS
 $ rpmbuild -bb --sign --target i386,noarch ice.spec
 
-Remove the --sign option if you do not want to sign the RPMs,
-or you do not have a GNU PG key setup.
+On SuSE Linux Enterprise Server:
 
-On a x86_64 system, remove the --target option to build only x86_64
-RPMs.
-
-This creates binary RPMs in /usr/src/redhat/RPMS.
-
-Binary packages on SuSE Linux
------------------------------
-
-First, install the source RPM:
- 
-# rpm -i ice-@ver@-1.src.rpm 
-
-Then review the build requirements at the top of the ice.spec
-file.
-
-Finally, build the RPMs as a non-root user:
-
-$ cd /usr/src/packages/SPECS
+$ cd <rpm-package>/SPECS
 $ rpmbuild -bb --sign --target i586,noarch ice.spec
 
-Remove the --sign option if you do not want to sign the RPMs,
-or you do not have a GNU PG key setup.
+Remove the --sign option if you do not want to sign the RPMs, or you do not
+have a GNU PG key setup.
 
-On a x86_64 system, remove the --target option to build only x86_64
-RPMs.
+On a x86_64 system, remove the --target option to build only x86_64 RPMs.
 
-This creates binary RPMs in /usr/src/packages/RPMS.
+This creates binary RPMs in <rpm-package>/RPMS.
 
+5. Applying a Patch
+--------------------
 
+Follow these steps to create a new set of RPMs that incorporates
+one or more source patches:
 
+- install the Ice source RPM 
+
+- edit ice.spec:
+
+ - modify the Release setting, for example:
+   # Second build by ACME, Inc.:
+   Release: 2acme%{?dist}
+
+ - List the patch (or patches) after Source1, for example:
+   Source0: Ice-%{version}.tar.gz
+   Source1: Ice-rpmbuild-%{version}.tar.gz
+   Patch1: Ice-%{version}-patch1.patch
+   Patch2: Ice-%{version}-patch2.patch
+
+ - Apply the patch(es) in the %prep section; with our example:
+   %prep
+   %if %{buildall}
+   %setup -n Ice-%{version} -q
+   %setup -q -n Ice-rpmbuild-%{version} -T -b 1
+   %patch1 -p0 -b .orig1
+   %patch2 -p0 -b .orig2
+   %endif
+
+- copy the patch(es) to <rpm-package>/SOURCES
+
+- finally, create the source and binary RPMs as described in the 
+  sections above.
