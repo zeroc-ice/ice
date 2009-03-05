@@ -74,9 +74,9 @@ contents of the file using the following command:
 
 $ rpm2cpio ice-@ver@-1.src.rpm | cpio -idmv
 
-The ice.spec file defines a number of build requirements (see the
-BuildRequires directives) that must be installed on your system in
-order to build the source RPM. These dependencies are listed below:
+The ice.spec file defines a number of build requirements that must be
+installed on your system in order to build the source RPM. These
+dependencies are listed below:
 
  - db46
  - db46-devel
@@ -84,14 +84,18 @@ order to build the source RPM. These dependencies are listed below:
  - mcpp-devel
  - openssl-devel
  - jpackage-utils
- - bzip2-devel (RHEL)
- - expat-devel (RHEL)
- - nptl-devel (RHEL4)
- - php-devel (RHEL)
- - php5-devel (SLES)
  - python-devel
+ - bzip2-devel (RHEL4/RHEL5)
+ - expat-devel (RHEL4/RHEL5)
+ - php-devel (RHEL4/RHEL5)
+ - nptl-devel (RHEL4)
+ - php5-devel (SLES)
+ - mono-core (SLES)
+ - mono-devel (SLES)
 
-The db46* and mcpp-devel RPMs are provided by ZeroC.
+The db46* and mcpp-devel RPMs are provided by ZeroC. You can determine
+the version requirements for all other prerequisites by examining the
+BuildRequires directives in the ice.spec file.
 
 To create or recreate the Ice source RPM, copy all desired source
 files and patches into <rpm-package>/SOURCES and then type:
