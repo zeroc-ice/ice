@@ -48,7 +48,7 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 33
-%define dotnetversion 3.3..1.1.1.1.1.1
+%define dotnetversion 3.3.1
 %define dotnetpolicyversion 3.3
 
 %define formsversion 1.2.0
@@ -281,8 +281,7 @@ ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
 
 # 
 # We build mono all the time because we include iceboxnet.exe in a arch-specific package;
-# we also include GAC symlinks is another arch-specific package
-#
+# we also include GAC symlinks in another arch-specific package.
 #
 # Define the env variable KEYFILE to strong-name sign with your own key file
 #
@@ -305,7 +304,6 @@ rm -rf $RPM_BUILD_ROOT
 #
 # C++
 #
-
 mkdir -p $RPM_BUILD_ROOT/lib
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
@@ -483,7 +481,6 @@ mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 #
 # Cleanup extra files
 #
-
 rm -fr $RPM_BUILD_ROOT/help
 rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/ant-ice.jar
 %if %{mono}
@@ -772,6 +769,9 @@ fi
 
 
 %changelog
+
+* Wed Mar 4 2009 Bernard Normier <bernard@zeroc.com> 3.3.1
+- Minor updates for the Ice 3.3.1 release.
 
 * Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3b-1
 - Updates for Ice 3.3b release:
