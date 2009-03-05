@@ -101,16 +101,6 @@ ifeq ($(CXX),CC)
     #
     CXXLIBS		    = -lCstd -lCrun
 
-    #
-    # For some tests, we need to link with Cstd statically. See
-    # http://forum.java.sun.com/thread.jspa?threadID=5277939
-    #
-    ifeq ($(MACHINE_TYPE),i86pc)
-    	ifneq ($(LP64),yes)
-       		STATICLIBSTDFLAG  = -staticlib=Cstd
-	endif
-    endif
-
     mkshlib		    = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
     mklib		    = $(CXX) -xar -o $(1) $(2)

@@ -67,18 +67,18 @@ SLICE2CPPFLAGS  := --stream $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(SAMDOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
 
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) $(STATICLIBSTDFLAG) -o $@ $(COLOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(LIBS)
 
 include .depend
