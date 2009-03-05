@@ -35,14 +35,18 @@ public final class FileI extends PersistentFile
         return nodeName;
     }
 
-    public synchronized void
+    public void
     destroy(Ice.Current current)
         throws PermissionDenied
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
-        }
+        synchronized(this)
+	{
+	    if(_destroyed)
+	    {
+		throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
+	    }
+	    _destroyed = true;
+	}
 
         parent.removeNode(nodeName);
         _evictor.remove(_id);

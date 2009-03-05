@@ -47,9 +47,12 @@ Filesystem::FileI::destroy(const Ice::Current& c)
 {
     IceUtil::Mutex::Lock lock(*this);
 
-    if(_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
+	if(_destroyed)
+	{
+	    throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
+	}
+	_destroyed = true;
     }
 
     parent->removeNode(nodeName);
@@ -124,7 +127,7 @@ Filesystem::DirectoryI::destroy(const Ice::Current& c)
         }
         if(!nodes.empty())
         {
-            throw Filesystem::PermissionDenied("Cannot destroy non-empty directory");
+            throw Filesystem::PermissionDenied("cannot destroy non-empty directory");
         }
         _destroyed = true;
     }

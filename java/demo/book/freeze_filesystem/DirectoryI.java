@@ -42,7 +42,7 @@ public final class DirectoryI extends PersistentDirectory
     {
         if(parent == null)
         {
-            throw new PermissionDenied("cannot remove root directory");
+            throw new PermissionDenied("cannot destroy root directory");
         }
 
         synchronized(this)
@@ -53,8 +53,9 @@ public final class DirectoryI extends PersistentDirectory
             }
             if(!nodes.isEmpty())
             {
-                throw new PermissionDenied("Cannot destroy non-empty directory");
+                throw new PermissionDenied("cannot destroy non-empty directory");
             }
+	    _destroyed = true;
         }
 
         parent.removeNode(nodeName);
