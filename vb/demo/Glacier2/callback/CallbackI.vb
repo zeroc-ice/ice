@@ -16,7 +16,7 @@ Public NotInheritable Class CallbackI
     Public Overloads Overrides Sub initiateCallback(ByVal proxy As CallbackReceiverPrx, ByVal current As Ice.Current)
         Console.WriteLine("initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy))
         Try
-            proxy.callback(current.ctx)
+            proxy.callback()
         Catch ex As System.Exception
             Console.Error.WriteLine(ex)
         End Try
