@@ -79,9 +79,10 @@ public class Client extends Ice.Application
             //
             // Create a file called "README" in the root directory.
             //
+            FilePrx readme = null;
             try
             {
-                FilePrx readme = rootDir.createFile("README");
+                readme = rootDir.createFile("README");
                 String[] text = new String[1];
                 text[0] = "This file system contains a collection of poetry.";
                 readme.write(text);
@@ -113,9 +114,10 @@ public class Client extends Ice.Application
             //
             // Create a file called "Kubla_Khan" in the Coleridge directory.
             //
+            FilePrx file = null;
             try
             {
-                FilePrx file = coleridge.createFile("Kubla_Khan");
+                file = coleridge.createFile("Kubla_Khan");
                 String[] text = new String[5];
                 text[0] = "In Xanadu did Kubla Khan";
                 text[1] = "A stately pleasure-dome decree:";
@@ -138,13 +140,12 @@ public class Client extends Ice.Application
             //
             // Destroy the filesystem.
             //
-            NodeDesc[] contents = rootDir.list();
-            for(int i = 0; i < contents.length; ++i)
-            {
-                NodeDesc d = contents[i];
-                System.out.println("Destroying " + d.name);
-                d.proxy.destroy();
-            }
+            System.out.println("Destroying " + file.name());
+            file.destroy();
+            System.out.println("Destroying " + readme.name());
+            readme.destroy();
+            System.out.println("Destroying " + coleridge.name());
+            coleridge.destroy();
         }
         catch(Ice.UserException ex)
         {
