@@ -310,13 +310,14 @@ def runDemos(start, args, demos, num = 0, script = False, root = False):
                     demoErrors.append(message)
 
 
-def run(demos, root = False):
+def run(demos, protobufDemos = [], root = False):
     def usage():
         print """usage: %s
         --start=index           Start running the demos at the given demo."
         --loop                  Run the demos in a loop."
         --filter=<regex>        Run all the demos that match the given regex."
         --rfilter=<regex>       Run all the demos that do not match the given regex."
+        --protobuf              Run the protobuf demos."
         --debug                 Display debugging information on each demos."
         --trace=<output>        Run the demos with tracing enabled."
         --host=host             Set --Ice.Default.Host=<host>."
@@ -336,7 +337,7 @@ def run(demos, root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "java2", "preferIPv4", "env", "noenv", "script"])
+                "continue", "ice-home=", "x64", "java2", "preferIPv4", "env", "noenv", "script", "protobuf"])
     except getopt.GetoptError:
         usage()
 
@@ -380,6 +381,8 @@ def run(demos, root = False):
             start = int(a)
         elif o in '--script':
             script = True
+        elif o in '--protobuf':
+            demos = demos + protobufDemos
 
     for demoFilter, removeFilter in filters:
         if removeFilter:
