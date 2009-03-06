@@ -104,7 +104,7 @@ toplevel = path[0]
 def sanitize(cp):
     np = ""
     for p in cp.split(os.pathsep):
-        if p == "classes":
+        if p == "classes" or p == "./classes":
             continue
         if len(np) > 0:
             np = np + os.pathsep
