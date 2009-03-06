@@ -52,7 +52,7 @@
             <include name="Demo/**"/>
             <include name="HelloApplet*"/>
         </jar>
-        <jar jarfile="Hello.jar" update="true" basedir="${top.dir}/../certs">
+        <jar jarfile="Hello.jar" update="true" basedir="${ice.dir}/certs">
             <include name="client.jks"/>
         </jar>
     </target>
