@@ -175,7 +175,7 @@ namespace Ice
 
         public static string identityToString(Identity ident)
         {
-            if(ident.category.Length == 0)
+            if(ident.category == null || ident.category.Length == 0)
             {
                 return IceUtilInternal.StringUtil.escapeString(ident.name, "/");
             }
