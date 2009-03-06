@@ -90,9 +90,9 @@ public class Client extends Ice.Application
             }
             catch(NameInUse ex)
             {
-                //
-                // Ignore - file already exists.
-                //
+                NodeDesc desc = rootDir.find("README");
+                readme = FilePrxHelper.checkedCast(desc.proxy);
+                assert(readme != null);
             }
 
             //
@@ -129,9 +129,9 @@ public class Client extends Ice.Application
             }
             catch(NameInUse ex)
             {
-                //
-                // Ignore - file already exists.
-                //
+                NodeDesc desc = coleridge.find("Kubla_Khan");
+                file = FilePrxHelper.checkedCast(desc.proxy);
+                assert(file != null);
             }
 
             System.out.println("Contents of filesystem:");

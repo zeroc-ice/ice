@@ -89,9 +89,9 @@ FilesystemClient::run(int argc, char* argv[])
     }
     catch(const NameInUse&)
     {
-        //
-        // Ignore - file already exists.
-        //
+        NodeDesc desc = rootDir->find("README");
+        readme = FilePrx::checkedCast(desc.proxy);
+        assert(readme);
     }
 
     //
@@ -128,9 +128,9 @@ FilesystemClient::run(int argc, char* argv[])
     }
     catch(const NameInUse&)
     {
-        //
-        // Ignore - file already exists.
-        //
+        NodeDesc desc = coleridge->find("Kubla_Khan");
+        file = FilePrx::checkedCast(desc.proxy);
+        assert(file);
     }
 
     cout << "Contents of filesystem:" << endl;
