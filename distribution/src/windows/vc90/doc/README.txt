@@ -25,10 +25,11 @@ development tools to build Ice applications:
  - in C++, using Visual Studio 2008 or Visual C++ 2008 Express Edition
  - in .NET, using Visual Studio 2008
  - in Java, using Java 5 or Java 6
+ - in Python, using Python 2.6.1
 
-If you want to develop Ice applications in Python, Ruby or PHP, or
-with another C++ compiler, please download the appropriate Ice binary
-distribution from the ZeroC web site at
+If you want to develop Ice applications in Ruby or PHP, or with another
+C++ compiler, please download the appropriate Ice binary distribution 
+from the ZeroC web site at
 
   http://www.zeroc.com/download.html
 
@@ -340,6 +341,35 @@ java Client
 
 Some demo directories contain README files if additional requirements
 are necessary.
+
+
+Running the Python demos
+------------------------
+
+The Python demos are in the demopy directory.
+
+You need Python 2.6.1 to run the demos. A binary installer for Python
+can be downloaded from:
+
+  http://www.python.org/download
+
+You also need to add the Ice bin directory to your PATH, for example:
+
+set PATH=<Ice installation root directory>\bin;%PATH%
+
+Finally, set PYTHONPATH so that the Python interpreter is able to load
+the Ice extension. For a 32-bit Python installation, use this setting:
+
+set PYTHONPATH=<Ice installation root directory>\python
+
+For a 64-bit Python installation, use this setting instead:
+
+set PYTHONPATH=<Ice installation root directory>\python\x64
+
+To run a demo, open a Command Prompt, change to the desired demo
+directory, and type 'python Server.py' to start the server. In a
+separate Command Prompt window, type 'python Client.py' to run the
+client.
 
 
 Protocol compression with 64-bit Windows

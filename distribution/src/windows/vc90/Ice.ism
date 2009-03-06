@@ -2437,8 +2437,8 @@
 		<row><td>ID_STRING33</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2008</td><td>0</td><td/><td>890860527</td></row>
 		<row><td>ID_STRING34</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234802195</td></row>
 		<row><td>ID_STRING35</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2008</td><td>0</td><td/><td>1712981485</td></row>
-		<row><td>ID_STRING36</td><td>1033</td><td>Ice for C++, Java and .NET</td><td>0</td><td/><td>563881742</td></row>
-		<row><td>ID_STRING37</td><td>1033</td><td>All you need to run and develop Ice for C++, Java and .NET applications</td><td>0</td><td/><td>563879726</td></row>
+		<row><td>ID_STRING36</td><td>1033</td><td>Ice for C++, Java, .NET and Python</td><td>0</td><td/><td>563881742</td></row>
+		<row><td>ID_STRING37</td><td>1033</td><td>All you need to run and develop Ice for C++, Java, .NET and Python applications</td><td>0</td><td/><td>563879726</td></row>
 		<row><td>ID_STRING38</td><td>1033</td><td>Ice for .NET assemblies (GAC)</td><td>0</td><td/><td>563886389</td></row>
 		<row><td>ID_STRING39</td><td>1033</td><td>Shared Ice for .NET assemblies for the Global Assembly Cache. You must be an Admin user and have the .NET 2.0 Framework installed in order to correctly install this feature.</td><td>0</td><td/><td>563917263</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
