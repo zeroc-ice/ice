@@ -33,7 +33,6 @@ Table of Contents
      - Java and IPv6
      - Mono
      - Red Hat Enterprise Linux 5.1
-     - Solaris x86
   5. Known Problems
 
 
@@ -561,18 +560,6 @@ kernel issue which has been fixed in the RHEL 5.2 kernel.
 
 Refer to https://bugzilla.redhat.com/show_bug.cgi?id=248052 for more
 information.
-
-
-Solaris 10 x86
---------------
-
-C++ developers using sequence<bool> on Solaris 10 x86 (32-bit) should
-link their applications with the static version of libCstd, or upgrade
-the Sun C++ runtime shared libraries to a newer version (not yet
-available as of this Ice release).
-
-Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
-more information.
 
 ======================================================================
 5. Known Problems
