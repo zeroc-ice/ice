@@ -173,7 +173,7 @@ main(int argc, char* argv[])
         }
     }
 
-    if(java2 && !listGenerated && !dependxml)
+    if(java2 && !listGenerated && !depend && !dependxml)
     {
         getErrorStream() << argv[0] << ": warning: The Java2 mapping is deprecated." << endl;
     }
