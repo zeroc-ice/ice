@@ -18,12 +18,14 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -54,23 +56,23 @@ import com.zeroc.slice2javaplugin.internal.Configuration;
 public class ProjectProperties extends PropertyPage
 {
     private Button _iceInclude;
+
     public ProjectProperties()
     {
         super();
         setTitle("Slice2Java Settings");
         noDefaultAndApplyButton();
     }
-    
+
     public void performApply()
     {
         super.performApply();
     }
 
-    public boolean
-    performOk()
+    public boolean performOk()
     {
-        final IProject project = (IProject)getElement();
-        
+        final IProject project = getProject();
+
         try
         {
             _config.setGeneratedDir(_generatedDir.getText());
@@ -80,8 +82,9 @@ public class ProjectProperties extends PropertyPage
             _config.setDefines(Configuration.toList(_defines.getText()));
             _config.setMeta(Configuration.toList(_meta.getText()));
             _config.setStream(_stream.getSelection());
+            _config.setTie(_tie.getSelection());
             _config.setIce(_ice.getSelection());
-            _config.setIceInclude(_iceInclude.getSelection());       
+            _config.setIceInclude(_iceInclude.getSelection());
             _config.setConsole(_console.getSelection());
 
             if(_config.write())
@@ -120,7 +123,7 @@ public class ProjectProperties extends PropertyPage
         }
         return true;
     }
-    
+
     /**
      * @see PreferencePage#createContents(Composite)
      */
@@ -154,10 +157,10 @@ public class ProjectProperties extends PropertyPage
 
         return tabFolder;
     }
-    
+
     private void loadPrefs()
     {
-        IProject project = (IProject)getElement();
+        IProject project = getProject();
         _config = new Configuration(project);
 
         _generatedDir.setText(_config.getGeneratedDir());
@@ -186,7 +189,7 @@ public class ProjectProperties extends PropertyPage
 
     private void checkValid()
     {
-        IProject project = (IProject) getElement();
+        IProject project = getProject();
         IFolder folder = project.getFolder(_generatedDir.getText());
         if(!folder.exists())
         {
@@ -197,24 +200,24 @@ public class ProjectProperties extends PropertyPage
         setValid(true);
         setErrorMessage(null);
     }
-    
+
     private Control createLibraries(Composite parent)
     {
         Composite composite = new Composite(parent, SWT.NONE);
-        
+
         GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 1;
         composite.setLayout(gridLayout);
-        
+
         Group includesGroup = new Group(composite, SWT.NONE);
         includesGroup.setText("Jar Files to Reference");
         gridLayout = new GridLayout();
         gridLayout.numColumns = 1;
         includesGroup.setLayout(gridLayout);
         includesGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-        
+
         createLinkList(includesGroup);
-        
+
         return composite;
     }
 
@@ -232,7 +235,7 @@ public class ProjectProperties extends PropertyPage
         gridLayout.numColumns = 1;
         sourceGroup.setLayout(gridLayout);
         sourceGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-        
+
         Composite c1 = new Composite(sourceGroup, SWT.NONE);
 
         gridLayout = new GridLayout();
@@ -256,7 +259,7 @@ public class ProjectProperties extends PropertyPage
         {
             public void widgetSelected(SelectionEvent e)
             {
-                IProject project = (IProject) getElement();
+                IProject project = getProject();
 
                 SourceSelectionDialog dialog = new SourceSelectionDialog(getShell(), project, "Select Source Location");
                 String[] items = _sourceDirectories.getItems();
@@ -277,7 +280,7 @@ public class ProjectProperties extends PropertyPage
                 }
             }
         });
-        
+
         Button but2 = new Button(c2, SWT.PUSH);
         but2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         but2.setText("Remove");
@@ -295,19 +298,19 @@ public class ProjectProperties extends PropertyPage
         gridLayout.numColumns = 1;
         gclGroup.setLayout(gridLayout);
         gclGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        
+
         Composite tc = new Composite(gclGroup, SWT.NONE);
         gridLayout = new GridLayout();
         gridLayout.numColumns = 1;
         tc.setLayout(gridLayout);
         tc.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        
+
         Label l = new Label(tc, SWT.WRAP);
         l.setText("This subdirectory is used by the plugin to manage the source files generated from your Slice definitions. It should not be used for any other purpose.");
         GridData gridData = new GridData(GridData.FILL_BOTH);
         gridData.widthHint = 400;
         l.setLayoutData(gridData);
-        
+
         Composite c = new Composite(tc, SWT.NONE);
 
         GridLayout gridLayout2 = new GridLayout();
@@ -330,7 +333,7 @@ public class ProjectProperties extends PropertyPage
         {
             public void widgetSelected(SelectionEvent e)
             {
-                IProject project = (IProject) getElement();
+                IProject project = getProject();
 
                 SourceSelectionDialog dialog = new SourceSelectionDialog(getShell(), project,
                         "Select Generated Code Location");
@@ -375,7 +378,7 @@ public class ProjectProperties extends PropertyPage
         {
             public void widgetSelected(SelectionEvent e)
             {
-                IProject project = (IProject) getElement();
+                IProject project = getProject();
                 DirectoryDialog dialog = new DirectoryDialog(getShell());
                 String dir = dialog.open();
                 if(dir != null)
@@ -393,7 +396,7 @@ public class ProjectProperties extends PropertyPage
                         dev2 = "";
                     }
                     IPath result;
-                    
+
                     // If the directories are on different devices, then we have
                     // no choice but to use an absolute path.
                     if(!dev1.equals(dev2))
@@ -406,14 +409,14 @@ public class ProjectProperties extends PropertyPage
                         // Convert the absolute path to a relative path.
                         int n = projectLocation.matchingFirstSegments(includeLocation);
                         result = includeLocation.removeFirstSegments(n);
-                        
+
                         IPath up = new Path("..");
                         for(n = projectLocation.segmentCount() - n; n > 0; --n)
                         {
                             result = up.append(result);
                         }
                         // The devices must match, so remove it.
-                        result = result.setDevice(null);                        
+                        result = result.setDevice(null);
                     }
                     _includes.add(result.toString());
                 }
@@ -467,13 +470,13 @@ public class ProjectProperties extends PropertyPage
                         _includes.setItems(items);
                         _includes.setSelection(index+1);
                     }
-                }   
+                }
             }
         });
-     
+
         return composite;
     }
-    
+
     private Control createLinkList(Composite parent)
     {
         Composite composite = new Composite(parent, SWT.NONE);
@@ -524,12 +527,11 @@ public class ProjectProperties extends PropertyPage
                 _jars.remove(_jars.getSelectionIndices());
             }
         });
-     
+
         return composite;
     }
-    
-    private String
-    semiFilter(String text)
+
+    private String semiFilter(String text)
     {
         java.util.List<String> l = Arrays.asList(text.split(";"));
         StringBuffer sb = new StringBuffer();
@@ -559,19 +561,19 @@ public class ProjectProperties extends PropertyPage
         gridLayout.marginBottom = 0;
         composite.setLayout(gridLayout);
         composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-        
+
         Label l = new Label(composite, SWT.WRAP);
         l.setText("Enter macros (';' separated). For example, enter FOO;BAR to define -DFOO -DBAR.");
         GridData gridData = new GridData(GridData.FILL_BOTH);
         gridData.widthHint = 400;
         l.setLayoutData(gridData);
-         
+
         _defines = new Text(composite, SWT.BORDER);
         _defines.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         _defines.addFocusListener(new FocusListener()
         {
             public void focusGained(FocusEvent e)
-            {   
+            {
             }
 
             public void focusLost(FocusEvent e)
@@ -584,9 +586,9 @@ public class ProjectProperties extends PropertyPage
                     t.setText(filtered);
                 }
             }
-        
+
         });
-        
+
         return composite;
     }
 
@@ -601,19 +603,19 @@ public class ProjectProperties extends PropertyPage
         gridLayout.marginBottom = 0;
         composite.setLayout(gridLayout);
         composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-        
+
         Label l = new Label(composite, SWT.WRAP);
-        l.setText("Enter metadata (';' separated). For example, enter java2 to define --meta=java2.");
+        l.setText("Enter metadata (';' separated). For example, enter java:java2 to define --meta=java:java2.");
         GridData gridData = new GridData(GridData.FILL_BOTH);
         gridData.widthHint = 400;
         l.setLayoutData(gridData);
-        
+
         _meta = new Text(composite, SWT.BORDER);
         _meta.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         _meta.addFocusListener(new FocusListener()
         {
             public void focusGained(FocusEvent e)
-            {   
+            {
             }
 
             public void focusLost(FocusEvent e)
@@ -627,14 +629,14 @@ public class ProjectProperties extends PropertyPage
                 }
             }
         });
-        
+
         return composite;
     }
 
     private Control createOptions(Composite parent)
     {
         Composite composite = new Composite(parent, SWT.NONE);
-        
+
         GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 1;
         composite.setLayout(gridLayout);
@@ -645,7 +647,7 @@ public class ProjectProperties extends PropertyPage
         gridLayout.numColumns = 1;
         includesGroup.setLayout(gridLayout);
         includesGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-        
+
         createIncludes(includesGroup);
 
         Group definesGroup = new Group(composite, SWT.NONE);
@@ -673,21 +675,39 @@ public class ProjectProperties extends PropertyPage
         optionsGroup.setText("Options");
         optionsGroup.setLayout(gridLayout);
         optionsGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-        
+
         _stream = new Button(optionsGroup, SWT.CHECK);
-        new Label(optionsGroup, SWT.NONE).setText("Enable streaming");
+        _stream.setText("Enable streaming");
         _tie = new Button(optionsGroup, SWT.CHECK);
-        new Label(optionsGroup, SWT.NONE).setText("Enable tie");
+        _tie.setText("Enable tie");
         _ice = new Button(optionsGroup, SWT.CHECK);
-        new Label(optionsGroup, SWT.NONE).setText("Enable ice");
+        _ice.setText("Enable ice");
         _iceInclude = new Button(optionsGroup, SWT.CHECK);
-        new Label(optionsGroup, SWT.NONE).setText("Include Ice Slice Files");
+        _iceInclude.setText("Include Ice Slice Files");
         _console = new Button(optionsGroup, SWT.CHECK);
-        new Label(optionsGroup, SWT.NONE).setText("Enable console");
+        _console.setText("Enable console");
 
         return composite;
     }
-    
+
+    private IProject getProject()
+    {
+        IAdaptable a = getElement();
+        if(a instanceof IProject)
+        {
+            return (IProject)a;
+        }
+        else if(a instanceof IJavaProject)
+        {
+            return ((IJavaProject)a).getProject();
+        }
+        else
+        {
+            assert(false);
+            return null;
+        }
+    }
+
     private Configuration _config;
     private Button _console;
     private Text _generatedDir;
@@ -698,5 +718,5 @@ public class ProjectProperties extends PropertyPage
     private Button _stream;
     private Button _tie;
     private Button _ice;
-    private Text _meta;   
+    private Text _meta;
 }
