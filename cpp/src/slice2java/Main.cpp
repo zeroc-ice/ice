@@ -154,6 +154,8 @@ main(int argc, char* argv[])
 
     bool stream = opts.isSet("stream");
 
+    bool listGenerated = opts.isSet("list-generated");
+
     StringList globalMetadata;
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
@@ -171,7 +173,7 @@ main(int argc, char* argv[])
         }
     }
 
-    if(java2)
+    if(java2 && !listGenerated && !dependxml)
     {
         getErrorStream() << argv[0] << ": warning: The Java2 mapping is deprecated." << endl;
     }
@@ -217,7 +219,7 @@ main(int argc, char* argv[])
         else
         {
             ostringstream os;
-            if(opts.isSet("list-generated"))
+            if(listGenerated)
             {
                 Slice::setErrorStream(os);
             }
@@ -344,7 +346,7 @@ main(int argc, char* argv[])
         }
     }
 
-    if(opts.isSet("list-generated"))
+    if(listGenerated)
     {
         FileTracker::instance()->dumpxml();
     }
