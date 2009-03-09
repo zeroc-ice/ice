@@ -24,8 +24,9 @@ Windows version
 
 Ice has been extensively tested on:
 
-- Windows XP x86
-- Windows 2003 Server x86 and x64
+- Windows XP SP2 x86
+- Windows 2003 Server SP2 x86 and x64
+- Windows 2008 Server x86 and x64
 - Windows Vista x86 and x64
 
 Ice does not work on Windows 2000. However, porting Ice to Windows

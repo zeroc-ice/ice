@@ -50,7 +50,8 @@ Supported Windows versions
 This distribution is supported on the following Windows versions:
 
  - Windows XP with Service Pack 2 (x86)
- - Windows Server 2003 Standard (x86 and x64)
+ - Windows Server 2003 Standard with Service Pack 2 (x86 and x64)
+ - Windows Server 2008 Standard (x86 and x64)
  - Windows Vista (x86 and x64)
 
 
