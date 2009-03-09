@@ -64,54 +64,59 @@ NrvoClient::run(int argc, char* argv[])
             cout << "==> ";
             cin >> c;
 
-            if(c == '1' || c == '2' || c == '3' || c == 's' || c == '?' || c == 'x')
-            {
-                switch(c)
-                {
-                    case '1':
-                    {
-                        cout << "calling op1" << endl;
-                        MyStringSeq seq = nrvo->op1();
-                        break;
-                    }
+	    switch(c)
+	    {
+		case '1':
+		{
+		    cout << "calling op1" << endl;
+		    MyStringSeq seq = nrvo->op1();
+		    break;
+		}
 
-                    case '2':
-                    {
-                        cout << "calling op2" << endl;
-                        MyStringSeq seq = nrvo->op2();
-                        break;
-                    }
+		case '2':
+		{
+		    cout << "calling op2" << endl;
+		    MyStringSeq seq = nrvo->op2();
+		    break;
+		}
 
-                    case '3':
-                    {
-                        cout << "calling op3" << endl;
-                        MyStringSeq seq = nrvo->op3(10);
-                        break;
-                    }
+		case '3':
+		{
+		    cout << "calling op3(10)" << endl;
+		    MyStringSeq seq = nrvo->op3(10);
+		    break;
+		}
 
-                    case 's':
-                    {
-                        nrvo->shutdown();
-                        break;
-                    }
+		case '4':
+		{
+		    cout << "calling op3(0)" << endl;
+		    MyStringSeq seq = nrvo->op3(0);
+		    break;
+		}
 
-                    case '?':
-                    {
-                        menu();
-                        break;
-                    }
+		case 's':
+		{
+		    nrvo->shutdown();
+		    break;
+		}
 
-                    case 'x':
-                    {
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                cout << "unknown command `" << c << "'" << endl;
-                menu();
-            }
+		case '?':
+		{
+		    menu();
+		    break;
+		}
+
+		case 'x':
+		{
+		    break;
+		}
+		default:
+		{
+		    cout << "unknown command `" << c << "'" << endl;
+		    menu();
+		    break;
+		}
+	    }
         }
         catch(const Ice::Exception& ex)
         {
@@ -133,6 +138,7 @@ NrvoClient::menu()
         "1: return a string sequence\n"
         "2: return a string sequence that is a data member of the servant\n"
         "3: return a string sequence from an operation with multiple return paths\n"
+        "4: return a string sequence from an operation with multiple return paths, using RVO\n"
         "s: shutdown server\n"
         "x: exit\n"
         "?: show this menu\n";
