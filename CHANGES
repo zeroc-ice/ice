@@ -24,7 +24,7 @@ General Changes
 ===============
 
 - Added support for Google protocol buffers to Ice for C++, Java,
-  and Python. This supercedes the ZeroC labs relese of the protocol
+  and Python. This supercedes the ZeroC labs release of the protocol
   buffer support.
 
 - Fixed IceGrid bug where an application update could trigger the
