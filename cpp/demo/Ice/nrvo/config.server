@@ -1,9 +1,9 @@
 #
 # The server creates one single object adapter with the name
-# "Throughput". The following line sets the endpoints for this
+# "Nrvo". The following line sets the endpoints for this
 # adapter.
 #
-Nrvo.Endpoints=default -p 10000 -h 127.0.0.1
+Nrvo.Endpoints=default -p 10000
 
 #
 # Warn about connection exceptions

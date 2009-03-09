@@ -34,7 +34,12 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
-NrvoClient::NrvoClient()
+NrvoClient::NrvoClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Ice::Application(Ice::NoSignalHandling)
 {
 }
 
