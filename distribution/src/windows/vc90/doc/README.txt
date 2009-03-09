@@ -389,14 +389,16 @@ detects a bzip2.dll format mismatch during start-up.)
 Binary compatibility
 --------------------
 
-Ice patch releases are binary compatible. For example, Ice version 
-<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
-built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
-having to recompile or relink this application.
+Ice patch releases are binary compatible. For example, Ice version
+@mmver@.1 is compatible with @mmver@.0: you can run an application built
+against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
+recompile or relink this application.
 
 Ice for .NET includes policy assemblies in bin that supply the .NET
 run time with the required compatibility information.  Policy
-assemblies have names of the form policy.<major>.<minor>.<package>.dll.
+assemblies have names of the form policy.@mmver@.<package>.dll. For
+example, the policy assembly for IceBox is called 
+policy.@mmver@.IceBox.dll.
 
 To upgrade an existing .NET application to a new patch release, the
 policy assemblies must be installed into the GAC along with the new
