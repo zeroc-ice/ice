@@ -7,24 +7,26 @@
 //
 // **********************************************************************
 
-#ifndef NRVO_ICE
-#define NRVO_ICE
+#include <MyStringSeq.h>
 
-[["cpp:include:MyStringSeq.h"]]
+using namespace std;
 
-module Demo
+MyStringSeq::MyStringSeq()
 {
+}
 
-["cpp:type:MyStringSeq"] sequence<string> StringSeq;
-
-interface Nrvo
+MyStringSeq::MyStringSeq(size_t n) : 
+    vector<string>(n)
 {
-    StringSeq op1();
-    StringSeq op2();
-    StringSeq op3(int size);
-    void shutdown();
-};
+}
 
-};
+MyStringSeq::MyStringSeq(size_t n, const string& str) : 
+    vector<string>(n, str)
+{
+}
 
-#endif
+MyStringSeq::MyStringSeq(const MyStringSeq& seq) : 
+    vector<string>(seq)
+{
+    cout << "MyStringSeq copy ctor" << endl;
+}

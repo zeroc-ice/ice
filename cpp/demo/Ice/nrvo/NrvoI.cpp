@@ -8,24 +8,34 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <iostream>
 #include <NrvoI.h>
 
 using namespace std;
 
 NrvoI::NrvoI() :
-    _stringSeq(Demo::StringSeqSize, "hello")
+    _stringSeq(10, "hello")
 {
 }
 
+//
+// An example where NRVO work in the server side,
+// this is because the operation has a single return
+// path, and the returned object is not a data member
+// of the servant.
+//
 Demo::StringSeq
 NrvoI::op1(const Ice::Current&)
 {
     cout << "running op1" << endl;
-    MyStringSeq seq = MyStringSeq(Demo::StringSeqSize, "hello");
+    MyStringSeq seq = MyStringSeq(10, "hello");
     return seq;
 }
 
+//
+// An example where NRVO doesn't work because
+// the operation returns returns a data member of
+// the servant.
+//
 Demo::StringSeq
 NrvoI::op2(const Ice::Current&)
 {
@@ -33,16 +43,20 @@ NrvoI::op2(const Ice::Current&)
     return _stringSeq;
 }
 
+
+//
+// An example where NRVO doesn't work because
+// the operation has multiple return paths.
+//
 Demo::StringSeq
 NrvoI::op3(int size, const Ice::Current&)
 {
     cout << "running op3" << endl;
-    MyStringSeq seq;
     if(size < 10)
     {
         return MyStringSeq(size, "hello");
     }
-    seq = MyStringSeq(10, "hello");
+    MyStringSeq seq = MyStringSeq(10, "hello");
     return seq;
 }
 
