@@ -214,7 +214,8 @@ having to recompile or relink this application.
 Ice for .NET includes policy assemblies in Ice-@ver@/cs/bin that
 supply the .NET run time with the required compatibility information.
 Policy assemblies have names of the form policy.<major>.<minor>.<package>.dll.
-For example, the policy assembly for IceBox @mmver@ is called policy.@mmver@.IceBox.dll.
+For example, the policy assembly for IceBox @mmver@ is called 
+policy.@mmver@.IceBox.dll.
 
 To upgrade an existing application to a new patch release, the policy
 assemblies must be installed into the GAC as described previously.
