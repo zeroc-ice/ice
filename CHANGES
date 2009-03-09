@@ -23,6 +23,10 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- Added support for Google protocol buffers to Ice for C++, Java,
+  and Python. This supercedes the ZeroC labs relese of the protocol
+  buffer support.
+
 - Fixed IceGrid bug where an application update could trigger the
   deactivation of all session activated servers even if these servers
   were not updated.
