@@ -169,12 +169,12 @@ $(bindir)/$(POLICY_TARGET):
       <dependentAssembly> \n \
         <assemblyIdentity name=\"$(PKG)\" publicKeyToken=\"$(publicKeyToken)\" culture=\"\"/> \n \
         <publisherPolicy apply=\"yes\"/> \n \
-        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(SHORT_VERSION).$(PATCH_VERSION).0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(VERSION).0\"/> \n \
       </dependentAssembly> \n \
     </assemblyBinding> \n \
   </runtime> \n \
 </configuration>" >$(POLICY)
-	$(AL) /link:$(POLICY) /version:$(SHORT_VERSION).$(PATCH_VERSION).0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	$(AL) /link:$(POLICY) /version:$(VERSION).0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
 	mv $(POLICY) $(POLICY_TARGET) $(bindir)

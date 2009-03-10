@@ -14,9 +14,9 @@
 SHELL			= /bin/sh
 VERSION_MAJOR   	= 3
 VERSION_MINOR   	= 3
+VERSION_PATCH           = 1
 VERSION			= 3.3.1
 SHORT_VERSION           = 3.3
-PATCH_VERSION           = 1
 SOVERSION		= 33
 
 INSTALL			= cp -fp
