@@ -52,7 +52,7 @@
             <include name="Demo/**"/>
             <include name="HelloApplet*"/>
         </jar>
-        <jar jarfile="Hello.jar" update="true" basedir="${ice.dir}/certs">
+        <jar jarfile="Hello.jar" update="true" basedir="${certs.dir}">
             <include name="client.jks"/>
         </jar>
     </target>
@@ -80,7 +80,7 @@
 
         <proguard configuration="applet.pro">
             <injar path="${class.dir}"/>
-            <injar path="${top.dir}/../certs/client.jks"/>
+            <injar path="${certs.dir}/client.jks"/>
             <injar refid="ice.classpath" filter="!META-INF/**"/>
             <outjar path="Hello.jar"/>
             <libraryjar path="${library.jars}"/>

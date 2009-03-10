@@ -277,6 +277,9 @@
             <fileset file="${dist.jar.file}"/>
         </path>
 
+        <condition property="certs.dir" value="${ice.top.dir}/certs" else="${ice.top.dir}/../certs">
+            <available file="${ice.top.dir}/certs/client.jks"/>
+        </condition>
     </target>
 
     <!-- Install the Slice ant tasks. -->
