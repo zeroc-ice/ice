@@ -33,7 +33,7 @@ enabled. GCC applies NRVO whether the code is optimized or not.
 In the server, we show one case when NRVO works: a function that has a
 single return path implemented in NrvoI::op1. There are also two cases
 where NRVO doesn't work: a function that returns a data member of
-the servant (NrvoI::op2) and a function with multiple returns paths
+the servant (NrvoI::op2) and a function with multiple return paths
 (NrvoI::op3).
 
 Invoking op1 demonstrates that NRVO is applied in both the client and
