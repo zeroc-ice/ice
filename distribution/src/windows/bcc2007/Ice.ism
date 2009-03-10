@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING27##</title>
-		<subject>Ice 3.3.0 for C++Builder 2007</subject>
+		<subject>##ID_STRING28##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Ice</keywords>
 		<comments>##ID_STRING18##</comments>
@@ -1033,12 +1033,10 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.3.0_BCC</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0-BCC</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.3.1_BCC2007</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.1-BCC2007</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.3.1_BCC2007</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
-		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0</td><td/><td>0</td><td/></row>
 		<row><td>ISUpdateServiceFolder</td><td>ISCommonFilesFolder</td><td>UPDATE~1|UpdateService</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
@@ -2350,7 +2348,8 @@
 		<row><td>ID_STRING24</td><td>1033</td><td>Ice for Ruby</td><td>0</td><td/><td>958085676</td></row>
 		<row><td>ID_STRING25</td><td>1033</td><td>Ruby development</td><td>0</td><td/><td>958095916</td></row>
 		<row><td>ID_STRING26</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>429678868</td></row>
-		<row><td>ID_STRING27</td><td>1033</td><td>Ice 3.3.0 for C++Builder 2007</td><td>0</td><td/><td>-1583585040</td></row>
+		<row><td>ID_STRING27</td><td>1033</td><td>Ice 3.3.1 for C++Builder 2007</td><td>0</td><td/><td>1369281328</td></row>
+		<row><td>ID_STRING28</td><td>1033</td><td>Ice 3.3.1 for C++Builder 2007</td><td>0</td><td/><td>1369287472</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
