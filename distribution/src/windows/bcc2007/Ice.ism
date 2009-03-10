@@ -1034,7 +1034,8 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.3.0_BCC</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0-BCC</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.3.0_BCC</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.1_BCC2007</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.1-BCC2007</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.3.1_BCC2007</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0</td><td/><td>0</td><td/></row>
@@ -1692,11 +1693,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-BCC</td></row>
-		<row><td>ZEROC</td><td>PackageCode</td><td>{E836ABCE-BC75-4B3F-8725-5A4F1D15F9EE}</td></row>
-		<row><td>ZEROC</td><td>ProductCode</td><td>{DA2BA126-7E48-4D82-8364-E9FAC47812C4}</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.1-BCC2007</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{ADD23D96-72EA-439E-86A4-75920537D4DA}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{757C4493-07B5-4AEE-8937-CE1D80646377}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
-		<row><td>ZEROC</td><td>UpgradeCode</td><td>{5E744071-02D5-4AFD-85E9-348B54642B5E}</td></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{8C08FF32-A954-4025-ABFF-32C27F7CBBE1}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2751,11 +2752,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{6B1520CE-EABC-4C96-95EE-E76E04284077}</td><td/></row>
+		<row><td>ProductCode</td><td>{5414F122-8609-4A38-9210-EB9CE9A1B2D6}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3.0 for C++Builder 2007</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3.1 for C++Builder 2007</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2764,7 +2765,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{6474CB61-7148-4F4E-8EB1-A0C05EFFBC89}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{CC303CAD-0112-459B-A112-62FBCB730F2F}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

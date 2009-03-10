@@ -374,7 +374,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug",
-                "logfile", "vc60", "vc80", "vc90", "bcc", "thirdpartyhome=", "sources=", "buildDir=", "pfxfile=", "pfxpassword="])
+                "logfile", "vc60", "vc80", "vc90", "bcc2007", "thirdpartyhome=", "sources=", "buildDir=", "pfxfile=", "pfxpassword="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -411,8 +411,8 @@ def main():
                 target = 'vc80'
             elif o == '--vc90':
                 target = 'vc90'
-            elif o == '--bcc':
-                target = 'bcc'  
+            elif o == '--bcc2007':
+                target = 'bcc2007'  
             elif o == '--pfxfile':
                 os.environ['PFX_FILE'] = a
             elif o == '--pfxpassword':
@@ -484,7 +484,7 @@ def main():
         else:
             defaults['installdir'] = "C:\\Ice-%s-%s" % (iceVersion, target.upper())
 
-        if target == 'bcc':
+        if target == 'bcc2007':
             defaults['pdb'] = 'tds'
         else:
             defaults['pdb'] = 'pdb'
@@ -573,7 +573,7 @@ libraries."""
         if build:
             buildIceDists(stageDir, buildDir, iceVersion, target)
 
-        if target == "bcc":
+        if target == "bcc2007":
             setDefaultCompiler(os.path.join(buildDir, "release", "Ice-%s" % iceVersion, "cpp", "config", "Make.rules.mak"), "BCC2007")
 
         #
