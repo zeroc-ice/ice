@@ -171,13 +171,13 @@ policy:
       <dependentAssembly>
         <assemblyIdentity name="$(PKG)" publicKeyToken="$(publicKeyToken)" culture=""/>
         <publisherPolicy apply="yes"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).$(PATCH_VERSION).0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(VERSION).0"/>
       </dependentAssembly>
     </assemblyBinding>
   </runtime>
 </configuration>
 <<KEEP
-	$(AL) /link:$(POLICY) /version:$(SHORT_VERSION).$(PATCH_VERSION).0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	$(AL) /link:$(POLICY) /version:$(VERSION).0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	move $(POLICY) $(bindir)
 	move $(POLICY_TARGET) $(bindir)
 

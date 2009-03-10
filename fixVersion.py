@@ -35,7 +35,7 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules")
                     [("VERSION_MAJOR[\t\s]*= ([0-9]*)", FixUtil.majorVersion(version)),
                      ("VERSION_MINOR[\t\s]*= ([0-9]*b?)", FixUtil.minorVersion(version) + FixUtil.betaVersion(version)),
                      ("SHORT_VERSION[\t\s]*= ([0-9]*\.[0-9]*)", FixUtil.shortVersion(version)),
-                     ("PATCH_VERSION[\t\s]*= ([0-9]*)", FixUtil.patchVersion(version)),
+                     ("VERSION_PATCH[\t\s]*= ([0-9]*)", FixUtil.patchVersion(version)),
                      ("VERSION[\t\s]*= " + FixUtil.vpatMatch, version),
                      ("SOVERSION[\t\s]*= ([0-9]+b?)", FixUtil.soVersion(version))])
 
@@ -44,7 +44,7 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules.m
                      ("INTVERSION[\t\s]*= " + FixUtil.vpatMatch, FixUtil.majorVersion(version) + "." + \
                                 FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version)),
                      ("SHORT_VERSION[\t\s]*= ([0-9]*\.[0-9]*)", FixUtil.shortVersion(version)),
-                     ("PATCH_VERSION[\t\s]*= ([0-9]*)", FixUtil.patchVersion(version)),
+                     ("VERSION_PATCH[\t\s]*= ([0-9]*)", FixUtil.patchVersion(version)),
                      ("SOVERSION[\t\s]*= ([0-9]+b?)", FixUtil.soVersion(version))])
 
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", "ice.spec"),
