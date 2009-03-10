@@ -26,6 +26,9 @@ Demo::StringSeq
 NrvoI::op1(const Ice::Current&)
 {
     cout << "running op1" << endl;
+    //
+    // Not "return MyStringSeq(10, "hello")", since this lacks a name.
+    //
     MyStringSeq seq = MyStringSeq(10, "hello");
     return seq;
 }

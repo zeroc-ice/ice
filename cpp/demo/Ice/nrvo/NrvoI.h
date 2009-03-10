@@ -20,7 +20,7 @@ public:
     NrvoI();
     virtual Demo::StringSeq op1(const Ice::Current&);
     virtual Demo::StringSeq op2(const Ice::Current&);
-    virtual Demo::StringSeq op3(int size, const Ice::Current&);
+    virtual Demo::StringSeq op3(int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

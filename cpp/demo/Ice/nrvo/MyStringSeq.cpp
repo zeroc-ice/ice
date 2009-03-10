@@ -9,6 +9,8 @@
 
 #include <MyStringSeq.h>
 
+#include <iostream>
+
 using namespace std;
 
 MyStringSeq::MyStringSeq()

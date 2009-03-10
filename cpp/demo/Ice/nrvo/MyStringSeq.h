@@ -12,7 +12,6 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
 
 class MyStringSeq : public std::vector<std::string>
 {
@@ -20,11 +19,11 @@ public:
 
     MyStringSeq();
 
-    MyStringSeq(size_t n);
+    MyStringSeq(size_t);
 
-    MyStringSeq(size_t n, const std::string& str);
+    MyStringSeq(size_t, const std::string&);
 
-    MyStringSeq(const MyStringSeq& seq);
+    MyStringSeq(const MyStringSeq&);
 
 };
 
