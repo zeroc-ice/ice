@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING27##</title>
-		<subject>Ice 3.3.0 for Visual Studio 6.0</subject>
+		<subject>##ID_STRING28##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Ice</keywords>
 		<comments>##ID_STRING18##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{A6C2D3B0-90F4-4699-8F26-11073288A87D}</revnumber>
+		<revnumber>{A78D1BE8-0833-442D-85C5-05CCC9CFA05F}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1041,7 +1041,8 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.3.0_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0-VC60</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.3.0_VC60</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.1_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.1-VC60</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.3.1_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0</td><td/><td>0</td><td/></row>
@@ -1719,11 +1720,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-VC60</td></row>
-		<row><td>ZEROC</td><td>PackageCode</td><td>{3C6AE7C4-41CD-40AE-BBE3-D76BD647DF82}</td></row>
-		<row><td>ZEROC</td><td>ProductCode</td><td>{66BD0B57-E04E-4F68-B72B-5AA2C62C7C8E}</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.1-VC60</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{2E0A7212-6707-4490-9688-00C8405EBB34}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{CB9F6CEE-ACF9-4FF6-9868-6F6D838C23E2}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
-		<row><td>ZEROC</td><td>UpgradeCode</td><td>{4EC5989D-427B-4EB6-B355-59960D7AFE6B}</td></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{0649A7F5-4C6C-4131-A6CB-EFD71DE3E2EF}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2376,7 +2377,8 @@
 		<row><td>ID_STRING24</td><td>1033</td><td>Ice for Ruby</td><td>0</td><td/><td>958085676</td></row>
 		<row><td>ID_STRING25</td><td>1033</td><td>Ruby development</td><td>0</td><td/><td>958095916</td></row>
 		<row><td>ID_STRING26</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>429678868</td></row>
-		<row><td>ID_STRING27</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 6.0</td><td>0</td><td/><td>-1583585040</td></row>
+		<row><td>ID_STRING27</td><td>1033</td><td>Ice 3.3.1 for Visual Studio 6.0</td><td>0</td><td/><td>1369247278</td></row>
+		<row><td>ID_STRING28</td><td>1033</td><td>Ice 3.3.1 for Visual Studio 6.0</td><td>0</td><td/><td>1369251374</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
@@ -2778,11 +2780,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{4DF4093F-0A7F-4372-AE89-18520E26114E}</td><td/></row>
+		<row><td>ProductCode</td><td>{95B303AA-F5D4-47D4-AF49-B91A085E7319}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3.0 for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3.1 for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2791,7 +2793,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{078155D3-4A21-45BF-B673-0D3EEFE3CED0}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{4D8B8B56-E1B0-41CA-8811-EE55241F3F18}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
