@@ -237,14 +237,6 @@ the use of these APIs as soon as possible.
 
   The types Ice.LocalObject and Ice.LocalObjectImpl are deprecated.
 
-* Ice.MonitorConnections
-
-  In previous releases this property specified the interval at which a
-  background thread in the Ice run time checked for idle connections
-  and enforced timeouts on AMI requests. This setting is now ignored
-  because the changes to AMI (see "New Features") include more precise
-  AMI timeouts.
-
 * Ice.Trace.Location
 
   This property has been replaced by Ice.Trace.Locator.
