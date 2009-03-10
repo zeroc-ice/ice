@@ -4,7 +4,7 @@ The Protocol Buffers distribution and documentation can be found at
 
   http://code.google.com/apis/protocolbuffers/
 
-This demo was tested with Protocol Buffers version 2.0.2.
+This demo was tested with Protocol Buffers version 2.0.3.
 
 We have added new metadata that makes it possible for you to specify
 protocol buffers message types in your Slice definitions, with Ice
