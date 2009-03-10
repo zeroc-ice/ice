@@ -21,7 +21,7 @@ About this distribution
 
 This binary distribution provides all Ice run time services and
 development tools to build Ice applications in C++ using C++Builder
-2007 R2.
+2009.
 
 If you want to develop Ice applications in another programming
 language, or with another C++ compiler, please download the 
