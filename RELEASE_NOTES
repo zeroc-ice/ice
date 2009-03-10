@@ -28,6 +28,7 @@ Table of Contents
      - Migrating IceStorm databases
      - Migrating IceGrid databases
      - Migrating Freeze databases
+     - Ice for .NET patch releases
   6. Platform-specific notes
      - IBM JDK
      - Java and IPv6
@@ -681,6 +682,34 @@ installed in the field using the following steps:
  7. Restart the application. 
 
 Is recommend to use the db_ utilities, and not write your own upgrade program!
+
+
+Ice for .NET patch releases
+---------------------------
+
+As stated previously, patch releases always mantain binary
+compatibilty with the most recent minor release. Ice for .NET
+includes policy assemblies that supply the .NET run time with the
+required compatibility information. Policy assemblies have names of
+the form policy.@mmver@.<package>.dll.  For example, the policy
+assembly for IceBox is policy.@mmver@.IceBox.dll.
+
+To upgrade an existing .NET application to a new patch release, the
+policy assemblies must be installed into the Global Assembly Cache 
+(GAC).
+
+On Windows, open Windows Explorer and navigate to the directory 
+C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+assemblies into the right-hand pane to install them in the GAC.
+
+Or you can use gacutil from the command line to achieve the same
+result:
+
+  > gacutil -i <policy.dll>
+
+On unix using Mono you can either install the policy assemblies in the
+GAC using gacutil like above or ensure that they are present in your
+MONO_PATH.
 
 
 ======================================================================
