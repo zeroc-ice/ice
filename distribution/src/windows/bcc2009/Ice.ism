@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING27##</title>
-		<subject>Ice 3.3.0 for C++Builder 2007</subject>
+		<subject>##ID_STRING28##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Ice</keywords>
 		<comments>##ID_STRING18##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{05C91D71-52CC-498E-B4D1-15DC64EF4C61}</revnumber>
+		<revnumber>{BBADAE18-0BA8-4EA7-9319-CBE0920D770B}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1033,11 +1033,11 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.3.0_BCC</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0-BCC</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.3.0_BCC</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.1_BCC2007</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.1-BCC2007</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.1_BCC2009</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.1-BCC2009</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.3.1_BCC2009</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
-		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.0</td><td/><td>0</td><td/></row>
 		<row><td>ISUpdateServiceFolder</td><td>ISCommonFilesFolder</td><td>UPDATE~1|UpdateService</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
@@ -1692,11 +1692,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-BCC</td></row>
-		<row><td>ZEROC</td><td>PackageCode</td><td>{E836ABCE-BC75-4B3F-8725-5A4F1D15F9EE}</td></row>
-		<row><td>ZEROC</td><td>ProductCode</td><td>{DA2BA126-7E48-4D82-8364-E9FAC47812C4}</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.1-BCC2009</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{F83877D5-6532-40DF-8A0E-D187A1AAEFB2}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{68E0AB14-51E9-4584-88CA-D3DFC013308F}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
-		<row><td>ZEROC</td><td>UpgradeCode</td><td>{5E744071-02D5-4AFD-85E9-348B54642B5E}</td></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{3E86DA1C-6DB8-4021-95EE-77FE87ED1F72}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2349,7 +2349,8 @@
 		<row><td>ID_STRING24</td><td>1033</td><td>Ice for Ruby</td><td>0</td><td/><td>958085676</td></row>
 		<row><td>ID_STRING25</td><td>1033</td><td>Ruby development</td><td>0</td><td/><td>958095916</td></row>
 		<row><td>ID_STRING26</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>429678868</td></row>
-		<row><td>ID_STRING27</td><td>1033</td><td>Ice 3.3.0 for C++Builder 2007</td><td>0</td><td/><td>-1583585040</td></row>
+		<row><td>ID_STRING27</td><td>1033</td><td>Ice 3.3.1 for C++Builder 2009</td><td>0</td><td/><td>1369253264</td></row>
+		<row><td>ID_STRING28</td><td>1033</td><td>Ice 3.3.1 for C++Builder 2009</td><td>0</td><td/><td>1369259408</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
@@ -2751,11 +2752,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{6B1520CE-EABC-4C96-95EE-E76E04284077}</td><td/></row>
+		<row><td>ProductCode</td><td>{A6966E55-BBA7-492B-8049-CA56767B39B0}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3.0 for C++Builder 2007</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3.1 for C++Builder 2009</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2764,7 +2765,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{6474CB61-7148-4F4E-8EB1-A0C05EFFBC89}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{CF9DCD11-63DD-4B4C-BE0A-6539A9F0B2A1}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
