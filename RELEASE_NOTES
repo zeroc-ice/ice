@@ -2,18 +2,17 @@
 Release notes for Ice 3.3.1
 ======================================================================
 
-The primary purpose of a patch release such as this one is to correct
-known issues while maintaining binary compatibility with the most
-recent minor release. A patch release may also contain enhancements if
-they do not affect binary compatibility. 
+Introduction
+------------
 
-The sections below describe the fixes and improvements included in
-this release. See the section titled "Upgrading your applications"
+This documents outlines changes and improvements in this release that
+may affect the operation of your applications or have impact on your
+source code. See the section titled "Upgrading your application"
 for more information about migrating to a new Ice release.
 
 Note that because the Python, Ruby, and PHP language mappings use the
 C++ Ice run time, they automatically benefit from fixes to the C++ Ice
-core even if those language mappings are not explicitly mentioned
+core even if these language mappings are not explicitly mentioned
 below.
 
 
@@ -21,20 +20,21 @@ Table of Contents
 -----------------
 
   1. New Features
-  2. Removed APIs
-  3. Deprecated APIs
-  4. Fixes and improvements
-  5. Upgrading your application
+  2. Fixes and improvements
+  3. Upgrading your application
+     - Upgrading from Ice 3.2 or earlier releases
+     - Upgrading from Ice 3.3.0
      - Migrating IceStorm databases
      - Migrating IceGrid databases
      - Migrating Freeze databases
-     - Ice for .NET patch releases
-  6. Platform-specific notes
+     - Removed APIs
+     - Deprecated APIs
+  4. Platform-specific notes
      - IBM JDK
      - Java and IPv6
      - Mono
      - Red Hat Enterprise Linux 5.1
-  7. Known Problems
+  5. Known Problems
 
 
 ======================================================================
@@ -44,6 +44,8 @@ Table of Contents
 This section discusses the significant enhancements offered in this
 release.
 
+Features added with 3.3.1
+=========================
 
 Protobuf
 --------
@@ -51,7 +53,8 @@ Protobuf
 This release integrates the ZeroC Labs release for Google protocol
 buffers. This feature allow you to serialize and deserialize data to
 and from protocol buffers and transmit these via Ice operation
-invocations with Ice for C++, Java, and Python.
+invocations with Ice for C++, Java, and Python. A new protobuf
+demo illustrates how to use this feature.
 
 
 Java and .NET serialization
@@ -59,220 +62,191 @@ Java and .NET serialization
 
 This release adds support for Java and .NET serializable classes. You
 can now enable the serialization, transmission, and deserialization
-of Java and .NET classes with a simple metadata directive.
+of Java and .NET classes with a simple metadata directive. A new
+serialize demo illustrates how to use this feature.
+
+
+Locator cache updates
+---------------------
+
+A new property, Ice.BackgroundLocatorCacheUpdates, controls how
+the locator updates its cached endpoints. By setting this property
+to 1, endpoints are updated in the background instead of delaying
+the first invocation that is made after an endpoint times out until
+the current endpoint information has been retrieved.
+
+
+Connection reaping
+------------------
+
+If you enable ACM, the Ice run time selects a reaping interval
+that is based on the client and server ACM settings. You can
+override this default interval by setting the property
+Ice.MonitorConnections.
+
+
+Glacier2 session management
+---------------------------
+
+Glacier2 now automatically destroys a client session if forwarding
+from the server to the client fails with an unrecoverable error.
+This prevents stale session from accumulating, provided that
+timeouts are configured on the Glacier2 client endpoints.
+
+
+Applet demo
+-----------
+
+Ice for Java now includes an applet demo that illustrates how
+to use asynchronous invocations in a GUI applications and how to
+configure IceSSL for the applet.
+
+
+Exception slicing trace
+-----------------------
+
+Setting Ice.Trace.Slicing property now traces user exception unmarshaling
+with Ice for Python and Ice for Ruby.
+
+
+NRVO with Ice for C++
+---------------------
+
+slice2cpp new generates code to better take advantage of NRVO (Named
+Return Value Optimization), which reduces the number of data copies
+during marshaling. This can improve marshaling performances by 20%
+for sequences containing many values. To take advantage of this
+optimization, you must recompile your Slice files and application
+code.
+
+
+64-bit integers with Ice for Python
+-----------------------------------
+
+It is now possible to pass a sequence of 64-bit integer values
+using an object that supports the buffer protocol.
+
+
+Multiple Slice files with Ice for PHP
+-------------------------------------
+
+You can now specify multiple Slice files in the profile configuration
+if the files include a common file without causing an error.
+
+
+Features added with 3.3.0
+=========================
+
+AMI
+---
+
+AMI requests are now guaranteed non-blocking. New proxy methods,
+ice_flushBachRequests and ice_flushBatchRequests_async, allow
+flushing of requests batched for a connection. The latter method
+is guaranteed to not block. AMI requests can now be sent oneway.
+
+
+Threads
+-------
+
+The Ice thread pool now suppots serialization of requests received over
+a connection.
+
+
+Exceptions
+----------
+
+Exceptions thrown from collocation-optimizaed invocations are now fully
+transparent, so a collocated invocation raises the same exception
+as a remote invocation. (Previously, collocated invocation raised
+the original exception where the corresponding remote invocation raised
+an unknown exception.)
+
+Servant locators now can throw user exception from the locate and finished
+operations.
+
+
+Transport
+---------
+
+The run time now tries to connect to multi-homed hosts on all IP
+addresses returned by the DNS.
+
+Ice.TCP.Backlog allows control of the incoming connection backlog.
+
+Ice now supports IPv6.
+
+Ice now supports UDP multicast.
+
+A new adapter operation, refreshPublishedEndpoints, permits you to
+update an adapter's published endpoints after a change to the available
+interfaces or an update to the PublishedEndpoints property.
+
+Ice now listens on INADDR_ANY for endpoints that do not specify a
+host, instead of listening only the interfaces that were present
+when the adapter was created.
+
+
+IceBox
+------
+
+IceBox can now recursively start and stop other IceBox services.
+
+IceBox properties can now be defined on the command line.
+
+Setting IceBox.ServiceManager.Endpoints is now optional.
+
+
+IceStorm
+--------
+
+IceStorm now supports master/slave replication with automatic failover.
+
+IceStorm now has a transient mode that allows it to run without a database.
+
+IceStorm subscriptions are now persistent (except in transient mode).
+
+A new QoS parameter, retryCount, allows you to control after how many
+soft failures a subscription is removed.
+
+A new replication2 demo illustrates how to manually configure replication.
+
+IceStorm now guarantees ordering by default even for oneway proxies.
+
+
+Freeze
+------
+
+The existing evictor is now named BackgroundSaveEvictor. A new
+evictor, TransactionalEvictor, makes updates in a transaction.
+
+
+IceGrid
+-------
+
+A new secure demo illustrates how to secure an IceGrid deployment.
+
+
+Miscellaneous features
+----------------------
+
+Ice for Java now supports the ICE_CONFIG environment variable.
+
+Ice.Application now supports signal handling with Mono.
+
+Improves marshaling performance improvements with Ice for .NET.
+
+Ice for .NET now supports C# 2.0 generics for sequences and
+dictionaries.
+
+Ice for Python now includes a converter demo that illustrates
+how to use the C++ string converter plug-in.
+
+Ice for Python now supports blobjects.
 
 
 ======================================================================
-2. Removed APIs
-======================================================================
-
-Release 3.3.0 removed a number of APIs. These APIs are no longer available.
-
-* Thread per connection
-
-  The primary purpose of this concurrency model was to serialize the
-  requests received over a connection, either because the application
-  needed to ensure that requests are dispatched in the order they are
-  received, or because the application did not want to implement the
-  synchronization that might be required when using the thread pool
-  concurrency model.
-
-  Another reason for using the thread-per-connection concurrency model
-  is that it was required by the IceSSL plug-ins for Java and C#. This
-  requirement has been eliminated.
-
-  The ability to serialize requests is now provided by the thread pool
-  and enabled via a new configuration property:
-
-  <threadpool>.Serialize=1
-
-  Please refer to the "Ice Run Time" chapter of the Ice manual for
-  more details on this feature.
-
-  Aside from the potential semantic changes involved in migrating your
-  application to the thread pool concurrency model, other artifacts of
-  thread-per-connection may be present in your application and must be
-  removed:
-
-  - The configuration properties Ice.ThreadPerConnection and
-    <proxy>.ThreadPerConnection
-
-  - The proxy methods ice_threadPerConnection and
-    ice_isThreadPerConnection
-
-* .NET metadata
-
-  The metadata directive "cs:collection" is no longer valid. Use
-  ["clr:collection"] instead.
-
-* C++
-
-  The following methods have been removed:
-
-  - Application::main(int, char*[], const char*, const Ice::LoggerPtr&)
-
-    Use Application::main(int, char*[], const InitializationData&)
-    instead.
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(int, char*[], const InitializationData&) instead.
-
-  - stringToIdentity
-  - identityToString
-
-    Use the equivalent Communicator operations.
-
-* Java
-
-  The following methods have been removed:
-
-  - Application.main(String, String[], String, Logger)
-
-    Use Application.main(String, String[], InitializationData)
-    instead.
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(String[], InitializationData) instead.
-
-* .NET
-
-  The following methods have been removed:
-
-  - Application.main(string, string[], string, Logger)
-
-    Use Application.main(string, string[], InitializationData)
-    instead.
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(ref string[], InitializationData) instead.
-
-* Python
-
-  The following methods have been removed:
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(args, initializationData) instead.
-
-  - stringToIdentity
-  - identityToString
-
-    Use the equivalent Communicator operations.
-
-* General
-
-  The following methods have been removed:
-
-  - ice_hash
-  - ice_communicator
-  - ice_collocationOptimization
-  - ice_connection
-
-    These proxy methods were replaced by ones of the form ice_get...,
-    such as ice_getHash. ice_collocationOptimization is now
-    ice_getCollocationOptimized.
-
-  - ice_newIdentity
-  - ice_newContext
-  - ice_newFacet
-  - ice_newAdapterId
-  - ice_newEndpoints
-
-    These proxy methods were replaced by ones that do not use "new" in
-    their names. For example, ice_newIdentity was replaced by
-    ice_identity.
-
-* Ice.LoggerPlugin
-
-  This property provided a way to install a custom logger
-  implementation. It has been replaced by a more generalized facility
-  for installing custom loggers.
-
-
-======================================================================
-3. Deprecated APIs
-======================================================================
-
-The Ice APIs and components listed below are deprecated.
-They will be supported for release 3.4 and removed for release 3.5.
-We encourage you to update your applications and eliminate
-the use of these APIs as soon as possible.
-
-* Java2 language mapping
-
-  Java5 is now the default language mapping. Applications that use the
-  Java2 mapping can continue to use it by adding the appropriate
-  metadata tag to your Slice files or by using the "--meta java:java2"
-  option when running the Slice-to-Java compiler. Note that the
-  compiler now emits a deprecation warning when it encounters the
-  Java2 metadata tag.
-
-  If you used the "java:java5" metadata tag when compiling your Slice
-  definitions, you can now remove those tags. Any uses of custom type
-  metadata ("java:type:...") should also be reviewed.
-
-* Sequences as dictionary keys
-
-  The use of sequences, and structures containing sequences, as the
-  key type of a Slice dictionary is now deprecated.
-
-* LocalObject
-
-  The mappings for the LocalObject type have changed in Java, .NET and
-  Python. The new mappings are shown below:
-
-  Java    java.lang.Object
-  .NET    System.Object
-  Python  object
-
-  The types Ice.LocalObject and Ice.LocalObjectImpl are deprecated.
-
-* Ice.Trace.Location
-
-  This property has been replaced by Ice.Trace.Locator.
-
-* Ice.Default.CollocationOptimization
-
-  This property, as well as the corresponding proxy property, have
-  been replaced by Ice.Default.CollocationOptimized and
-  <proxy>.CollocationOptimized, respectively.
-
-* <Adapter>.RegisterProcess
-
-  This property caused the Ice run time to register a proxy with the
-  locator registry (e.g., IceGrid) that allowed the process to be shut
-  down remotely. The new administrative facility (see "New Features")
-  has replaced this functionality.
-
-* Ice.ServerId
-
-  As with <Adapter>.RegisterProcess, this property was used primarily
-  for IceGrid integration and has been replaced by a similar mechanism
-  in the administrative facility (see "New Features").
-
-* Glacier2.Admin
-  IcePatch2.Admin
-
-  These are the names of administrative object adapters in Glacier2
-  and IcePatch2, respectively. The functionality offered by these
-  object adapters has been replaced by that of the administrative
-  facility (see "New Features"), therefore these adapters (and their
-  associated configuration properties) are deprecated.
-
-
-======================================================================
-4. Fixes and improvements
+2. Fixes and improvements
 ======================================================================
 
 Below is an abbreviated list of changes included in this release that
@@ -283,6 +257,30 @@ distribution.
 
 Fixes for release 3.3.1
 -----------------------
+
+* Fixed a number of bugs in the Slice translators that caused invalid
+  code to be generated.
+
+* All error output from the Slice translators now goes to stderr
+  instead of stdout.
+
+* Fixed IceGrid registry crash triggered by resolving the endpoints
+  of a replica group while servers were activating concurrently.
+
+* Fixed IceGrid bug that cause inadvertent deactivation of servers
+  during an application update.
+
+* Fixed IceGrid bug that caused incorrect config files to be generated
+  for servers with an ice-version prior to 3.3.0.
+
+* Fixed icegridamin crash when listing services.
+
+* Fixed a Freeze transactional evictor bug that could cause inadvertent
+  rollback of a transaction with AMD.
+
+* Ice for Ruby now generates an eql? method for Slice structures. (That
+  method was missing previously, preventing the use of structures as
+  dictionary keys.)
 
 * In Python, the code generated for the constructors of Slice classes,
   structures and exceptions contained a subtle bug that only affects
@@ -463,8 +461,6 @@ Fixes for release 3.3.0
   to display a warning during its destruction that lists all
   properties that were set but whose values were never read.
 
-* Ice for Java now supports the ICE_CONFIG environment variable.
-
 * It is now possible to use UNC paths on Windows in the configuration
   of Ice services.
 
@@ -476,59 +472,98 @@ Fixes for release 3.3.0
 
 
 ======================================================================
-5. Upgrading your application
+3. Upgrading your application
 ======================================================================
 
 Ice 3.3 does not maintain backward binary compatibility with
-applications built using Ice 3.2, but every effort was made to
+applications built using Ice 3.2 and earlier, but every effort was made to
 preserve source compatibility. Note however that Ice always maintains
 protocol ("on the wire") compatibility with prior releases.
 
-The requirements for upgrading depend on the language mapping used by
-your application:
-
-- For statically-typed languages (C++, Java, .NET), the application
-  must be recompiled if you are upgrading from a 3.2 or older release.
-  Applications compiled with 3.3.0 do not require recompilation for this
-  release.
-
-- For scripting languages that use static translation, your Slice
-  files must be recompiled if you are upgrading a 3.2 or older release.
-  Slice files compiled with 3.3.0 do not require recompilation for this
-  release.
-
-You can upgrade applications compiled with release 3.3.0 to use release 3.3.1
-libraries as follows:
-
-- C++, Python, Ruby, and PHP
-
-  TODO
-
-- Java
-
-  Replace the Ice.jar file from release 3.3.0 with the Ice.jar file
-  from release 3.3.1. This causes applications compiled with 3.3.0 to
-  use the 3.3.1 run time.
-
-- .NET and Mono
-
-  On Windows, you can install policy files in the GAC that redirect
-  applications that were compiled against the 3.3.0 run time to use
-  the 3.3.1 run time. See INSTALL.VISUAL_C# or INSTALL.MONO (for
-  source distributions) or the README file for (for binary
-  distributions) for more information on how to do this.
-
-If your application uses IceStorm or IceGrid, please refer to the
-relevant sections below for migration instructions.
-
-Finally, certain APIs that were deprecated in earlier minor Ice releases
-have been removed in this release. If your application relied on one
+Certain APIs that were deprecated in earlier minor Ice releases
+have been removed in this release. If your application relies on one
 of these APIs, it may no longer compile or execute correctly. A list
 of the removed APIs is provided in the section titled "Removed APIs"
 along with a description of their replacements. Furthermore, the
 section "Deprecated APIs" discusses APIs that are deprecated as of
 release 3.3.0; we encourage you to update your applications and
 eliminate the use of these APIs as soon as possible.
+
+If your application uses IceStorm, IceGrid, or Freeze, please refer to the
+relevant sections below for migration instructions.
+
+The requirements for upgrading depend on the language mapping used by
+your application.
+
+Upgrading from Ice 3.2 or earlier releases
+------------------------------------------
+
+- For statically-typed languages (C++, Java, .NET), you must recompile
+  the application.
+
+- For scripting languages that use static translation, you must
+  recompile your Slice files.
+
+Upgrading from Ice 3.3.0
+------------------------
+
+- For scripting languages that use static translation, you need
+  not recompile your Slice files.
+
+- You can upgrade applications compiled with release 3.3.0 to use release 3.3.1
+  libraries without recompilation as follows:
+
+  - C++, Python, Ruby, and PHP
+
+    Python, Ruby, and PHP use the Ice for C++ run time, so upgrading Ice for
+    C++ automatically upgrades Ice for Python, Ruby, and PHP.
+
+    - Unix systems
+
+      Install a new binary release of Ice 3.3.1 or compile Ice 3.3.1 and run
+      a "make install". This changes the symbolic link for the installation
+      directory to point at the new installation; therefore, applications compiled
+      with Ice 3.3.0 automatically load the 3.3.1 libraries (assuming your
+      LD_LIBRARY_PATH or DYLD_LIBRARY_PATH uses the symbolic link).
+
+      Alternatively, you can set your LD_LIBRARY_PATH or DYLD_LIBRARY_PATH to
+      specifically include the 3.3.1 lib directory instead of the 3.3.0 one.
+
+    - Windows
+
+      Set your PATH to include the bin directory for Ice 3.3.1 instead of 3.3.0.
+
+  - Java
+
+    Replace the Ice.jar file from release 3.3.0 with the Ice.jar file
+    from release 3.3.1. This causes applications compiled with 3.3.0 to
+    use the 3.3.1 run time. Alternatively, change your CLASSPATH to point
+    at the Ice.jar for 3.3.1.
+
+  - .NET and Mono
+
+    Ice for .NET includes policy assemblies that supply the
+    run time with the required compatibility information. Policy assemblies
+    have names of the form policy.@mmver@.<package>.dll.  For example, the policy
+    assembly for IceBox is policy.@mmver@.IceBox.dll.
+
+    - .NET
+
+      To upgrade an existing .NET application to a new patch release, the
+      policy assemblies must be installed into the Global Assembly Cache (GAC).
+  
+      On Windows, open Windows Explorer and navigate to the directory 
+      C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+      assemblies into the right-hand pane to install them in the GAC.
+  
+      Or you can use gacutil from the command line to achieve the same result:
+
+          gacutil -i <policy.dll>
+
+    - Mono
+
+      You can either install the policy assemblies in the GAC using gacutil as for .NET,
+      or ensure that they are present in your MONO_PATH.
 
 
 Migrating IceStorm databases
@@ -684,36 +719,214 @@ installed in the field using the following steps:
 Is recommend to use the db_ utilities, and not write your own upgrade program!
 
 
-Ice for .NET patch releases
----------------------------
+Removed APIs
+---------------
 
-As stated previously, patch releases always mantain binary
-compatibilty with the most recent minor release. Ice for .NET
-includes policy assemblies that supply the .NET run time with the
-required compatibility information. Policy assemblies have names of
-the form policy.@mmver@.<package>.dll.  For example, the policy
-assembly for IceBox is policy.@mmver@.IceBox.dll.
+Release 3.3.0 removed a number of APIs. These APIs are no longer available.
 
-To upgrade an existing .NET application to a new patch release, the
-policy assemblies must be installed into the Global Assembly Cache 
-(GAC).
+* Thread per connection
 
-On Windows, open Windows Explorer and navigate to the directory 
-C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-assemblies into the right-hand pane to install them in the GAC.
+  The primary purpose of this concurrency model was to serialize the
+  requests received over a connection, either because the application
+  needed to ensure that requests are dispatched in the order they are
+  received, or because the application did not want to implement the
+  synchronization that might be required when using the thread pool
+  concurrency model.
 
-Or you can use gacutil from the command line to achieve the same
-result:
+  Another reason for using the thread-per-connection concurrency model
+  is that it was required by the IceSSL plug-ins for Java and C#. This
+  requirement has been eliminated.
 
-  > gacutil -i <policy.dll>
+  The ability to serialize requests is now provided by the thread pool
+  and enabled via a new configuration property:
 
-On unix using Mono you can either install the policy assemblies in the
-GAC using gacutil like above or ensure that they are present in your
-MONO_PATH.
+  <threadpool>.Serialize=1
+
+  Please refer to the "Ice Run Time" chapter of the Ice manual for
+  more details on this feature.
+
+  Aside from the potential semantic changes involved in migrating your
+  application to the thread pool concurrency model, other artifacts of
+  thread-per-connection may be present in your application and must be
+  removed:
+
+  - The configuration properties Ice.ThreadPerConnection and
+    <proxy>.ThreadPerConnection
+
+  - The proxy methods ice_threadPerConnection and
+    ice_isThreadPerConnection
+
+* .NET metadata
+
+  The metadata directive "cs:collection" is no longer valid. Use
+  ["clr:collection"] instead.
+
+* C++
+
+  The following methods have been removed:
+
+  - Application::main(int, char*[], const char*, const Ice::LoggerPtr&)
+
+    Use Application::main(int, char*[], const InitializationData&)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(int, char*[], const InitializationData&) instead.
+
+  - stringToIdentity
+  - identityToString
+
+    Use the equivalent Communicator operations.
+
+* Java
+
+  The following methods have been removed:
+
+  - Application.main(String, String[], String, Logger)
+
+    Use Application.main(String, String[], InitializationData)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(String[], InitializationData) instead.
+
+* .NET
+
+  The following methods have been removed:
+
+  - Application.main(string, string[], string, Logger)
+
+    Use Application.main(string, string[], InitializationData)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(ref string[], InitializationData) instead.
+
+* Python
+
+  The following methods have been removed:
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(args, initializationData) instead.
+
+  - stringToIdentity
+  - identityToString
+
+    Use the equivalent Communicator operations.
+
+* General
+
+  The following methods have been removed:
+
+  - ice_hash
+  - ice_communicator
+  - ice_collocationOptimization
+  - ice_connection
+
+    These proxy methods were replaced by ones of the form ice_get...,
+    such as ice_getHash. ice_collocationOptimization is now
+    ice_getCollocationOptimized.
+
+  - ice_newIdentity
+  - ice_newContext
+  - ice_newFacet
+  - ice_newAdapterId
+  - ice_newEndpoints
+
+    These proxy methods were replaced by ones that do not use "new" in
+    their names. For example, ice_newIdentity was replaced by
+    ice_identity.
+
+* Ice.LoggerPlugin
+
+  This property provided a way to install a custom logger
+  implementation. It has been replaced by a more generalized facility
+  for installing custom loggers.
+
+
+Deprecated APIs
+---------------
+
+The Ice APIs and components listed below are deprecated.
+We encourage you to update your applications and eliminate
+the use of these APIs as soon as possible.
+
+* Java2 language mapping
+
+  Java5 is now the default language mapping. Applications that use the
+  Java2 mapping can continue to use it by adding the appropriate
+  metadata tag to your Slice files or by using the "--meta java:java2"
+  option when running the Slice-to-Java compiler. Note that the
+  compiler now emits a deprecation warning when it encounters the
+  Java2 metadata tag.
+
+  If you used the "java:java5" metadata tag when compiling your Slice
+  definitions, you can now remove those tags. Any uses of custom type
+  metadata ("java:type:...") should also be reviewed.
+
+* Sequences as dictionary keys
+
+  The use of sequences, and structures containing sequences, as the
+  key type of a Slice dictionary is now deprecated.
+
+* LocalObject
+
+  The mappings for the LocalObject type have changed in Java, .NET and
+  Python. The new mappings are shown below:
+
+  Java    java.lang.Object
+  .NET    System.Object
+  Python  object
+
+  The types Ice.LocalObject and Ice.LocalObjectImpl are deprecated.
+
+* Ice.Trace.Location
+
+  This property has been replaced by Ice.Trace.Locator.
+
+* Ice.Default.CollocationOptimization
+
+  This property, as well as the corresponding proxy property, have
+  been replaced by Ice.Default.CollocationOptimized and
+  <proxy>.CollocationOptimized, respectively.
+
+* <Adapter>.RegisterProcess
+
+  This property caused the Ice run time to register a proxy with the
+  locator registry (e.g., IceGrid) that allowed the process to be shut
+  down remotely. The new administrative facility (see "New Features")
+  has replaced this functionality.
+
+* Ice.ServerId
+
+  As with <Adapter>.RegisterProcess, this property was used primarily
+  for IceGrid integration and has been replaced by a similar mechanism
+  in the administrative facility (see "New Features").
+
+* Glacier2.Admin
+  IcePatch2.Admin
+
+  These are the names of administrative object adapters in Glacier2
+  and IcePatch2, respectively. The functionality offered by these
+  object adapters has been replaced by that of the administrative
+  facility (see "New Features"), therefore these adapters (and their
+  associated configuration properties) are deprecated.
 
 
 ======================================================================
-6. Platform-specific notes
+4. Platform-specific notes
 ======================================================================
 
 
@@ -771,7 +984,7 @@ Refer to https://bugzilla.redhat.com/show_bug.cgi?id=248052 for more
 information.
 
 ======================================================================
-7. Known Problems
+5. Known Problems
 ======================================================================
 
 slice2html generates incorrect code for some legal constructs. The
