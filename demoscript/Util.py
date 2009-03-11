@@ -579,7 +579,7 @@ def processCmdLine():
             iceHome = a
 	if o == "--mode":
 	    buildmode = a
-	    if buildmode != 'debug' and mode != 'release':
+	    if buildmode != 'debug' and buildmode != 'release':
 		usage()
 
     if host != "":
