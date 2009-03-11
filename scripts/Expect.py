@@ -300,6 +300,7 @@ class Expect (object):
 	self.desc = desc
 	self.logfile = logfile
 	self.timeout = timeout
+	self.p = None
 
 	if self.logfile:
 	    self.logfile.write('spawn: "%s"\n' % command)
