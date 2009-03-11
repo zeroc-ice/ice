@@ -228,6 +228,9 @@
         <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>
         </jar>
+        <jar jarfile="${lib.dir}/IceGridGUI.jar" basedir="resources" update="true">
+            <include name="icons/**"/>
+        </jar>
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
