@@ -22,14 +22,18 @@
 
 #
 # See http://fedoraproject.org/wiki/Packaging/Python
-# Since we build a single ice-python arch-specific package, we put everything in sitearch
+#
+# We put everything in sitearch because we're building a single
+# ice-python arch-specific package.
 #
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 %if %{ruby}
 #
 # See http://fedoraproject.org/wiki/Packaging/Ruby
-# Since we build a single ice-ruby arch-specific package, we put everything in sitearch
+#
+# We put everything in sitearch because we're building a single
+# ice-ruby arch-specific package.
 #
 %{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 %endif
@@ -61,8 +65,16 @@ BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.7.2
 
 #
-# We also need a recent version of ant, %{_javadir}/jgoodies-forms-%{formsversion}.jar,
-#  %{_javadir}/jgoodies-forms-%{looksversion}.jar and  %{_javadir}/proguard.jar
+# Prerequisites for building Ice for Java:
+#
+# - a recent version of ant
+# - %{_javadir}/jgoodies-forms-%{formsversion}.jar
+# - %{_javadir}/jgoodies-forms-%{looksversion}.jar
+# - %{_javadir}/proguard.jar
+#
+# Use find-jar to verify that the JAR files are present:
+#
+# $ find-jar proguard.jar
 #
 
 %if %{ruby}
@@ -102,10 +114,10 @@ plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.
 
 #
-# We create both noarch and arch-specific packages for these
-# GAC files. Please delete the arch-specific packages after the build:
-# we create them only to keep rpmbuild happy ... it does not want
-# to create dangling symbolic links (the GAC symlinks used for development) 
+# We create both noarch and arch-specific packages for these GAC files.
+# Please delete the arch-specific packages after the build: we create
+# them only to keep rpmbuild happy (it does not want to create dangling
+# symbolic links (the GAC symlinks used for development)).
 #
 %if %{mono}
 %package mono
@@ -266,7 +278,8 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 #
-# We build java5 all the time, since we include the GUI and ant-ice.jar in a non-noarch package.
+# We build java5 all the time, since we include the GUI and
+# ant-ice.jar in a non-noarch package.
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
@@ -280,10 +293,12 @@ ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
 %endif
 
 # 
-# We build mono all the time because we include iceboxnet.exe in a arch-specific package;
-# we also include GAC symlinks in another arch-specific package.
+# We build mono all the time because we include iceboxnet.exe in an
+# arch-specific package; we also include GAC symlinks in another
+# arch-specific package.
 #
-# Define the env variable KEYFILE to strong-name sign with your own key file
+# Define the environment variable KEYFILE to strong-name sign the
+# assemblies your own key file.
 #
 
 %if %{mono}
@@ -799,6 +814,3 @@ fi
 * Fri Dec 6 2006 ZeroC Staff <support@zeroc.com>
 - See source distributions or the ZeroC website for more information
   about the changes in this release
-
-
-
