@@ -72,9 +72,6 @@ The following C++ compilers are supported:
   supported. STLport is included in the Ice third-party package
   for Visual C++ 6.0.
 
-  In order to build the MFC demos, you need to install the MFC
-  "Shared Libraries for Unicode".
-
 - CodeGear C++Builder 2007 R2 with December 2007 Update
 
 - CodeGear C++Builder 2009 Update 2
