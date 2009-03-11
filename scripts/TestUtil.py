@@ -763,13 +763,13 @@ def isDebug():
     return debug
 
 import Expect
-def spawn(cmd, env = None, cwd = None):
+def spawn(cmd, env = None, cwd = None, startReader = True):
     if debug:
         print "(%s)" % cmd,
-    return Expect.Expect(cmd, env = env, logfile=tracefile, cwd = cwd)
+    return Expect.Expect(cmd, startReader = startReader, env = env, logfile=tracefile, cwd = cwd)
 
-def spawnClient(cmd, env = None, cwd = None, echo = True):
-    client = spawn(cmd, env, cwd)
+def spawnClient(cmd, env = None, cwd = None, echo = True, startReader = True):
+    client = spawn(cmd, env, cwd, startReader = startReader)
     if echo:
         client.trace()
     return client
@@ -868,8 +868,9 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         else:
             print "starting %s %s ..." % (clientLang, clientDesc),
         client = getCommandLine(client, clientCfg) + " " + additionalClientOptions
-        clientProc = spawnClient(client, env = clientenv)
+        clientProc = spawnClient(client, env = clientenv, startReader = False)
         print "ok"
+	clientProc.startReader()
 
         clientProc.waitTestSuccess()
         serverProc.waitTestSuccess()
@@ -889,15 +890,16 @@ def collocatedTest(additionalOptions = ""):
 
     print "starting collocated...",
     collocated = getCommandLine(collocated, DriverConfig("colloc")) + ' ' + additionalOptions 
-    collocatedProc = spawnClient(collocated, env = env)
+    collocatedProc = spawnClient(collocated, env = env, startReader = False)
     print "ok"
+    collocatedProc.startReader()
     collocatedProc.waitTestSuccess()
 
 def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
 	os.remove(filename)
 
-def startClient(exe, args = "", config=None, env=None, echo = True):
+def startClient(exe, args = "", config=None, env=None, echo = True, startReader = True):
     if config == None:
         config = DriverConfig("client")
     if env == None:
@@ -905,7 +907,7 @@ def startClient(exe, args = "", config=None, env=None, echo = True):
     cmd = getCommandLine(exe, config) + ' ' + args
     if config.lang == "php":
         writePhpIni("php.ini", "tmp.ini")
-    return spawnClient(cmd, env = env, echo = echo)
+    return spawnClient(cmd, env = env, echo = echo, startReader = startReader)
 
 def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = True):
     if config == None:
@@ -926,8 +928,9 @@ def startColloc(exe, args, config=None, env=None):
 def simpleTest(exe, options = ""):
     print "starting client...",
     command = exe + ' ' + options
-    client = spawnClient(command)
+    client = spawnClient(command, startReader = False)
     print "ok"
+    client.startReader()
     client.waitTestSuccess()
 
 def getCppBinDir():

@@ -49,8 +49,9 @@ clientCfg = TestUtil.DriverConfig("client")
 clientCfg.protocol = "ssl"
 client = os.path.join(os.getcwd(), "client")
 print "starting client...",
-clientProc = TestUtil.startClient(client, "", clientCfg)
+clientProc = TestUtil.startClient(client, "", clientCfg, startReader = False)
 print "ok"
+clientProc.startReader()
 
 clientProc.waitTestSuccess()
 serverProc.waitTestSuccess()

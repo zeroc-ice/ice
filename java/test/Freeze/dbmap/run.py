@@ -26,6 +26,7 @@ dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
 print "starting client...",
-clientProc = TestUtil.startClient("Client", os.getcwd())
+clientProc = TestUtil.startClient("Client", os.getcwd(), startReader = False)
 print "ok"
+clientProc.startReader()
 clientProc.waitTestSuccess()

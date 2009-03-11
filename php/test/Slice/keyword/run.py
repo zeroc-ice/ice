@@ -25,6 +25,7 @@ testdir = os.getcwd()
 client = os.path.join(testdir, "Client.php")
 
 print "starting client...", 
-clientProc = TestUtil.startClient(client)
+clientProc = TestUtil.startClient(client, startReader = False)
 print "ok"
+clientProc.startReader()
 clientProc.waitTestSuccess()

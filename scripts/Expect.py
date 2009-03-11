@@ -115,6 +115,7 @@ class reader(threading.Thread):
 		    self._tbuf.truncate(0)
 	    else:
 		sys.stdout.write(c)
+		sys.stdout.flush()
 
     def enabletrace(self, supress = None):
 	self.cv.acquire()
@@ -287,7 +288,7 @@ def splitCommand(command_line):
     return arg_list
 
 class Expect (object):
-    def __init__(self, command, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
+    def __init__(self, command, startReader = True, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
 	self.buf = "" # The part before the match
 	self.before = "" # The part before the match
 	self.after = "" # The part after the match
@@ -324,6 +325,10 @@ class Expect (object):
 	# terminates and joins with the reader thread.
 	self.r.setDaemon(True)
 
+	if startReader:
+	    self.startReader()
+
+    def startReader(self):
 	self.r.start()
 
     def __del__(self):

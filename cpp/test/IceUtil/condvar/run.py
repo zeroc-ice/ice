@@ -22,13 +22,13 @@ from scripts import *
 
 workqueue = os.path.join(os.getcwd(), "workqueue")
 
-client = TestUtil.spawnClient(workqueue)
+client = TestUtil.spawnClient(workqueue, startReader = True)
 client.waitTestSuccess()
 
 match = os.path.join(os.getcwd(), "match")
 
-client = TestUtil.spawnClient(match)
+client = TestUtil.spawnClient(match, startReader = True)
 client.waitTestSuccess()
 
-client = TestUtil.spawnClient(match + " -b")
+client = TestUtil.spawnClient(match + " -b", startReader = True)
 client.waitTestSuccess()

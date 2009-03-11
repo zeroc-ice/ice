@@ -48,7 +48,7 @@ def runAdmin(cmd, desc = None):
     if desc:
         print desc,
         sys.stdout.flush()
-    proc = TestUtil.startClient(iceStormAdmin, adminIceStormReference + r' -e "%s"' % cmd)
+    proc = TestUtil.startClient(iceStormAdmin, adminIceStormReference + r' -e "%s"' % cmd, startReader = True)
     proc.waitTestSuccess()
     if desc:
         print "ok"

@@ -23,7 +23,8 @@ from scripts import *
 client = os.path.join(os.getcwd(), "client")
 
 print "starting client...",
-clientProc = TestUtil.startClient(client, " --Ice.Warn.Dispatch=0")
+clientProc = TestUtil.startClient(client, " --Ice.Warn.Dispatch=0", startReader = False)
 print "ok"
+clientProc.startReader()
 
 clientProc.waitTestSuccess()

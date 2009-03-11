@@ -214,8 +214,9 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
         print "ok"
 
     print "starting client...",
-    clientProc = TestUtil.startClient(client, clientOptions, TestUtil.DriverConfig("client"))
+    clientProc = TestUtil.startClient(client, clientOptions, TestUtil.DriverConfig("client"), startReader = False)
     print "ok"
+    clientProc.startReader()
 
     clientProc.waitTestSuccess()
 

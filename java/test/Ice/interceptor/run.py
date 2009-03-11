@@ -23,7 +23,8 @@ from scripts import *
 TestUtil.addClasspath(os.path.join(os.getcwd(), "classes"))
 
 print "starting client...",
-clientProc = TestUtil.startClient("Client", "--Ice.Warn.Dispatch=0")
+clientProc = TestUtil.startClient("Client", "--Ice.Warn.Dispatch=0", startReader = False)
 print "ok"
+clientProc.startReader()
 
 clientProc.waitTestSuccess()

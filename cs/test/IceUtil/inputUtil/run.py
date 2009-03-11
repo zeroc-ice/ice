@@ -23,6 +23,7 @@ from scripts import *
 client = os.path.join(os.getcwd(), "client")
 
 print "starting client...", 
-clientProc = TestUtil.startClient(client, "") 
+clientProc = TestUtil.startClient(client, "", startReader = False) 
 print "ok"
+clientProc.startReader()
 clientProc.waitTestSuccess()

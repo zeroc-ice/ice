@@ -31,11 +31,13 @@ TestUtil.cleanDbDir(dbdir)
 client = os.path.join(os.getcwd(), "client")
 
 print "starting populate...",
-populateProc = TestUtil.startClient(client, " --dbdir %s populate" % os.getcwd())
+populateProc = TestUtil.startClient(client, " --dbdir %s populate" % os.getcwd(), startReader = False)
 print "ok"
+populateProc.startReader()
 populateProc.waitTestSuccess()
 
 print "starting verification client...",
-clientProc = TestUtil.startClient(client, " --dbdir %s validate" % os.getcwd())
+clientProc = TestUtil.startClient(client, " --dbdir %s validate" % os.getcwd(), startReader = False)
 print "ok"
+clientProc.startReader()
 clientProc.waitTestSuccess()

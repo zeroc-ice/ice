@@ -35,8 +35,9 @@ ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-clientProc = TestUtil.startClient("Client", ports)
+clientProc = TestUtil.startClient("Client", ports, startReader = False)
 print "ok"
+clientProc.startReader()
 
 clientProc.waitTestSuccess()
 for p in serverProc:
