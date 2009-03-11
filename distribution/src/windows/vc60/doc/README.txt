@@ -118,6 +118,12 @@ To build the C++ demos, start Visual Studio and open the workspace
 demo\demo.dsw. Set your active project to "all" using Project->Set
 Active Project, then start the compilation using Build->Build.
 
+To build the MFC demos, you must have the Unicode library installed.
+If you get a link failure about a missing MFC42UD.LIB, run Visual Studio
+setup, and add the Unicode library (under "MFC and Template Libraries",
+"MS Foundation Class Libraries", "Shared Libraries for Unicode") to
+your Visual Studio installation.
+
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
 

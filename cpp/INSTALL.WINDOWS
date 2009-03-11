@@ -125,6 +125,12 @@ variable.
 This Platform SDK is only required to compile Ice and is not necessary
 to build applications using Ice.
 
+To build the MFC demos, you must have the Unicode library installed.
+If you get a link failure about a missing MFC42UD.LIB, run Visual Studio
+setup, and add the Unicode library (under "MFC and Template Libraries",
+"MS Foundation Class Libraries", "Shared Libraries for Unicode") to
+your Visual Studio installation.
+
 
 Third-party libraries
 ---------------------
