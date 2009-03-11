@@ -239,6 +239,7 @@ def run(tests, root = False):
           --serialize             Run with connection serialization.
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
+          --no-ipv6               Don't use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
           --java2                 Use Java 2 jar file.
@@ -251,7 +252,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "ice-home=", "cross=", "x64", "script", "java2"])
+                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "java2"])
     except getopt.GetoptError:
         usage()
 
@@ -264,6 +265,7 @@ def run(tests, root = False):
     allCross = False
     arg = ""
     script = False
+    noipv6 = False
 
     filters = []
     for o, a in opts:
@@ -286,6 +288,8 @@ def run(tests, root = False):
             cross.append(a)
         elif o == "--all" :
             all = True
+        elif o == "--no-ipv6" :
+            noipv6 = True
         elif o == "--all-cross" :
             allCross = True
         elif o in '--start':
@@ -322,17 +326,19 @@ def run(tests, root = False):
         a = '--protocol=tcp --compress %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
-        a = "--ipv6 --protocol=tcp %s" % arg
-        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+        if not noipv6:
+            a = "--ipv6 --protocol=tcp %s" % arg
+            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
-        a = "--ipv6 --protocol=ssl %s" % arg
-        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+            a = "--ipv6 --protocol=ssl %s" % arg
+            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
         a = "--protocol=tcp %s" % arg
         expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
-        a = "--protocol=ssl --ipv6 %s" % arg
-        expanded.append([ (test, a, config) for test,config in tests if "service" in config])
+        if not noipv6:
+            a = "--protocol=ssl --ipv6 %s" % arg
+            expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
         a = "--protocol=tcp --serialize %s" % arg
         expanded.append([ (test, a, config) for test,config in tests if "stress" in config])
@@ -1031,6 +1037,9 @@ def processCmdLine():
         elif o == "--ipv6":
             global ipv6
             ipv6 = True
+        elif o == "--no-ipv6":
+            global ipv6
+            ipv6 = False
 	if o == "--trace":
             global tracefile
 	    if a == "stdout":
