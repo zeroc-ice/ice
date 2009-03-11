@@ -56,7 +56,6 @@ NrvoClient::run(int argc, char* argv[])
 
     menu();
 
-    char currentOperation = '1';
     char c;
     do
     {
@@ -67,7 +66,6 @@ NrvoClient::run(int argc, char* argv[])
 
             if(c == '1' || c == '2' || c == '3' || c == 's' || c == '?' || c == 'x')
             {
-                currentOperation = c;
                 switch(c)
                 {
                     case '1':
@@ -94,6 +92,7 @@ NrvoClient::run(int argc, char* argv[])
                     case 's':
                     {
                         nrvo->shutdown();
+                        break;
                     }
 
                     case '?':
