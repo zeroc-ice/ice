@@ -837,12 +837,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
-        if(_state == StateClosing || _state == StateClosed)
-        {
-            assert(_exception != null);
-            throw _exception;
-        }
-        else if(_state <= StateNotValidated)
+        if(_state <= StateNotValidated || _state >= StateClosing)
         {
             return;
         }
@@ -1963,6 +1958,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                             throw new UnknownRequestIdException();
                         }
                     }
+                    notifyAll(); // Notify threads blocked in close(false)
                     break;
                 }
 

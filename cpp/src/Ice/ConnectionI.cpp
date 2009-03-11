@@ -985,12 +985,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(_state == StateClosing || _state == StateClosed)
-    {
-        assert(_exception.get());
-        _exception->ice_throw();
-    }
-    else if(_state <= StateNotValidated)
+    if(_state <= StateNotValidated || _state >= StateClosing)
     {
         return;
     }
@@ -2357,7 +2352,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
                         _asyncRequests.erase(q);
                     }
                 }
-
+                notifyAll(); // Notify threads blocked in close(false)
                 break;
             }
 

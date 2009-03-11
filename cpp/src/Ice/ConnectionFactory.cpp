@@ -325,16 +325,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         {
             if(q->second->endpoint() == endpoint)
             {
-                try
-                {
-                    q->second->setAdapter(adapter);
-                }
-                catch(const Ice::LocalException&)
-                {
-                    //
-                    // Ignore, the connection is being closed or closed.
-                    //
-                }
+                q->second->setAdapter(adapter);
             }
         }
     }
@@ -354,16 +345,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
     {
         if(p->second->getAdapter() == adapter)
         {
-            try
-            {
-                p->second->setAdapter(0);
-            }
-            catch(const Ice::LocalException&)
-            {
-                //
-                // Ignore, the connection is being closed or closed.
-                //
-            }
+            p->second->setAdapter(0);
         }
     }
 }

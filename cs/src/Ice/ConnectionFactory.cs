@@ -314,16 +314,7 @@ namespace IceInternal
                         {
                             if(connection.endpoint().Equals(endpoint))
                             {
-                                try
-                                {
-                                    connection.setAdapter(adapter);
-                                }
-                                catch(Ice.LocalException)
-                                {
-                                    //
-                                    // Ignore, the connection is being closed or closed.
-                                    //
-                                }
+                                connection.setAdapter(adapter);
                             }
                         }
                     }
@@ -346,16 +337,7 @@ namespace IceInternal
                     {
                         if(connection.getAdapter() == adapter)
                         {
-                            try
-                            {
-                                connection.setAdapter(null);
-                            }
-                            catch(Ice.LocalException)
-                            {
-                                //
-                                // Ignore, the connection is being closed or closed.
-                                //
-                            }
+                            connection.setAdapter(null);
                         }
                     }
                 }

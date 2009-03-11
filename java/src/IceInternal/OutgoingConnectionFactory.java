@@ -324,16 +324,7 @@ public final class OutgoingConnectionFactory
                     Ice.ConnectionI connection = q.next();
                     if(connection.endpoint() == endpoint)
                     {
-                        try
-                        {
-                            connection.setAdapter(adapter);
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            //
-                            // Ignore, the connection is being closed or closed.
-                            //
-                        }
+                        connection.setAdapter(adapter);
                     }
                 }
             }
@@ -359,16 +350,7 @@ public final class OutgoingConnectionFactory
                 Ice.ConnectionI connection = q.next();
                 if(connection.getAdapter() == adapter)
                 {
-                    try
-                    {
-                        connection.setAdapter(null);
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        //
-                        // Ignore, the connection is being closed or closed.
-                        //
-                    }
+                    connection.setAdapter(null);
                 }
             }
         }

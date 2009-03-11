@@ -846,12 +846,7 @@ namespace Ice
         {
             lock(this)
             {
-                if(_state == StateClosing || _state == StateClosed)
-                {
-                    Debug.Assert(_exception != null);
-                    throw _exception;
-                }
-                else if(_state <= StateNotValidated)
+                if(_state <= StateNotValidated || _state >= StateClosing)
                 {
                     return;
                 }
@@ -2404,6 +2399,7 @@ namespace Ice
                             message.outAsync = _asyncRequests[requestId];
                             _asyncRequests.Remove(requestId);
                         }
+                        Monitor.PulseAll(this); // Notify threads blocked in close(false)
                         break;
                     }
 
