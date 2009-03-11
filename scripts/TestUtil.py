@@ -1037,9 +1037,6 @@ def processCmdLine():
         elif o == "--ipv6":
             global ipv6
             ipv6 = True
-        elif o == "--no-ipv6":
-            global ipv6
-            ipv6 = False
 	if o == "--trace":
             global tracefile
 	    if a == "stdout":
