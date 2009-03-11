@@ -47,7 +47,7 @@ General Changes
   forwarding of a request from a back-end server to the client fails
   with an unrecoverable error. This is particularly useful for clients
   that receive requests from back-end servers on a regular basis and
-  disable the Glacier2 session timeout. If for some reasons the client
+  disable the Glacier2 session timeout. If for some reason the client
   becomes unreachable, Glacier2 will eventually destroy the client
   session (assuming timeouts are properly configured on the Glacier2
   client endpoints).
@@ -98,7 +98,7 @@ C++ Changes
 
 - Fixed a bug in the IceGrid locator implementation that could cause
   the registry to crash when resolving the endpoints of a replica
-  group and if some servers were activating.
+  group if some servers were activating concurrently.
 
 - Fixed icegridadmin `service list' command crash.
 
