@@ -328,7 +328,11 @@ public class AllTests
             hello.sayHello_async(new AMICallbackResponse());
         }
         hello.ice_ping();
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
+        if(locator.getRequestCount() > count + 800)
+        {
+            Console.Out.Write("queuing = " + (locator.getRequestCount() - count));
+        }
         count = locator.getRequestCount();
         hello = (HelloPrx)hello.ice_adapterId("unknown");
         for(int i = 0; i < 1000; i++)
@@ -343,7 +347,11 @@ public class AllTests
         catch(Ice.NotRegisteredException)
         {
         }
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
+        if(locator.getRequestCount() > count + 800)
+        {
+            Console.Out.Write("queuing = " + (locator.getRequestCount() - count));
+        }
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing adapter locator cache... ");
