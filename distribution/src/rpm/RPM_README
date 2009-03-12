@@ -70,7 +70,7 @@ installing it:
 
 $ rpm -i ice-@ver@-1.src.rpm
 
-You can find the ice .spec file in the <rpm-package>/SPECS directory,
+You can find the ice.spec file in the <rpm-package>/SPECS directory,
 while the .tar.gz files are in the <rpm-package>/SOURCES directory.
 
 If you prefer not to install the Ice source RPM, you can extract the
@@ -101,18 +101,21 @@ The db46* and mcpp-devel RPMs are provided by ZeroC. You can determine
 the version requirements for all other prerequisites by examining the
 BuildRequires directives in the ice.spec file.
 
-To create or recreate the Ice source RPM, copy all desired source
-files and patches into <rpm-package>/SOURCES and then type:
+Follow these steps to create the Ice source RPM:
 
-$ rpmbuild -bs --sign ice.spec
+ 1. Copy all desired source files and patches into the directory
+    <rpm-package>/SOURCES
 
-Omit the --sign option if you do not want to sign the source RPM, or
-if you do not have a GNU PG key setup.
+ 2. Comment out the %dist setting in ~/.rpmmacros
+
+ 3. Run rpmbuild:
+
+    $ rpmbuild -bs --sign ice.spec
+
+    Omit the --sign option if you do not want to sign the source RPM,
+    or if you do not have a GnuPG key prepared.
 
 The source RPM is created in <rpm-package>/SRPMS.
-
-You can remove the "%dist" part from the name of the resulting source
-RPM, since this source RPM is compatible with all Linux distributions.
 
 
 ======================================================================
@@ -134,7 +137,7 @@ in step 3 above. The following additional steps are also necessary:
 
    /usr/share/java/jgoodies-forms-1.2.0.jar
 
- - Install the ProGuard JAR file as
+ - Install the ProGuard 4.3 JAR file as
 
    /usr/share/java/proguard.jar
 
@@ -145,6 +148,9 @@ in step 3 above. The following additional steps are also necessary:
    command is present in your PATH, such as by running
 
    $ ant -version
+
+ - Enable the %dist setting in ~/.rpmmacros (if you disabled it when
+   building the source RPM)
 
 You can run the 'find-jar' program to verify that the JAR files are
 installed correctly. For example:
@@ -166,7 +172,7 @@ $ cd <rpm-package>/SPECS
 $ rpmbuild -bb --sign --target i586,noarch ice.spec
 
 Omit the --sign option if you do not want to sign the RPMs, or if you
-do not have a GNU PG key setup.
+do not have a GnuPG key setup.
 
 On an x86_64 system, omit the --target option to build only x86_64
 RPMs.
@@ -178,9 +184,8 @@ SuSE Mono Notes
 ---------------
 
 By default, the Mono assemblies are strong-name signed using the Ice
-development key including in the source distribution, which does not
-provide any protection against tampering. If you would like to strong-
-name sign the assemblies using your own key, set the KEYFILE
+development key included in the source distribution. If you would like
+to strong-name sign the assemblies using your own key, set the KEYFILE
 environment variable with the path name of your key file prior to
 building the binary RPMs.
 
