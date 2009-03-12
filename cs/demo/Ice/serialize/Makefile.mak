@@ -34,7 +34,7 @@ server.exe: $(S_SRCS) $(GEN_SRCS) MyGreeting.dll
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll -r:MyGreeting.dll $(S_SRCS) $(GEN_SRCS)
 
 MyGreeting.dll: MyGreeting.cs
-	$(MCS) $(MCSFLAGS) -target:library -out:MyGreeting.dll /keyfile:$(KEYFILE) MyGreeting.cs
+	$(MCS) $(MCSFLAGS) -target:library -out:MyGreeting.dll MyGreeting.cs
 
 clean::
 	del /q Serializable.dll
