@@ -1,10 +1,14 @@
 ======================================================================
-CHANGES for Ice 3.3.0
+CHANGES for Ice 3.3.1
 ======================================================================
 
 The entries below contain brief descriptions of the changes in a
 release, in no particular order. Some of the entries reflect
 significant new additions, while others represent minor corrections.
+Although this list is not a comprehensive report of every change we
+made in a release, it does provide details on the changes we feel
+Ice users might need to be aware of.
+
 We recommend that you use the release notes included in your Ice
 distribution as a guide for migrating your applications to this
 release, and the Ice manual for complete details on a particular
@@ -23,22 +27,25 @@ Changes since version 3.3.0
 General Changes
 ===============
 
-- Fixed bug where ice_getCachedConnection could throw if called
+These entries apply to all relevant language mappings unless otherwise
+noted.
+
+- Fixed a bug where ice_getCachedConnection could throw if called
   shortly after connection establishment failed.
 
 - Added support for Google protocol buffers to Ice for C++, Java,
-  and Python. This supercedes the ZeroC labs release of the protocol
+  and Python. This supercedes the ZeroC Labs release of the protocol
   buffer support.
 
-- Fixed IceGrid bug where an application update could trigger the
-  deactivation of all session activated servers even if these servers
+- Fixed an IceGrid bug where an application update could trigger the
+  deactivation of all session-activated servers even if these servers
   were not updated.
 
 - The frequency at which Ice checks for connections that can be reaped
   by active connection management (ACM) is now set by default to 10%
   of the smallest, non-zero ACM setting (Ice.ACM.Client and
   Ice.ACM.Server), with a minimum value of 5 seconds and a maximum
-  value of 5 minutes. This default can be overriden by setting
+  value of 5 minutes. This default can be overridden by setting
   Ice.MonitorConnections, which is no longer deprecated, and whose
   value is the check frequency in seconds.
 
@@ -73,8 +80,8 @@ General Changes
   the same well-known object, object adapter, or replica group.
 
 - Fixed a bug in IceGrid that would cause it to generate incorrect
-  config files for servers whose ice-version was set to a version
-  previous to Ice 3.3.0.
+  configuration files for servers whose ice-version was set to a
+  version previous to Ice 3.3.0.
 
 - Fixed a bug in the Slice translators that prevented them from being
   run from a directory without write permissions, even if no output 
@@ -84,14 +91,28 @@ General Changes
   print an error message if the retry failed and if Ice.RetryIntervals
   was configured with non-zero time intervals.
 
-- All error output from the slice compilers now goes to stderr.
+- All error output from the Slice compilers now goes to stderr.
 
 - Made unmarshaling code robust against messages containing invalid
   indexes for class instances.
 
+- Fixed IcePatch2 to handle non-ASCII file names properly.
+
+- Fixed a bug in IceGrid that could cause the registry to fail with an
+  assertion if an application is synchronized concurrently by multiple
+  administrative clients (or by nodes started with the --deploy
+  option).
+
+- Fixed a bug in the IceGrid locator implementation that could cause a
+  hang when resolving the endpoints of a round-robin replica group if
+  a member of the replica group was removed concurrently.
+
 
 C++ Changes
 ===========
+
+- Changed the thread pool to ensure that references to AMI callback
+  objects are released as soon as possible.
 
 - Fixed bug in slice2cpp that caused bad code to be generated for
   classes and modules whose name was a C++ keyword.
@@ -105,8 +126,8 @@ C++ Changes
 
 - Fixed icegridadmin `service list' command crash.
 
-- Fixed a bug where slice2cpp would generate absolute include paths
-  if the command line option "-I." was used.
+- Fixed a bug where slice2cpp and slice2freeze would generate absolute
+  include paths if the command line option "-I." was used.
 
 - Fixed a Freeze transactional evictor bug that could cause the
   transaction of an asynchronous method dispatch to be rolled back if
@@ -126,11 +147,9 @@ Java Changes
   Ice logs an error message and closes the connection on which the
   request was received.
 
-- The Ice run time now traps OutOfMemoryError when raised by
-
-- Added object serialization that allows native Java objects
-  to be sent as operation parameters. See the Slice chapter and the
-  Java language mapping chapter in the manual for more info.
+- Added object serialization that allows native Java objects to be
+  sent as operation parameters. See the Slice chapter and the Java
+  language mapping chapter in the manual for more information.
 
 - Fixed bug in slice2java that caused bad code to be generated for a
   class whose name was a Java keyword if the class contained data
@@ -158,8 +177,8 @@ C# Changes
 - Changed the Ice run time to no longer rely on .NET worker threads
   to start asynchronous I/O operations.
 
-- Fixed a bug in slice2cs that caused a core dump if a dictionary
-  had a value type of Object.
+- Fixed a bug in slice2cs that caused a core dump if a dictionary had
+  a value type of Object.
 
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   if an operation had a parameter named "ex".
@@ -168,9 +187,16 @@ C# Changes
   if a Slice class used the property mapping and also applied
   a ["cs:attribute:..."] metadata directive to a data member.
 
+- Fixed an issue that could cause an application to fail to start if
+  Ice was unable to load an assembly that was referenced (but not
+  required) by the program and not present on the system.
+
 - Fixed a bug in marshaling code that caused a trailing zero byte
   to be marshaled for user exceptions without class data members.
   
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  for a dictionary that used a structure as the key type.
+
 
 Python Changes
 ==============
@@ -206,8 +232,8 @@ Python Changes
 - Fixed bugs in stringToProxy and propertyToProxy related to null
   proxies.
 
-- Ice.getSliceDir() now only searches for the slice directory in
-  a standard Ice installation.
+- Ice.getSliceDir() now only searches for the "slice" directory in a
+  standard Ice installation.
 
 
 Ruby Changes
@@ -217,8 +243,8 @@ Ruby Changes
 
 - Implemented the Ice.Trace.Slicing property for user exceptions.
 
-- Added helper Ice.getSliceDir, which locates the "slice" directory
-  in a standard Ice installation.
+- Added helper Ice.getSliceDir, which locates the "slice" directory in
+  a standard Ice installation.
 
 
 PHP Changes
