@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 ice.lib iceutil.lib /nologo /subsystem:windows /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../../lib" /FIXED:no
+# ADD LINK32 ice.lib iceutil.lib /nologo /subsystem:windows /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../../lib" /FIXED:no /IGNORE:4089
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "Ice.MFC.server.exe - Win32 Debug"

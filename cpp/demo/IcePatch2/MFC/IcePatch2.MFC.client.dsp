@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib IcePatch2.lib /nologo /entry:"wWinMainCRTStartup" /subsystem:windows /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Ice.lib IceUtil.lib IcePatch2.lib /nologo /entry:"wWinMainCRTStartup" /subsystem:windows /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no /IGNORE:4089
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "IcePatch2.MFC.client.exe - Win32 Debug"
