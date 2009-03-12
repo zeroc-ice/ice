@@ -317,17 +317,17 @@ public class Slice2FreezeJTask extends SliceTask
         //
         // Add the --dict options.
         //
-        cmd.append(dictString);
+        cmd.append(dictString.toString());
 
         //
         // Add the --dict-index options.
         //
-        cmd.append(dictIndexString);
+        cmd.append(dictIndexString.toString());
 
         //
         // Add the --index options.
         //
-        cmd.append(indexString);
+        cmd.append(indexString.toString());
 
         //
         // Add the --meta options.
@@ -416,17 +416,17 @@ public class Slice2FreezeJTask extends SliceTask
             //
             // Add the --dict options.
             //
-            cmd.append(dictString);
+            cmd.append(dictString.toString());
 
             //
             // Add the --dict-index options.
             //
-            cmd.append(dictIndexString);
+            cmd.append(dictIndexString.toString());
 
              //
             // Add the --index options.
             //
-            cmd.append(indexString);
+            cmd.append(indexString.toString());
 
             //
             // Add the slice files.
@@ -449,7 +449,6 @@ public class Slice2FreezeJTask extends SliceTask
                 }
             }
  
-
             //
             // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
             // unique property name here. Perhaps we should output the dependencies to a file instead.
