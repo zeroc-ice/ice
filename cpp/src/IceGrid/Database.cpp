@@ -1638,6 +1638,10 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
             throw ex;
         }
     }
+    else
+    {
+        for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+    }
 
     //
     // Save the application descriptor.

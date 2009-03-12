@@ -1045,6 +1045,8 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         admin->startServer("Slave2");
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
+        waitForNodeState(slave2Admin, "Node1", true); // Node should connect.
+
         try
         {
             slave2Admin->startServer("Server");
