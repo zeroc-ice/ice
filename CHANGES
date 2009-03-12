@@ -107,6 +107,24 @@ noted.
   hang when resolving the endpoints of a round-robin replica group if
   a member of the replica group was removed concurrently.
 
+- A Slice compiler now removes any files it has generated during the
+  current execution if it fails or is interrupted.
+
+- The Slice compilers that support the --depend option now use an exit
+  status of 1 if a failure occurs while generating dependencies. In
+  previous releases the compilers used an exit status of 0.
+
+- Fixed a bug in the iceca script that prevented the command "init
+  --overwrite" from working properly on Windows.
+
+- Fixed a bug where the IceBox shared communicator ignored Ice
+  communicator properties specified in an IceBox service configuration
+  file.
+
+- Fixed a bug where Ice plug-ins could be destroyed more than once.
+
+- Fixed several issues in the IceGrid GUI.
+
 
 C++ Changes
 ===========
@@ -136,6 +154,9 @@ C++ Changes
 - Fixed a bug that could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
 
+- Fixed a bug on Windows that could cause an interrupted application
+  to spin for a while before terminating.
+
 
 Java Changes
 ============
@@ -164,7 +185,7 @@ Java Changes
 - Fixed the IceSSL.ConnectionInfo type so that the "incoming" and
   "adapterName" members are public.
 
-- Added applet demo.
+- Added support for using Ice in an applet, along with a new demo.
 
 
 C# Changes
@@ -196,6 +217,13 @@ C# Changes
   
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   for a dictionary that used a structure as the key type.
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  for a sequence whose element type is a structure that uses the
+  class mapping.
+
+- The Ice run time no longer relies on .NET thread pool worker threads
+  for its internal operations.
 
 
 Python Changes
