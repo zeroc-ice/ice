@@ -987,6 +987,9 @@ information.
 5. Known Problems
 ======================================================================
 
+Slice-to-HTML
+-------------
+
 slice2html generates incorrect code for some legal constructs. The
 problem is caused by bug in the mcpp preprocessor. For example:
 
@@ -1026,3 +1029,16 @@ module M
         SomeClass* proxy;
     };
 };
+
+
+UNC Paths and Slice conmpilers
+------------------------------
+
+The slice compilers currently do not allow specifying UNC paths in the
+include directive. For example, the following will not work:
+
+  slice2cpp -I\\MACHINE\SliceFiles Test.ice
+
+It will report errors indicating it cannot find any of the files from
+\\MACHINE\SliceFiles that were included in Test.ice. This is due to a
+bug in the mcpp preprocessor.

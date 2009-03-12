@@ -30,6 +30,10 @@ normalizePath(const string& path)
     string::size_type pos;
     string::size_type startReplace = 0;
 #ifdef _WIN32
+    //
+    // For UNC paths we need to ensure they are in the format that is
+    // returned by MCPP. IE. "//MACHINE/PATH"
+    //
     if(result.find("//") == 0)
     {
         startReplace = 2;
