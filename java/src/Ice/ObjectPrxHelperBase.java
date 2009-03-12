@@ -716,7 +716,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 // Don't wait for the connection to be established.
                 return __del.__getRequestHandler().getConnection(false);
             }
-            catch(CollocationOptimizationException ex)
+            catch(LocalException ex)
             {
             }
         }

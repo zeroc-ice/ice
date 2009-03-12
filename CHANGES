@@ -23,6 +23,9 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+- Fixed bug where ice_getCachedConnection could throw if called
+  shortly after connection establishment failed.
+
 - Added support for Google protocol buffers to Ice for C++, Java,
   and Python. This supercedes the ZeroC labs release of the protocol
   buffer support.

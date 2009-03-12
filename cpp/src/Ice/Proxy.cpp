@@ -799,7 +799,7 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
         {
             return __del->__getRequestHandler()->getConnection(false);
         }
-        catch(const CollocationOptimizationException&)
+        catch(const LocalException&)
         {
         }
     }

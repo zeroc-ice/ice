@@ -573,9 +573,7 @@ Activator::activate(const string& name,
 
     if(!b)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw IceUtilInternal::lastErrorToString();
     }
 
     //
