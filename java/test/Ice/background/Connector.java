@@ -59,7 +59,7 @@ final class Connector implements IceInternal.Connector
 
         if(this == p)
         {
-            return false;
+            return true;
         }
 
         return _connector.equals(p._connector);

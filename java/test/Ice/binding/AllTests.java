@@ -20,6 +20,24 @@ public class AllTests
         }
     }
 
+    static class NoOpGetAdapterNameCB extends AMI_TestIntf_getAdapterName
+    {
+        public
+        void ice_response(String name)
+        {
+        }
+        
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+        }
+
+        public void
+        ice_exception(Ice.UserException ex)
+        {
+        }
+    };
+
     static class GetAdapterNameCB extends AMI_TestIntf_getAdapterName
     {
         synchronized public void
@@ -222,6 +240,106 @@ public class AllTests
             test(test.getAdapterName().equals("Adapter12"));
 
             deactivate(com, adapters);
+        }
+        System.out.println("ok");
+
+        System.out.print("testing binding with multiple random endpoints... ");
+        System.out.flush();
+        {
+            java.util.Random rand = new java.util.Random();
+
+            RemoteObjectAdapterPrx[] adapters = new RemoteObjectAdapterPrx[5];
+            adapters[0] = com.createObjectAdapter("AdapterRandom11", "default");
+            adapters[1] = com.createObjectAdapter("AdapterRandom12", "default");
+            adapters[2] = com.createObjectAdapter("AdapterRandom13", "default");
+            adapters[3] = com.createObjectAdapter("AdapterRandom14", "default");
+            adapters[4] = com.createObjectAdapter("AdapterRandom15", "default");
+
+            int count;
+            if(System.getProperty("os.name").startsWith("Windows"))
+            {
+                count = 20;
+            }
+            else
+            {
+                count = 60;
+            }
+            
+            int adapterCount = adapters.length;
+            while(--count > 0)
+            {
+                TestIntfPrx[] proxies;
+                if(System.getProperty("os.name").startsWith("Windows"))
+                {
+                    if(count == 10)
+                    {
+                        com.deactivateObjectAdapter(adapters[4]);
+                        --adapterCount;
+                    }
+                    proxies = new TestIntfPrx[10];
+                }
+                else
+                {
+                    if(count < 60 && count % 10 == 0)
+                    {
+                        com.deactivateObjectAdapter(adapters[count / 10 - 1]);
+                        --adapterCount;
+                    }
+                    proxies = new TestIntfPrx[40];
+                }
+
+                int i;
+                for(i = 0; i < proxies.length; ++i)
+                {
+                    RemoteObjectAdapterPrx[] adpts = new RemoteObjectAdapterPrx[rand.nextInt(adapters.length)];
+                    if(adpts.length == 0)
+                    {
+                        adpts = new RemoteObjectAdapterPrx[1];
+                    }
+                    for(int j = 0; j < adpts.length; ++j)
+                    {
+                        adpts[j] = adapters[rand.nextInt(adapters.length)];
+                    }
+                    proxies[i] = createTestIntfPrx(java.util.Arrays.asList((adpts)));
+                }
+            
+                for(i = 0; i < proxies.length; i++)
+                {
+                    proxies[i].getAdapterName_async(new NoOpGetAdapterNameCB());
+                }
+                for(i = 0; i < proxies.length; i++)
+                {
+                    try
+                    {
+                        proxies[i].ice_ping();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                    }
+                }
+
+                java.util.Set<Ice.Connection> connections = new java.util.HashSet<Ice.Connection>();
+                for(i = 0; i < proxies.length; i++)
+                {
+                    if(proxies[i].ice_getCachedConnection() != null)
+                    {
+                        connections.add(proxies[i].ice_getCachedConnection());
+                    }
+                }
+                test(connections.size() <= adapterCount);
+
+                for(RemoteObjectAdapterPrx a : adapters)
+                {
+                    try
+                    {
+                        a.getTestIntf().ice_getConnection().close(false);
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        // Expected if adapter is down.
+                    }
+                }
+            }
         }
         System.out.println("ok");
 

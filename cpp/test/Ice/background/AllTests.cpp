@@ -701,6 +701,11 @@ validationTests(const ConfigurationPtr& configuration,
     {
         configuration->readException(0);
     }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
 
     OpExAMICallbackPtr cbEx = new OpExAMICallback();
 
@@ -743,6 +748,11 @@ validationTests(const ConfigurationPtr& configuration,
             configuration->readException(0);
             configuration->readReady(true);
         }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
 
         configuration->readReady(false);
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
@@ -781,6 +791,11 @@ validationTests(const ConfigurationPtr& configuration,
     {
         ctl->writeException(false);
     }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
 
     try
     {
@@ -809,7 +824,11 @@ validationTests(const ConfigurationPtr& configuration,
         ctl->writeException(false);
         ctl->writeReady(true);
     }
-
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
     Ice::ByteSeq seq;
     seq.resize(512 * 1024);
 
@@ -833,7 +852,15 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->op();
     backgroundBatchOneway->op();
     ctl->resumeAdapter();
-    backgroundBatchOneway->ice_flushBatchRequests();
+    try
+    {
+        backgroundBatchOneway->ice_flushBatchRequests();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
 
     //
     // Send bigger requests to test with auto-flushing.
@@ -853,7 +880,15 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->opWithPayload(seq);
     backgroundBatchOneway->opWithPayload(seq);
     ctl->resumeAdapter();
-    backgroundBatchOneway->ice_flushBatchRequests();
+    try
+    {
+        backgroundBatchOneway->ice_flushBatchRequests();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
 
     //
     // Then try the same thing with async flush.
@@ -874,7 +909,8 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->op();
     backgroundBatchOneway->op();
     ctl->resumeAdapter();
-    backgroundBatchOneway->ice_flushBatchRequests_async(new FlushBatchRequestsCallback());
+    FlushBatchRequestsCallbackPtr fcb = new FlushBatchRequestsCallback();
+    backgroundBatchOneway->ice_flushBatchRequests_async(fcb);
     backgroundBatchOneway->ice_getConnection()->close(false);
 
     backgroundBatchOneway->ice_getConnection()->close(false);
@@ -892,7 +928,7 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->opWithPayload(seq);
     backgroundBatchOneway->opWithPayload(seq);
     ctl->resumeAdapter();
-    FlushBatchRequestsCallbackPtr fcb = new FlushBatchRequestsCallback();
+    fcb = new FlushBatchRequestsCallback();
     backgroundBatchOneway->ice_flushBatchRequests_async(fcb);
     //
     // We can't close the connection before ensuring all the batches have been sent since
