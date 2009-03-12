@@ -1110,7 +1110,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         if(stat(fileImpl.c_str(), &st) == 0)
         {
             ostringstream os;
-            os << fileImpl << "' already exists - will not overwrite";
+            os << "`" << fileImpl << "' already exists - will not overwrite";
             throw FileException(__FILE__, __LINE__, os.str());
         }
 
