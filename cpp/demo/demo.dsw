@@ -585,6 +585,33 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Ice.nrvo.client.exe"=.\Ice\nrvo\Ice.nrvo.client.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice.nrvo.server.exe
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Ice.nrvo.server.exe"=.\Ice\nrvo\Ice.nrvo.server.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Ice.session.client.exe"=.\Ice\session\Ice.session.client.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1237,6 +1264,12 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil.workqueue.exe
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice.nrvo.client.exe
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice.nrvo.server.exe
     End Project Dependency
 }}}
 
