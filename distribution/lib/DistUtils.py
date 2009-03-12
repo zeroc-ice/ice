@@ -767,6 +767,19 @@ class Platform:
         else:
             return ("%s-" + version + "-bin-" + self.pkgPlatform) % prefix
 
+    def getJGoodiesForms(self):
+	for t in self.thirdParties:
+            if t.__str__() == "JGoodiesForms":
+        	return t.getJar()
+	print "Unable to find JGoodiesForms"
+	sys.exit(1)
+
+    def getJGoodiesLooks(self):
+	for t in self.thirdParties:
+            if t.__str__() == "JGoodiesLooks":
+        	return t.getJar()
+	print "Unable to find JGoodiesLooks"
+	sys.exit(1)
 
 class Darwin(Platform):
     def __init__(self, uname, arch, languages):
