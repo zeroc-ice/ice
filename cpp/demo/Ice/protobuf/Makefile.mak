@@ -40,7 +40,12 @@ SRCS		= $(OBJS:.obj=.cpp) \
 # Need to use -W0 to gid rid of ugly warnings from generated protobuf file as
 # well as prevent compile failure on x64 due to warnings from protobuf headers
 CPPFLAGS	= -I$(PROTOBUF_HOME)\include -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -W0
-LIBS		= $(LIBS) /libpath:$(PROTOBUF_HOME)\lib libprotobuf.lib
+
+!if "$(OPTIMIZE)" != "yes"
+LIBS		= $(LIBS) /libpath:$(PROTOBUF_HOME)\lib\Debug libprotobuf.lib
+!else
+LIBS		= $(LIBS) /libpath:$(PROTOBUF_HOME)\lib\Release libprotobuf.lib
+!endif
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

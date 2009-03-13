@@ -54,6 +54,27 @@ Prior to building the demo, please review Makefile or Makefile.mak in
 this directory and adjust the value of PROTOBUF_HOME to reflect the
 installation directory of Protocol Buffers on your system.
 
+The debug version of libprotobuf.lib is expected to be in
+$(PROTOBUF_HOME)\lib\Debug, and the release version is expected
+to be in $(PROTOBUF_HOME\lib\Release.
+
+To build this demo with Visual Studio, you must use Visual Studio 2005
+or later and configure it as follows:
+
+    - In Tools->Options, select "VC++ Directories.
+
+      - Select "Executables" and add the location of protobuf.exe.
+
+      - Select "Include files" and add the location the protobuf include directory.
+
+   - Right-click Ice.protobuf.client project select "Properties".
+     In "Configuration Properties"->"Linker"->General, adjust the
+     "Additional Library Directories" property to reflect the location of
+     the protobuf library. You need to adjust this for Release and Debug mode.
+
+   - Adjust the location of the protobuf library for the Ice.protobuf.server project
+     as for the client project.
+
 To run the demo, first start the server:
 
   $ server
