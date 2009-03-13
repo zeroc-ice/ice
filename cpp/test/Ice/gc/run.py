@@ -26,7 +26,4 @@ seedfile = os.path.join(os.getcwd(), "seed")
 
 TestUtil.simpleTest(client, seedfile)
 
-clientProc = TestUtil.startClient(client, seedfile)
-clientProc.waitTestSuccess()
-
 os.remove(seedfile)
