@@ -153,6 +153,14 @@ EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
 
 Ice.res: EventLoggerMsg.rc
 
+!if "$(CPP_COMPILER)" == "BCC2009" & "$(OPTIMIZE)" == "yes"
+#
+# Tests fail if GC.cpp is built with optimizations enabled
+#
+GC.obj: GC.cpp
+	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) -Od GC.cpp
+!endif
+
 clean::
 	-del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
 	-del /q CommunicatorF.cpp $(HDIR)\CommunicatorF.h
