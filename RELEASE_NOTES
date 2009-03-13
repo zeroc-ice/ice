@@ -102,6 +102,13 @@ to use asynchronous invocations in a GUI applications and how to
 configure IceSSL for the applet.
 
 
+Database demo
+-------------
+
+Ice for Java now includes a demo that demonstrates how to use
+MySQL via the JDBC API.
+
+
 Exception slicing trace
 -----------------------
 
