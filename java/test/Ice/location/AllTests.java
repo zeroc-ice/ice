@@ -364,7 +364,8 @@ public class AllTests
         catch(Ice.NotRegisteredException ex)
         {
         }
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
+        // We need to take into account the retries.
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
         if(locator.getRequestCount() > count + 800)
         {
             System.out.print("queuing = " + (locator.getRequestCount() - count));
@@ -605,8 +606,8 @@ public class AllTests
             {
             }
             registry.addObject(communicator.stringToProxy("test3:tcp"));
-            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-            ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             test(count == locator.getRequestCount());
             try
             {

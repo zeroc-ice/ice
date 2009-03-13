@@ -245,13 +245,13 @@ void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const T
 BackgroundPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string sref = "background:default -p 12010 -t 10000";
+    string sref = "background:default -p 12010 -t 20000";
     Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 
     BackgroundPrx background = BackgroundPrx::uncheckedCast(obj);
 
-    sref = "backgroundController:tcp -p 12011 -t 10000";
+    sref = "backgroundController:tcp -p 12011 -t 20000";
     obj = communicator->stringToProxy(sref);
     test(obj);
 

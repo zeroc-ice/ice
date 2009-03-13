@@ -359,7 +359,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     catch(const Ice::NotRegisteredException&)
     {
     }
-    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 999);
+    // Take into account the retries.
+    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 1999);
     if(locator->getRequestCount() > count + 800)
     {
         cout << "queuing = " << locator->getRequestCount() - count;
@@ -522,8 +523,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         test(count == locator->getRequestCount());
         registry->setAdapterDirectProxy("TestAdapter5", 0);
         registry->addObject(communicator->stringToProxy("test3:tcp"));
-        ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
-        ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+        ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
         test(count == locator->getRequestCount());
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
 

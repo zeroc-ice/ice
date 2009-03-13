@@ -190,7 +190,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Expect success.
         //
         timeout->op(); // Ensure adapter is active.
-        TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(1000));
+        TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(2000));
         try
         {
             to->sleep(500);

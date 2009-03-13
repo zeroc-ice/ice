@@ -78,11 +78,25 @@ public class AllTests
         Ice.ObjectPrx @base = communicator.stringToProxy("test:udp -p 12010").ice_datagram();
         Test.TestIntfPrx obj = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
-        replyI.reset();
-        obj.ping(reply);
-        obj.ping(reply);
-        obj.ping(reply);
-        bool ret = replyI.waitReply(3, 2000);
+        int nRetry = 5;
+        bool ret = false;
+        while(nRetry-- > 0)
+        {
+            replyI.reset();
+            obj.ping(reply);
+            obj.ping(reply);
+            obj.ping(reply);
+            ret = replyI.waitReply(3, 2000);
+            if(ret)
+            {
+                break; // Success
+            }
+            
+            // If the 3 datagrams were not received within the 2 seconds, we try again to
+            // receive 3 new datagrams using a new object. We give up after 5 retries. 
+            replyI = new PingReplyI();
+            reply =(Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        }
         test(ret == true);
 
         if(communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)

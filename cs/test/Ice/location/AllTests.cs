@@ -347,7 +347,8 @@ public class AllTests
         catch(Ice.NotRegisteredException)
         {
         }
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
+        // Take into account the retries.
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
         if(locator.getRequestCount() > count + 800)
         {
             Console.Out.Write("queuing = " + (locator.getRequestCount() - count));
@@ -584,8 +585,8 @@ public class AllTests
             {
             }
             registry.addObject(communicator.stringToProxy("test3:tcp"));
-            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-            ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             test(count == locator.getRequestCount());
             System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1200 * 1000));
 

@@ -73,12 +73,26 @@ allTests(const CommunicatorPtr& communicator)
     ObjectPrx base = communicator->stringToProxy("test:udp -p 12010")->ice_datagram();
     TestIntfPrx obj = TestIntfPrx::uncheckedCast(base);
 
-    replyI->reset();
-    obj->ping(reply);
-    obj->ping(reply);
-    obj->ping(reply);
-    bool ret = replyI->waitReply(3, IceUtil::Time::seconds(2));
-    test(ret == true);
+    int nRetry = 5;
+    bool ret;
+    while(nRetry-- > 0)
+    {
+        replyI->reset();
+        obj->ping(reply);
+        obj->ping(reply);
+        obj->ping(reply);
+        ret = replyI->waitReply(3, IceUtil::Time::seconds(2));
+        if(ret)
+        {
+            break; // Success
+        }
+
+        // If the 3 datagrams were not received within the 2 seconds, we try again to
+        // receive 3 new datagrams using a new object. We give up after 5 retries. 
+        replyI = new PingReplyI;
+        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+    }
+    test(ret);
 
     if(communicator->getProperties()->getPropertyAsInt("Ice.Override.Compress") == 0)
     {

@@ -219,13 +219,13 @@ public class AllTests
 
     public static Test.BackgroundPrx allTests(Ice.Communicator communicator)
     {
-        string sref = "background:default -p 12010 -t 10000";
+        string sref = "background:default -p 12010 -t 20000";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         BackgroundPrx background = BackgroundPrxHelper.uncheckedCast(obj);
 
-        sref = "backgroundController:tcp -p 12011 -t 10000";
+        sref = "backgroundController:tcp -p 12011 -t 20000";
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
