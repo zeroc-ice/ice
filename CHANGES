@@ -114,8 +114,8 @@ noted.
     replica group was removed concurrently.
 
   * Improved the scalability of the locator implementation to better
-    handle large number of concurrent requests. The registry now
-    limits the number of invocation to the IceGrid nodes to get the
+    handle a high volume of concurrent requests. The registry now
+    limits the number of invocations to the IceGrid nodes to get the
     object adapter endpoints.
 
 - A Slice compiler now removes any files it has generated during the
@@ -270,7 +270,8 @@ Python Changes
 - Ice.getSliceDir() now only searches for the "slice" directory in a
   standard Ice installation.
 
-- Improved location of the Python framework on Mac OS X.
+- Improved the way the build system locates the Python framework on
+  Mac OS X.
 
 
 Ruby Changes
