@@ -12,6 +12,14 @@
 #include <Casino.h>
 #include <stdlib.h>
 
+//
+// Number of bets placed by each player
+// You can (should) increase these values by a factor of 5 or more
+// on a fast system
+//
+const int betCount1 = 100;
+const int betCount2 = 20;
+
 using namespace std;
 
 class CasinoClient : public Ice::Application
@@ -76,10 +84,10 @@ CasinoClient::run(int argc, char* argv[])
 
     cout << "All chips accounted for? " << (bank->checkAllChips() ? "yes" : "no") << endl;
             
-    cout << "Create 500 10-chips bets... " << flush;
+    cout << "Create " << betCount1 <<  " 10-chips bets... " << flush;
 
     int b;
-    for(b = 0; b < 500; ++b)
+    for(b = 0; b < betCount1; ++b)
     {
         Casino::BetPrx bet = bank->createBet(10, 200 + rand() % 4000);
         for(size_t i = 0; i < players.size(); ++i)
@@ -138,9 +146,9 @@ CasinoClient::run(int argc, char* argv[])
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
 
 
-    cout << "Create 100 10-chips bets... " << flush;
+    cout << "Create " << betCount2 << " 10-chips bets... " << flush;
 
-    for(b = 0; b < 100; ++b)
+    for(b = 0; b < betCount2; ++b)
     {
         Casino::BetPrx bet = bank->createBet(10, 200 + rand() % 4000);
         for(size_t i = 0; i < players.size(); ++i)
