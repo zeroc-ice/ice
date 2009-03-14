@@ -104,9 +104,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze.library.server.exe
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -119,6 +116,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze.library.collocated.exe
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -146,9 +146,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.server.exe
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -161,6 +158,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze.library.collocated.exe
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -245,6 +245,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Glacier2.callback.sessionserver.exe
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -257,9 +260,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name Glacier2.callback.server.exe
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1337,6 +1337,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name book.printer.server.exe
+    End Project Dependency
 }}}
 
 ###############################################################################
