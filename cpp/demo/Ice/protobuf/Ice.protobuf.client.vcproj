@@ -61,10 +61,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="iced.lib iceutild.lib setargv.obj libprotobuf.lib"
+				AdditionalDependencies="iced.lib iceutild.lib setargv.obj libprotobufd.lib"
 				OutputFile="client.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\lib, c:\protobuf\lib\Debug"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -142,7 +142,7 @@
 				AdditionalDependencies="ice.lib iceutil.lib setargv.obj libprotobuf.lib"
 				OutputFile="client.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\lib, c:\protobuf\lib\Release"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
