@@ -60,8 +60,18 @@ Protobuf
 This release integrates the ZeroC Labs release for Google protocol
 buffers. This feature allows you to serialize and deserialize data to
 and from protocol buffers and transmit these via Ice operation
-invocations with Ice for C++, Java, and Python. A new demo illustrates
-how to use this feature.
+invocations with Ice for C++, Java, and Python. To use protocol
+buffers in your application, you must annotate a byte sequence with
+metadata that specifies the desired protocol buffer message type, as
+shown below for C++:
+
+// Slice
+["cpp:protobuf:tutorial::Person"] sequence<byte> Person;
+
+With this definition, the Slice compiler generates additional code to
+transparently encode and decode a protocol buffer message.
+
+A new demo illustrates how to use this feature.
 
 
 Java and .NET serialization
@@ -69,24 +79,37 @@ Java and .NET serialization
 
 This release adds support for Java and .NET serializable classes. You
 can now enable the serialization, transmission, and deserialization
-of Java and .NET classes with a simple metadata directive. A new
-demo illustrates how to use this feature.
+of Java and .NET classes with a simple metadata directive. As an
+example, the Slice definition shown below specifies the name of a
+serializable Java class:
 
-Background Locator Updates
+// Slice
+["java:serializable:Demo.MyGreeting"] sequence<byte> Greeting;
+
+This definition allows you to transfer instances of Demo.MyGreeting as
+a byte sequence while Ice handles the low-level serialization chores.
+
+A new demo illustrates how to use this feature.
+
+
+Background locator updates
 --------------------------
 
-Locator cache endpoints can now be updated in the background if the
-new Ice.BackgroundLocatorCacheUpdates property is set to 1.
+For an indirect proxy, the Ice run time queries the locator and caches
+the resulting endpoints. By default, Ice caches these endpoints
+indefinitely unless the proxy is configured with a cache timeout, in
+which case Ice must update the cached endpoints after the timeout
+expires by issuing a new locator query. This update occurs upon the
+next invocation on the proxy, and in previous releases the update
+would delay the invocation until the new endpoints were obtained from
+the locator.
 
-Locator cache updates are triggered if the proxy locator cache timeout
-is configured and the cached endpoints are older than the configured
-timeout.
+This update can now be performed in the background by setting the new
+property Ice.BackgroundLocatorCacheUpdates to 1. With this feature
+enabled, Ice allows the invocation that triggered the update to use
+the previously-cached endpoints while the locator query completes in
+the background.
 
-By default, locator cache updates are performed before making an
-invocation, delaying the invocation until the new endpoints are
-retrieved from the locator. With this feature enabled, the locator
-cache updates are performed in the background and the invocation that
-triggered the update uses the previously cached endpoints.
 
 Glacier2 session destruction
 ----------------------------
@@ -100,12 +123,14 @@ becomes unreachable, Glacier2 will eventually destroy the client
 session (assuming timeouts are properly configured on the Glacier2
 client endpoints).
 
-Java IceSSL plugin
-------------------
 
-It's now possible to specify IceSSL keystores, truststores, and RNG
-seeds either using class path resources or programatically using input
-streams.
+Java IceSSL plug-in
+-------------------
+
+It is now possible to specify IceSSL keystores, truststores, and RNG
+seeds as class path resources using configuration properties or
+programmatically using input streams.
+
 
 New sample programs
 -------------------
