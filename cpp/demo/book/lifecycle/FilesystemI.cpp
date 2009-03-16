@@ -15,9 +15,6 @@ using namespace Ice;
 using namespace Filesystem;
 using namespace FilesystemI;
 
-IceUtil::StaticMutex FilesystemI::DirectoryI::_lcMutex = ICE_STATIC_MUTEX_INITIALIZER;
-FilesystemI::DirectoryI::ReapMap FilesystemI::DirectoryI::_reapMap;
-
 // Slice Node::name() operation.
 
 std::string
@@ -39,19 +36,6 @@ Identity
 FilesystemI::NodeI::id() const
 {
     return _id;
-}
-
-// Activate the servant and add it to the parent's contents map.
-
-ObjectPrx
-FilesystemI::NodeI::activate(const ObjectAdapterPtr& a)
-{
-    ObjectPrx node = a->add(this, _id);
-    if(_parent)
-    {
-        _parent->addChild(_name, this);
-    }
-    return node;
 }
 
 // NodeI constructor.
@@ -106,20 +90,16 @@ FilesystemI::FileI::write(const Lines& text, const Current& c)
 void
 FilesystemI::FileI::destroy(const Current& c)
 {
+    IceUtil::Mutex::Lock lock(_m);
+
+    if(_destroyed)
     {
-        IceUtil::Mutex::Lock lock(_m);
-
-        if(_destroyed)
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-        }
-        _destroyed = true;
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
-
-    IceUtil::StaticMutex::Lock lock(DirectoryI::_lcMutex);
+    _destroyed = true;
 
     c.adapter->remove(id());
-    _parent->addReapEntry(_name);
+    _parent->removeEntry(_name);
 }
 
 // FileI constructor.
@@ -134,18 +114,12 @@ FilesystemI::FileI::FileI(const string& name, const DirectoryIPtr& parent)
 NodeDescSeq
 FilesystemI::DirectoryI::list(const Current& c)
 {
+    IceUtil::Mutex::Lock lock(_m);
+    
+    if(_destroyed)
     {
-        IceUtil::Mutex::Lock lock(_m);
-
-        if(_destroyed)
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-        }
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
-
-    IceUtil::StaticMutex::Lock lock(_lcMutex);
-
-    reap();
 
     NodeDescSeq ret;
     for(Contents::const_iterator i = _contents.begin(); i != _contents.end(); ++i)
@@ -164,18 +138,12 @@ FilesystemI::DirectoryI::list(const Current& c)
 NodeDesc
 FilesystemI::DirectoryI::find(const string& name, const Current& c)
 {
+    IceUtil::Mutex::Lock lock(_m);
+    
+    if(_destroyed)
     {
-        IceUtil::Mutex::Lock lock(_m);
-
-        if(_destroyed)
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-        }
+        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
-
-    IceUtil::StaticMutex::Lock lock(_lcMutex);
-
-    reap();
 
     Contents::const_iterator pos = _contents.find(name);
     if(pos == _contents.end())
@@ -203,17 +171,15 @@ FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
         throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    IceUtil::StaticMutex::Lock lcLock(_lcMutex);
-
-    reap();
-
     if(name.empty() || _contents.find(name) != _contents.end())
     {
         throw NameInUse(name);
     }
 
     FileIPtr f = new FileI(name, this);
-    return FilePrx::uncheckedCast(f->activate(c.adapter));
+    ObjectPrx node = c.adapter->add(f, f->id());
+    _contents[name] = f;
+    return FilePrx::uncheckedCast(node);
 }
 
 // Slice Directory::createDirectory() operation.
@@ -228,17 +194,15 @@ FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
         throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    IceUtil::StaticMutex::Lock lcLock(_lcMutex);
-
-    reap();
-
     if(name.empty() || _contents.find(name) != _contents.end())
     {
         throw NameInUse(name);
     }
 
     DirectoryIPtr d = new DirectoryI(name, this);
-    return DirectoryPrx::uncheckedCast(d->activate(c.adapter));
+    ObjectPrx node = c.adapter->add(d, d->id());
+    _contents[name] = d;
+    return DirectoryPrx::uncheckedCast(node);
 }
 
 // Slice Directory::destroy() operation.
@@ -258,18 +222,14 @@ FilesystemI::DirectoryI::destroy(const Current& c)
         throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
     }
 
-    IceUtil::StaticMutex::Lock lcLock(_lcMutex);
-
-    reap();
-
     if(!_contents.empty())
     {
         throw PermissionDenied("Cannot destroy non-empty directory");
     }
 
     c.adapter->remove(id());
-    _parent->addReapEntry(_name);
     _destroyed = true;
+    _parent->removeEntry(_name);
 }
 
 // DirectoryI constructor.
@@ -279,44 +239,15 @@ FilesystemI::DirectoryI::DirectoryI(const string& name, const DirectoryIPtr& par
 {
 }
 
-// Add the passed name-node pair to the _contents map.
+// Remove the entry from the _contents map.
 
 void
-FilesystemI::DirectoryI::addChild(const string& name, const NodeIPtr& node)
+FilesystemI::DirectoryI::removeEntry(const string& name)
 {
-    _contents[name] = node;
-}
-
-
-// Add this directory and the name of a deleted entry to the reap map.
-
-void
-FilesystemI::DirectoryI::addReapEntry(const string& name)
-{
-    ReapMap::iterator pos = _reapMap.find(this);
-    if(pos != _reapMap.end())
+    IceUtil::Mutex::Lock lock(_m);
+    Contents::iterator i = _contents.find(name);
+    if(i != _contents.end())
     {
-        pos->second.push_back(name);
+        _contents.erase(i);
     }
-    else
-    {
-        vector<string> v;
-        v.push_back(name);
-        _reapMap[this] = v;
-    }
-}
-
-// Remove all names in the reap map from the corresponding directory contents.
-
-void
-FilesystemI::DirectoryI::reap()
-{
-   for(ReapMap::const_iterator i = _reapMap.begin(); i != _reapMap.end(); ++i)
-   {
-        for(vector<string>::const_iterator j = i->second.begin(); j != i->second.end(); ++j)
-        {
-            i->first->_contents.erase(*j);
-        }
-   }
-   _reapMap.clear();
 }

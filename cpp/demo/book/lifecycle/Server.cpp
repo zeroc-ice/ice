@@ -30,7 +30,9 @@ public:
         // Create the root directory.
         //
         DirectoryIPtr root = new DirectoryI;
-        root->activate(adapter);
+        Ice::Identity id;
+        id.name = "RootDir";
+        adapter->add(root, id);
 
         // All objects are created, allow client requests now.
         //

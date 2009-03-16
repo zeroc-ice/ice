@@ -53,23 +53,17 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
         _lines = (String[])text.clone();
     }
 
-    public void
+    public synchronized void
     destroy(Current c)
     {
-        synchronized(this)
+        if(_destroyed)
         {
-            if(_destroyed)
-            {
-                throw new ObjectNotExistException();
-            }
-            _destroyed = true;
+            throw new ObjectNotExistException();
         }
+        _destroyed = true;
 
-        synchronized(_parent._lcMutex)
-        {
-            c.adapter.remove(id());
-            _parent.addReapEntry(_name);
-        }
+        c.adapter.remove(id());
+        _parent.removeEntry(_name);
     }
 
     public FileI(String name, DirectoryI parent)
@@ -79,14 +73,6 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
         _destroyed = false;
         _id = new Identity();
         _id.name = Util.generateUUID();
-    }
-
-    public FilePrx
-    activate(Ice.ObjectAdapter a)
-    {
-        FilePrx node = FilePrxHelper.uncheckedCast(a.add(this, _id));
-        _parent.addChild(_name, this);
-        return node;
     }
 
     private String _name;

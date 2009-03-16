@@ -26,7 +26,6 @@ namespace FilesystemI
 
         virtual std::string name(const Ice::Current&);
         Ice::Identity id() const;
-        Ice::ObjectPrx activate(const Ice::ObjectAdapterPtr&);
 
     protected:
 
@@ -69,21 +68,13 @@ namespace FilesystemI
         virtual void destroy(const Ice::Current&);
 
         DirectoryI(const std::string& = "/", const DirectoryIPtr& = 0);
-        void addChild(const ::std::string&, const NodeIPtr&);
 
-        void addReapEntry(const ::std::string&);
-
-        static IceUtil::StaticMutex _lcMutex;
+        void removeEntry(const ::std::string&);
 
     private:
 
         typedef ::std::map< ::std::string, NodeIPtr> Contents;
         Contents _contents;
-
-        typedef ::std::map<DirectoryIPtr, ::std::vector< ::std::string> > ReapMap;
-        static ReapMap _reapMap;
-
-        static void reap();
     };
 }
 

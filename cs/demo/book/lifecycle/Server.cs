@@ -35,7 +35,9 @@ public class Server
             // Create the root directory.
             //
             DirectoryI root = new DirectoryI();
-            root.activate(adapter);
+            Ice.Identity id = new Ice.Identity();
+            id.name = "RootDir";
+            adapter.add(root, id);
 
             // All objects are created, allow client requests now.
             //
