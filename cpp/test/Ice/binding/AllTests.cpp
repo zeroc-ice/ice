@@ -751,6 +751,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(test->ice_getConnection() != testUDP->ice_getConnection());
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             testUDP->getAdapterName();
         }
         catch(const Ice::TwowayOnlyException&)
