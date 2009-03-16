@@ -53,18 +53,21 @@ and has the following syntax:
 If building on Windows, you should first see the `Windows Notes'
 section below.
 
-Next, if building from a source distribution or the demo package,
+If building from a source distribution or the demo package,
 please review Makefile or Makefile.mak in this directory and adjust
 the value of PROTOBUF_HOME to reflect the installation directory of
 Protocol Buffers on your system. 
 
-If building from a Windows installation, open the Ice.protobuf.sln
-solution and in the Visual Studio IDE choose "Tools->Options->Projects
-and Solutions->VC++ Directories" to add the Protocol Buffers bin
-directory to the "Executable Files", the include directory to the
-"Include files" and the lib directory to the "Library files". Then,
-select the target configuraton: Debug or Release, right click on the
-solution in the Solution Explorer window and select "Build Solution".
+If building with the Visual Studio IDE, open the Ice.protobuf.sln
+solution and IDE choose
+
+    "Tools->Options->Projects and Solutions->VC++ Directories"
+
+Add the Protocol Buffers bin directory to "Executable Files",
+the include directory to "Include files", and the lib directory to
+"Library files". Then select the target configuraton (Debug or Release),
+right-click on the solution in the Solution Explorer window and
+select "Build Solution".
 
 To run the demo, first start the server:
 
@@ -78,10 +81,9 @@ Windows Notes
 -------------
 
 The Procotol Buffers source package doesn't support automatic
-installation. The build system for this demo (the Makefile.mak file or
-the Ice.protobuf.sln solution) assumes that you have compiled and
-manually installed Protocol Buffers using the following directory
-structure:
+installation. The build system for this demo (Makefile.mak and
+Ice.protobuf.sln) assumes that you have compiled and manually
+installed Protocol Buffers using the following directory structure:
 
 %PROTOBUF_HOME%\bin
 
@@ -89,13 +91,12 @@ structure:
  
 %PROTOBUF_HOME%\lib
 
-    Contains libprotobuf.lib and libprotocbufd.lib, the release and
-    debug static libraries respectively (the debug library was renamed
-    to libprotobufd.lib).
+    Contains libprotobuf.lib and libprotobufd.lib, the release and
+    debug static libraries. respectively. (The debug library was renamed
+    to libprotobufd.lib.)
 
 %PROTOBUF_HOME%\include
 
     Contains the output of the extract_includes.bat batch file that
     copies the include files contains in the Protocol Buffers
     distribution.
-
