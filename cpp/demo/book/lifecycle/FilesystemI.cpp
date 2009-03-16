@@ -90,15 +90,18 @@ FilesystemI::FileI::write(const Lines& text, const Current& c)
 void
 FilesystemI::FileI::destroy(const Current& c)
 {
-    IceUtil::Mutex::Lock lock(_m);
-
-    if(_destroyed)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-    }
-    _destroyed = true;
+        IceUtil::Mutex::Lock lock(_m);
 
-    c.adapter->remove(id());
+        if(_destroyed)
+        {
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
+        }
+
+        c.adapter->remove(id());
+        _destroyed = true;
+    }
+
     _parent->removeEntry(_name);
 }
 
@@ -215,20 +218,23 @@ FilesystemI::DirectoryI::destroy(const Current& c)
         throw PermissionDenied("Cannot destroy root directory");
     }
 
-    IceUtil::Mutex::Lock lock(_m);
-
-    if(_destroyed)
     {
-        throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
+        IceUtil::Mutex::Lock lock(_m);
+
+        if(_destroyed)
+        {
+            throw ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
+        }
+
+        if(!_contents.empty())
+        {
+            throw PermissionDenied("Cannot destroy non-empty directory");
+        }
+
+        c.adapter->remove(id());
+        _destroyed = true;
     }
 
-    if(!_contents.empty())
-    {
-        throw PermissionDenied("Cannot destroy non-empty directory");
-    }
-
-    c.adapter->remove(id());
-    _destroyed = true;
     _parent->removeEntry(_name);
 }
 

@@ -148,8 +148,9 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
 
             c.adapter.remove(id());
             _destroyed = true;
-            _parent.removeEntry(_name);
         }
+
+        _parent.removeEntry(_name);
     }
 
     // DirectoryI constructor for root directory.

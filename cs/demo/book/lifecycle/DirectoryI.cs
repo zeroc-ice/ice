@@ -157,8 +157,9 @@ namespace FilesystemI
 
                 c.adapter.remove(id());
                 _destroyed = true;
-                _parent.removeEntry(_name);
             }
+
+            _parent.removeEntry(_name);
         }
 
         // DirectoryI constructor for root directory.

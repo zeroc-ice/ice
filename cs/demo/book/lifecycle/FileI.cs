@@ -68,11 +68,12 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-                _destroyed = true;
 
                 c.adapter.remove(id());
-                _parent.removeEntry(_name);
+                _destroyed = true;
             }
+
+            _parent.removeEntry(_name);
         }
 
         public FileI(string name, DirectoryI parent)

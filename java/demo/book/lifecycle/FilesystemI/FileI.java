@@ -53,16 +53,20 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
         _lines = (String[])text.clone();
     }
 
-    public synchronized void
+    public void
     destroy(Current c)
     {
-        if(_destroyed)
+        synchronized(this)
         {
-            throw new ObjectNotExistException();
-        }
-        _destroyed = true;
+            if(_destroyed)
+            {
+                throw new ObjectNotExistException();
+            }
 
-        c.adapter.remove(id());
+            c.adapter.remove(id());
+            _destroyed = true;
+        }
+
         _parent.removeEntry(_name);
     }
 
