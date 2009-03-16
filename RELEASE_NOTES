@@ -71,7 +71,8 @@ shown below for C++:
 With this definition, the Slice compiler generates additional code to
 transparently encode and decode a protocol buffer message.
 
-A new demo illustrates how to use this feature.
+You can read more about this feature in the Ice manual. We have also
+included a new sample program for each of the supported languages.
 
 
 Java and .NET serialization
@@ -89,7 +90,8 @@ serializable Java class:
 This definition allows you to transfer instances of Demo.MyGreeting as
 a byte sequence while Ice handles the low-level serialization chores.
 
-A new demo illustrates how to use this feature.
+You can read more about this feature in the Ice manual. We have also
+included a new sample program for each of the supported languages.
 
 
 Background locator updates
@@ -287,7 +289,9 @@ not necessary for you to recompile your Slice files or your program
 code, nor is it necessary to relink your application. The database
 formats used by Ice services such as IceGrid and IceStorm have not
 changed, therefore no database migration is required. Finally, this
-release has not removed or deprecated any APIs.
+release has not removed or deprecated any APIs. Generally speaking,
+you are free to use any combination of Ice 3.3.0 or Ice 3.3.1
+applications and Ice services.
 
 The subsections below provide additional information about upgrading
 to Ice 3.3.1, including administrative procedures for the supported
@@ -350,10 +354,10 @@ For a .NET application, Ice for .NET includes policy assemblies that
 supply the .NET run time with the required compatibility information.
 Policy assemblies have names of the form policy.3.3.<package>.dll.
 For example, the policy assembly for IceBox is policy.3.3.IceBox.dll.
-To upgrade an existing .NET application to a new patch release while
-maintaining binary compatibility, the policy assemblies must be
-installed into the Global Assembly Cache (GAC). There are two ways to
-install the policy assemblies in the GAC:
+One way to upgrade an existing .NET application to a new patch release
+while maintaining binary compatibility is to install the policy
+assemblies into the Global Assembly Cache (GAC) using one of the
+following methods:
 
   - Open Windows Explorer and navigate to the directory
     C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
@@ -362,6 +366,27 @@ install the policy assemblies in the GAC:
   - Use gacutil from the command line:
 
     > gacutil -i <policy.dll>
+
+Another option is to modify the .config file of your application to
+add bindingRedirect directives, as explained in the links below:
+
+  http://msdn.microsoft.com/en-us/library/7wd6ex19.aspx
+  http://msdn.microsoft.com/en-us/library/yx7xezcf.aspx
+
+For example, in the .config file of an application you can modify the
+configuration of the Ice assembly as follows:
+
+  <dependentAssembly>
+    <assemblyIdentity name="Ice" culture="neutral"
+      publicKeyToken="cdd571ade22f2f16"/>
+    <bindingRedirect oldVersion="3.3.0.0" newVersion="3.3.1.0"/>
+    <codeBase version="3.3.1.0" href="...\Ice.dll"/>
+  </dependentAssembly>
+
+The advantage of installing the policy assemblies into the GAC is that
+they establish binary compatibility for all Ice applications, whereas
+modifying a .config file must be done for each application
+individually.
 
 On a development system, it is not necessary to remove your existing
 Ice installation prior to installing Ice 3.3.1 unless you intend to
@@ -524,10 +549,31 @@ factors:
     with its administrative tools. For example, you can use the
     icestormadmin utility from Ice 3.3.1 to administer an IceStorm
     3.3.0 service (or vice-versa), but you cannot use it to administer
-    an IceStorm 3.2.x service. Instead, you should use icestormadmin
-    from Ice 3.2.
+    an IceStorm 3.2.x service. (You should use icestormadmin from Ice
+    3.2 instead.)
 
-    TBD
+    IceGrid
+    -------
+
+    Starting with Ice 3.2.0, IceGrid registries and nodes are
+    interface-compatible. For example, this means you can use an
+    IceGrid node from Ice 3.2.x with a registry from Ice 3.3.x.
+    IceGrid registry replication is supported between 3.3.x releases.
+
+    An IceGrid node from Ice 3.3.x is able to activate a server built
+    with Ice 3.2.x. The reverse is also true: an IceGrid node from
+    Ice 3.2.x is able to activate a server built with Ice 3.3, but
+    only if the server's configuration properties do not rely on
+    features from Ice 3.3 (such as the ability to escape characters
+    in property names and values).
+
+    IceStorm
+    --------
+
+    Topic linking is supported between all IceStorm versions released
+    after 3.0.0. IceStorm replication is supported between 3.3.x
+    releases.
+
 
 
 Migrating IceStorm databases
