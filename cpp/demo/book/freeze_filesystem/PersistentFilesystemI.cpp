@@ -45,9 +45,9 @@ Filesystem::FileI::name(const Ice::Current& c)
 void
 Filesystem::FileI::destroy(const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
-
     {
+        IceUtil::Mutex::Lock lock(*this);
+
 	if(_destroyed)
 	{
 	    throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);

@@ -50,32 +50,24 @@ and has the following syntax:
 
   [["cpp:include:Person.pb.h"]]
 
-Prior to building the demo, please review Makefile or Makefile.mak in
-this directory and adjust the value of PROTOBUF_HOME to reflect the
-installation directory of Protocol Buffers on your system.
+If building on Windows, you should first see the `Windows Notes'
+section below.
 
-The debug version of libprotobuf.lib is expected to be in
-$(PROTOBUF_HOME)\lib\Debug, and the release version is expected
-to be in $(PROTOBUF_HOME\lib\Release.
+If building from a source distribution or the demo package,
+please review Makefile or Makefile.mak in this directory and adjust
+the value of PROTOBUF_HOME to reflect the installation directory of
+Protocol Buffers on your system. 
 
-To build this demo with Visual Studio, you must use Visual Studio 2005
-or later and configure it as follows:
+If building with the Visual Studio IDE, open the Ice.protobuf.sln
+solution and IDE choose
 
-  - In Tools->Options, select "VC++ Directories.
+    "Tools->Options->Projects and Solutions->VC++ Directories"
 
-    - Select "Executables" and add the location of protobuf.exe.
-
-    - Select "Include files" and add the location the protobuf include
-      directory.
-
-  - Right-click Ice.protobuf.client project select "Properties".
-    In "Configuration Properties"->"Linker"->General, adjust the
-    "Additional Library Directories" property to reflect the location
-    of the protobuf library. You need to adjust this for Release and
-    Debug mode.
-
-  - Adjust the location of the protobuf library for the Ice.protobuf.server
-    project as for the client project.
+Add the Protocol Buffers bin directory to "Executable Files",
+the include directory to "Include files", and the lib directory to
+"Library files". Then select the target configuraton (Debug or Release),
+right-click on the solution in the Solution Explorer window and
+select "Build Solution".
 
 To run the demo, first start the server:
 
@@ -84,3 +76,27 @@ To run the demo, first start the server:
 In a separate window, start the client:
 
   $ client
+
+Windows Notes
+-------------
+
+The Procotol Buffers source package doesn't support automatic
+installation. The build system for this demo (Makefile.mak and
+Ice.protobuf.sln) assumes that you have compiled and manually
+installed Protocol Buffers using the following directory structure:
+
+%PROTOBUF_HOME%\bin
+
+    Contains protoc.exe
+ 
+%PROTOBUF_HOME%\lib
+
+    Contains libprotobuf.lib and libprotobufd.lib, the release and
+    debug static libraries. respectively. (The debug library was renamed
+    to libprotobufd.lib.)
+
+%PROTOBUF_HOME%\include
+
+    Contains the output of the extract_includes.bat batch file that
+    copies the include files contains in the Protocol Buffers
+    distribution.

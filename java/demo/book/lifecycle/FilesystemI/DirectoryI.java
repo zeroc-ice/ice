@@ -69,7 +69,7 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
             throw new ObjectNotExistException();
         }
 
-        NodeI p = (NodeI)_contents.get(name);
+        NodeI p = _contents.get(name);
         if(p == null)
         {
             throw new NoSuchName(name);

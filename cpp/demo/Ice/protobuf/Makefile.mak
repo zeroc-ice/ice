@@ -41,11 +41,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 # well as prevent compile failure on x64 due to warnings from protobuf headers
 CPPFLAGS	= -I$(PROTOBUF_HOME)\include -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -W0
 
-!if "$(OPTIMIZE)" != "yes"
-LIBS		= $(LIBS) /libpath:$(PROTOBUF_HOME)\lib\Debug libprotobuf.lib
-!else
-LIBS		= $(LIBS) /libpath:$(PROTOBUF_HOME)\lib\Release libprotobuf.lib
-!endif
+LIBS		= $(LIBS) /libpath:$(PROTOBUF_HOME)\lib libprotobuf$(LIBSUFFIX).lib
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
