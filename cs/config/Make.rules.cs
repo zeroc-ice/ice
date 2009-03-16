@@ -174,7 +174,7 @@ $(bindir)/$(POLICY_TARGET):
     </assemblyBinding> \n \
   </runtime> \n \
 </configuration>" >$(POLICY)
-	$(AL) /link:$(POLICY) /version:$(VERSION).0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
 	mv $(POLICY) $(POLICY_TARGET) $(bindir)
