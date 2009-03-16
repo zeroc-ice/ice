@@ -229,9 +229,6 @@ C# Changes
   for a sequence whose element type is a structure that uses the
   class mapping.
 
-- The Ice run time no longer relies on .NET thread pool worker threads
-  for its internal operations.
-
 
 Python Changes
 ==============

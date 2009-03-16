@@ -72,6 +72,40 @@ can now enable the serialization, transmission, and deserialization
 of Java and .NET classes with a simple metadata directive. A new
 demo illustrates how to use this feature.
 
+Background Locator Updates
+--------------------------
+
+Locator cache endpoints can now be updated in the background if the
+new Ice.BackgroundLocatorCacheUpdates property is set to 1.
+
+Locator cache updates are triggered if the proxy locator cache timeout
+is configured and the cached endpoints are older than the configured
+timeout.
+
+By default, locator cache updates are performed before making an
+invocation, delaying the invocation until the new endpoints are
+retrieved from the locator. With this feature enabled, the locator
+cache updates are performed in the background and the invocation that
+triggered the update uses the previously cached endpoints.
+
+Glacier2 session destruction
+----------------------------
+
+Glacier2 now automatically destroys the client session if the
+forwarding of a request from a back-end server to the client fails
+with an unrecoverable error. This is particularly useful for clients
+that receive requests from back-end servers on a regular basis and
+disable the Glacier2 session timeout. If for some reason the client
+becomes unreachable, Glacier2 will eventually destroy the client
+session (assuming timeouts are properly configured on the Glacier2
+client endpoints).
+
+Java IceSSL plugin
+------------------
+
+It's now possible to specify IceSSL keystores, truststores, and RNG
+seeds either using class path resources or programatically using input
+streams.
 
 New sample programs
 -------------------
