@@ -7,12 +7,17 @@
 #
 # **********************************************************************
 
-%if "%{dist}" != ".sles10"
-%define ruby 1
-%define mono 0
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+  %define ruby 1
+  %define mono 0
 %else
-%define ruby 0
-%define mono 1
+  %if "%{dist}" == ".sles10"
+    %define ruby 0
+    %define mono 1
+  %else
+    %define ruby 0
+    %define mono 0
+  %endif
 %endif
 
 %define buildall 1
