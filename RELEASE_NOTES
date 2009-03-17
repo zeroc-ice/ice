@@ -126,12 +126,13 @@ session (assuming timeouts are properly configured on the Glacier2
 client endpoints).
 
 
-Java IceSSL plug-in
--------------------
+Java Applets
+------------
 
-It is now possible to specify IceSSL keystores, truststores, and RNG
-seeds as class path resources using configuration properties or
-programmatically using input streams.
+It is now possible to use Ice for Java in an applet. Additionally,
+IceSSL can now obtain keystores, truststores, and RNG seeds from class
+path resources using configuration properties or programmatically
+using input streams.
 
 
 New sample programs
