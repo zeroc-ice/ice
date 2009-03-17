@@ -12,8 +12,8 @@ information about migrating to a new Ice release.
 
 The main purpose of a patch release such as this one is to correct
 defects while maintaining binary compatibility with the most recent
-minor release (3.3). A patch release may also introduce enhancements
-and new features if they do not compromise binary compatibility.
+minor release (3.3). This patch release also introduces a few 
+enhancements and new features while maintaining binary compatibility.
 
 For a detailed list of the changes in this release, please refer to
 the CHANGES file included in your Ice distribution.
@@ -304,12 +304,10 @@ NRVO in C++
 
 Named Return Value Optimization (NRVO) is a C++ compiler feature that
 can improve the marshaling performance of Ice applications that
-transfer large sequences. The Slice-to-C++ compiler (slice2cpp) in Ice
-3.3.1 generates code for client-side stubs with a structure that is
+return large data structures. The Slice-to-C++ compiler (slice2cpp) in 
+Ice 3.3.1 generates code for client-side stubs with a structure that is
 slightly different than in previous Ice releases to make the code
-eligible for NRVO in those compilers that support it. Of the supported
-Ice for C++ compilers, NRVO is available in Gnu C++ (GCC) version 3.1
-or later, and in Microsoft Visual C++ 8.0 or later.
+eligible for NRVO with GNU C++ (GCC).
 
 Note that this enhancement to the generated code in Ice 3.3.1 only
 affects client-side stubs, and is only necessary to satisfy the NRVO
@@ -557,9 +555,10 @@ factors:
     -------
 
     Starting with Ice 3.2.0, IceGrid registries and nodes are
-    interface-compatible. For example, this means you can use an
-    IceGrid node from Ice 3.2.x with a registry from Ice 3.3.x.
-    IceGrid registry replication is supported between 3.3.x releases.
+    interface-compatible. For example, you can use an IceGrid node from 
+    Ice 3.2.x with a registry from Ice 3.3.x.
+    IceGrid registry replication is only supported between 3.3.x 
+    releases.
 
     An IceGrid node from Ice 3.3.x is able to activate a server built
     with Ice 3.2.x. The reverse is also true: an IceGrid node from
@@ -576,14 +575,13 @@ factors:
     releases.
 
 
-
 Migrating IceStorm databases
 ----------------------------
 
 Ice 3.3 supports the migration of IceStorm databases from Ice 3.1 and
 from Ice 3.2. Migration from other Ice versions may work, but is not
-officially supported. If you require assistance with this please
-contact sales@zeroc.com.
+officially supported. If you require assistance with such migration, 
+please contact support@zeroc.com.
 
 To migrate, first stop your IceStorm servers.
 
@@ -1126,11 +1124,3 @@ The destructor for a stack-allocated object inside a catch block can
 be called twice if you are inside a loop and call continue from within
 the catch block. The workaround is to ensure that the destructors of
 any stack-allocated objects are executed before you call continue.
-
-Finally, there is a compiler issue:
-
- http://qc.embarcadero.com/wc/qcmain.aspx?d=71613
-
-This problem prevents an application from passing the value 0 as an
-argument for a smart pointer type. Ice works around this issue with
-the addition of another constructor in the smart pointer class.
