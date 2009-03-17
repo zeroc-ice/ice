@@ -17,3 +17,5 @@ exclude=**/*.dsw
 exclude=**/Debug/**
 exclude=**/Release/**
 exclude=Database/**
+exclude=**/protobuf/**
+
