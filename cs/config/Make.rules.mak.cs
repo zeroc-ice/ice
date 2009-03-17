@@ -177,7 +177,7 @@ policy:
   </runtime>
 </configuration>
 <<KEEP
-	$(AL) /link:$(POLICY) /version:$(VERSION).0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	move $(POLICY) $(bindir)
 	move $(POLICY_TARGET) $(bindir)
 

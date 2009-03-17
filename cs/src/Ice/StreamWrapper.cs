@@ -201,15 +201,18 @@ namespace IceInternal
         {
             get
             {
-#if __MonoCS__
-                //
-		// The Mono deserialization implementation has a bug that causes a call to Seek() such
-		// that the reading position is set to -1.
-		//
-                return false;
-#else
-                return type_ == StreamType.Read;
-#endif
+                if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
+                {
+                    //
+		    // The Mono deserialization implementation has a bug that causes a call to Seek() such
+		    // that the reading position is set to -1.
+		    //
+                    return false;
+                }
+                else
+                {
+                    return type_ == StreamType.Read;
+                }
             }
         }
 
