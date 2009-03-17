@@ -32,7 +32,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # the Ice run time use only managed code.
 #
 
-MANAGED		= yes
+#MANAGED		= yes
 
 #
 # Define DEBUG as yes if you want to build with debug information and
