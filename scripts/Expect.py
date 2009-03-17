@@ -23,8 +23,13 @@ __all__ = ["Expect", "EOF", "TIMEOUT" ]
 
 win32 = (sys.platform == "win32")
 if win32:
-    # We use this to remove the reliance on win32api.
-    import ctypes
+    # We use this to remove the reliance on win32api. Unfortunately,
+    # python 2.5 under 64 bit versions of windows doesn't have ctypes,
+    # hence we have to be prepared for that module not to be present.
+    try:
+        import ctypes
+    except ImportError:
+        pass
 
 class EOF:
     """Raised when EOF is read from a child.
@@ -445,8 +450,11 @@ class Expect (object):
                     #
                     # Using the ctypes module removes the reliance on the
                     # python win32api
-                    #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
-                    ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
+                    try:
+                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
+                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
+                    except NameError:
+                        pass
                 else:
                    os.kill(self.p.pid, signal.SIGINT)
             except:
@@ -487,8 +495,11 @@ class Expect (object):
                     #
                     # Using the ctypes module removes the reliance on the
                     # python win32api
-                    ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
-                    #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
+                    try:
+                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
+                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
+                    except NameError:
+                        pass
                 except:
                     traceback.print_exc(file=sys.stdout)
             else:

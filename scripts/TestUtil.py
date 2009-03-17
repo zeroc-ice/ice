@@ -25,6 +25,7 @@ java2 = False                   # Use Java 2 jar file from binary distribution
 javaCmd = "java"                # Default java loader
 valgrind = False                # Set to True to use valgrind for C++ executables.
 tracefile = None
+printenv = False
 cross = []
 
 def isCygwin():
@@ -111,6 +112,26 @@ def sanitize(cp):
         np = np + p
     return np
         
+def dumpenv(env, lang):
+    if env == None:
+        env = os.environ
+    vars = ["PATH", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "SHLIB_PATH", "LIBPATH", "LD_LIBRARY_PATH_64"]
+    if lang == None:
+        vars.extend(["CLASSPATH", "MONO_PATH", "PYTHONPATH", "RUBYLIB"])
+    elif lang == "cpp":
+        pass
+    elif lang == "java":
+        vars.append("CLASSPATH")
+    elif lang == "cs":
+        vars.append("MONO_PATH")
+    elif lang == "py":
+        vars.append("PYTHONPATH")
+    elif lang ==  "rb":
+        vars.append("RUBYLIB")
+    for i in vars:
+        if i in env:
+            print "%s=%s" % (i, env[i])
+
 def configurePaths():
     if iceHome:
         print "*** using Ice installation from " + iceHome,
@@ -245,6 +266,7 @@ def run(tests, root = False):
           --java2                 Use Java 2 jar file.
           --cross=lang            Run cross language test.
           --script                Generate a script to run the tests.
+          --env                   Print important environment variables
         """
         sys.exit(2)
 
@@ -252,7 +274,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "java2"])
+                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "java2", "env"])
     except getopt.GetoptError:
         usage()
 
@@ -304,7 +326,7 @@ def run(tests, root = False):
                 sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--ice-home", "--x64", "--java2"):
+                  "--ice-home", "--x64", "--java2", "--env"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -763,19 +785,21 @@ def isDebug():
     return debug
 
 import Expect
-def spawn(cmd, env = None, cwd = None, startReader = True):
+def spawn(cmd, env = None, cwd = None, startReader = True,lang=None):
     if debug:
         print "(%s)" % cmd,
+    if printenv:
+        dumpenv(env, lang)
     return Expect.Expect(cmd, startReader = startReader, env = env, logfile=tracefile, cwd = cwd)
 
-def spawnClient(cmd, env = None, cwd = None, echo = True, startReader = True):
-    client = spawn(cmd, env, cwd, startReader = startReader)
+def spawnClient(cmd, env = None, cwd = None, echo = True, startReader = True,lang=None):
+    client = spawn(cmd, env, cwd, startReader = startReader,lang = lang)
     if echo:
         client.trace()
     return client
 
-def spawnServer(cmd, env = None, cwd = None, count = 1, adapter = None, echo = True):
-    server = spawn(cmd, env, cwd)
+def spawnServer(cmd, env = None, cwd = None, count = 1, adapter = None, echo = True, lang=None):
+    server = spawn(cmd, env, cwd, lang=lang)
     if adapter:
         server.expect("%s ready\n" % adapter)
     else:
@@ -800,7 +824,6 @@ def getMirrorDir(base, mapping):
     else:
         raise "cannot find language dir"
     return os.path.join(before, mapping, *after)
-
 
 def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
                      server = None, client = None, serverenv = None, clientenv = None):
@@ -857,7 +880,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         if lang in ["rb", "php"]:
             serverCfg.lang = "cpp"
         server = getCommandLine(server, serverCfg) + " " + additionalServerOptions
-        serverProc = spawnServer(server, env = serverenv)
+        serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang)
         print "ok"
 
         if lang == "php":
@@ -868,7 +891,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         else:
             print "starting %s %s ..." % (clientLang, clientDesc),
         client = getCommandLine(client, clientCfg) + " " + additionalClientOptions
-        clientProc = spawnClient(client, env = clientenv, startReader = False)
+        clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
         print "ok"
 	clientProc.startReader()
 
@@ -890,7 +913,7 @@ def collocatedTest(additionalOptions = ""):
 
     print "starting collocated...",
     collocated = getCommandLine(collocated, DriverConfig("colloc")) + ' ' + additionalOptions 
-    collocatedProc = spawnClient(collocated, env = env, startReader = False)
+    collocatedProc = spawnClient(collocated, env = env, startReader = False, lang=lang)
     print "ok"
     collocatedProc.startReader()
     collocatedProc.waitTestSuccess()
@@ -907,7 +930,7 @@ def startClient(exe, args = "", config=None, env=None, echo = True, startReader 
     cmd = getCommandLine(exe, config) + ' ' + args
     if config.lang == "php":
         writePhpIni("php.ini", "tmp.ini")
-    return spawnClient(cmd, env = env, echo = echo, startReader = startReader)
+    return spawnClient(cmd, env = env, echo = echo, startReader = startReader, lang=config.lang)
 
 def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = True):
     if config == None:
@@ -915,7 +938,7 @@ def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1
     if env == None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
     cmd = getCommandLine(exe, config) + ' ' + args
-    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo)
+    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo,lang=config.lang)
 
 def startColloc(exe, args, config=None, env=None):
     if config == None:
@@ -923,12 +946,12 @@ def startColloc(exe, args, config=None, env=None):
     if env == None:
         env = getTestEnv(lang, testdir)
     cmd = getCommandLine(exe, config) + ' ' + args
-    return spawnClient(cmd, env = env)
+    return spawnClient(cmd, env = env, lang=config.lang)
 
 def simpleTest(exe, options = ""):
     print "starting client...",
     command = exe + ' ' + options
-    client = spawnClient(command, startReader = False)
+    client = spawnClient(command, startReader = False, lang=getDefaultMapping())
     print "ok"
     client.startReader()
     client.waitTestSuccess()
@@ -983,6 +1006,7 @@ def processCmdLine():
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
           --java2                 Use Java 2 jar file.
+          --env                   Print important environment variables.
           --cross=lang            Run cross language test.
         """
         sys.exit(2)
@@ -990,7 +1014,7 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                              "ice-home=", "x64", "cross=", "java2"])
+                              "ice-home=", "x64", "cross=", "java2", "env"])
     except getopt.GetoptError:
         usage()
 
@@ -1049,6 +1073,9 @@ def processCmdLine():
         elif o == "--debug":
             global debug
             debug = True
+        elif o == "--env":
+            global printenv
+            printenv = True
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
