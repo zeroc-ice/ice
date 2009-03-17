@@ -14,7 +14,6 @@ iceca = "iceca"
 
 def runIceca(args):
     os.environ['PYTHONUNBUFFERED'] = '1'
-    print iceca
     if os.system(iceca + " " + args):
         sys.exit(1)
 
