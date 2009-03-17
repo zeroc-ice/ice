@@ -6,10 +6,10 @@
    fun:getifaddrs
 }
 {
-   BerkeleyDB pwrite64 un-initialized bytes
+   BerkeleyDB pwrite64 uninitialized bytes
    Memcheck:Param
    pwrite64(buf)
-   fun:pwrite64
+   obj:*libpthread*.so
    fun:__os_io
 }
 {
@@ -17,15 +17,6 @@
    Memcheck:Cond
    fun:__log_putr
    fun:__log_put
-}
-{
-   BerkeleyDB potential leak
-   Memcheck:Leak
-   fun:malloc
-   fun:__os_malloc
-   fun:__env_alloc
-   fun:__lock_open
-   fun:__env_open
 }
 {
    pthread
