@@ -59,7 +59,7 @@ the value of PROTOBUF_HOME to reflect the installation directory of
 Protocol Buffers on your system. 
 
 If building with the Visual Studio IDE, open the Ice.protobuf.sln
-solution and IDE choose
+solution and choose
 
     "Tools->Options->Projects and Solutions->VC++ Directories"
 
@@ -92,7 +92,7 @@ installed Protocol Buffers using the following directory structure:
 %PROTOBUF_HOME%\lib
 
     Contains libprotobuf.lib and libprotobufd.lib, the release and
-    debug static libraries. respectively. (The debug library was renamed
+    debug static libraries, respectively. (The debug library was renamed
     to libprotobufd.lib.)
 
 %PROTOBUF_HOME%\include
