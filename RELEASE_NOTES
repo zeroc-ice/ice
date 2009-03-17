@@ -545,11 +545,9 @@ factors:
     in one of these services may adversely affect your application.
 
     Interface changes in an Ice service can also impact compatibility
-    with its administrative tools. For example, you can use the
-    icestormadmin utility from Ice 3.3.1 to administer an IceStorm
-    3.3.0 service (or vice-versa), but you cannot use it to administer
-    an IceStorm 3.2.x service. (You should use icestormadmin from Ice
-    3.2 instead.)
+    with its administrative tools, which means it may not be possible
+    to administer an Ice 3.3.x service using a tool from a previous
+    minor release (or vice-versa).
 
     IceGrid
     -------
@@ -572,8 +570,7 @@ factors:
     --------
 
     Topic linking is supported between all IceStorm versions released
-    after 3.0.0. IceStorm replication is supported between 3.3.x
-    releases.
+    after 3.0.0.
 
 
 Migrating IceStorm databases
@@ -689,7 +686,7 @@ Migrating Freeze Databases
 --------------------------
 
 There is no special Freeze procedure or Freeze tool to perform this
-upgrade. Freeze is still storing exactly the same data, in the same
+upgrade. Freeze still stores exactly the same data, in the same
 format.
 
 However, we upgraded the version of Berkeley DB, and as a result when
