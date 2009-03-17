@@ -33,11 +33,11 @@ Table of Contents
      - Deprecated APIs
   4. Platform-specific notes
      - Supported platforms
-     - IBM JDK
-  5. Known Problems
      - Java and IPv6
      - Mono
      - Red Hat Enterprise Linux 5.1
+     - IBM JDK
+  5. Known Problems
      - Slice-to-HTML
      - UNC Paths and Slice compilers
      - C++Builder 2009 Bugs
@@ -305,8 +305,8 @@ NRVO in C++
 Named Return Value Optimization (NRVO) is a C++ compiler feature that
 can improve the marshaling performance of Ice applications that
 return large data structures. The Slice-to-C++ compiler (slice2cpp) in 
-Ice 3.3.1 generates code for client-side stubs with a structure that is
-slightly different than in previous Ice releases to make the code
+Ice 3.3.1 generates code for client-side stubs with a structure that
+is slightly different than in previous Ice releases to make the code
 eligible for NRVO with GNU C++ (GCC).
 
 Note that this enhancement to the generated code in Ice 3.3.1 only
@@ -555,8 +555,9 @@ factors:
     -------
 
     Starting with Ice 3.2.0, IceGrid registries and nodes are
-    interface-compatible. For example, you can use an IceGrid node from 
-    Ice 3.2.x with a registry from Ice 3.3.x.
+    interface-compatible. For example, you can use an IceGrid node
+    from Ice 3.2.x with a registry from Ice 3.3.x.
+
     IceGrid registry replication is only supported between 3.3.x 
     releases.
 
@@ -954,32 +955,6 @@ environments listed in the link below:
   http://www.zeroc.com/platforms_3_3_1.html
 
 
-IBM JDK
---------
-
-The IBM JDK ships with limited jurisdiction policy files for the
-cryptographic libraries. This creates an issue for Ice's certificate
-authority script (iceca) when running with the command-line options
-"iceca java --import". The import fails with an error similar to:
-
-  "java.lang.SecurityException: Unsupported keysize or algorithm
-  parameters"
-
-To solve this problem you must install the unlimited jurisdiction
-policy files. For more information, including a link to download
-the policy files, see:
-
-  http://www.ibm.com/developerworks/java/jdk/security/50/
-
-Once you have downloaded the policy files, you must unpack them into
-the jre/lib/security directory.
-
-
-======================================================================
-5. Known Problems
-======================================================================
-
-
 Java and IPv6
 -------------
 
@@ -1011,6 +986,32 @@ kernel issue which has been fixed in the RHEL 5.2 kernel.
 
 Refer to https://bugzilla.redhat.com/show_bug.cgi?id=248052 for more
 information.
+
+
+IBM JDK
+--------
+
+The IBM JDK ships with limited jurisdiction policy files for the
+cryptographic libraries. This creates an issue for Ice's certificate
+authority script (iceca) when running with the command-line options
+"iceca java --import". The import fails with an error similar to:
+
+  "java.lang.SecurityException: Unsupported keysize or algorithm
+  parameters"
+
+To solve this problem you must install the unlimited jurisdiction
+policy files. For more information, including a link to download
+the policy files, see:
+
+  http://www.ibm.com/developerworks/java/jdk/security/50/
+
+Once you have downloaded the policy files, you must unpack them into
+the jre/lib/security directory.
+
+
+======================================================================
+5. Known Problems
+======================================================================
 
 
 Slice-to-HTML
