@@ -12,7 +12,7 @@ package FilesystemI;
 import Ice.*;
 import Filesystem.*;
 
-public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOperations
+public class DirectoryI extends _DirectoryDisp implements NodeI
 {
 
     // Slice name() operation.

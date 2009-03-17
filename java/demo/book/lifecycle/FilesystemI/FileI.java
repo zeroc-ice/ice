@@ -13,7 +13,7 @@ import Ice.*;
 import Filesystem.*;
 import FilesystemI.*;
 
-public class FileI extends _FileDisp implements NodeI, _FileOperations
+public class FileI extends _FileDisp implements NodeI
 {
     public synchronized String
     name(Current c)
