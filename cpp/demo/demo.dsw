@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "Freeze.backup.client.exe"=.\Freeze\backup\Freeze.backup.client.dsp - Package Owner=<4>
+Project: "Freeze.backup.client.exe"=".\Freeze\backup\Freeze.backup.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.bench.client.exe"=.\Freeze\bench\Freeze.bench.client.dsp - Package Owner=<4>
+Project: "Freeze.bench.client.exe"=".\Freeze\bench\Freeze.bench.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.casino.client.exe"=.\Freeze\casino\Freeze.casino.client.dsp - Package Owner=<4>
+Project: "Freeze.casino.client.exe"=".\Freeze\casino\Freeze.casino.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -42,7 +42,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.casino.server.exe"=.\Freeze\casino\Freeze.casino.server.dsp - Package Owner=<4>
+Project: "Freeze.casino.server.exe"=".\Freeze\casino\Freeze.casino.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -54,7 +54,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.customEvictor.client.exe"=.\Freeze\customEvictor\Freeze.customEvictor.client.dsp - Package Owner=<4>
+Project: "Freeze.customEvictor.client.exe"=".\Freeze\customEvictor\Freeze.customEvictor.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -69,7 +69,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.customEvictor.server.exe"=.\Freeze\customEvictor\Freeze.customEvictor.server.dsp - Package Owner=<4>
+Project: "Freeze.customEvictor.server.exe"=".\Freeze\customEvictor\Freeze.customEvictor.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -81,7 +81,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.library.client.exe"=.\Freeze\library\Freeze.library.client.dsp - Package Owner=<4>
+Project: "Freeze.library.client.exe"=".\Freeze\library\Freeze.library.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -96,7 +96,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.library.collocated.exe"=.\Freeze\library\Freeze.library.collocated.dsp - Package Owner=<4>
+Project: "Freeze.library.collocated.exe"=".\Freeze\library\Freeze.library.collocated.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -108,49 +108,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.library.server.exe"=.\Freeze\library\Freeze.library.server.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze.library.collocated.exe
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "Freeze.phonebook.client.exe"=.\Freeze\phonebook\Freeze.phonebook.client.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.server.exe
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "Freeze.phonebook.collocated.exe"=.\Freeze\phonebook\Freeze.phonebook.collocated.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "Freeze.phonebook.server.exe"=.\Freeze\phonebook\Freeze.phonebook.server.dsp - Package Owner=<4>
+Project: "Freeze.library.server.exe"=".\Freeze\library\Freeze.library.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -165,7 +123,22 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.transform.create.exe"=.\Freeze\transform\Freeze.transform.create.dsp - Package Owner=<4>
+Project: "Freeze.phonebook.client.exe"=".\Freeze\phonebook\Freeze.phonebook.client.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze.phonebook.collocated.exe
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Freeze.phonebook.collocated.exe"=".\Freeze\phonebook\Freeze.phonebook.collocated.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -177,7 +150,34 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.transform.read.exe"=.\Freeze\transform\Freeze.transform.read.dsp - Package Owner=<4>
+Project: "Freeze.phonebook.server.exe"=".\Freeze\phonebook\Freeze.phonebook.server.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze.library.collocated.exe
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Freeze.transform.create.exe"=".\Freeze\transform\Freeze.transform.create.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Freeze.transform.read.exe"=".\Freeze\transform\Freeze.transform.read.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -192,7 +192,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.transform.readnew.exe"=.\Freeze\transform\Freeze.transform.readnew.dsp - Package Owner=<4>
+Project: "Freeze.transform.readnew.exe"=".\Freeze\transform\Freeze.transform.readnew.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -207,7 +207,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.transform.recreate.exe"=.\Freeze\transform\Freeze.transform.recreate.dsp - Package Owner=<4>
+Project: "Freeze.transform.recreate.exe"=".\Freeze\transform\Freeze.transform.recreate.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -222,7 +222,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2.callback.client.exe"=.\Glacier2\callback\Glacier2.callback.client.dsp - Package Owner=<4>
+Project: "Glacier2.callback.client.exe"=".\Glacier2\callback\Glacier2.callback.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -237,7 +237,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2.callback.server.exe"=.\Glacier2\callback\Glacier2.callback.server.dsp - Package Owner=<4>
+Project: "Glacier2.callback.server.exe"=".\Glacier2\callback\Glacier2.callback.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -252,7 +252,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2.callback.sessionserver.exe"=.\Glacier2\callback\Glacier2.callback.sessionserver.dsp - Package Owner=<4>
+Project: "Glacier2.callback.sessionserver.exe"=".\Glacier2\callback\Glacier2.callback.sessionserver.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -264,7 +264,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2.chat.client.exe"=.\Glacier2\chat\Glacier2.chat.client.dsp - Package Owner=<4>
+Project: "Glacier2.chat.client.exe"=".\Glacier2\chat\Glacier2.chat.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -279,7 +279,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2.chat.server.exe"=.\Glacier2\chat\Glacier2.chat.server.dsp - Package Owner=<4>
+Project: "Glacier2.chat.server.exe"=".\Glacier2\chat\Glacier2.chat.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -291,7 +291,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.MFC.client.exe"=.\Ice\MFC\client\Ice.MFC.client.dsp - Package Owner=<4>
+Project: "Ice.MFC.client.exe"=".\Ice\MFC\client\Ice.MFC.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -303,7 +303,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.MFC.server.exe"=.\Ice\MFC\server\Ice.MFC.server.dsp - Package Owner=<4>
+Project: "Ice.MFC.server.exe"=".\Ice\MFC\server\Ice.MFC.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -315,7 +315,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.async.client.exe"=.\Ice\async\Ice.async.client.dsp - Package Owner=<4>
+Project: "Ice.async.client.exe"=".\Ice\async\Ice.async.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -330,7 +330,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.async.server.exe"=.\Ice\async\Ice.async.server.dsp - Package Owner=<4>
+Project: "Ice.async.server.exe"=".\Ice\async\Ice.async.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -342,7 +342,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.bidir.client.exe"=.\Ice\bidir\Ice.bidir.client.dsp - Package Owner=<4>
+Project: "Ice.bidir.client.exe"=".\Ice\bidir\Ice.bidir.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -357,7 +357,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.bidir.server.exe"=.\Ice\bidir\Ice.bidir.server.dsp - Package Owner=<4>
+Project: "Ice.bidir.server.exe"=".\Ice\bidir\Ice.bidir.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -369,7 +369,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.callback.client.exe"=.\Ice\callback\Ice.callback.client.dsp - Package Owner=<4>
+Project: "Ice.callback.client.exe"=".\Ice\callback\Ice.callback.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -384,7 +384,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.callback.server.exe"=.\Ice\callback\Ice.callback.server.dsp - Package Owner=<4>
+Project: "Ice.callback.server.exe"=".\Ice\callback\Ice.callback.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -396,7 +396,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.converter.client.exe"=.\Ice\converter\Ice.converter.client.dsp - Package Owner=<4>
+Project: "Ice.converter.client.exe"=".\Ice\converter\Ice.converter.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -411,7 +411,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.converter.server.exe"=.\Ice\converter\Ice.converter.server.dsp - Package Owner=<4>
+Project: "Ice.converter.server.exe"=".\Ice\converter\Ice.converter.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -423,7 +423,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.hello.client.exe"=.\Ice\hello\Ice.hello.client.dsp - Package Owner=<4>
+Project: "Ice.hello.client.exe"=".\Ice\hello\Ice.hello.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -438,7 +438,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.hello.server.exe"=.\Ice\hello\Ice.hello.server.dsp - Package Owner=<4>
+Project: "Ice.hello.server.exe"=".\Ice\hello\Ice.hello.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -450,7 +450,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.invoke.client.exe"=.\Ice\invoke\Ice.invoke.client.dsp - Package Owner=<4>
+Project: "Ice.invoke.client.exe"=".\Ice\invoke\Ice.invoke.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -465,7 +465,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.invoke.server.exe"=.\Ice\invoke\Ice.invoke.server.dsp - Package Owner=<4>
+Project: "Ice.invoke.server.exe"=".\Ice\invoke\Ice.invoke.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -477,7 +477,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.latency.client.exe"=.\Ice\latency\Ice.latency.client.dsp - Package Owner=<4>
+Project: "Ice.latency.client.exe"=".\Ice\latency\Ice.latency.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -492,7 +492,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.latency.server.exe"=.\Ice\latency\Ice.latency.server.dsp - Package Owner=<4>
+Project: "Ice.latency.server.exe"=".\Ice\latency\Ice.latency.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -504,7 +504,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.minimal.client.exe"=.\Ice\minimal\Ice.minimal.client.dsp - Package Owner=<4>
+Project: "Ice.minimal.client.exe"=".\Ice\minimal\Ice.minimal.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -519,7 +519,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.minimal.server.exe"=.\Ice\minimal\Ice.minimal.server.dsp - Package Owner=<4>
+Project: "Ice.minimal.server.exe"=".\Ice\minimal\Ice.minimal.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -531,7 +531,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.multicast.client.exe"=.\Ice\multicast\Ice.multicast.client.dsp - Package Owner=<4>
+Project: "Ice.multicast.client.exe"=".\Ice\multicast\Ice.multicast.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -546,7 +546,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.multicast.server.exe"=.\Ice\multicast\Ice.multicast.server.dsp - Package Owner=<4>
+Project: "Ice.multicast.server.exe"=".\Ice\multicast\Ice.multicast.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -558,7 +558,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.nested.client.exe"=.\Ice\nested\Ice.nested.client.dsp - Package Owner=<4>
+Project: "Ice.nested.client.exe"=".\Ice\nested\Ice.nested.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -573,7 +573,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.nested.server.exe"=.\Ice\nested\Ice.nested.server.dsp - Package Owner=<4>
+Project: "Ice.nested.server.exe"=".\Ice\nested\Ice.nested.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -585,7 +585,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.nrvo.client.exe"=.\Ice\nrvo\Ice.nrvo.client.dsp - Package Owner=<4>
+Project: "Ice.nrvo.client.exe"=".\Ice\nrvo\Ice.nrvo.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -600,7 +600,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.nrvo.server.exe"=.\Ice\nrvo\Ice.nrvo.server.dsp - Package Owner=<4>
+Project: "Ice.nrvo.server.exe"=".\Ice\nrvo\Ice.nrvo.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -612,7 +612,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.session.client.exe"=.\Ice\session\Ice.session.client.dsp - Package Owner=<4>
+Project: "Ice.session.client.exe"=".\Ice\session\Ice.session.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -627,7 +627,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.session.server.exe"=.\Ice\session\Ice.session.server.dsp - Package Owner=<4>
+Project: "Ice.session.server.exe"=".\Ice\session\Ice.session.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -639,7 +639,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.throughput.client.exe"=.\Ice\throughput\Ice.throughput.client.dsp - Package Owner=<4>
+Project: "Ice.throughput.client.exe"=".\Ice\throughput\Ice.throughput.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -654,7 +654,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.throughput.server.exe"=.\Ice\throughput\Ice.throughput.server.dsp - Package Owner=<4>
+Project: "Ice.throughput.server.exe"=".\Ice\throughput\Ice.throughput.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -666,7 +666,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.value.client.exe"=.\Ice\value\Ice.value.client.dsp - Package Owner=<4>
+Project: "Ice.value.client.exe"=".\Ice\value\Ice.value.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -681,7 +681,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.value.server.exe"=.\Ice\value\Ice.value.server.dsp - Package Owner=<4>
+Project: "Ice.value.server.exe"=".\Ice\value\Ice.value.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -693,7 +693,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceBox.hello.client.exe"=.\IceBox\hello\IceBox.hello.client.dsp - Package Owner=<4>
+Project: "IceBox.hello.client.exe"=".\IceBox\hello\IceBox.hello.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -708,7 +708,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceBox.hello.server.dll"=.\IceBox\hello\IceBox.hello.server.dsp - Package Owner=<4>
+Project: "IceBox.hello.server.dll"=".\IceBox\hello\IceBox.hello.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -720,7 +720,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.allocate.client.exe"=.\IceGrid\allocate\IceGrid.allocate.client.dsp - Package Owner=<4>
+Project: "IceGrid.allocate.client.exe"=".\IceGrid\allocate\IceGrid.allocate.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -735,7 +735,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.allocate.server.exe"=.\IceGrid\allocate\IceGrid.allocate.server.dsp - Package Owner=<4>
+Project: "IceGrid.allocate.server.exe"=".\IceGrid\allocate\IceGrid.allocate.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -747,7 +747,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.icebox.client.exe"=.\IceGrid\icebox\IceGrid.icebox.client.dsp - Package Owner=<4>
+Project: "IceGrid.icebox.client.exe"=".\IceGrid\icebox\IceGrid.icebox.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -762,7 +762,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.icebox.server.dll"=.\IceGrid\icebox\IceGrid.icebox.server.dsp - Package Owner=<4>
+Project: "IceGrid.icebox.server.dll"=".\IceGrid\icebox\IceGrid.icebox.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -774,7 +774,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.replication.client.exe"=.\IceGrid\replication\IceGrid.replication.client.dsp - Package Owner=<4>
+Project: "IceGrid.replication.client.exe"=".\IceGrid\replication\IceGrid.replication.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -789,7 +789,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.replication.server.exe"=.\IceGrid\replication\IceGrid.replication.server.dsp - Package Owner=<4>
+Project: "IceGrid.replication.server.exe"=".\IceGrid\replication\IceGrid.replication.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -801,7 +801,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.secure.client.exe"=.\IceGrid\secure\IceGrid.secure.client.dsp - Package Owner=<4>
+Project: "IceGrid.secure.client.exe"=".\IceGrid\secure\IceGrid.secure.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -816,7 +816,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.secure.server.exe"=.\IceGrid\secure\IceGrid.secure.server.dsp - Package Owner=<4>
+Project: "IceGrid.secure.server.exe"=".\IceGrid\secure\IceGrid.secure.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -828,7 +828,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.sessionActivation.client.exe"=.\IceGrid\sessionActivation\IceGrid.sessionActivation.client.dsp - Package Owner=<4>
+Project: "IceGrid.sessionActivation.client.exe"=".\IceGrid\sessionActivation\IceGrid.sessionActivation.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -843,7 +843,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.sessionActivation.server.exe"=.\IceGrid\sessionActivation\IceGrid.sessionActivation.server.dsp - Package Owner=<4>
+Project: "IceGrid.sessionActivation.server.exe"=".\IceGrid\sessionActivation\IceGrid.sessionActivation.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -855,7 +855,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.simple.client.exe"=.\IceGrid\simple\IceGrid.simple.client.dsp - Package Owner=<4>
+Project: "IceGrid.simple.client.exe"=".\IceGrid\simple\IceGrid.simple.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -870,7 +870,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.simple.server.exe"=.\IceGrid\simple\IceGrid.simple.server.dsp - Package Owner=<4>
+Project: "IceGrid.simple.server.exe"=".\IceGrid\simple\IceGrid.simple.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -882,7 +882,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatch2.MFC.client.exe"=.\IcePatch2\MFC\IcePatch2.MFC.client.dsp - Package Owner=<4>
+Project: "IcePatch2.MFC.client.exe"=".\IcePatch2\MFC\IcePatch2.MFC.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -894,7 +894,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.clock.publisher.exe"=.\IceStorm\clock\IceStorm.clock.publisher.dsp - Package Owner=<4>
+Project: "IceStorm.clock.publisher.exe"=".\IceStorm\clock\IceStorm.clock.publisher.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -909,7 +909,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.clock.subscriber.exe"=.\IceStorm\clock\IceStorm.clock.subscriber.dsp - Package Owner=<4>
+Project: "IceStorm.clock.subscriber.exe"=".\IceStorm\clock\IceStorm.clock.subscriber.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -921,7 +921,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.counter.client.exe"=.\IceStorm\counter\IceStorm.counter.client.dsp - Package Owner=<4>
+Project: "IceStorm.counter.client.exe"=".\IceStorm\counter\IceStorm.counter.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -936,7 +936,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.counter.server.exe"=.\IceStorm\counter\IceStorm.counter.server.dsp - Package Owner=<4>
+Project: "IceStorm.counter.server.exe"=".\IceStorm\counter\IceStorm.counter.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -948,7 +948,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.replicated.publisher.exe"=.\IceStorm\replicated\IceStorm.replicated.publisher.dsp - Package Owner=<4>
+Project: "IceStorm.replicated.publisher.exe"=".\IceStorm\replicated\IceStorm.replicated.publisher.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -963,7 +963,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.replicated.subscriber.exe"=.\IceStorm\replicated\IceStorm.replicated.subscriber.dsp - Package Owner=<4>
+Project: "IceStorm.replicated.subscriber.exe"=".\IceStorm\replicated\IceStorm.replicated.subscriber.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -975,7 +975,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.replicated2.publisher.exe"=.\IceStorm\replicated2\IceStorm.replicated2.publisher.dsp - Package Owner=<4>
+Project: "IceStorm.replicated2.publisher.exe"=".\IceStorm\replicated2\IceStorm.replicated2.publisher.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -990,7 +990,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.replicated2.subscriber.exe"=.\IceStorm\replicated2\IceStorm.replicated2.subscriber.dsp - Package Owner=<4>
+Project: "IceStorm.replicated2.subscriber.exe"=".\IceStorm\replicated2\IceStorm.replicated2.subscriber.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1002,7 +1002,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceUtil.workqueue.exe"=.\IceUtil\workqueue\IceUtil.workqueue.dsp - Package Owner=<4>
+Project: "IceUtil.workqueue.exe"=".\IceUtil\workqueue\IceUtil.workqueue.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1014,7 +1014,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "all"=.\demo.dsp - Package Owner=<4>
+Project: "all"=".\demo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1275,7 +1275,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.freeze_filesystem.client.exe"=.\book\freeze_filesystem\book.freeze_filesystem.client.dsp - Package Owner=<4>
+Project: "book.freeze_filesystem.client.exe"=".\book\freeze_filesystem\book.freeze_filesystem.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1290,7 +1290,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.freeze_filesystem.server.exe"=.\book\freeze_filesystem\book.freeze_filesystem.server.dsp - Package Owner=<4>
+Project: "book.freeze_filesystem.server.exe"=".\book\freeze_filesystem\book.freeze_filesystem.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1302,7 +1302,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.lifecycle.client.exe"=.\book\lifecycle\book.lifecycle.client.dsp - Package Owner=<4>
+Project: "book.lifecycle.client.exe"=".\book\lifecycle\book.lifecycle.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1317,7 +1317,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.lifecycle.server.exe"=.\book\lifecycle\book.lifecycle.server.dsp - Package Owner=<4>
+Project: "book.lifecycle.server.exe"=".\book\lifecycle\book.lifecycle.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1329,7 +1329,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.printer.client.exe"=.\book\printer\book.printer.client.dsp - Package Owner=<4>
+Project: "book.printer.client.exe"=".\book\printer\book.printer.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1344,7 +1344,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.printer.server.exe"=.\book\printer\book.printer.server.dsp - Package Owner=<4>
+Project: "book.printer.server.exe"=".\book\printer\book.printer.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1356,7 +1356,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.simple_filesystem.client.exe"=.\book\simple_filesystem\book.simple_filesystem.client.dsp - Package Owner=<4>
+Project: "book.simple_filesystem.client.exe"=".\book\simple_filesystem\book.simple_filesystem.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1371,7 +1371,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.simple_filesystem.server.exe"=.\book\simple_filesystem\book.simple_filesystem.server.dsp - Package Owner=<4>
+Project: "book.simple_filesystem.server.exe"=".\book\simple_filesystem\book.simple_filesystem.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
