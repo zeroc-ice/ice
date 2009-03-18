@@ -7,12 +7,17 @@
 #
 # **********************************************************************
 
-%if "%{dist}" != ".sles10"
-%define ruby 1
-%define mono 0
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+  %define ruby 1
+  %define mono 0
 %else
-%define ruby 0
-%define mono 1
+  %if "%{dist}" == ".sles10"
+    %define ruby 0
+    %define mono 1
+  %else
+    %define ruby 0
+    %define mono 0
+  %endif
 %endif
 
 %define buildall 1
@@ -536,17 +541,17 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_prefix}/lib/mono/gac/IceStorm
 %{_prefix}/lib/mono/gac/IceStorm/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/%{dotnetpolicyversion}.*/
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/0.*/
 %dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/%{dotnetpolicyversion}.*/
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/0.*/
 %dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/%{dotnetpolicyversion}.*/
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/0.*/
 %dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/%{dotnetpolicyversion}.*/
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/0.*/
 %dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/%{dotnetpolicyversion}.*/
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/0.*/
 %dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/%{dotnetpolicyversion}.*/
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/0.*/
 %endif
 
 #

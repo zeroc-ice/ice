@@ -77,23 +77,24 @@ def fixVersion(file, argsHash):
         print "fixVersion unable to execute, no version information available"
         return
 
-    version = argsHash['version']
-    libversion = argsHash['dllversion']
-    installdir = argsHash['installdir']
+    if not file.endswith('gz'):
+        version = argsHash['version']
+        libversion = argsHash['dllversion']
+        installdir = argsHash['installdir']
 
-    origfile = file + ".orig"
-    os.rename(file, origfile)
-    oldFile = open(origfile, "r")
-    newFile = open(file, "w")
-    line = oldFile.read();
-    line = line.replace("@ver@", version)
-    line = line.replace("@libver@", libversion)
-    line = line.replace("@installdir@", installdir)
+        origfile = file + ".orig"
+        os.rename(file, origfile)
+        oldFile = open(origfile, "r")
+        newFile = open(file, "w")
+        line = oldFile.read();
+        line = line.replace("@ver@", version)
+        line = line.replace("@libver@", libversion)
+        line = line.replace("@installdir@", installdir)
 
-    newFile.write(line)
-    newFile.close()
-    oldFile.close()
-    os.remove(origfile)
+        newFile.write(line)
+        newFile.close()
+        oldFile.close()
+        os.remove(origfile)
 
 def fixDemoPath(file, argsHash):
     print "Processing " + file
@@ -126,15 +127,19 @@ def signFile(file, argsHash):
     # We don't sign anything in the VC60 MSIs
     #
     if os.environ['target'] != 'vc60':
-        pfxFile = argsHash['PFX_FILE']
-        pfxPassword = argsHash['PFX_PASSWORD']
-        timeStampingURL = argsHash['timeStampingURL']
 
-        runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword 
-                + ' /d ' + os.path.basename(file)
-                + ' /du http://www.zeroc.com'
-                + ' /t ' + timeStampingURL 
-                + ' ' + file)
+        filebase = os.path.basename(file)
+
+        if not filebase.startswith("policy.") or filebase.endswith(".dll"):
+            pfxFile = argsHash['PFX_FILE']
+            pfxPassword = argsHash['PFX_PASSWORD']
+            timeStampingURL = argsHash['timeStampingURL']
+
+            runprog('signtool sign /f ' + pfxFile + ' /p ' + pfxPassword 
+                    + ' /d ' + filebase
+                    + ' /du http://www.zeroc.com'
+                    + ' /t ' + timeStampingURL 
+                    + ' ' + file)
 
 class FileSpecWorker:
     def __init__(self, id, source, dest, processors):

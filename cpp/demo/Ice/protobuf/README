@@ -53,21 +53,21 @@ and has the following syntax:
 If building on Windows, you should first see the `Windows Notes'
 section below.
 
-If building from a source distribution or the demo package,
-please review Makefile or Makefile.mak in this directory and adjust
-the value of PROTOBUF_HOME to reflect the installation directory of
-Protocol Buffers on your system. 
+If building from a source distribution or the demo package, please
+review Makefile or Makefile.mak in this directory and adjust the value
+of PROTOBUF_HOME to reflect the installation directory of Protocol
+Buffers on your system.
 
 If building with the Visual Studio IDE, open the Ice.protobuf.sln
 solution and choose
 
-    "Tools->Options->Projects and Solutions->VC++ Directories"
+  Tools->Options->Projects and Solutions->VC++ Directories
 
-Add the Protocol Buffers bin directory to "Executable Files",
-the include directory to "Include files", and the lib directory to
-"Library files". Then select the target configuraton (Debug or Release),
-right-click on the solution in the Solution Explorer window and
-select "Build Solution".
+Add the Protocol Buffers bin directory to "Executable Files", the
+include directory to "Include files", and the lib directory to
+"Library files". Then select the target configuration (Debug or
+Release), right-click on the solution in the Solution Explorer window
+and select "Build Solution".
 
 To run the demo, first start the server:
 
@@ -76,6 +76,7 @@ To run the demo, first start the server:
 In a separate window, start the client:
 
   $ client
+
 
 Windows Notes
 -------------
@@ -88,15 +89,15 @@ installed Protocol Buffers using the following directory structure:
 %PROTOBUF_HOME%\bin
 
     Contains protoc.exe
- 
+
 %PROTOBUF_HOME%\lib
 
     Contains libprotobuf.lib and libprotobufd.lib, the release and
-    debug static libraries, respectively. (The debug library was renamed
-    to libprotobufd.lib.)
+    debug static libraries, respectively. (The debug library was
+    renamed to libprotobufd.lib.)
 
 %PROTOBUF_HOME%\include
 
     Contains the output of the extract_includes.bat batch file that
-    copies the include files contains in the Protocol Buffers
+    copies the include files contained in the Protocol Buffers
     distribution.

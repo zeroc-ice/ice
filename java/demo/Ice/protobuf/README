@@ -30,7 +30,7 @@ This demo uses an ant build task, located in the "ant" subdirectory,
 for compiling .proto files.
 
 Prior to building the demo, you should add protoc to your PATH and
-protobuf-java-2.0.2 to your CLASSPATH.
+protobuf-java-2.0.3.jar to your CLASSPATH.
 
 To run the demo, first start the server:
 

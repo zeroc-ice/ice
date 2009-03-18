@@ -249,7 +249,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
         int count = 20;
 #endif
-        int adapterCount = adapters.size();
+        int adapterCount = static_cast<int>(adapters.size());
         while(--count > 0)
         {
 #ifdef _WIN32
