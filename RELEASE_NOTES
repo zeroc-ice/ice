@@ -446,8 +446,10 @@ mapping are detailed below.
 
 C++, Ruby, Python, PHP:
 
-  export LD_LIBRARY_PATH=/opt/Ice-3.3/lib (32-bit Linux, Solaris)
-  export LD_LIBRARY_PATH_64=/opt/Ice-3.3/lib (64-bit Linux, Solaris)
+  export LD_LIBRARY_PATH=/opt/Ice-3.3/lib (32-bit Linux & 32-bit Solaris)
+  export LD_LIBRARY_PATH=/opt/Ice-3.3/lib64 (64-bit Linux)
+  export LD_LIBRARY_PATH_64=/opt/Ice-3.3/lib/amd64 (64-bit Solaris Intel)
+  export LD_LIBRARY_PATH_64=/opt/Ice-3.3/lib/sparcv9 (64-bit Solaris SPARC)
   export DYLD_LIBRARY_PATH=/opt/Ice-3.3/lib (Mac OS X)
 
 Python:
