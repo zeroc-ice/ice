@@ -132,7 +132,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.collocated.exe
+    Project_Dep_Name Freeze.phonebook.server.exe
     End Project Dependency
 }}}
 
@@ -159,7 +159,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.library.collocated.exe
+    Project_Dep_Name Freeze.phonebook.collocated.exe
     End Project Dependency
 }}}
 
