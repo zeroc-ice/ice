@@ -1089,8 +1089,8 @@ This bug is the most likely to affect an application:
   http://qc.embarcadero.com/wc/qcmain.aspx?d=71611
 
 If you have a call within a try/catch that returns an object, the
-destructor for that object is called even though when the object is
-not constructed.
+destructor for that object is called even though the object is not
+constructed.
 
 Here is a simple example that would be common in an Ice application:
 
