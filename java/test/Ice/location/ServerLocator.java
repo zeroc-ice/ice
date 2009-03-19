@@ -22,6 +22,15 @@ public class ServerLocator extends Test._TestLocatorDisp
         throws Ice.AdapterNotFoundException
     {
         ++_requestCount;
+        // We add a small delay to make sure locator request queuing gets tested when
+        // running the test on a fast machine
+        try
+        {
+            Thread.sleep(1);
+        }
+        catch(java.lang.InterruptedException ex)
+        {
+        }
         response.ice_response(_registry.getAdapter(adapter));
     }
 
@@ -30,6 +39,15 @@ public class ServerLocator extends Test._TestLocatorDisp
         throws Ice.ObjectNotFoundException
     {
         ++_requestCount;
+        // We add a small delay to make sure locator request queuing gets tested when
+        // running the test on a fast machine
+        try
+        {
+            Thread.sleep(1);
+        }
+        catch(java.lang.InterruptedException ex)
+        {
+        }
         response.ice_response(_registry.getObject(id));
     }
     

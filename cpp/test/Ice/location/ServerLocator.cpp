@@ -106,6 +106,9 @@ ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& re
                                     const Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);
+    // We add a small delay to make sure locator request queuing gets tested when
+    // running the test on a fast machine
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
     response->ice_response(_registry->getObject(id));
 }
 
@@ -114,6 +117,9 @@ ServerLocator::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& 
                                      const Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);
+    // We add a small delay to make sure locator request queuing gets tested when
+    // running the test on a fast machine
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
     response->ice_response(_registry->getAdapter(id));
 }
 
