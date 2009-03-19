@@ -30,7 +30,7 @@ sys.stdout.flush()
 Util.cleanDbDir("db")
 print "ok"
 
-print "testing IceUtl::Cache evictor"
+print "testing IceUtil::Cache evictor"
 server = Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect(".* ready", timeout=120)
 
