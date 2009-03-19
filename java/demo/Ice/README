@@ -52,10 +52,6 @@ Demos in this directory:
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
 
-- protobuf
-
-  A demo that shows how to integrate Google Protocol Buffers with Ice.
-
 - serialize
 
   This demo illustrates how to transfer serializable Java classes

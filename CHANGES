@@ -33,10 +33,6 @@ noted.
 - Fixed a bug where ice_getCachedConnection could throw if called
   shortly after connection establishment failed.
 
-- Added support for Google protocol buffers to Ice for C++, Java,
-  and Python. This supercedes the ZeroC Labs release of the protocol
-  buffer support.
-
 - Fixed an IceGrid bug where an application update could trigger the
   deactivation of all session-activated servers even if these servers
   were not updated.

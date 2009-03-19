@@ -54,27 +54,6 @@ Features added with 3.3.1
 =========================
 
 
-Protobuf
---------
-
-This release integrates the ZeroC Labs release for Google protocol
-buffers. This feature allows you to serialize and deserialize data to
-and from protocol buffers and transmit these via Ice operation
-invocations with Ice for C++, Java, and Python. To use protocol
-buffers in your application, you must annotate a byte sequence with
-metadata that specifies the desired protocol buffer message type, as
-shown below for C++:
-
-// Slice
-["cpp:protobuf:tutorial::Person"] sequence<byte> Person;
-
-With this definition, the Slice compiler generates additional code to
-transparently encode and decode a protocol buffer message.
-
-You can read more about this feature in the Ice manual. We have also
-included a new sample program for each of the supported languages.
-
-
 Java and .NET serialization
 ---------------------------
 
@@ -139,10 +118,6 @@ New sample programs
 -------------------
 
 This release adds the following sample programs:
-
-  - protobuf (C++, Java, Python)
-
-    Demonstrates integration with Google protocol buffers.
 
   - serialize (.NET, Java)
 
