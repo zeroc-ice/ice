@@ -22,7 +22,7 @@ if home is None:
     # versions return variations like "cygwin_nt-4.01".
     if sys.platform == "win32" or sys.platform[:6] == "cygwin":
 	home = os.path.dirname(sys.argv[0])
-	home = os.path.join(home, "config", "ca")
+	home = os.path.join(home, "..", "config")
     else:
 	home = os.getenv('HOME')
 	if home is None:
@@ -31,6 +31,11 @@ if home is None:
 	home = os.path.join(home, ".iceca")
 home = os.path.normpath(home)
 os.putenv("ICE_CA_HOME", home)
+
+opensslCmd = "openssl"
+if sys.platform == "win32" or sys.platform[:6] == "cygwin":
+    if os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), "openssl.exe")):
+        opensslCmd = os.path.join(os.path.dirname(sys.argv[0]), "openssl.exe")
 
 caroot = os.path.join(home, "ca")
 cadb = os.path.join(caroot, "db")
@@ -164,11 +169,11 @@ if sys.argv[script] == "import":
 	os.close(temp)
 
 	if len(keyPass) > 0:
-	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
+	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
 	    	alias + " -passin file:" + keypassfile1 + " -passout file:" + keypassfile2 + " -certfile " + \
 		os.path.join(home, "ca_cert.pem")
 	else:
-	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
+	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
 	    	alias + " -passout file:" + keypassfile1 + " -certfile " + os.path.join(home, "ca_cert.pem")
 
 	print "converting to pkcs12 format... ",
@@ -240,10 +245,11 @@ if sys.argv[script] == "import":
 	    os.write(temp, keyPass)
 	    os.close(temp)
 
-	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
+	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
 		" -passin file:" + keypassfile1 + " -passout file:" + keypassfile2
 	else:
-	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -passout pass:"
+	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
+                " -passout pass:"
 
 	print "converting to pkcs12 format...",
         sys.stdout.flush()
@@ -282,12 +288,12 @@ if sys.argv[script] == "init":
 	    nopassphrase = True
 	if o == "--overwrite":
 	    # If the CA exists then destroy it.
-	    if os.path.exists(os.path.join(home, caroot)):
+	    if os.path.exists(caroot):
 		print "Warning: running this command will destroy your existing CA setup!"
 		choice = raw_input("Do you want to continue? (y/n)").strip()
 		if choice != 'y' and choice != 'Y':
 		    sys.exit(1)
-		shutil.rmtree(os.path.join(home, caroot))
+		shutil.rmtree(caroot)
 
     #
     # Check that the caroot isn't already populated.
@@ -512,7 +518,7 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
 
     print "ok"
 
-    cmd = "openssl req -config " + cacnfname + " -x509 -days 1825 -newkey rsa:2048 -out " + \
+    cmd = opensslCmd + " req -config " + cacnfname + " -x509 -days 1825 -newkey rsa:2048 -out " + \
 	    os.path.join(cadb, "ca_cert.pem") + " -outform PEM"
 
     if nopassphrase:
@@ -598,7 +604,7 @@ if sys.argv[script] == "request":
 	os.write(temp, "emailAddress=" + email + "\n")
     os.close(temp)
 
-    cmd = "openssl req -config " + tempname + ' -new -keyout "' + keyfile + '" -out "' + reqfile + '"'
+    cmd = opensslCmd + " req -config " + tempname + ' -new -keyout "' + keyfile + '" -out "' + reqfile + '"'
     if nopassphrase:
 	cmd += " -nodes"
 
@@ -615,7 +621,7 @@ if sys.argv[script] == "request":
     print
     print "The certificate request must be signed by the CA. Send the certificate"
     print "request file to the CA at the following email address:"
-    cmd = "openssl x509 -in " + os.path.join(home, "ca_cert.pem") + " -email -noout"
+    cmd = opensslCmd + " x509 -in " + os.path.join(home, "ca_cert.pem") + " -email -noout"
     if verbose: print cmd
     os.system(cmd)
 
@@ -670,7 +676,7 @@ if sys.argv[script] == "sign":
 	os.write(temp, "\n[certificate_extensions]\nsubjectAltName=" + subjectAltName + "\n")
     os.close(temp)
 
-    cmd = "openssl ca -config " + tempname + " -in " + infile + " -out " + outfile
+    cmd = opensslCmd + " ca -config " + tempname + " -in " + infile + " -out " + outfile
     if verbose: print cmd
     status = os.system(cmd)
     if not keep: os.remove(tempname)
