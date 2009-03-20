@@ -224,12 +224,14 @@ main(int argc, char* argv[])
                 Slice::setErrorStream(os);
             }
 
+            FileTracker::instance()->setSource(*i);
+
             Preprocessor icecpp(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp.preprocess(false);
 
             if(cppHandle == 0)
             {
-                FileTracker::instance()->setSource(*i, os.str(), true);
+                FileTracker::instance()->setOutput(os.str(), true);
                 status = EXIT_FAILURE;
                 break;
             }
@@ -263,7 +265,7 @@ main(int argc, char* argv[])
                 if(parseStatus == EXIT_FAILURE)
                 {
                     p->destroy();
-                    FileTracker::instance()->setSource(*i, os.str(), true);
+                    FileTracker::instance()->setOutput(os.str(), true);
                     status = EXIT_FAILURE;
                 }
                 else
@@ -292,7 +294,7 @@ main(int argc, char* argv[])
                             ChecksumMap m = createChecksums(p);
                             copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                         }
-                        FileTracker::instance()->setSource(*i, os.str(), false);
+                        FileTracker::instance()->setOutput(os.str(), false);
                     }
                     catch(const Slice::FileException& ex)
                     {
@@ -302,7 +304,7 @@ main(int argc, char* argv[])
                         FileTracker::instance()->cleanup();
                         p->destroy();
                         os << argv[0] << ": error: " << ex.reason() << endl;
-                        FileTracker::instance()->setSource(*i, os.str(), true);
+                        FileTracker::instance()->setOutput(os.str(), true);
                         status = EXIT_FAILURE;
                         break;
                     }

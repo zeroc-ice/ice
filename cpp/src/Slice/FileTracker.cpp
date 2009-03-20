@@ -90,19 +90,22 @@ Slice::FileTracker::instance()
 }
 
 void
-Slice::FileTracker::setSource(const string& source, const string& output, bool error)
+Slice::FileTracker::setSource(const string& source)
 {
     _source = source;
-    _errors.insert(make_pair(source, output));
+    pair<map<string, list<string> >::iterator, bool> p = _generated.insert(make_pair(source, list<string>()));
+    assert(p.second);
+    _curr = p.first;
+}
+
+void
+Slice::FileTracker::setOutput(const string& output, bool error)
+{
+    assert(!_source.empty());
+    _errors.insert(make_pair(_source, output));
     if(error)
     {
         _curr = _generated.end();
-    }
-    else
-    {
-        pair<map<string, list<string> >::iterator, bool> p = _generated.insert(make_pair(source, list<string>()));
-        assert(p.second);
-        _curr = p.first;
     }
 }
 

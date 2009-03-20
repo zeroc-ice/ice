@@ -47,7 +47,8 @@ public:
 
     static FileTrackerPtr instance();
 
-    void setSource(const std::string&, const std::string&, bool);
+    void setSource(const std::string&);
+    void setOutput(const std::string&, bool);
     void addFile(const std::string&);
     void addDirectory(const std::string&);
 
