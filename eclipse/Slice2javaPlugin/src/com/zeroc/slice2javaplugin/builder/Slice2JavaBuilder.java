@@ -279,10 +279,16 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             String ext = file.getFileExtension();
             if(ext != null && ext.equals("ice"))
             {
-                IFolder folder = (IFolder)file.getParent();
-                if(_sourceLocations.contains(folder))
+                //
+                // The parent may not be an IFolder (e.g., it could be a Project).
+                //
+                if(file.getParent() instanceof IFolder)
                 {
-                    return true;
+                    IFolder folder = (IFolder)file.getParent();
+                    if(_sourceLocations.contains(folder))
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -945,32 +951,32 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             // Any remaining are complete orphans and should
             // be removed.
             orphanCandidateSet.removeAll(generatedJavaFiles);
-            
-            if(state.out != null)
+        }
+
+        if(state.out != null)
+        {
+            if(orphanCandidateSet.isEmpty())
             {
-                if(orphanCandidateSet.isEmpty())
-                {
-                    state.out.println("No orphans from this build.");
-                }
-                else
-                {
-                    state.out.println("Orphans from this build:");
-                    for(Iterator<IFile> p = orphanCandidateSet.iterator(); p.hasNext();)
-                    {
-                        state.out.println("    " + p.next().getProjectRelativePath().toString());
-                    }
-                }
+                state.out.println("No orphans from this build.");
             }
-            
-            //
-            // Remove orphans.
-            //
-            for(Iterator<IFile> p = orphanCandidateSet.iterator(); p.hasNext();)
+            else
             {
-                p.next().delete(true, false, monitor);
+                state.out.println("Orphans from this build:");
+                for(Iterator<IFile> p = orphanCandidateSet.iterator(); p.hasNext();)
+                {
+                    state.out.println("    " + p.next().getProjectRelativePath().toString());
+                }
             }
         }
-        
+
+        //
+        // Remove orphans.
+        //
+        for(Iterator<IFile> p = orphanCandidateSet.iterator(); p.hasNext();)
+        {
+            p.next().delete(true, false, monitor);
+        }
+
         // The dependencies of any files without build errors should be updated.
         if(!depends.isEmpty())
         {
