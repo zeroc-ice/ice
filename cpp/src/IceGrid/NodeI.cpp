@@ -555,6 +555,8 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
         }
         catch(const Ice::ObjectNotExistException&)
         {
+            amdCB->ice_response();
+            return;
         }
     }
     if(command)
